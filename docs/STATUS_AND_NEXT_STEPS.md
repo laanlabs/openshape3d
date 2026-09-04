@@ -52,12 +52,22 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   face ROTATE still deforms per frame, but its cost is subdivision (n² per
   deformed triangle under a 40k budget), a different fix.
   `FaceMovePerfTests` guards the frame budget and pins the render-buffer
-  classifier against the Euclid one. Noticed in passing, NOT yet fixed: on a
-  tangent-filleted body the mesh-side face picker merges every kernel face
-  into one selectable "curved face" (an r8 cylinder filleted on both rims
-  reports 860.60 mm², the whole surface, where OCCT has 5 faces including two
-  153.94 mm² flat caps), so the flat cap cannot be picked for push/pull or
-  face transform at all.
+  classifier against the Euclid one.
+
+- **A face-picking "bug" that was not one (2026-09-04).** Reported here first
+  as a real defect: on a tangent-filleted body the picker looked like it
+  merged every kernel face into one 860.60 mm² "curved face", leaving the
+  flat cap unselectable. It does not. Isometric taps aimed at the cap had
+  been landing on the curved WALL, which correctly reports its whole
+  tangent-connected region; a top-view tap on the same live body selects the
+  cap at 155.63 mm² (perimeter 44.23 ≈ 2π·7). The offline picture agrees: at
+  a cap seed the coplanar patch covers its entire kernel face and
+  `smoothRegion` reports NOT curved, so the picker's curved-region branch
+  never fires. A speculative fix (prefer a planar patch that covers its whole
+  kernel face) was written, measured against reality, and REVERTED —
+  it guarded a case that does not occur and cost a full tessellation per tap.
+  `FacePickUnderBlendTests` keeps the characterisation so the question does
+  not have to be re-asked.
 
 - **Build-warning sweep: 125 -> 10 (2026-09-04).** A clean Catalyst build
   (the config the drag crash was reported from) carried 125 warnings. Four
