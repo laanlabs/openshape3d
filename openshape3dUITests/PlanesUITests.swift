@@ -42,7 +42,7 @@ final class PlanesUITests: XCTestCase {
         let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.42, dy: 0.42))
         let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.58))
         start.press(forDuration: 0.15, thenDragTo: end)
-        XCTAssertTrue(app.buttons["Undo"].isEnabled,
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled,
                       "Drawing on the picked plane should commit an undoable entity")
 
         app.buttons["Exit Sketching"].tap()
@@ -101,7 +101,7 @@ final class PlanesUITests: XCTestCase {
         let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.42, dy: 0.42))
         let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.60, dy: 0.58))
         start.press(forDuration: 0.15, thenDragTo: end)
-        XCTAssertTrue(app.buttons["Undo"].isEnabled)
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled)
 
         app.buttons["Exit Sketching"].tap()
 
@@ -130,7 +130,7 @@ final class PlanesUITests: XCTestCase {
         waitForExpectations(timeout: 5)
 
         // Undo count sane: seed add, sketch entity, extrude add, delete.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         for _ in 0..<4 {
             XCTAssertTrue(undo.isEnabled)
             undo.tap()

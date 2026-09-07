@@ -29,7 +29,7 @@ final class ConstraintApplyUITests: XCTestCase {
 
     /// Undo repeatedly until the stack empties, returning the step count.
     private func drainUndo(_ app: XCUIApplication, cap: Int = 10) -> Int {
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         var steps = 0
         while undo.isEnabled && steps < cap {
             undo.tap()
@@ -67,7 +67,7 @@ final class ConstraintApplyUITests: XCTestCase {
         p(0.30, 0.45).press(forDuration: 0.15, thenDragTo: p(0.55, 0.45))
         p(0.57, 0.47).press(forDuration: 0.15, thenDragTo: p(0.66, 0.70))
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing two lines should push undoable steps")
 
         // Select both lines by tapping their middles.
@@ -109,7 +109,7 @@ final class ConstraintApplyUITests: XCTestCase {
         // A single near-horizontal line (slight downward slope).
         p(0.32, 0.46).press(forDuration: 0.15, thenDragTo: p(0.64, 0.52))
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a line should push an undoable step")
 
         // Select the line, then level it.

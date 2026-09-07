@@ -55,7 +55,7 @@ final class LineChainUITests: XCTestCase {
         // proves BOTH that taps extend the polyline AND that it closed. (Five
         // disconnected single lines, or taps that failed to chain, would leave a
         // different count.)
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Chaining the polyline should push undoable steps")
         for _ in 0..<4 { undo.tap() }
         XCTAssertFalse(undo.isEnabled,

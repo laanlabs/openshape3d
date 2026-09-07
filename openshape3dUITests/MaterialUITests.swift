@@ -66,7 +66,7 @@ final class MaterialUITests: XCTestCase {
         XCTAssertFalse(metallicValue.waitForExistence(timeout: 2))
 
         // Undo restores the default material (selection is untouched).
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         metallicValue = openMaterialSheet(app)

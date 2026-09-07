@@ -43,7 +43,7 @@ final class SketchToolsUITests: XCTestCase {
         let polygonVertex = window.coordinate(withNormalizedOffset: CGVector(dx: 0.54, dy: 0.42))
         polygonCenter.press(forDuration: 0.15, thenDragTo: polygonVertex)
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a polygon should push an undoable command")
 
         // Ellipse: switch tools, drag center -> corner (away from the polygon).
@@ -56,7 +56,7 @@ final class SketchToolsUITests: XCTestCase {
         // still has the polygon.
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "The polygon command should remain after undoing the ellipse")
-        app.buttons["Redo"].tap()
+        app.buttons["RedoButton"].tap()
 
         app.buttons["Exit Sketching"].tap()
         XCTAssertFalse(app.staticTexts["Sketching on ground plane"].exists,

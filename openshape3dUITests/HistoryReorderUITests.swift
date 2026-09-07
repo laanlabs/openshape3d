@@ -105,10 +105,10 @@ final class HistoryReorderUITests: XCTestCase {
             .matching(NSPredicate(format: "identifier BEGINSWITH 'HistoryError-'"))
         NSLog("OS3D_BUG reorder errorBadges=\(errBadges.count) rows=\(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'HistoryRow-'")).count)")
         XCTAssertEqual(errBadges.count, 0, "reordering two independent extrudes must not break refs")
-        XCTAssertTrue(app.buttons["Undo"].isEnabled)
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled)
 
         // Undo restores; both extrudes survive the round-trip.
-        app.buttons["Undo"].tap(); sleep(1)
+        app.buttons["UndoButton"].tap(); sleep(1)
         XCTAssertEqual(
             app.descendants(matching: .any)
                 .matching(NSPredicate(format: "identifier BEGINSWITH 'HistoryRow-'")).count,

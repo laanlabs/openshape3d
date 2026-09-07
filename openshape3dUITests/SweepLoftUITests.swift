@@ -80,7 +80,7 @@ final class SweepLoftUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Tap sketch lines to build the sweep path"].exists)
 
         // Four undoable commands: circle, line 1, line 2, sweep body.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         for _ in 0..<4 {
             XCTAssertTrue(undo.isEnabled)
             undo.tap()
@@ -143,7 +143,7 @@ final class SweepLoftUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Extrude"].exists)
 
         // Only the two sketch entities are undoable.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         for _ in 0..<2 {
             XCTAssertTrue(undo.isEnabled)
             undo.tap()

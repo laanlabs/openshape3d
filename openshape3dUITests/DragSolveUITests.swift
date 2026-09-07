@@ -63,7 +63,7 @@ final class DragSolveUITests: XCTestCase {
         drag(p(tr.dx, tr.dy), p(tl.dx, tl.dy)) // top
         drag(p(tl.dx, tl.dy), p(bl.dx, bl.dy)) // left (closes the loop)
 
-        let undo = app.buttons["Undo"].firstMatch
+        let undo = app.buttons["UndoButton"].firstMatch
         XCTAssertTrue(undo.isEnabled, "Drawing the rectangle should push undoable steps")
 
         // Select the top edge (tap its middle) and level it with Horizontal.

@@ -39,7 +39,7 @@ final class TransformUITests: XCTestCase {
         start.press(forDuration: 0.1, thenDragTo: end)
 
         // Two commands undoable: seed Add and the ring rotation (Move).
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Rotation should undo first, leaving Add undoable")

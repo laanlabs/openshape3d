@@ -46,7 +46,7 @@ final class SplitPatternUITests: XCTestCase {
                       "Third pattern instance should exist")
 
         // One CompositeCommand: a single undo removes both copies …
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         undo.tap()
         XCTAssertFalse(app.textFields["ItemName-Box 2"].waitForExistence(timeout: 2),
                        "Undoing the pattern should remove every copy at once")
@@ -97,7 +97,7 @@ final class SplitPatternUITests: XCTestCase {
                       "Split should leave two bodies")
 
         // One undo restores the single box (composite Replace + Add).
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertFalse(app.textFields["ItemName-Box B"].waitForExistence(timeout: 2),
                        "Undo should remove the second half")
         XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 2),

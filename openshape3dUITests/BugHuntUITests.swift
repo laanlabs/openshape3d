@@ -78,7 +78,7 @@ final class BugHuntUITests: XCTestCase {
         app.buttons["Isometric"].tap()
         sleep(2)
         shot("04-extruded-body-iso")
-        XCTAssertTrue(app.buttons["Undo"].isEnabled, "Extrude should have committed")
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled, "Extrude should have committed")
 
         // 5) Select the body and read its Volume/Bounds.
         p(0.85, 0.85).tap() // deselect

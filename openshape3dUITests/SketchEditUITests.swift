@@ -47,7 +47,7 @@ final class SketchEditUITests: XCTestCase {
         point(0.35, 0.50).press(forDuration: 0.15, thenDragTo: point(0.65, 0.50))
         point(0.50, 0.38).press(forDuration: 0.15, thenDragTo: point(0.50, 0.62))
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing lines should push undoable commands")
 
         // Tap B to select it (also ends line chaining, so the next drag on

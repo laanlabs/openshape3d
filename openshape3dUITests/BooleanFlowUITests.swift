@@ -20,7 +20,8 @@ final class BooleanFlowUITests: XCTestCase {
     /// the numeric bar (works in the head-on sketch view).
     private func makeBody(
         in app: XCUIApplication,
-        from start: CGVector, to end: CGVector, tapInside: CGVector
+        from start: CGVector, to end: CGVector, tapInside: CGVector,
+        newBody: Bool = false
     ) {
         let window = app.windows.firstMatch
         startSketchTool(app, "Rect")
@@ -37,6 +38,14 @@ final class BooleanFlowUITests: XCTestCase {
 
         window.coordinate(withNormalizedOffset: tapInside).tap()
         XCTAssertTrue(app.staticTexts["Extrude"].waitForExistence(timeout: 5))
+        if newBody {
+            // The profile overlaps the body already there, so the extrude
+            // offers a boolean: keep them separate, or there is nothing to
+            // subtract later.
+            let segment = app.buttons["New Body"].firstMatch
+            XCTAssertTrue(segment.waitForExistence(timeout: 3))
+            segment.tap()
+        }
         typeExtrudeHeight(app)
         // The commit dismisses the keyboard + extrude bar, and the tool
         // palette re-centers. A palette tap issued mid-animation uses a stale
@@ -55,6 +64,11 @@ final class BooleanFlowUITests: XCTestCase {
 
         // Two separate bodies. The camera stays head-on between sketches, so
         // screen coordinates map stably onto the ground plane.
+        // The two must OVERLAP: a subtract whose tool never reaches the
+        // target is refused with a notice now (bug report a1ee4e4a) instead
+        // of silently handing back an unchanged body, so side-by-side boxes
+        // would never exercise the CSG at all. The second is dragged
+        // right-to-left so the stroke STARTS clear of the first body.
         makeBody(
             in: app,
             from: CGVector(dx: 0.30, dy: 0.42), to: CGVector(dx: 0.45, dy: 0.58),
@@ -62,8 +76,9 @@ final class BooleanFlowUITests: XCTestCase {
         )
         makeBody(
             in: app,
-            from: CGVector(dx: 0.58, dy: 0.42), to: CGVector(dx: 0.73, dy: 0.58),
-            tapInside: CGVector(dx: 0.65, dy: 0.5)
+            from: CGVector(dx: 0.58, dy: 0.58), to: CGVector(dx: 0.43, dy: 0.42),
+            tapInside: CGVector(dx: 0.52, dy: 0.5),
+            newBody: true
         )
 
         let window = app.windows.firstMatch
@@ -85,7 +100,7 @@ final class BooleanFlowUITests: XCTestCase {
         subtractButton.tap()
         XCTAssertTrue(app.staticTexts["Tap the second body to subtract"].waitForExistence(timeout: 3))
 
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.65, dy: 0.5)).tap()
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.52, dy: 0.5)).tap()
 
         // Computation completes and the result stays selected.
         let selected = NSPredicate(format: "isEnabled == true")

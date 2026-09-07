@@ -58,7 +58,7 @@ final class DeleteFaceUITests: XCTestCase {
                       "deleting the hole wall must heal the box to its FULL volume — "
                       + "a capped hole or a wrong face would land elsewhere")
 
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.staticTexts[drilledVolume].waitForExistence(timeout: 10),
                       "one undo restores the hole")
     }

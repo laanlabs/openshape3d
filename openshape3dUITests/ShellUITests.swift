@@ -92,7 +92,7 @@ final class ShellUITests: XCTestCase {
             .matching(NSPredicate(format: "identifier BEGINSWITH 'HistoryError-'"))
         NSLog("OS3D_BUG shell errorBadges=\(errors.count)")
         XCTAssertEqual(errors.count, 0, "the shell must evaluate cleanly")
-        XCTAssertTrue(app.buttons["Undo"].isEnabled)
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled)
 
         // G8 reference rows: the Shell row's context menu offers Edit Faces,
         // which re-enters the face pick SEEDED with the open face (Apply is

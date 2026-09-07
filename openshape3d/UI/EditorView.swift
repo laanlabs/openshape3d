@@ -1424,6 +1424,10 @@ struct EditorView: View {
                         Label("Undo", systemImage: "arrow.uturn.backward")
                     }
                     .disabled(!viewModel.session.undoStack.canUndo)
+                    // Distinct from the software keyboard's own "Undo": with
+                    // only a label to match on, `app.buttons["Undo"]` found two
+                    // elements and every single-element query threw.
+                    .accessibilityIdentifier("UndoButton")
 
                     Button {
                         viewModel.redo()

@@ -94,7 +94,7 @@ final class ItemsFolderUITests: XCTestCase {
         remove.tap()
         XCTAssertFalse(app.otherElements["ItemFolderRow-Parts"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.textFields["ItemName-Extrude"].exists, "The body survives removing its folder")
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.otherElements["ItemFolderRow-Parts"].waitForExistence(timeout: 3),
                       "Undo should restore the folder")
     }

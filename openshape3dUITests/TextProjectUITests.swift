@@ -46,7 +46,7 @@ final class TextProjectUITests: XCTestCase {
         contentField.typeText("OK")
         app.buttons["TextAdd"].tap()
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.waitForExistence(timeout: 3))
         XCTAssertTrue(undo.isEnabled,
                       "Adding text should commit one undoable command")
@@ -106,7 +106,7 @@ final class TextProjectUITests: XCTestCase {
         // ground sketch as one undoable command.
         window.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.45)).tap()
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled,
                       "Projecting should commit an undoable command")
 

@@ -35,7 +35,7 @@ final class GizmoFlowUITests: XCTestCase {
         arrowStart.press(forDuration: 0.1, thenDragTo: arrowEnd)
 
         // Two commands should now be undoable: seed Add and Move.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Move should undo first, leaving Add undoable")

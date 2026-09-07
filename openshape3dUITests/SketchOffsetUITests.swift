@@ -35,7 +35,7 @@ final class SketchOffsetUITests: XCTestCase {
         window.coordinate(withNormalizedOffset: CGVector(dx: 0.34, dy: 0.38))
             .press(forDuration: 0.15,
                    thenDragTo: window.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.60)))
-        XCTAssertTrue(app.buttons["Undo"].isEnabled, "The rectangle should be undoable")
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled, "The rectangle should be undoable")
         return window
     }
 
@@ -85,8 +85,8 @@ final class SketchOffsetUITests: XCTestCase {
         // Cancel drops the tool, so the bar goes away and nothing was added:
         // one undo still leaves an empty redo-able rectangle behind it.
         XCTAssertFalse(app.staticTexts["1 selected"].exists)
-        app.buttons["Undo"].tap()
-        XCTAssertFalse(app.buttons["Undo"].isEnabled,
+        app.buttons["UndoButton"].tap()
+        XCTAssertFalse(app.buttons["UndoButton"].isEnabled,
                        "Only the rectangle should have been on the undo stack")
     }
 }

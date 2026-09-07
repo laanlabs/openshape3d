@@ -71,7 +71,7 @@ final class ReplaceFaceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts[boxedVolume].waitForExistence(timeout: 10),
                       "the step should fill to a solid 20 × 10 × 12 box")
 
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.staticTexts[steppedVolume].waitForExistence(timeout: 10),
                       "one undo restores the step")
     }

@@ -47,7 +47,7 @@ final class FaceFlowUITests: XCTestCase {
         app.buttons["Extrude"].firstMatch.tap()
 
         // Seed add + face extrude = two undoable commands.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Face extrude should undo first, leaving the seed")
@@ -89,7 +89,7 @@ final class FaceFlowUITests: XCTestCase {
         XCTAssertTrue(deleteButton.isEnabled, "The truncated box should be the single selection")
 
         // Two commands: seed add + push/pull replace.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Push/pull undoes first, leaving the seeded box")
@@ -141,7 +141,7 @@ final class FaceFlowUITests: XCTestCase {
             "Committing the push should end the face selection")
 
         // Seed add + inward push = two undoable commands (the push committed).
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Typing a negative should commit an inward push")

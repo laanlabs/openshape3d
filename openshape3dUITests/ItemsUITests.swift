@@ -87,7 +87,7 @@ final class ItemsUITests: XCTestCase {
                        "Deleting should remove the body row")
 
         // Undo restores the body (name included).
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.textFields["ItemName-MyPart"].waitForExistence(timeout: 3),
                       "Undo should restore the deleted body")
     }

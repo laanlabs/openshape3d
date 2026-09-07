@@ -63,7 +63,7 @@ final class ImageUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["No images yet"].exists)
 
         // Undo restores the image row (RemoveImageCommand round-trip).
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.textFields["ItemName-Image 1"].waitForExistence(timeout: 3),
                       "Undo should restore the deleted image")
     }

@@ -83,7 +83,7 @@ final class BlendUITests: XCTestCase {
             .matching(NSPredicate(format: "identifier BEGINSWITH 'HistoryError-'"))
         NSLog("OS3D_BUG chamfer errorBadges=\(errors.count)")
         XCTAssertEqual(errors.count, 0, "the chamfer must evaluate cleanly")
-        XCTAssertTrue(app.buttons["Undo"].isEnabled)
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled)
     }
 
     func testFilletAnEdgeRecordsHealthyFeature() throws {

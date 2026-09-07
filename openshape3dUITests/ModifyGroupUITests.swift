@@ -52,7 +52,7 @@ final class ModifyGroupUITests: XCTestCase {
                       "Tapping the region should open the extrude bar")
         typeExtrudeHeight(app)
         sleep(1)
-        XCTAssertTrue(app.buttons["Undo"].isEnabled, "The extrude should have committed")
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled, "The extrude should have committed")
     }
 
     func testModifyRevolveFromPalette() throws {

@@ -68,7 +68,7 @@ final class RevolveFlowUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Angle"].exists)
 
         // Three undoable commands: rect entity, line entity, revolve body.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap() // undo revolve
         XCTAssertTrue(undo.isEnabled)

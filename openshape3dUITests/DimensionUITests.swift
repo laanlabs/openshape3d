@@ -79,7 +79,7 @@ final class DimensionUITests: XCTestCase {
 
         // Draw a single line, then tap its middle to select it.
         p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a line should push an undoable step")
         p(0.48, 0.50).tap()
         sleep(1)
@@ -124,7 +124,7 @@ final class DimensionUITests: XCTestCase {
         setDimension(app, to: "10")
         sleep(1)
 
-        XCTAssertTrue(app.buttons["Undo"].firstMatch.isEnabled,
+        XCTAssertTrue(app.buttons["UndoButton"].firstMatch.isEnabled,
                       "Drawing a circle should push an undoable step")
 
         // Ø10 drives the radius to 5, which is what the info bar reports.

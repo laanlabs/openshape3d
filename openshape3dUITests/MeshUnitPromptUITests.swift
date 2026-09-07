@@ -66,7 +66,7 @@ final class MeshUnitPromptUITests: XCTestCase {
 
         // Select the body from the Items panel (body mode shows Bounds in
         // the info bar) and read its size at the chosen scale.
-        XCTAssertTrue(app.buttons["Undo"].isEnabled, "The import is one undo step")
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled, "The import is one undo step")
         app.buttons["ItemsButton"].tap()
         let row = app.otherElements["ItemRow-unit-prompt-cube"].firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5), "The imported body is listed under its file's name")

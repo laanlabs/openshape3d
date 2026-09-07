@@ -39,7 +39,7 @@ final class SketchFlowUITests: XCTestCase {
         start.press(forDuration: 0.15, thenDragTo: end)
 
         // The committed entity is undoable — this session started clean.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a rectangle should push an undoable command")
 
         app.buttons["Exit Sketching"].tap()

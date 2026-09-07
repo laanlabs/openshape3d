@@ -83,7 +83,7 @@ final class ExtrudeFlowUITests: XCTestCase {
         XCTAssertTrue(deleteButton.isEnabled)
         XCTAssertFalse(app.staticTexts["Extrude"].exists)
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap() // undo symmetric extrude
         XCTAssertTrue(undo.isEnabled, "Sketch command should remain")
@@ -177,7 +177,7 @@ final class ExtrudeFlowUITests: XCTestCase {
         XCTAssertTrue(deleteButton.waitForExistence(timeout: 3))
         XCTAssertTrue(deleteButton.isEnabled, "Pulled body should be selected")
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap() // undo extrude
         XCTAssertTrue(undo.isEnabled, "Sketch command should remain")

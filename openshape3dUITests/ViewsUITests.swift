@@ -52,7 +52,7 @@ final class ViewsUITests: XCTestCase {
         let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.68, dy: 0.62))
         start.press(forDuration: 0.15, thenDragTo: end)
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled,
                       "Drawing a rectangle after a standard-view snap should still commit")
 

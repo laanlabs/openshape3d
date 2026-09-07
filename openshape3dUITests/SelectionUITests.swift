@@ -67,7 +67,7 @@ final class SelectionUITests: XCTestCase {
         XCTAssertFalse(app.textFields["ItemName-Box 2"].exists)
 
         // …and a single undo restores them (one DeleteBodiesCommand).
-        app.buttons["Undo"].tap()
+        app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 3),
                       "Undo should restore the deleted bodies")
         XCTAssertTrue(app.textFields["ItemName-Box 2"].exists)

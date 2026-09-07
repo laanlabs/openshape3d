@@ -43,7 +43,7 @@ final class SketchTransformUITests: XCTestCase {
         point(0.35, 0.42).press(forDuration: 0.15, thenDragTo: point(0.65, 0.42))
         point(0.35, 0.58).press(forDuration: 0.15, thenDragTo: point(0.65, 0.58))
 
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing lines should push undoable commands")
 
         // Select both lines (tap + tap toggles each into the selection).
@@ -111,7 +111,7 @@ final class SketchTransformUITests: XCTestCase {
                        "Committing should dismiss the rotate bar")
 
         // Two undoable commands: seed Add and the rotation.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled)
         undo.tap()
         XCTAssertTrue(undo.isEnabled, "Rotation should undo first, leaving the seed Add")

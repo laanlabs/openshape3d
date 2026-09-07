@@ -105,7 +105,7 @@ final class SymbolUITests: XCTestCase {
         // Undo audit: rename, placement B, placement A, Make Symbol,
         // line B, line A — exactly six steps, so each of the two taps
         // was one command.
-        let undo = app.buttons["Undo"]
+        let undo = app.buttons["UndoButton"]
         for step in 1...6 {
             XCTAssertTrue(undo.isEnabled, "Undo step \(step) should be available")
             undo.tap()
