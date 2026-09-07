@@ -9368,22 +9368,13 @@ final class EditorViewModel {
             provisionalSketch = (created.id, session.undoStack.undoCommands.count)
         }
         mode = .sketching(sketch.id, tool: tool)
-        // Keep the camera where the user put it — Shapr3D sketches in the
-        // current view, and yanking to head-on loses the 3D context they were
-        // working in (and their sense of which way the plane faces).
-        //
-        // The one exception is a grazing view: past this angle the plane
-        // projects to nearly a line, so a drag maps to a wildly amplified
-        // distance on it and drawing is guesswork. `lookAtSketch()` (the
-        // Look at Sketch button) is always there for a deliberate re-aim.
+        // Direct reference verification (2026-09-07): choosing a sketch plane
+        // enters its normal drawing view. Do not require a second Look at
+        // Sketch action before the user can place geometry predictably.
+        // Subsequent user orbiting remains available inside sketch mode.
         if let control = cameraControl {
-            let offAxis = control.offAxisDegrees(to: sketch.plane)
-            if offAxis > Self.grazingSketchAngle {
-                control.moveCameraHeadOn(to: sketch.plane)
-                lookAtSketchAvailable = false
-            } else {
-                lookAtSketchAvailable = offAxis > Self.lookAtSketchThresholdDegrees
-            }
+            control.moveCameraHeadOn(to: sketch.plane)
+            lookAtSketchAvailable = false
         }
     }
 

@@ -28,6 +28,10 @@ Verification includes a combined regression run and a targeted annotation-spacin
 
 Both apps were operated live after desktop unlock. [Paired workflow receipt](testing/sketch-parity-live-2026-09-07.md) confirms diagonal rectangle anchor drift, sketch-entry camera, post-draw line annotation and keypad differences. Center-rectangle one-axis width anchoring and circle-at-corner drawing matched in the tested cases. Clone live Undo remains an investigation; automated tests are not reference sign-off.
 
+## Noon follow-through
+
+[Illustrated live Google Doc](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit): 16 embedded screenshots, public-link reader access verified. **SK-07 partial fix:** sketch entry now automatically aligns to the chosen plane. Build and one focused center-rectangle UI regression passed without manual Look at Sketch. Fresh direct A/B and all-plane coverage remain open because desktop access is currently locked.
+
 ## Verification
 
 - Second batch: **60 distinct tests verified** across combined regression (58/60 passed) and final targeted correction (9/9 passed, including both repaired failures). This is not one clean combined run; see [second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).

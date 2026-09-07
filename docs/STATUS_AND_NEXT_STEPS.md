@@ -17,6 +17,12 @@ At audited revision `88b0478`, both Always Show Dimensions and Always Show Const
 
 `PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
 
+## Mission log — 2026-09-07 noon, illustrated evidence and camera entry
+
+Published [illustrated Google Docs addendum](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit) with 16 embedded screenshots; exported-image count and anonymous reading verified. The desktop locked again, so fresh direct A/B awaits unlock. An hourly continuation reminder is enabled at the user’s request until stopped.
+
+Changed beginSketch to align the camera to the selected plane automatically, removing the unsupported preserve-oblique-view reference claim. Simulator build passed; focused RectangleWorkflowUITests/testCenterRectangleExtendsAcrossItsStartingPoint passed (1/1, 12:10 EDT), asserting no Look at Sketch action is needed and checking the drawn profile. Receipt: `/tmp/os3d-parity-camera-ui.xcresult`. Fresh live reference recheck and other planes remain open. Diagonal-anchor, post-draw line readout and keypad fixes remain open.
+
 ## Mission log — 2026-09-07, direct two-app comparison
 
 Operated native Shapr3D and the latest dedicated simulator build through Peekaboo after desktop unlock. Confirmed diagonal rectangle first-corner drift on width edit, oblique sketch entry, missing post-draw line readout, keypad obstruction and incomplete three-point dimension presentation. Center width anchoring and circle-at-corner drawing matched in the exercised cases. [Live receipt](testing/sketch-parity-live-2026-09-07.md) separates direct evidence, matches and unresolved investigations. Prioritize the confirmed diagonal-anchor issue; do not label center anchoring universally broken. No source change or new automated test run in this pass.
