@@ -24,6 +24,10 @@ No new geometry storage format; model changes still use existing undoable docume
 
 Verification includes a combined regression run and a targeted annotation-spacing correction rerun; see [rectangle/constraint receipt](testing/sketch-parity-rectangles-2026-09-07.md).
 
+## Direct reference verification — 2026-09-07
+
+Both apps were operated live after desktop unlock. [Paired workflow receipt](testing/sketch-parity-live-2026-09-07.md) confirms diagonal rectangle anchor drift, sketch-entry camera, post-draw line annotation and keypad differences. Center-rectangle one-axis width anchoring and circle-at-corner drawing matched in the tested cases. Clone live Undo remains an investigation; automated tests are not reference sign-off.
+
 ## Verification
 
 - Second batch: **60 distinct tests verified** across combined regression (58/60 passed) and final targeted correction (9/9 passed, including both repaired failures). This is not one clean combined run; see [second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).

@@ -17,6 +17,10 @@ At audited revision `88b0478`, both Always Show Dimensions and Always Show Const
 
 `PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
 
+## Mission log — 2026-09-07, direct two-app comparison
+
+Operated native Shapr3D and the latest dedicated simulator build through Peekaboo after desktop unlock. Confirmed diagonal rectangle first-corner drift on width edit, oblique sketch entry, missing post-draw line readout, keypad obstruction and incomplete three-point dimension presentation. Center width anchoring and circle-at-corner drawing matched in the exercised cases. [Live receipt](testing/sketch-parity-live-2026-09-07.md) separates direct evidence, matches and unresolved investigations. Prioritize the confirmed diagonal-anchor issue; do not label center anchoring universally broken. No source change or new automated test run in this pass.
+
 ## Mission log — 2026-09-07, rectangle construction and constraint discoverability
 
 Added center/diagonal/three-point rectangle selection, staged tap/drag construction, anchor/preview/readouts, cancellation, and one-step rectangle undo. Rotated rectangles reuse four ordinary lines with seven internal constraints. Drawing tools now own strokes beginning on existing geometry; disarm for point/entity/gizmo editing. A visible opposite-side constraint rail exposes common relations, prerequisites and settings, with More/compact fallback. Rectangle terminology is expanded from “Rect.”
