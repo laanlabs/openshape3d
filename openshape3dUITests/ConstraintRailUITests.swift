@@ -48,11 +48,9 @@ final class ConstraintRailUITests: XCTestCase {
             app.buttons["ConstraintSettingsDone"].tap()
         }
         app.buttons["Line"].firstMatch.tap() // disarm to select/edit geometry
+        // The last drawn segment is already selected; select only the first
+        // to form the pair, rather than toggling the second off again.
         p(0.45, 0.42).tap()
-        expectation(for: NSPredicate(format: "enabled == true"),
-                    evaluatedWith: app.buttons["ConstraintRail-horizontal"])
-        waitForExpectations(timeout: 3)
-        p(0.45, 0.62).tap()
         let enabled = NSPredicate(format: "enabled == true")
         expectation(for: enabled, evaluatedWith: parallel)
         waitForExpectations(timeout: 3)

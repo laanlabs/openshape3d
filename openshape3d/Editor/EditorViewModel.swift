@@ -9753,6 +9753,12 @@ final class EditorViewModel {
                 title: "Draw", commands: [addEntity] + constraintCommands
             ))
         }
+        // Keep the completed segment's measured length visible without
+        // opening the keypad or ending line chaining (live Shapr3D comparison).
+        if case .line = entity {
+            selectedSketchEntityIDs = [entity.id]
+            selectedSketchPoints.removeAll()
+        }
     }
 
     /// Line tool tap (spec §1): build a polyline by tapping vertices, the

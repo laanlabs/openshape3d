@@ -77,11 +77,13 @@ final class DimensionUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: dy))
         }
 
-        // Draw a single line, then tap its middle to select it.
+        // A completed line exposes its length without a selection tap or keypad.
         p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a line should push an undoable step")
-        p(0.48, 0.50).tap()
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists,
+                       "Finishing a line shows a readout, not an automatic keypad")
         sleep(1)
 
         // Edit the length dimension to 20 (inline arithmetic also accepted).
@@ -156,7 +158,6 @@ final class DimensionUITests: XCTestCase {
         }
 
         p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
-        p(0.48, 0.50).tap()
         sleep(1)
         setDimension(app, to: "20")
         sleep(1)

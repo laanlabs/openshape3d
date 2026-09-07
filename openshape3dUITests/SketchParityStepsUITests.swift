@@ -76,7 +76,7 @@ final class SketchParityStepsUITests: XCTestCase {
             .allElementsBoundByIndex.map(\.label)
         XCTAssertEqual(glyphs, [], "Shapr3D leaves a 1.6° line alone; so must this")
 
-        point(w, 0.46, 0.64 - dy(1.6) / 2).tap(); sleep(1)
+        // The completed line retains its readout without another selection tap.
         shot(app, "line-2-selected")
         let badge = app.buttons["DimensionLabel"].firstMatch
         XCTAssertTrue(badge.waitForExistence(timeout: 3),
