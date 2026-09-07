@@ -1,0 +1,454 @@
+# Sketch parity implementation ledger
+
+Started 2026-09-07 from `88b0478d873ffc5efe71f086f84f529b6ca032a4`.
+
+This is the implementation follow-through for the September 6 audit, not a claim that every suspected mismatch is a confirmed defect. The audit has 42 records: 19 confirmed gaps, 8 code risks requiring A/B, and 15 verification investigations.
+
+## First implementation: selection, snapping and editor lifecycle
+
+- **DM-01:** Plain model-mode outline taps select visible sketch geometry and recover its committed dimensions. Profile interiors retain extrusion routing. Ray picking respects nearer bodies/images and hidden sketches.
+- **DM-02:** With Always Show off, filter individual dimensions/constraints by selected entities or point references. Explicitly selected glyphs and dimensions being edited stay visible. Opening an external dimension preserves its defining selection.
+- **DM-16:** Dated corrections distinguish current defaults from historical entries and withdraw the mistaken ten-tool 2D Drawings requirement.
+- **SK-12 / part of DM-12:** Clear pending numeric input when toggling a drawing tool off, exiting sketch mode, selecting other geometry, or starting another viewport stroke. Switching tools already cleared it.
+- **SK-05, partial:** Persistent Grid, Sketch Guidepoints, Face Guidepoints, and Snapping Hints controls in Settings and the constraint sheet. Grid-off also disables along-face-edge quantization and translation grid capture; guidepoint-off disables near-start chain capture. Point inference/drop-to-weld respects guidepoint preferences and Auto-Constrain. Off-plane 3D guidepoints and independently configurable sketch guidelines remain open.
+
+No new geometry storage format; model changes still use existing undoable document commands. Defaults preserve prior snapping behavior. Original checkout remains untouched.
+
+## Verification
+
+- Build-for-testing: passed on Xcode/iOS 26.5, iPad Pro 13-inch (M5) simulator.
+- Focused pure tests: **40 passed, 0 failed** (AppSettingsTests, FaceSnapTests, SnapKindTests, SketchParityFoundationTests).
+- Final combined run: **40 unit + 7 UI tests passed, 0 failures** on 2026-09-07. See [verification receipt](testing/sketch-parity-foundations-2026-09-07.md).
+- No Pencil, real-device, portrait/landscape matrix, or full 56-case audit QA sign-off implied.
+
+## Full issue queue
+
+The original Google Docs retain the reproduction steps, reference evidence, target behavior and acceptance criteria. Entries below preserve the full queue so this first batch does not silently narrow the task.
+
+[Master audit roadmap](https://docs.google.com/document/d/1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE/edit) · [Sketch workflow](https://docs.google.com/document/d/1g19SoYqNt1zQ4_nFguoa-hj8p7y6eGVPVrNJJy8uxnw/edit) · [Dimensions](https://docs.google.com/document/d/1xg-Puj2BHGHEEkWAPiDToSV8nvuxHh22EVuVgIGp1Wg/edit) · [Editing](https://docs.google.com/document/d/1JPSfjSjzEH3jUA5TvdWqksHo6Vv0Azbw_8QYximABiQ/edit) · [QA](https://docs.google.com/document/d/1F-gA5AEbe2y0AcEJ0GWZhWp4_Ba5vvFOehZ3l7rb-qI/edit)
+
+All five audit documents are readable without signing in (public-link Viewer access, verified 2026-09-07).
+
+### SK-01 · Constraint controls are buried instead of continuously discoverable
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Build an adaptive constraint rail with enabled/disabled states and one-step settings access. Move excess tools to a stable More menu.
+
+Acceptance: On iPad landscape each common relation takes one visible action after selection; disabled tools explain their prerequisites; portrait remains reachable.
+
+### SK-02 · Sketch palette hierarchy and vocabulary do not match
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Rename Rect/Offset/Construct where space permits; add subtype affordances and intentional overflow. Keep extensions such as Symbols secondary.
+
+Acceptance: All basic tools are discoverable by the same vocabulary, and overflow does not depend on scrolling past unrelated extensions.
+
+### SK-03 · Center and three-point rectangle modes are missing
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add subtype selection, subtype-specific anchors and previews, dimensions, constraint behavior and persistence; reuse geometry where possible.
+
+Acceptance: Center stays fixed when sizing a center rectangle; diagonal uses its first corner; three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
+
+### SK-04 · Starting a new shape on existing geometry is intercepted as editing
+
+**Queued — verify first** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Define hit-test precedence by tool and input device; separate a drawing anchor from an edit handle. Show intent in the cursor/preview.
+
+Acceptance: Each requested new entity can start at a snap point without moving old geometry; editing remains available through a clear selection state.
+
+### SK-05 · Snapping cannot be switched off or configured by category
+
+**Partially implemented; remaining acceptance open** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Introduce explicit snap preferences; pass them into every stroke/tap/drag snap call and distinguish snapping from adding a persistent relation.
+
+Acceptance: With all snaps off, committed coordinates follow input without grid rounding. Each category toggle affects only that category and survives relaunch.
+
+### SK-06 · Grid spacing and acquisition tolerance are fixed in model units
+
+**Queued — verify first** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Separate numerical geometry tolerance from screen-space acquisition; tie grid snap to visible/locked grid resolution where appropriate.
+
+Acceptance: Zoom does not unexpectedly close a different segment or make endpoints impossible to acquire; displayed resolution matches actual snap steps.
+
+### SK-07 · Sketch entry preserves oblique view; normalize entry behavior
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Write a per-entry-method camera contract and implement only observed deviations. Show selected plane and orientation during entry.
+
+Acceptance: Each entry recipe has repeatable camera behavior; user can reach a normal view without losing geometry; docs match the actual contract.
+
+### SK-08 · Plane picking silently falls back to ground
+
+**Queued — verify first** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Preview/highlight target plane, clearly name it, and either confirm intentional grid entry or remain in picker on ambiguous misses.
+
+Acceptance: No ambiguous face miss silently creates geometry on an unintended plane; cancel leaves no empty persistent sketch.
+
+### SK-09 · Line-chain finish, cancel and resume need a device-specific contract
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Centralize chain transitions, preview cancellation and end-point commitment; document which action ends only the segment versus the tool.
+
+Acceptance: No ghost segment, duplicate endpoint, unwanted loop or accidental camera orbit; undo removes the last intended operation.
+
+### SK-10 · Arc creation uses a chord/bulge workflow with no subtype chooser
+
+**Queued — verify first** · P2
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Add explicit stage prompts and required variants only after the A/B; keep preview versus committed arc states distinct.
+
+Acceptance: Prescribed endpoints and arc side are predictable; cancellation produces no stray arc; radius edit preserves the intended branch.
+
+### SK-11 · Spline drawing is not available through the normal sketch UI
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Wire fit-point creation first; assess the additional model work needed for control-point splines rather than claiming all variants are kernel-complete.
+
+Acceptance: Create, finish, reopen, edit and undo a fit spline through normal UI; supported closed splines form profiles; unsupported variants are not advertised.
+
+### SK-12 · Tool-off gesture may leave the numeric card or unexpected navigation state
+
+**Implemented; focused regression checks passed** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Apply a shared transient-state cleanup contract to switch, toggle-off, cancel, exit and keyboard paths.
+
+Acceptance: No orphan keypad intercepts drawing/navigation; state changes are visible; committed geometry is not lost.
+
+### SK-13 · Touch, Pencil and trackpad gesture arbitration needs direct testing
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Create an input-device behavior matrix and improve arbitration only where the A/B differs.
+
+Acceptance: Navigation never commits a stroke; Pencil drawing never unintentionally orbits; tool state survives pan/zoom.
+
+### SK-14 · Small-screen overflow, handedness and labels need a layout audit
+
+**Queued — verify first** · P2
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Define breakpoints and non-overlap zones; use intentional More groups rather than uncontrolled vertical growth.
+
+Acceptance: All active-tool controls and exit/cancel remain visible or one clear overflow action away; no clipped interactive targets.
+
+### DM-01 · Selected sketches outside sketch mode do not reveal dimensions
+
+**Implemented; focused regression checks passed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Route sketch selection in modeling mode and annotation selection ownership consistently; do not solve this by turning Always Show on globally.
+
+Acceptance: The selected geometry shows its value; deselect hides it; tapping the badge opens the correct sketch; remove the expected-failure marker after a real pass.
+
+### DM-02 · Visibility off still exposes all annotations of the active sketch
+
+**Implemented; focused regression checks passed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Filter dimension and constraint glyphs by selection relationship, with separate always-show policies and candidate labels.
+
+Acceptance: Off does not flood the active sketch with unrelated locked values; on reveals the documented set; editing badges remain usable.
+
+### DM-03 · Absolute/horizontal/vertical distance choice is missing
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add a distance-type chooser and preserve the chosen kind through editing/save/undo.
+
+Acceptance: The same reference points can show the three distinct intended measurements; choosing a type changes the driving constraint rather than only the displayed text.
+
+### DM-04 · Circle radius versus diameter preference is missing
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Implement the reference circular-annotation preference and map edits to the correct radius/diameter semantics.
+
+Acceptance: R10 and diameter 20 yield the same geometry, labels are explicit, and switching annotation style never doubles/halves existing geometry.
+
+### DM-05 · Ellipse major/minor dimensions are not exposed
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add ellipse-axis dimension references, candidates and solver support as required; assess the model seam before implementing only labels.
+
+Acceptance: Both axes can be independently driven, remain attached after rotation and survive reopen with correct units.
+
+### DM-06 · Dimension labels cannot be repositioned
+
+**Queued — verify first** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Store annotation layout independently of constraint values and geometry; distinguish a drag from a tap-to-edit.
+
+Acceptance: A dragged badge changes only layout, leader remains attached, position survives reopen, and dense values remain reachable.
+
+### DM-07 · Committed dimension graphics are generic dashed segments
+
+**Queued — verify first** · P2
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Define sketch annotation geometry per dimension type and maintain contrast/occlusion rules.
+
+Acceptance: Each value unambiguously identifies what it measures; angular geometry is not rendered as a misleading linear span.
+
+### DM-08 · Anchored Sketch Entity selection-order setting is absent
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Track ordered selection in addition to membership; pass anchor preference into solving/drag intent.
+
+Acceptance: The specified anchor remains in place unless an existing constraint requires otherwise; reversing order has the expected result; undo restores all positions.
+
+### DM-09 · Disconnect action is absent
+
+**Queued — implementation needed** · P1
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add the point-level action with clear enablement and one undoable transaction; preserve unrelated dimensions and relations.
+
+Acceptance: The chosen connection breaks without deleting geometry, other constraints survive, and undo restores the connection.
+
+### DM-10 · Numeric entry supports only a subset of explicit unit tokens
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Unify unit-aware parsing and formatting, with typed units overriding display units; reject incompatible dimensional units clearly.
+
+Acceptance: Supported explicit units convert once and correctly; unsupported strings never silently become a different length; formulas preserve semantic units.
+
+### DM-11 · Rectangle width-to-height numeric flow needs keyboard and touch A/B
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Implement explicit next-field behavior, visible width/height focus and correct anchor preservation.
+
+Acceptance: 40 by 25 can be entered without closing and rediscovering a second control; geometry and persisted driving dimensions both match.
+
+### DM-12 · Value-card footprint and close/commit semantics need a full transition audit
+
+**Partially implemented; remaining acceptance open** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Keep editor identity stable, define dismissal/commit policy for each event and ensure inactive overlays stop hit-testing.
+
+Acceptance: No hang, gallery return, lost geometry or invisible blocked region across the transition matrix. Treat any reproduction as P0.
+
+### DM-13 · Curve-angle and multi-entity dimension coverage needs a capability matrix
+
+**Queued — verify first** · P2
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Publish the matrix of selection to supported measurement, then fill verified gaps with solver-backed implementations.
+
+Acceptance: Every enabled option has valid references and a truthful preview; unsupported combinations explain why rather than guessing an angle.
+
+### DM-14 · Constraint drag, lock and conflict behavior need end-to-end validation
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Validate refusal/rollback, selected conflict attribution, point versus whole-entity locks and drag-created relations.
+
+Acceptance: No unexpected geometry jump or broken existing constraint; conflict identifies relevant controls; undo leaves one coherent prior state.
+
+### DM-15 · Variables affordance is inconsistent across numeric fields
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Extract shared variable insertion and input-state handling while retaining length/angle/count distinctions.
+
+Acceptance: Variable entry does not require an undiscoverable keyboard workaround in one field; all relevant fields resolve and validate consistently.
+
+### DM-16 · Visibility and camera documentation contradicts current source
+
+**Implemented — dated corrections in README, NEXT, STATUS, and historical parity notes** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Append a dated correction with current baseline; mark historical entries historical; remove the ten sketch-dimension-tools assumption.
+
+Acceptance: A developer cannot mistake an old defect/default or 2D drawing feature for a current sketch requirement.
+
+### ED-01 · Sketch Pattern is reached through an extrude profile, not sketch selection
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add sketch-selection entry and shared pattern parameters; reuse existing transform preview and core where appropriate.
+
+Acceptance: Open and closed sketch entities can be patterned from sketch mode with preview/count/spacing controls and one undo.
+
+### ED-02 · Sketch patterns commit detached copies rather than an editable pattern relation
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Wire persistent pattern relation and edit UI, define source/member behavior and explicit unlinking. Verify existing core behavior instead of replacing it blindly.
+
+Acceptance: Pattern parameters remain editable after reopen; documented source edits propagate; unlink leaves intentional independent geometry; undo restores the relation.
+
+### ED-03 · Trim does not handle ellipse or spline entities
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Implement shape-preserving ellipse trim and required representation; determine supported spline trim semantics before adding it.
+
+Acceptance: Ellipse remainder matches the original curve, profiles update and undo restores it. Unsupported spline trim shows clear feedback instead of silent no-op.
+
+### ED-04 · Trim must preserve constraint references or explain their removal
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Audit trim-command reference rewriting, profile identity and user feedback for invalidated relations.
+
+Acceptance: No dangling references or unrelated constraint loss; invalidated dimensions are handled explicitly; undo reconstructs geometry plus references.
+
+### ED-05 · Project always flattens a whole tapped body into unlinked entities
+
+**Queued — implementation needed** · P2
+
+Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+
+Next: Add selection granularity and linked/unlinked semantics through existing feature/reference architecture; do not confuse sketch projection with surface edge-splitting.
+
+Acceptance: Only chosen items project; linked output updates after source changes; unlinked geometry remains independent; cancel adds nothing.
+
+### ED-06 · Every coincident plane reuses the first existing sketch
+
+**Queued — verify first** · P1
+
+Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
+
+Next: Make sketch identity explicit in entry intent; preserve continue versus new rules and selected-history context.
+
+Acceptance: User can intentionally create a separate coplanar sketch and deliberately edit a specific existing one; no geometry silently joins the wrong item.
+
+### ED-07 · Selection precedence and additive selection need an A/B matrix
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Write explicit hit priority and additive/replacement rules for each mode/input; highlight before destructive actions.
+
+Acceptance: The visible highlight matches the next action, blank deselection is consistent, and Delete never affects an unexpected entity class.
+
+### ED-08 · Sketch move/rotate and copy need design-intent verification
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Audit copy of internal relations versus external constraints, center placement, typed values and mode exit.
+
+Acceptance: One operation gives one coherent undo; no unintended constraint links to originals; cancellation leaves no clones.
+
+### ED-09 · Closed-profile detection and sketch-to-extrude handoff need usability acceptance
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Validate closure feedback, region highlighting, boundary selection, nested holes and hidden-sketch discoverability.
+
+Acceptance: The valid region extrudes with the intended hole; invalid/open regions do not pretend to be closed; construction geometry does not create material.
+
+### ED-10 · Sketch exit, re-entry, hidden state and persistence need a single contract
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Clarify unit ownership and view-state persistence; avoid turning a visual edit into unexpected permanent state.
+
+Acceptance: Reopen reproduces intended geometry and values; temporary editing visibility does not unpredictably affect unrelated sketches/projects.
+
+### ED-11 · Offset, construction and symmetry require interaction tests, not missing-feature tickets
+
+**Queued — verify first** · P2
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Compare selection/preview/sign/commit rules and add only evidenced fixes.
+
+Acceptance: No duplicate geometry on cancel, dimension sign is explicit, construction changes profile fill appropriately, symmetry remains intentional.
+
+### ED-12 · Crash regressions and test baselines must be separated from feature gaps
+
+**Queued — verify first** · P1
+
+Evidence: VERIFY — candidate discrepancy, not reproduced
+
+Next: Keep a regression ledger and promote a reproduced hang/data loss to P0. Do not reopen fixed bugs based on stale prose.
+
+Acceptance: Current focused sketch checks pass without expected failures for release-critical behavior; failures have a minimal UI reproduction and owner.
+
+## Reference correction
+
+Do not implement the previously documented “ten missing sketch dimension tools” from `SHAPR3D_SKETCH_PARITY.md` as a sketch requirement: that evidence came from **2D Drawings**, a different workspace. Draggable-label sketch parity also needs an actual sketch reference before design work. Native Shapr3D was accessible during this audit; older notes claiming desktop automation was unavailable are historical.

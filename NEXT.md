@@ -1,9 +1,13 @@
-# NEXT — Shapr3D sketch parity (updated 2026-09-06)
+# NEXT — Shapr3D sketch parity (updated 2026-09-07)
 
 Living authority is `docs/STATUS_AND_NEXT_STEPS.md`; the parity evidence and
 method are in `docs/SHAPR3D_SKETCH_PARITY.md`. This is the queue.
 
-## Pick up next, in order
+## Current implementation — 2026-09-07
+
+The numbered list below is historical. Follow [the full 42-issue implementation ledger](docs/SKETCH_PARITY_IMPLEMENTATION.md) for the current queue and test results. Model-mode outline selection and per-annotation visibility are now implemented on `fix/sketch-parity-foundations`; the former expected-failure test passes. Both Always Show defaults are OFF. The older ten-dimension-tool requirement was based on 2D Drawings, not sketch mode, and is withdrawn. New snapping controls are a partial SK-05 implementation; no full UI-suite or device matrix sign-off is claimed.
+
+## Historical queue — September 6
 
 1. **Selecting a sketch outside sketch mode should reveal its dimensions.**
    The one KNOWN GAP opened by defaulting "Always Show Dimensions" off (which
@@ -24,9 +28,10 @@ method are in `docs/SHAPR3D_SKETCH_PARITY.md`. This is the queue.
 
 4. **Remaining Shapr3D sketch gaps**, measured against the running app and
    written up with screenshots in `docs/SHAPR3D_SKETCH_PARITY.md`:
-   - **G2** ten dimension tools + the adaptive menu (a circle can only be
-     dimensioned Ø today; no way to ask for R).
-   - **G3** draggable dimension badge ("Drag the Dimension badge to reposition").
+   - **G2 — withdrawn as stated:** the ten-tool list belongs to 2D Drawings.
+     Follow audit DM-03/DM-04 for verified sketch distance-type and radius/diameter choices.
+   - **G3 — verify first:** the badge-drag tutorial may also be from 2D Drawings;
+     obtain actual sketch-mode evidence before implementing it.
    - **G7** `Disconnect`, and the `Anchored Sketch Entity` (First/Last Selected)
      setting.
    - **G8** spline and sketch-pattern UI — both kernel-complete already, only

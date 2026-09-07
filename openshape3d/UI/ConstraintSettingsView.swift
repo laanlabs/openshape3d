@@ -28,10 +28,10 @@ struct ConstraintSettingsView: View {
                 } header: {
                     Text("Visibility")
                 } footer: {
-                    Text("Keep a sketch's dimensions and constraints on canvas "
-                         + "after you leave it, and show every visible sketch's "
-                         + "— not just the one you are editing.")
+                    Text("When off, annotations follow selected geometry. Turn on to show all annotations in visible sketches, including after leaving sketch mode.")
                 }
+
+                SnappingSettingsSection(settings: settings)
 
                 Section {
                     Toggle("Auto-Constrain", isOn: $viewModel.autoConstrainSettings.enabled)
@@ -104,6 +104,6 @@ struct ConstraintSettingsView: View {
             }
         }
         .accessibilityIdentifier("ConstraintSettingsPanel")
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 }

@@ -68,6 +68,23 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.antiAliasing, 4)
     }
 
+    func testSnappingPreferencesPersistIncludingExplicitOff() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.snapOptions, SnapOptions())
+        XCTAssertTrue(first.showSnapHints)
+        first.snapToGrid = false
+        first.snapToSketchGuidepoints = false
+        first.snapToFaceGuidepoints = false
+        first.showSnapHints = false
+        let next = AppSettings(defaults: defaults)
+        XCTAssertEqual(next.snapOptions, SnapOptions(grid: false, sketchGuidepoints: false,
+                                                    faceGuidepoints: false))
+        XCTAssertFalse(next.showSnapHints)
+        next.snapToGrid = true
+        XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
+    }
+
     func testSettingsPersistAcrossReload() {
         let defaults = freshDefaults()
         let first = AppSettings(defaults: defaults)

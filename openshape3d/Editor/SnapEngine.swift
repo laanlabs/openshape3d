@@ -15,7 +15,7 @@ nonisolated enum SnapKind: String, Sendable, Equatable, CaseIterable {
     case endpoint, midpoint, center, edge, grid, free
 
     /// User-facing name, or nil for snaps not worth announcing — the grid is
-    /// always on, so labelling it would just add noise to every stroke.
+    /// too frequent to label on every stroke.
     var label: String? {
         switch self {
         case .endpoint: "Endpoint"
@@ -46,6 +46,13 @@ nonisolated struct SnapCandidate {
     var kind: SnapKind
 }
 
+/// Acquisition preferences, independent of whether inferred constraints are stored.
+nonisolated struct SnapOptions: Equatable, Sendable {
+    var grid = true
+    var sketchGuidepoints = true
+    var faceGuidepoints = true
+}
+
 nonisolated enum SnapEngine {
     static let gridSpacing: Double = 0.5
     static let pointTolerance: Double = 0.35
@@ -73,7 +80,8 @@ nonisolated enum SnapEngine {
     /// off centre. These give the face's own corners, edge midpoints, centre and
     /// edges the same status as existing sketch geometry.
     static func snap(
-        _ p: SIMD2<Double>, in sketch: Sketch?, faceLoops: [[SIMD2<Double>]] = []
+        _ p: SIMD2<Double>, in sketch: Sketch?, faceLoops: [[SIMD2<Double>]] = [],
+        options: SnapOptions = .init()
     ) -> SnapResult {
         var best: (candidate: SnapCandidate, distance: Double)?
         func consider(_ candidate: SnapCandidate) {
@@ -90,13 +98,19 @@ nonisolated enum SnapEngine {
 
         // 1. Existing sketch points and the underlying face compete together, so
         //    a face corner isn't shadowed by a farther sketch endpoint.
-        if let sketch {
+        if options.sketchGuidepoints, let sketch {
             for candidate in snapCandidates(of: sketch) { consider(candidate) }
         }
-        for candidate in faceSnapCandidates(loops: faceLoops, near: p) { consider(candidate) }
+        if options.faceGuidepoints {
+            for candidate in faceSnapCandidates(loops: faceLoops, near: p, grid: options.grid) {
+                consider(candidate)
+            }
+        }
         if let best {
             return SnapResult(point: best.candidate.point, kind: best.candidate.kind)
         }
+
+        guard options.grid else { return SnapResult(point: p, kind: .free) }
 
         // 2. Grid.
         let snapped = SIMD2(
@@ -110,7 +124,7 @@ nonisolated enum SnapEngine {
     /// midpoint, the centre of each loop, plus the closest point ON each edge
     /// (so you can slide along a boundary and stay exactly on it).
     static func faceSnapCandidates(
-        loops: [[SIMD2<Double>]], near p: SIMD2<Double>
+        loops: [[SIMD2<Double>]], near p: SIMD2<Double>, grid: Bool = true
     ) -> [SnapCandidate] {
         var out: [SnapCandidate] = []
         for loop in loops where loop.count >= 2 {
@@ -127,7 +141,7 @@ nonisolated enum SnapEngine {
                 let a = loop[i], b = loop[(i + 1) % loop.count]
                 out.append(SnapCandidate(point: (a + b) / 2, kind: .midpoint))
                 if let onEdge = closestPointOnSegment(p, a, b) {
-                    out.append(SnapCandidate(point: gridAlongEdge(onEdge, a, b), kind: .edge))
+                    out.append(SnapCandidate(point: grid ? gridAlongEdge(onEdge, a, b) : onEdge, kind: .edge))
                 }
             }
         }

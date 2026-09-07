@@ -18,6 +18,32 @@ nonisolated enum SketchHitTester {
         var distance: Double
     }
 
+    struct RayEntityHit {
+        var entity: SketchEntity
+        var distance: Float
+        var outlineDistance: Double
+    }
+
+    static func nearestEntity(along ray: Ray, in sketches: [Sketch], tolerance: Double,
+                              maximumDepth: Float = .infinity) -> RayEntityHit? {
+        var best: RayEntityHit?
+        for sketch in sketches where !sketch.isHidden {
+            let plane = sketch.plane
+            guard let depth = ray.intersect(
+                planePoint: SIMD3<Float>(plane.origin), planeNormal: SIMD3<Float>(plane.normal)),
+                depth <= maximumDepth + 0.01 else { continue }
+            let local = plane.toLocal(SIMD3<Double>(ray.point(at: depth)))
+            guard let hit = nearestEntity(to: local, in: sketch.entities, tolerance: tolerance)
+            else { continue }
+            if let best, depth > best.distance + 0.001
+                || (abs(depth - best.distance) <= 0.001 && hit.distance >= best.outlineDistance) {
+                continue
+            }
+            best = RayEntityHit(entity: hit.entity, distance: depth, outlineDistance: hit.distance)
+        }
+        return best
+    }
+
     /// A draggable handle on an entity.
     enum ControlKind: Equatable, Sendable {
         case lineStart

@@ -141,6 +141,10 @@ struct SketchDimensionOverlay: View {
                         .foregroundStyle(conflicting ? Color.red
                                          : label.dimensionID == nil
                                          ? Color.secondary : Color.blue)
+                        // Keep the visual badge compact but give finger taps
+                        // a real hit region, including its padded corners.
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .position(clearOfGizmo(anchor, along: start, end))

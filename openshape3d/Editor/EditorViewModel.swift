@@ -5377,12 +5377,32 @@ final class EditorViewModel {
         // Plain (non-additive) taps drop any sketch-entity selection left
         // over from Select mode, so the orange highlight can't get stuck.
         selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedConstraintID = nil
+        selectedDimensionID = nil
+        editingDimension = nil
 
         if bodyHit == nil, case .faceSelected = mode, let context = toolContext,
            let distance = context.distance, abs(distance) > 1e-4 {
             // Spec §4.1/§18: tapping empty grid commits a nonzero face pull
             // (same rule as profile extrudes); a zero pull cancels below.
             commitTool()
+            return
+        }
+
+        // Outline taps select sketch geometry; profile interiors still start
+        // extrusion. Respect depth so hidden-behind-body sketches cannot steal taps.
+        let imageDepth = imageHit(ray: ray)?.distance
+        let occluderDepth = min(bodyHit?.distance ?? .infinity, imageDepth ?? .infinity)
+        if let hit = SketchHitTester.nearestEntity(
+            along: ray, in: session.document.sketches,
+            tolerance: entityPickTolerance, maximumDepth: occluderDepth
+        ) {
+            cancelTool()
+            selection.removeAll()
+            selectedImageID = nil
+            selectedSketchEntityIDs = [hit.entity.id]
+            mode = .idle
             return
         }
 
@@ -5575,22 +5595,14 @@ final class EditorViewModel {
     /// Select-mode tap fallback: toggle the sketch entity under the ray
     /// (nearest across every visible sketch). Returns false on a miss.
     private func toggleSketchEntityUnderRay(_ ray: Ray) -> Bool {
-        var best: (id: UUID, distance: Double)?
-        for sketch in session.document.sketches where !sketch.isHidden {
-            guard let local = localPoint(of: ray, on: sketch.plane),
-                  let hit = SketchHitTester.nearestEntity(
-                      to: local, in: sketch.entities, tolerance: entityPickTolerance
-                  )
-            else { continue }
-            if best == nil || hit.distance < best!.distance {
-                best = (hit.entity.id, hit.distance)
-            }
-        }
-        guard let best else { return false }
-        if selectedSketchEntityIDs.contains(best.id) {
-            selectedSketchEntityIDs.remove(best.id)
+        guard let hit = SketchHitTester.nearestEntity(
+            along: ray, in: session.document.sketches, tolerance: entityPickTolerance,
+            maximumDepth: imageHit(ray: ray)?.distance ?? .infinity
+        ) else { return false }
+        if selectedSketchEntityIDs.contains(hit.entity.id) {
+            selectedSketchEntityIDs.remove(hit.entity.id)
         } else {
-            selectedSketchEntityIDs.insert(best.id)
+            selectedSketchEntityIDs.insert(hit.entity.id)
         }
         return true
     }
@@ -7835,10 +7847,10 @@ final class EditorViewModel {
 
     /// Named snap under the pointer, ready for the overlay to place: Shapr3D
     /// tells you WHICH snap caught you ("Endpoint") so a near miss is obvious
-    /// before you commit. Nil for the grid, which is always on and would just
-    /// label every stroke.
+    /// before you commit. Grid snaps remain unlabelled to avoid labelling every stroke.
     var activeSnapLabel: (text: String, world: SIMD3<Double>)? {
-        guard let snap = activeSnap, let text = snap.kind.label,
+        guard AppSettings.shared.showSnapHints,
+              let snap = activeSnap, let text = snap.kind.label,
               let plane = activeSketch?.plane else { return nil }
         return (text, plane.toWorld(snap.point))
     }
@@ -7894,6 +7906,14 @@ final class EditorViewModel {
     /// UserDefaults (saved on every mutation).
     var autoConstrainSettings = AutoConstraintSettings() {
         didSet { saveAutoConstrainSettings() }
+    }
+
+    /// Point acquisition must not sneak back in through inference when the
+    /// user explicitly disables sketch guidepoints. Other relationships remain independent.
+    private var effectiveAutoConstrainSettings: AutoConstraintSettings {
+        var settings = autoConstrainSettings
+        settings.pointSnap = settings.pointSnap && AppSettings.shared.snapToSketchGuidepoints
+        return settings
     }
 
     /// Presents the auto-constrain settings panel (sheet).
@@ -8222,8 +8242,8 @@ final class EditorViewModel {
                 (delta.x / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing,
                 (delta.y / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing
             )
-            if abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
-            if abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
+            if AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
+            if AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
             after = SketchTransform.translate(entities: drag.originals, by: delta)
         case .rotate:
             // 5° steps while dragging (matches the body rings).
@@ -8321,6 +8341,7 @@ final class EditorViewModel {
     private func selectSketchGeometryTap(
         at raw: SIMD2<Double>, in sketch: Sketch
     ) -> Bool {
+        editingDimension = nil
         // Tapping geometry clears any constraint/dimension glyph selection.
         selectedConstraintID = nil
         selectedDimensionID = nil
@@ -8756,7 +8777,7 @@ final class EditorViewModel {
                 plane: sketch.plane,
                 entities: sketch.entities.filter { $0.id != drag.before.id }
             )
-            let point = SnapEngine.snap(raw, in: others).point
+            let point = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions).point
             after = SketchHitTester.applying(control, at: point, to: drag.before)
         } else {
             // Body translate: grid-capture each axis, like the extrude drag.
@@ -8765,8 +8786,8 @@ final class EditorViewModel {
                 (delta.x / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing,
                 (delta.y / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing
             )
-            if abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
-            if abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
+            if AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
+            if AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
             after = SketchHitTester.translated(drag.before, by: delta)
         }
         let current = sketch.entities.first { $0.id == drag.before.id }
@@ -8797,7 +8818,7 @@ final class EditorViewModel {
             plane: sketch.plane,
             entities: drag.baseline.filter { $0.id != drag.before.id }
         )
-        let target = SnapEngine.snap(raw, in: others).point
+        let target = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions).point
 
         // Always solve from the fixed pre-drag baseline so the target is
         // absolute and the result is deterministic across frames.
@@ -8921,12 +8942,13 @@ final class EditorViewModel {
               let ray, let sketch = activeSketch, let raw = rawSketchPoint(from: ray)
         else { return clearLinePreviewIfNeeded() }
 
-        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops())
+        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions)
         var end = snap.point
         var willClose = false
         if let start = chainStart,
            simd_length(start - anchor) > SnapEngine.pointTolerance,
-           simd_length(raw - start) <= Self.lineCloseTolerance {
+           simd_length(raw - start) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? Self.lineCloseTolerance : 1e-9) {
             end = start
             willClose = true
         }
@@ -9134,6 +9156,7 @@ final class EditorViewModel {
     /// orbit the camera instead of drawing.
     func deselectSketchTool() {
         guard case .sketching(let id, _) = mode else { return }
+        editingDimension = nil
         commitPendingArc()
         clearChain()
         // Offset picks belong to the tool, not the sketch: dropping the tool
@@ -9233,6 +9256,7 @@ final class EditorViewModel {
     static let grazingSketchAngle: Double = 80
 
     func finishSketch() {
+        editingDimension = nil
         commitPendingArc()
         clearChain()
         textPlacement = nil
@@ -9308,7 +9332,7 @@ final class EditorViewModel {
     /// Ray → snapped plane-local point, while sketching.
     private func sketchPoint(from ray: Ray) -> SIMD2<Double>? {
         guard let raw = rawSketchPoint(from: ray) else { return nil }
-        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops())
+        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions)
         activeSnap = (result.kind, result.point)
         return result.point
     }
@@ -9369,6 +9393,7 @@ final class EditorViewModel {
         guard case .sketching(_, let tool) = mode,
               let raw = rawSketchPoint(from: ray)
         else { return false }
+        editingDimension = nil
         sketchEntityDrag = nil
         if tool == .trim || tool == .text || tool == .project {
             return false // These tools work by taps; unclaimed drags orbit.
@@ -9408,10 +9433,7 @@ final class EditorViewModel {
         // No drawing tool armed: empty-space drags orbit the camera so the
         // sketch can be viewed from an angle (Shapr3D).
         guard tool != nil else { return false }
-        // A new stroke supersedes the size field the last shape opened.
-        editingDimension = nil
-
-        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops()).point
+        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions).point
         if tool == .line, let anchor = chainAnchor {
             if simd_length(raw - anchor) <= SnapEngine.pointTolerance {
                 point = anchor // continue the chain exactly at the last endpoint
@@ -9479,7 +9501,7 @@ final class EditorViewModel {
         if autoConstrainSettings.enabled, let sketch = activeSketch {
             let result = AutoConstraintEngine.infer(
                 tool: tool, anchor: start, current: current,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             current = result.snappedPoint
             activeGuides = result.guides
@@ -9541,7 +9563,7 @@ final class EditorViewModel {
         if autoConstrainSettings.enabled {
             let result = AutoConstraintEngine.infer(
                 tool: tool, anchor: start, current: end,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             end = result.snappedPoint
             // Same aim gate as `updateSketchStroke` — this re-run happens at
@@ -9614,7 +9636,7 @@ final class EditorViewModel {
         else { return }
         _ = clearLinePreviewIfNeeded() // the tap supersedes any hover preview
 
-        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops()).point
+        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions).point
 
         guard tapChainActive, let anchor = chainAnchor, let start = chainStart else {
             // Not chaining: a tap on geometry selects it (dimension/constraint
@@ -9631,7 +9653,8 @@ final class EditorViewModel {
         // generous than the point-weld tolerance (Shapr3D highlights the start
         // as you approach) so finger-closing a polygon is reliable.
         if simd_length(start - anchor) > SnapEngine.pointTolerance,
-           simd_length(raw - start) <= Self.lineCloseTolerance {
+           simd_length(raw - start) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? Self.lineCloseTolerance : 1e-9) {
             commitChainSegment(from: anchor, to: start, closing: true,
                                sketchID: sketchID, in: sketch)
             return
@@ -9655,7 +9678,7 @@ final class EditorViewModel {
         if !closing, autoConstrainSettings.enabled {
             let result = AutoConstraintEngine.infer(
                 tool: .line, anchor: anchor, current: end,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             end = result.snappedPoint
             // `anchor` and `rawEnd` are both pre-snap here, so this is already
@@ -9856,7 +9879,8 @@ final class EditorViewModel {
     /// explicit coincident constraint (plan §B) — its own undo step, guarded
     /// against over-constraint, and skipped when already coincident.
     private func maybeAddDragCoincident(_ drag: SketchEntityDrag) {
-        guard let control = drag.control,
+        guard effectiveAutoConstrainSettings.enabled, effectiveAutoConstrainSettings.pointSnap,
+              let control = drag.control,
               let role = Self.pointRole(for: control),
               case .sketching(let sketchID, _) = mode,
               let sketch = activeSketch,
@@ -10408,6 +10432,9 @@ final class EditorViewModel {
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
             for c in sketch.constraints {
+                guard annotationIsVisible(refs: c.refs,
+                    alwaysShow: AppSettings.shared.alwaysShowConstraints,
+                    explicitlySelected: selectedConstraintID == c.id) else { continue }
                 guard let local = constraintAnchorLocal(c, in: sketch) else { continue }
                 // Key by sketch too: two sketches on different planes can share
                 // plane-local coordinates without their glyphs overlapping.
@@ -10437,6 +10464,7 @@ final class EditorViewModel {
             openItemSketch(sketchID)
             guard activeSketch?.id == sketchID else { return }
         }
+        editingDimension = nil
         selectedConstraintID = (selectedConstraintID == id) ? nil : id
         selectedDimensionID = nil
         selectedSketchEntityIDs.removeAll()
@@ -10445,6 +10473,7 @@ final class EditorViewModel {
 
     /// Select a dimension (from the Items panel) for delete.
     func selectDimension(_ id: UUID) {
+        editingDimension = nil
         selectedDimensionID = (selectedDimensionID == id) ? nil : id
         selectedConstraintID = nil
         selectedSketchEntityIDs.removeAll()
@@ -10806,19 +10835,21 @@ final class EditorViewModel {
         if alwaysShow {
             return session.document.sketches.filter { !$0.isHidden || $0.id == active?.id }
         }
-        // The off-state is NOT "hidden". Shapr3D's own wording for it is
-        // "shown based on your current selection", so a sketch you have
-        // selected still shows what defines it — you just don't carry every
-        // sketch's annotations around the canvas. The active sketch always;
-        // plus any visible sketch with a selected entity.
-        var out = active.map { [$0] } ?? []
-        guard !selectedSketchEntityIDs.isEmpty else { return out }
-        for sketch in session.document.sketches
-        where !sketch.isHidden && sketch.id != active?.id
-                && sketch.entities.contains(where: { selectedSketchEntityIDs.contains($0.id) }) {
-            out.append(sketch)
+        // Keep the active sketch as a candidate; each annotation is filtered
+        // below, including a selected glyph or an open dimension editor.
+        let entityIDs = selectedSketchEntityIDs.union(selectedSketchPoints.map(\.entityID))
+        return session.document.sketches.filter {
+            $0.id == active?.id || (!$0.isHidden && $0.entities.contains { entityIDs.contains($0.id) })
         }
-        return out
+    }
+
+    private func annotationIsVisible(refs: [ConstraintRef], alwaysShow: Bool,
+                                     explicitlySelected: Bool) -> Bool {
+        SketchAnnotationVisibility.shows(refs: refs, alwaysShow: alwaysShow,
+            selectedEntities: selectedSketchEntityIDs,
+            selectedPoints: selectedSketchPoints.map {
+                ConstraintRef(entityID: $0.entityID, role: $0.role)
+            }, explicitlySelected: explicitlySelected)
     }
 
     var sketchDimensionLabels: [SketchDimensionLabel] {
@@ -10858,6 +10889,10 @@ final class EditorViewModel {
 
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions) {
             for d in sketch.dimensions {
+                guard annotationIsVisible(refs: d.refs,
+                    alwaysShow: AppSettings.shared.alwaysShowDimensions,
+                    explicitlySelected: selectedDimensionID == d.id
+                        || editingDimension?.dimensionID == d.id) else { continue }
                 // Prefer the measured value so the label is a truthful readout
                 // of the solved geometry (matches the driving value when
                 // satisfied).
@@ -10908,6 +10943,12 @@ final class EditorViewModel {
             openItemSketch(label.sketchID)
             guard activeSketch?.id == label.sketchID else { return }
         }
+        // Opening an external badge enters its sketch and keeps its defining
+        // geometry selected, so committing does not immediately hide the badge.
+        selectedSketchEntityIDs = Set(label.refs.map(\.entityID))
+        selectedSketchPoints.removeAll()
+        selectedConstraintID = nil
+        selectedDimensionID = label.dimensionID
         // Locked is the default for every fresh edit: a typed dimension is
         // normally meant to hold, and a sticky unlock would silently stop
         // recording them.

@@ -15,6 +15,53 @@ final class SettingsUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testSnappingControlsPersistAcrossLaunch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+        app.buttons["SettingsButton"].tap()
+        let identifiers = ["SnapToGridToggle", "SnapToSketchGuidepointsToggle",
+                           "SnapToFaceGuidepointsToggle", "ShowSnapHintsToggle"]
+        func reveal(_ identifier: String) -> XCUIElement {
+            let toggle = app.switches[identifier].firstMatch
+            for _ in 0..<5 {
+                if toggle.exists && toggle.isHittable { return toggle }
+                app.swipeUp()
+                sleep(1)
+            }
+            return toggle
+        }
+        func expectValue(_ value: String, on toggle: XCUIElement) {
+            let changed = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "value == %@", value), object: toggle)
+            XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed)
+        }
+        for identifier in identifiers {
+            let toggle = reveal(identifier)
+            XCTAssertTrue(toggle.exists)
+            if toggle.value as? String == "1" {
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            }
+            expectValue("0", on: toggle)
+        }
+        app.buttons["SettingsDone"].tap()
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+        app.buttons["SettingsButton"].tap()
+        for identifier in identifiers {
+            let toggle = reveal(identifier)
+            XCTAssertEqual(toggle.value as? String, "0", "Explicit off must survive relaunch")
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap() // restore default
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "restoring-\(identifier)"; shot.lifetime = .keepAlways; add(shot)
+            expectValue("1", on: toggle)
+        }
+        app.buttons["SettingsDone"].tap()
+    }
+
     /// Extrude a rectangle into a box and select it, so the info bar shows
     /// Volume/Bounds rows with unit readouts.
     private func makeAndSelectBox(_ app: XCUIApplication, _ window: XCUIElement) {

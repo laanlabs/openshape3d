@@ -112,6 +112,10 @@ final class AppSettings {
         static let singleKeyAction = "os3d.singleKeyAction"
         static let alwaysShowDimensions = "os3d.alwaysShowDimensions"
         static let alwaysShowConstraints = "os3d.alwaysShowConstraints"
+        static let snapToGrid = "os3d.snapToGrid"
+        static let snapToSketchGuidepoints = "os3d.snapToSketchGuidepoints"
+        static let snapToFaceGuidepoints = "os3d.snapToFaceGuidepoints"
+        static let showSnapHints = "os3d.showSnapHints"
     }
 
     var unit: DisplayUnit {
@@ -149,6 +153,24 @@ final class AppSettings {
         didSet { defaults.set(alwaysShowConstraints, forKey: Key.alwaysShowConstraints) }
     }
 
+    var snapToGrid: Bool {
+        didSet { defaults.set(snapToGrid, forKey: Key.snapToGrid) }
+    }
+    var snapToSketchGuidepoints: Bool {
+        didSet { defaults.set(snapToSketchGuidepoints, forKey: Key.snapToSketchGuidepoints) }
+    }
+    var snapToFaceGuidepoints: Bool {
+        didSet { defaults.set(snapToFaceGuidepoints, forKey: Key.snapToFaceGuidepoints) }
+    }
+    var showSnapHints: Bool {
+        didSet { defaults.set(showSnapHints, forKey: Key.showSnapHints) }
+    }
+
+    var snapOptions: SnapOptions {
+        SnapOptions(grid: snapToGrid, sketchGuidepoints: snapToSketchGuidepoints,
+                    faceGuidepoints: snapToFaceGuidepoints)
+    }
+
     /// The sample count pipelines were actually built with this launch.
     static func launchSampleCount(defaults: UserDefaults = .standard) -> Int {
         let stored = defaults.integer(forKey: Key.antiAliasing)
@@ -159,6 +181,10 @@ final class AppSettings {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        snapToGrid = defaults.object(forKey: Key.snapToGrid) as? Bool ?? true
+        snapToSketchGuidepoints = defaults.object(forKey: Key.snapToSketchGuidepoints) as? Bool ?? true
+        snapToFaceGuidepoints = defaults.object(forKey: Key.snapToFaceGuidepoints) as? Bool ?? true
+        showSnapHints = defaults.object(forKey: Key.showSnapHints) as? Bool ?? true
         unit = defaults.string(forKey: Key.unit).flatMap(DisplayUnit.init) ?? .millimeters
         theme = defaults.string(forKey: Key.theme).flatMap(AppTheme.init) ?? .system
         paletteOnRight = defaults.bool(forKey: Key.paletteOnRight)
@@ -169,14 +195,14 @@ final class AppSettings {
         // Constraint Settings ship "Always Show Constraints" and "Always Show
         // Dimensions" off, with the footer "Logical constraints and locked
         // dimensions are shown based on your current selection." Off is NOT
-        // hidden here either — `annotatedSketches` shows a selected sketch's
-        // annotations. `object(forKey:)` so an explicit choice survives a
+        // hidden here either — individual annotations follow selected geometry.
+        // `object(forKey:)` so an explicit choice survives a
         // relaunch (`bool(forKey:)` cannot tell false from unset).
         alwaysShowDimensions =
             defaults.object(forKey: Key.alwaysShowDimensions) as? Bool ?? false
         // Constraints default OFF: a canvas of ⌖ ∥ ⊥ ◎ badges over every visible
         // sketch while you are modelling is noise, and Shapr3D does not do it by
-        // default either. Off still shows them for a SELECTED sketch.
+        // default either. Off still shows annotations referring to selected geometry.
         alwaysShowConstraints =
             defaults.object(forKey: Key.alwaysShowConstraints) as? Bool ?? false
     }

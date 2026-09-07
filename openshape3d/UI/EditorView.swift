@@ -1435,6 +1435,7 @@ struct EditorView: View {
                         Label("Redo", systemImage: "arrow.uturn.forward")
                     }
                     .disabled(!viewModel.session.undoStack.canRedo)
+                    .accessibilityIdentifier("RedoButton")
 
                     Button {
                         viewModel.fitView()

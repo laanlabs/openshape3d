@@ -176,17 +176,17 @@ final class DimensionUITests: XCTestCase {
         XCTAssertFalse(app.buttons["DimensionLabel"].firstMatch.exists,
                        "with Always Show off, nothing selected means nothing shown")
 
-        // KNOWN GAP: in Shapr3D, selecting the geometry brings its dimension
-        // back — `annotatedSketches` already includes a sketch with a selected
-        // entity, so the missing piece is that a tap outside sketch mode is not
-        // reaching `selectedSketchEntityIDs`. Tracked in STATUS.
-        XCTExpectFailure("Selecting a sketch outside sketch mode does not yet "
-                         + "reveal its dimensions")
+        // Normal model-mode taps must recover the dimension.
         p(0.48, 0.50).tap()
         sleep(1)
         attach(app, "dimension-after-reselect")
         XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3),
                       "selecting the line shows its dimension again, as Shapr3D does")
+        app.buttons["DimensionLabel"].firstMatch.tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3),
+                      "the recovered badge opens an editor, not only a readout")
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists,
+                      "editing an external badge enters its owning sketch without arming a draw tool")
     }
 
     private func attach(_ app: XCUIApplication, _ name: String) {

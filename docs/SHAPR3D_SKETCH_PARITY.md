@@ -4,6 +4,13 @@ Written 2026-09-05 against **Shapr3D 26.121.0**, installed on the dev Mac.
 Scope: sketching and dimensions only. Companion docs:
 `MODELING_PARITY_GOALS.md` (the roadmap this feeds), `PARITY_SPEC.md`.
 
+## Current baseline correction — 2026-09-07
+
+The September 5 sections below are **historical**, not the current implementation contract.
+At audited revision `88b0478`, both Always Show Dimensions and Always Show Constraints default **OFF**. Off means selection-based, not hidden and not “all active sketch annotations.” The follow-up implementation filters each annotation and makes normal model-mode outline taps recover its dimensions; see [implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
+
+`PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
+
 ## Where the reference evidence comes from
 
 Two sources, both from the shipped binary — no recollection, no tutorials.
@@ -71,7 +78,7 @@ choice rather than picking for you:
 | **G1** | Dimensions and constraint glyphs vanished on leaving the sketch, and only ever showed for the *active* sketch | **fixed** (this pass) |
 | **G6** | Dimension label text was hardcoded `"%.2f"` + `" mm"`, ignoring the display unit | **fixed** (this pass) |
 | **G5** | A circle read **Ø** while you dragged it out but committed to a bare, unprefixed **radius** — two numbers for one circle, seconds apart | **fixed** (this pass) |
-| **G2** | One dimension inferred from the selection; no way to choose *what* to measure. Shapr3D has ten dimension tools and an adaptive menu | open |
+| **G2** | Historical ten-tool list came from 2D Drawings, not sketch mode. Use audit DM-03 / DM-04 for sketch distance-type and circle-size choices. | withdrawn; replaced by scoped audit |
 | **G3** | Label position is computed; Shapr3D's badge is draggable ("Drag the Dimension badge to reposition it") | open |
 | **G7** | No `Disconnect`; no `Anchored Sketch Entity` (First/Last Selected) setting | open |
 | **G8** | Spline and Sketch Pattern are kernel-complete but unreachable — `SketchTool` has no `.spline` case, and `patternLinks` is untouched by `EditorViewModel` | open |
@@ -220,15 +227,10 @@ which a ten-key cannot express.
 
 ## Notes for whoever picks up G2–G8
 
-- The ten Shapr3D dimension tools: Line Length, Point-to-Point Distance,
-  Point-to-Line Distance, Line-to-Line Distance, Radius, Diameter, Arc Angle,
-  Line-to-Line Angle, 3-Point Angle, Min-Max Distance. openshape3d's
-  `DimensionKind` has distance, radius, diameter, angle, horizontal, vertical.
-  A full circle now offers Diameter and an arc offers Radius, but there is still
-  no way to ask for the *other* one — that is what the adaptive menu is for.
-- Each Shapr3D dimension also carries badges: an **Alignment** badge (Distance
-  Type: Horizontal / Vertical / Absolute) and a **Type** badge (min vs max,
-  inner vs outer angle).
+- Do not copy the ten-tool 2D Drawings dimension list into sketch mode. Follow
+  the verified sketch-specific distance-type and circle-size requirements in
+  audit DM-03 and DM-04 instead. Inner/outer angle and min/max badges must be
+  verified in sketch mode before treating them as sketch requirements.
 - Roadmap drift worth correcting: `MODELING_PARITY_GOALS.md` §G5.1 and §G5.3
   list spline and sketch pattern as open, but both are kernel-complete with
   tests — only the UI is missing.

@@ -105,7 +105,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
 
         vm.mode = .sketching(sketch.id, tool: nil)
-        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "the active sketch always shows")
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "active sketch still requires a selection")
     }
 
     // MARK: - Radius vs diameter (the app used to disagree with itself)

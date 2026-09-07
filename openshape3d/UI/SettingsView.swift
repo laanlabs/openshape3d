@@ -29,6 +29,8 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                SnappingSettingsSection(settings: settings)
+
                 Section("Appearance") {
                     Picker("Theme", selection: $settings.theme) {
                         ForEach(AppTheme.allCases, id: \.self) { theme in

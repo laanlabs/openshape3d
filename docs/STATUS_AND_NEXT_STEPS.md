@@ -1,8 +1,7 @@
 # Status & Next Steps — Handoff Notes
 
-Last updated: 2026-09-05 (Import Units prompt, LiDAR scan import fixes, in-app bug reporter, Items Manager folders, project folders in the gallery — see the three newest mission log entries; before that: textured mesh import glTF/USDZ/OBJ + exact OCCT face draft; before that: SOLIDWORKS practice problems through the UI; 2026-09-03 SOLIDWORKS practice-problem campaign — extrude end
-conditions, B-rep touch commits, draft of an existing face; see the mission
-log just below, and **§4c for the campaign's state and how to resume it**).
+Last updated: 2026-09-07 — sketch parity foundations; see the new mission log and
+[full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
 Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
@@ -10,6 +9,21 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Current baseline correction — 2026-09-07
+
+The September 5 sections below are **historical**, not the current implementation contract.
+At audited revision `88b0478`, both Always Show Dimensions and Always Show Constraints default **OFF**. Off means selection-based, not hidden and not “all active sketch annotations.” The follow-up implementation filters each annotation and makes normal model-mode outline taps recover its dimensions; see [implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
+
+`PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
+
+## Mission log — 2026-09-07, sketch parity foundations
+
+Implemented normal outline selection in model mode (depth-aware; profile interiors remain extrudable), per-annotation selection filtering, persistent snapping preferences, and pending keypad cleanup on tool/selection/exit transitions. Defaults remain both annotation visibility switches OFF; existing grid/guidepoint snaps default ON. Grid-off also disables face-edge quantization and sketch translation capture. Snap acquisition and auto-constraint recording remain distinct.
+
+Final combined verification: **40 unit + 7 UI tests passed, 0 failures**; [receipt](testing/sketch-parity-foundations-2026-09-07.md). See [the implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md) for exact scope and all remaining audit issues. SK-05 is partial: independently configurable guidelines and off-plane 3D guidepoints are not implemented. DM-12 is only partially verified, not a complete keypad/keyboard matrix sign-off.
+
+Existing `SketchToolsUITests` exposed a missing `RedoButton` accessibility identifier (the button was present under label “Redo”); added it alongside the existing Undo identifier to unblock the end-to-end undo/redo/profile regression.
 
 ## Mission log — 2026-09-05, sketch dimensions stop vanishing (Shapr3D-measured)
 
@@ -49,8 +63,7 @@ and its full vocabulary (3,226 keys) in `en.lproj/Localizable.strings` via
 tool — the Homebrew `ffmpeg` here is broken (missing `libx265`). Driving
 Shapr3D live is NOT possible: UI scripting needs Accessibility and `osascript`
 returns `not allowed assistive access (-1719)`. Write-up + screenshots:
-`docs/SHAPR3D_SKETCH_PARITY.md`. Still open there: G2 (ten dimension tools +
-adaptive menu), G3 (draggable badge), G7 (Disconnect, Anchored Sketch Entity),
+`docs/SHAPR3D_SKETCH_PARITY.md`. Historical list (corrected above): G2 (withdrawn: ten-tool evidence came from 2D Drawings), G3 (badge dragging needs sketch-specific verification), G7 (Disconnect, Anchored Sketch Entity),
 G8 (spline / sketch-pattern UI).
 
 **On-canvas number pad for dimensions (`NumericKeypad`).** Tapping a dimension
@@ -312,9 +325,9 @@ check `contentShape` FIRST when a SwiftUI control renders but will not activate.
    for taps to land in — the same failure shape as the branch's edge-picking
    cluster, and worth not adding a second source of.
 
-Still open in `SHAPR3D_SKETCH_PARITY.md`: G2 (ten dimension tools + the adaptive
-menu that would let you ask a circle for R instead of Ø), G3 (draggable badge),
-G7, G8. Also unpinned: no test proves a badge does not swallow a viewport tap —
+Historical G2–G8 list in `SHAPR3D_SKETCH_PARITY.md`: the ten-tool G2 list is
+withdrawn (2D Drawings evidence); use audit DM-03/DM-04 for sketch dimension
+choices. G3 needs sketch-specific evidence; G7 and G8 remain in the audit queue. Also unpinned: no test proves a badge does not swallow a viewport tap —
 gating on content narrows the window but does not close it.
 
 **⚠️ 16 UI-suite failures are already on this branch, from the UNCOMMITTED
