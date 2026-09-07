@@ -49,6 +49,7 @@ struct ExtrudeGizmoOverlay: View {
 
     var body: some View {
         let _ = viewModel.cameraEpoch
+        GeometryReader { geo in
         ZStack {
             if let anchor = arrowAnchor {
                 if !viewModel.editingExtrudeArrow {
@@ -56,12 +57,18 @@ struct ExtrudeGizmoOverlay: View {
                 }
                 if let label = viewModel.extrudeArrowLabel {
                     // Anchor the pill BELOW the arrow (screen-down) so it never
-                    // overlaps the handle, whichever way the face points.
+                    // overlaps the handle, whichever way the face points. While
+                    // it is a text field, keep it clear of the on-screen
+                    // keyboard (bug report 8c98bd3b).
+                    let below = CGPoint(x: anchor.point.x,
+                                        y: anchor.point.y + Self.pillDropBelowArrow)
                     pill(label)
-                        .position(x: anchor.point.x,
-                                  y: anchor.point.y + Self.pillDropBelowArrow)
+                        .position(viewModel.editingExtrudeArrow
+                                  ? MoveDistanceOverlay.clearOfKeyboard(below, in: geo.size)
+                                  : below)
                 }
             }
+        }
         }
         // `worldToScreenPoint` returns full-screen (MTKView) coordinates, so the
         // overlay must span the full screen too — otherwise the safe-area inset
@@ -166,9 +173,35 @@ struct ExtrudeGizmoOverlay: View {
 private struct ExtrudeArrowField: View {
     @Bindable var viewModel: EditorViewModel
     @State private var text = ""
+    @State private var padOpen = false
+    @State private var usingSystemKeyboard = false
     @FocusState private var focused: Bool
 
     var body: some View {
+        // An INLINE card, like the sketch dimension field. A `.popover` works
+        // from a bar or a panel but does not reliably present from these
+        // canvas-floating overlays, so the pad is stacked under the pill.
+        VStack(spacing: 6) {
+            pill
+            if padOpen && !usingSystemKeyboard {
+                NumericKeypad(
+                    text: $text,
+                    isLocked: nil,
+                    onCommit: {
+                        padOpen = false
+                        viewModel.commitExtrudeArrowEdit(text)
+                    },
+                    onSwitchToSystemKeyboard: {
+                        padOpen = false
+                        usingSystemKeyboard = true
+                        focused = true
+                    }
+                )
+            }
+        }
+    }
+
+    private var pill: some View {
         TextField("", text: $text)
             .keyboardType(.numbersAndPunctuation)
             .autocorrectionDisabled()
@@ -181,16 +214,19 @@ private struct ExtrudeArrowField: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
             .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color.blue, lineWidth: 1.5))
             .focused($focused)
+            .allowsHitTesting(usingSystemKeyboard)
             .submitLabel(.done)
             .onSubmit { viewModel.commitExtrudeArrowEdit(text) }
             .accessibilityIdentifier("ExtrudeArrowField")
+            .contentShape(Rectangle())
+            .onTapGesture { if !usingSystemKeyboard { padOpen = true } }
             .onAppear {
                 // Seed with the numeric part of the current label.
                 text = (viewModel.extrudeArrowLabel?.text ?? "")
                     .replacingOccurrences(of: "⌀ ", with: "")
                     .replacingOccurrences(
                         of: " " + AppSettings.shared.unit.symbol, with: "")
-                focused = true
+                padOpen = true
             }
     }
 }

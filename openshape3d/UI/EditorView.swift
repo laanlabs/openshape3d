@@ -418,8 +418,8 @@ struct EditorView: View {
             Divider().frame(height: 20)
             Text(kind.valueLabel).font(.caption).foregroundStyle(.barLabel).fixedSize()
             // Text, applied live, arithmetic allowed — see ExpressionValueField.
-            ExpressionValueField(placeholder: settings.unit.symbol, mm: value,
-                                 identifier: "BlendValueField")
+            ExpressionValueField(placeholder: settings.unit.symbol, value: value,
+                                 clamp: nil, identifier: "BlendValueField")
             Text(settings.unit.symbol).font(.caption).foregroundStyle(.barLabel).fixedSize()
             // While dragging, show the kernel-derived ceiling the drag is
             // clamped to, so the stop doesn't read as a stuck gesture.
@@ -539,8 +539,8 @@ struct EditorView: View {
                 .fixedSize()
             Divider().frame(height: 20)
             Text("Thickness").font(.caption).foregroundStyle(.barLabel).fixedSize()
-            ExpressionValueField(placeholder: settings.unit.symbol, mm: value,
-                                 identifier: "ShellThicknessField")
+            ExpressionValueField(placeholder: settings.unit.symbol, value: value,
+                                 clamp: nil, identifier: "ShellThicknessField")
             Text(settings.unit.symbol).font(.caption).foregroundStyle(.barLabel).fixedSize()
         } actions: {
             Button("Cancel") { viewModel.cancelShell() }

@@ -100,9 +100,9 @@ final class SketchTransformUITests: XCTestCase {
         XCTAssertTrue(angleField.waitForExistence(timeout: 3),
                       "Choosing an axis should open the angle field")
 
-        // Type an exact 45° and commit.
-        angleField.tap()
-        angleField.typeText("45\n")
+        // Type an exact 45° and commit. The angle field opens the number pad,
+        // not the keyboard; `replaceText` drives whichever is in front.
+        replaceText(angleField, with: "45")
         let apply = app.buttons["RotateAxisApply"]
         if apply.exists {
             apply.tap()

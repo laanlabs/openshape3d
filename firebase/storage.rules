@@ -1,0 +1,28 @@
+// Cloud Storage rules for bug-report attachments (docs/BUG_REPORTS.md).
+//
+// Same posture as firestore.rules: the client holds only the public API key,
+// so it may upload ONE .os3d under a report's own prefix, capped at the size
+// the app itself enforces, and can neither read it back, replace it, nor
+// list the bucket. Downloads happen through the owner's account
+// (`scripts/bug_reports.py`), which goes through IAM.
+//
+// Deploy: `firebase deploy --only storage --project openshape3d`
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /bugReports/{reportID}/{fileName} {
+      allow create: if
+        reportID.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+        && fileName.matches('^[^/]+\\.os3d$')
+        && request.resource.size > 0
+        && request.resource.size <= 40 * 1024 * 1024
+        && request.resource.contentType == 'application/octet-stream';
+      allow read, update, delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -22,7 +22,18 @@ struct NumericInputBar: View {
     /// formatted field only flushed on Return, so a tap on Extrude used to
     /// commit the stale value silently (gotcha 37).
     @State private var extrudeDistanceText: String = ""
+    @State private var extrudeDistancePadOpen = false
+    @State private var extrudeDistanceUsesKeyboard = false
     @FocusState private var extrudeDistanceFocused: Bool
+
+    private func submitExtrudeDistance() {
+        if applyExtrudeDistanceText() {
+            viewModel.commitTool()
+        } else {
+            viewModel.errorMessage =
+                "Couldn't read \"\(extrudeDistanceText)\" as a distance."
+        }
+    }
 
     private func extrudeDistanceDisplay(_ mm: Double?) -> String {
         let shown = AppSettings.shared.unit.display(fromMM: mm ?? 0)
@@ -95,13 +106,18 @@ struct NumericInputBar: View {
                             .font(.caption)
                             .foregroundStyle(.barLabel)
                             .fixedSize()
-                        TextField(label, value: AppSettings.shared.unit.binding(binding(at: index)),
-                                  format: .number.precision(.fractionLength(0...3)))
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 80)
-                            .focused($focusedField, equals: index)
-                            .onSubmit { commit() }
+                        // Raw millimetres: `.length` converts for display, so
+                        // `unit.binding` here would convert twice. Values apply
+                        // live, and Done / the pad's commit push them.
+                        ExpressionValueField(
+                            placeholder: label,
+                            value: binding(at: index),
+                            kind: .length,
+                            clamp: nil,
+                            width: 80,
+                            identifier: "PrimitiveField-\(index)",
+                            onSubmit: { commit() }
+                        )
                     }
                 }
 
@@ -140,19 +156,20 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Factor",
+                // A multiplier, not a length — `.plain` so the display unit
+                // never scales it.
+                ExpressionValueField(
+                    placeholder: "Factor",
                     value: Binding(
                         get: { viewModel.scalePendingFactor },
                         set: { viewModel.scalePendingFactor = $0 }
                     ),
-                    format: .number.precision(.fractionLength(0...2))
+                    kind: .plain,
+                    clamp: nil,
+                    width: 90,
+                    identifier: "ScaleFactorField",
+                    onSubmit: { viewModel.commitScale(factor: viewModel.scalePendingFactor) }
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
-                .accessibilityIdentifier("ScaleFactorField")
-                .onSubmit { viewModel.commitScale(factor: viewModel.scalePendingFactor) }
             }
 
             Button("Copy") {
@@ -189,19 +206,18 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Angle",
+                ExpressionValueField(
+                    placeholder: "Angle",
                     value: Binding(
                         get: { viewModel.rotateAxisState?.angleDegrees ?? 0 },
                         set: { viewModel.setRotateAngle($0) }
                     ),
-                    format: .number.precision(.fractionLength(0...2))
+                    kind: .plain,
+                    clamp: nil,
+                    width: 90,
+                    identifier: "RotateAxisAngle",
+                    onSubmit: { viewModel.commitRotateAxis() }
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
-                .accessibilityIdentifier("RotateAxisAngle")
-                .onSubmit { viewModel.commitRotateAxis() }
             }
 
             Spacer()
@@ -241,18 +257,20 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Count",
+                // `count` is an Int; the field speaks Double, so round on the
+                // way in. The range lives in `clamp` rather than the setter so
+                // the field knows about it too.
+                ExpressionValueField(
+                    placeholder: "Count",
                     value: Binding(
-                        get: { viewModel.patternState?.count ?? 3 },
-                        set: { viewModel.patternState?.count = min(max($0, 1), 64) }
+                        get: { Double(viewModel.patternState?.count ?? 3) },
+                        set: { viewModel.patternState?.count = Int($0.rounded()) }
                     ),
-                    format: .number.precision(.fractionLength(0...2))
+                    kind: .plain,
+                    clamp: 1...64,
+                    width: 60,
+                    identifier: "PatternCount"
                 )
-                .keyboardType(.numberPad)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 60)
-                .accessibilityIdentifier("PatternCount")
             }
 
             if state.kind == .linear {
@@ -261,18 +279,20 @@ struct NumericInputBar: View {
                         .font(.caption)
                         .foregroundStyle(.barLabel)
                         .fixedSize()
-                    TextField(
-                        "Spacing",
-                        value: AppSettings.shared.unit.binding(Binding(
+                    // Bind the RAW millimetres: `.length` does the display-unit
+                    // conversion itself, so wrapping in `unit.binding` here
+                    // would convert twice.
+                    ExpressionValueField(
+                        placeholder: "Spacing",
+                        value: Binding(
                             get: { viewModel.patternState?.spacing ?? 6 },
                             set: { viewModel.patternState?.spacing = $0 }
-                        )),
-                        format: .number.precision(.fractionLength(0...2))
+                        ),
+                        kind: .length,
+                        clamp: nil,
+                        width: 80,
+                        identifier: "PatternSpacing"
                     )
-                    .keyboardType(.numbersAndPunctuation)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 80)
-                    .accessibilityIdentifier("PatternSpacing")
                 }
             } else {
                 HStack(spacing: 6) {
@@ -280,18 +300,17 @@ struct NumericInputBar: View {
                         .font(.caption)
                         .foregroundStyle(.barLabel)
                         .fixedSize()
-                    TextField(
-                        "Angle",
+                    ExpressionValueField(
+                        placeholder: "Angle",
                         value: Binding(
                             get: { viewModel.patternState?.totalAngle ?? 360 },
                             set: { viewModel.patternState?.totalAngle = $0 }
                         ),
-                        format: .number.precision(.fractionLength(0...2))
+                        kind: .plain,
+                        clamp: nil,
+                        width: 80,
+                        identifier: "PatternAngle"
                     )
-                    .keyboardType(.numbersAndPunctuation)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 80)
-                    .accessibilityIdentifier("PatternAngle")
                 }
             }
 
@@ -438,21 +457,20 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Size",
-                    value: AppSettings.shared.unit.binding(Binding(
+                ExpressionValueField(
+                    placeholder: "Size",
+                    value: Binding(
                         get: {
                             viewModel.selectedImage.map { max($0.width, $0.height) }
                                 ?? max(image.width, image.height)
                         },
                         set: { viewModel.setImageMaxDimension($0) }
-                    )),
-                    format: .number.precision(.fractionLength(0...2))
+                    ),
+                    kind: .length,
+                    clamp: nil,
+                    width: 80,
+                    identifier: "ImageSizeField"
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 80)
-                .accessibilityIdentifier("ImageSizeField")
             }
 
             if !isCompact { opacityControl(image, width: 140) }
@@ -485,17 +503,17 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Sides",
+                ExpressionValueField(
+                    placeholder: "Sides",
                     value: Binding(
-                        get: { viewModel.polygonSides },
-                        set: { viewModel.polygonSides = min(max($0, 3), 64) }
+                        get: { Double(viewModel.polygonSides) },
+                        set: { viewModel.polygonSides = Int($0.rounded()) }
                     ),
-                    format: .number.precision(.fractionLength(0...2))
+                    kind: .plain,
+                    clamp: 3...64,
+                    width: 60,
+                    identifier: "PolygonSidesField"
                 )
-                .keyboardType(.numberPad)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 60)
                 Stepper(
                     "Sides",
                     value: Binding(
@@ -522,18 +540,18 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Diameter",
-                    value: AppSettings.shared.unit.binding(Binding(
+                ExpressionValueField(
+                    placeholder: "Diameter",
+                    value: Binding(
                         get: { 2 * (radius + (viewModel.toolContext?.distance ?? 0)) },
                         set: { viewModel.setExtrudeDistance($0 / 2 - radius) }
-                    )),
-                    format: .number.precision(.fractionLength(0...2))
+                    ),
+                    kind: .length,
+                    clamp: nil,
+                    width: 100,
+                    identifier: "RadialDiameterField",
+                    onSubmit: { viewModel.commitTool() }
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 100)
-                .onSubmit { viewModel.commitTool() }
             }
             Spacer()
         } actions: {
@@ -571,17 +589,29 @@ struct NumericInputBar: View {
                 // A drag on the arrow moves the distance under the field;
                 // mirror it unless the person is mid-edit.
                 .onChange(of: viewModel.toolContext?.distance) { _, new in
-                    if !extrudeDistanceFocused {
+                    if !extrudeDistanceFocused && !extrudeDistancePadOpen {
                         extrudeDistanceText = extrudeDistanceDisplay(new)
                     }
                 }
-                .onSubmit {
-                    if applyExtrudeDistanceText() {
-                        viewModel.commitTool()
-                    } else {
-                        viewModel.errorMessage = "Couldn't read \"\(extrudeDistanceText)\" as a distance."
-                    }
+                .onSubmit { submitExtrudeDistance() }
+                .allowsHitTesting(extrudeDistanceUsesKeyboard)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if !extrudeDistanceUsesKeyboard { extrudeDistancePadOpen = true }
                 }
+                .numericKeypad(
+                    isPresented: $extrudeDistancePadOpen,
+                    text: $extrudeDistanceText,
+                    onCommit: {
+                        extrudeDistancePadOpen = false
+                        submitExtrudeDistance()
+                    },
+                    onSwitchToSystemKeyboard: {
+                        extrudeDistancePadOpen = false
+                        extrudeDistanceUsesKeyboard = true
+                        extrudeDistanceFocused = true
+                    }
+                )
             }
 
             // End condition: Through All / Up To Next resolve to a distance
@@ -748,18 +778,18 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Distance",
-                    value: AppSettings.shared.unit.binding(Binding(
+                ExpressionValueField(
+                    placeholder: "Distance",
+                    value: Binding(
                         get: { viewModel.toolContext?.distance ?? 0 },
                         set: { viewModel.setOffsetPlaneDistance($0) }
-                    )),
-                    format: .number.precision(.fractionLength(0...2))
+                    ),
+                    kind: .length,
+                    clamp: nil,
+                    width: 90,
+                    identifier: "OffsetPlaneDistanceField",
+                    onSubmit: { viewModel.commitTool() }
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
-                .onSubmit { viewModel.commitTool() }
             }
 
             Spacer()
@@ -786,18 +816,18 @@ struct NumericInputBar: View {
                     .font(.caption)
                     .foregroundStyle(.barLabel)
                     .fixedSize()
-                TextField(
-                    "Angle",
+                ExpressionValueField(
+                    placeholder: "Angle",
                     value: Binding(
                         get: { viewModel.toolContext?.angle ?? 360 },
                         set: { viewModel.setRevolveAngle($0) }
                     ),
-                    format: .number.precision(.fractionLength(0...2))
+                    kind: .plain,
+                    clamp: nil,
+                    width: 90,
+                    identifier: "RevolveAngleField",
+                    onSubmit: { viewModel.commitTool() }
                 )
-                .keyboardType(.numbersAndPunctuation)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
-                .onSubmit { viewModel.commitTool() }
             }
 
             Spacer()
@@ -872,23 +902,24 @@ struct HelixOptionsSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                // Radius and pitch are lengths and now read in the document's
+                // display unit like every other length in the app; they used to
+                // be bare numbers that silently meant millimetres. Turns is a
+                // count, so it stays `.plain`.
                 LabeledContent("Radius") {
-                    TextField("Radius", value: $radius, format: .number)
-                        .keyboardType(.numbersAndPunctuation)
-                        .multilineTextAlignment(.trailing)
-                        .accessibilityIdentifier("HelixRadius")
+                    ExpressionValueField(
+                        placeholder: "Radius", value: $radius, kind: .length,
+                        clamp: 0.001...1e6, width: 90, identifier: "HelixRadius")
                 }
                 LabeledContent("Pitch") {
-                    TextField("Pitch", value: $pitch, format: .number)
-                        .keyboardType(.numbersAndPunctuation)
-                        .multilineTextAlignment(.trailing)
-                        .accessibilityIdentifier("HelixPitch")
+                    ExpressionValueField(
+                        placeholder: "Pitch", value: $pitch, kind: .length,
+                        clamp: 0.001...1e6, width: 90, identifier: "HelixPitch")
                 }
                 LabeledContent("Turns") {
-                    TextField("Turns", value: $turns, format: .number)
-                        .keyboardType(.numbersAndPunctuation)
-                        .multilineTextAlignment(.trailing)
-                        .accessibilityIdentifier("HelixTurns")
+                    ExpressionValueField(
+                        placeholder: "Turns", value: $turns, kind: .plain,
+                        clamp: 0.01...1000, width: 90, identifier: "HelixTurns")
                 }
             }
             .navigationTitle("Helix")

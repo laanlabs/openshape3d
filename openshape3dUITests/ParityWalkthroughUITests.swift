@@ -500,22 +500,22 @@ final class ParityWalkthroughUITests: XCTestCase {
                       "Selecting the line should show an editable dimension label")
         label.tap()
 
-        // The inline field opens; type a driving value before committing so the
-        // screenshot shows the label mid-edit.
+        // The field opens with the on-canvas keypad rather than the system
+        // keyboard, so the value is entered by tapping keys.
         let field = app.textFields["DimensionField"]
         XCTAssertTrue(field.waitForExistence(timeout: 3))
-        field.tap()
-        let existing = (field.value as? String) ?? ""
-        if !existing.isEmpty {
-            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue,
-                                  count: existing.count))
+        let delete = app.buttons["KeypadDelete"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 3))
+        for _ in 0..<24 where !((field.value as? String) ?? "").isEmpty {
+            delete.tap()
         }
-        field.typeText("20")
-        XCTAssertTrue(app.buttons["DimensionCommit"].waitForExistence(timeout: 2))
+        app.buttons["Keypad-2"].tap()
+        app.buttons["Keypad-0"].tap()
+        XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 2))
         snap("30-dimension-label-editing")
 
         // Commit: the solver drives the line to length 20.
-        app.buttons["DimensionCommit"].tap()
+        app.buttons["KeypadCommit"].tap()
         sleep(1)
         XCTAssertTrue(app.staticTexts["20.00 mm"].waitForExistence(timeout: 3),
                       "The line should be driven to length 20")

@@ -110,6 +110,8 @@ final class AppSettings {
         static let paletteOnRight = "os3d.paletteOnRight"
         static let antiAliasing = "os3d.antiAliasing"
         static let singleKeyAction = "os3d.singleKeyAction"
+        static let alwaysShowDimensions = "os3d.alwaysShowDimensions"
+        static let alwaysShowConstraints = "os3d.alwaysShowConstraints"
     }
 
     var unit: DisplayUnit {
@@ -135,6 +137,18 @@ final class AppSettings {
         didSet { defaults.set(singleKeyAction.rawValue, forKey: Key.singleKeyAction) }
     }
 
+    /// Shapr3D's "Constraint & Locked Dimension Visibility": when on, a
+    /// sketch's dimensions stay on canvas after you leave the sketch, and every
+    /// visible sketch shows its own — not just the one being edited. Off, they
+    /// follow the selection, which is Shapr3D's shipped default.
+    var alwaysShowDimensions: Bool {
+        didSet { defaults.set(alwaysShowDimensions, forKey: Key.alwaysShowDimensions) }
+    }
+    /// The same, for constraint glyphs.
+    var alwaysShowConstraints: Bool {
+        didSet { defaults.set(alwaysShowConstraints, forKey: Key.alwaysShowConstraints) }
+    }
+
     /// The sample count pipelines were actually built with this launch.
     static func launchSampleCount(defaults: UserDefaults = .standard) -> Int {
         let stored = defaults.integer(forKey: Key.antiAliasing)
@@ -151,6 +165,20 @@ final class AppSettings {
         antiAliasing = Self.launchSampleCount(defaults: defaults)
         singleKeyAction = defaults.string(forKey: Key.singleKeyAction)
             .flatMap(SingleKeyAction.init) ?? .hotkeys
+        // Both default OFF, verified against the running Shapr3D: its
+        // Constraint Settings ship "Always Show Constraints" and "Always Show
+        // Dimensions" off, with the footer "Logical constraints and locked
+        // dimensions are shown based on your current selection." Off is NOT
+        // hidden here either — `annotatedSketches` shows a selected sketch's
+        // annotations. `object(forKey:)` so an explicit choice survives a
+        // relaunch (`bool(forKey:)` cannot tell false from unset).
+        alwaysShowDimensions =
+            defaults.object(forKey: Key.alwaysShowDimensions) as? Bool ?? false
+        // Constraints default OFF: a canvas of ⌖ ∥ ⊥ ◎ badges over every visible
+        // sketch while you are modelling is noise, and Shapr3D does not do it by
+        // default either. Off still shows them for a SELECTED sketch.
+        alwaysShowConstraints =
+            defaults.object(forKey: Key.alwaysShowConstraints) as? Bool ?? false
     }
 
     // Under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, this class is

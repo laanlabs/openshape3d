@@ -1,0 +1,159 @@
+//
+//  NumericKeypadTests.swift
+//  openshape3dTests
+//
+//  The keypad's text rules and the two behaviours behind its non-digit keys:
+//  a unit suffix that actually converts, and the lock that decides whether a
+//  typed value is recorded as a driving dimension.
+//
+
+import XCTest
+import SwiftData
+@testable import openshape3d
+
+final class NumericKeypadTextTests: XCTestCase {
+
+    func testTrailingUnitPrefersTheLongerToken() {
+        // "mm" must never be read as a trailing "m", or 20 mm becomes 20 m.
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 mm"), "mm")
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 m"), "m")
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 cm"), "cm")
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "45 deg"), "deg")
+        XCTAssertNil(NumericKeypad.trailingUnit(in: "20"))
+        XCTAssertNil(NumericKeypad.trailingUnit(in: "25.4/2"))
+    }
+
+    func testLengthUnitMapping() {
+        XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "mm"), .millimeters)
+        XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "cm"), .centimeters)
+        XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "m"), .meters)
+        // deg is an angle, not a length — it must not scale a distance.
+        XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: "deg"))
+        XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: nil))
+    }
+
+    /// The pad prints × ÷ − but the evaluator parses ASCII, so every operator
+    /// the pad can produce has to survive a round trip.
+    func testEveryOperatorThePadEmitsEvaluates() {
+        XCTAssertEqual(ExpressionEvaluator.evaluate("6*7"), 42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("84/2"), 42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("50-8"), 42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("40+2"), 42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("(1+5)*7"), 42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("-42"), -42)
+        XCTAssertEqual(ExpressionEvaluator.evaluate("42 mm"), 42)
+    }
+}
+
+@MainActor
+final class DimensionKeypadCommitTests: XCTestCase {
+    nonisolated(unsafe) static var retained: [EditorViewModel] = []
+
+    private var savedUnit: DisplayUnit!
+
+    override func setUp() {
+        super.setUp()
+        savedUnit = AppSettings.shared.unit
+    }
+    override func tearDown() {
+        AppSettings.shared.unit = savedUnit
+        super.tearDown()
+    }
+
+    private func makeViewModel() throws -> EditorViewModel {
+        let schema = Schema([
+            Project.self, PersistedBody.self, PersistedSketch.self,
+            PersistedPlane.self, PersistedImage.self, PersistedSymbol.self,
+        ])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = ModelContext(container)
+        let project = Project(name: "Keypad Commit Test")
+        context.insert(project)
+        let vm = EditorViewModel(project: project, modelContext: context)
+        Self.retained.append(vm)
+        return vm
+    }
+
+    /// A horizontal line, selected, with its length dimension open for edit.
+    private func lineReadyToDimension(_ vm: EditorViewModel) -> (Sketch, UUID) {
+        let id = UUID()
+        let sketch = Sketch(plane: .ground,
+                            entities: [.line(id: id, a: SIMD2(0, 0), b: SIMD2(40, 0))])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionForSelection()
+        return (sketch, id)
+    }
+
+    private func length(_ vm: EditorViewModel, _ sketchID: SketchID) -> Double? {
+        guard let s = vm.session.document.sketches.first(where: { $0.id == sketchID }),
+              case let .line(_, a, b) = s.entities[0] else { return nil }
+        return simd_distance(a, b)
+    }
+
+    // MARK: Unit keys
+
+    /// The evaluator DROPS a trailing unit before parsing, so without explicit
+    /// handling "20 cm" meant "20 display units". The unit keys would have been
+    /// decoration.
+    func testATypedUnitBeatsTheDisplayUnit() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (sketch, _) = lineReadyToDimension(vm)
+
+        vm.commitDimensionEdit("20 cm")
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 200, accuracy: 1e-6,
+                       "20 cm is 200 mm, whatever the document is displaying")
+    }
+
+    func testWithoutASuffixTheDisplayUnitStillApplies() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .centimeters
+        let (sketch, _) = lineReadyToDimension(vm)
+
+        vm.commitDimensionEdit("20")
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 200, accuracy: 1e-6)
+    }
+
+    // MARK: The lock key
+
+    func testLockedCommitRecordsADrivingDimension() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (sketch, _) = lineReadyToDimension(vm)
+        vm.dimensionCommitLocked = true
+
+        vm.commitDimensionEdit("20")
+        let stored = vm.session.document.sketches.first { $0.id == sketch.id }
+        XCTAssertEqual(stored?.dimensions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 20, accuracy: 1e-6)
+    }
+
+    /// Unlocked, the value still drives the solve — the geometry lands exactly
+    /// where it was asked to — it just is not written down as a constraint.
+    func testUnlockedCommitResizesWithoutRecordingADimension() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (sketch, _) = lineReadyToDimension(vm)
+        vm.dimensionCommitLocked = false
+
+        vm.commitDimensionEdit("20")
+        let stored = vm.session.document.sketches.first { $0.id == sketch.id }
+        XCTAssertEqual(stored?.dimensions.count, 0,
+                       "no driving dimension recorded")
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 20, accuracy: 1e-6,
+                       "but the geometry still went where it was told")
+    }
+
+    func testEveryFreshEditStartsLocked() throws {
+        let vm = try makeViewModel()
+        let (_, _) = lineReadyToDimension(vm)
+        vm.dimensionCommitLocked = false
+        // Re-opening the field is a new decision; a sticky unlock would quietly
+        // stop recording dimensions.
+        vm.beginDimensionForSelection()
+        XCTAssertTrue(vm.dimensionCommitLocked)
+    }
+}

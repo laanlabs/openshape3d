@@ -40,8 +40,9 @@ final class ShellUITests: XCTestCase {
         // wall to hollow, so Shell would (correctly) refuse it.
         let field = app.textFields["Distance"].firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 3))
-        field.tap()
-        field.typeText("30\n")   // onSubmit commits the extrude
+        // The Distance field opens the number pad, not the keyboard;
+        // `replaceText` drives whichever is in front and commits.
+        replaceText(field, with: "30")
         sleep(1)
         app.buttons["ViewsMenu"].tap()
         app.buttons["Isometric"].tap(); sleep(2)

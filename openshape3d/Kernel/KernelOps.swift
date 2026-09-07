@@ -1460,7 +1460,7 @@ nonisolated extension KernelOps {
         return inside
     }
 
-    private static func distanceToSegment(
+    static func distanceToSegment(
         _ p: SIMD2<Double>, _ a: SIMD2<Double>, _ b: SIMD2<Double>
     ) -> Double {
         let ab = b - a

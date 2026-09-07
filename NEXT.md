@@ -1,3 +1,76 @@
+# NEXT — Shapr3D sketch parity (updated 2026-09-06)
+
+Living authority is `docs/STATUS_AND_NEXT_STEPS.md`; the parity evidence and
+method are in `docs/SHAPR3D_SKETCH_PARITY.md`. This is the queue.
+
+## Pick up next, in order
+
+1. **Selecting a sketch outside sketch mode should reveal its dimensions.**
+   The one KNOWN GAP opened by defaulting "Always Show Dimensions" off (which
+   matches Shapr3D). `annotatedSketches` already includes a sketch that has a
+   selected entity, so the missing link is that a tap outside sketch mode never
+   reaches `selectedSketchEntityIDs`. Then drop the `XCTExpectFailure` in
+   `DimensionUITests.testDimensionFollowsTheSelectionAfterExitingTheSketch`.
+
+2. **`SweepLoftUITests` — both tests fail.** Not the annotation overlays
+   (restricting them to sketch mode changes nothing) and not the value card.
+   `testSweepCircleAlongTwoSegmentLinePath` was already in the original 16, so
+   suspect the other in-flight workstreams. Attribute it the same way the
+   second-shape hang was attributed — recipe in STATUS.
+
+3. **Re-run the full UI suite for a current number.** The last full run was
+   110 tests / 14 failures and PREDATES today's fixes; three of those are now
+   known closed. Roughly 57 minutes, `-parallel-testing-enabled NO`.
+
+4. **Remaining Shapr3D sketch gaps**, measured against the running app and
+   written up with screenshots in `docs/SHAPR3D_SKETCH_PARITY.md`:
+   - **G2** ten dimension tools + the adaptive menu (a circle can only be
+     dimensioned Ø today; no way to ask for R).
+   - **G3** draggable dimension badge ("Drag the Dimension badge to reposition").
+   - **G7** `Disconnect`, and the `Anchored Sketch Entity` (First/Last Selected)
+     setting.
+   - **G8** spline and sketch-pattern UI — both kernel-complete already, only
+     `SketchTool` has no `.spline` case and `patternLinks` is untouched by
+     `EditorViewModel`.
+
+5. **Variables menu is only on the sketch dimension field.** Shapr3D puts it in
+   every value field; the bar/panel fields use the pad via popover and have none.
+
+6. **Three other uncommitted workstreams rode along in this commit** and are
+   unreviewed: blend face-edge selection (bug e07493b5), the shell-crash fix
+   (6cb10527), and the subtract feedback (a1ee4e4a). They are interleaved with
+   the pad work inside `EditorViewModel` — see STATUS for the hunk split that
+   separates them.
+
+## Methods worth reusing (all cost real time to learn)
+
+- **Attributing a regression** when a partial stash will not build: park the
+  untracked files that reference uncommitted APIs, keep only the probe test,
+  then `git stash push -- openshape3d/ openshape3dTests/ openshape3dUITests/`.
+  Leave `project.pbxproj` alone — the target uses filesystem-synchronized
+  groups, so parked files just drop out of the build.
+- **`git checkout HEAD -- <file>` on uncommitted work is destructive.** Back up
+  to a scratch dir first, or use `git stash push -- <paths>`, which is
+  recoverable. Dropped stashes survive: `git fsck --unreachable`, then
+  `git checkout <sha> -- <paths>`.
+- **Profiling a simulator hang:** `sample` cannot resolve simulator processes by
+  NAME. Poll
+  `pgrep -f "CoreSimulator/Devices/<UDID>.*openshape3d.app/openshape3d"`, then
+  `sample <pid> 10 1 -mayDie -file …`. Read its recursion summary first.
+- **Testing anything defaults-backed** needs
+  `xcrun simctl uninstall <UDID> com.laan.labs.openshape3d` first —
+  `OS3D_RESET_STORE` clears the SwiftData store, NOT `UserDefaults`.
+- **Driving Shapr3D** (Accessibility is granted): `System Events click at` does
+  NOT move the cursor and clicks wherever the pointer already is. Use a CGEvent
+  clicker that refuses unless the target app is frontmost and the point is
+  inside its window.
+- **A UI test that draws** must square the camera first and assert
+  "Look at Sketch" is gone; obliquely, a screen-space angle is not the angle on
+  the sketch plane. And `startSketchTool` on an already-armed tool TOGGLES IT
+  OFF, so the drag orbits instead of drawing.
+
+---
+
 # NEXT — handoff for the new machine (written 2026-08-31)
 
 Snapshot of where things stand after the FreeCAD-hardening merge

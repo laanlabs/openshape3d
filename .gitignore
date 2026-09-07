@@ -29,6 +29,11 @@ marketing/
 # Xcode derived data used by the local test/build gate
 build/
 
+# Firebase CLI's local deploy cache (firebase.json / .firebaserc / firebase/*.rules
+# ARE committed — they hold no secrets).
+.firebase/
+firebase-debug.log
+
 # Firebase project config for the in-app bug reporter (API key, project ID,
 # storage bucket). Never committed — drop your own copy at this path; without
 # it the bug-report sheet explains that reporting isn't configured. A

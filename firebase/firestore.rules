@@ -1,0 +1,82 @@
+// Firestore rules for the in-app bug reporter (docs/BUG_REPORTS.md).
+//
+// The app writes as an UNAUTHENTICATED client holding only the web API key,
+// which ships inside the binary and must be assumed public. So the rules are
+// the whole security model: a client may CREATE one report document, with
+// exactly the fields the reporter sends, at bounded sizes — and nothing else.
+// No reads, no updates, no deletes, no listing. Triage happens through the
+// project owner's Google account (`scripts/bug_reports.py`), which reaches
+// Firestore through IAM and is not subject to these rules.
+//
+// Deploy: `firebase deploy --only firestore:rules --project openshape3d`
+// (from the repo root; firebase.json points here).
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isString(value, maxLength) {
+      return value is string && value.size() <= maxLength;
+    }
+
+    function isReportContext(context) {
+      return context is map
+        && context.keys().hasOnly(['appVersion', 'build', 'osVersion', 'deviceModel',
+                                   'bodyCount', 'featureCount', 'documentName', 'lastAction'])
+        && context.keys().hasAll(['appVersion', 'build', 'osVersion', 'deviceModel',
+                                  'bodyCount', 'featureCount'])
+        && isString(context.appVersion, 50)
+        && isString(context.build, 50)
+        && isString(context.osVersion, 100)
+        && isString(context.deviceModel, 100)
+        && context.bodyCount is int && context.bodyCount >= 0
+        && context.featureCount is int && context.featureCount >= 0
+        && (!('documentName' in context) || isString(context.documentName, 300))
+        && (!('lastAction' in context) || isString(context.lastAction, 200));
+    }
+
+    function isAttachment(attachment, reportID) {
+      return attachment is map
+        && attachment.keys().hasOnly(['path', 'bytes'])
+        && attachment.keys().hasAll(['path', 'bytes'])
+        && isString(attachment.path, 500)
+        // The object the app uploaded for THIS report, nowhere else.
+        && attachment.path.matches('^bugReports/' + reportID + '/[^/]+\\.os3d$')
+        && attachment.bytes is int
+        && attachment.bytes > 0 && attachment.bytes <= 40 * 1024 * 1024;
+    }
+
+    match /bugReports/{reportID} {
+      allow create: if
+        // Document IDs are the lowercase UUIDs `BugReportService` mints.
+        reportID.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+        && request.resource.data.keys().hasOnly(['reportID', 'title', 'details', 'steps',
+                                                 'contactEmail', 'createdAt', 'status',
+                                                 'context', 'attachment', 'attachmentError'])
+        && request.resource.data.keys().hasAll(['reportID', 'title', 'details', 'steps',
+                                                'contactEmail', 'createdAt', 'status',
+                                                'context'])
+        && request.resource.data.reportID == reportID
+        && isString(request.resource.data.title, 200)
+        && request.resource.data.title.size() > 0
+        && isString(request.resource.data.details, 20000)
+        && isString(request.resource.data.steps, 20000)
+        && isString(request.resource.data.contactEmail, 200)
+        && request.resource.data.createdAt is timestamp
+        // A fresh report is always "new"; only triage moves it on.
+        && request.resource.data.status == 'new'
+        && isReportContext(request.resource.data.context)
+        && (!('attachment' in request.resource.data)
+            || isAttachment(request.resource.data.attachment, reportID))
+        && (!('attachmentError' in request.resource.data)
+            || isString(request.resource.data.attachmentError, 1000));
+
+      allow read, update, delete: if false;
+    }
+
+    // Everything else in this database is closed to clients.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

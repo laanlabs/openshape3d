@@ -79,6 +79,56 @@ final class BugReportingTests: XCTestCase {
         XCTAssertNil(bareCtx?["lastAction"])
     }
 
+    /// The document the app sends must be exactly what
+    /// `firebase/firestore.rules` admits: the rules `hasOnly` the key sets
+    /// and pin the id and attachment path, so a field added here without a
+    /// rules change would be REFUSED in production — and only there, since
+    /// nothing else exercises the rules. Read the lists out of the rules
+    /// file rather than duplicating them.
+    func testFirestoreDocumentMatchesTheDeployedRules() throws {
+        let rulesURL = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("firebase/firestore.rules")
+        let rules = try String(contentsOf: rulesURL, encoding: .utf8)
+
+        /// Every quoted name inside the first `hasOnly([ … ])` after `marker`.
+        func allowedKeys(after marker: String) throws -> Set<String> {
+            let tail = try XCTUnwrap(rules.range(of: marker)).upperBound
+            let open = try XCTUnwrap(rules.range(of: "hasOnly([", range: tail..<rules.endIndex)).upperBound
+            let close = try XCTUnwrap(rules.range(of: "])", range: open..<rules.endIndex)).lowerBound
+            let names = rules[open..<close].components(separatedBy: "'").enumerated()
+                .filter { $0.offset % 2 == 1 }.map(\.element)
+            return Set(names)
+        }
+        let topLevel = try allowedKeys(after: "match /bugReports/{reportID}")
+        let contextKeys = try allowedKeys(after: "function isReportContext")
+        let attachmentKeys = try allowedKeys(after: "function isAttachment")
+
+        let report = BugReport(
+            title: "Shell", details: "d", steps: "s", contactEmail: "", context: context)
+        let reportID = UUID().uuidString.lowercased()   // what `submit` mints
+        let path = FirestoreEncoding.attachmentPath(reportID: reportID, fileName: "Untitled 5.os3d")
+        let fields = FirestoreEncoding.fields(
+            for: report, reportID: reportID, createdAt: Date(),
+            attachmentPath: path, attachmentBytes: 42, attachmentError: "e")
+
+        XCTAssertTrue(Set(fields.keys).isSubset(of: topLevel),
+                      "keys the rules refuse: \(Set(fields.keys).subtracting(topLevel))")
+        let ctx = try XCTUnwrap(((fields["context"] as? [String: Any])?["mapValue"] as? [String: Any])?["fields"] as? [String: Any])
+        XCTAssertTrue(Set(ctx.keys).isSubset(of: contextKeys),
+                      "context keys the rules refuse: \(Set(ctx.keys).subtracting(contextKeys))")
+        let att = try XCTUnwrap(((fields["attachment"] as? [String: Any])?["mapValue"] as? [String: Any])?["fields"] as? [String: Any])
+        XCTAssertEqual(Set(att.keys), attachmentKeys)
+
+        // The id and path patterns the rules pin.
+        let uuid = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        XCTAssertTrue(rules.contains(uuid), "the rules' UUID pattern moved")
+        XCTAssertNotNil(reportID.range(of: uuid, options: .regularExpression))
+        XCTAssertNotNil(path.range(of: "^bugReports/" + reportID + "/[^/]+\\.os3d$",
+                                   options: .regularExpression), path)
+        XCTAssertEqual(fields["status"] as? [String: String], ["stringValue": "new"])
+    }
+
     func testAttachmentPathSanitisesFileNames() {
         XCTAssertEqual(FirestoreEncoding.attachmentPath(reportID: "r1", fileName: "Bracket.os3d"),
                        "bugReports/r1/Bracket.os3d")

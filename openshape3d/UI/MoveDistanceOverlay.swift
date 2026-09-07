@@ -24,10 +24,14 @@ struct MoveDistanceOverlay: View {
         // Reproject whenever the camera moves.
         let _ = viewModel.cameraEpoch
         if let label = viewModel.moveDistanceLabel, let anchor = anchor(for: label.part) {
+            GeometryReader { geo in
             ZStack {
                 if label.isEditable {
+                    // While typing, keep the field out of the keyboard's half
+                    // of the screen (bug report 8c98bd3b: a handle low on an
+                    // iPad put the field under the on-screen keyboard).
                     MoveDistanceField(viewModel: viewModel, part: label.part)
-                        .position(anchor)
+                        .position(Self.clearOfKeyboard(anchor, in: geo.size))
                 } else {
                     Text(label.text)
                         .font(.caption.weight(.semibold))
@@ -43,12 +47,24 @@ struct MoveDistanceOverlay: View {
                         .accessibilityIdentifier("MoveDistanceValue")
                 }
             }
+            }
             // `worldToScreenPoint` is in full-screen (MTKView) coordinates, so
             // the overlay must span the full screen too — otherwise the safe
             // area shifts every `.position` off the geometry it annotates.
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea()
         }
+    }
+
+    /// Where an editable pill goes: on screen, and no lower than the top 42 %
+    /// of it — the on-screen keyboard covers roughly the bottom half of an
+    /// iPad, so a field parked next to a low handle was typed into blind.
+    /// Same rule as `RotationOrbitOverlay`.
+    static func clearOfKeyboard(_ p: CGPoint, in size: CGSize) -> CGPoint {
+        let inset: CGFloat = 72
+        let maxY = max(inset, size.height * 0.42)
+        return CGPoint(x: min(max(p.x, inset), max(inset, size.width - inset)),
+                       y: min(max(p.y, inset), maxY))
     }
 
     /// Screen point for the pill: past the arrowhead along the axis, or just
@@ -90,9 +106,33 @@ private struct MoveDistanceField: View {
     @Bindable var viewModel: EditorViewModel
     let part: GizmoPart
     @State private var text = ""
+    @State private var padOpen = false
+    @State private var usingSystemKeyboard = false
     @FocusState private var focused: Bool
 
     var body: some View {
+        // Inline card rather than a popover — see `ExtrudeArrowField`.
+        VStack(spacing: 6) {
+            pill
+            if padOpen && !usingSystemKeyboard {
+                NumericKeypad(
+                    text: $text,
+                    isLocked: nil,
+                    onCommit: {
+                        padOpen = false
+                        viewModel.commitMoveDistance(text)
+                    },
+                    onSwitchToSystemKeyboard: {
+                        padOpen = false
+                        usingSystemKeyboard = true
+                        focused = true
+                    }
+                )
+            }
+        }
+    }
+
+    private var pill: some View {
         HStack(spacing: 4) {
             Text(part.axisName)
                 .font(.caption2.weight(.bold))
@@ -106,6 +146,7 @@ private struct MoveDistanceField: View {
                 .frame(width: 74)
                 .focused($focused)
                 .submitLabel(.done)
+                .allowsHitTesting(usingSystemKeyboard)
                 .onSubmit { viewModel.commitMoveDistance(text) }
                 .accessibilityIdentifier("MoveDistanceField")
             Button {
@@ -121,9 +162,13 @@ private struct MoveDistanceField: View {
         .padding(.vertical, 4)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color.blue, lineWidth: 1.5))
+        .contentShape(Rectangle())
+        .onTapGesture { if !usingSystemKeyboard { padOpen = true } }
         .onAppear {
             text = ""
-            focused = true
+            // The pad comes up with the field — this overlay exists precisely
+            // because the user is entering a distance.
+            padOpen = true
         }
     }
 }

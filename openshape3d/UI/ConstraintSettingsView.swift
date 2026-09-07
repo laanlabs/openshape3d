@@ -2,20 +2,37 @@
 //  ConstraintSettingsView.swift
 //  openshape3d
 //
-//  Auto-constrain settings panel (plan §B2): a compact toggle sheet bound to
-//  EditorViewModel.autoConstrainSettings. A master "Auto-Constrain" switch gates
-//  the per-inference sub-toggles and an angle-tolerance stepper. Presented while
-//  viewModel.showConstraintSettings is true; Done clears that flag.
+//  Constraint settings panel (plan §B2): a compact toggle sheet. "Auto-Constrain"
+//  is bound to EditorViewModel.autoConstrainSettings — a master switch gating the
+//  per-inference sub-toggles and an angle-tolerance stepper. "Visibility" is bound
+//  to AppSettings and decides whether dimensions and constraint glyphs persist
+//  outside the sketch being edited (Shapr3D's "Constraint & Locked Dimension
+//  Visibility"). Presented while viewModel.showConstraintSettings is true; Done
+//  clears that flag.
 //
 
 import SwiftUI
 
 struct ConstraintSettingsView: View {
     @Bindable var viewModel: EditorViewModel
+    @Bindable var settings: AppSettings = .shared
 
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Toggle("Always Show Dimensions", isOn: $settings.alwaysShowDimensions)
+                        .accessibilityIdentifier("AlwaysShowDimensionsToggle")
+                    Toggle("Always Show Constraints", isOn: $settings.alwaysShowConstraints)
+                        .accessibilityIdentifier("AlwaysShowConstraintsToggle")
+                } header: {
+                    Text("Visibility")
+                } footer: {
+                    Text("Keep a sketch's dimensions and constraints on canvas "
+                         + "after you leave it, and show every visible sketch's "
+                         + "— not just the one you are editing.")
+                }
+
                 Section {
                     Toggle("Auto-Constrain", isOn: $viewModel.autoConstrainSettings.enabled)
                         .accessibilityIdentifier("AutoConstrainToggle")
@@ -54,7 +71,7 @@ struct ConstraintSettingsView: View {
                             isOn: $viewModel.autoConstrainSettings.equal
                         )
                         .accessibilityIdentifier("AutoConstrainEqualToggle")
-                    }
+                        }
 
                     Section("Tolerance") {
                         Stepper(
@@ -75,7 +92,7 @@ struct ConstraintSettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Auto-Constrain")
+            .navigationTitle("Constraints")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

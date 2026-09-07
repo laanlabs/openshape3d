@@ -18,9 +18,12 @@ struct SketchConstraintOverlay: View {
     var body: some View {
         // Reproject whenever the camera moves.
         let _ = viewModel.cameraEpoch
-        if viewModel.mode.isSketching {
+        // Mirrors `SketchDimensionOverlay`, including gating on content rather
+        // than mode so an empty overlay never sits over the viewport.
+        let glyphs = viewModel.sketchConstraintGlyphs
+        if !glyphs.isEmpty {
             ZStack(alignment: .topLeading) {
-                ForEach(viewModel.sketchConstraintGlyphs) { glyph in
+                ForEach(glyphs) { glyph in
                     glyphView(glyph)
                 }
             }
@@ -46,7 +49,7 @@ struct SketchConstraintOverlay: View {
             // Fan out glyphs that share an anchor so each stays tappable.
             let offset = CGFloat(glyph.slot) * 22
             Button {
-                viewModel.selectConstraint(glyph.id)
+                viewModel.selectConstraint(glyph.id, in: glyph.sketchID)
             } label: {
                 Text(glyph.code)
                     .font(.caption2.weight(.bold))

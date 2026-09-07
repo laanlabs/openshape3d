@@ -595,7 +595,17 @@ final class Renderer: NSObject, MTKViewDelegate {
         frame.backgroundTop = SIMD4(0.94, 0.95, 0.97, 1)
         frame.backgroundBottom = SIMD4(0.82, 0.84, 0.88, 1)
         frame.accentColor = SIMD4(0.0, 0.52, 1.0, 1) // Shapr3D selection blue
-        frame.gridParams = SIMD4(1, 10, 120, 0)
+        // The grid follows the zoom (bug report abb6ea37): at a fixed 1 mm
+        // pitch and 120 mm fade radius it vanished as soon as the view pulled
+        // back to metre scale. The pitch steps by decades so the view always
+        // holds on the order of ten to a hundred minor lines, and the fade
+        // radius grows with the camera distance so the plane never runs out
+        // under a large model. Majors stay every tenth minor.
+        let viewHeightMM = 2 * Double(camera.distance) * tan(Double(camera.fovY) * 0.5)
+        let decade = floor(log10(max(viewHeightMM / 8, 1e-6)))
+        let minorSpacing = Float(min(max(pow(10, decade), 1e-3), 1e6))
+        let fadeRadius = max(120, camera.distance * 10)
+        frame.gridParams = SIMD4(minorSpacing, 10, fadeRadius, 0)
         frame.gridCenter = SIMD4(camera.target.x, 0, camera.target.z, 0)
         frame.edgeDepthBiasNDC = 1e-4
         frame.viewportWidth = Float(max(viewportSize.width, 1))

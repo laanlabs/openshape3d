@@ -111,6 +111,29 @@ extension XCTestCase {
     /// runs, and without it a mistyped value reaches the tool as a silently
     /// different number.
     func replaceText(_ field: XCUIElement, with text: String, submit: Bool = true) {
+        // Numeric fields now open the on-canvas number pad instead of the
+        // system keyboard, so there is nothing to type INTO. Drive the pad when
+        // it appears; the typing path below still serves the text fields
+        // (names, search) that legitimately want a keyboard.
+        let app = XCUIApplication()
+        field.tap()
+        let padDelete = app.buttons["KeypadDelete"]
+        if padDelete.waitForExistence(timeout: 2) {
+            for _ in 0..<24 where !((field.value as? String) ?? "").isEmpty {
+                padDelete.tap()
+            }
+            for character in text {
+                // The pad has no "-" key: sign is the ± toggle. On an empty
+                // field ± yields "-", so a leading minus works positionally.
+                let key = character == "-" ? "±" : String(character)
+                app.buttons["Keypad-\(key)"].tap()
+            }
+            XCTAssertEqual(field.value as? String, text,
+                           "the pad should hold exactly what was entered")
+            if submit { app.buttons["KeypadCommit"].tap() }
+            return
+        }
+
         func attempt() {
             // Put the caret at the END, then backspace. Tapping the field's
             // trailing edge lands the caret after the last character, which is

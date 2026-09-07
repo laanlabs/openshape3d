@@ -3436,15 +3436,36 @@ final class EditorViewModel {
                 < Self.pointSegmentDistance(localPoint, $1.start, $1.end)
         }) else { return }
 
-        // A curved rim (cylinder top, rounded pocket) tessellates into many
-        // short segments; expand the pick to the whole tangent-continuous chain
-        // so one tap blends the full rim. A straight edge is its own chain.
-        let chain = EdgeTopology.smoothChain(containing: nearest, in: edges)
         func isSelected(_ edge: SelectableEdge) -> Int? {
             blendSelectedEdges.firstIndex {
                 simd_length($0.midpoint - edge.midpoint) < 1e-4
             }
         }
+
+        // A tap on the FACE — well clear of every edge — blends every edge of
+        // that planar face at once (bug report e07493b5: "tap the top of a
+        // cube and chamfer all four corners of that side"); near an edge the
+        // tap still means that one edge, as it always has.
+        if let faceEdges = blendFaceEdges(
+            body: body, hit: hit, ray: ray, nearest: nearest, edges: edges) {
+            // Toggle the face's edges as a unit: all selected → deselect all.
+            if faceEdges.allSatisfy({ isSelected($0) != nil }) {
+                for edge in faceEdges {
+                    if let idx = isSelected(edge) { blendSelectedEdges.remove(at: idx) }
+                }
+            } else {
+                for edge in faceEdges where isSelected(edge) == nil {
+                    blendSelectedEdges.append(edge)
+                }
+            }
+            updateBlendPreview()
+            return
+        }
+
+        // A curved rim (cylinder top, rounded pocket) tessellates into many
+        // short segments; expand the pick to the whole tangent-continuous chain
+        // so one tap blends the full rim. A straight edge is its own chain.
+        let chain = EdgeTopology.smoothChain(containing: nearest, in: edges)
 
         // Toggle the chain as a unit: fully selected → deselect it all.
         if chain.allSatisfy({ isSelected($0) != nil }) {
@@ -3457,6 +3478,85 @@ final class EditorViewModel {
             }
         }
         updateBlendPreview()
+    }
+
+    /// Screen distance (points) a tap must keep from every edge to count as a
+    /// tap on the face rather than on the nearest edge.
+    private static let blendFaceTapClearancePoints: CGFloat = 18
+
+    /// The selectable edges bounding the planar face under a tap, when the
+    /// tap is a FACE tap: clear of every edge on screen, on a flat face whose
+    /// whole boundary is selectable edges. A facet of a curved wall is not —
+    /// its sides are smooth — so a tap on a cylinder's wall still picks the
+    /// nearest rim, as before. Nil = not a face tap.
+    private func blendFaceEdges(body: Body, hit: PickHit, ray: Ray,
+                                nearest: SelectableEdge,
+                                edges: [SelectableEdge]) -> [SelectableEdge]? {
+        guard let control = cameraControl else { return nil }
+        let toLocal = simd_inverse(body.transform.matrixFloat)
+        let local4 = toLocal * SIMD4(hit.worldPoint, 1)
+        let local = SIMD3<Float>(local4.x, local4.y, local4.z)
+        // Nearest point on the nearest edge, projected: the clearance is judged
+        // on screen so it means the same thing zoomed in or out.
+        let ab = nearest.end - nearest.start
+        let len2 = simd_length_squared(ab)
+        let t = len2 > 1e-12 ? max(0, min(1, simd_dot(local - nearest.start, ab) / len2)) : 0
+        let onEdge4 = body.transform.matrixFloat * SIMD4(nearest.start + ab * t, 1)
+        guard let tapScreen = control.worldToScreenPoint(SIMD3<Double>(hit.worldPoint)),
+              let edgeScreen = control.worldToScreenPoint(
+                SIMD3<Double>(Double(onEdge4.x), Double(onEdge4.y), Double(onEdge4.z))),
+              hypot(tapScreen.x - edgeScreen.x, tapScreen.y - edgeScreen.y)
+                > Self.blendFaceTapClearancePoints
+        else { return nil }
+
+        // The face under the tap, picked on the ORIGINAL mesh: while the live
+        // preview replaces the body in `scene`, the hit's triangle index
+        // refers to the preview's mesh.
+        let originalScene = ViewportScene(bodies: [BodyDrawable(
+            id: body.id,
+            renderMesh: body.render,
+            edges: body.edges,
+            meshRevision: body.meshRevision,
+            modelMatrix: body.transform.matrixFloat,
+            baseColor: SIMD4(0.72, 0.74, 0.78, 1),
+            selectionState: SelectionStateNone.rawValue
+        )])
+        guard let originalHit = HitTester.pickBody(ray: ray, in: originalScene),
+              let face = FaceTopology.planarFace(
+                  in: body.render, seedTriangle: originalHit.triangleIndex)
+        else { return nil }
+
+        // Edges lying on the face's boundary loops (outline and holes), and
+        // every loop segment covered by one — otherwise this "face" is a
+        // facet with smooth sides.
+        let n = SIMD3(Double(face.normal.x), Double(face.normal.y), Double(face.normal.z))
+        let loops = [face.outline] + face.holes
+        let tolerance = 1e-2
+        func onBoundary(_ p: SIMD3<Float>) -> Bool {
+            let d = SIMD3<Double>(Double(p.x), Double(p.y), Double(p.z)) - face.origin
+            guard abs(simd_dot(d, n)) < tolerance else { return false }
+            let uv = SIMD2(simd_dot(d, face.basisX), simd_dot(d, face.basisY))
+            return loops.contains { loop in
+                loop.indices.contains { i in
+                    KernelOps.distanceToSegment(uv, loop[i], loop[(i + 1) % loop.count]) < tolerance
+                }
+            }
+        }
+        let boundary = edges.filter {
+            onBoundary($0.start) && onBoundary($0.end) && onBoundary($0.midpoint)
+        }
+        guard !boundary.isEmpty else { return nil }
+        for loop in loops {
+            for i in loop.indices {
+                let mid = (loop[i] + loop[(i + 1) % loop.count]) / 2
+                let world = face.origin + face.basisX * mid.x + face.basisY * mid.y
+                let midF = SIMD3<Float>(Float(world.x), Float(world.y), Float(world.z))
+                guard boundary.contains(where: {
+                    Self.pointSegmentDistance(midF, $0.start, $0.end) < Float(tolerance)
+                }) else { return nil }
+            }
+        }
+        return boundary
     }
 
     /// Apply the blend: build the new mesh live and record a `.chamfer`/`.fillet`
@@ -5988,9 +6088,16 @@ final class EditorViewModel {
     }
 
     func handleBooleanToolTap(kind: BooleanKind, targetID: BodyID, ray: Ray) {
-        guard let hit = HitTester.pickBody(ray: ray, in: scene),
-              hit.bodyID != targetID
-        else { return }
+        guard let hit = HitTester.pickBody(ray: ray, in: scene) else { return }
+        // Tapping the target itself used to do nothing at all, which after a
+        // Union reads as "subtract is broken": the two parts are ONE body
+        // now, so the "second one" the user taps is the body being edited
+        // (bug report a1ee4e4a, 2026-09-05). Say so.
+        guard hit.bodyID != targetID else {
+            showNotice("That's the body already selected — tap a different body to \(kind.rawValue). "
+                       + "After a Union the parts are one body; undo the union to \(kind.rawValue) them.")
+            return
+        }
         if let featureID = booleanEditingFeature {
             // Rewrite the node's tool and let the rebuild do the CSG. The tool
             // must be feature-produced (else the node could not replay) and
@@ -6025,6 +6132,15 @@ final class EditorViewModel {
               let toolIndex = session.document.bodyIndex(of: toolID)
         else { return }
         let tool = session.document.bodies[toolIndex]
+
+        // A tool that never reaches the target's bounds cannot cut or
+        // intersect it. The CSG would hand the target back unchanged and the
+        // commit would look like nothing happened — say why instead.
+        if kind != .union,
+           !Self.worldBounds(of: target).intersects(Self.worldBounds(of: tool)) {
+            showNotice("“\(tool.name)” doesn't touch “\(target.name)” — move them so they overlap, then \(kind.rawValue).")
+            return
+        }
 
         isComputingBoolean = true
         mode = .idle
@@ -8760,6 +8876,10 @@ final class EditorViewModel {
 
     /// Line chaining: the endpoint of the last committed line; the next line
     /// stroke starting within snap tolerance pre-anchors exactly there.
+    /// The stroke's start BEFORE snapping, so an H/V constraint can be judged
+    /// against where the user actually aimed rather than where the grid put it.
+    private var sketchStrokeStartRaw: SIMD2<Double>?
+
     private var chainAnchor: SIMD2<Double>?
     /// First point of the chain — a stroke closing onto it ends the chain.
     private var chainStart: SIMD2<Double>?
@@ -8982,6 +9102,12 @@ final class EditorViewModel {
         if case .sketching(let id, _) = mode {
             commitPendingArc()
             clearChain()
+            // Arming a tool ends any pending value edit. The size field a
+            // freshly drawn shape opens is a big on-canvas card; leaving it up
+            // while the next tool is armed meant the next stroke began ON the
+            // card instead of the canvas. Reaching for another tool is a clear
+            // statement that you are done with that value.
+            editingDimension = nil
             mode = .sketching(id, tool: tool) // just switch tools
             return
         }
@@ -9282,6 +9408,8 @@ final class EditorViewModel {
         // No drawing tool armed: empty-space drags orbit the camera so the
         // sketch can be viewed from an angle (Shapr3D).
         guard tool != nil else { return false }
+        // A new stroke supersedes the size field the last shape opened.
+        editingDimension = nil
 
         var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops()).point
         if tool == .line, let anchor = chainAnchor {
@@ -9292,9 +9420,35 @@ final class EditorViewModel {
             }
         }
         sketchStrokeStart = point
+        sketchStrokeStartRaw = raw
         sketchStrokeCurrent = point
         pendingEntity = nil
         return true
+    }
+
+    /// Drop inferred horizontal/vertical constraints whose stroke was not
+    /// actually aimed within `toleranceDeg`. Pure, so it is testable without a
+    /// gesture. Non-H/V inferences (point snaps, parallel, tangent…) pass
+    /// through untouched — they are about what the stroke MET, not its angle.
+    nonisolated static func aimedConstraints(
+        _ constraints: [AutoConstraintEngine.Inferred],
+        from rawStart: SIMD2<Double>?,
+        to rawEnd: SIMD2<Double>?,
+        toleranceDeg: Double
+    ) -> [AutoConstraintEngine.Inferred] {
+        guard let rawStart, let rawEnd else { return constraints }
+        let d = rawEnd - rawStart
+        guard simd_length(d) > 1e-9 else { return constraints }
+        let tol = toleranceDeg * .pi / 180
+        let devHorizontal = atan2(abs(d.y), abs(d.x))
+        let devVertical = atan2(abs(d.x), abs(d.y))
+        return constraints.filter { inferred in
+            switch inferred.kind {
+            case .horizontal: devHorizontal <= tol
+            case .vertical: devVertical <= tol
+            default: true
+            }
+        }
     }
 
     func updateSketchStroke(ray: Ray) {
@@ -9329,7 +9483,18 @@ final class EditorViewModel {
             )
             current = result.snappedPoint
             activeGuides = result.guides
-            pendingInferredConstraints = result.constraints
+            // Record an H/V constraint only if the stroke was AIMED within
+            // tolerance. Both ends arrive here already pulled onto the grid,
+            // and zoomed out one grid step swallows several degrees — so a line
+            // aimed 1.6° off reached the engine as exactly 0° and picked up a
+            // Horizontal nobody asked for. The snap can still flatten the
+            // geometry (that is the grid's job); it must not manufacture a
+            // constraint. Judged raw end to raw start, so neither is displaced.
+            pendingInferredConstraints = Self.aimedConstraints(
+                result.constraints,
+                from: sketchStrokeStartRaw,
+                to: rawSketchPoint(from: ray),
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
         } else {
             activeGuides = []
             pendingInferredConstraints = []
@@ -9379,7 +9544,14 @@ final class EditorViewModel {
                 existing: sketch.entities, settings: autoConstrainSettings
             )
             end = result.snappedPoint
-            pendingInferredConstraints = result.constraints
+            // Same aim gate as `updateSketchStroke` — this re-run happens at
+            // release and would otherwise overwrite the gated set with one
+            // derived from the grid-snapped point.
+            pendingInferredConstraints = Self.aimedConstraints(
+                result.constraints,
+                from: sketchStrokeStartRaw,
+                to: rawSketchPoint(from: ray),
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
         }
         guard let entity = makeEntity(tool: tool, from: start, to: end) else { return }
         if tool == .arc {
@@ -9388,6 +9560,14 @@ final class EditorViewModel {
             return
         }
         commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
+        // Typed size on lift-off (bug report 5ef841c2 — Shapr3D's manual
+        // input field): a freshly drawn circle, rectangle or polygon is
+        // selected and its dimension label opens as a field, so "30 ⏎" sizes
+        // it without a second tap. Drawing again simply dismisses the field.
+        if tool == .circle || tool == .rect || tool == .polygon {
+            selectedSketchEntityIDs = [entity.id]
+            beginDimensionForSelection()
+        }
         if tool == .line {
             let first = chainStart ?? start
             if simd_length(end - first) <= 1e-9 {
@@ -9478,7 +9658,11 @@ final class EditorViewModel {
                 existing: sketch.entities, settings: autoConstrainSettings
             )
             end = result.snappedPoint
-            pendingInferredConstraints = result.constraints
+            // `anchor` and `rawEnd` are both pre-snap here, so this is already
+            // the aimed direction; gating keeps the rule in one place.
+            pendingInferredConstraints = Self.aimedConstraints(
+                result.constraints, from: anchor, to: rawEnd,
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
         } else {
             pendingInferredConstraints = []
         }
@@ -10178,6 +10362,8 @@ final class EditorViewModel {
     /// `slot` fans out glyphs that share an anchor so each stays tappable.
     struct SketchConstraintGlyph: Identifiable {
         let id: UUID           // the constraint's id
+        /// The sketch this glyph belongs to (see `SketchDimensionLabel`).
+        let sketchID: SketchID
         let kind: SketchConstraintKind
         let code: String
         let worldAnchor: SIMD3<Double>
@@ -10218,18 +10404,22 @@ final class EditorViewModel {
     /// Constraint glyphs to render in the sketch overlay.
     var sketchConstraintGlyphs: [SketchConstraintGlyph] {
         _ = session.changeCount
-        guard let sketch = activeSketch else { return [] }
         var out: [SketchConstraintGlyph] = []
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
-        for c in sketch.constraints {
-            guard let local = constraintAnchorLocal(c, in: sketch) else { continue }
-            let key = "\((local.x * 100).rounded())-\((local.y * 100).rounded())"
-            let slot = slotAt[key, default: 0]
-            slotAt[key] = slot + 1
-            out.append(SketchConstraintGlyph(
-                id: c.id, kind: c.kind, code: Self.constraintCode(c.kind),
-                worldAnchor: sketch.plane.toWorld(local), slot: slot
-            ))
+        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
+            for c in sketch.constraints {
+                guard let local = constraintAnchorLocal(c, in: sketch) else { continue }
+                // Key by sketch too: two sketches on different planes can share
+                // plane-local coordinates without their glyphs overlapping.
+                let key = "\(sketch.id)-\((local.x * 100).rounded())-\((local.y * 100).rounded())"
+                let slot = slotAt[key, default: 0]
+                slotAt[key] = slot + 1
+                out.append(SketchConstraintGlyph(
+                    id: c.id, sketchID: sketch.id, kind: c.kind,
+                    code: Self.constraintCode(c.kind),
+                    worldAnchor: sketch.plane.toWorld(local), slot: slot
+                ))
+            }
         }
         return out
     }
@@ -10240,7 +10430,13 @@ final class EditorViewModel {
     }
 
     /// Tap-select a constraint glyph (clears geometry + dimension selection).
-    func selectConstraint(_ id: UUID) {
+    /// As with `beginDimensionEdit`, a glyph from another sketch opens that
+    /// sketch first — `deleteConstraint` only acts on the active one.
+    func selectConstraint(_ id: UUID, in sketchID: SketchID? = nil) {
+        if let sketchID, activeSketch?.id != sketchID {
+            openItemSketch(sketchID)
+            guard activeSketch?.id == sketchID else { return }
+        }
         selectedConstraintID = (selectedConstraintID == id) ? nil : id
         selectedDimensionID = nil
         selectedSketchEntityIDs.removeAll()
@@ -10361,6 +10557,9 @@ final class EditorViewModel {
     /// Positions are WORLD-space so the overlay reprojects them each camera move.
     struct SketchDimensionLabel: Identifiable {
         let id: String
+        /// The sketch this label annotates. Outside sketch mode the overlay
+        /// uses it to open the right sketch before editing.
+        let sketchID: SketchID
         let dimensionID: UUID?
         let kind: DimensionKind
         let refs: [ConstraintRef]
@@ -10382,6 +10581,14 @@ final class EditorViewModel {
         var text: String
     }
     var editingDimension: DimensionEdit?
+
+    /// Whether committing the field leaves a DRIVING dimension behind (the
+    /// keypad's lock key). Shapr3D calls these "locked dimensions"; unlocked,
+    /// the typed value still resizes the geometry, it just is not recorded as
+    /// a constraint — and unlocking one that already exists removes it and
+    /// keeps the geometry where it landed. Locked is the default, and the
+    /// field resets to it, because a typed dimension is normally meant to hold.
+    var dimensionCommitLocked = true
 
     /// Radius of a circular entity (circle/arc/polygon); nil otherwise.
     private static func entityRadius(_ e: SketchEntity) -> Double? {
@@ -10535,9 +10742,17 @@ final class EditorViewModel {
             return (.distance, [ConstraintRef(entityID: id, role: .endpointA),
                                 ConstraintRef(entityID: id, role: .endpointB)])
         }
-        // Single circle/arc/polygon → radius.
+        // Single circle → diameter; arc / polygon → radius. A FULL circle reads
+        // Ø everywhere else in the app — `LiveDimensionKit` draws Ø while you
+        // drag one out — so offering R on release meant the same circle showed
+        // two different numbers seconds apart. An arc's radius is the useful
+        // value (and what its centre-and-sweep is defined by), so it keeps R.
         if radii.count == 1, lines.isEmpty, pts.isEmpty {
-            return (.radius, [ConstraintRef(entityID: radii[0].id, role: .whole)])
+            let entity = radii[0]
+            let isFullCircle: Bool
+            if case .circle = entity { isFullCircle = true } else { isFullCircle = false }
+            return (isFullCircle ? .diameter : .radius,
+                    [ConstraintRef(entityID: entity.id, role: .whole)])
         }
         // Single rectangle → width (its height is offered as a second label;
         // see `sketchDimensionLabels`). A rect's solver points are its two
@@ -10557,6 +10772,17 @@ final class EditorViewModel {
     /// True when the palette Dimension action can act on the selection.
     var canDimensionSelection: Bool { dimensionCandidate != nil }
 
+    /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has
+    /// no length meaning, so it maps to nil and the value is left alone.
+    nonisolated static func lengthUnit(forSuffix suffix: String?) -> DisplayUnit? {
+        switch suffix {
+        case "mm": .millimeters
+        case "cm": .centimeters
+        case "m": .meters
+        default: nil
+        }
+    }
+
     /// Number → clean editable string (drops trailing zeros).
     private static func dimensionFieldText(_ value: Double) -> String {
         if abs(value - value.rounded()) < 1e-6 {
@@ -10568,22 +10794,61 @@ final class EditorViewModel {
     /// Dimension labels to render in the sketch overlay: existing driving
     /// dimensions plus the live selection candidate (if any and not already an
     /// existing dimension over the same refs).
+    /// Sketches whose annotations (dimensions, constraint glyphs) should draw.
+    /// The active sketch always; plus every visible sketch when the user has
+    /// asked annotations to persist — Shapr3D's "Constraint & Locked Dimension
+    /// Visibility". Without that, leaving a sketch hides the very dimensions
+    /// that define it, and a second sketch's dimensions are never visible at all.
+    /// The active sketch is included even when hidden, because `openItemSketch`
+    /// renders a hidden sketch while it is being edited.
+    private func annotatedSketches(alwaysShow: Bool) -> [Sketch] {
+        let active = activeSketch
+        if alwaysShow {
+            return session.document.sketches.filter { !$0.isHidden || $0.id == active?.id }
+        }
+        // The off-state is NOT "hidden". Shapr3D's own wording for it is
+        // "shown based on your current selection", so a sketch you have
+        // selected still shows what defines it — you just don't carry every
+        // sketch's annotations around the canvas. The active sketch always;
+        // plus any visible sketch with a selected entity.
+        var out = active.map { [$0] } ?? []
+        guard !selectedSketchEntityIDs.isEmpty else { return out }
+        for sketch in session.document.sketches
+        where !sketch.isHidden && sketch.id != active?.id
+                && sketch.entities.contains(where: { selectedSketchEntityIDs.contains($0.id) }) {
+            out.append(sketch)
+        }
+        return out
+    }
+
     var sketchDimensionLabels: [SketchDimensionLabel] {
         _ = session.changeCount
-        guard let sketch = activeSketch else { return [] }
+        let unit = AppSettings.shared.unit
         var labels: [SketchDimensionLabel] = []
 
-        func makeLabel(id: String, dimensionID: UUID?, kind: DimensionKind,
+        func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
                        refs: [ConstraintRef], value: Double) -> SketchDimensionLabel? {
             guard let g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
-            let unit: String
+            // Angles are unitless; lengths follow the display unit. The
+            // document itself always stores millimetres — `value` is mm here.
+            // Radius and diameter carry the CAD leader (R / Ø, the same
+            // `LiveDimensionKit.Kind.prefix` the drag readout uses): a bare
+            // "20 mm" on a circle says nothing about which one it is.
+            let text: String
             switch kind {
-            case .angle: unit = "°"
-            default: unit = " mm"
+            case .angle:
+                text = String(format: "%.2f", value) + "°"
+            case .radius:
+                text = LiveDimensionKit.Kind.radius.prefix
+                    + unit.compactLengthString(fromMM: value)
+            case .diameter:
+                text = LiveDimensionKit.Kind.diameter.prefix
+                    + unit.compactLengthString(fromMM: value)
+            default:
+                text = unit.compactLengthString(fromMM: value)
             }
-            let text = String(format: "%.2f", value) + unit
             return SketchDimensionLabel(
-                id: id, dimensionID: dimensionID, kind: kind, refs: refs,
+                id: id, sketchID: sketch.id, dimensionID: dimensionID, kind: kind, refs: refs,
                 displayValue: value, text: text,
                 worldAnchor: sketch.plane.toWorld(g.anchor),
                 worldStart: sketch.plane.toWorld(g.start),
@@ -10591,16 +10856,23 @@ final class EditorViewModel {
             )
         }
 
-        for d in sketch.dimensions {
-            // Prefer the measured value so the label is a truthful readout of
-            // the solved geometry (matches the driving value when satisfied).
-            let stored = d.kind == .angle ? d.value * 180 / .pi : d.value
-            let display = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
-            if let label = makeLabel(id: d.id.uuidString, dimensionID: d.id,
-                                     kind: d.kind, refs: d.refs, value: display) {
-                labels.append(label)
+        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions) {
+            for d in sketch.dimensions {
+                // Prefer the measured value so the label is a truthful readout
+                // of the solved geometry (matches the driving value when
+                // satisfied).
+                let stored = d.kind == .angle ? d.value * 180 / .pi : d.value
+                let display = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
+                if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
+                                         kind: d.kind, refs: d.refs, value: display) {
+                    labels.append(label)
+                }
             }
         }
+
+        // The live candidate belongs to the selection, which only exists in the
+        // sketch being edited — so it stays active-sketch-only.
+        guard let sketch = activeSketch else { return labels }
 
         // Live candidate — skip if an existing dimension already covers the
         // same refs+kind (so we don't double-draw once it's committed).
@@ -10611,7 +10883,8 @@ final class EditorViewModel {
                 Set(d.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refSet
             }
             if !existing, let value = measuredValue(kind: kind, refs: refs, in: sketch),
-               let label = makeLabel(id: id, dimensionID: nil, kind: kind, refs: refs, value: value) {
+               let label = makeLabel(id: id, in: sketch, dimensionID: nil,
+                                     kind: kind, refs: refs, value: value) {
                 labels.append(label)
             }
         }
@@ -10627,13 +10900,29 @@ final class EditorViewModel {
     }
 
     /// Open the inline numeric field for a label (tap on a dimension label).
+    /// A label belonging to another sketch is a readout until that sketch is
+    /// open — `commitDimensionEdit` and the solver both require it to be
+    /// active — so enter it first, exactly as tapping the sketch in Items does.
     func beginDimensionEdit(_ label: SketchDimensionLabel) {
+        if activeSketch?.id != label.sketchID {
+            openItemSketch(label.sketchID)
+            guard activeSketch?.id == label.sketchID else { return }
+        }
+        // Locked is the default for every fresh edit: a typed dimension is
+        // normally meant to hold, and a sticky unlock would silently stop
+        // recording them.
+        dimensionCommitLocked = true
         editingDimension = DimensionEdit(
             labelID: label.id,
             dimensionID: label.dimensionID,
             kind: label.kind,
             refs: label.refs,
-            text: Self.dimensionFieldText(label.displayValue)
+            // Seed in the display unit so what you edit matches what you read.
+            // Angles are unitless. `commitDimensionEdit` converts back.
+            text: Self.dimensionFieldText(
+                label.kind == .angle
+                    ? label.displayValue
+                    : AppSettings.shared.unit.display(fromMM: label.displayValue))
         )
     }
 
@@ -10642,13 +10931,22 @@ final class EditorViewModel {
     func beginDimensionForSelection() {
         guard let cand = dimensionCandidate, let sketch = activeSketch,
               let value = measuredValue(kind: cand.kind, refs: cand.refs, in: sketch) else { return }
+        // Locked is the default for every fresh edit: a typed dimension is
+        // normally meant to hold, and a sticky unlock would silently stop
+        // recording them.
+        dimensionCommitLocked = true
         editingDimension = DimensionEdit(
             labelID: "candidate",
             dimensionID: nil,
             kind: cand.kind,
             refs: cand.refs,
-            // `measuredValue` already returns degrees for `.angle`.
-            text: Self.dimensionFieldText(value)
+            // `measuredValue` already returns degrees for `.angle`; lengths are
+            // millimetres and must be shown in the display unit, exactly as
+            // `beginDimensionEdit` does — the two paths open the same field.
+            text: Self.dimensionFieldText(
+                cand.kind == .angle
+                    ? value
+                    : AppSettings.shared.unit.display(fromMM: value))
         )
     }
 
@@ -10674,7 +10972,15 @@ final class EditorViewModel {
             errorMessage = "Couldn't read \"\(rawText)\" as a number."
             return
         }
-        let formula = ExpressionEvaluator.identifiers(in: rawText).isEmpty ? nil : rawText
+        // A trailing unit is letters, so `identifiers(in:)` reads "20 cm" as the
+        // variable `cm` — which made it a "formula", skipped the unit
+        // conversion below, and stored nonsense in `formula`. Strip the unit
+        // before asking what the text references.
+        let typedUnitSymbol = NumericKeypad.trailingUnit(in: rawText)
+        let bodyText = typedUnitSymbol.map {
+            String(rawText.trimmingCharacters(in: .whitespaces).dropLast($0.count))
+        } ?? rawText
+        let formula = ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
         // Linear dims must be positive; angles within (0, 180)°.
         switch edit.kind {
         case .angle:
@@ -10688,7 +10994,25 @@ final class EditorViewModel {
                 return
             }
         }
-        let stored = edit.kind == .angle ? parsed * .pi / 180 : parsed
+        // Back to the document's units: radians for angles, millimetres for
+        // lengths. A formula is NOT converted — its identifiers resolve against
+        // document variables, which are already millimetres, so scaling the
+        // result would double-convert.
+        //
+        // An explicit unit typed into the field ("20 cm", the keypad's unit
+        // keys) beats the display unit: the evaluator drops the suffix before
+        // parsing, so without this "20 cm" in an inches document meant 20
+        // inches. `deg` is not a length and only makes sense on an angle.
+        let typedUnit = Self.lengthUnit(forSuffix: typedUnitSymbol)
+        let parsedMM: Double
+        if edit.kind == .angle || formula != nil {
+            parsedMM = parsed
+        } else if let typedUnit {
+            parsedMM = typedUnit.mm(fromDisplay: parsed)
+        } else {
+            parsedMM = AppSettings.shared.unit.mm(fromDisplay: parsed)
+        }
+        let stored = edit.kind == .angle ? parsedMM * .pi / 180 : parsedMM
 
         var proposed = sketch
         var setup: DocumentCommand
@@ -10726,12 +11050,25 @@ final class EditorViewModel {
         let (solvedEntities, _) = SketchSolverBridge.solve(
             proposed, movingEntity: nil, dragTarget: nil
         )
-        var commands: [DocumentCommand] = [setup]
+        // The lock key (Shapr3D's "locked dimension"). Locked — the default —
+        // records the value as a driving dimension. Unlocked, the value still
+        // drives the solve that runs above, so the geometry lands exactly where
+        // it was asked to; it simply is not written down. Unlocking one that
+        // already exists deletes it, which is what un-pinning a dimension means.
+        var commands: [DocumentCommand] = []
+        if dimensionCommitLocked {
+            commands.append(setup)
+        } else if let dimID = edit.dimensionID,
+                  let idx = sketch.dimensions.firstIndex(where: { $0.id == dimID }) {
+            commands.append(RemoveSketchDimensionCommand(
+                sketchID: sketchID, dimension: sketch.dimensions[idx], index: idx))
+        }
         for (before, after) in zip(sketch.entities, solvedEntities) where before != after {
             commands.append(UpdateSketchEntityCommand(
                 sketchID: sketchID, before: before, after: after
             ))
         }
+        guard !commands.isEmpty else { return }
         // Phase D: a dimension re-solves entity positions — the dependent-
         // feature rebuild lands in the SAME undo step (S6).
         session.performWithSketchRebuild(commands.count == 1
@@ -12186,6 +12523,33 @@ final class EditorViewModel {
 
     /// Append a new document variable with a unique default name ("var1",
     /// "var2", …) and expression "0", then re-resolve + fan out to dependents.
+    /// The dimension pad's "Create …" action (Shapr3D offers
+    /// `Create "length1 = 440.1136"` right in the value field): mint a variable
+    /// holding `expression` and hand back its name so the field can reference
+    /// it. Returns nil if the expression will not evaluate.
+    @discardableResult
+    func createVariable(holding expression: String,
+                        preferredName: String) -> String? {
+        guard ExpressionEvaluator.evaluate(
+            expression, variables: session.variableValues()) != nil else { return nil }
+        let existing = Set(session.document.variables.map(\.name))
+        var name = preferredName
+        var index = 1
+        while existing.contains(name) || !VariableTable.isValidName(name) {
+            index += 1
+            name = "\(preferredName)\(index)"
+        }
+        let variable = Variable(name: name, expression: expression, value: 0)
+        session.perform(AddVariableCommand(variable: variable))
+        prepareForHistoryChange()
+        session.variablesDidChange()
+        session.save()
+        return name
+    }
+
+    /// Names of every document variable, for the pad's insert menu.
+    var variableNames: [String] { session.document.variables.map(\.name) }
+
     func addVariable() {
         let existing = Set(session.document.variables.map { $0.name })
         var index = existing.count + 1

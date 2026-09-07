@@ -6,9 +6,23 @@
 //  thickness, optionally opening selected planar faces. The inner cavity is
 //  the body with every vertex offset inward so each adjacent face PLANE moves
 //  by the wall thickness (least-squares over the vertex's distinct face
-//  normals — exact for prismatic solids, mitred elsewhere). Each open face is
-//  then cut with a prism over the face outline inset by the thickness, so the
-//  rim around the opening keeps full wall width.
+//  normals — exact for prismatic solids, mitred elsewhere).
+//
+//  The result is BUILT, not booleaned: the outer surface, plus the inverted
+//  inner surface as a void, plus — for each open face — a band of quads in
+//  the face plane joining the face's outline to the cavity's, in place of the
+//  outer and inner copies of that face. There is no CSG anywhere in it.
+//
+//  It used to be CSG — subtract the cavity, then subtract a prism over each
+//  open face inset by the wall. The prism's wall lay on the SAME plane as
+//  the cavity wall, and on a Ø21 × 10 mm cylinder with a 2 mm wall and the
+//  top open (bug report 6cb10527, 2026-09-05) the BSP left zero-width
+//  slivers that `makeWatertight` tried to cap with a degenerate triangle: an
+//  assertion in Debug, and on the iPad a crash the moment the face was
+//  tapped. Merging the opening into the offset solve did not help either —
+//  the mitred inner vertices of a fan-capped cylinder sit exactly on the
+//  cap triangles' edges, which is the other way to make a BSP produce
+//  slivers. Constructing the surface directly sidesteps all of it.
 //
 
 import Foundation
@@ -29,76 +43,167 @@ nonisolated extension KernelOps {
     ) -> Euclid.Mesh {
         guard thickness > 1e-6, !mesh.polygons.isEmpty else { return Euclid.Mesh([]) }
 
-        guard let inner = offsetInward(mesh: mesh, by: thickness) else {
+        // Every opening must keep a full-width rim: a face narrower than two
+        // walls cannot be opened (Shapr3D refuses rather than thinning it).
+        for face in openFaces where !openingIsViable(face, thickness: thickness) {
             return Euclid.Mesh([])
         }
+
         // The cavity must be a real solid strictly smaller than the body;
-        // a collapsed/inverted cavity means the wall ate the body.
-        let innerVolume = signedVolume(inner)
+        // a collapsed/inverted cavity means the wall ate the body. Judged on
+        // the fully CLOSED cavity so the answer does not depend on which
+        // faces are open.
+        let closed = offsetInward(mesh: mesh, by: thickness, openFaces: [])
+        let cavity = Euclid.Mesh(closed.polygons.compactMap { $0 }).makeWatertight()
+        let innerVolume = signedVolume(cavity)
         guard innerVolume > 1e-9, innerVolume < signedVolume(mesh) else {
             return Euclid.Mesh([])
         }
 
-        var result = mesh.subtracting(inner).makeWatertight()
+        // Open faces stay in their own plane (target 0) so the rim band that
+        // replaces them is planar; everything else moves inward by the wall.
+        let offset = openFaces.isEmpty
+            ? closed : offsetInward(mesh: mesh, by: thickness, openFaces: openFaces)
 
-        for face in openFaces {
-            guard let tool = openingPrism(for: face, thickness: thickness) else {
-                // The inset outline collapsed — the face is too small to keep
-                // a full-width rim, so the whole shell is invalid (Shapr3D
-                // refuses rather than thinning the rim).
-                return Euclid.Mesh([])
+        var polygons = [Euclid.Polygon]()
+        polygons.reserveCapacity(mesh.polygons.count * 2)
+        // Edges of open polygons, keyed by welded endpoints: an edge seen from
+        // only ONE open polygon is the opening's boundary and gets a rim quad.
+        var openEdgeCount = [Set<OffsetKey>: Int]()
+        for (i, outer) in mesh.polygons.enumerated() where offset.isOpen[i] {
+            let vs = outer.vertices
+            for j in vs.indices {
+                let key = OffsetKey.edge(vs[j].position, vs[(j + 1) % vs.count].position)
+                openEdgeCount[key, default: 0] += 1
             }
-            result = result.subtracting(tool).makeWatertight()
         }
+        for (i, outer) in mesh.polygons.enumerated() {
+            if offset.isOpen[i] {
+                let vs = outer.vertices
+                let normal = outer.plane.normal
+                for j in vs.indices {
+                    let a = vs[j].position, b = vs[(j + 1) % vs.count].position
+                    guard openEdgeCount[OffsetKey.edge(a, b)] == 1 else { continue }
+                    // Outer edge a→b runs CCW seen from outside, interior on
+                    // its left; the inset points sit on that side, so
+                    // a → b → b' → a' faces the same way as the face did.
+                    let a2 = offset.moved(a), b2 = offset.moved(b)
+                    if let band = Euclid.Polygon([
+                        Vertex(a, normal), Vertex(b, normal), Vertex(b2, normal), Vertex(a2, normal),
+                    ]) {
+                        polygons.append(band)
+                    }
+                }
+                continue
+            }
+            polygons.append(outer)
+            if let inner = offset.polygons[i] {
+                polygons.append(inner.inverted())
+            }
+        }
+        // Offsetting can collapse a polygon (thin features) — those were
+        // skipped above; welding heals the small gaps they leave.
+        let result = Euclid.Mesh(polygons).makeWatertight()
+        // Never hand NaN geometry to the renderer or the quantizing edge
+        // extractor: a result that came apart numerically reads as invalid.
+        guard isFinite(result) else { return Euclid.Mesh([]) }
         return result
+    }
+
+    /// Every vertex finite.
+    static func isFinite(_ mesh: Euclid.Mesh) -> Bool {
+        for polygon in mesh.polygons {
+            for vertex in polygon.vertices {
+                let p = vertex.position
+                if !(p.x.isFinite && p.y.isFinite && p.z.isFinite) { return false }
+            }
+        }
+        return true
+    }
+
+    /// Whether `face` can be opened at this wall: its outline inset by the
+    /// thickness must survive (a rim narrower than the wall would collapse).
+    private static func openingIsViable(_ face: PlanarFace, thickness: Double) -> Bool {
+        guard let outline = offsetLoop(face.outline, by: -thickness) else { return false }
+        return abs(Profile.signedArea(outline)) > 1e-9
     }
 
     // MARK: - Inner cavity (vertex offset)
 
-    /// The body with every welded vertex moved inward so each adjacent face
-    /// plane shifts by `distance`: solve `nᵢ · d = -distance` over the
-    /// vertex's distinct polygon normals in least squares. One normal gives
-    /// `d = -distance·n` (face interior), two the mitred edge offset, three+
-    /// the corner intersection. Nil when the offset degenerates.
-    private static func offsetInward(
-        mesh: Euclid.Mesh, by distance: Double
-    ) -> Euclid.Mesh? {
-        let quantum = 1e-6
-
-        struct Key: Hashable {
-            let x, y, z: Int64
-            init(_ p: Vector, _ inv: Double) {
-                x = MeshQuantize.key64(p.x, inverseQuantum: inv)
-                y = MeshQuantize.key64(p.y, inverseQuantum: inv)
-                z = MeshQuantize.key64(p.z, inverseQuantum: inv)
-            }
+    /// Welded-vertex key at a fixed quantum, and an order-free edge key.
+    struct OffsetKey: Hashable {
+        static let quantum = 1e-6
+        let x, y, z: Int64
+        init(_ p: Vector) {
+            let inv = 1 / Self.quantum
+            x = MeshQuantize.key64(p.x, inverseQuantum: inv)
+            y = MeshQuantize.key64(p.y, inverseQuantum: inv)
+            z = MeshQuantize.key64(p.z, inverseQuantum: inv)
         }
-        let inv = 1 / quantum
+        static func edge(_ a: Vector, _ b: Vector) -> Set<OffsetKey> { [OffsetKey(a), OffsetKey(b)] }
+    }
 
-        // Distinct adjacent plane normals per welded vertex.
-        var normals = [Key: [SIMD3<Double>]]()
-        for polygon in mesh.polygons {
+    /// One polygon of the cavity per polygon of the source (nil where the
+    /// offset collapsed it), which polygons lie on an open face, and the
+    /// per-vertex displacement so callers can move any source point.
+    struct OffsetResult {
+        var polygons: [Euclid.Polygon?]
+        var isOpen: [Bool]
+        var displacement: [OffsetKey: SIMD3<Double>]
+
+        func moved(_ p: Vector) -> Vector {
+            let d = displacement[OffsetKey(p)] ?? .zero
+            return Vector(p.x + d.x, p.y + d.y, p.z + d.z)
+        }
+    }
+
+    /// Every welded vertex moved so each adjacent face plane shifts INWARD by
+    /// `distance` — or, for a plane that is one of `openFaces`, not at all:
+    /// solve `nᵢ · d = tᵢ` over the vertex's distinct polygon normals in
+    /// least squares. One normal gives `d = t·n` (face interior), two the
+    /// mitred edge offset, three+ the corner intersection.
+    private static func offsetInward(
+        mesh: Euclid.Mesh, by distance: Double, openFaces: [PlanarFace]
+    ) -> OffsetResult {
+        // Distinct adjacent plane normals per welded vertex, each with the
+        // signed distance its plane moves (negative = inward).
+        struct Constraint {
+            let normal: SIMD3<Double>
+            var target: Double
+        }
+        var constraints = [OffsetKey: [Constraint]]()
+        var isOpen = [Bool](repeating: false, count: mesh.polygons.count)
+        for (i, polygon) in mesh.polygons.enumerated() {
             let pn = polygon.plane.normal
             let n = SIMD3(pn.x, pn.y, pn.z)
+            let open = Self.isOpen(polygon, normal: n, in: openFaces)
+            isOpen[i] = open
+            let target = open ? 0 : -distance
             for vertex in polygon.vertices {
-                let key = Key(vertex.position, inv)
-                var list = normals[key] ?? []
-                if !list.contains(where: { simd_dot($0, n) > 0.9995 }) {
-                    list.append(n)
-                    normals[key] = list
+                let key = OffsetKey(vertex.position)
+                var list = constraints[key] ?? []
+                if let k = list.firstIndex(where: { simd_dot($0.normal, n) > 0.9995 }) {
+                    // The same plane seen from an open and a closed polygon
+                    // cannot happen for a flood-filled face; keep the larger
+                    // (open) target if it ever does.
+                    list[k].target = max(list[k].target, target)
+                } else {
+                    list.append(Constraint(normal: n, target: target))
                 }
+                constraints[key] = list
             }
         }
 
-        // Per-vertex displacement: d = (Σ nᵢnᵢᵀ + εI)⁻¹ · Σ nᵢ·(-t).
-        var displacement = [Key: SIMD3<Double>]()
+        // Per-vertex displacement: d = (Σ nᵢnᵢᵀ + εI)⁻¹ · Σ nᵢ·tᵢ.
+        var displacement = [OffsetKey: SIMD3<Double>]()
         let maxShift = distance * 8   // mitre blow-up guard (near-parallel planes)
-        for (key, list) in normals {
+        for (key, list) in constraints {
             var a = simd_double3x3(diagonal: SIMD3(repeating: 1e-9))
             var b = SIMD3<Double>()
-            for n in list {
+            for c in list {
+                let n = c.normal
                 a += simd_double3x3(columns: (n * n.x, n * n.y, n * n.z))
-                b += n * -distance
+                b += n * c.target
             }
             var d = a.inverse * b
             let len = simd_length(d)
@@ -106,22 +211,45 @@ nonisolated extension KernelOps {
             displacement[key] = d
         }
 
-        var polygons = [Euclid.Polygon]()
-        polygons.reserveCapacity(mesh.polygons.count)
+        var result = OffsetResult(polygons: [], isOpen: isOpen, displacement: displacement)
+        result.polygons.reserveCapacity(mesh.polygons.count)
         for polygon in mesh.polygons {
             let vertices = polygon.vertices.map { vertex -> Euclid.Vertex in
-                let d = displacement[Key(vertex.position, inv)] ?? .init()
-                let p = vertex.position
-                return Euclid.Vertex(Vector(p.x + d.x, p.y + d.y, p.z + d.z), vertex.normal)
+                Euclid.Vertex(result.moved(vertex.position), vertex.normal)
             }
-            // Offsetting can collapse a polygon (thin features); skip those —
-            // makeWatertight heals small gaps, the volume check catches big ones.
-            if let moved = Euclid.Polygon(vertices) {
-                polygons.append(moved)
-            }
+            result.polygons.append(Euclid.Polygon(vertices))
         }
-        guard !polygons.isEmpty else { return nil }
-        return Euclid.Mesh(polygons).makeWatertight()
+        return result
+    }
+
+    /// Whether `polygon` lies on one of the open faces: same plane, and its
+    /// centroid inside that face's outline (and outside its holes) — the
+    /// outline test keeps a coplanar-but-separate face, like the other step
+    /// of a stepped block, closed.
+    private static func isOpen(
+        _ polygon: Euclid.Polygon, normal n: SIMD3<Double>, in openFaces: [PlanarFace]
+    ) -> Bool {
+        guard !openFaces.isEmpty else { return false }
+        let planeTolerance = 1e-3
+        for face in openFaces {
+            let fn = SIMD3(Double(face.normal.x), Double(face.normal.y), Double(face.normal.z))
+            guard simd_dot(n, fn) > 0.9995 else { continue }
+            var centroid = SIMD3<Double>.zero
+            var onPlane = true
+            for vertex in polygon.vertices {
+                let p = SIMD3(vertex.position.x, vertex.position.y, vertex.position.z)
+                if abs(simd_dot(p - face.origin, fn)) > planeTolerance { onPlane = false; break }
+                centroid += p
+            }
+            guard onPlane else { continue }
+            centroid /= Double(max(polygon.vertices.count, 1))
+            let local = centroid - face.origin
+            let uv = SIMD2(simd_dot(local, face.basisX), simd_dot(local, face.basisY))
+            guard pointInLoopInclusive(uv, face.outline) else { continue }
+            if face.holes.contains(where: { pointStrictlyInLoop(uv, $0) }) { continue }
+            return true
+        }
+        return false
     }
 
     /// Signed volume via the divergence theorem (positive for an outward-
@@ -144,45 +272,7 @@ nonisolated extension KernelOps {
         return total
     }
 
-    // MARK: - Face openings
-
-    /// The cut prism for one open face: the outline inset by `thickness`
-    /// (holes grown by it), extruded from just outside the face down past the
-    /// cavity ceiling so opening and cavity merge. Nil when the inset outline
-    /// collapses.
-    private static func openingPrism(
-        for face: PlanarFace, thickness: Double
-    ) -> Euclid.Mesh? {
-        guard let outline = offsetLoop(face.outline, by: -thickness),
-              abs(Profile.signedArea(outline)) > 1e-9
-        else { return nil }
-
-        // Grown holes that swallow the outline kill the opening too.
-        var holes = [[SIMD2<Double>]]()
-        for hole in face.holes {
-            if let grown = offsetLoop(hole, by: thickness) {
-                holes.append(grown)
-            }
-        }
-
-        let n = face.normal
-        let normal = SIMD3(Double(n.x), Double(n.y), Double(n.z))
-        let pad = thickness * 0.5 + 0.001
-        let plane = SketchPlane(
-            origin: face.origin - normal * (thickness + pad),
-            xAxis: face.basisX,
-            yAxis: face.basisY
-        )
-        let profile = Profile(loop: outline, kind: .polygonal, sourceEntityIDs: [])
-        let holeProfiles = holes.map {
-            Profile(loop: $0, kind: .polygonal, sourceEntityIDs: [])
-        }
-        let prism = KernelOps.extrude(
-            profile: profile, holes: holeProfiles, in: plane,
-            distance: thickness + 2 * pad
-        )
-        return prism.polygons.isEmpty ? nil : prism
-    }
+    // MARK: - Loop offset
 
     /// Offset a simple closed loop: positive `amount` GROWS the enclosed
     /// region, negative shrinks it. Mitred joins; vertices whose adjacent

@@ -40,11 +40,10 @@
 		7F7046013010F00000347100 /* Exceptions for "openshape3dTests" folder in "openshape3dTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Fixtures,
-				Fixtures/Captures/clevis-lug-junction-fillet-r2/manifest.json,
-				Fixtures/Captures/clevis-lug-junction-fillet-r2/shape.brep,
-				Fixtures/Captures/overradius-fillet-d10-rim/manifest.json,
-				Fixtures/Captures/overradius-fillet-d10-rim/shape.brep,
+				"Fixtures/Captures/clevis-lug-junction-fillet-r2/manifest.json",
+				"Fixtures/Captures/clevis-lug-junction-fillet-r2/shape.brep",
+				"Fixtures/Captures/overradius-fillet-d10-rim/manifest.json",
+				"Fixtures/Captures/overradius-fillet-d10-rim/shape.brep",
 			);
 			target = 7F704321300C0ED7003471DC /* openshape3dTests */;
 		};

@@ -18,13 +18,43 @@ struct SketchDimensionOverlay: View {
     var body: some View {
         // Reproject whenever the camera moves.
         let _ = viewModel.cameraEpoch
-        if viewModel.mode.isSketching {
+        // Dimensions used to be visible only while sketching, so leaving a
+        // sketch hid the values that define it. `sketchDimensionLabels` now
+        // decides what is visible — every sketch under "Always Show
+        // Dimensions", otherwise the active and selected ones.
+        //
+        // Gate on the CONTENT, not the mode: this overlay is full-screen and
+        // hit-testing, so rendering it while it has nothing to draw would put
+        // an invisible layer over the viewport for taps to land in.
+        let labels = viewModel.sketchDimensionLabels
+        // Existence follows the MODE; hit-testing follows the content. Gating
+        // existence on content tore this whole subtree down whenever the label
+        // list went briefly empty — which it does mid-stroke, while a field
+        // inside it was live. Keeping it mounted for the duration of a sketch
+        // still avoids the invisible-layer problem, because an overlay with
+        // nothing to draw simply stops taking taps.
+        if viewModel.mode.isSketching || !labels.isEmpty {
+            GeometryReader { geo in
             ZStack(alignment: .topLeading) {
-                ForEach(viewModel.sketchDimensionLabels) { label in
-                    labelView(label)
+                ForEach(labels) { label in
+                    labelView(label, in: geo.size)
+                }
+                // The editor lives HERE, not inside the ForEach. There is only
+                // ever one, and building it per-label tied its identity — and
+                // so its @State and @FocusState — to a row whose id is reused
+                // ("candidate" is the same id for every freshly drawn shape).
+                // Drawing a second shape therefore swapped the field's contents
+                // underneath a live editing session and took the app down with
+                // it. One field, one identity, outside the loop.
+                if let editing = labels.first(where: {
+                    $0.id == viewModel.editingDimension?.labelID
+                }), let anchor = project(editing.worldAnchor) {
+                    DimensionField(viewModel: viewModel)
+                        .position(MoveDistanceOverlay.clearOfKeyboard(anchor, in: geo.size))
                 }
             }
-            .allowsHitTesting(true)
+            }
+            .allowsHitTesting(!labels.isEmpty)
             // The Metal viewport is full-bleed; a SwiftUI overlay is safe-area
             // inset by default, which would draw every projected point ~85pt
             // below the geometry it annotates.
@@ -67,7 +97,8 @@ struct SketchDimensionOverlay: View {
     }
 
     @ViewBuilder
-    private func labelView(_ label: EditorViewModel.SketchDimensionLabel) -> some View {
+    private func labelView(_ label: EditorViewModel.SketchDimensionLabel,
+                           in size: CGSize) -> some View {
         if let anchor = project(label.worldAnchor),
            let start = project(label.worldStart),
            let end = project(label.worldEnd) {
@@ -80,8 +111,9 @@ struct SketchDimensionOverlay: View {
             .allowsHitTesting(false)
 
             if viewModel.editingDimension?.labelID == label.id {
-                DimensionField(viewModel: viewModel)
-                    .position(anchor)
+                // Being edited: the leader line above still draws, but the
+                // badge gives way to the field, which `body` positions.
+                EmptyView()
             } else {
                 // Stage-2 conflict attribution: a dimension the solver could
                 // not satisfy paints red — dueling lengths are the archetypal
@@ -124,36 +156,148 @@ struct SketchDimensionOverlay: View {
 }
 
 /// The inline numeric editor shown in place of a dimension label while editing.
+/// The dimension editor: the value, then the pad that edits it.
+///
+/// The system keyboard is deliberately NOT raised. A dimension is typed with a
+/// thumb while the other hand holds the model, and the iPad keyboard covers the
+/// half of the screen the sketch is on — which is why `clearOfKeyboard` had to
+/// exist at all. The pad is compact and sits with the value. The keyboard key
+/// hands over to the real thing when someone wants to type a variable name or
+/// a function, which a ten-key cannot express.
 private struct DimensionField: View {
     @Bindable var viewModel: EditorViewModel
-    @State private var text: String = ""
+    @State private var usingSystemKeyboard = false
     @FocusState private var focused: Bool
 
+    /// The text lives on `editingDimension`, not in `@State`. The overlay
+    /// rebuilds its labels on every camera move and document revision, and a
+    /// view-local copy is discarded whenever that changes this view's identity —
+    /// which silently swallowed keypad taps. The edit session owns the text.
+    /// What a variable minted from this field would be called. Shapr3D names it
+    /// after the quantity ("length1"); the kind is the closest thing we have.
+    private var suggestedVariableName: String {
+        switch viewModel.editingDimension?.kind {
+        case .radius: "radius"
+        case .diameter: "diameter"
+        case .angle: "angle"
+        default: "length"
+        }
+    }
+
+    /// View-local, deliberately. A `Binding` that wrote straight into
+    /// `editingDimension` put an `@Observable` write on the TextField's update
+    /// path: a render could write, invalidating the view that had just produced
+    /// it, and the app spun until the watchdog killed it — no crash log, just a
+    /// relaunch onto the gallery. (The swallowed keypad taps that first sent me
+    /// to a model-backed binding were `contentShape`, not state.)
+    @State private var text: String = ""
+
     var body: some View {
+        content
+            .onAppear { text = viewModel.editingDimension?.text ?? "" }
+            // A second shape reopens the field under the SAME label id
+            // ("candidate"), so `onAppear` does not fire again — re-seed when
+            // the edit itself moves.
+            .onChange(of: viewModel.editingDimension?.labelID) { _, _ in
+                text = viewModel.editingDimension?.text ?? ""
+            }
+            .onChange(of: viewModel.editingDimension?.refs.count) { _, _ in
+                text = viewModel.editingDimension?.text ?? ""
+            }
+    }
+
+    private var content: some View {
+        VStack(spacing: 6) {
+            valueRow
+            if !usingSystemKeyboard {
+                NumericKeypad(
+                    text: $text,
+                    isLocked: viewModel.dimensionCommitLocked,
+                    onToggleLock: { viewModel.dimensionCommitLocked.toggle() },
+                    onCommit: { viewModel.commitDimensionEdit(text) },
+                    onSwitchToSystemKeyboard: {
+                        usingSystemKeyboard = true
+                        focused = true
+                    }
+                )
+            }
+        }
+    }
+
+    private var valueRow: some View {
         HStack(spacing: 4) {
+            // A real TextField either way: with the pad it is a display that
+            // shows the caret and takes hardware-keyboard keys, and it is the
+            // same element the UI suite reads the value from.
             TextField("", text: $text)
                 .keyboardType(.numbersAndPunctuation)
                 .autocorrectionDisabled()
-                .frame(width: 74)
+                .frame(width: 96)
                 .focused($focused)
+                // While the pad is the input method the field is a READOUT: it
+                // must not take taps (that would raise the system keyboard the
+                // pad exists to replace) and it must not join the focus system.
+                .allowsHitTesting(usingSystemKeyboard)
+                .focusable(usingSystemKeyboard)
                 .submitLabel(.done)
                 .onSubmit { viewModel.commitDimensionEdit(text) }
                 .accessibilityIdentifier("DimensionField")
-            Button {
-                viewModel.commitDimensionEdit(text)
-            } label: {
-                Image(systemName: "checkmark.circle.fill")
+
+            if !usingSystemKeyboard {
+                // Shapr3D puts a variables affordance in the value field itself,
+                // left of the keyboard toggle: it offers to mint a variable from
+                // what you typed, and to reference one you already have.
+                Menu {
+                    let current = text
+                    Button("Create “\(suggestedVariableName) = \(current)”") {
+                        if let name = viewModel.createVariable(
+                            holding: current, preferredName: suggestedVariableName) {
+                            text = name
+                        }
+                    }
+                    .disabled(current.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                    let names = viewModel.variableNames
+                    if names.isEmpty {
+                        Text("No available variables")
+                    } else {
+                        Section("Variables") {
+                            ForEach(names, id: \.self) { name in
+                                Button(name) { text = name }
+                            }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "function")
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier("DimensionVariables")
+
+                Button {
+                    usingSystemKeyboard = true
+                    focused = true
+                } label: {
+                    Image(systemName: "keyboard")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("DimensionSystemKeyboard")
+            } else {
+                // With the system keyboard up the pad is gone, so the commit
+                // control has to live here instead.
+                Button {
+                    viewModel.commitDimensionEdit(text)
+                } label: {
+                    Image(systemName: "checkmark.circle.fill")
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("DimensionCommit")
             }
-            .accessibilityIdentifier("DimensionCommit")
         }
         .font(.caption.weight(.semibold))
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
-        .onAppear {
-            text = viewModel.editingDimension?.text ?? ""
-            focused = true
-        }
     }
 }

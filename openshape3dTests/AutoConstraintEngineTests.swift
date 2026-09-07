@@ -40,8 +40,9 @@ final class AutoConstraintEngineTests: XCTestCase {
     // MARK: - Horizontal / vertical
 
     func testHorizontalDetectedWithinTolerance() {
-        // ~1.15° off horizontal, inside the 5° default.
-        let r = infer(.line, from: SIMD2(0, 0), to: SIMD2(5, 0.1))
+        // ~0.57° off horizontal — inside the 1° default, and the angle
+        // Shapr3D was measured snapping flat.
+        let r = infer(.line, from: SIMD2(0, 0), to: SIMD2(5, 0.05))
         let c = constraint(r, .horizontal)
         XCTAssertNotNil(c)
         XCTAssertEqual(c?.selfRole, .whole)
@@ -65,7 +66,7 @@ final class AutoConstraintEngineTests: XCTestCase {
     }
 
     func testVerticalDetectedWithinTolerance() {
-        let r = infer(.line, from: SIMD2(0, 0), to: SIMD2(0.1, 5))
+        let r = infer(.line, from: SIMD2(0, 0), to: SIMD2(0.05, 5))
         let c = constraint(r, .vertical)
         XCTAssertNotNil(c)
         XCTAssertEqual(c?.selfRole, .whole)
@@ -310,5 +311,15 @@ final class AutoConstraintEngineTests: XCTestCase {
         XCTAssertEqual(r.snappedPoint, SIMD2(20, 20))
         XCTAssertTrue(r.constraints.isEmpty)
         XCTAssertTrue(r.guides.isEmpty)
+    }
+
+    /// The tolerance is not arbitrary: Shapr3D was driven at known angles and
+    /// snapped flat at 0.57° but left 1.15° and 1.6° alone. A line drawn at a
+    /// deliberate slight angle must survive.
+    func testALineJustOutsideToleranceIsLeftAlone() {
+        let r = infer(.line, from: SIMD2(0, 0), to: SIMD2(5, 0.1))  // ~1.15°
+        XCTAssertNil(constraint(r, .horizontal),
+                     "1.15° is outside the measured Shapr3D snap")
+        XCTAssertEqual(r.snappedPoint, SIMD2(5, 0.1), "and the geometry is untouched")
     }
 }

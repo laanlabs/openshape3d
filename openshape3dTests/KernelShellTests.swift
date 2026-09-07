@@ -71,8 +71,10 @@ final class KernelShellTests: XCTestCase {
         let side = try face(of: mesh, along: SIMD3(1, 0, 0))
         let out = KernelOps.shell(mesh: mesh, thickness: 1, openFaces: [top, side])
         XCTAssertFalse(out.polygons.isEmpty)
-        // Second opening removes its own 8×8×1 wall patch too.
-        XCTAssertEqual(volume(out), 424 - 64, accuracy: 1.5)
+        // Two adjacent openings leave four walls: bottom, back, left, right —
+        // 1000 − 8·9·9. The 1×1×8 bar along the shared edge goes too, exactly
+        // as OCCT's MakeThickSolid removes it (the old two-cut CSG kept it).
+        XCTAssertEqual(volume(out), 1000 - 8 * 9 * 9, accuracy: 1.5)
     }
 
     // MARK: Validity

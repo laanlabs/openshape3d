@@ -53,11 +53,12 @@ final class CylinderGrowShotUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Diameter"].waitForExistence(timeout: 3),
                       "Tapping a cylinder side should open the Diameter (radial) bar")
 
-        // Grow the diameter and commit (the newline submits/commits) → still
-        // exactly one body.
-        let field = app.textFields.firstMatch
-        field.tap()
-        field.typeText("14\n")
+        // Grow the diameter and commit → still exactly one body. The Diameter
+        // field opens the on-canvas number pad rather than the keyboard, so
+        // `replaceText` drives whichever is in front and commits.
+        let field = app.textFields.matching(identifier: "RadialDiameterField").firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        replaceText(field, with: "14")
         sleep(1)
 
         // Growing committed to exactly one selectable body (no facet fragments).

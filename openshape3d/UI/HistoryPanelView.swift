@@ -189,6 +189,12 @@ private struct HistoryRowView: View {
     @State private var countText = ""
     @State private var spacingText = ""
     @State private var angleText = ""
+    /// Which scalar's number pad is open, if any (the scalars are a ForEach,
+    /// so a single flag would open every row's pad at once).
+    @State private var padScalarKey: EditorViewModel.FeatureScalarKey?
+    @State private var padCount = false
+    @State private var padAngle = false
+    @State private var padSpacing = false
 
     /// A row is visually de-emphasized when the node is suppressed OR sits at/
     /// after the rollback marker (its bodies are absent either way).
@@ -312,6 +318,18 @@ private struct HistoryRowView: View {
                                 .accessibilityIdentifier(
                                     primary ? "HistoryDistanceField"
                                             : "HistoryScalarField-\(scalar.key.rawValue)-\(row.name)")
+                                .allowsHitTesting(false)
+                                .contentShape(Rectangle())
+                                .onTapGesture { padScalarKey = scalar.key }
+                                .numericKeypad(
+                                    isPresented: Binding(
+                                        get: { padScalarKey == scalar.key },
+                                        set: { if !$0 { padScalarKey = nil } }),
+                                    text: scalarBinding(scalar.key),
+                                    onCommit: {
+                                        padScalarKey = nil
+                                        commitScalar(scalar.key)
+                                    })
                             Text(scalar.unit)
                                 .font(.caption2)
                                 .foregroundStyle(.barLabel)
@@ -389,6 +407,16 @@ private struct HistoryRowView: View {
                             .frame(width: 44)
                             .onSubmit(commitCount)
                             .accessibilityIdentifier("PatternCountField-\(row.name)")
+                            .allowsHitTesting(false)
+                            .contentShape(Rectangle())
+                            .onTapGesture { padCount = true }
+                            .numericKeypad(
+                                isPresented: $padCount,
+                                text: $countText,
+                                onCommit: {
+                                    padCount = false
+                                    commitCount()
+                                })
                         Stepper(
                             "",
                             value: Binding(
@@ -420,6 +448,16 @@ private struct HistoryRowView: View {
                                 .frame(width: 60)
                                 .onSubmit(commitAngle)
                                 .accessibilityIdentifier("PatternAngleField-\(row.name)")
+                                .allowsHitTesting(false)
+                                .contentShape(Rectangle())
+                                .onTapGesture { padAngle = true }
+                                .numericKeypad(
+                                    isPresented: $padAngle,
+                                    text: $angleText,
+                                    onCommit: {
+                                        padAngle = false
+                                        commitAngle()
+                                    })
                             Text("°")
                                 .font(.caption2)
                                 .foregroundStyle(.barLabel)
@@ -443,6 +481,16 @@ private struct HistoryRowView: View {
                                 .frame(width: 60)
                                 .onSubmit(commitSpacing)
                                 .accessibilityIdentifier("PatternSpacingField-\(row.name)")
+                                .allowsHitTesting(false)
+                                .contentShape(Rectangle())
+                                .onTapGesture { padSpacing = true }
+                                .numericKeypad(
+                                    isPresented: $padSpacing,
+                                    text: $spacingText,
+                                    onCommit: {
+                                        padSpacing = false
+                                        commitSpacing()
+                                    })
                             Text("mm")
                                 .font(.caption2)
                                 .foregroundStyle(.barLabel)

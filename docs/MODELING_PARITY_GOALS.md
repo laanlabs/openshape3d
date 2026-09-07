@@ -11,6 +11,7 @@ we're building next and when we can call it done" doc.
 | `PARITY_SPEC.md` | The **feature-by-feature audit**: every the reference app behaviour, its status, and its feasibility marker. The source of truth for *what a feature must do*. |
 | `IMPLEMENTATION_PLAN.md` | Phase sequencing for the whole app (incl. platform/services). |
 | `OCCT_BREP_PORT_DESIGN.md` | How the B-rep kernel is being introduced. |
+| `SHAPR3D_SKETCH_PARITY.md` | Sketch + dimension gaps measured against the **shipped Shapr3D binary** (its own strings and UI recordings), with screenshots. Where this doc says what to build, that one shows what the reference actually does. |
 | **This doc** | Ordered **goals with acceptance criteria** for the modeling core only. |
 
 Do not restate behaviour here — cite the spec section (e.g. §4.3) and state the
@@ -210,10 +211,16 @@ faceting it.
 
 The remaining gaps in the sketch half, ordered by how often they block real work:
 
-1. **Spline (fit / control points)** *(§1.4)* — the biggest missing sketch
-   primitive; needs solver integration for tangency.
+1. **Spline (fit / control points)** *(§1.4)* — **kernel done, UI missing.**
+   `SketchEntity.spline` exists with centripetal Catmull–Rom tessellation,
+   profile detection, transforms and mirror (see `SPLINE_PROFILE_DESIGN.md`);
+   what is absent is a `.spline` case in `SketchTool` — the only non-test
+   construction site today is the agent API. Solver integration for tangency is
+   still genuinely open.
 2. ~~**Offset Edge in sketch mode** *(§1.9)*~~ — **done 2026-08-27** as G7.1.
-3. **Sketch pattern (linear/circular) + the pattern constraint** *(§1.11, §2.5)*.
+3. **Sketch pattern (linear/circular) + the pattern constraint** *(§1.11, §2.5)* —
+   also **kernel done, UI missing**: `SketchPatternLink` is a complete type with
+   tests, but `patternLinks` is untouched by `EditorViewModel`.
 4. **Line/Arc pen mode** *(§1.2)* — drag-to-arc continuation, a core the reference app
    input idiom.
 5. **Helix** *(§1.17)* — pairs with sweep for threads.

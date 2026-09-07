@@ -1,0 +1,251 @@
+//
+//  SketchAnnotationVisibilityTests.swift
+//  openshape3dTests
+//
+//  Dimensions used to be drawn only while sketching, and only for the sketch
+//  being edited — so leaving a sketch hid the very values that define it, and a
+//  second sketch's dimensions were never visible at all. `annotatedSketches`
+//  now widens that to every visible sketch when "Always Show Dimensions" is on
+//  (Shapr3D's "Constraint & Locked Dimension Visibility"). These tests pin both
+//  halves, plus the unit-aware label text that replaced a hardcoded " mm".
+//
+
+import XCTest
+import SwiftData
+@testable import openshape3d
+
+@MainActor
+final class SketchAnnotationVisibilityTests: XCTestCase {
+    /// `EditorViewModel` owns an `@Observable` whose isolated `deinit` crashes
+    /// XCTest on dealloc (STATUS gotcha 1) — retain every one we make.
+    nonisolated(unsafe) static var retained: [EditorViewModel] = []
+
+    private var savedUnit: DisplayUnit!
+    private var savedDimensions: Bool!
+    private var savedConstraints: Bool!
+
+    override func setUp() {
+        super.setUp()
+        // The getters read the shared settings singleton; restore it after each
+        // test so these never leak into the rest of the suite.
+        savedUnit = AppSettings.shared.unit
+        savedDimensions = AppSettings.shared.alwaysShowDimensions
+        savedConstraints = AppSettings.shared.alwaysShowConstraints
+    }
+
+    override func tearDown() {
+        AppSettings.shared.unit = savedUnit
+        AppSettings.shared.alwaysShowDimensions = savedDimensions
+        AppSettings.shared.alwaysShowConstraints = savedConstraints
+        super.tearDown()
+    }
+
+    private func makeViewModel() throws -> EditorViewModel {
+        let schema = Schema([
+            Project.self, PersistedBody.self, PersistedSketch.self,
+            PersistedPlane.self, PersistedImage.self, PersistedSymbol.self,
+        ])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = ModelContext(container)
+        let project = Project(name: "Annotation Visibility Test")
+        context.insert(project)
+        let vm = EditorViewModel(project: project, modelContext: context)
+        Self.retained.append(vm)
+        return vm
+    }
+
+    /// A horizontal line of `length` mm carrying a driving length dimension.
+    private func dimensionedLine(length: Double, hidden: Bool = false) -> Sketch {
+        let id = UUID()
+        let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(length, 0))
+        let dim = SketchDimension(
+            kind: .distance,
+            refs: [ConstraintRef(entityID: id, role: .endpointA),
+                   ConstraintRef(entityID: id, role: .endpointB)],
+            value: length)
+        return Sketch(plane: .ground, entities: [line], isHidden: hidden,
+                      dimensions: [dim])
+    }
+
+    // MARK: - The regression this change exists for
+
+    func testDimensionsSurviveLeavingTheSketch() throws {
+        let vm = try makeViewModel()
+        let sketch = dimensionedLine(length: 40)
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(sketch.id, tool: nil)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "visible while sketching")
+
+        vm.mode = .idle
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1,
+                       "a dimension must not vanish when the sketch is closed")
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.sketchID, sketch.id)
+    }
+
+    /// Off does not mean hidden. Shapr3D's own wording for the off-state is
+    /// "shown based on your current selection", so a selected sketch still
+    /// shows what defines it.
+    func testOffMeansSelectionBasedNotHidden() throws {
+        let vm = try makeViewModel()
+        let sketch = dimensionedLine(length: 40)
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        AppSettings.shared.alwaysShowDimensions = false
+
+        vm.mode = .idle
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "nothing selected, nothing drawn")
+
+        vm.selectedSketchEntityIDs = [sketch.entities[0].id]
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1,
+                       "selecting the sketch shows what defines it")
+
+        vm.selectedSketchEntityIDs = []
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+
+        vm.mode = .sketching(sketch.id, tool: nil)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "the active sketch always shows")
+    }
+
+    // MARK: - Radius vs diameter (the app used to disagree with itself)
+
+    /// A circle read Ø while you dragged it out (`LiveDimensionKit`) but its
+    /// committed badge showed a bare, unprefixed radius. Both leaders are now
+    /// on the badge, so "20 mm" is never ambiguous.
+    func testRadiusAndDiameterBadgesCarryTheirLeader() throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let circle = SketchEntity.circle(id: id, center: SIMD2(0, 0), radius: 20)
+        let ref = [ConstraintRef(entityID: id, role: .whole)]
+
+        for (kind, expected) in [(DimensionKind.diameter, "Ø40 mm"),
+                                 (DimensionKind.radius, "R20 mm")] {
+            let sketch = Sketch(plane: .ground, entities: [circle],
+                                dimensions: [SketchDimension(kind: kind, refs: ref,
+                                                             value: kind == .diameter ? 40 : 20)])
+            let vm2 = try makeViewModel()
+            vm2.session.perform(AddSketchCommand(sketch: sketch))
+            AppSettings.shared.alwaysShowDimensions = true
+            AppSettings.shared.unit = .millimeters
+            vm2.mode = .sketching(sketch.id, tool: nil)
+            XCTAssertEqual(vm2.sketchDimensionLabels.first?.text, expected)
+        }
+        _ = vm
+    }
+
+    func testEveryVisibleSketchContributesNotJustTheActiveOne() throws {
+        let vm = try makeViewModel()
+        let a = dimensionedLine(length: 40)
+        let b = dimensionedLine(length: 25)
+        vm.session.perform(AddSketchCommand(sketch: a))
+        vm.session.perform(AddSketchCommand(sketch: b))
+
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(a.id, tool: nil)
+
+        let owners = Set(vm.sketchDimensionLabels.map(\.sketchID))
+        XCTAssertEqual(owners, [a.id, b.id],
+                       "the other sketch's dimensions are visible too")
+    }
+
+    func testHiddenSketchesAreExcludedUnlessTheyAreTheActiveOne() throws {
+        let vm = try makeViewModel()
+        let shown = dimensionedLine(length: 40)
+        let hidden = dimensionedLine(length: 25, hidden: true)
+        vm.session.perform(AddSketchCommand(sketch: shown))
+        vm.session.perform(AddSketchCommand(sketch: hidden))
+        AppSettings.shared.alwaysShowDimensions = true
+
+        vm.mode = .idle
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [shown.id])
+
+        // Editing a hidden sketch still renders it, so its own dimensions show.
+        vm.mode = .sketching(hidden.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
+                       [shown.id, hidden.id])
+    }
+
+    // MARK: - Constraint glyphs mirror dimensions
+
+    func testConstraintGlyphsFollowTheirOwnSetting() throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let sketch = Sketch(
+            plane: .ground,
+            entities: [.line(id: id, a: SIMD2(0, 0), b: SIMD2(40, 0))],
+            constraints: [SketchConstraint(
+                kind: .horizontal,
+                refs: [ConstraintRef(entityID: id, role: .whole)])])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .idle
+
+        AppSettings.shared.alwaysShowConstraints = true
+        XCTAssertEqual(vm.sketchConstraintGlyphs.count, 1)
+        XCTAssertEqual(vm.sketchConstraintGlyphs.first?.sketchID, sketch.id)
+
+        AppSettings.shared.alwaysShowConstraints = false
+        XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
+    }
+
+    // MARK: - Label text is unit-aware (was hardcoded "%.2f mm")
+
+    func testLabelTextFollowsTheDisplayUnit() throws {
+        let vm = try makeViewModel()
+        let sketch = dimensionedLine(length: 25.4)
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(sketch.id, tool: nil)
+
+        AppSettings.shared.unit = .millimeters
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "25.4 mm")
+
+        AppSettings.shared.unit = .inches
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "1 in",
+                       "25.4 mm is exactly one inch")
+    }
+
+    // MARK: - Defaults
+
+    func testVisibilityDefaultsOnAndAnExplicitFalseSurvives() {
+        let suite = "os3d.tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        // Both off out of the box, verified against the running Shapr3D:
+        // annotations follow the selection rather than papering the canvas.
+        XCTAssertFalse(AppSettings(defaults: defaults).alwaysShowDimensions)
+        XCTAssertFalse(AppSettings(defaults: defaults).alwaysShowConstraints)
+
+        let first = AppSettings(defaults: defaults)
+        first.alwaysShowDimensions = true
+        first.alwaysShowConstraints = true
+        // `bool(forKey:)` cannot tell "false" from "never set" — this is the
+        // regression that would silently re-enable it on the next launch.
+        XCTAssertTrue(AppSettings(defaults: defaults).alwaysShowDimensions,
+                      "an explicit choice survives — `bool(forKey:)` could not "
+                      + "tell it from unset")
+        XCTAssertTrue(AppSettings(defaults: defaults).alwaysShowConstraints)
+    }
+
+    // MARK: - A selected rectangle offers BOTH of its dimensions
+
+    /// Shapr3D shows a rectangle's width AND height at once. openshape3d
+    /// derives them as two candidates off one selection.
+    func testSelectedRectangleOffersWidthAndHeight() throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let sketch = Sketch(plane: .ground,
+                            entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(40, 25))])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        AppSettings.shared.unit = .millimeters
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+
+        let labels = vm.sketchDimensionLabels
+        XCTAssertEqual(labels.count, 2,
+                       "width and height, got \(labels.map(\.text))")
+        XCTAssertEqual(Set(labels.map(\.kind)), [.horizontal, .vertical])
+        XCTAssertEqual(Set(labels.map(\.text)), ["40 mm", "25 mm"])
+    }
+}

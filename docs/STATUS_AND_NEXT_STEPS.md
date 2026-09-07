@@ -11,6 +11,420 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
 
+## Mission log — 2026-09-05, sketch dimensions stop vanishing (Shapr3D-measured)
+
+Complaint: "drawing a sketch and dimensions staying visible for the user to
+click and edit are missing." Half wrong, and the accurate half was sharper —
+worth recording because the wrong half nearly sent the work in the wrong
+direction. openshape3d already HAD tappable, editable, expression-aware
+dimension badges with red conflict attribution. What it did not have:
+
+- both annotation overlays were gated on `viewModel.mode.isSketching`, so
+  every dimension vanished the instant you tapped Exit Sketching;
+- `sketchDimensionLabels` / `sketchConstraintGlyphs` each opened with
+  `guard let sketch = activeSketch`, so a second sketch's annotations were
+  never visible in any mode.
+
+Fixed by `EditorViewModel.annotatedSketches(alwaysShow:)` (active sketch
+always; every non-hidden sketch when the setting is on — the active one
+included even when hidden, since `openItemSketch` renders it while editing).
+The live *candidate* label stays active-sketch-only: it belongs to the
+selection. Tapping a badge or glyph from outside its sketch now calls
+`openItemSketch` first, because `commitDimensionEdit` and `deleteConstraint`
+both require it to be active. New `AppSettings.alwaysShowDimensions` /
+`.alwaysShowConstraints` (default ON, read via `object(forKey:)` so an explicit
+`false` survives relaunch), surfaced as a Visibility section in
+`ConstraintSettingsView` — Shapr3D's "Constraint & Locked Dimension Visibility".
+Label text also moved off a hardcoded `"%.2f" + " mm"` onto the existing
+`DisplayUnit.compactLengthString`, which matches Shapr3D's trimmed format;
+the field is seeded in display units and converted back on commit, EXCEPT for
+a formula, whose identifiers resolve against document variables already in
+millimetres.
+
+**The reference evidence is reproducible without owning a Shapr3D licence.**
+Shapr3D ships screen recordings of its own UI at
+`/Applications/Shapr3D.app/Contents/Resources/Tutorials.bundle/Tool/*/video.mp4`,
+and its full vocabulary (3,226 keys) in `en.lproj/Localizable.strings` via
+`plutil -convert json`. Frames extracted with a small `AVAssetImageGenerator`
+tool — the Homebrew `ffmpeg` here is broken (missing `libx265`). Driving
+Shapr3D live is NOT possible: UI scripting needs Accessibility and `osascript`
+returns `not allowed assistive access (-1719)`. Write-up + screenshots:
+`docs/SHAPR3D_SKETCH_PARITY.md`. Still open there: G2 (ten dimension tools +
+adaptive menu), G3 (draggable badge), G7 (Disconnect, Anchored Sketch Entity),
+G8 (spline / sketch-pattern UI).
+
+**On-canvas number pad for dimensions (`NumericKeypad`).** Tapping a dimension
+now opens Shapr3D's compact pad rather than the system keyboard: `( )`, the four
+operators and `±` (all already parsed by `ExpressionEvaluator`), `mm cm m deg`,
+backspace, a lock, and a double-height commit. Wired into the sketch dimension
+field only; the component is a text editor over a `Binding<String>` and knows
+nothing about sketches, so the other numeric fields can adopt it one line each.
+
+Two real bugs surfaced while building it:
+
+- **A typed unit was decoration.** The evaluator STRIPS a trailing unit before
+  parsing, so `20 cm` meant "20 display units". Worse, the suffix is letters, so
+  `ExpressionEvaluator.identifiers(in:)` read `cm` as a VARIABLE — which made
+  `20 cm` count as a formula, skip conversion entirely, and store `"20 cm"` in
+  the dimension's `formula`. Strip the unit before asking what a string
+  references.
+- **`text.append(x)` through a `Binding` does nothing.** Assignment
+  (`text = text + x`) works. Not the cause of the bug below, but a trap worth
+  knowing.
+
+**UI-suite regressions after the pad rollout — 1 of 3 fixed, 1 root-caused.**
+
+1. `CylinderGrowShotUITests` — FIXED. It typed into `RadialDiameterField`, which
+   after the `ExpressionValueField` migration opens the number pad rather than
+   the keyboard ("Neither element nor any descendant has keyboard focus").
+   Routed through `replaceText`, which drives whichever input is in front.
+2. `ParityWalkthroughUITests.testWalkthrough01SketchTools` — ROOT-CAUSED, not
+   fixed. Reduced to `TwoShapeReproUITests.testDrawSwitchToolDrawAgain`: draw a
+   shape, switch tool, draw a SECOND shape, and the app leaves the sketch and
+   comes back on the project gallery with the document saved. The walkthrough's
+   confusing symptom ("Failed to tap SketchGroup") is just
+   `tapPaletteTool` falling back to the body-mode group button once the editor
+   is gone — SketchGroup does not exist inside a sketch, so a missing EDITOR
+   reports as a missing BUTTON. Look there first next time.
+   No `.ips`, no fatal line in `simctl spawn … log stream`, process exits
+   SIGTERM at teardown — consistent with a Swift trap (this project writes no
+   crash report for those) but not proven.
+   **Attribution: the uncommitted work causes it.** Clean `HEAD` PASSES
+   (`alive-after-shape-2=true`); the working tree fails. Method, since a partial
+   stash does not build — `EditorViewModel` carries both the pad work and the
+   shell-crash work: park the untracked files that reference uncommitted APIs
+   (`NumericKeypad.swift`, `CylinderShellCrashTests`,
+   `UnionThenSubtractBugReportTests`, `NumericKeypadTests`,
+   `SketchAnnotationVisibilityTests`, `SketchParityStepsUITests`), keep
+   `TwoShapeReproUITests` — it depends on nothing uncommitted — then
+   `git stash push -- openshape3d/ openshape3dTests/ openshape3dUITests/`.
+   Leave `project.pbxproj` alone; the target uses filesystem-synchronized
+   groups, so parked files simply drop out of the build.
+   **CULPRIT: the pad work, and specifically `SketchDimensionOverlay.swift`.**
+   Bisected by splitting `EditorViewModel`'s 27 hunks — the first four belong to
+   OTHER uncommitted workstreams (blend face-edge selection, bug e07493b5; and
+   the subtract-feedback work, a1ee4e4a), hunks 4-26 are the pad work — then
+   reverse-applying only those four alongside `git checkout HEAD` of
+   `KernelOps` / `ShellKit` / `Renderer`. Results:
+
+   | tree | repro |
+   |---|---|
+   | clean `HEAD` | passes |
+   | pad work ONLY (other three workstreams reverted) | FAILS |
+   | pad work minus `SketchDimensionOverlay.swift` | passes |
+
+   Narrowed further, by bisecting inside the file: my `body` is fine (it passes
+   with HEAD's `DimensionField`), and inside `DimensionField` it is specifically
+   the **`NumericKeypad` subtree** — delete just that from the VStack and the
+   repro passes. Confirmed NOT the cause, each tried and reverted:
+   view identity (the field is now hoisted out of `labelView`'s ForEach — a
+   good change, kept), the content-vs-mode existence gate (also kept: existence
+   now follows the mode, hit-testing follows the content), the model-backed
+   text `Binding` (moved back to `@State` — also kept; the swallowed keypad taps
+   that originally motivated it were `contentShape`), and the keypad's
+   accessibility container.
+   The app is genuinely on the GALLERY afterwards (screenshot + `editorChrome`
+   false), not a slow-accessibility query artefact, and it exits SIGTERM at
+   teardown with no crash report — so hang→watchdog→relaunch.
+
+   **`sample` on the app pid through the failure window shows a UIKit FOCUS
+   spin**: `_UIFocusMapSnapshot addRegionsInContainer:` 555 recursive,
+   `_UIFocusRegionContainerProxy _searchForFocusRegionsInContext:` 554,
+   `_UIFocusRegionSearchContextSearchForFocusRegionsInEnvironment` 544. Capture
+   it with: start the test with `nohup`, poll
+   `pgrep -f "CoreSimulator/Devices/<UDID>.*openshape3d.app/openshape3d"` for
+   the pid, wait ~14 s, then `sample <pid> 10 1 -mayDie -file …`.
+   `sample` cannot resolve simulator processes BY NAME — use the pid.
+
+   **But it is NOT the keypad's controls.** Bisected inside the pad: digits-only
+   still fails, and replacing `NumericKeypad` with an inert
+   `Text(...).frame(width: 250, height: 190)` ALSO fails. So the trigger is the
+   card's size/presence as a second child of `DimensionField`'s VStack, not its
+   buttons, focus or accessibility. Also ruled out: the field's own focus
+   membership (`.focusable(false)` + `.allowsHitTesting(false)` on it — kept
+   anyway, it is correct that a pad-backed field is a readout).
+
+   Next line of attack is LAYOUT, not focus: a large `.position`-ed child inside
+   the full-screen `.ignoresSafeArea()` overlay. Suspect the card left over from
+   the FIRST shape still covering the point where the second stroke starts.
+   `TwoShapeReproUITests` and
+   `SketchParityStepsUITests.testAnotherToolIsReachableWhileTheValuePadIsOpen`
+   are `XCTExpectFailure` so this stays visible without reddening the suite.
+   STILL OPEN.
+
+   ⚠️ **`git checkout HEAD -- <file>` on an uncommitted file is destructive** and
+   cost the branch's `KernelShellTests` / `BugReportingTests` edits for a while.
+   Recovered from a dropped stash via `git fsck --unreachable` (the stash
+   commits survive; `git checkout <sha> -- <paths>` pulls them back). Back up to
+   the scratchpad BEFORE reverting anything uncommitted — and prefer
+   `git stash push -- <paths>` over `checkout`, because a stash is recoverable
+   by design.
+3. `SweepLoftUITests.testLoftFlowCollectsSectionsAndRejectsCoplanarCommit` —
+   untouched. Its assertion ("Tapping another fill should append a loft
+   section") is also a SECOND interaction after a first shape, so it may be the
+   same underlying fault as (2); check that before treating it as separate.
+
+**FIXED — the second-shape hang was a leftover value card.** The size field a
+freshly drawn shape opens (bug report 5ef841c2) survived arming the NEXT tool,
+so the next stroke began ON that card — its digit grid covers the middle of the
+canvas (x 394-594, y 527-689 at the default zoom) — instead of on the sketch.
+The app then spun in UIKit's focus engine and was watchdog-killed back to the
+gallery. `startSketch(tool:)` now clears `editingDimension` when switching
+tools: reaching for another tool says you are done with that value. Pinned by
+`TwoShapeReproUITests`, which now asserts the card and its pad are gone after
+the switch.
+
+That also fixed `ParityWalkthroughUITests.testWalkthrough01SketchTools`, so 2 of
+the 3 pad-rollout regressions are closed (with `CylinderGrowShotUITests`).
+`SweepLoftUITests` still fails BOTH its tests, and it is NOT the annotation
+overlays — restricting them to sketch mode changes nothing. `testSweepCircle…`
+was already in the original 16, so suspect the other workstreams there.
+
+The bisect that found it is worth repeating: the trigger was NOT the keypad's
+buttons, focus or accessibility. Replacing `NumericKeypad` with an inert
+`Text(...).frame(width: 250, height: 190)` reproduced it exactly — it was the
+card's FOOTPRINT all along, and the focus-engine spin was a symptom of the
+stroke landing on it, not the cause.
+
+**KNOWN GAP (new, not a regression):** with "Always Show Dimensions" off — now
+the default, matching Shapr3D — selecting a sketch OUTSIDE sketch mode does not
+reveal its dimensions, though Shapr3D does. `annotatedSketches` already handles
+a sketch with a selected entity, so the missing piece is that a tap outside
+sketch mode never reaches `selectedSketchEntityIDs`. Pinned as an
+`XCTExpectFailure` in `DimensionUITests.testDimensionFollowsTheSelectionAfterExitingTheSketch`.
+
+**The grid was manufacturing Horizontal constraints.** A line aimed ~1.6° off
+horizontal arrived at the auto-constraint engine as EXACTLY 0°, because both
+stroke ends are pulled onto the grid first and, zoomed out, one grid step
+swallows several degrees. The engine then dutifully recorded a Horizontal
+nobody asked for — the "it constrains my lines the moment I draw them"
+complaint. Fixed by judging the H/V decision on the AIMED direction (raw start
+to raw end, `EditorViewModel.aimedConstraints`, a pure static so it is testable
+without a gesture) while leaving the snap itself alone: the grid may still
+flatten the geometry, it may not invent a constraint.
+
+**Three paths set `pendingInferredConstraints`, and the gate must be on all
+of them.** Gating only `updateSketchStroke` looked like it had no effect,
+because `endSketchStroke` re-runs inference at release and overwrites the
+result; `commitChainSegment` is the third. That cost several rounds of "the fix
+does nothing" — grep the field, do not assume the drag path is the only writer.
+
+**Tolerance 5° → 1°, measured** by driving the real Shapr3D at known angles:
+0.57° snapped flat and carried a constraint badge, 1.15° and 1.6° did not.
+
+**Both "Always Show" settings now default OFF**, matching Shapr3D's shipped
+Constraint Settings ("Logical constraints and locked dimensions are shown based
+on your current selection"). Off is selection-based here, not hidden.
+
+**⚠️ Two "findings" I reported that were my own harness, not the app** — worth
+recording because each looked convincing:
+- *"A rectangle only shows one dimension."* It shows both; my UI test tapped the
+  rectangle's INTERIOR, and `SketchHitTester.nearestEntity` measures distance to
+  the OUTLINE, so nothing was selected. Pinned properly now by
+  `testSelectedRectangleOffersWidthAndHeight` as pure values.
+- *"1.6°/4°/8° are all clean."* Calling `startSketchTool` when the tool is
+  already armed TOGGLES IT OFF, so those drags orbited the camera and drew
+  nothing. An oblique camera also makes a screen-space angle meaningless on the
+  sketch plane — `SketchParityStepsUITests.freshSketch` now asserts
+  "Look at Sketch" is gone before drawing.
+
+Parity evidence and method: `docs/SHAPR3D_SKETCH_PARITY.md`. Shapr3D can be
+driven directly now (Accessibility granted) — but `System Events click at`
+does NOT move the cursor and clicks wherever the pointer happens to be; use a
+CGEvent clicker that refuses unless the target app is frontmost and the point is
+inside its window.
+
+**Rollout of the pad to the other numeric fields.** Now on: fillet/chamfer and
+shell thickness (through the shared `ExpressionValueField`), the extrude arrow
+pill, the move-gizmo distance, the extrude `Distance` bar field, and the History
+row fields (distance, scalars, pattern count/angle/spacing). Adoption is one
+line — `.numericKeypadField(text:onCommit:)`, a `ViewModifier` so each site owns
+its own `padOpen` without the call site declaring state.
+
+**A `.popover` will not present from the canvas overlays.** It is the right
+shape for a bar or a panel — self-positioning, anchored, dismisses on an outside
+tap — but the extrude arrow pill and the move-distance pill floated silently
+with no pad (`Neither element nor any descendant has keyboard focus`, because
+the test fell through to the typing path). Those now stack the pad under the
+field, the way the sketch dimension card already did. Two presentations, chosen
+by context.
+
+**Every `value:`-bound bar field migrated to `ExpressionValueField`** (done, same
+day): scale factor, rotate-axis angle, revolve angle, pattern count/spacing/
+total angle, polygon sides, image size, offset-plane distance, radial diameter,
+primitive dimensions, and the helix sheet. `TextField(value:format:)` cannot
+take an expression, apply live, or host the pad, so there is now ONE numeric
+field in the bars.
+
+That needed `ExpressionValueField.Kind`, because not everything numeric is a
+length. `.length` stores millimetres and displays in the user's unit — call
+sites bind RAW mm, since wrapping in `unit.binding` (as the old code did) now
+converts twice. `.plain` is for values already in the user's terms: an angle, a
+count, a scale factor. Int fields bridge through Double and round; their range
+moved from the binding's setter into the field's `clamp`.
+
+Behaviour change worth knowing: the helix sheet's Radius and Pitch were bare
+numbers that silently meant millimetres, and are now unit-aware like every other
+length. Turns stays `.plain`.
+
+NOTE if you go looking for more of these: grepping `TextField(` for `value:` on
+the SAME line misclassifies them — the argument is on a later line. I got that
+wrong once and reported the opposite of the truth.
+
+**Test note:** `replaceText` in `PullArrowTestSupport` now drives the pad when it
+is present and falls back to typing for genuine text fields, so most numeric
+tests needed no change. The pad has no `-` key — sign is the `±` toggle, which
+on an empty field yields `-`, so the helper maps it. The pad's commit key is
+`KeypadCommit` (it is shared; it was `DimensionCommit`).
+
+**⚠️ Gotcha — a SwiftUI Button's hit area is its GLYPH, not its frame.** Every
+keypad digit rendered correctly, reported `isEnabled=true`, `isHittable=true`
+and a correct 44×36 frame — and swallowed every tap, including taps at explicit
+window coordinates. The delete/lock/unit keys worked, which made it look like a
+layout or overlap problem; it was not. A `Button` whose label is
+`Text(...).frame(w, h).background(...)` is only tappable where the text's ink
+is, because `.frame` and `.background` do not extend the content shape. The cure
+is `.contentShape(Rectangle())` on the label. The icon keys "worked" only
+because an SF Symbol's ink fills more of its frame. Cost about an hour of
+bisecting position, ForEach identity, binding semantics and gesture conflicts —
+check `contentShape` FIRST when a SwiftUI control renders but will not activate.
+
+**Follow-up pass, same day — three refinements.**
+
+1. **A circle disagreed with itself.** `LiveDimensionKit` draws **Ø** while you
+   drag a circle out, but `dimensionCandidate` returned `.radius`, and the badge
+   printed the number with no leader at all: Ø40 during the drag, a bare "20 mm"
+   on release. A full circle now dimensions as `.diameter`; arcs and polygons
+   keep radius. Badges carry `R` / `Ø` from `LiveDimensionKit.Kind.prefix`, the
+   same source the live readout uses. `.diameter` was already wired end to end
+   (solver residual at `SketchSolverBridge:595`, `dimensionGeometry`,
+   `measuredValue`, glyph `⌀`) — only the candidate never chose it.
+   `testCircleRadiusDimensionDrivesGeometry` → `testCircleDiameterDimension…`,
+   now typing 10 and asserting radius 5 plus a `Ø10 mm` badge.
+2. **The off-state was wrong.** Shapr3D's off is
+   `"shown based on your current selection"`, not hidden. `annotatedSketches`
+   now includes any visible sketch with a selected entity, so turning the
+   toggle off no longer costs you the dimensions of the sketch you are
+   pointing at.
+3. **Constraints default OFF** (dimensions stay ON), and **both overlays gate on
+   having content rather than on the mode**. They are full-screen and
+   hit-testing; rendering an empty one laid an invisible layer over the viewport
+   for taps to land in — the same failure shape as the branch's edge-picking
+   cluster, and worth not adding a second source of.
+
+Still open in `SHAPR3D_SKETCH_PARITY.md`: G2 (ten dimension tools + the adaptive
+menu that would let you ask a circle for R instead of Ø), G3 (draggable badge),
+G7, G8. Also unpinned: no test proves a badge does not swallow a viewport tap —
+gating on content narrows the window but does not close it.
+
+**⚠️ 16 UI-suite failures are already on this branch, from the UNCOMMITTED
+shell-crash work — not from the dimension change.** Full run: 107 tests, 89
+passed, 16 failed, 2 skipped. Two clusters: edge picking ("tapping the body
+should select an edge" — BlendUITests ×4, BlendEditUITests, FilletLeakUITests,
+BooleanFlowUITests, SweepLoftUITests) and "Multiple matching elements found"
+(SketchFlowUITests, PlanesUITests ×2, SketchOffsetUITests ×2, SketchToolsUITests,
+ViewsUITests, BugHuntUITests). Attribution, established by experiment:
+
+| Tree | Result |
+|---|---|
+| Clean `HEAD` (everything stashed) | 3/3 sampled tests **pass** |
+| Branch, dimension change disabled, simulator app uninstalled first | 3/3 **fail** |
+
+The first attempt at that second row was WRONG and worth remembering: flipping the
+code default to `false` changed nothing, because `AppSettings` reads
+`object(forKey:)` and the earlier full run had already persisted
+`alwaysShowDimensions = true` into the simulator's UserDefaults. `OS3D_RESET_STORE`
+clears the SwiftData store, NOT UserDefaults — **`xcrun simctl uninstall` is the
+only reliable way to test a defaults-backed setting's default.**
+
+Prime suspect: the uncommitted `EditorViewModel` face/edge boundary work around
+`onBoundary` / `KernelOps.distanceToSegment` (~3541), which the `KernelOps`
+diff exists to expose (it drops `private`). That is precisely what the fillet /
+chamfer edge-selection tests exercise. Not chased further — it is in-flight work,
+not this mission's.
+
+**Gotcha — the keyboard has its own "Undo".** `testCircleRadiusDimensionDrivesGeometry`
+started failing with "Multiple matching elements found" for `app.buttons["Undo"]`.
+Nothing to do with undo: drawing a circle/rect/polygon auto-opens the radius
+field (`EditorViewModel`, bug report 5ef841c2), that raises the on-screen
+keyboard, and the keyboard's accessory bar contributes a second button labelled
+"Undo". Any single-element query on a common label is a race against the
+keyboard animation. `setDimension` now uses an already-open field instead of
+tapping a label that isn't there, and the undo assertion runs after the commit.
+
+## Mission log — 2026-09-05, first Firebase bug reports triaged (seven from the iPad)
+
+The first real reports arrived through the in-app reporter (Firestore
+`bugReports`, all from an iPad Pro on iPadOS 26.5.2, design "Untitled 5",
+with `.os3d` attachments). Read them with the REST API and the project's
+web API key (`GET …/documents/bugReports?key=…`, attachments via
+`firebasestorage.googleapis.com/v0/b/<bucket>/o/<path>?alt=media`) — which
+still works ANONYMOUSLY, i.e. the create-only rules in `docs/BUG_REPORTS.md`
+are **still not published**. Do that before the build reaches anyone else.
+
+- **Shell crash (6cb10527) — fixed.** "Creating a cylinder, Modify → Shell,
+  tapping the cylinder crashes the app." The attached body was a
+  brep-less 48-slice mesh cylinder (a radial push/pull rebuilds it via
+  `cylinderAlongAxis`), so the tap ran the MESH shell with the cap open at
+  the default 2 mm wall. The old shell was two CSGs — cavity, then a prism
+  over the open face inset by the wall — and the prism's wall lay on the
+  cavity wall's plane; the BSP left zero-width slivers that
+  `makeWatertight` tried to cap with a degenerate triangle (a Euclid
+  `assert` in Debug; NaN/trap on the device). Folding the opening into the
+  offset solve did not help either (mitred inner vertices sit exactly on
+  the fan cap's triangle edges). `KernelOps.shell` now BUILDS the result —
+  outer surface + inverted inner surface + a planar rim band per opening —
+  with no CSG at all (`ShellKit.swift`). Volumes match the old results
+  where the old code worked; two adjacent openings now drop the bar along
+  the shared edge (1000 − 8·9·9 = 352 on the 10-cube), which is what OCCT's
+  MakeThickSolid produces — `testTwoOpenFacesCutBothWalls` updated.
+  Pinned by `CylinderShellCrashTests` (the archived mesh is a fixture,
+  `Fixtures/bugreport-6cb10527-cylinder.d3so`; also runs on a 512 KB
+  stack). Note for future crashes: the reporter carries no crash log —
+  the sim's Debug assert was the only way in. MetricKit crash diagnostics
+  attached to the next report would be the real fix for that.
+- **Grid vanishes zoomed out (abb6ea37) — fixed.** `gridParams` was a
+  fixed 1 mm pitch with a 120 mm fade radius. The pitch now steps by
+  decades from the view height at the target (10–100 minor lines on
+  screen) and the fade radius follows the camera distance
+  (`Renderer.makeFrameUniforms`).
+- **Keyboard hides the transform value field (8c98bd3b) — fixed.** The
+  move-gizmo field (`MoveDistanceOverlay`), the extrude/push-pull arrow
+  field and the sketch dimension field now clamp into the top 42 % of the
+  screen while editing, the rule `RotationOrbitOverlay` already had
+  (`MoveDistanceOverlay.clearOfKeyboard`).
+- **Subtract "doesn't work" after a Union (a1ee4e4a) — feedback added.**
+  The attached design shows the union result is one body; tapping "the
+  second one" hit the target itself, which was a silent no-op. The Combine
+  pick now says so (and that undoing the union separates them), and a
+  tool whose bounds never touch the target gets a notice instead of an
+  unchanged commit. `UnionThenSubtractBugReportTests` replays every
+  pairing of the four archived bodies through the kernel (all fine).
+- **Chamfer/fillet by face (e07493b5) — done.** A tap on a flat face well
+  clear of every edge (18 pt on screen) selects all the face's boundary
+  edges as one unit (`blendFaceEdges`); near an edge it is still that
+  edge. A facet of a curved wall (smooth sides) does not count as a face.
+- **Typed sketch sizes on lift-off (5ef841c2) — done.** Drawing a circle,
+  rectangle or polygon selects it and opens its dimension field
+  (`beginDimensionForSelection`), Shapr3D's manual input; a new stroke
+  dismisses the field.
+- **Flange on a tube (4a7e66e4) — not a bug.** It's a Revolve of an
+  L-shaped profile (tube wall + flange) around the tube axis, or Extrude
+  the flange ring with Union onto the tube. Worth a tutorial note.
+- **Securing the reporter (same day).** Rules now live in the repo —
+  `firebase/firestore.rules` (create-only, every field typed and
+  size-capped, `hasOnly` on the key set, `attachment.path` pinned to the
+  report's own prefix) and `firebase/storage.rules` (one `.os3d` per
+  report prefix, ≤ 40 MB, octet-stream) — with `firebase.json`/`.firebaserc`
+  so `firebase deploy --only firestore:rules,storage` publishes them.
+  Triage moves off the API key to the owner's Google account:
+  `scripts/bug_reports.py list|show|fetch|resolve|probe` mints a token with
+  `gcloud auth print-access-token` and talks to the REST APIs through IAM,
+  which the rules don't gate. `probe` fails loudly while anonymous
+  list/read/update still succeed. **Not yet deployed**: both the Firebase
+  CLI and gcloud logins on this Mac had expired (`firebase login --reauth`,
+  `gcloud auth login`), and both are interactive.
+
 ## Mission log — 2026-09-05, full UI suite: green
 
 - After the reorder fix and the simulator reboot: **109 executed, 107

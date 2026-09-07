@@ -24,7 +24,14 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
     var parallelPerpendicular = true
     var tangent = true
     var equal = true
-    var angleToleranceDeg: Double = 5
+    /// Half-width of the horizontal/vertical snap, in degrees.
+    ///
+    /// Measured against Shapr3D on 2026-09-06 by drawing lines at known angles
+    /// and checking whether the committed edge was snapped flat and carried a
+    /// constraint badge: 0.57° yes, 1.15° no, 1.6° no. It was 5° here, which is
+    /// why a line you meant to draw at a slight angle was grabbed flat and
+    /// silently constrained.
+    var angleToleranceDeg: Double = 1
     var pointTolerance: Double = 0.35
 }
 
