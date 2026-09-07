@@ -1,6 +1,6 @@
 # Status & Next Steps — Handoff Notes
 
-Last updated: 2026-09-07 — sketch parity foundations; see the new mission log and
+Last updated: 2026-09-07 — rectangle construction and constraint discoverability; see the new mission log and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -16,6 +16,14 @@ The September 5 sections below are **historical**, not the current implementatio
 At audited revision `88b0478`, both Always Show Dimensions and Always Show Constraints default **OFF**. Off means selection-based, not hidden and not “all active sketch annotations.” The follow-up implementation filters each annotation and makes normal model-mode outline taps recover its dimensions; see [implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 
 `PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
+
+## Mission log — 2026-09-07, rectangle construction and constraint discoverability
+
+Added center/diagonal/three-point rectangle selection, staged tap/drag construction, anchor/preview/readouts, cancellation, and one-step rectangle undo. Rotated rectangles reuse four ordinary lines with seven internal constraints. Drawing tools now own strokes beginning on existing geometry; disarm for point/entity/gizmo editing. A visible opposite-side constraint rail exposes common relations, prerequisites and settings, with More/compact fallback. Rectangle terminology is expanded from “Rect.”
+
+A small-profile extrusion regression exposed fixed model-unit acquisition floors: outline targets now use 16 screen points and control points 24. This fixes selection acquisition, not snap/grid resolution. New pure tests exercise geometry, solver/Codable preservation and selection across zoom levels. Verification covers 60 distinct tests across the combined run (58 passed, two line-label failures) and the final 9/9 passing correction rerun; see [the second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).
+
+Remaining priorities: typed rectangle anchor preservation/two-axis entry; remaining snapping categories/grid behavior; rectangle and edit intent A/B on physical Pencil and mouse; constraint Disconnect; distance/radius preferences and other confirmed dimension gaps. All 42 audit records remain tracked; this mission is not a full parity sign-off.
 
 ## Mission log — 2026-09-07, sketch parity foundations
 

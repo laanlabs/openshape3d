@@ -676,8 +676,8 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     /// Apple Pencil double-tap → undo the last action (a Shapr3D-style shortcut).
     func gesturePencilDoubleTapped() {
         viewModel.sawApplePencil = true
-        if viewModel.session.undoStack.canUndo {
-            viewModel.session.undo()
+        if viewModel.session.undoStack.canUndo || viewModel.hasPendingRectangle {
+            viewModel.undo()
             sceneDidChange()
         }
     }

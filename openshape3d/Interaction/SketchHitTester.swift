@@ -13,6 +13,16 @@ import simd
 
 nonisolated enum SketchHitTester {
 
+    /// Outline picking must not swallow a small profile interior
+    /// when zoomed in. A fixed millimetre floor becomes a huge screen target.
+    static func screenPickTolerance(worldUnitsPerPoint: Double) -> Double {
+        max(1e-6, 16 * worldUnitsPerPoint)
+    }
+
+    static func screenControlPointTolerance(worldUnitsPerPoint: Double) -> Double {
+        max(1e-6, 24 * worldUnitsPerPoint)
+    }
+
     struct EntityHit {
         var entity: SketchEntity
         var distance: Double

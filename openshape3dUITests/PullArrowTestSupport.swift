@@ -58,7 +58,8 @@ extension XCTestCase {
     /// Tap a palette tool found by its visible label (Line/Rect/Circle/Union/…),
     /// opening `group` first if it isn't directly hittable.
     func tapPaletteTool(_ app: XCUIApplication, group: String, label: String) {
-        let query = app.buttons.containing(.staticText, identifier: label)
+        let visibleLabel = label == "Rect" ? "Rectangle" : label
+        let query = app.buttons.containing(.staticText, identifier: visibleLabel)
         if !query.firstMatch.isHittable {
             app.buttons[group + "Group"].tap()
             _ = query.firstMatch.waitForExistence(timeout: 2)

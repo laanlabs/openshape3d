@@ -1006,6 +1006,14 @@ struct EditorView: View {
                     .padding(.top, 8)
                     .padding(.bottom, bottomBarInset)
             }
+            .overlay(alignment: settings.paletteOnRight ? .leading : .trailing) {
+                if viewModel.mode.isSketching {
+                    SketchConstraintRail(viewModel: viewModel)
+                        .padding(settings.paletteOnRight ? .leading : .trailing, 14)
+                        .padding(.top, 100)
+                        .padding(.bottom, bottomBarInset + 20)
+                }
+            }
             .overlay(alignment: .bottom) {
                 VStack(spacing: 10) {
                     // Selection info strip sits above the numeric bar when
@@ -1078,7 +1086,7 @@ struct EditorView: View {
                     .accessibilityIdentifier("CopyBadge")
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
-                } else if viewModel.mode.isSketching,
+                } else if viewModel.mode.isSketching, viewModel.mode.sketchTool == nil,
                           !viewModel.selectedSketchEntityIDs.isEmpty {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
@@ -1151,21 +1159,43 @@ struct EditorView: View {
                         .accessibilityIdentifier("InsertSymbolDone")
                     }
                 } else if viewModel.mode.isSketching {
-                    statusPill(icon: "pencil.and.outline", text: sketchStatusText(viewModel)) {
-                        sketchStateChip(viewModel)
-                        // Shown when the camera drifted >10° off head-on.
-                        if viewModel.lookAtSketchAvailable {
-                            Button("Look at Sketch") {
-                                viewModel.lookAtSketch()
+                    VStack(spacing: 8) {
+                        if viewModel.mode.sketchTool == .rect {
+                            HStack(spacing: 12) {
+                                Menu {
+                                    ForEach(RectangleType.allCases, id: \.self) { type in
+                                        Button(type.title + " Rectangle") { viewModel.setRectangleType(type) }
+                                            .accessibilityIdentifier("RectangleType-" + type.rawValue)
+                                    }
+                                } label: {
+                                    Label(viewModel.rectangleType.title + " Rectangle", systemImage: "chevron.down")
+                                }
+                                .accessibilityIdentifier("RectangleTypeMenu")
+                                Text(viewModel.rectangleInstruction).font(.caption)
+                                if viewModel.hasPendingRectangle {
+                                    Button("Cancel Rectangle") { viewModel.clearRectanglePlacement() }
+                                        .accessibilityIdentifier("CancelRectangle")
+                                }
                             }
+                            .padding(10)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        statusPill(icon: "pencil.and.outline", text: sketchStatusText(viewModel)) {
+                            sketchStateChip(viewModel)
+                            // Shown when the camera drifted >10° off head-on.
+                            if viewModel.lookAtSketchAvailable {
+                                Button("Look at Sketch") {
+                                    viewModel.lookAtSketch()
+                                }
+                                .controlSize(.small)
+                                .accessibilityIdentifier("LookAtSketch")
+                            }
+                            Button("Exit Sketching") {
+                                viewModel.finishSketch()
+                            }
+                            .buttonStyle(.borderedProminent)
                             .controlSize(.small)
-                            .accessibilityIdentifier("LookAtSketch")
                         }
-                        Button("Exit Sketching") {
-                            viewModel.finishSketch()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
                     }
                 } else if case .pickingSketchPlane = viewModel.mode {
                     statusPill(
@@ -1423,7 +1453,7 @@ struct EditorView: View {
                     } label: {
                         Label("Undo", systemImage: "arrow.uturn.backward")
                     }
-                    .disabled(!viewModel.session.undoStack.canUndo)
+                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle)
                     // Distinct from the software keyboard's own "Undo": with
                     // only a label to match on, `app.buttons["Undo"]` found two
                     // elements and every single-element query threw.

@@ -14,7 +14,19 @@ This is the implementation follow-through for the September 6 audit, not a claim
 
 No new geometry storage format; model changes still use existing undoable document commands. Defaults preserve prior snapping behavior. Original checkout remains untouched.
 
+## Second implementation: rectangle construction and drawing intent
+
+- **SK-01:** Adaptive opposite-side constraint rail: seven common relations, disabled-state prerequisites, one-tap settings, and remaining relations in More. Compact windows fall back to a menu. Existing Constrain palette group remains available.
+- **SK-02, partial:** “Rect” now reads “Rectangle”; rectangle subtype selection is explicit. Other palette vocabulary/extension hierarchy remains open.
+- **SK-03, partial:** Diagonal, center and three-point construction, stage-specific guidance, anchor marker, preview/readouts, cancel, and atomic rectangle undo. Three-point rectangles persist as four lines with closure/parallel/perpendicular constraints; no storage migration. Center construction reflects the drag about the initial center, but subsequent dimension-edit anchor preservation and complete typed two-axis workflows are still open.
+- **SK-04, partial:** Armed drawing tools own new strokes on existing geometry; toggle the tool off to manipulate entities or the gizmo. Selection gizmo/copy affordances are hidden while drawing. Pencil/mouse-specific parity still needs direct A/B.
+- **SK-06, partial:** Outline acquisition uses 16 screen points and control-point acquisition uses 24, without old model-unit floors. Zoomed small-profile interiors remain extrudable and short-line middles are not swallowed by endpoint targets. Snap capture and grid resolution remain open.
+
+Verification includes a combined regression run and a targeted annotation-spacing correction rerun; see [rectangle/constraint receipt](testing/sketch-parity-rectangles-2026-09-07.md).
+
 ## Verification
+
+- Second batch: **60 distinct tests verified** across combined regression (58/60 passed) and final targeted correction (9/9 passed, including both repaired failures). This is not one clean combined run; see [second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).
 
 - Build-for-testing: passed on Xcode/iOS 26.5, iPad Pro 13-inch (M5) simulator.
 - Focused pure tests: **40 passed, 0 failed** (AppSettingsTests, FaceSnapTests, SnapKindTests, SketchParityFoundationTests).
@@ -31,17 +43,17 @@ All five audit documents are readable without signing in (public-link Viewer acc
 
 ### SK-01 · Constraint controls are buried instead of continuously discoverable
 
-**Queued — implementation needed** · P1
+**Implemented; portrait/landscape common-action workflow verified** · P1
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
-Next: Build an adaptive constraint rail with enabled/disabled states and one-step settings access. Move excess tools to a stable More menu.
+Next: Verify compact-window and left-handed layouts, remaining relation actions and accessibility beyond the tested portrait/landscape common-action path.
 
 Acceptance: On iPad landscape each common relation takes one visible action after selection; disabled tools explain their prerequisites; portrait remains reachable.
 
 ### SK-02 · Sketch palette hierarchy and vocabulary do not match
 
-**Queued — implementation needed** · P2
+**Partially implemented; remaining acceptance open** · P2
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
@@ -51,17 +63,17 @@ Acceptance: All basic tools are discoverable by the same vocabulary, and overflo
 
 ### SK-03 · Center and three-point rectangle modes are missing
 
-**Queued — implementation needed** · P1
+**Partially implemented; remaining acceptance open** · P1
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
-Next: Add subtype selection, subtype-specific anchors and previews, dimensions, constraint behavior and persistence; reuse geometry where possible.
+Next: Preserve intended anchors during later typed edits and complete two-axis numeric placement; A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
 
 Acceptance: Center stays fixed when sizing a center rectangle; diagonal uses its first corner; three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
 
 ### SK-04 · Starting a new shape on existing geometry is intercepted as editing
 
-**Queued — verify first** · P1
+**Partially implemented; input-device A/B still open** · P1
 
 Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
 
@@ -81,7 +93,7 @@ Acceptance: With all snaps off, committed coordinates follow input without grid 
 
 ### SK-06 · Grid spacing and acquisition tolerance are fixed in model units
 
-**Queued — verify first** · P1
+**Partially implemented; sketch snapping/grid acceptance open** · P1
 
 Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
 

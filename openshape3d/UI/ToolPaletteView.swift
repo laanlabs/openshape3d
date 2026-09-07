@@ -225,7 +225,7 @@ struct ToolPaletteView: View {
 
     private var drawItems: [ToolItem] {
         [sketchTool("Line", "line.diagonal", .line),
-         sketchTool("Rect", "rectangle", .rect),
+         sketchTool("Rectangle", "rectangle", .rect),
          sketchTool("Circle", "circle", .circle),
          sketchTool("Arc", "point.topleft.down.to.point.bottomright.curvepath", .arc),
          sketchTool("Ellipse", "oval", .ellipse),
@@ -286,6 +286,7 @@ struct ToolPaletteView: View {
         // Tapping the active tool deselects it (same toggle as CreateTool):
         // with no tool armed, empty-space drags orbit the sketch view.
         return ToolItem(id: label, label: label, icon: icon, active: active,
+                        accessibilityID: tool == .rect ? "Rect" : nil,
                         run: {
                             if active {
                                 viewModel.deselectSketchTool()

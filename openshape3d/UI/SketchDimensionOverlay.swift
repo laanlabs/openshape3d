@@ -62,11 +62,10 @@ struct SketchDimensionOverlay: View {
         }
     }
 
-    /// Screen position of the sketch selection gizmo's move handle, if one is
-    /// up. A dimension label that lands on the handle must not swallow the
-    /// drag that moves the selection — the handle is the primary control
-    /// there, and the label can always be reached by nudging the selection.
-    private var gizmoHandlePoint: CGPoint? {
+    /// Keep dimension badges clear of selected geometry's central control
+    /// region, including while a draw tool hides the manipulation gizmo.
+    /// Otherwise line-length badges collide with the line/constraint anchor.
+    private var selectionAnchorPoint: CGPoint? {
         guard let centroid = viewModel.sketchSelectionCentroid,
               let plane = viewModel.activeSketch?.plane else { return nil }
         return project(plane.toWorld(centroid))
@@ -82,7 +81,7 @@ struct SketchDimensionOverlay: View {
     /// most likely to be edited. Offsetting keeps both reachable.
     private func clearOfGizmo(_ point: CGPoint, along start: CGPoint,
                               _ end: CGPoint) -> CGPoint {
-        guard let handle = gizmoHandlePoint,
+        guard let handle = selectionAnchorPoint,
               hypot(point.x - handle.x, point.y - handle.y) < Self.gizmoHandleRadius
         else { return point }
         let dx = end.x - start.x, dy = end.y - start.y
