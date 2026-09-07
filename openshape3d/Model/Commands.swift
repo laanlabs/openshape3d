@@ -167,16 +167,21 @@ struct AddSketchEntityCommand: DocumentCommand {
     let title = "Sketch"
     let sketchID: SketchID
     let entity: SketchEntity
+    var rectangleSizingAnchor: RectangleSizingAnchor? = nil
 
     func apply(to document: inout DesignDocument) {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.append(entity)
+            if let rectangleSizingAnchor {
+                document.sketches[index].rectangleSizingAnchors[entity.id] = rectangleSizingAnchor
+            }
         }
     }
 
     func revert(in document: inout DesignDocument) {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.removeAll { $0.id == entity.id }
+            document.sketches[index].rectangleSizingAnchors.removeValue(forKey: entity.id)
         }
     }
 }

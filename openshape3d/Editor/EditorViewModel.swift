@@ -9742,7 +9742,14 @@ final class EditorViewModel {
     private func commitDrawnEntity(
         _ entity: SketchEntity, sketchID: SketchID, in sketch: Sketch
     ) {
-        let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity)
+        var sizingAnchor: RectangleSizingAnchor?
+        if case let .rect(_, lo, _) = entity,
+           let first = rectangleAnchor ?? sketchStrokeStart {
+            sizingAnchor = rectangleType == .center ? .center
+                : .diagonal(first: first, min: lo)
+        }
+        let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity,
+                                             rectangleSizingAnchor: sizingAnchor)
         let constraintCommands = inferredConstraintCommands(
             for: entity, sketchID: sketchID, in: sketch
         )
@@ -11222,9 +11229,9 @@ final class EditorViewModel {
             return
         }
 
-        let (solvedEntities, _) = SketchSolverBridge.solve(
-            proposed, movingEntity: nil, dragTarget: nil
-        )
+        guard let candidate = proposed.dimensions.first(where: { $0.id == candidateDimensionID }) else { return }
+        let solvedEntities = SketchSolverBridge.solveDimensionEdit(
+            proposed, dimension: candidate, tolerance: Self.overConstraintTolerance).entities
         // The lock key (Shapr3D's "locked dimension"). Locked — the default —
         // records the value as a driving dimension. Unlocked, the value still
         // drives the solve that runs above, so the geometry lands exactly where

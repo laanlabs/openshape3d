@@ -69,9 +69,11 @@ nonisolated enum SketchSolverBridge {
         _ sketch: Sketch,
         movingEntity: UUID?,
         dragTarget: SIMD2<Double>?,
-        knownDOF: Int? = nil
+        knownDOF: Int? = nil,
+        preservingRectangleCorner: UUID? = nil
     ) -> Outcome {
-        let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget)
+        let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget,
+                              preservingRectangleCorner: preservingRectangleCorner)
         guard !sys.initial.isEmpty else {
             return Outcome(entities: sketch.entities, dof: 0,
                            converged: true, structuralResidual: 0)
@@ -93,6 +95,23 @@ nonisolated enum SketchSolverBridge {
         return Outcome(entities: newEntities, dof: dof,
                        converged: result.converged,
                        structuralResidual: sumSquares.squareRoot())
+    }
+
+    /// Prefer creation anchoring for direct rectangle width/height edits.
+    /// Explicit relationships win when holding that corner is incompatible.
+    /// Legacy rectangles have no intent metadata and retain the existing solve.
+    static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
+                                   tolerance: Double = 1e-5) -> Outcome {
+        let ids = Set(dimension.refs.map(\.entityID))
+        if (dimension.kind == .horizontal || dimension.kind == .vertical),
+           ids.count == 1, let id = ids.first,
+           sketch.rectangleSizingAnchors[id]?.cornerUsesMax != nil,
+           sketch.entities.contains(where: { if case .rect = $0 { return $0.id == id }; return false }) {
+            let anchored = solveOutcome(sketch, movingEntity: nil, dragTarget: nil,
+                                        preservingRectangleCorner: id)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
+        return solveOutcome(sketch, movingEntity: nil, dragTarget: nil)
     }
 
     static func solve(
@@ -327,7 +346,8 @@ nonisolated enum SketchSolverBridge {
     private static func buildSystem(
         from sketch: Sketch,
         movingEntity: UUID?,
-        dragTarget: SIMD2<Double>?
+        dragTarget: SIMD2<Double>?,
+        preservingRectangleCorner: UUID? = nil
     ) -> System {
         // 1. Raw point slots for every entity.
         var slots: [RawSlot] = []
@@ -447,6 +467,16 @@ nonisolated enum SketchSolverBridge {
                     if let rv = radiusVar[ref.entityID] { fixed.insert(rv) }
                 }
             }
+        }
+
+        // A dimension edit temporarily holds the original diagonal corner.
+        // Mixed quadrants pin one coordinate from EACH normalized endpoint.
+        // This is never persisted as a Lock or used for ordinary dragging.
+        if let id = preservingRectangleCorner,
+           let corner = sketch.rectangleSizingAnchors[id]?.cornerUsesMax,
+           let a = pIdx(id, .endpointA), let b = pIdx(id, .endpointB) {
+            fixed.insert(2 * (corner.x ? b : a))
+            fixed.insert(2 * (corner.y ? b : a) + 1)
         }
 
         // 9. Lower constraints + dimensions to residuals, recording each

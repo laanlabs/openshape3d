@@ -100,4 +100,96 @@ final class RectangleConstructionTests: XCTestCase {
         XCTAssertEqual(restored.constraints, sketch.constraints)
         XCTAssertEqual(ProfileDetector.profiles(at: (a+d)/2, in: restored).count, 1)
     }
+    private func sizeDimension(_ id: UUID, _ kind: DimensionKind, _ value: Double) -> SketchDimension {
+        SketchDimension(kind: kind, refs: [.init(entityID: id, role: .endpointA),
+            .init(entityID: id, role: .endpointB)], value: value)
+    }
+
+    func testDiagonalSizingPreservesFirstCornerInAllQuadrantsAfterReload() throws {
+        for dx in [-20.0, 20.0] {
+            for dy in [-12.0, 12.0] {
+                let first = SIMD2<Double>(7, -3), id = UUID()
+                let entity = try XCTUnwrap(RectangleConstruction.axisAligned(
+                    from: first, to: first + SIMD2(dx, dy), centered: false, id: id))
+                guard case let .rect(_, lo, _) = entity else { return XCTFail() }
+                var sketch = Sketch(plane: .ground, entities: [entity],
+                    rectangleSizingAnchors: [id: .diagonal(first: first, min: lo)])
+                sketch = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sketch))
+                for (kind, value) in [(DimensionKind.horizontal, 8.0), (.vertical, 5.0), (.horizontal, 30.0)] {
+                    let dim = sizeDimension(id, kind, value)
+                    sketch.dimensions.removeAll { $0.kind == kind }
+                    sketch.dimensions.append(dim)
+                    let outcome = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dim)
+                    XCTAssertTrue(outcome.converged)
+                    XCTAssertLessThan(outcome.structuralResidual, 1e-5)
+                    sketch.entities = outcome.entities
+                    guard case let .rect(_, mn, mx) = outcome.entities[0] else { return XCTFail() }
+                    XCTAssertEqual(dx > 0 ? mn.x : mx.x, first.x, accuracy: 1e-6)
+                    XCTAssertEqual(dy > 0 ? mn.y : mx.y, first.y, accuracy: 1e-6)
+                    XCTAssertEqual(kind == .horizontal ? mx.x-mn.x : mx.y-mn.y, value, accuracy: 1e-5)
+                }
+            }
+        }
+    }
+
+    func testCenterAndLegacySizingKeepExistingCenterBehavior() throws {
+        for anchors in [false, true] {
+            let id = UUID()
+            var sketch = Sketch(plane: .ground,
+                entities: [.rect(id: id, min: SIMD2(2, 4), max: SIMD2(22, 16))],
+                rectangleSizingAnchors: anchors ? [id: .center] : [:])
+            let dim = sizeDimension(id, .horizontal, 8)
+            sketch.dimensions = [dim]
+            let result = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dim)
+            guard case let .rect(_, lo, hi) = result.entities[0] else { return XCTFail() }
+            XCTAssertEqual((lo.x+hi.x)/2, 12, accuracy: 1e-5)
+            XCTAssertEqual((lo.y+hi.y)/2, 10, accuracy: 1e-5)
+            XCTAssertEqual(hi.x-lo.x, 8, accuracy: 1e-5)
+        }
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(
+            Sketch(plane: .ground))) as? [String: Any])
+        json.removeValue(forKey: "rectangleSizingAnchors")
+        let legacy = try JSONDecoder().decode(Sketch.self, from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertTrue(legacy.rectangleSizingAnchors.isEmpty)
+    }
+
+    func testAnchorInsertionUndoRedoAndTranslatedSizing() throws {
+        let id = UUID(), sketch = Sketch(plane: .ground)
+        let entity = SketchEntity.rect(id: id, min: SIMD2(50, 60), max: SIMD2(70, 72))
+        let command = AddSketchEntityCommand(sketchID: sketch.id, entity: entity,
+                                            rectangleSizingAnchor: .maxMin)
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        command.apply(to: &document)
+        XCTAssertEqual(document.sketches[0].rectangleSizingAnchors[id], .maxMin)
+        command.revert(in: &document)
+        XCTAssertTrue(document.sketches[0].rectangleSizingAnchors.isEmpty)
+        XCTAssertTrue(document.sketches[0].entities.isEmpty)
+        command.apply(to: &document)
+        var moved = document.sketches[0]
+        moved.entities = [.rect(id: id, min: SIMD2(150, 160), max: SIMD2(170, 172))]
+        let dim = sizeDimension(id, .horizontal, 5)
+        moved.dimensions = [dim]
+        let result = SketchSolverBridge.solveDimensionEdit(moved, dimension: dim)
+        guard case let .rect(_, lo, hi) = result.entities[0] else { return XCTFail() }
+        XCTAssertEqual(hi.x, 170, accuracy: 1e-6)
+        XCTAssertEqual(lo.x, 165, accuracy: 1e-5)
+        XCTAssertEqual(lo.y, 160, accuracy: 1e-6)
+        XCTAssertEqual(SketchSolverBridge.solve(moved, movingEntity: nil, dragTarget: nil).entities.count, 1)
+    }
+
+    func testExplicitLockWinsOverCreationAnchorWithoutBreakingDimension() {
+        let id = UUID()
+        let dim = sizeDimension(id, .horizontal, 8)
+        let sketch = Sketch(plane: .ground,
+            entities: [.rect(id: id, min: .zero, max: SIMD2(20, 12))],
+            constraints: [SketchConstraint(kind: .fixed, refs: [.init(entityID: id, role: .endpointB)])],
+            dimensions: [dim], rectangleSizingAnchors: [id: .minMin])
+        let result = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dim)
+        XCTAssertLessThan(result.structuralResidual, 1e-5)
+        guard case let .rect(_, lo, hi) = result.entities[0] else { return XCTFail() }
+        XCTAssertEqual(hi, SIMD2(20, 12))
+        XCTAssertEqual(lo.x, 12, accuracy: 1e-5)
+    }
+
 }

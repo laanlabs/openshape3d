@@ -178,6 +178,29 @@ nonisolated extension SketchEntity {
     }
 }
 
+/// Creation intent, not a permanent geometry lock. Corner names refer to the
+/// current normalized bounds, so translating a rectangle cannot stale its anchor.
+nonisolated enum RectangleSizingAnchor: String, Codable, Equatable, Sendable {
+    case center, minMin, minMax, maxMin, maxMax
+
+    static func diagonal(first: SIMD2<Double>, min: SIMD2<Double>) -> Self {
+        if first.x <= min.x + 1e-9 {
+            return first.y <= min.y + 1e-9 ? .minMin : .minMax
+        }
+        return first.y <= min.y + 1e-9 ? .maxMin : .maxMax
+    }
+
+    var cornerUsesMax: (x: Bool, y: Bool)? {
+        switch self {
+        case .center: nil
+        case .minMin: (false, false)
+        case .minMax: (false, true)
+        case .maxMin: (true, false)
+        case .maxMax: (true, true)
+        }
+    }
+}
+
 nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     let id: SketchID
     var name: String
@@ -199,6 +222,7 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     /// seed, so editing the seed re-generates them. Auto-created by the Pattern
     /// tool, never by hand.
     var patternLinks: [SketchPatternLink]
+    var rectangleSizingAnchors: [UUID: RectangleSizingAnchor]
 
     init(
         id: SketchID = SketchID(),
@@ -209,7 +233,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         constructionEntityIDs: Set<UUID> = [],
         constraints: [SketchConstraint] = [],
         dimensions: [SketchDimension] = [],
-        patternLinks: [SketchPatternLink] = []
+        patternLinks: [SketchPatternLink] = [],
+        rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:]
     ) {
         self.id = id
         self.name = name
@@ -220,11 +245,12 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.constraints = constraints
         self.dimensions = dimensions
         self.patternLinks = patternLinks
+        self.rectangleSizingAnchors = rectangleSizingAnchors
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
-        case constraints, dimensions, patternLinks
+        case constraints, dimensions, patternLinks, rectangleSizingAnchors
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -242,6 +268,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             try container.decodeIfPresent([SketchConstraint].self, forKey: .constraints) ?? []
         dimensions =
             try container.decodeIfPresent([SketchDimension].self, forKey: .dimensions) ?? []
+        rectangleSizingAnchors = try container.decodeIfPresent(
+            [UUID: RectangleSizingAnchor].self, forKey: .rectangleSizingAnchors) ?? [:]
         patternLinks =
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
     }

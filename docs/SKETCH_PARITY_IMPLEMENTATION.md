@@ -32,6 +32,10 @@ Both apps were operated live after desktop unlock. [Paired workflow receipt](tes
 
 [Illustrated live Google Doc](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit): 16 embedded screenshots, public-link reader access verified. **SK-07 partial fix:** sketch entry now automatically aligns to the chosen plane. Build and one focused center-rectangle UI regression passed without manual Look at Sketch. Fresh direct A/B and all-plane coverage remain open because desktop access is currently locked.
 
+## Locked-desktop follow-through: rectangle sizing
+
+New axis-aligned rectangles now retain center/first-corner intent through save/reload and creation undo/redo. Direct diagonal width/height edits prefer the original corner; explicit constraints override that preference if incompatible. Legacy rectangles keep their previous behavior. [Anchor implementation and verification](testing/sketch-parity-rectangle-anchors-2026-09-07.md). The combined run passed 19 tests (11 unit + 8 UI), with no failures or skips; fresh live sign-off remains pending unlock.
+
 ## Verification
 
 - Second batch: **60 distinct tests verified** across combined regression (58/60 passed) and final targeted correction (9/9 passed, including both repaired failures). This is not one clean combined run; see [second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).
@@ -75,7 +79,7 @@ Acceptance: All basic tools are discoverable by the same vocabulary, and overflo
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
-Next: Preserve intended anchors during later typed edits and complete two-axis numeric placement; A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
+Next: Verify the new persisted diagonal anchors live and complete two-axis numeric placement; A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
 
 Acceptance: Center stays fixed when sizing a center rectangle; diagonal uses its first corner; three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
 

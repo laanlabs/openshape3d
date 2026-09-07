@@ -32,6 +32,28 @@ final class RectangleWorkflowUITests: XCTestCase {
         shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
 
+    func testDiagonalWidthEditKeepsProfileNearFirstCorner() throws {
+        let app = start()
+        type(app, "diagonal")
+        p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.60))
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let original = try XCTUnwrap(Double((field.value as? String) ?? ""))
+        for _ in 0..<24 where !((field.value as? String) ?? "").isEmpty {
+            app.buttons["KeypadDelete"].tap()
+        }
+        let half = String(format: "%.4f", original / 2)
+        for c in half { app.buttons["Keypad-\(c)"].tap() }
+        app.buttons["KeypadCommit"].tap()
+        attach(app, "diagonal-half-width-first-corner")
+        app.buttons["Exit Sketching"].tap()
+        // Inside the resized rectangle near the first corner. A center-based
+        // shrink instead starts at x=.425, leaving this point outside.
+        p(app, 0.39, 0.47).tap()
+        XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3),
+                      "Width editing must preserve the first corner, not the center")
+    }
+
     func testCenterRectangleExtendsAcrossItsStartingPoint() {
         let app = start()
         type(app, "center")
