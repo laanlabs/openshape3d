@@ -21,9 +21,9 @@
 //  `nullSpaceAnalysis`).
 //
 //  Scope notes (v1):
-//   - Arc / ellipse angles and ellipse radii are NOT solve variables; only arc
-//     & polygon centers and their radii move. Arc endpoints are therefore not
-//     welded (documented limitation).
+//   - Arc sweep is a scalar; its starting direction stays fixed. Ellipse angles
+//     and radii are not solve variables. Arc endpoints are still not welded
+//     (documented limitation).
 //   - `.coincident` between two points welds them; `.coincident` of a point to a
 //     whole line is lowered to a `ColinearPointConstraint` (point-on-line).
 //
@@ -321,6 +321,7 @@ nonisolated enum SketchSolverBridge {
         var pointCount: Int
         var pointIndex: [SlotKey: Int]
         var radiusVar: [UUID: Int]
+        var arcSweepVar: [UUID: Int]
         /// Residuals for constraints + dimensions ONLY (no transient drag).
         var structural: [any ConstraintResidual]
         /// Source object per `structural` entry (same indices). A constraint
@@ -446,6 +447,13 @@ nonisolated enum SketchSolverBridge {
             }
         }
 
+        // Arc angle dimensions drive sweep while retaining the starting ray.
+        var arcSweepVar: [UUID: Int] = [:]
+        for case let .arc(id, _, _, start, end) in sketch.entities {
+            arcSweepVar[id] = 2 * pointCount + scalarValues.count
+            scalarValues.append(SketchEntity.arcSweep(startAngle: start, endAngle: end))
+        }
+
         // 6. Initial variable vector.
         var initial = [Double](repeating: 0, count: 2 * pointCount + scalarValues.count)
         for pi in 0..<pointCount {
@@ -494,6 +502,7 @@ nonisolated enum SketchSolverBridge {
                 case .whole:
                     for pi in entityPoints[ref.entityID] ?? [] { fixPoint(pi) }
                     if let rv = radiusVar[ref.entityID] { fixed.insert(rv) }
+                    if let av = arcSweepVar[ref.entityID] { fixed.insert(av) }
                 }
             }
         }
@@ -656,7 +665,9 @@ nonisolated enum SketchSolverBridge {
                     lower(RadiusConstraint(radiusVar: rv, radius: d.value / 2))
                 }
             case .angle:
-                if let (a1, b1, a2, b2) = twoLines(d.refs) {
+                if d.refs.count == 1, let ref = d.refs.first, let av = arcSweepVar[ref.entityID] {
+                    lower(ArcSweepConstraint(sweepVar: av, sweep: d.value))
+                } else if let (a1, b1, a2, b2) = twoLines(d.refs) {
                     lower(AngleConstraint(l1A: a1, l1B: b1, l2A: a2, l2B: b2, angle: d.value))
                 }
             case .horizontal, .vertical:
@@ -692,6 +703,7 @@ nonisolated enum SketchSolverBridge {
             pointCount: pointCount,
             pointIndex: pointIndex,
             radiusVar: radiusVar,
+            arcSweepVar: arcSweepVar,
             structural: structural,
             structuralSources: structuralSources,
             solveConstraints: solveConstraints,
@@ -723,8 +735,12 @@ nonisolated enum SketchSolverBridge {
             case let .circle(id, c, r):
                 return .circle(id: id, center: pt(id, .center) ?? c, radius: rad(id, r))
             case let .arc(id, c, r, sa, ea):
+                let oldSweep = SketchEntity.arcSweep(startAngle: sa, endAngle: ea)
+                let sweep = sys.arcSweepVar[id].map { vars[$0] } ?? oldSweep
+                // Avoid representation-only changes to untouched wrapped arcs.
+                let end = abs(sweep - oldSweep) > 1e-10 ? sa + sweep : ea
                 return .arc(id: id, center: pt(id, .center) ?? c, radius: rad(id, r),
-                            startAngle: sa, endAngle: ea)
+                            startAngle: sa, endAngle: end)
             case let .ellipse(id, c, rx, ry, rot):
                 return .ellipse(id: id, center: pt(id, .center) ?? c, radiusX: rx, radiusY: ry, rotation: rot)
             case let .polygon(id, c, r, sides, rot):
@@ -758,6 +774,7 @@ nonisolated enum SketchSolverBridge {
             idxs.append(2 * pi + 1)
         }
         if let rv = sys.radiusVar[e.id] { idxs.append(rv) }
+        if let av = sys.arcSweepVar[e.id] { idxs.append(av) }
         guard !idxs.isEmpty else { return true }
         return idxs.allSatisfy { $0 < determined.count && determined[$0] }
     }

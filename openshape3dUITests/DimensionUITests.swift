@@ -62,6 +62,52 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testArcSweepBadgeEditAndUndoRetainRadius() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Arc")
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.3, 0.55).press(forDuration: 0.15, thenDragTo: p(0.65, 0.55))
+        p(0.48, 0.42).tap()
+        sleep(1)
+        if app.buttons["KeypadCommit"].exists { app.buttons["KeypadCommit"].tap() }
+        sleep(1)
+        tapPaletteTool(app, group: "Sketch", label: "Arc")
+        // Committing the pending arc does not select it. Select its default
+        // sagitta midpoint (a quarter chord length above the baseline).
+        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        p(0.475, bulgeY).tap()
+        sleep(1)
+        attach(app, "arc-selected-before-sweep-editor")
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        let angle = labels.matching(NSPredicate(format: "label CONTAINS %@", "°")).firstMatch
+        let radius = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "R")).firstMatch
+        XCTAssertTrue(angle.waitForExistence(timeout: 3))
+        XCTAssertTrue(radius.exists)
+        let beforeAngle = angle.label, beforeRadius = radius.label
+        angle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-9"].tap(); app.buttons["Keypad-0"].tap()
+        app.buttons["KeypadCommit"].tap()
+        sleep(1)
+        attach(app, "arc-sweep-90-radius-retained")
+        XCTAssertTrue(angle.label.contains("90"))
+        XCTAssertEqual(radius.label, beforeRadius)
+        app.buttons["UndoButton"].tap()
+        sleep(1)
+        XCTAssertEqual(angle.label, beforeAngle)
+        XCTAssertEqual(radius.label, beforeRadius)
+        app.buttons["RedoButton"].tap()
+        sleep(1)
+        XCTAssertTrue(angle.label.contains("90"))
+        XCTAssertEqual(radius.label, beforeRadius)
+    }
+
     // MARK: - Line length dimension
 
     func testLineLengthDimensionDrivesGeometry() throws {

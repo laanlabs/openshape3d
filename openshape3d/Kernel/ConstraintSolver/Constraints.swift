@@ -404,3 +404,12 @@ nonisolated struct TangentLineCircleConstraint: ConstraintResidual {
         return [dist - r]
     }
 }
+
+/// A persisted arc angle drives the CCW sweep in radians, not its radius.
+nonisolated struct ArcSweepConstraint: ConstraintResidual {
+    let sweepVar: Int
+    let sweep: Double
+    var variableIndices: [Int] { [sweepVar] }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] { [vars[sweepVar] - sweep] }
+}

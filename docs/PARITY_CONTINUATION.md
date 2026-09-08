@@ -7,9 +7,10 @@ Updated September8,2026,09:39 EDT. Dedicated active session; no duplicate worker
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
 HEADe82b9e4 pushed (constrained-drag correction). Dirty snap/lock and trim receipts/checkpoint.
 Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
-**Actual running work:** no build/test/Peekaboo child; dedicated session active
-and exclusive desktop. Inference/lifecycle run exec45165 finished0,33/33 clean.
-Equal default opt-in correction live checked with saved preference explicitly off.
+**Actual running work:** no build/test/Peekaboo child. Dedicated session active,
+exclusive desktop. Arc initial exec93683 exited65 (28unit+4UIpass/1newfixturefailure),
+corrected selected-arc UI exec3791 exited0.33distinct passes acrossruns, notcombined.
+Arc90/270 edits and paired reopen verified. Code/receipts committing checkpoint.
 
 Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16 (iPad13M5/iOS26.5), window2386.
 Portrait window683×940 at275,44; landscape887×737. Tests force portrait/reset store;
@@ -47,15 +48,15 @@ Receipt: testing/sketch-parity-constrained-drag-2026-09-08.md.
 Live executablee0c92bc8929490962e12311111f0a2d222f8a12b114f9e4605cd934076ec08ec
 includes temporary toolbar AX titles removed before commit; solver unchanged.
 
-**Next:** paired inactive-tool edge selection/multiselect, then Trim reference
-integrity and remaining rectangle/numeric matrix. Clone Untitled4 Top landscape:
-first line181–381,y349,3.306mm selected; second181–386,y429,3.385mm independent.
-Native Front second720–925,y530,711.8311mm selected; first720–920,y450,694.4694mm.
-Native plain click replaced selection. Clone next plain click second to compare;
-mouse versus touch additive behavior must be distinguished before changing product.
-Near-equal inference corrected for new defaults only; saved Equal=true preserved
-and explicitly disabled live.33/33 tests clean. Both acquisition off, Auto on;
-clone Equal nowoff. Restore other snap preferences after comparison.
+**Next:** arc angle invalid boundary0/360 native/clone comparison, then remaining
+rectangle/numeric/arc construction matrix. Native Front reopened changedzoom:
+arc270°,R100, center815258,start797258,end815240, selected; anglebadge857306.
+Clone Untitled2 Top landscape arc270°,R0.993,center549349,start489349,end549289,
+selected; anglebadge622422. Crossing line469–630,y349. Both tools inactive.
+Both acquisitionoff/Autoon, cloneEqualoff. No test worker remains.
+Paired radius/minor/major and gallery readouts captured; simple dashed-angleleader
+visual difference retained. Read selection-trimrefs and arc-sweep receipts for
+latest valid and invalid attempts. Next exact action native270badge→360 draft.
 
 Basic crossing-line/circle Trim pass; lock removal and snap samples documented
 locally, including clone-only gallery preference persistence. No full matrix claim.

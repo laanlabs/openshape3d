@@ -573,3 +573,14 @@ Equal. Clean33/33 inference/lifecycle tests and live Equal-off repeat retain fir
 3.306mm while second3.385mm stays distinct. [Receipt](testing/sketch-parity-equal-inference-2026-09-08.md).
 Google Doc Saving/editing-disabled blocks publication; six earlier snap images
 visible locally but export remains76. Trim/equality evidence local, not published.
+
+### September8: arc sweep dimension (paired functional correction)
+
+Native trimmed arcs exposeR plus editable sweep; clone showedR only. Arc sweep
+scalar and editable angular badge added, preserving starting direction/center/radius;
+whole-arc Lock guards conflicting edits. Existing two-line angles unchanged.
+28unit+4existingUI passes, corrected arcUI1pass after selecting fixture; not one
+clean combined run. Live90/270 and paired gallery reopen pass sampled workflow.
+[Receipt](testing/sketch-parity-arc-sweep-2026-09-08.md). Dashed chord annotation
+versus native curved leader and arc endpoint welding remain known limitations.
+Google publication remains blocked at76verifiedimages; new screenshots local.

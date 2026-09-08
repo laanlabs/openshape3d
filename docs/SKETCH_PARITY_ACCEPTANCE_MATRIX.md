@@ -23,15 +23,15 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
 | QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
-| QA-19 | Snap categories | Core — not run | Paired acceptance outstanding. |
+| QA-19 | Snap categories | Core — partial, not passed | Raw acquisition-off and Grid-only paired; guidepoint combinations open. |
 | QA-20 | Snap zoom | Core — not run | Paired acceptance outstanding. |
 | QA-21 | Snap feedback | Core — not run | Paired acceptance outstanding. |
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
-| QA-23 | Selection state | Core — not run | Paired acceptance outstanding. |
-| QA-24 | Multi-selection | Core — not run | Paired acceptance outstanding. |
+| QA-23 | Selection state | Core — partial, not passed | Point/edge, blank deselect and connected rectangle samples; other entity/tool states open. |
+| QA-24 | Multi-selection | Core — partial, not passed | Connected rectangle double-click paired; mouse/touch additive difference recorded. |
 | QA-25 | Annotation off-state | Core — partial, not passed | Completed horizontal line and rectangle badges paired; full selection matrix open. |
 | QA-26 | Annotation on-state | Core — not run | Paired acceptance outstanding. |
-| QA-27 | Dimension type | Core — not run | Paired acceptance outstanding. |
+| QA-27 | Dimension type | Core — partial, not passed | Line/rectangle/circle radius-diameter and arc sweep samples; full type matrix open. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
 | QA-30 | Rectangle sequence | Core — partial, not passed | Center and three-point two-axis edits paired; keyboard/edge matrix open. |
@@ -39,22 +39,22 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Zero width rejects without mutation in both apps; remaining invalid forms open. |
 | QA-34 | Locked/unlocked value | Core — not run | Paired acceptance outstanding. |
-| QA-35 | Constraint rail | Core — not run | Paired acceptance outstanding. |
-| QA-36 | Constraint types | Core — not run | Paired acceptance outstanding. |
-| QA-37 | Selection anchor | Core — not run | Paired acceptance outstanding. |
+| QA-35 | Constraint rail | Core — partial, not passed | Lock removal and inference toggles sampled; rail matrix open. |
+| QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
+| QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — not run | Paired acceptance outstanding. |
-| QA-39 | Conflict and point states | Core — not run | Paired acceptance outstanding. |
+| QA-39 | Conflict and point states | Core — partial, not passed | False constrained-drag conflict corrected; other conflict/DOF combinations open. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; explicit Escape delivery/system keyboard remain open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
-| QA-43 | Trim references | Core — not run | Paired acceptance outstanding. |
+| QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
 | QA-45 | Move/rotate/copy | Core — not run | Paired acceptance outstanding. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — not run | Paired acceptance outstanding. |
-| QA-49 | Profile topology | Core — not run | Paired acceptance outstanding. |
-| QA-50 | Sketch-to-solid | Core — not run | Paired acceptance outstanding. |
+| QA-49 | Profile topology | Core — partial, not passed | Trimmed open U versus intact rectangle handoff paired; nested/self-intersection open. |
+| QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; zero-distance preview cancelled; actual solid build open. |
 | QA-51 | Save/reopen | Core — partial, not passed | Three-point values retained after paired reopen; broader state matrix open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core — not run | Paired acceptance outstanding. |
@@ -316,3 +316,13 @@ circle upper span removal preserve crossing/source geometry in sampled cases.
 QA35: near-equal default inference opt-in correction,33/33 tests and live Equal-off
 independent lengths. Saved preferences deliberately retained. Receipts snap-lock,
 trim, equal-inference dated2026-09-08. Google publication blocked, not verified.
+
+QA24/43 continuation: connected4line rectangle double selection and top-edge Trim
+paired; surviving side readouts stable. Plain native mouse replaces vs simulated
+touch additive selection recorded without speculative change. Receipt selection-
+trimrefs-2026-09-08; publication blocked.
+
+Arc sweep correction:90/270/R coexistence and paired gallery reopen sampled;
+33distinct checks pass across initial/targeted runs. Native curved vs clone dashed
+angle annotation remains different. Full boundary/construction/tangent coverage
+open. Receipt arc-sweep-2026-09-08; publication blocked.

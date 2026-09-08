@@ -10865,6 +10865,14 @@ final class EditorViewModel {
             let end = c + SIMD2(r, 0)
             return (c + SIMD2(r * 0.5, 0), c, end)
         case .angle:
+            if refs.count == 1, let ref = refs.first,
+               case let .arc(_, c, r, start, end)? = sketchEntity(ref.entityID, in: sketch) {
+                let mid = start + SketchEntity.arcSweep(startAngle: start, endAngle: end) / 2
+                let direction = SIMD2(cos(mid), sin(mid))
+                return (c + direction * r * 1.7,
+                        c + SIMD2(cos(start), sin(start)) * r,
+                        c + SIMD2(cos(end), sin(end)) * r)
+            }
             guard refs.count == 2,
                   let (a1, b1) = lineEndpoints(refs[0].entityID, in: sketch),
                   let (a2, b2) = lineEndpoints(refs[1].entityID, in: sketch) else { return nil }
@@ -10900,6 +10908,10 @@ final class EditorViewModel {
             guard let ref = refs.first, let e = sketchEntity(ref.entityID, in: sketch) else { return nil }
             return Self.entityRadius(e).map { $0 * 2 }
         case .angle:
+            if refs.count == 1, let ref = refs.first,
+               case let .arc(_, _, _, start, end)? = sketchEntity(ref.entityID, in: sketch) {
+                return SketchEntity.arcSweep(startAngle: start, endAngle: end) * 180 / .pi
+            }
             guard refs.count == 2,
                   let (a1, b1) = lineEndpoints(refs[0].entityID, in: sketch),
                   let (a2, b2) = lineEndpoints(refs[1].entityID, in: sketch) else { return nil }
@@ -11108,7 +11120,11 @@ final class EditorViewModel {
             appendCandidate(id: "candidate", kind: cand.kind, refs: cand.refs)
             // A selected rectangle offers both its width (the palette's
             // candidate) and its height, each an editable label on its side.
-            if cand.kind == .horizontal {
+            if cand.kind == .radius, cand.refs.count == 1,
+               let ref = cand.refs.first,
+               case .arc? = sketchEntity(ref.entityID, in: sketch) {
+                appendCandidate(id: "candidate-arc-angle", kind: .angle, refs: cand.refs)
+            } else if cand.kind == .horizontal {
                 appendCandidate(id: "candidate-vertical", kind: .vertical, refs: cand.refs)
             } else if let edges = selectedRectangleDimensionEdges {
                 appendCandidate(id: "candidate-height", kind: .distance,
@@ -11215,8 +11231,13 @@ final class EditorViewModel {
         // Linear dims must be positive; angles within (0, 180)°.
         switch edit.kind {
         case .angle:
-            guard parsed > 0, parsed < 180 else {
-                errorMessage = "Angle must be between 0° and 180°."
+            let isArcSweep: Bool = edit.refs.count == 1 && edit.refs.first.map {
+                if case .arc? = sketchEntity($0.entityID, in: sketch) { return true }
+                return false
+            } == true
+            let upperBound = isArcSweep ? 360.0 : 180.0
+            guard parsed > 0, parsed < upperBound else {
+                errorMessage = "Angle must be between 0° and \(Int(upperBound))°."
                 return
             }
         default:
