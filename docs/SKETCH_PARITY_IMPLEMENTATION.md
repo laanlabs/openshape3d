@@ -561,3 +561,15 @@ fixtures. Actual endpoint Undo/Redo restoration checked; temporary toolbar title
 values were stale and removed. Live3→3.5mm keeps locked endpoint/direction and
 matches native repeat. [Receipt](testing/sketch-parity-constrained-drag-2026-09-08.md).
 Full selection/constraint matrix and live toolbar input remain open.
+
+### September8: snap/trim acceptance and automatic equality
+
+Lock removal, acquisition off, Grid-only placement and crossing-line/circle span
+Trim sampled in both apps; broader reference/history coverage open. Clone settings
+survive gallery reopen (clone-only). Near-equal default strokes auto-linked Equal
+and moved prior geometry; native sampled lengths stayed independent. New settings
+now require explicit Equal inference opt-in, preserving stored preference/manual
+Equal. Clean33/33 inference/lifecycle tests and live Equal-off repeat retain first
+3.306mm while second3.385mm stays distinct. [Receipt](testing/sketch-parity-equal-inference-2026-09-08.md).
+Google Doc Saving/editing-disabled blocks publication; six earlier snap images
+visible locally but export remains76. Trim/equality evidence local, not published.

@@ -185,7 +185,7 @@ final class AutoConstraintEngineTests: XCTestCase {
         // Reference length 4 (horizontal). Draw a 45° segment of length ~4 so
         // it matches on length but not on axis / parallel / perpendicular.
         let ref = SketchEntity.line(id: refID, a: SIMD2(0, 0), b: SIMD2(4, 0))
-        let r = infer(.line, from: SIMD2(0, 10), to: SIMD2(2.83, 12.83), existing: [ref])
+        let r = infer(.line, from: SIMD2(0, 10), to: SIMD2(2.83, 12.83), existing: [ref], settings: AutoConstraintSettings(equal: true))
         let c = constraint(r, .equalLength)
         XCTAssertNotNil(c)
         XCTAssertEqual(c?.selfRole, .whole)
@@ -199,7 +199,7 @@ final class AutoConstraintEngineTests: XCTestCase {
     func testEqualLengthRejectedOutsideTolerance() {
         let ref = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(4, 0))
         // Length ~5.66 vs 4 → ~41% off, well past the 3% window.
-        let r = infer(.line, from: SIMD2(0, 10), to: SIMD2(4, 14), existing: [ref])
+        let r = infer(.line, from: SIMD2(0, 10), to: SIMD2(4, 14), existing: [ref], settings: AutoConstraintSettings(equal: true))
         XCTAssertNil(constraint(r, .equalLength))
     }
 
@@ -209,10 +209,25 @@ final class AutoConstraintEngineTests: XCTestCase {
     /// snap step apart still match.
     func testEqualLengthIsCappedAtTheSnapToleranceOnLongLines() {
         let ref = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(96, 0))
-        let far = infer(.line, from: SIMD2(0, 10), to: SIMD2(0, 108), existing: [ref])
+        let far = infer(.line, from: SIMD2(0, 10), to: SIMD2(0, 108), existing: [ref], settings: AutoConstraintSettings(equal: true))
         XCTAssertNil(constraint(far, .equalLength), "98 vs 96 is 2 % but 2 mm — placed on purpose")
-        let near = infer(.line, from: SIMD2(0, 10), to: SIMD2(0, 106.2), existing: [ref])
+        let near = infer(.line, from: SIMD2(0, 10), to: SIMD2(0, 106.2), existing: [ref], settings: AutoConstraintSettings(equal: true))
         XCTAssertNotNil(constraint(near, .equalLength), "0.2 mm is within a snap step")
+    }
+
+    func testDefaultNearEqualLinesStayIndependentAndSavedOptInSurvives() throws {
+        let ref = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(3.306, 0))
+        let result = infer(.line, from: SIMD2(0, 2), to: SIMD2(3.38865, 2), existing: [ref])
+        XCTAssertNil(constraint(result, .equalLength))
+        XCTAssertFalse(hasGuide(result, .equalLength))
+        XCTAssertEqual(result.snappedPoint, SIMD2(3.38865, 2))
+        XCTAssertNotNil(constraint(result, .horizontal), "Independent axis inference remains enabled")
+        let saved = try JSONEncoder().encode(AutoConstraintSettings(equal: true))
+        let restored = try JSONDecoder().decode(AutoConstraintSettings.self, from: saved)
+        XCTAssertTrue(restored.equal, "Do not overwrite a stored preference")
+        let optedIn = infer(.line, from: SIMD2(0, 2), to: SIMD2(3.38865, 2),
+                            existing: [ref], settings: restored)
+        XCTAssertNotNil(constraint(optedIn, .equalLength))
     }
 
     func testEqualLengthGateSuppresses() {

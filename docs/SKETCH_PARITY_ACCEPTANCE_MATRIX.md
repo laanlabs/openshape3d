@@ -45,7 +45,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-38 | Disconnect | Core — not run | Paired acceptance outstanding. |
 | QA-39 | Conflict and point states | Core — not run | Paired acceptance outstanding. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; explicit Escape delivery/system keyboard remain open. |
-| QA-41 | Trim primitives | Core — not run | Paired acceptance outstanding. |
+| QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — not run | Paired acceptance outstanding. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
@@ -307,3 +307,12 @@ compared live. Confirmed clone false conflict corrected; fixed endpoint retained
 See constrained-drag receipt for14unit passes plus corrected1UI pass (not a single
 combined run), actual geometry history assertions, failed fixture diagnostics and
 live evidence. Broader relation/selection/history matrix remains open.
+
+### September8 selection/snapping/trim continuation
+
+QA19/23/35 partial: paired Lock removal and acquisition-off/Grid-only placement;
+clone-only gallery settings persistence. QA41 partial: crossing-line tail and
+circle upper span removal preserve crossing/source geometry in sampled cases.
+QA35: near-equal default inference opt-in correction,33/33 tests and live Equal-off
+independent lengths. Saved preferences deliberately retained. Receipts snap-lock,
+trim, equal-inference dated2026-09-08. Google publication blocked, not verified.

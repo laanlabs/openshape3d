@@ -1,20 +1,15 @@
 # Parity continuation checkpoint
 
-Updated September8,2026,09:13 EDT. Dedicated active session; no duplicate workers.
+Updated September8,2026,09:39 EDT. Dedicated active session; no duplicate workers.
 
 ## Revision and ownership
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-HEADd984465 pushed (edge-layout documentation). Dirty constrained-drag fix:
-SketchSolverBridge.swift, DragSolveBridgeTests.swift, EditorView.swift,
-DragSolveUITests.swift; new drag receipt/checkpoint.
+HEADe82b9e4 pushed (constrained-drag correction). Dirty snap/lock and trim receipts/checkpoint.
 Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
-**Actual running work:** no test/build/Peekaboo child process. Dedicated session
-active, exclusive desktop; next paired constraint removal/settings checks.
-Last UI run exec7390 completed0: exact locked-line drag/geometry Undo/Redo passed.
-Initial14unit passes + corrected1UI pass, NOT a clean combined run. Failed old
-armed-Line fixture, two-point-rect marker assumption and stale AX title diagnostic
-retained. Diagnostic AX source removed; no history implementation change.
+**Actual running work:** no build/test/Peekaboo child; dedicated session active
+and exclusive desktop. Inference/lifecycle run exec45165 finished0,33/33 clean.
+Equal default opt-in correction live checked with saved preference explicitly off.
 
 Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16 (iPad13M5/iOS26.5), window2386.
 Portrait window683×940 at275,44; landscape887×737. Tests force portrait/reset store;
@@ -52,12 +47,21 @@ Receipt: testing/sketch-parity-constrained-drag-2026-09-08.md.
 Live executablee0c92bc8929490962e12311111f0a2d222f8a12b114f9e4605cd934076ec08ec
 includes temporary toolbar AX titles removed before commit; solver unchanged.
 
-**Next:** paired point-lock removal and free drag, then constraint/snap settings
-using available rail settings. Native foreground, free right endpoint661,455
-selected, lockedleft401,455. Clone Untitled2 line3.5mm, lockedleft171,515,
-right383,515 selected. Click coordinates window-relative, drags global.
-No parallelGUI/tests. Remaining numeric/layout partial: right-palette Settings
-click no observed sheet, compact/system keyboard untested. Full queue below.
+**Next:** paired inactive-tool edge selection/multiselect, then Trim reference
+integrity and remaining rectangle/numeric matrix. Clone Untitled4 Top landscape:
+first line181–381,y349,3.306mm selected; second181–386,y429,3.385mm independent.
+Native Front second720–925,y530,711.8311mm selected; first720–920,y450,694.4694mm.
+Native plain click replaced selection. Clone next plain click second to compare;
+mouse versus touch additive behavior must be distinguished before changing product.
+Near-equal inference corrected for new defaults only; saved Equal=true preserved
+and explicitly disabled live.33/33 tests clean. Both acquisition off, Auto on;
+clone Equal nowoff. Restore other snap preferences after comparison.
+
+Basic crossing-line/circle Trim pass; lock removal and snap samples documented
+locally, including clone-only gallery preference persistence. No full matrix claim.
+Google Doc09:50 still Saving/editing disabled. Six snap/lock images visible locally
+but export remains76. Do not reload/duplicate; keep tab, continue independent work.
+Trim/equality images not inserted. No physical installation or candidate-ready claim.
 
 ## Publication and retained audit
 

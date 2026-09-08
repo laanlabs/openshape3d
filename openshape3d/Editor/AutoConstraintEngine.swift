@@ -23,7 +23,10 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
     var pointSnap = true
     var parallelPerpendicular = true
     var tangent = true
-    var equal = true
+    // Paired near-equal strokes (2026-09-08) remain independent in native.
+    // Equality inference can move existing geometry, so require explicit opt-in.
+    // Codable still restores the saved choice; manual Equal is unaffected.
+    var equal = false
     /// Half-width of the horizontal/vertical snap, in degrees.
     ///
     /// Measured against Shapr3D on 2026-09-06 by drawing lines at known angles
