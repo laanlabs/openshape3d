@@ -10,8 +10,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — partial, not passed | Empty Front exit removes new sketch in both apps; other cancel/visibility variants open. |
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
-| QA-06 | Line cancel | Core — blocked live | Native Escape clears preview; clone keyboard/double-click delivery unresolved. |
-| QA-07 | Line raw aim | Core — not run | Paired acceptance outstanding. |
+| QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Backspace/double-tap/tool-switch matrix open. |
+| QA-07 | Line raw aim | Core — partial, not passed | Acquisition-off/Auto-off slight slope sampled paired; all-angle matrix open. |
 | QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Sequential center height/width paired; reverse order open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
@@ -58,7 +58,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-51 | Save/reopen | Core — partial, not passed | Three-point values retained after paired reopen; broader state matrix open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core — not run | Paired acceptance outstanding. |
-| QA-54 | Keyboard | Core — blocked live | Native keyboard Undo/Redo segment restoration observed today; clone toolbar and keyboard no-op unresolved. |
+| QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
 | QA-55 | Sustained use | Core — not run | Paired acceptance outstanding. |
 | QA-56 | Downstream smoke | Core — not run | Paired acceptance outstanding. |
 
@@ -326,3 +326,10 @@ Arc sweep correction:90/270/R coexistence and paired gallery reopen sampled;
 33distinct checks pass across initial/targeted runs. Native curved vs clone dashed
 angle annotation remains different. Full boundary/construction/tangent coverage
 open. Receipt arc-sweep-2026-09-08; publication blocked.
+
+September8 de2756c continuation: [live history repeat](testing/sketch-parity-history-live-repeat-2026-09-08.md)
+now verifies actual creation/dimension Undo/Redo in both apps, including clone
+afterautosave. Earlier no-response cause unknown, no speculative history changes.
+Line Escape missing binding confirmed and under regression; not yet passed.
+[Fullturn conversion](testing/sketch-parity-arc-full-circle-2026-09-08.md) clean25/25,
+paired conversion plus clone-only reopen. No whole-case promotion.

@@ -9041,6 +9041,18 @@ final class EditorViewModel {
     /// Stable id for the hover preview entity (keeps render diffing cheap).
     private let linePreviewID = UUID()
 
+    /// Escape abandons only the unfinished line continuation. A second Escape
+    /// disarms Line, matching the native two-stage workflow; committed segments
+    /// and the document's undo stack are untouched.
+    func cancelLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        if chainAnchor != nil {
+            clearChain()
+        } else {
+            deselectSketchTool()
+        }
+    }
+
     private func clearChain() {
         chainAnchor = nil
         chainStart = nil

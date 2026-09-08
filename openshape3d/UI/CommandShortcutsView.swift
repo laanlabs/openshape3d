@@ -51,6 +51,11 @@ struct CommandShortcutsView: View {
 
     var body: some View {
         ZStack {
+            if viewModel.mode.sketchTool == .line, viewModel.editingDimension == nil {
+                Button { viewModel.cancelLineInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            }
             ForEach(CommandRegistry.routableChordedCommands) { command in
                 if let chord = command.chord, let key = chord.keyEquivalent,
                    !(launcherOwnsBareKeys && chord.isBareKey) {

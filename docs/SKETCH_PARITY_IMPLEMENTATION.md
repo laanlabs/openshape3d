@@ -593,3 +593,12 @@ radius to diameter. Clean25/25 focused tests; paired conversion and clone-only
 reopen verified (R0.5→Ø1), crossing line unchanged. [Receipt](testing/sketch-parity-arc-full-circle-2026-09-08.md).
 No endpoint-reference or full numeric-matrix sign-off. New images local; illustrated
 publication remains blocked at76verified images.
+
+### September8: live history blocker narrowed
+
+On de2756c, creation and dimension Undo/Redo now restore actual geometry in both
+apps; clone toolbar and CmdZ succeed after autosave. No history code changed;
+earlier failures retained, cause unknown. [Receipt](testing/sketch-parity-history-live-repeat-2026-09-08.md).
+Separate line Escape gap confirmed: native clears unfinished preview, clone keeps
+pending anchor and had no binding. Scoped correction under test, live repeat pending.
+Master continuation status verified by anonymous export; illustrated still blocked.

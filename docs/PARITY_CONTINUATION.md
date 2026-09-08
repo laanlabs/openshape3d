@@ -1,10 +1,10 @@
 # Parity continuation checkpoint
 
 Updated September8,2026 after full-turn live/reopen check. Dedicated session owns
-desktop; no xcodebuild, xctest or Peekaboo worker running (process check verified).
-Branch fix/sketch-parity-foundations; HEAD e63823e before pending fullturn commit.
-Dirty: ArcDimensionConversion helper, EditorViewModel, ArcSweepDimensionTests,
-DimensionUITests, fullturn receipt, ledger, milestone plan and this checkpoint.
+desktop; no workers running; exclusive live control in dedicated session.
+Branch fix/sketch-parity-foundations; HEAD de2756c pushed.
+Dirty: line Escape binding/action (CommandShortcutsView/EditorViewModel), history
+receipt, matrix/ledger/checkpoint and draft SKETCH_IPAD_AB_CHECKLIST.md.
 Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
 
 ## Last verified result
@@ -17,11 +17,17 @@ Current binary SHA256 b9c9d789cb8d3107caa8c7bbd75d0fce8a299dd65342ba028ff15c25e2
 
 ## Exact next action
 
-Commit/push verified fullturn correction without identity files. Inspect history
-availability immediately after drawing and after autosave in gallery-opened clone;
-compare native. Session recreation is only an unconfirmed lead, not a diagnosis.
-Prior actual-geometry XCTest Undo/Redo passes; live Peekaboo no response unresolved.
-Do not change history speculatively or label it resolved from automated tests.
+Live creation and dimension Undo/Redo now pass paired, clone toolbar and CmdZ
+both worked after autosave. No history code changed; prior failure cause unknown.
+Receipt testing/sketch-parity-history-live-repeat-2026-09-08.md. Exactnext:
+Line Escape regression clean12/12 collectedexec55212exit0; livefirst/secondEscape passed.
+Confirmed missing line-state Escape registration; dirty CommandShortcutsView and
+EditorViewModel.cancelLineInput. Nativepreviewclears, clonependingmarkerdoesnot.
+Next: commit/push verifiedlineEscape fix; compare numeric-editor Escape inbothapps.
+Clone freshUntitled2 Top line185–335,y499,2.473,toolinactive. NativeFront retains900line.
+Masterde2756ctext exportverified.
+Native line370–531,y620 now900; clone170–351,y499 now3, selected/toolinactive.
+Other circle/crossingline unchanged. No active worker.
 
 ## Desktop state
 
@@ -39,8 +45,9 @@ Illustrated Doc1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko, browser t11:
 Saving/editing-disabled,76verified images. Six pending snap images visible locally
 but absent export; preserve unsynced tab, pending-doc-inserts-recovery.json and
 recovery-check.json. Later trim/equality/arc images local, not inserted/published.
-Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE,t13 editable; e63823e and
-blocker update verified master-arc-status.txt. Fullturn still described under test.
+Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE,t13 editable; de2756c fullturn
+and livehistory status verified master-fullturn-history-status.txt. Illustrated
+remains blocked. Draft SKETCH_IPAD_AB_CHECKLIST.md is preparation only.
 Full42issue audit and56acceptance recipes retained. Continue milestone plan:
 history/input, remaining rectangle/numeric, selection/snapping/editing, persistence/
 profile/extrusion, final single-revision regression, verified publication, identified
