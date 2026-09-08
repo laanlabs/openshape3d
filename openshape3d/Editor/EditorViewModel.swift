@@ -605,6 +605,7 @@ final class EditorViewModel {
             ))
         }
         var scene = ViewportScene(bodies: drawables)
+        scene.gridPlane = activeSketch?.plane
 
         // Tool preview (extrude/revolve): translucent accent body — except a
         // face push/pull preview replaces the source body, so it renders as a

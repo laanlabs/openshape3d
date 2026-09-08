@@ -5,10 +5,10 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 
 | Case | Original scenario | Milestone lane | Current evidence / remaining work |
 |---|---|---|---|
-| QA-01 | Plane selection | Core — partial, not passed | Ground entry only; remaining planes open. |
+| QA-01 | Plane selection | Core — partial, not passed | Origin Front/Right/Top grid availability paired; offset/face/miss matrix open. |
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
-| QA-03 | Camera angle | Core — partial, not passed | Settled ground normal view only. |
-| QA-04 | Empty entry | Core — not run | Paired acceptance outstanding. |
+| QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
+| QA-04 | Empty entry | Core — partial, not passed | Empty Front exit removes new sketch in both apps; other cancel/visibility variants open. |
 | QA-05 | Line chain | Core — not run | Paired acceptance outstanding. |
 | QA-06 | Line cancel | Core — not run | Paired acceptance outstanding. |
 | QA-07 | Line raw aim | Core — not run | Paired acceptance outstanding. |

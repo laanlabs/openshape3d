@@ -58,3 +58,10 @@ Detailed milestone plan and complete QA map local. Prior illustrated Google Doc
 verified 33 images; final September 7 gallery reopen note/image publication being
 completed. Current milestone publication pending verification. Physical Pencil,
 installable device build and candidate readiness remain unverified.
+
+Publication completed: anonymous DOCX export `published-reopen.docx` contains
+36 inline images (33 prior + native reopen, clone baseline, clone height),
+reopen captions and current diagnosis verified. Native insertion and final clone
+height/current diagnosis visually inspected in browser. Export/metadata retained
+in milestone evidence root. This closes prior gallery-reopen publication, not
+live history parity.

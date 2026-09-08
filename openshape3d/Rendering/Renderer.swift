@@ -212,7 +212,7 @@ final class Renderer: NSObject, MTKViewDelegate {
             }
         }
 
-        // 4. Ground grid (blended, depth read only)
+        // 4. Active sketch grid, or ground in modeling (blended, depth read only)
         if drawGrid {
             encoder.setRenderPipelineState(pipelines.grid)
             encoder.setDepthStencilState(pipelines.depthReadOnly)
@@ -606,7 +606,12 @@ final class Renderer: NSObject, MTKViewDelegate {
         let minorSpacing = Float(min(max(pow(10, decade), 1e-3), 1e6))
         let fadeRadius = max(120, camera.distance * 10)
         frame.gridParams = SIMD4(minorSpacing, 10, fadeRadius, 0)
-        frame.gridCenter = SIMD4(camera.target.x, 0, camera.target.z, 0)
+        let gridPlane = scene.gridPlane ?? .ground
+        let gridCenter = gridPlane.toWorld(gridPlane.toLocal(SIMD3<Double>(camera.target)))
+        frame.gridCenter = SIMD4(SIMD3<Float>(gridCenter), 0)
+        frame.gridOrigin = SIMD4(SIMD3<Float>(gridPlane.origin), 0)
+        frame.gridXAxis = SIMD4(SIMD3<Float>(gridPlane.xAxis), 0)
+        frame.gridYAxis = SIMD4(SIMD3<Float>(gridPlane.yAxis), 0)
         frame.edgeDepthBiasNDC = 1e-4
         frame.viewportWidth = Float(max(viewportSize.width, 1))
         frame.viewportHeight = Float(max(viewportSize.height, 1))

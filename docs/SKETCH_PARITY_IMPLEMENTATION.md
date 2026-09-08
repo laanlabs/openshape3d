@@ -495,3 +495,13 @@ Confirmed native baseline shrink keeps left side, clone previously rotated/trans
 ## September 8 core-sketch milestone start
 
 [Detailed ordered plan](SKETCH_PARITY_NEXT_MILESTONE.md) and [all 56 original QA scenarios](SKETCH_PARITY_ACCEPTANCE_MATRIX.md) retained alongside all 42 issues. [Start receipt](testing/sketch-parity-milestone-start-2026-09-08.md) distinguishes current Peekaboo no-op/input uncertainty from history logic. Fresh clone toolbar/keyboard Undo leaves rectangle unchanged; native keyboard Undo/Redo restores prior segment. No source fix inferred. Clean diagnostic run: gallery-profile history plus line-chain history 2/2 passed on cd0937d. Not live paired history sign-off, not final candidate regression. Current source unchanged; device candidate not ready.
+
+
+### September 8: non-ground grid correction
+
+SK-07 / QA-01–04: paired Front entry exposed invisible clone grid (shader fixed
+to ground). Active sketch plane now supplies grid origin/basis and grazing normal.
+Clean21/21 plane/camera/UI regression. Live Front and Right now show grid/axes;
+Top retained. Empty Front exit leaves no sketch in both apps.
+[Grid receipt](testing/sketch-parity-plane-grid-2026-09-08.md). Offset/face,
+full entry/cancel and drawing coverage remain open. No geometry/snapping changes.

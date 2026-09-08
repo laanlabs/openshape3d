@@ -1,53 +1,67 @@
 # Parity continuation checkpoint
 
-Updated September 8, 2026, 06:52 EDT. Historical checkpoint retained in
-`docs/testing/parity-checkpoint-historical-2026-09-07.md`; its running claims are obsolete.
+Updated September 8, 2026, 07:21 EDT, dedicated active session.
 
-## Revision and ownership
+## Revision, ownership, actual execution
 
-HEAD `cd0937d`, branch `fix/sketch-parity-foundations`,
-[PR 29](https://github.com/laanlabs/openshape3d/pull/29). Dedicated parity session owns
-all desktop interaction. Parent will not operate desktop. No xcodebuild/xctest
-worker was active at reconciliation. Current work: publication and acceptance mapping after history diagnosis.
-No background build/test or duplicate worker/watchdog started.
+Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
+Base `6ec8d54` pushed (milestone plan/map/start diagnosis). This checkpoint is
+being committed with the active-plane grid correction. Inspect git HEAD/status
+on resume. App files: EditorViewModel.swift, ViewportBridge.swift, Renderer.swift,
+ShaderTypes.h, Shaders.metal. No other app changes. Pre-existing untracked
+IDENTITY.md/SOUL.md/USER.md preserved, excluded from task commits.
 
-Untracked pre-existing `IDENTITY.md`, `SOUL.md`, `USER.md` preserved, not task files.
-Milestone plan `docs/SKETCH_PARITY_NEXT_MILESTONE.md` supplied by parent is being
-committed with this documentation checkpoint. No application source change yet.
+Dedicated session exclusively owns desktop. No test/build/Peekaboo process is
+running between current interactions. Grid regression finished; no stale running
+claim or duplicate worker/watchdog. Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16,
+window2386 (275,44),683×940; native Shapr3D window1924 (99,79),1515×848.
+Installed tested simulator binary SHA256:
+`c0ea005f51a9295670ccd089fc93001511caac1c02371358e139a861b45528be`.
+This is not a physical-device artifact.
 
-Simulator `AC2FD923-1661-435F-BF47-3E9DF30D1A16`, window 2386 at (275,44), 683×940.
-Installed executable SHA256 `70781f75b6bd975f604b9a5fb847a8cef48f4a8a3ffe26f26c0062359c162810`
-matches prior receipt. Simulator was on Home, not the stale checkpoint sketch.
-Clone launched through its visible icon; gallery inspected. Creating disposable
-project through plus control. Never infer current state from old screenshots.
+## Latest verified result
 
-## Verified results and open failure
+Paired Front entry confirmed clone invisible grid, native visible. Fixed world-
+ground-only shader to render active sketch plane. Clean21/21 Plane/Camera/UI run
+`/tmp/os3d-milestone-grid-20260908.xcresult`, finished07:13 EDT. Live Front/Right/Top
+now show grid/axes; empty Front exit leaves no sketch item in either app. Details:
+`docs/testing/sketch-parity-plane-grid-2026-09-08.md`.
 
-Prior source fixes and tests: see ledger and three-point receipt. Latest retained
-history regression passed 1/1 after replacing incorrect redo-selection expectation
-with profile absence/restoration. This remains automated-only history evidence.
-Paired prior baseline/height persistence retained clone 1.5/0.5 and native 140/50.
-Final gallery-reopen publication remains pending; illustrated Doc previously
-verified 33 images. No new history sign-off or iPad candidate.
+Illustrated Doc verified by anonymous DOCX export:41 inline images, corrected
+outcome text; exact bytes of five new paired grid images found in export.
+Prior gallery-reopen publication also completed (three images, retained values
+clone1.5/0.5 and native140/50). Full42issue audit and56QA map retained.
+Evidence root `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/`,
+`published-grid.docx`, `grid-publication.json`, `planes/` and `history/`.
 
-Peekaboo `image` currently fails with web-focus mutation-outcome error. Local
-capture lacks Screen Recording permission. Supported `see --no-web-focus --path`
-works: saved clone Home and gallery screenshots inspected. Use that route, no
-service restart, security change or permission workaround required.
+## Unresolved history/input issue
 
-## Exact next action
+Fresh clone diagonal3×2 created; unobstructed foreground toolbar Undo and keyboard
+Cmd-Z did not restore geometry. Native keyboard Undo/Redo removed/restored prior
+vertical segment, but fresh native rectangle mouse attempts moved only point
+indicator. Menu/camera/plane clicks work. No speculative history source change.
+Clean2/2 diagnostic history/line run at07:00 EDT verifies only XCTest behavior.
+`docs/testing/sketch-parity-milestone-start-2026-09-08.md` has exact distinction.
 
-Publish prior gallery-reopen screenshots and current diagnosis; verify export.
-History diagnostic completed 2/2 clean at 07:00 EDT, result
-`/tmp/os3d-milestone-history-20260908.xcresult`; no test worker active.
-Avoid identical no-op retries; continue independent matrix checks, preserving
-live history blocker. No speculative Undo fix.
-Then execute ordered milestone Steps 2–6: planes/drawing/cancel, rectangle/numeric
-matrix, selection/snapping/constraints/editing, persistence/solid, final regression,
-verified publication and identified installable device build/checklist.
+Peekaboo image command fails web-focus outcome validation; supported capture
+`peekaboo see --app ... --window-id ... --no-web-focus --path ... --json` works.
+Inspect screenshots after actions. Full-screen see can save an image yet return
+failure; inspect artifact and retain failure status. Foreground clicks with
+--no-auto-focus are fast after explicit app switch. Click coords window-relative;
+drag --from-coords/--to-coords remain global. No service/security changes.
 
-Evidence root `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/`.
-Preserve all 42 ledger entries and map all 56 original acceptance scenarios.
-Live input blocker: clone toolbar/keyboard Undo unchanged, native fresh rectangle attempts do not commit; native keyboard history does restore prior segment. Capture workaround verified. No merge, device
-installation, physical Pencil or full-parity claim. Existing 30-minute watchdog
-unchanged. No restart/logout/lock/Screen Sharing changes.
+## Exact next action and queue
+
+Finish push of grid correction, then paired line-chain/finish/cancel in current
+Top sketches. Native currently Top Sketch01, no pending drawing; clone Top empty
+Line sketch. Do not reuse stale earlier rectangle locations/selection. Check new
+live input after cleared entry; distinguish no-op delivery from app behavior.
+Do not repeat identical no-op inputs indefinitely.
+
+Continue milestone ordered matrix: drawing/plane/cancel (offset/face/miss still
+open); rectangle/numeric directions/layout; selection/snapping/constraints/edit;
+persistence/profile/extrusion; final revision regression; verified documentation;
+identified installable device build and short Pencil checklist. No candidate yet.
+A passing batch is not a stopping point. History remains core readiness blocker.
+Existing30minute watchdog unchanged. No merge/restart/logout/lock/Screen Sharing
+changes, no credentials, no physical installation/Pencil claim.
