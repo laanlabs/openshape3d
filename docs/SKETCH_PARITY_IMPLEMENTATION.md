@@ -87,7 +87,7 @@ Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentatio
 
 Next: Extend paired diagonal anchor coverage beyond the tested down/right width case and complete three-point height / two-axis placement; axis-aligned sequential badge edits and center preservation were live-compared. A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
 
-Acceptance: Center stays fixed when sizing a center rectangle; diagonal uses its first corner; three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
+Acceptance: Center stays fixed when sizing a center rectangle; diagonal typed sizes prefer normalized lower-left (September8 reverse-drag reference correction); three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
 
 ### SK-04 · Starting a new shape on existing geometry is intercepted as editing
 
@@ -516,3 +516,16 @@ edit native420→200 and clone2.236→1 preserves center/line. Polygon unchanged
 [Line/circle receipt](testing/sketch-parity-line-circle-2026-09-08.md). Concentric
 initiation and radius-mode matrix remain open. Live line Escape/history delivery
 remains blocked; not addressed by this circle fix, not candidate-ready.
+
+
+### September 8: diagonal anchor reference correction (verified samples)
+
+SK-03 / QA-08: native up-left width holds left side (Top and empty Front plane),
+and down/right height holds bottom edge. Clone stored-first-corner preference
+differs. Earlier width-only down/right evidence did NOT establish first-corner
+behavior across quadrants; that broad conclusion is superseded, not erased.
+[New paired diagnosis and correction](testing/sketch-parity-diagonal-anchors-2026-09-08.md).
+Lower-left transient preference implemented; clean22/22 regressions passed.
+Live reverse-width and down/right-height rechecks match native; Doc58images and
+master roadmap publication verified. Remaining quadrant/layout matrix stays open.
+Center, legacy and explicit-constraint fallback retained.

@@ -97,7 +97,8 @@ nonisolated enum SketchSolverBridge {
                        structuralResidual: sumSquares.squareRoot())
     }
 
-    /// Prefer creation anchoring for direct rectangle width/height edits.
+    /// Prefer the normalized lower-left corner for diagonal width/height edits.
+    /// Paired reverse-drag checks corrected the earlier first-corner assumption.
     /// Explicit relationships win when holding that corner is incompatible.
     /// Legacy rectangles have no intent metadata and retain the existing solve.
     static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
@@ -481,14 +482,14 @@ nonisolated enum SketchSolverBridge {
             }
         }
 
-        // A dimension edit temporarily holds the original diagonal corner.
-        // Mixed quadrants pin one coordinate from EACH normalized endpoint.
-        // This is never persisted as a Lock or used for ordinary dragging.
+        // Native diagonal dimensions hold left/bottom regardless of drag order
+        // (paired up-left width and down-right height checks). Old corner
+        // metadata still distinguishes diagonal from center creation; do not
+        // reinterpret it as a permanent Lock or change ordinary dragging.
         if let id = preservingRectangleCorner,
-           let corner = sketch.rectangleSizingAnchors[id]?.cornerUsesMax,
-           let a = pIdx(id, .endpointA), let b = pIdx(id, .endpointB) {
-            fixed.insert(2 * (corner.x ? b : a))
-            fixed.insert(2 * (corner.y ? b : a) + 1)
+           sketch.rectangleSizingAnchors[id]?.cornerUsesMax != nil,
+           let a = pIdx(id, .endpointA) {
+            fixPoint(a)
         }
 
         // 9. Lower constraints + dimensions to residuals, recording each

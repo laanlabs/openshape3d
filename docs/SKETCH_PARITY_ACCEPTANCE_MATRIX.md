@@ -12,7 +12,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — blocked live | Native Escape clears preview; clone keyboard/double-click delivery unresolved. |
 | QA-07 | Line raw aim | Core — not run | Paired acceptance outstanding. |
-| QA-08 | Diagonal rectangle | Core — partial, not passed | Down-right half-width anchor paired; other quadrants/order open. |
+| QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Sequential center height/width paired; reverse order open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
@@ -94,7 +94,7 @@ Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-
 
 ### QA-08 — Diagonal rectangle
 
-All four drag quadrants; first anchor preserved; exact width/height. Issues: SK-03; DM-11. Result: NOT RUN. Evidence/owner: pending.
+All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — reverse-width/down-right-height corrected and live verified; all quadrants regression-tested, full live matrix pending. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md.
 
 ### QA-09 — Center rectangle
 

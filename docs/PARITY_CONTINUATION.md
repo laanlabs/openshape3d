@@ -1,22 +1,22 @@
 # Parity continuation checkpoint
 
-Updated September 8, 2026, 07:50 EDT, dedicated active session.
+Updated September 8, 2026, 08:16 EDT, dedicated active session.
 
 ## Revision, ownership, actual execution
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-HEAD `7400e01` pushed (circle release fix); `0e02425` grid and `6ec8d54`
-milestone plan/map/start diagnosis also pushed. This documentation checkpoint
-records concentric/cancellation acceptance. No app changes after tested7400e01.
-Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
+HEAD `02a50fa` pushed (concentric/cancellation documentation). Dirty diagonal
+lower-left correction: SketchSolverBridge.swift, RectangleConstructionTests.swift,
+RectangleWorkflowUITests.swift; ledger/matrix, new diagonal receipt and checkpoint.
+No other app edits. Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
 
-Dedicated session exclusively owns desktop. Circle regression completed clean4/4
-(`/tmp/os3d-milestone-circle-20260908.xcresult`). No tests/builds running; this
-session owns sequential live Peekaboo interactions. Grid regression finished. Reconcile actual
-processes before resuming; no duplicate worker/watchdog. Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16,
-window2386 (275,44),683×940; native Shapr3D window1924 (99,79),1515×848.
-Installed tested simulator binary SHA256:
-`9285e5857dbe2b2afbc00a3989bddeac5634e716fa9016357a4372b10e9247b2`.
+Dedicated session exclusively owns desktop. Serial diagonal regression completed
+22/22 clean at08:06:30 EDT; exec79151 exited0. No test or Peekaboo worker remains
+running between live calls (process check08:12). Active work is live matrix plus
+documentation, not a background worker. Reconcile processes on resume.
+Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16, window2386(275,44),683×940;
+native Shapr3D window1924(99,79),1515×848. Latest tested simulator SHA256:
+`baa7963a0f87d8242aa1e009124258500bb66490fbfa3786fd92b589b17972f2`.
 This is not a physical-device artifact.
 
 ## Latest verified result
@@ -52,15 +52,23 @@ drag --from-coords/--to-coords remain global. No service/security changes.
 
 ## Exact next action and queue
 
-Begin remaining diagonal drag-quadrant sizing matrix, starting up-left. Native
-Top Sketch01, rectangle type menu open (Diagonal70,528). Clone Top Untitled2,
-three-point armed but no pending placement, concentric circles and line present.
-Use empty native upper-left canvas and clone lower canvas; inspect current images.
-Concentric initiation sample passes in both. Three-point first-point/height-stage
-cancellation paired (native Escape vs clone Cancel), no phantom rectangle.
-Immediate captures can contain prior frame: settle1–2seconds and recapture.
-Illustrated Doc52images verified with all six new PNG hashes and follow-on text.
-No active test/build worker; exclusive desktop remains this session.
+Post-fix up-left width and down/right height live checks both passed: leftx221
+stays fixed for2.5→1.25 mm, bottomy577 fixed for1.5→1 mm with width2 mm retained.
+Doc58images and both corrected hashes verified; master roadmap export verified.
+Exact next action: commit/push narrow correction with plan/checkpoint, then
+continue mixed-quadrant and numeric layout matrix. Clone Untitled2 Top holds
+these two rectangles with Rectangle armed, no editor. No active test process.
+Native Front Sketch02 has two edited diagonal rectangles: up-left ends300×150 mm,
+leftx342/bottomy350; down/right580×165 mm,leftx807/bottomy360. Clone is in fresh Untitled2 after test reset.
+Native up-left width checks (Top and otherwise empty Front) held LEFT, not first
+corner; height in both drag directions held BOTTOM. Clone first-corner preference
+was a confirmed mismatch. Earlier down/right width-only inference is superseded.
+Center, legacy and explicit-constraint precedence unchanged. Receipt:
+`docs/testing/sketch-parity-diagonal-anchors-2026-09-08.md`.
+Illustrated Doc56images diagnosis verified, all four new hashes and text matched.
+Master roadmap milestone/reference-correction export verified.
+Concentric initiation and three-point cancellation already paired/documented at
+02a50fa. Continue remaining quadrants/numeric layout after this fix; no candidate.
 Line drag/readout paired. Native Escape clears temporary next-segment preview;
 clone keyboard/double-click did not visibly do so. Hardware Keyboard checked;
 Simulator separate keyboard capture tested and returned OFF. No history/Escape

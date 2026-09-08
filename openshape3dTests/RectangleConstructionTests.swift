@@ -181,7 +181,7 @@ final class RectangleConstructionTests: XCTestCase {
             .init(entityID: id, role: .endpointB)], value: value)
     }
 
-    func testDiagonalSizingPreservesFirstCornerInAllQuadrantsAfterReload() throws {
+    func testDiagonalSizingPreservesLowerLeftInAllQuadrantsAfterReload() throws {
         for dx in [-20.0, 20.0] {
             for dy in [-12.0, 12.0] {
                 let first = SIMD2<Double>(7, -3), id = UUID()
@@ -200,8 +200,8 @@ final class RectangleConstructionTests: XCTestCase {
                     XCTAssertLessThan(outcome.structuralResidual, 1e-5)
                     sketch.entities = outcome.entities
                     guard case let .rect(_, mn, mx) = outcome.entities[0] else { return XCTFail() }
-                    XCTAssertEqual(dx > 0 ? mn.x : mx.x, first.x, accuracy: 1e-6)
-                    XCTAssertEqual(dy > 0 ? mn.y : mx.y, first.y, accuracy: 1e-6)
+                    XCTAssertEqual(mn.x, lo.x, accuracy: 1e-6)
+                    XCTAssertEqual(mn.y, lo.y, accuracy: 1e-6)
                     XCTAssertEqual(kind == .horizontal ? mx.x-mn.x : mx.y-mn.y, value, accuracy: 1e-5)
                 }
             }
@@ -248,8 +248,8 @@ final class RectangleConstructionTests: XCTestCase {
         moved.dimensions = [dim]
         let result = SketchSolverBridge.solveDimensionEdit(moved, dimension: dim)
         guard case let .rect(_, lo, hi) = result.entities[0] else { return XCTFail() }
-        XCTAssertEqual(hi.x, 170, accuracy: 1e-6)
-        XCTAssertEqual(lo.x, 165, accuracy: 1e-5)
+        XCTAssertEqual(hi.x, 155, accuracy: 1e-5)
+        XCTAssertEqual(lo.x, 150, accuracy: 1e-6)
         XCTAssertEqual(lo.y, 160, accuracy: 1e-6)
         XCTAssertEqual(SketchSolverBridge.solve(moved, movingEntity: nil, dragTarget: nil).entities.count, 1)
     }

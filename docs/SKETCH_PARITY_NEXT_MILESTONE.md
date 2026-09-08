@@ -47,7 +47,9 @@ interaction semantics; record actual dimensions and anchors separately.
 ### 3. Complete rectangle and numeric-input matrix
 
 - Diagonal rectangles: all four drag quadrants, width then height and reverse
-  sequence, first-corner preservation, reselection, save/reopen, undo/redo.
+  sequence, native anchor preservation, reselection, save/reopen, undo/redo.
+  September8 paired evidence corrects the earlier first-corner assumption:
+  sampled diagonal numeric edits preserve normalized lower-left bounds.
 - Center rectangles: both axis-edit orders and center preservation.
 - Three-point rectangles: opposite baseline directions/slopes, each dimension,
   reselection/reload, and interaction with explicit constraints.

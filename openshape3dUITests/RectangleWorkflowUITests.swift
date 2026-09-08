@@ -72,10 +72,12 @@ final class RectangleWorkflowUITests: XCTestCase {
         attach(app, "gallery-redo-restored-profile")
     }
 
-    func testDiagonalWidthEditKeepsProfileNearFirstCorner() throws {
+    func testReverseDiagonalWidthEditKeepsProfileAtLeftSide() throws {
         let app = start()
         type(app, "diagonal")
-        p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.60))
+        // Reverse drag distinguishes native's left-side anchor from the old
+        // first-corner assumption (which incorrectly held the right edge).
+        p(app, 0.65, 0.60).press(forDuration: 0.15, thenDragTo: p(app, 0.35, 0.35))
         let field = app.textFields["DimensionField"].firstMatch
         XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
         XCTAssertFalse(field.exists, "Rectangle release must not open the keypad")
@@ -94,13 +96,13 @@ final class RectangleWorkflowUITests: XCTestCase {
         let half = String(format: "%.4f", original / 2)
         for c in half { app.buttons["Keypad-\(c)"].tap() }
         app.buttons["KeypadCommit"].tap()
-        attach(app, "diagonal-half-width-first-corner")
+        attach(app, "reverse-diagonal-half-width-left-side")
         app.buttons["Exit Sketching"].tap()
-        // Inside the resized rectangle near the first corner. A center-based
-        // shrink instead starts at x=.425, leaving this point outside.
+        // Inside the resized rectangle near the left side. Center-based or
+        // first-corner/right-anchored shrinking leaves this point outside.
         p(app, 0.39, 0.47).tap()
         XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3),
-                      "Width editing must preserve the first corner, not the center")
+                      "Reverse-drag width editing must preserve the left side")
     }
 
 
