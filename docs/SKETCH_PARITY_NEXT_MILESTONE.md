@@ -15,6 +15,17 @@ reference pair. Record version, build revision, input, plane, orientation,
 settings, and project state. Differences in scale are acceptable when comparing
 interaction semantics; record actual dimensions and anchors separately.
 
+## Blocking on-canvas acceptance gate (Jason's subsequent steering)
+
+Line, circle, rectangle and arc UI must be compared in drawing, selected,
+unselected and numeric-edit states: label placement/style, dimension leaders and
+arrowheads, handles, selection highlights, constraint icons, and keypad
+appearance/activation/commit/cancel. Geometry-only passes do not satisfy this
+gate. The agent identifies visible mismatches from paired screenshots; Jason is
+not required to catalog them. Native macOS versus simulator scaling differences
+must be recorded, not used to claim exact matching. Known visual differences
+remain blocking until corrected or explicitly accepted by Jason.
+
 ## Ordered execution
 
 ### 1. Recover baseline and resolve history uncertainty

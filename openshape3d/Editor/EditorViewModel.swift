@@ -10754,6 +10754,10 @@ final class EditorViewModel {
         let worldAnchor: SIMD3<Double>
         let worldStart: SIMD3<Double>
         let worldEnd: SIMD3<Double>
+        // Arc sweep annotations follow the actual sweep, including major arcs.
+        // World points keep the leader aligned when the camera/plane changes.
+        var worldArcCenter: SIMD3<Double>? = nil
+        var worldArcPoints: [SIMD3<Double>] = []
     }
 
     /// In-flight inline edit of a dimension field (the candidate or an existing
@@ -11082,13 +11086,25 @@ final class EditorViewModel {
             default:
                 text = unit.compactLengthString(fromMM: value)
             }
-            return SketchDimensionLabel(
+            var label = SketchDimensionLabel(
                 id: id, sketchID: sketch.id, dimensionID: dimensionID, kind: kind, refs: refs,
                 displayValue: value, text: text,
                 worldAnchor: sketch.plane.toWorld(g.anchor),
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            if kind == .angle, refs.count == 1,
+               case let .arc(_, center, radius, start, end)? =
+                    sketchEntity(refs[0].entityID, in: sketch) {
+                let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+                let count = max(8, Int(ceil(sweep / (.pi / 64))))
+                label.worldArcCenter = sketch.plane.toWorld(center)
+                label.worldArcPoints = (0...count).map { index in
+                    let angle = start + sweep * Double(index) / Double(count)
+                    return sketch.plane.toWorld(center + SIMD2(cos(angle), sin(angle)) * radius)
+                }
+            }
+            return label
         }
 
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions) {

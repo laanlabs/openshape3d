@@ -625,3 +625,13 @@ Publication: existing master roadmap now6 embedded PNGs, including both polygon
 reopen captures verified by exact SHA256 in anonymous DOCX export. Historical
 heading inspected intact. master-polygon-publication.json/master-polygon.docx
 retained locally. Original illustrated tab remains unsynced76; not conflated.
+
+### September8: arc sweep on-canvas annotation
+
+Replaced arc-only dashed endpoint chord with curved sweep leader, radial
+extensions, arrowheads and plain tangent-aligned angle text. Native180/90/270
+paired evidence; intermediate leader live all three, final text live180/270.
+Two successive clean1/1 focused UI runs, not a combined suite. No solver/storage
+change. Selection color, blue manipulation ring, radius leader and other-shape
+annotation mismatches remain blocking.
+[Receipt](testing/sketch-parity-arc-annotation-2026-09-08.md).

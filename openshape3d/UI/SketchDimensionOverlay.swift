@@ -122,13 +122,32 @@ struct SketchDimensionOverlay: View {
         if let anchor = project(label.worldAnchor),
            let start = project(label.worldStart),
            let end = project(label.worldEnd) {
-            // Thin annotation line between the reference points.
-            Path { path in
-                path.move(to: start)
-                path.addLine(to: end)
+            let arc = arcLeader(label)
+            if let arc {
+                Path { path in
+                    path.addLines(arc.points)
+                    path.move(to: start)
+                    path.addLine(to: arc.points[0])
+                    path.move(to: end)
+                    path.addLine(to: arc.points[arc.points.count - 1])
+                }
+                .stroke(Color.primary, lineWidth: 1)
+                .allowsHitTesting(false)
+                Path { path in
+                    addArrow(to: &path, tip: arc.points[0], toward: arc.points[1])
+                    addArrow(to: &path, tip: arc.points[arc.points.count - 1],
+                             toward: arc.points[arc.points.count - 2])
+                }
+                .fill(Color.primary)
+                .allowsHitTesting(false)
+            } else {
+                Path { path in
+                    path.move(to: start)
+                    path.addLine(to: end)
+                }
+                .stroke(Color.blue.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .allowsHitTesting(false)
             }
-            .stroke(Color.blue.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
-            .allowsHitTesting(false)
 
             if viewModel.editingDimension?.labelID == label.id {
                 // Being edited: the leader line above still draws, but the
@@ -145,6 +164,15 @@ struct SketchDimensionOverlay: View {
                 Button {
                     viewModel.beginDimensionEdit(label)
                 } label: {
+                    if let arc {
+                        Text(label.displayValue.formatted(.number.precision(.fractionLength(0...2))) + "°")
+                            .font(.system(size: 16))
+                            .monospacedDigit()
+                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .rotationEffect(.radians(arc.rotation))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    } else {
                     Text(label.text)
                         .font(.caption.weight(.semibold))
                         .monospacedDigit()
@@ -165,13 +193,52 @@ struct SketchDimensionOverlay: View {
                         // a real hit region, including its padded corners.
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
+                    }
                 }
                 .buttonStyle(.plain)
-                .position(clearOfGizmo(anchor, along: start, end))
+                .position(arc?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
             }
         }
+    }
+
+    /// Native sweep leaders sit outside the arc with radial extensions and
+    /// inward-facing arrowheads, rather than joining the endpoints by a chord.
+    private func arcLeader(_ label: EditorViewModel.SketchDimensionLabel)
+        -> (points: [CGPoint], anchor: CGPoint, rotation: Double)? {
+        guard let worldCenter = label.worldArcCenter,
+              let center = project(worldCenter), label.worldArcPoints.count > 2 else { return nil }
+        let projected = label.worldArcPoints.compactMap(project)
+        guard projected.count == label.worldArcPoints.count else { return nil }
+        func offset(_ point: CGPoint, by distance: CGFloat) -> CGPoint {
+            let dx = point.x - center.x, dy = point.y - center.y
+            let length = hypot(dx, dy)
+            guard length > 0.001 else { return point }
+            return CGPoint(x: point.x + dx / length * distance,
+                           y: point.y + dy / length * distance)
+        }
+        let middle = projected.count / 2
+        let before = projected[middle - 1], after = projected[middle + 1]
+        var rotation = atan2(Double(after.y - before.y), Double(after.x - before.x))
+        // Follow the tangent while keeping text upright on either half of a turn.
+        if rotation > .pi / 2 { rotation -= .pi }
+        if rotation < -.pi / 2 { rotation += .pi }
+        return (projected.map { offset($0, by: 60) },
+                offset(projected[middle], by: 40), rotation)
+    }
+
+    private func addArrow(to path: inout Path, tip: CGPoint, toward point: CGPoint) {
+        let dx = point.x - tip.x, dy = point.y - tip.y
+        let length = hypot(dx, dy)
+        guard length > 0.001 else { return }
+        let x = dx / length, y = dy / length
+        path.move(to: tip)
+        path.addLine(to: CGPoint(x: tip.x + x * 12 - y * 3,
+                                y: tip.y + y * 12 + x * 3))
+        path.addLine(to: CGPoint(x: tip.x + x * 12 + y * 3,
+                                y: tip.y + y * 12 - x * 3))
+        path.closeSubpath()
     }
 
     private func project(_ world: SIMD3<Double>) -> CGPoint? {
