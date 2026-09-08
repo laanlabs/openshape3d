@@ -36,6 +36,12 @@ Both apps were operated live after desktop unlock. [Paired workflow receipt](tes
 
 New axis-aligned rectangles now retain center/first-corner intent through save/reload and creation undo/redo. Direct diagonal width/height edits prefer the original corner; explicit constraints override that preference if incompatible. Legacy rectangles keep their previous behavior. [Anchor implementation and verification](testing/sketch-parity-rectangle-anchors-2026-09-07.md). The combined run passed 19 tests (11 unit + 8 UI), with no failures or skips; fresh live sign-off remains pending unlock.
 
+## Evening paired recheck and numeric-input corrections in progress
+
+[Live recheck receipt](testing/sketch-parity-live-recheck-2026-09-07.md): paired horizontal line-release/readout and down/right diagonal half-width anchor cases match. Native center half-height retained its center; clone height editing exposed a keypad/constraint-rail obstruction before center sign-off. Rectangle automatic keypad and seeded-value append mismatch also confirmed live.
+
+Corrections implemented and tested: axis-aligned rectangle readouts without auto-keypad, selected initial numeric value, full-editor placement clear of side chrome. Combined regression 18/20 passed; both failing inferred-tap tests passed with explicit visible-center taps matching the live input (20 distinct checks across runs, not one clean combined run). Fresh live clone center height then width edits preserve the center and the keypad clears the rail; paired native center sizing also preserves the center. All directions, compact/landscape/left-handed/system-keyboard and Pencil remain open. Illustrated Google Doc contains both interim findings and post-fix addendum; local receipt tracks image export verification.
+
 ## Verification
 
 - Second batch: **60 distinct tests verified** across combined regression (58/60 passed) and final targeted correction (9/9 passed, including both repaired failures). This is not one clean combined run; see [second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).
@@ -79,7 +85,7 @@ Acceptance: All basic tools are discoverable by the same vocabulary, and overflo
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
-Next: Verify the new persisted diagonal anchors live and complete two-axis numeric placement; A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
+Next: Extend paired diagonal anchor coverage beyond the tested down/right width case and complete three-point height / two-axis placement; axis-aligned sequential badge edits and center preservation were live-compared. A/B physical Pencil/mouse and external auto-relations. Subtypes, previews, internal rectangular constraints and ordinary-entity persistence are implemented.
 
 Acceptance: Center stays fixed when sizing a center rectangle; diagonal uses its first corner; three-point uses the chosen baseline and perpendicular height. Undo removes one complete rectangle.
 
@@ -115,11 +121,11 @@ Acceptance: Zoom does not unexpectedly close a different segment or make endpoin
 
 ### SK-07 · Sketch entry preserves oblique view; normalize entry behavior
 
-**Queued — verify first** · P1
+**Implemented for plane entry; ground workflow live-compared, matrix open** · P1
 
-Evidence: VERIFY — candidate discrepancy, not reproduced
+Evidence: Morning paired oblique-entry defect; automatic alignment implemented in `6e37943`. Evening settled ground-entry/re-entry paired captures verify the tested case.
 
-Next: Write a per-entry-method camera contract and implement only observed deviations. Show selected plane and orientation during entry.
+Next: Complete non-ground planes and entry-method camera comparison; do not generalize the ground result to the whole matrix.
 
 Acceptance: Each entry recipe has repeatable camera behavior; user can reach a normal view without losing geometry; docs match the actual contract.
 

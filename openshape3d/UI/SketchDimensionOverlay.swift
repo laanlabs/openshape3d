@@ -14,6 +14,7 @@ import SwiftUI
 
 struct SketchDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
+    @State private var editorSize = CGSize(width: 280, height: 250)
 
     var body: some View {
         // Reproject whenever the camera moves.
@@ -50,7 +51,9 @@ struct SketchDimensionOverlay: View {
                     $0.id == viewModel.editingDimension?.labelID
                 }), let anchor = project(editing.worldAnchor) {
                     DimensionField(viewModel: viewModel)
-                        .position(MoveDistanceOverlay.clearOfKeyboard(anchor, in: geo.size))
+                        .id(viewModel.editingDimension?.sessionID)
+                        .onGeometryChange(for: CGSize.self) { $0.size } action: { editorSize = $0 }
+                        .position(editorPosition(anchor, in: geo.size))
                 }
             }
             }
@@ -60,6 +63,24 @@ struct SketchDimensionOverlay: View {
             // below the geometry it annotates.
             .ignoresSafeArea()
         }
+    }
+
+    /// Fit the entire editor between the drawing palette and constraint rail,
+    /// not just its anchor. The old keyboard-era clamp hid the pad behind the
+    /// rail and pulled bottom dimensions to the upper half of the canvas.
+    private func editorPosition(_ anchor: CGPoint, in size: CGSize) -> CGPoint {
+        let palette: CGFloat = 96
+        let rail: CGFloat = viewModel.mode.isSketching ? 184 : 16
+        let left = AppSettings.shared.paletteOnRight ? rail : palette
+        let right = AppSettings.shared.paletteOnRight ? palette : rail
+        func fit(_ value: CGFloat, low: CGFloat, high: CGFloat) -> CGFloat {
+            high >= low ? min(max(value, low), high) : (low + high) / 2
+        }
+        return CGPoint(
+            x: fit(anchor.x, low: left + editorSize.width / 2,
+                   high: size.width - right - editorSize.width / 2),
+            y: fit(anchor.y, low: 170 + editorSize.height / 2,
+                   high: size.height - 110 - editorSize.height / 2))
     }
 
     /// Keep dimension badges clear of selected geometry's central control
@@ -194,6 +215,7 @@ private struct DimensionField: View {
     /// relaunch onto the gallery. (The swallowed keypad taps that first sent me
     /// to a model-backed binding were `contentShape`, not state.)
     @State private var text: String = ""
+    @State private var initialValueSelected = true
 
     var body: some View {
         content
@@ -216,6 +238,7 @@ private struct DimensionField: View {
                 NumericKeypad(
                     text: $text,
                     isLocked: viewModel.dimensionCommitLocked,
+                    initialValueSelected: $initialValueSelected,
                     onToggleLock: { viewModel.dimensionCommitLocked.toggle() },
                     onCommit: { viewModel.commitDimensionEdit(text) },
                     onSwitchToSystemKeyboard: {

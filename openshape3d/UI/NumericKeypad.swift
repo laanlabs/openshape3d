@@ -20,6 +20,9 @@ struct NumericKeypad: View {
     /// Whether committing should leave a driving dimension behind. Nil hides
     /// the lock key for fields where the idea means nothing.
     var isLocked: Bool?
+    /// Dimension fields start with their measured value selected. Other
+    /// numeric consumers retain append behavior unless they opt in.
+    var initialValueSelected: Binding<Bool> = .constant(false)
     var onToggleLock: () -> Void = {}
     var onCommit: () -> Void
     /// Shown as the keyboard key; nil hides it (no system keyboard to fall to).
@@ -175,11 +178,17 @@ struct NumericKeypad: View {
     /// binding's setter — while `text = text + token` does. `backspace` and
     /// `appendUnit` already assigned, which is why the delete and unit keys
     /// worked while every digit was swallowed.
-    private func append(_ token: String) { text = text + token }
+    private func append(_ token: String) {
+        let replaces = initialValueSelected.wrappedValue &&
+            (token.first?.isNumber == true || token == "." || token == "(")
+        initialValueSelected.wrappedValue = false
+        text = replaces ? token : text + token
+    }
 
     /// A unit belongs at the END of the expression, and there can only be one —
     /// tapping mm then cm should read "cm", not "mm cm".
     private func appendUnit(_ unit: String) {
+        initialValueSelected.wrappedValue = false
         var base = text
         if let existing = Self.trailingUnit(in: base) {
             base = String(base.dropLast(existing.count))
@@ -190,10 +199,16 @@ struct NumericKeypad: View {
 
     /// Negate rather than blindly prepending "-", so ± is its own inverse.
     private func toggleSign() {
+        initialValueSelected.wrappedValue = false
         if text.hasPrefix("-") { text = String(text.dropFirst()) } else { text = "-" + text }
     }
 
     private func backspace() {
+        if initialValueSelected.wrappedValue {
+            initialValueSelected.wrappedValue = false
+            text = ""
+            return
+        }
         guard !text.isEmpty else { return }
         // A unit reads as one key, so one tap removes the whole suffix.
         if let unit = Self.trailingUnit(in: text) {

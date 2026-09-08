@@ -37,6 +37,15 @@ final class RectangleWorkflowUITests: XCTestCase {
         type(app, "diagonal")
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.60))
         let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(field.exists, "Rectangle release must not open the keypad")
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 2)
+        attach(app, "diagonal-before-badge-tap")
+        // Use the visible badge center, matching the paired Peekaboo input;
+        // XCTest's inferred hit point can select an overlapping canvas point.
+        app.buttons["DimensionLabel"].firstMatch.coordinate(
+            withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        attach(app, "diagonal-after-badge-tap")
         XCTAssertTrue(field.waitForExistence(timeout: 3))
         let original = try XCTUnwrap(Double((field.value as? String) ?? ""))
         for _ in 0..<24 where !((field.value as? String) ?? "").isEmpty {
@@ -54,11 +63,42 @@ final class RectangleWorkflowUITests: XCTestCase {
                       "Width editing must preserve the first corner, not the center")
     }
 
+
+    func testRightSideHeightKeypadIsReachableAndReplacesSeed() throws {
+        let app = start()
+        type(app, "center")
+        p(app, 0.68, 0.76).press(forDuration: 0.15, thenDragTo: p(app, 0.78, 0.82))
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        let height = try XCTUnwrap(labels.allElementsBoundByIndex.max { $0.frame.midX < $1.frame.midX })
+        attach(app, "height-before-badge-tap")
+        height.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        attach(app, "height-after-badge-tap")
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let commit = app.buttons["KeypadCommit"]
+        XCTAssertTrue(commit.isHittable)
+        let rail = app.buttons["ConstraintRail-Horizontal"]
+        if rail.exists { XCTAssertFalse(commit.frame.intersects(rail.frame)) }
+        // A first digit replaces the measurement, then subsequent digits append.
+        app.buttons["Keypad-1"].tap()
+        XCTAssertEqual(field.value as? String, "1")
+        app.buttons["Keypad-."] .tap()
+        app.buttons["Keypad-5"].tap()
+        XCTAssertEqual(field.value as? String, "1.5")
+        attach(app, "right-height-keypad-clear-of-rail")
+        commit.tap()
+        XCTAssertFalse(field.exists)
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1.5 mm'")).firstMatch.waitForExistence(timeout: 3))
+    }
+
     func testCenterRectangleExtendsAcrossItsStartingPoint() {
         let app = start()
         type(app, "center")
         p(app, 0.52, 0.48).press(forDuration: 0.15, thenDragTo: p(app, 0.66, 0.60))
-        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
         attach(app, "center-rectangle")
         app.buttons["Exit Sketching"].tap()
         // This is inside the reflected quadrant, not a diagonal rectangle

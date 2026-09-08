@@ -7928,7 +7928,6 @@ final class EditorViewModel {
                 clearRectanglePlacement()
                 selectedSketchEntityIDs = [entity.id]
                 selectedSketchPoints.removeAll()
-                beginDimensionForSelection()
             }
         } else {
             selectedSketchEntityIDs.removeAll()
@@ -9715,13 +9714,13 @@ final class EditorViewModel {
         }
         commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
         if tool == .rect { clearRectanglePlacement() }
-        // Typed size on lift-off (bug report 5ef841c2 — Shapr3D's manual
-        // input field): a freshly drawn circle, rectangle or polygon is
-        // selected and its dimension label opens as a field, so "30 ⏎" sizes
-        // it without a second tap. Drawing again simply dismisses the field.
+        // Paired native recheck: rectangles retain both size badges on
+        // release; the keypad opens only after an explicit dimension tap.
+        // Circle/polygon behavior is unchanged pending its own reference check.
         if tool == .circle || tool == .rect || tool == .polygon {
             selectedSketchEntityIDs = [entity.id]
-            beginDimensionForSelection()
+            selectedSketchPoints.removeAll()
+            if tool != .rect { beginDimensionForSelection() }
         }
         if tool == .line {
             let first = chainStart ?? start
@@ -10744,6 +10743,7 @@ final class EditorViewModel {
     /// In-flight inline edit of a dimension field (the candidate or an existing
     /// dimension). Non-nil while the numeric field is open in the overlay.
     struct DimensionEdit: Equatable {
+        var sessionID = UUID()
         var labelID: String
         var dimensionID: UUID?
         var kind: DimensionKind
