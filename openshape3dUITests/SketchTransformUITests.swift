@@ -11,6 +11,13 @@ import XCTest
 
 final class SketchTransformUITests: XCTestCase {
 
+    private func attach(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
@@ -46,10 +53,16 @@ final class SketchTransformUITests: XCTestCase {
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing lines should push undoable commands")
 
-        // Select both lines (tap + tap toggles each into the selection).
-        point(0.50, 0.42).tap()
+        // Drawing tools own canvas input until explicitly toggled off.
+        tapPaletteTool(app, group: "Sketch", label: "Line")
         sleep(1)
-        point(0.50, 0.58).tap()
+        // Release retains the newest line selection. Clear it first, then
+        // select each body away from the midpoint constraint glyph.
+        point(0.75, 0.70).tap()
+        sleep(1)
+        point(0.40, 0.42).tap()
+        sleep(1)
+        point(0.40, 0.58).tap()
         sleep(1)
 
         // The sketch Copy chip riding the selection proves the gizmo state
@@ -57,6 +70,7 @@ final class SketchTransformUITests: XCTestCase {
         XCTAssertTrue(app.buttons["SketchCopyBadge"].waitForExistence(timeout: 3),
                       "Selecting sketch entities should show the sketch Copy chip")
 
+        attach(app, "two-lines-before-move")
         // Drag the move handle at the selection centroid: both lines
         // translate in ONE coalesced undo step.
         point(0.50, 0.50).press(
@@ -67,6 +81,7 @@ final class SketchTransformUITests: XCTestCase {
         )
         sleep(1)
 
+        attach(app, "two-lines-after-move")
         // Exactly three undo steps: line A, line B, gizmo move.
         for step in 1...3 {
             XCTAssertTrue(undo.isEnabled, "Undo step \(step) should be available")

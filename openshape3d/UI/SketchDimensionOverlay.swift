@@ -331,7 +331,9 @@ struct SketchDimensionOverlay: View {
         if rotation > .pi / 2 { rotation -= .pi }
         if rotation < -.pi / 2 { rotation += .pi }
         return (projected.map { offset($0, by: 60) },
-                offset(projected[middle], by: 40), rotation)
+                // Keep the angle's touch target beyond the radial handle. Native's
+                // sampled semicircle puts its angle text outside the leader.
+                offset(projected[middle], by: viewModel.selectedSingleArc != nil ? 80 : 40), rotation)
     }
 
     private func addArrow(to path: inout Path, tip: CGPoint, toward point: CGPoint) {

@@ -948,6 +948,11 @@ struct EditorView: View {
                 SketchDimensionOverlay(viewModel: viewModel)
             }
             .overlay {
+                SketchRadialHandleOverlay(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            }
+            .overlay {
                 // Per-point DOF markers: blue hollow = free, green =
                 // constrained, blue square = locked. Non-interactive (plan §C4).
                 SketchPointStateOverlay(viewModel: viewModel)
@@ -1090,7 +1095,17 @@ struct EditorView: View {
                           !viewModel.selectedSketchEntityIDs.isEmpty {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
+                    HStack {
+                    if viewModel.selectedSingleArc != nil {
+                        Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
+                            viewModel.sketchTransformActive.toggle()
+                        }
+                        .buttonStyle(.bordered)
+                        .background(.regularMaterial, in: Capsule())
+                        .accessibilityIdentifier("SketchTransformMode")
+                    }
                     Button {
+                        if viewModel.selectedSingleArc != nil { viewModel.sketchTransformActive = true }
                         viewModel.sketchCopyOnDrag.toggle()
                     } label: {
                         Label("Copy", systemImage: "plus.square.on.square")
@@ -1100,6 +1115,8 @@ struct EditorView: View {
                     .tint(viewModel.sketchCopyOnDrag ? Color.blue : Color.secondary)
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityIdentifier("SketchCopyBadge")
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
                 } else if viewModel.sectionState != nil {

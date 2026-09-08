@@ -90,6 +90,18 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(angle.waitForExistence(timeout: 3))
         XCTAssertTrue(radius.exists)
         let beforeAngle = angle.label
+        let undrivenRadius = radius.label
+        let handle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let grab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
+        sleep(1)
+        XCTAssertNotEqual(radius.label, undrivenRadius)
+        XCTAssertEqual(angle.label, beforeAngle)
+        attach(app, "arc-radial-handle-resize")
+        app.buttons["UndoButton"].tap()
+        sleep(1)
+        XCTAssertEqual(radius.label, undrivenRadius)
         radius.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
         app.buttons["Keypad-2"].tap()
@@ -99,6 +111,15 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(radius.label.contains("2"))
         attach(app, "arc-radius-two-sweep-retained")
         let beforeRadius = radius.label
+        let drivenGrab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        drivenGrab.press(forDuration: 0.15, thenDragTo: drivenGrab.withOffset(CGVector(dx: 0, dy: -40)))
+        XCTAssertEqual(radius.label, beforeRadius)
+        XCTAssertTrue(app.staticTexts["Locked or constrained sketch parts can't be moved."].exists)
+        let transformMode = app.buttons["SketchTransformMode"]
+        transformMode.tap()
+        XCTAssertFalse(handle.exists)
+        transformMode.tap()
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
         angle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
         app.buttons["Keypad-9"].tap(); app.buttons["Keypad-0"].tap()

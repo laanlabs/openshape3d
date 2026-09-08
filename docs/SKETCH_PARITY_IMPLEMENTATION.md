@@ -674,3 +674,15 @@ strengthened arc UI1/1: radius entry plus sweep/history/fullturn. Master20
 images export-verified. Native clears selection after commit, clone retains;
 blue full ring, arbitrary annotation placement and input-delivery anomalies
 remain open. [Receipt](testing/sketch-parity-radius-leader-2026-09-08.md).
+
+### September 8 — selected single-arc radial control
+
+Default white radial handle replaces the full blue transform ring for a single
+arc. Explicit Move/Rotate retains rotation; saved driving constraints take
+priority over radial intent. Paired free/driven behavior, clone Undo/Redo and
+final resize/rotation/gallery reopen captured. Two unit and two distinct UI
+checks passed across initial/targeted runs, not one combined clean run. Final
+blocked-drag notice is automated-verified; Copy-mode interaction and full
+transform styling remain open. Master export verifies25 embedded images,
+including exact corrected resize and paired reopen PNGs. No candidate claim.
+[Receipt](testing/sketch-parity-radial-handle-2026-09-08.md).

@@ -954,7 +954,8 @@ final class EditorViewModel {
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if mode.sketchTool == nil, let centroid = sketchSelectionCentroid {
+            if mode.sketchTool == nil, selectedSingleArc == nil || sketchTransformActive,
+               let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
                     color: manipulationColor
@@ -8103,7 +8104,14 @@ final class EditorViewModel {
 
     /// Selected entities of the active sketch (accent highlight; palette
     /// Delete removes them).
-    var selectedSketchEntityIDs: Set<UUID> = []
+    var selectedSketchEntityIDs: Set<UUID> = [] {
+        didSet {
+            if oldValue != selectedSketchEntityIDs {
+                sketchTransformActive = false
+                sketchRadialDrag = nil
+            }
+        }
+    }
 
     /// A selected model point (endpoint/center) on a sketch entity, addressed
     /// by the role the constraint solver understands (plan §C3).
@@ -8166,6 +8174,58 @@ final class EditorViewModel {
     /// Copy chip while sketching (spec §1.10): the next gizmo drag
     /// moves/rotates duplicates of the selection. Resets after each drag.
     var sketchCopyOnDrag = false
+    var sketchTransformActive = false
+
+    var selectedSingleArc: SketchEntity? {
+        guard mode.isSketching, mode.sketchTool == nil,
+              selectedSketchEntityIDs.count == 1,
+              let entity = activeSketch?.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }),
+              case .arc = entity else { return nil }
+        return entity
+    }
+
+    private struct SketchRadialDragState {
+        var sketch: Sketch
+        var entityID: UUID
+        var radius: Double
+        var pushed = false
+        var showedBlockedNotice = false
+    }
+    private var sketchRadialDrag: SketchRadialDragState?
+
+    func updateArcRadiusDrag(delta: Double) {
+        if sketchRadialDrag == nil {
+            guard let sketch = activeSketch,
+                  case let .arc(id, _, radius, _, _)? = selectedSingleArc else { return }
+            editingDimension = nil
+            sketchRadialDrag = .init(sketch: sketch, entityID: id, radius: radius)
+        }
+        guard var drag = sketchRadialDrag else { return }
+        guard let entities = SketchRadialDrag.solve(drag.sketch, entityID: drag.entityID,
+                  radius: max(1e-3 + 1e-8, drag.radius + delta)) else {
+            if !drag.showedBlockedNotice, abs(delta) > 1e-6 {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchRadialDrag = drag
+            }
+            return
+        }
+        guard entities != drag.sketch.entities || drag.pushed else { return }
+        let command = UpdateSketchEntitiesCommand(sketchID: drag.sketch.id,
+            before: drag.sketch.entities, after: entities)
+        if drag.pushed { session.amend(command) }
+        else { session.perform(command); drag.pushed = true }
+        sketchRadialDrag = drag
+    }
+
+    func endArcRadiusDrag() {
+        if let drag = sketchRadialDrag, drag.pushed {
+            session.rebuildForSketchChange(drag.sketch.id)
+            session.save()
+        }
+        sketchRadialDrag = nil
+    }
+
 
     private enum SketchGizmoDragKind { case move, rotate }
 
@@ -8245,6 +8305,7 @@ final class EditorViewModel {
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
     private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
+        guard selectedSingleArc == nil || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
               let centroid = sketchSelectionCentroid,
@@ -9416,6 +9477,8 @@ final class EditorViewModel {
         sketchEntityDrag = nil
         sketchGizmoDrag = nil
         sketchCopyOnDrag = false
+        sketchTransformActive = false
+        sketchRadialDrag = nil
         sketchSolveConflict = false
         sketchConflictAttribution = .init()
         selectedSketchEntityIDs.removeAll()
