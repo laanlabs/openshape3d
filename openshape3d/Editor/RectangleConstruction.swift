@@ -91,6 +91,22 @@ nonisolated enum RectangleConstruction {
         return dimensionEdges(in: lines.filter { ids.contains($0.id) })
     }
 
+    /// Baseline sizing preserves the lower adjacent side in sketch coordinates,
+    /// independent of construction direction. Horizontal ties keep the left side.
+    /// This is a transient solve preference, never a saved fixed constraint.
+    static func baselineAnchor(containing id: UUID, in entities: [SketchEntity]) -> UUID? {
+        guard let loop = dimensionEdges(containing: id, in: entities),
+              id == loop[0] || id == loop[2] else { return nil }
+        let sides = [loop[1], loop[3]].compactMap { sideID -> (UUID, SIMD2<Double>)? in
+            guard let entity = entities.first(where: { $0.id == sideID }),
+                  case let .line(_, a, b) = entity else { return nil }
+            return (sideID, (a + b) / 2)
+        }
+        return sides.min {
+            abs($0.1.y - $1.1.y) > 1e-7 ? $0.1.y < $1.1.y : $0.1.x < $1.1.x
+        }?.0
+    }
+
     static func constraints(for edges: [SketchEntity]) -> [SketchConstraint] {
         guard edges.count == 4 else { return [] }
         func whole(_ i: Int) -> ConstraintRef { .init(entityID: edges[i].id, role: .whole) }

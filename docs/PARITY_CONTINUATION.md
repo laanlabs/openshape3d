@@ -1,9 +1,23 @@
 # Parity continuation checkpoint
 
-September8,2026 ~16:26EDT. HEAD8bf9568 pushed; threepointleadersready
-forcommit. Clean6/6 serial76327, liveoutsideleaders/bothkeypadsverified.
-NEW sequentialbaselineanchor discrepancy: nativerightheld vscloneleft.
-No tests/Peekaboo workeractive. Preexistingidentityfilesuntouched.
+September 8, 2026 approximately 16:47 EDT. HEAD b2db321 pushed.
+Dirty: RectangleConstruction.swift, EditorViewModel.swift, construction tests,
+this checkpoint and three-point leader receipt. Preexisting identity files untouched.
+Serial xcodebuild exec 72820 owns simulator: /tmp/os3d-threepoint-baseline-anchor-20260908.log
+and .xcresult. No Peekaboo interactions during tests.
+
+Native fresh samples confirm baseline holds lower adjacent side: descending
+right slope holds right even after reversing construction; ascending right
+slope holds left. Same outcome baseline-first and either parallel edge.
+Clone always first-side preference differed. Transient geometric preference
+implemented; regression and live verification pending.
+
+Exact next: collect 72820, inspect failures if any, then orient/relaunch clone
+and repeat descending-right baseline 2.565→2 keeping right endpoints.
+Also repeat opposite slope and sequential height, preserving prior constraints.
+Native Front Sketch02 has three fresh disconnected test rectangles; latest
+ascending-right is 1200×600 at (250,600)/(350,572)/(364,622)/(264,650).
+Native tool off. Tests may reset clone disposable projects.
 
 ## Verified
 
@@ -17,25 +31,6 @@ trialpromptcoordinatesdidnotdismiss; AXelem25Skipworked. No purchase.
 Fullreceipt docs/testing/sketch-parity-circle-radial-handle-2026-09-08.md.
 Earlier66cb99b arc radial and2ab1f9c Copymodefix pushed; receipts retain
 initialfailures/targetedpasses accurately.
-
-## Exact next
-
-Commit/push scopedthreepointleader correction withanchor-gapexplicit.
-Then reproduce independent threepoint height→baseline sizing in native/clone,
-comparewhich edge/ref/endpointsanchor beforechanging solver. Currentnative
-height800→400 baseline1520.2328→1200 heldrightside1035,523/1024,555;
-cloneheight1.244→1 baseline2.565→2 heldleft495,484/480,542. Priorreceipt
-claimedleftanchor fromanotheredge/sample; do notgeneralize. BothDocsblocked;
-localvisualindex updated.
-
-## Desktop
-
-Simulator2386at275,44 landscape887x736, reopenedUntitled2Front circle
-center600,300 radius60screenpx Ø2 selected, radialhandle600,221.
-Native1924at99,79 FrontSketch02 reopenedmanygeometryproject: circle
-center890,278 radius44 Ø1000 selected, upwardhandle890,217. Othercircle
-lockedØ760 andtwoarcs preserved. Inputforeground/Home causeunknown;
-explicitfocus/capture required. No unsupportedscrollforegroundflag retries.
 
 ## Publication/gate
 

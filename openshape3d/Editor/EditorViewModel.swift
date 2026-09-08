@@ -11451,10 +11451,13 @@ final class EditorViewModel {
         let preferredFarEdge: UUID?
         if edit.kind == .distance, editedIDs.count == 1, let editedID = editedIDs.first,
            let edges = RectangleConstruction.dimensionEdges(containing: editedID, in: sketch.entities) {
-            // Paired native workflow: baseline sizing keeps the left side;
+            // Paired native workflows: baseline sizing keeps the lower side;
             // height sizing keeps the far baseline. Recover the component
             // even when its single edge was reselected after creation/reload.
-            if editedID == edges[0] { preferredFarEdge = edges[3] }
+            if editedID == edges[0] || editedID == edges[2] {
+                preferredFarEdge = RectangleConstruction.baselineAnchor(
+                    containing: editedID, in: sketch.entities)
+            }
             else if editedID == edges[1] { preferredFarEdge = edges[2] }
             else { preferredFarEdge = nil }
         } else {

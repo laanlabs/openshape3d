@@ -46,6 +46,42 @@ final class RectangleConstructionTests: XCTestCase {
         XCTAssertEqual(simd_normalize(b - a).x, 4 / sqrt(17), accuracy: 1e-5)
     }
 
+    func testBaselineAnchorPreservesLowerSideAcrossSlopesDirectionsAndReload() throws {
+        for slope in [-1.0, 1.0] {
+            for reversed in [false, true] {
+                for height in [-1.0, 1.0] {
+                    let ids = (0..<4).map { _ in UUID() }
+                    let left = SIMD2<Double>(1, 2), right = SIMD2<Double>(5, 2 + slope)
+                    let a = reversed ? right : left, b = reversed ? left : right
+                    let delta = b - a
+                    let edges = RectangleConstruction.threePoint(a: a, b: b,
+                        heightPoint: b + SIMD2(-delta.y, delta.x) * height, ids: ids)
+                    let loaded = try JSONDecoder().decode([SketchEntity].self,
+                        from: JSONEncoder().encode(edges))
+                    let expected = (slope > 0) == reversed ? ids[1] : ids[3]
+                    for editedID in [ids[0], ids[2]] {
+                        let anchor = try XCTUnwrap(RectangleConstruction.baselineAnchor(
+                            containing: editedID, in: loaded))
+                        XCTAssertEqual(anchor, expected)
+                        let dim = sizeDimension(editedID, .distance, 2)
+                        let sketch = Sketch(plane: .ground, entities: loaded,
+                            constraints: RectangleConstruction.constraints(for: loaded), dimensions: [dim])
+                        let result = SketchSolverBridge.solveDimensionEdit(sketch,
+                            dimension: dim, preservingLineID: anchor)
+                        XCTAssertTrue(result.converged)
+                        XCTAssertLessThan(result.structuralResidual, 1e-5)
+                        XCTAssertEqual(result.entities.first { $0.id == anchor },
+                                       loaded.first { $0.id == anchor })
+                        let base = endpoints(result.entities[0])
+                        XCTAssertEqual(simd_length(base.1 - base.0), 2, accuracy: 1e-5)
+                        XCTAssertEqual(simd_normalize(base.1 - base.0).x,
+                                       simd_normalize(delta).x, accuracy: 1e-5)
+                    }
+                }
+            }
+        }
+    }
+
     func testThreePointHeightPreservesFarEdgeAndUndrivenLength() throws {
         for height in [-1.0, 1.0] {
             let ids = (0..<4).map { _ in UUID() }

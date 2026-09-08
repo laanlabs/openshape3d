@@ -25,3 +25,28 @@ labelsaftercommits; doubleclickedge restores relevantreadout.
 
 No tests/Peekaboo workers active. BothDocsSavingblocked; allnewthreepoint
 evidence localonly, notpublished.
+
+## Baseline-only diagnosis, approximately 16:40 EDT
+
+After undoing both numeric edits, native original 1520.2328 × 800 rectangle
+was selected with the drawing tool off. Editing its top baseline to 1200
+held right endpoints (1045,490)/(1024,555); left endpoints moved to
+(946,458)/(925,524). Undo, select the opposite bottom edge and enter 1200
+produced the same anchored result. Thus neither prior height editing nor
+which parallel edge was selected explains this sample. Clone undoing both
+edits restored 2.565 × 1.244; baseline-only 2 held left endpoints
+(500,470)/(480,542), with right endpoints moving to (617,501)/(597,573).
+Screenshots saved under rectangle-ui/os3d-anchor-*.png. No solver changes
+yet: an isolated fresh native sample remains necessary to reconcile the
+earlier left-held reference. Publication remains pending, not verified.
+
+Fresh disconnected native samples clarify the geometric rule: descending-right
+baseline 1686.5472→1200 holds right (690,220)/(676,270). Reversed draw
+direction, same slope, holds right (1050,170)/(1036,220) too. Opposite
+slope holds left (250,600)/(264,650), moving right to (350,572)/(364,622).
+Thus sampled baseline sizing holds the lower adjacent side, not the first or
+second drawn endpoint. Clone currently always preserves its first side.
+Implemented transient lower-side baseline preference, including opposite
+parallel-edge selection, with horizontal left tie-break; explicit constraints
+retain solver priority. Regression 72820 running exclusively: construction
+geometry plus two three-point UI workflows. Post-fix live repeat pending.
