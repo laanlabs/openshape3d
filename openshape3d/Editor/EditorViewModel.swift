@@ -826,11 +826,11 @@ final class EditorViewModel {
         // defined, BLUE when under-defined.
         let committedColor = SIMD4<Float>(0.15, 0.17, 0.20, 1)
         let pendingColor = SIMD4<Float>(0.20, 0.48, 0.95, 1)
-        // Selection is Shapr3D blue (matches the body accent). It has to read
-        // as DISTINCT from the under-defined blue below — both are blue in
-        // Shapr3D too — so selection is a brighter, more saturated azure while
-        // under-defined stays the calmer mid-blue.
-        let selectedColor = SIMD4<Float>(0.0, 0.60, 1.0, 1)
+        // Paired native line/arc selections are orange; under-defined geometry
+        // stays blue. Do not conflate selected edges with construction previews
+        // or the separate manipulation control.
+        let selectedColor = SIMD4<Float>(1.0, 0.60, 0.0, 1)
+        let manipulationColor = SIMD4<Float>(0.0, 0.60, 1.0, 1)
         let definedColor = Self.definedSketchColor
         let underDefinedColor = Self.underDefinedSketchColor
         // Hidden sketches are skipped — except the one being edited.
@@ -944,7 +944,7 @@ final class EditorViewModel {
                 if lineWillClose, let start = chainStart {
                     scene.sketchLines.append(SketchLineBatch(
                         segments: Self.closeLoopMarkerSegments(at: start, on: sketch.plane),
-                        color: selectedColor
+                        color: pendingColor
                     ))
                 }
             }
@@ -953,7 +953,7 @@ final class EditorViewModel {
             if mode.sketchTool == nil, let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
-                    color: selectedColor
+                    color: manipulationColor
                 ))
             }
             if mode.sketchTool == .rect,

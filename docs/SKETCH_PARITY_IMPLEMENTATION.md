@@ -635,3 +635,11 @@ Two successive clean1/1 focused UI runs, not a combined suite. No solver/storage
 change. Selection color, blue manipulation ring, radius leader and other-shape
 annotation mismatches remain blocking.
 [Receipt](testing/sketch-parity-arc-annotation-2026-09-08.md).
+
+### September8: selected sketch edge contrast
+
+Native selectedline/arc orange versus cloneazure confirmed. Selected geometry
+now orange; pending previews/manipulation controls remain separate. Build passed;
+live line/arc select-deselect restored blue withoutgeometry/valuechange. No new
+automatedtest claim for purecolor correction. Endpoint halos, ring and other
+leaders remain open. [Receipt](testing/sketch-parity-selection-highlight-2026-09-08.md).

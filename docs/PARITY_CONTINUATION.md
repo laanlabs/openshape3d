@@ -1,31 +1,28 @@
 # Parity continuation checkpoint
 
-September8,2026 12:22 EDT. HEAD7d6c100 pushed. No test/build/Peekaboo worker
-running; dedicated session owns desktop. Dirty: arc leader/text EditorViewModel,
-SketchDimensionOverlay, arc receipt, ledger, milestone visual gate and checkpoint.
-Preexisting untracked IDENTITY.md/SOUL.md/USER.md preserved, excluded.
+September8,2026 12:31 EDT. HEAD1f211e5 pushed. No active test/build/Peekaboo
+worker. Dirty selected highlight EditorViewModel, receipt, ledger and checkpoint.
+Preexisting IDENTITY.md/SOUL.md/USER.md excluded.
 
-## Last verified result / exact next action
+## Last verified / next action
 
-Arc curved leader with arrows/extensions and plain tangent text: successive clean
-1/1 UI runs at /tmp/os3d-arc-annotation-20260908.xcresult and
-/tmp/os3d-arc-annotation-text-20260908.xcresult. Intermediate live180/90/270 leader;
-final live180/270 text/keypad. Radius/center/crossing line retained. Native fresh
-180/90/270 reference captured. Master9 embeddedimages exported/hashverified,
-including reference/pre-fix/final270. Commit/push scoped annotation correction,
-then paired selection highlight and manipulation-control diagnosis. Full visual
-parity remains blocking; no candidate-ready or physical-install claim.
-Tested binary SHA256 e817689f2b21750633a1540d8ed2a74f61561c77be266b80551676e9dfd65637.
+Selected line/arc orange now matches native; deselect returns blue, same persisted
+geometry and values. Build passed; purecolor change verified live, no newtestclaim.
+Master10images exported/hashverified including correctedarc. Commit/push color
+correction then paired linear/radius leader and manipulation-control diagnosis.
+Arc correction1f211e5 previously successive focused1/1passes, live180/90/270
+leader and final180/270 plain tangenttext. Full oncanvas gate remains blocking.
 
 ## Desktop state
 
-Simulator window2386 at275,44 landscape887×736. FreshUntitled2 Top arc270,
-center549349 R0.993, start489349 end549289, crossingline469–630y349.
-Arc selected, plain angle text at~608407, no keypad. Blue full rotate ring and
-center diamond remain visual gaps. Tests reset prior disposable polygon projects.
-Native window1924 at99,79 1293×743 FrontSketch02 arc270 center750299R100,
-selected orange; black curved leader/plain270, no keypad. Prior pentagonal solid
-and othergeometry retained. Clicks windowrelative; dragglobal. No workers.
+Simulator window2386 at275,44 landscape887×736. ReopenedUntitled2 TopSketch1
+arc270center549349R0.993,start489349,end549289, crossingline469–630y3492.664.
+Arc selectedorange, noeditor. Fullblue ring/diamond stillpresent. Native Front
+Sketch02 selected900line425–543y563orange; arc270center750299R100 unchanged.
+Itemsbutton663118; sketchrow name is renamefield, clickicon692223 to open sketch.
+Viewsbutton556118 (previously misidentified asItems; not inputfailure).
+Nativewindow1924at99,79. Clickswindowrelative/dragglobal. No worker.
+Tested/live simulatorbinary3766a8237a3ea906d7b718cf293166e4a20c238ea1d21aa95b6faeea3e5125f4.
 
 ## Publication and remaining gate
 
