@@ -53,9 +53,9 @@ struct SketchConstraintRail: View {
                 .accessibilityIdentifier("ConstraintRailSettings")
             }
             ForEach(common) { action in
-                Button { viewModel.applyConstraint(action.kind) } label: {
+                Button { perform(action) } label: {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(action.title).font(.caption.weight(.semibold))
+                        Text(title(action)).font(.caption.weight(.semibold))
                         if !viewModel.canApplyConstraint(action.kind) {
                             Text(action.prerequisite).font(.caption2).foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -98,8 +98,17 @@ struct SketchConstraintRail: View {
         .accessibilityIdentifier("ConstraintRailMenu")
     }
 
+    private func title(_ action: Action) -> String {
+        action.kind == .fixed && viewModel.canUnlockSketchSelection ? "Unlock" : action.title
+    }
+
+    private func perform(_ action: Action) {
+        if action.kind == .fixed { viewModel.toggleSketchSelectionLock() }
+        else { viewModel.applyConstraint(action.kind) }
+    }
+
     private func menuAction(_ action: Action) -> some View {
-        Button(action.title) { viewModel.applyConstraint(action.kind) }
+        Button(title(action)) { perform(action) }
             .disabled(!viewModel.canApplyConstraint(action.kind))
             .accessibilityHint(action.prerequisite)
     }

@@ -10562,6 +10562,37 @@ final class EditorViewModel {
         }
     }
 
+    /// Only explicit locks on the selected operands are removable here. A
+    /// rectangle's other side (or an unrelated operand in a multi-ref Lock)
+    /// must not be unlocked as a side effect.
+    var canUnlockSketchSelection: Bool {
+        guard let sketch = activeSketch,
+              let refs = constraintRefs(for: .fixed, in: sketch), !refs.isEmpty else { return false }
+        return refs.allSatisfy { ref in
+            sketch.constraints.contains { $0.kind == .fixed && $0.refs.contains(ref) }
+        }
+    }
+
+    func toggleSketchSelectionLock() {
+        guard canUnlockSketchSelection else { applyConstraint(.fixed); return }
+        guard let sketch = activeSketch,
+              let refs = constraintRefs(for: .fixed, in: sketch) else { return }
+        var commands: [DocumentCommand] = []
+        for (index, constraint) in sketch.constraints.enumerated().reversed()
+            where constraint.kind == .fixed && constraint.refs.contains(where: refs.contains) {
+            commands.append(RemoveSketchConstraintCommand(sketchID: sketch.id,
+                constraint: constraint, index: index))
+            let remaining = constraint.refs.filter { !refs.contains($0) }
+            if !remaining.isEmpty {
+                commands.append(AddSketchConstraintCommand(sketchID: sketch.id,
+                    constraint: SketchConstraint(id: constraint.id, kind: .fixed, refs: remaining)))
+            }
+        }
+        guard !commands.isEmpty else { return }
+        session.perform(CompositeCommand(title: "Unlock", commands: commands))
+        session.save()
+    }
+
     /// Apply `kind` to the current selection: build a `SketchConstraint` from
     /// the selected points/entities, append it, re-solve the sketch, and commit
     /// the constraint + any solver-moved geometry in ONE undoable command.

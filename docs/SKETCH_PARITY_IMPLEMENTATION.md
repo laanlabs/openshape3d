@@ -787,3 +787,12 @@ checks. Paired free opposite-edge movement/removal; clone locked-side refusal,
 Undo/Redo and gallery-reopened scope verified. Native reopened unlocked values
 retained. Rail Unlock toggle and edge colors remain open. Docs blocked;
 local evidence indexed. See [side-Lock receipt](testing/sketch-parity-rectangle-side-lock-2026-09-08.md).
+
+### September 8 - contextual Unlock action
+
+Expanded rail now offers Unlock for explicitly locked selected operands;
+unrelated refs in multi-operand locks remain intact. Clean9/9 and live label,
+glyph, one-step history, freed movement and gallery-reopen checks pass. Compact
+menu shares action but remains live-unsampled. Side-Lock receipt retains paired
+native reference and failures/history. Constrained-edge colors remain different;
+next untouched core recipe is direct arc construction (QA-13). Docs blocked.

@@ -40,3 +40,20 @@ Remaining: native rail shows Unlock on locked side, clone still says Lock;
 clone can remove via glyph/Delete but lacks equivalent contextual toggle.
 Native constrained top/bottom/right greens differ from whole-entity clone
 color classification. These are next UI issues, not accepted parity.
+
+## Contextual Unlock follow-up
+
+4bd2a39 pushed. Native selected locked right shows Unlock and releases it;
+clone selected locked right still displayed Lock (post-fix rightrefused PNG).
+Added exact-operand contextual Unlock to expanded/compact rail. A multi-ref
+Lock retains unrelated operands; removal is one history command. Serial39403
+constraint apply +axis/four-line UI regressions running exclusively; live
+post-fix toggle pending. Rectangle-edge colors remain separate open issue.
+
+Contextual39403 passed clean9/9 (7constraintApply+2UI), exit0. Live expanded
+rail changes Lock→Unlock; removal leaves geometry unchanged. Single Undo/Redo
+restores/removes lock glyph and matching rail label. Freed right450→480,
+width2.477→2.848; gallery reopen retains2.848x1.859 and no Lock constraint.
+Six corrected screenshots locally indexed. Compact menu shares the implementation
+but is not live compared; constrained-edge colors remain open. Native Unlock
+reference is the captured right-edge removal above. Docs remain blocked.

@@ -174,3 +174,10 @@ Side-specific rectangle Lock now verified through free/blocked movement,
 Undo/Redo, removal and reopened scope; final scoped36/36 clean. Next contextual
 Unlock action and constrained-edge colors, then remaining acceptance matrix.
 Docs publication remains externally blocked; candidate gate still open.
+
+## September 8, 19:12 execution update
+
+Contextual Unlock now live verified with history and reopened result; clean9/9.
+Continue direct arc construction (QA-13 still untouched), retaining edge-color
+and compact-menu differences. Publication remains blocked; final artifact/gate
+not reached.

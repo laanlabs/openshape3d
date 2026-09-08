@@ -46,14 +46,18 @@ screenshots. Keep the original design when a result differs.
 - Some native mouse selection behavior differs from simulated touch; physical
   touch/Pencil must decide that comparison.
 - Line Escape now passes paired live two-stage cancellation; other cancel states open.
-- Earlier live history no-response cause unknown; later paired creation/dimension
-  repeats succeeded without history-code changes. Retest on the physical device.
+- A portrait painted-center Undo miss was reproduced and corrected with custom
+  44pt targets (143348e), verified live and focused2/2 without history changes.
+  Retest touch targets in both orientations on the physical device.
 - Both Google Docs are blocked in Saving: illustrated76 verified images,
   master36 verified images with unsynced insertions preserved. New evidence is
   indexed locally; publication and final-revision regression remain pending.
 - Four-line rectangle white normal controls, saved-lock refusal and history
-  passed paired live checks (378715b). Axis-aligned edge controls are under
-  regression; per-edge constraint semantics and driven translation need care.
+  passed paired live checks (378715b). Axis-aligned free/driven controls and
+  persisted side-Lock scope now pass paired samples (e7390f4,4bd2a39). Check
+  locked-side refusal/opposite-side motion, Unlock, and reopened scope on device.
+  Contextual Unlock expanded-rail action now passes clean9/9 and live history/
+  reopen. Compact menu and constrained-edge colors remain under acceptance.
 - Circle/arc contextual radial controls are implemented and live-compared;
   broader control/label/glyph and non-line constrained-transform coverage remains.
 

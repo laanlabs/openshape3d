@@ -248,6 +248,13 @@ final class RectangleWorkflowUITests: XCTestCase {
         lockedCenter.press(forDuration: 0.3, thenDragTo: lockedCenter.withOffset(CGVector(dx: 40, dy: 0)))
         XCTAssertEqual(handle.frame.midX, fixedX, accuracy: 2)
         attach(app, "axis-side-lock-opposite-free-selected-fixed")
+        XCTAssertTrue(app.buttons["Unlock"].exists)
+        app.buttons["Unlock"].tap()
+        XCTAssertTrue(app.buttons["Lock"].exists)
+        let freeCenter = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        freeCenter.press(forDuration: 0.3, thenDragTo: freeCenter.withOffset(CGVector(dx: 30, dy: 0)))
+        XCTAssertGreaterThan(handle.frame.midX, fixedX + 20)
+        attach(app, "axis-side-unlock-frees-selected-edge")
     }
 
     func testAxisRectangleEdgeHandleResizesAndChangesSelectedSide() {

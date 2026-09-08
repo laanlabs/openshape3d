@@ -63,6 +63,30 @@ final class ConstraintApplyTests: XCTestCase {
         return nil
     }
 
+    func testUnlockSelectedRectangleSidePreservesOtherLocksAndHistory() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let sketch = openSketch(vm, entities: [.rect(id: id, min: .zero, max: SIMD2(10, 6))])
+        let right = ConstraintRef(entityID: id, role: .whole, rectangleEdge: 1)
+        let left = ConstraintRef(entityID: id, role: .whole, rectangleEdge: 3)
+        let lock = SketchConstraint(kind: .fixed, refs: [right, left])
+        vm.session.perform(AddSketchConstraintCommand(sketchID: sketch.id, constraint: lock))
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 1)
+        XCTAssertTrue(vm.canUnlockSketchSelection)
+        vm.toggleSketchSelectionLock()
+        XCTAssertFalse(vm.canUnlockSketchSelection)
+        XCTAssertEqual(vm.activeSketch?.constraints.first?.refs, [left])
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch?.constraints, [lock])
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch?.constraints.first?.refs, [left])
+        vm.selectedAxisRectangleEdge = (id, 3)
+        XCTAssertTrue(vm.canUnlockSketchSelection)
+        vm.toggleSketchSelectionLock()
+        XCTAssertTrue(vm.activeSketch?.constraints.isEmpty == true)
+        XCTAssertEqual(vm.activeSketch?.entities, sketch.entities, "Unlock must not relocate geometry")
+    }
+
     // MARK: - Coincident welds a shared corner
 
     func testCoincidentOnTwoLinesWeldsCorner() throws {
