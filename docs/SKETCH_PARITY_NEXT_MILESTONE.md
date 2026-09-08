@@ -134,3 +134,11 @@ Sharing. If locked, continue useful independent code/tests/documentation.
 
 Report concrete results and blockers, not reminder-only messages. Maintain
 `docs/PARITY_CONTINUATION.md` with actual running state and exact next action.
+
+## September8 execution checkpoint: full-turn boundary
+
+Arc90/270 and native360 conversion sampled; corrected full-circle conversion has
+clean25-test regression, live saved-radius migration and clone gallery reopen.
+Return next to live history availability immediately after an edit and after
+autosave, distinguishing disabled state from input delivery before changing code.
+Candidate gate remains open; illustrated publication still blocked.

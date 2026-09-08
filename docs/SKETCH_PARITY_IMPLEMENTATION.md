@@ -584,3 +584,12 @@ clean combined run. Live90/270 and paired gallery reopen pass sampled workflow.
 [Receipt](testing/sketch-parity-arc-sweep-2026-09-08.md). Dashed chord annotation
 versus native curved leader and arc endpoint welding remain known limitations.
 Google publication remains blocked at76verifiedimages; new screenshots local.
+
+### September8: full-turn arc boundary conversion
+
+Native360° converts an arc into a circle; clone previously rejected it. Conversion
+now retains entity identity, removes obsolete sweep dimensions and migrates saved
+radius to diameter. Clean25/25 focused tests; paired conversion and clone-only
+reopen verified (R0.5→Ø1), crossing line unchanged. [Receipt](testing/sketch-parity-arc-full-circle-2026-09-08.md).
+No endpoint-reference or full numeric-matrix sign-off. New images local; illustrated
+publication remains blocked at76verified images.

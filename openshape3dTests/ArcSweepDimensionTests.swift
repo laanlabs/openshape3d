@@ -30,6 +30,26 @@ final class ArcSweepDimensionTests: XCTestCase {
         }
     }
 
+    func testFullTurnBecomesClosedCircleAndRetargetsOnlyItsDimensions() throws {
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(7, 4), radius: 2,
+                                  startAngle: .pi, endAngle: 3 * .pi)
+        let refs = [ConstraintRef(entityID: arc.id, role: .whole)]
+        let angle = SketchDimension(kind: .angle, refs: refs, value: .pi)
+        let radius = SketchDimension(kind: .radius, refs: refs, value: 2, formula: "base/2")
+        let other = SketchDimension(kind: .angle, refs: [.init(entityID: UUID(), role: .whole)], value: 1)
+        let conversion = try XCTUnwrap(ArcDimensionConversion.fullCircle(
+            from: arc, dimensions: [angle, radius, other]))
+        XCTAssertEqual(conversion.circle, .circle(id: arc.id, center: SIMD2(7, 4), radius: 2))
+        XCTAssertEqual(conversion.removedAngleIDs, [angle.id])
+        let diameter = try XCTUnwrap(conversion.updatedRadiusDimensions.first)
+        XCTAssertEqual(diameter.id, radius.id); XCTAssertEqual(diameter.kind, .diameter)
+        XCTAssertEqual(diameter.value, 4); XCTAssertEqual(diameter.formula, "(base/2)*2")
+        let sketch = Sketch(plane: .ground, entities: [conversion.circle])
+        XCTAssertEqual(ProfileDetector.detectProfiles(in: sketch).count, 1)
+        let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sketch))
+        XCTAssertEqual(decoded.entities, sketch.entities)
+    }
+
     func testLockedArcRejectsIncompatibleSweep() {
         let arc = SketchEntity.arc(id: UUID(), center: .zero, radius: 2,
                                   startAngle: .pi, endAngle: 0)

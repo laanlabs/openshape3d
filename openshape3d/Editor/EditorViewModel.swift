@@ -11228,15 +11228,16 @@ final class EditorViewModel {
             String(rawText.trimmingCharacters(in: .whitespaces).dropLast($0.count))
         } ?? rawText
         let formula = ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
-        // Linear dims must be positive; angles within (0, 180)°.
+        let isArcSweep = edit.kind == .angle && edit.refs.count == 1 && edit.refs.first.map {
+            if case .arc? = sketchEntity($0.entityID, in: sketch) { return true }
+            return false
+        } == true
+        let completesCircle = isArcSweep && parsed == 360
+        // Linear dimensions are positive; a full arc turn converts to a circle.
         switch edit.kind {
         case .angle:
-            let isArcSweep: Bool = edit.refs.count == 1 && edit.refs.first.map {
-                if case .arc? = sketchEntity($0.entityID, in: sketch) { return true }
-                return false
-            } == true
             let upperBound = isArcSweep ? 360.0 : 180.0
-            guard parsed > 0, parsed < upperBound else {
+            guard parsed > 0, parsed < upperBound || completesCircle else {
                 errorMessage = "Angle must be between 0° and \(Int(upperBound))°."
                 return
             }
@@ -11313,7 +11314,7 @@ final class EditorViewModel {
         } else {
             preferredFarEdge = nil
         }
-        let solvedEntities = SketchSolverBridge.solveDimensionEdit(
+        var solvedEntities = SketchSolverBridge.solveDimensionEdit(
             proposed, dimension: candidate, tolerance: Self.overConstraintTolerance,
             preservingLineID: preferredFarEdge).entities
         // The lock key (Shapr3D's "locked dimension"). Locked — the default —
@@ -11322,7 +11323,25 @@ final class EditorViewModel {
         // it was asked to; it simply is not written down. Unlocking one that
         // already exists deletes it, which is what un-pinning a dimension means.
         var commands: [DocumentCommand] = []
-        if dimensionCommitLocked {
+        if completesCircle, let arcID = edit.refs.first?.entityID,
+           let arcIndex = solvedEntities.firstIndex(where: { $0.id == arcID }),
+           let conversion = ArcDimensionConversion.fullCircle(
+                from: solvedEntities[arcIndex], dimensions: sketch.dimensions) {
+            // The full-turn angle disappears with the arc. Keep entity and radius
+            // dimension identities so other references and undo remain intact.
+            solvedEntities[arcIndex] = conversion.circle
+            for (index, dimension) in sketch.dimensions.enumerated().reversed()
+                where conversion.removedAngleIDs.contains(dimension.id) {
+                commands.append(RemoveSketchDimensionCommand(
+                    sketchID: sketchID, dimension: dimension, index: index))
+            }
+            for after in conversion.updatedRadiusDimensions {
+                if let before = sketch.dimensions.first(where: { $0.id == after.id }) {
+                    commands.append(UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after))
+                }
+            }
+            selectedDimensionID = nil
+        } else if dimensionCommitLocked {
             commands.append(setup)
         } else if let dimID = edit.dimensionID,
                   let idx = sketch.dimensions.firstIndex(where: { $0.id == dimID }) {

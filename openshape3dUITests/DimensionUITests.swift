@@ -106,6 +106,23 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         XCTAssertTrue(angle.label.contains("90"))
         XCTAssertEqual(radius.label, beforeRadius)
+        angle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        for digit in ["3", "6", "0"] { app.buttons["Keypad-\(digit)"].tap() }
+        app.buttons["KeypadCommit"].tap()
+        sleep(1)
+        let diameter = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "Ø")).firstMatch
+        XCTAssertTrue(diameter.exists)
+        XCTAssertFalse(angle.exists)
+        attach(app, "full-turn-converted-circle")
+        app.buttons["UndoButton"].tap()
+        sleep(1)
+        XCTAssertTrue(angle.label.contains("90"))
+        XCTAssertEqual(radius.label, beforeRadius)
+        app.buttons["RedoButton"].tap()
+        sleep(1)
+        XCTAssertTrue(diameter.exists)
+        XCTAssertFalse(angle.exists)
     }
 
     // MARK: - Line length dimension
