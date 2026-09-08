@@ -1,19 +1,21 @@
 # Parity continuation checkpoint
 
-September8,2026 approximately18:04EDT. HEAD378715b; verified axis-edge source/
-tests/docs ready to commit. Clean32/32 serial76586 completed0, all desktop
-commands collected; no worker active. This session owns desktop.
-Live free top resize/history, driven-height translation and right resize
-passed; paired gallery reopen retained native2504.6139x1504.6161 and
-clone2.977x1. Clone closed profile offers Extrude; preview cancelled.
-Exact next: commit/push correction then selected-side leader placement,
-followed by native per-edge Lock versus clone whole-rect semantics.
-Native1924at99,79 FrontSketch02 right edge945493->945571 selected,
-rectangle815493->945571. Clone2386at275,44 Untitled2 Front right edge
-380279->380340 selected, opposite200279->200340; height1driven, width2.977free.
-Both Docs Saving/editing temporarily disabled; preserve unsynced tabs.
-13newcorrected PNGs indexed local only. Full receipts/audit retained.
-Preexisting identity files untouched; no duplicateworkers/watchdogs/merge.
+September 8, 2026 approximately 18:46 EDT. HEAD e7390f4 pushed; current
+selected-side leader/custom 44pt Undo/Redo correction ready to commit, with
+strengthened UI test and documentation. No build/test/Peekaboo worker active.
+Final serial7585 clean2/2; /tmp/os3d-axis-edge-leaders-customtarget-20260908.log/.xcresult.
+Live painted-center Undo237118 and Redo280118 now restore/reapply height
+1.859/2.229 in portrait, unlike prior Label-frame correction. No history logic
+changed; all temporary tracing removed. Top/right editors commit2x1; gallery
+reopen retains both. Ten corrected screenshots indexed locally, not published.
+Clone2386 portrait683x940 at275,44, Untitled2 Front rightedge411420->411500
+selected, driven2x1. Native1924 FrontSketch02 free right945493->945571 selected,
+2504.6139x1504.6161. Next: commit/push verified leader/history correction, then
+paired per-edge Lock vs whole-rect semantics (native lock right, move left).
+Other-axis leader-side memory remains open. Both Docs Saving/editingdisabled;
+18:37 anonymous exports still76/36. Preserve tabs/recovery; no duplicateinsert.
+Preexisting IDENTITY/SOUL/USER files untouched. No duplicate workers/watchdogs,
+merge or device-install claim. Candidate gate remains open.
 
 ## Verified
 

@@ -229,17 +229,27 @@ final class RectangleWorkflowUITests: XCTestCase {
         sleep(1)
         let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertEqual(labels.count, 2)
+        XCTAssertLessThan(labels.element(boundBy: 0).frame.maxY, app.frame.height * 0.4,
+                          "Selected top edge must put width leader outside that edge")
         let before = handle.frame.midY
         let center = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         center.press(forDuration: 0.3, thenDragTo: center.withOffset(CGVector(dx: 0, dy: -45)))
         XCTAssertLessThan(handle.frame.midY, before - 20)
+        attach(app, "axis-before-undo")
         app.buttons["UndoButton"].tap()
-        XCTAssertEqual(handle.frame.midY, before, accuracy: 2)
+        let restored = NSPredicate { _, _ in abs(handle.frame.midY - before) <= 2 }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: restored, object: nil)], timeout: 3), .completed,
+                       "Undo must restore the original handle position after rendering settles")
+        attach(app, "axis-after-undo")
         app.buttons["RedoButton"].tap()
         XCTAssertLessThan(handle.frame.midY, before - 20)
         p(app, 0.65, 0.5).tap()
         sleep(1)
         XCTAssertGreaterThan(handle.frame.midX, app.frame.width * 0.65)
+        XCTAssertGreaterThan(labels.element(boundBy: 1).frame.minX, app.frame.width * 0.65,
+                             "Selected right edge must put height leader on its right")
         app.buttons["SketchTransformMode"].tap()
         XCTAssertFalse(handle.exists)
         app.buttons["SketchTransformMode"].tap()

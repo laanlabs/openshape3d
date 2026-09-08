@@ -769,3 +769,12 @@ reopen verified. Clone2.977x1 remains extrudable. Native per-edge Lock versus
 clone whole-rect Lock and selected-side leader placement remain open, not
 full rectangle acceptance. Both Docs blocked; corrected screenshots local.
 See [axis-edge receipt](testing/sketch-parity-axis-edge-controls-2026-09-08.md).
+
+### September 8 - selected-side leaders and portrait history target
+
+Top/right dimensions now follow the selected edge. Custom44pt history content
+fixes the reproduced portrait painted-center Undo miss; final focused clean2/2
+and live one-click Undo/Redo pass. Top/right edits and gallery reopen retain2x1.
+History logic unchanged. Prior failed diagnoses retained in axis-edge receipt.
+Other-axis leader-side memory and per-edge Lock semantics remain open.
+Both Docs blocked; post-fix evidence indexed locally, publication pending.

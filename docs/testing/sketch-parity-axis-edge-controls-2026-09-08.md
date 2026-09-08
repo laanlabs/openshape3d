@@ -51,3 +51,46 @@ Cmd2 did, and final native values inspected after sketch entry/reselection.
 13 corrected/reopen PNGs copied and indexed locally. Both Docs still blocked;
 no claim these are published. Next: selected-side leader placement and the
 per-edge constraint semantics gap. No worker active; source ready to commit.
+
+## Selected-side leader follow-up
+
+Native top width and right height leaders follow selected edge; clone remained
+below/left. Scoped geometry anchor/outward-center correction implemented.
+Initial focused86907 completed65: keypad1pass, axis UI failed immediate Undo
+frame assertion (475.5 versus520.5); selected top label position passed. No
+history source change. Diagnostic adds before/after captures and waits up to3s
+for actual restored frame, without retrying Undo. Publication still blocked.
+
+Leader diagnostic27147 failed even with3s restoration wait. Before/after video frames show unchanged geometry and disabled Redo. Temporary OS3D_AXIS_DIAG NSLog traces added at normal-drag end and Undo entry to distinguish action delivery/lifecycle; serial23934 runs targeted case. Remove temporary traces before final commit. No passing history claim for leader build.
+
+File trace42659 confirms normal drag deltas and end callback; no Undo entry after synthesized toolbar tap. Not a history-state failure. Hit-test diagnostic6340 adds temporary UIKit window hit chain at the recorded toolbar coordinate; source traces/import/helper must be removed before final commit.
+
+Hit trace6340 reached _UIButtonBarButton at366.75,54 inside UIKitNavigationBar,
+not the dimension overlay. Several AnimationView ancestors had non-identity
+scale frames0.3s after drag; single immediate tap did not enter Undo. Checking
+a1s pre-tap settle to avoid that native toolbar transition; still exactly ONE
+Undo tap, then actual geometry restoration required. Temporary UIKit/cache
+tracing removed. Serial98785 runs both leader and keypad workflows. The toolbar
+animation explanation remains an inference pending this result, not proven
+by hit-testing alone. Trace copied to /tmp/os3d-axis-leader-hittrace.txt.
+
+Settled98785 failed axis Undo again; keypad passed. Pre-tap1s wait does NOT support the toolbar-animation explanation. Source instrumentation removed. Returning to live reproduction before further source changes; no successful leader-build history claim.
+
+Live reproduction: first post-orientation setup click did not create a new
+project; excluded that attempt, explicitly refocused and inspected new Untitled2
+Front before drawing. Corrected top leader above rectangle; live landscape
+free resize and Undo restore geometry. Portrait orientation preserves state;
+Redo at286118 works. Undo icon center253118 does not restore; slight-right
+262118 does. This confirms a tap-location issue, not an undo-stack issue.
+Six evidence images locally indexed. Adding explicit44pt rectangular Label
+targets to Undo/Redo toolbar buttons; serial35521 runs leader/Undo and keypad.
+Removed unsupported pre-Undo animation sleep; no retry/offset in test.
+
+Explicit Label-frame run35521 passed clean2/2, but live portrait icon-center
+253118 still missed; right-offset262118 worked. Installed and derived debug
+dylib hashes match bece64ac51585d8952f36b87f9ac0fc48395c65f1783cdefc3c62469254fbaaa.
+Not a stale binary; do not claim live fix. Replacing extracted system Label
+with custom44pt ZStack image/contentShape for aligned painted/touch region;
+serial7585 runs original center-tap test and keypad again. History logic untouched.
+
+Custom-content run7585 passed clean2/2 (axis33.275s, keypad24.640s). Live portrait fresh Untitled2 Front: top350→320/bottom500fixed; height1.859→2.229, width2.477. Single painted-center Undo237118 restores top350/height1.859; single Redo280118 reapplies. Top editor commits width2; right selected height leader is right, editor fully reachable and commits1. Gallery reopen and sketch reselection retain2x1. Double-clicking Items name selected text; sketch icon entered editing, no data change. Ten post-fix screenshots copied/indexed locally. No trace/helper/UIKit import remains; no history logic changed. This is a clean final focused run following documented failures, not an all-suite final run. Native prior top/right leader and working history references retained. Remaining difference: clone returns width leader below on right selection instead of retaining previous top placement. Both Docs blocked; fresh18:37 exports remain76/36.

@@ -159,3 +159,11 @@ Candidate gate remains open; illustrated publication still blocked.
 Four-line rectangle normal handle now live-compared through free/locked motion,
 history and reopen. Next is axis-aligned rectangle edge/control behavior, then
 remaining numeric/selection matrix. Both Docs Saving; no candidate gate claim.
+
+## September 8, 18:46 execution update
+
+Axis-edge controls and selected-side leaders verified; portrait painted-center
+Undo correction passes live and focused clean2/2. Saved2x1 editors/reopen pass.
+Next: paired per-edge Lock semantics, then remaining numeric/selection matrix.
+Leader-side memory remains a known visual difference. Both Docs blocked;
+publication and installable-candidate gates remain open.

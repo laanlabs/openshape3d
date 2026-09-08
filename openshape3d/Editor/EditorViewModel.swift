@@ -11096,6 +11096,13 @@ final class EditorViewModel {
             guard refs.count == 2, let a = localPoint(refs[0], in: sketch),
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             let lo = SIMD2(min(a.x, b.x), min(a.y, b.y)), hi = SIMD2(max(a.x, b.x), max(a.y, b.y))
+            if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+               refs.allSatisfy({ $0.entityID == pick.id }),
+               (kind == .horizontal) == (pick.index % 2 == 0),
+               let entity = sketchEntity(pick.id, in: sketch),
+               let edge = RectangleConstruction.axisEdge(entity, index: pick.index) {
+                return ((edge.a + edge.b) / 2, edge.a, edge.b)
+            }
             if kind == .horizontal {
                 let s = lo, e = SIMD2(hi.x, lo.y)
                 return ((s + e) / 2, s, e)
@@ -11350,8 +11357,9 @@ final class EditorViewModel {
             }
             if (kind == .horizontal || kind == .vertical), refs.count == 2,
                refs[0].entityID == refs[1].entityID,
-               case .rect? = sketchEntity(refs[0].entityID, in: sketch) {
+               case let .rect(_, lo, hi)? = sketchEntity(refs[0].entityID, in: sketch) {
                 label.isRectangleSize = true
+                label.worldRectangleCenter = sketch.plane.toWorld((lo + hi) / 2)
             }
             if kind == .radius, let ref = refs.first,
                case .arc? = sketchEntity(ref.entityID, in: sketch) {

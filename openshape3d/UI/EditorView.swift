@@ -1469,7 +1469,13 @@ struct EditorView: View {
                     Button {
                         viewModel.undo()
                     } label: {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "arrow.uturn.backward")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Undo")
                     }
                     .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle)
                     // Distinct from the software keyboard's own "Undo": with
@@ -1480,7 +1486,13 @@ struct EditorView: View {
                     Button {
                         viewModel.redo()
                     } label: {
-                        Label("Redo", systemImage: "arrow.uturn.forward")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "arrow.uturn.forward")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Redo")
                     }
                     .disabled(!viewModel.session.undoStack.canRedo)
                     .accessibilityIdentifier("RedoButton")
