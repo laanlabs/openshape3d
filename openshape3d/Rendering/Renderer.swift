@@ -51,6 +51,10 @@ final class Renderer: NSObject, MTKViewDelegate {
         if size.width > 0, size.height > 0 {
             viewportSize = size
             viewportSizeChanged?()
+            // Rendering is paused/on-demand. Rotation can otherwise stretch
+            // the previous drawable while SwiftUI markers already project
+            // against the new bounds, until an unrelated scene action redraws.
+            view.setNeedsDisplay()
         }
     }
 

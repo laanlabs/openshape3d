@@ -541,3 +541,12 @@ First run3passed/1new-test-failed at immediate dismissal assertion; targeted
 bounded-wait diagnostic1/1 passed (not one combined clean run). Live2→3 blank
 click and3→4 tool switch pass; invalid0 still preserves4×1.5. Doc64images and
 corrected hashes verified. Landscape/compact and live Escape delivery remain open.
+
+### September8: viewport resize redraw (verified live)
+
+Rotation stretched a stale Metal frame while dimension/point overlays updated;
+scene action repaired it. Native window-corner resize kept aspect and markers
+aligned. Renderer requests redraw after drawable size change. Clean15/15 Camera/
+Dimension tests; live portrait→landscape→portrait with no intervening canvas
+refresh now aligned. [Receipt](testing/sketch-parity-resize-rendering-2026-09-08.md).
+Landscape/compact keypad reachability and full device input remain open.
