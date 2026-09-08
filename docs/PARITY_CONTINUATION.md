@@ -1,23 +1,20 @@
 # Parity continuation checkpoint
 
-September 8, 2026 approximately 16:47 EDT. HEAD b2db321 pushed.
-Dirty: RectangleConstruction.swift, EditorViewModel.swift, construction tests,
-this checkpoint and three-point leader receipt. Preexisting identity files untouched.
-Serial xcodebuild exec 72820 owns simulator: /tmp/os3d-threepoint-baseline-anchor-20260908.log
-and .xcresult. No Peekaboo interactions during tests.
+September 8, 2026 approximately 16:52 EDT. HEAD cfc7fd5 pushed.
+Final evidence documentation dirty; initial append failed encoding, now repaired.
+Preexisting identity files untouched. No tests/build/Peekaboo workers active.
+Clean17/17 regression72820 and live opposite slopes, UndoRedo, sequential
+height edit passed. Native holds lower side regardless of draw direction.
+Clone reopened baseline2 verified; short height edge picked endpoint instead.
+Both Docs still Saving; local evidence retained, not published.
 
-Native fresh samples confirm baseline holds lower adjacent side: descending
-right slope holds right even after reversing construction; ascending right
-slope holds left. Same outcome baseline-first and either parallel edge.
-Clone always first-side preference differed. Transient geometric preference
-implemented; regression and live verification pending.
-
-Exact next: collect 72820, inspect failures if any, then orient/relaunch clone
-and repeat descending-right baseline 2.565→2 keeping right endpoints.
-Also repeat opposite slope and sequential height, preserving prior constraints.
-Native Front Sketch02 has three fresh disconnected test rectangles; latest
-ascending-right is 1200×600 at (250,600)/(350,572)/(364,622)/(264,650).
-Native tool off. Tests may reset clone disposable projects.
+Exact next: commit evidence checkpoint, then paired short rectangle-edge
+selection/default manipulation control comparison.
+Clone Simulator2386 at275,44: reopened Untitled2 Front, tool off, upperleft
+2 by 0.5 rectangle (239,339)/(340,312)/(347,338)/(245,365). Upper-right
+endpoint selected after short height-edge click. Lower-right rect2 by1.244.
+Native1924 at99,79 FrontSketch02, tool off, latest1200 by600 rectangle
+(250,600)/(350,572)/(364,622)/(264,650); other diagnosis rectangles retained.
 
 ## Verified
 

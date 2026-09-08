@@ -720,3 +720,12 @@ layout+UI andlivebothkeypads/retaineddimensions. Nativeheightthenbaseline
 sampleheldRIGHTside whenbaseline shortened; cloneheldLEFT. Newgeometry
 gapopen—do notclaimsequentialanchorparity. BothDocsblocked, localindex
 containscorrected screenshots. [Receipt](testing/sketch-parity-three-point-leaders-2026-09-08.md).
+
+### September 8 - slope-dependent three-point baseline anchor
+
+Paired native samples hold the lower adjacent side across opposite slopes
+and reversed construction. Clone preference corrected in cfc7fd5 for either
+baseline edge. Clean17/17 and live both slopes, Undo/Redo, sequential height
+edit. Reopened baseline verified; short height-edge selection remains open.
+Both Docs blocked; local screenshots retained. Not full on-canvas acceptance.
+See three-point-leaders receipt for complete history.

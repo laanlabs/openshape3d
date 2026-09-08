@@ -50,3 +50,19 @@ Implemented transient lower-side baseline preference, including opposite
 parallel-edge selection, with horizontal left tie-break; explicit constraints
 retain solver priority. Regression 72820 running exclusively: construction
 geometry plus two three-point UI workflows. Post-fix live repeat pending.
+
+## Corrected baseline verification
+
+Serial 72820 completed exit 0: clean 17/17 (15 construction geometry,
+two three-point UI workflows), /tmp/os3d-threepoint-baseline-anchor-20260908.xcresult.
+Live descending-right clone 2.565 to 2 keeps right endpoints (650,510)/(630,582),
+height 1.244 unchanged. Undo restores 2.565; Redo restores 2. Opposite slope
+2.565 to 2 keeps left endpoints (200,300)/(217,361), height 1.044 unchanged.
+Subsequent height to 0.5 retains baseline2 and far baseline. Gallery reopen
+restores geometry and selecting baseline reads2. Short height-edge selection
+at reopened zoom picked an endpoint, so its live reopened label was NOT
+verified. Generic blue transform ring on baseline remains an on-canvas gap.
+Both Docs still report Saving. New images/local index retained; publication
+pending. No test workers active. Source correction committed cfc7fd5.
+The first final-documentation append failed on input encoding before writing;
+this ASCII-safe append records the verified results separately.
