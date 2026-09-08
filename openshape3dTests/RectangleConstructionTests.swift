@@ -3,6 +3,60 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testDimensionEdgesRecognizeReloadedReversedRectangleButRejectOtherSelections() throws {
+        let ids = (0..<4).map { _ in UUID() }
+        let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+                                                     heightPoint: SIMD2(4, 7), ids: ids)
+        let loaded = try JSONDecoder().decode([SketchEntity].self, from: JSONEncoder().encode(edges))
+        func reverse(_ edge: SketchEntity) -> SketchEntity {
+            guard case let .line(id, a, b) = edge else { return edge }
+            return .line(id: id, a: b, b: a)
+        }
+        let pair = try XCTUnwrap(RectangleConstruction.dimensionEdges(
+            in: [loaded[0], reverse(loaded[2]), reverse(loaded[3]), loaded[1]]))
+        XCTAssertEqual(pair, ids)
+        XCTAssertNil(RectangleConstruction.dimensionEdges(in: Array(loaded.prefix(3))))
+        let trapezoid: [SketchEntity] = [
+            .line(id: ids[0], a: .zero, b: SIMD2(4, 0)),
+            .line(id: ids[1], a: SIMD2(4, 0), b: SIMD2(3, 2)),
+            .line(id: ids[2], a: SIMD2(3, 2), b: SIMD2(0, 2)),
+            .line(id: ids[3], a: SIMD2(0, 2), b: .zero)]
+        XCTAssertNil(RectangleConstruction.dimensionEdges(in: trapezoid))
+    }
+
+    func testThreePointHeightPreservesFarEdgeAndUndrivenLength() throws {
+        for height in [-1.0, 1.0] {
+            let ids = (0..<4).map { _ in UUID() }
+            let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+                heightPoint: SIMD2(5, 3) + SIMD2(-1, 4) * height, ids: ids)
+            let dimension = SketchDimension(kind: .distance, refs: [
+                .init(entityID: ids[1], role: .endpointA),
+                .init(entityID: ids[1], role: .endpointB)], value: 0.5)
+            var sketch = Sketch(plane: .ground, entities: edges,
+                constraints: RectangleConstruction.constraints(for: edges), dimensions: [dimension])
+            let outcome = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dimension,
+                preservingLineID: ids[2])
+            XCTAssertTrue(outcome.converged)
+            XCTAssertLessThan(outcome.structuralResidual, 1e-5)
+            XCTAssertEqual(outcome.entities[2], edges[2], "Far baseline must remain fixed")
+            guard case let .line(_, a, b) = outcome.entities[0],
+                  case let .line(_, c, d) = outcome.entities[1] else { return XCTFail() }
+            XCTAssertEqual(simd_length(b - a), sqrt(17), accuracy: 1e-5)
+            XCTAssertEqual(simd_length(d - c), 0.5, accuracy: 1e-5)
+            XCTAssertEqual(simd_normalize(b - a).x, 4 / sqrt(17), accuracy: 1e-5)
+            // Explicitly fixing the original baseline makes the far-edge
+            // preference impossible. The existing lock wins, no fake lock saved.
+            sketch.constraints.append(SketchConstraint(kind: .fixed,
+                refs: [.init(entityID: ids[0], role: .whole)]))
+            let fallback = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dimension,
+                preservingLineID: ids[2])
+            XCTAssertTrue(fallback.converged)
+            XCTAssertLessThan(fallback.structuralResidual, 1e-5)
+            XCTAssertEqual(fallback.entities[0], edges[0])
+            XCTAssertEqual(sketch.constraints.count, 8)
+        }
+    }
+
     func testCenterRectangleReflectsCornerInEveryQuadrant() throws {
         let center = SIMD2<Double>(4, -2)
         for dx in [-3.0, 3.0] {

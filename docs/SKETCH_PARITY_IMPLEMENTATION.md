@@ -482,3 +482,7 @@ Acceptance: Current focused sketch checks pass without expected failures for rel
 ## Reference correction
 
 Do not implement the previously documented “ten missing sketch dimension tools” from `SHAPR3D_SKETCH_PARITY.md` as a sketch requirement: that evidence came from **2D Drawings**, a different workspace. Draggable-label sketch parity also needs an actual sketch reference before design work. Native Shapr3D was accessible during this audit; older notes claiming desktop automation was unavailable are historical.
+
+## Late-evening three-point follow-up (September7,22:40 EDT)
+
+SK-03: paired live three-point completion now keeps two badges, no automatic keypad; explicit height editing retains selection and both readouts. Confirmed clone undriven-side drift corrected for selected three-point height edits using a transient far-baseline preference, with explicit constraints taking priority. Native isolated135.5815→50mm and clone1.069→0.5mm keep the far baseline fixed; clone baseline stays3.041mm. [Detailed receipt](testing/sketch-parity-three-point-dimensions-2026-09-07.md). Clean22-check initial run +2tool-switch checks; stronger undo check1/1; post-anchor focused14/14. Not one combined latest all-suite run. Illustrated Doc verified29inline images. Live clone toolbar undo still has no observed restoration despite stronger automated assertion passing; remains open alongside baseline editing/reselection, compact/landscape/device checks. No iPad-ready claim.

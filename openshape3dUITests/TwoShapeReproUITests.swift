@@ -24,6 +24,10 @@ final class TwoShapeReproUITests: XCTestCase {
             w.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
         }
         p(0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(0.62, 0.60))
+        let initialBadge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(initialBadge.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        initialBadge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
         app.buttons["Rect"].firstMatch.tap()
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
@@ -64,6 +68,12 @@ final class TwoShapeReproUITests: XCTestCase {
         p(0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(0.62, 0.60))
         sleep(1)
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].exists, "alive after shape 1")
+        // Rectangle release no longer auto-opens the pad; explicitly open it
+        // so this still exercises dismissal of a real pending editor.
+        let badge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
 
         startSketchTool(app, "Circle")
         sleep(1)

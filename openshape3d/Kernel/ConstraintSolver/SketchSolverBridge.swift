@@ -101,7 +101,19 @@ nonisolated enum SketchSolverBridge {
     /// Explicit relationships win when holding that corner is incompatible.
     /// Legacy rectangles have no intent metadata and retain the existing solve.
     static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
-                                   tolerance: Double = 1e-5) -> Outcome {
+                                   tolerance: Double = 1e-5,
+                                   preservingLineID: UUID? = nil) -> Outcome {
+        // A fresh three-point height edit prefers the far baseline, matching
+        // the paired native workflow. This is transient solve intent, never
+        // a persisted Lock; explicit relationships still take precedence.
+        if let id = preservingLineID,
+           sketch.entities.contains(where: { if case .line = $0 { return $0.id == id }; return false }) {
+            var anchoredSketch = sketch
+            anchoredSketch.constraints.append(SketchConstraint(kind: .fixed,
+                refs: [.init(entityID: id, role: .whole)]))
+            let anchored = solveOutcome(anchoredSketch, movingEntity: nil, dragTarget: nil)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
         let ids = Set(dimension.refs.map(\.entityID))
         if (dimension.kind == .horizontal || dimension.kind == .vertical),
            ids.count == 1, let id = ids.first,

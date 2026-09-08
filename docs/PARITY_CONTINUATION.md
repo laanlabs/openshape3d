@@ -1,33 +1,27 @@
 # Parity continuation checkpoint
 
-Updated September 7, 2026, 22:10 EDT during dedicated active work.
+Updated September7,2026,22:41 EDT during dedicated active work.
 
-## Revision and execution
+## Revision / execution ownership
 
-- Branch `fix/sketch-parity-foundations`, draft PR https://github.com/laanlabs/openshape3d/pull/29; changes based on `5689ce6`, being committed with this checkpoint. Inspect actual HEAD/status on continuation.
-- Dedicated session owns desktop exclusively. No xcodebuild/UI-test process currently running; all diagnostic runs completed. Active interactive Peekaboo/documentation work, not a separate background worker. Check processes before resuming.
-- Source changes: EditorViewModel.swift, NumericKeypad.swift, SketchDimensionOverlay.swift. Test change: RectangleWorkflowUITests.swift. Receipt: `docs/testing/sketch-parity-live-recheck-2026-09-07.md`. No original-checkout edits, no merge.
+Branch `fix/sketch-parity-foundations`, PR https://github.com/laanlabs/openshape3d/pull/29. HEAD5fd1240 pushed; verified three-point changes being committed now. Inspect actual HEAD/status. This dedicated session owns desktop; no xcodebuild or Peekaboo process currently running between interactions. No duplicate workers. Simulator os3d-parity-sept7, UDID AC2FD923-1661-435F-BF47-3E9DF30D1A16. Latest installed simulator executable SHA256990cc2dd9b4dbd1a1935412e5bd31ee02c3f963e5b94d9188162adba10501ef8, app `/tmp/os3d-parity-derived/Build/Products/Debug-iphonesimulator/openshape3d.app`.
 
-## Verified results
+Changed files: EditorViewModel.swift, RectangleConstruction.swift, SketchSolverBridge.swift; RectangleConstructionTests.swift, RectangleWorkflowUITests.swift, TwoShapeReproUITests.swift; ledger, this checkpoint, three-point receipt. No merge. Simulator build is NOT a physical-iPad candidate.
 
-- Paired horizontal completed-line readout persists without auto-keypad; explicit badge opens pad in both apps.
-- Paired down/right diagonal half-width keeps first corner (native350→175mm; clone3→1.5mm).
-- Corrected axis-aligned rectangle release keeps both badges without automatic keypad. First numeric digit replaces seed; subsequent digits append. Full measured editor is kept clear of palette/rail.
-- Fresh clone center2×1→2×0.5→1×0.5mm preserves center, right-side keypad fully usable. Native180×100→180×50→90×50mm preserves center; native needed reselection/tool interaction to recover width after height commit. Not identical command lifecycle.
-- Installed/final simulator executable SHA256 `9f07455e7d9a91fee48acec6302fc09c1b84eb680fb3c77467cd5509e906fa45`; build at `/tmp/os3d-parity-derived/Build/Products/Debug-iphonesimulator/openshape3d.app`. Simulator build, NOT an iPad installable candidate.
-- Tests: initial compile failure corrected. Combined v2 18/20 passed; two rectangle inferred-tap failures repeated in diagnostic attempts. Live center and padded-edge taps worked. Ineffective hit-shape changes removed. Explicit-center targeted rerun passed2/2 at22:00 (`/tmp/os3d-keypad-center-target-20260907.xcresult`). Thus20 distinct passing checks across runs, NOT a single clean combined run.
-- Evidence: `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-live-comparison-2026-09-07/recheck-2133/` PNG/JSON, exported DOCX and publication.json. Existing illustrated Google Doc updated with interim and post-fix findings: https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit . Check latest publication receipt for verified image count.
+## Verified
 
-## Exact next action
+Previous5fd1240: paired completed horizontal-line badge/keypad, down-right diagonal half-width first-corner, center sequential two-axis center preservation; first digit replaces seed; measured keypad clear of rail. Prior20distinct passing checks across failing/targeted reruns, not one clean20. Receipt `docs/testing/sketch-parity-live-recheck-2026-09-07.md`.
 
-Finish verifying post-fix Doc image export / commit and push reviewable correction; then directly operate native three-point rectangle baseline+height and clone equivalent. Compare completed readouts, explicit height access, auto-keypad and one-step undo; capture before implementation. Native currently center tool/subtype flyout in existing test sketch; clone existing test sketch with new center1×0.5mm near upper-right.
+New three-point work: completion leaves baseline/height badges, no automatic keypad; explicit height retains both. Live initial height1.069→0.5 changed baseline3.041→3.064; isolated native135.5815→50 preserved far baseline. Corrected transient far-edge preference now clone1.069→0.5 with baseline3.041 unchanged, endpoints(206,784),(449,825) fixed. Explicit constraints override preference; no extra persisted Lock. Baseline editing unchanged, not signed off.
 
-## Remaining queue and limits
+Tests: initial clean22/22 (12geometry+10UI), tool-switch2/2, stronger undo1/1, final anchor-focused14/14 (13geometry+1UI), all clean individual runs. Stronger undo requires removal of edited1mm after Undo, then restoration after Redo. No full latest all-suite claim.
 
-1. Three-point height access/auto-keypad, typed placement; diagonal sequential height/all quadrants.
-2. Live undo/redo, tap placement/cancel, selection, constraints, snapping, persistence and exit/reentry core matrix.
-3. Compact, landscape, left-handed and system-keyboard editor placement remain unverified. Padded hit-target matrix remains open despite successful live sample.
-4. Update master audit crosslinks/status and preserve screenshot-backed existing Docs.
-5. Identified installable physical-iPad build, short A/B checklist, known differences; readiness not reached. Pencil/touch cannot be verified in simulator.
+Evidence folder `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-live-comparison-2026-09-07/three-point-2212/`, native-isolated / anchor-live PNG+JSON, exported DOCX, publication.json. Illustrated Doc https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit verified29inline images + corrected section. Master roadmap previously updated5fd1240, new three-point summary still pending there. Local receipt `docs/testing/sketch-parity-three-point-dimensions-2026-09-07.md`.
 
-No external blocker. Do not stop at this completed correction. Existing watchdog `3eced82f-bc37-4bcf-9f42-518d25e7558c` every30minutes, no duplicate jobs/workers. No restart/logout/lock/Screen Sharing changes or secrets. Peekaboo GUI bridge path `/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock`; switch target app explicitly and use foreground delivery. `--no-auto-focus` avoids repeated focus delay after a verified switch; inspect screenshots after actions and camera settling.
+## Exact next action / unresolved issue
+
+Commit/push verified three-point change if not already committed; inspect actual git state. Continue live clone toolbar Undo discrepancy: repeated window-relative/global foreground clicks at undo icon, with/without auto-focus and long press, produced no visible restoration, even after exiting sketch; automated stronger Undo passes. Do not claim live history parity. Native Cmd-Z/Cmd-Shift-Z visually restores/reapplies height. Need distinguish simulator delivery/toolbar hit-testing from product logic before fixing. Current clone selected lower three-point rectangle height0.5; native isolated center-upper rectangle height50 after Redo.
+
+Then paired baseline edit and reselection, remaining diagonal sequential height/all quadrants; live cancellation, selection/constraints/snapping, persistence/exit-reentry. Compact, landscape, left-handed/system-keyboard and physical Pencil remain open. Prepare identified installable iPad build/checklist only after readiness criteria; not reached.
+
+No external blocker. Continue concrete work; not a batch-only stop. Existing watchdog3eced82f-bc37-4bcf-9f42-518d25e7558c every30min, no duplicate jobs. No restart/logout/lock/Screen Sharing changes, no secrets. Peekaboo bridge `/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock`; one owner, no desktop actions during UI tests. Screenshots of app alone do not prove foreground delivery; inspect full screen for routing concerns.

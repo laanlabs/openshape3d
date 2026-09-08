@@ -114,11 +114,41 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Draw the perpendicular height"].waitForExistence(timeout: 3))
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
         p(app, 0.64, 0.46).press(forDuration: 0.15, thenDragTo: p(app, 0.58, 0.65))
-        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 2)
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
         attach(app, "three-point-rectangle")
         app.buttons["Exit Sketching"].tap()
         p(app, 0.46, 0.515).tap()
         XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3))
+    }
+
+    func testThreePointHeightCanBeEditedWithoutLosingBaselineBadge() {
+        let app = start()
+        type(app, "threePoint")
+        p(app, 0.35, 0.38).press(forDuration: 0.15, thenDragTo: p(app, 0.64, 0.46))
+        p(app, 0.64, 0.46).press(forDuration: 0.15, thenDragTo: p(app, 0.58, 0.65))
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
+        XCTAssertEqual(labels.count, 2)
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        labels.element(boundBy: 1).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let previousHeight = field.value as? String
+        XCTAssertNotEqual(previousHeight, "1")
+        app.buttons["Keypad-1"].tap()
+        XCTAssertEqual(field.value as? String, "1")
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.waitForExistence(timeout: 3))
+        XCTAssertEqual(labels.count, 2, "Editing height must keep the baseline accessible")
+        attach(app, "three-point-height-edited-both-badges")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(labels.count, 2)
+        XCTAssertFalse(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.exists,
+                       "Undo must restore the pre-edit height, not merely retain two labels")
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.waitForExistence(timeout: 3))
     }
 
     func testThreePointTapsAndCancelDoNotLeaveStrayBaseline() {
@@ -136,7 +166,8 @@ final class RectangleWorkflowUITests: XCTestCase {
         p(app, 0.64, 0.46).tap()
         XCTAssertTrue(app.staticTexts["Draw the perpendicular height"].waitForExistence(timeout: 3))
         p(app, 0.58, 0.65).tap()
-        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
         app.buttons["Exit Sketching"].tap()
         app.buttons["UndoButton"].tap()
         p(app, 0.46, 0.515).tap()

@@ -7906,9 +7906,10 @@ final class EditorViewModel {
         commands += constraints.map { AddSketchConstraintCommand(sketchID: sketchID, constraint: $0) }
         session.perform(CompositeCommand(title: "Draw Rectangle", commands: commands))
         clearRectanglePlacement()
-        selectedSketchEntityIDs = [edges[0].id]
+        // Keep the whole completed rectangle selected, exposing its two
+        // adjacent lengths without automatically opening a keypad.
+        selectedSketchEntityIDs = Set(edges.map(\.id))
         selectedSketchPoints.removeAll()
-        beginDimensionForSelection()
         session.save()
     }
 
@@ -10883,10 +10884,22 @@ final class EditorViewModel {
         }
     }
 
+    private var selectedRectangleDimensionEdges: [UUID]? {
+        guard selectedSketchPoints.isEmpty else { return nil }
+        return RectangleConstruction.dimensionEdges(in: selectedSketchEntities)
+    }
+
+    private static func lineLengthRefs(_ id: UUID) -> [ConstraintRef] {
+        [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+    }
+
     /// The dimension the current selection would create (auto-shown as an
     /// editable candidate label; also what the palette Dimension action edits).
     private var dimensionCandidate: (kind: DimensionKind, refs: [ConstraintRef])? {
         guard mode.isSketching else { return nil }
+        if let edges = selectedRectangleDimensionEdges {
+            return (.distance, Self.lineLengthRefs(edges[0]))
+        }
         let lines = selectedLineEntities
         let radii = selectedRadiusEntities
         let pts = Array(selectedSketchPoints)
@@ -11070,6 +11083,9 @@ final class EditorViewModel {
             // candidate) and its height, each an editable label on its side.
             if cand.kind == .horizontal {
                 appendCandidate(id: "candidate-vertical", kind: .vertical, refs: cand.refs)
+            } else if let edges = selectedRectangleDimensionEdges {
+                appendCandidate(id: "candidate-height", kind: .distance,
+                                refs: Self.lineLengthRefs(edges[1]))
             }
         }
         return labels
@@ -11086,7 +11102,12 @@ final class EditorViewModel {
         }
         // Opening an external badge enters its sketch and keeps its defining
         // geometry selected, so committing does not immediately hide the badge.
-        selectedSketchEntityIDs = Set(label.refs.map(\.entityID))
+        let definingIDs = Set(label.refs.map(\.entityID))
+        // A rectangle's baseline/height editor should not discard the other
+        // three selected sides (and its other size badge) when opened.
+        if selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs) {
+            selectedSketchEntityIDs = definingIDs
+        }
         selectedSketchPoints.removeAll()
         selectedConstraintID = nil
         selectedDimensionID = label.dimensionID
@@ -11230,8 +11251,17 @@ final class EditorViewModel {
         }
 
         guard let candidate = proposed.dimensions.first(where: { $0.id == candidateDimensionID }) else { return }
+        let rectangleEdges = selectedRectangleDimensionEdges
+        let preferredFarEdge: UUID?
+        if let edges = rectangleEdges, edit.kind == .distance,
+           Set(edit.refs.map(\.entityID)) == [edges[1]] {
+            preferredFarEdge = edges[2]
+        } else {
+            preferredFarEdge = nil
+        }
         let solvedEntities = SketchSolverBridge.solveDimensionEdit(
-            proposed, dimension: candidate, tolerance: Self.overConstraintTolerance).entities
+            proposed, dimension: candidate, tolerance: Self.overConstraintTolerance,
+            preservingLineID: preferredFarEdge).entities
         // The lock key (Shapr3D's "locked dimension"). Locked — the default —
         // records the value as a driving dimension. Unlocked, the value still
         // drives the solve that runs above, so the geometry lands exactly where
