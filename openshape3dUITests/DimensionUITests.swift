@@ -191,6 +191,54 @@ final class DimensionUITests: XCTestCase {
                       "editing an external badge enters its owning sketch without arming a draw tool")
     }
 
+    /// Click-away must accept, not silently discard, a typed dimension. It
+    /// consumes the canvas tap, so no additional drawing operation is created.
+    func testDimensionClickAwayAndToolSwitchCommitDraft() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
+        let badge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        let original = badge.label
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Keypad-3"].tap()
+        XCTAssertEqual(app.textFields["DimensionField"].firstMatch.value as? String, "3")
+        attach(app, "before-click-away")
+        p(0.70, 0.70).tap()
+        let field = app.textFields["DimensionField"].firstMatch
+        // Viewport single tap waits for its double-tap recognizer to fail.
+        let dismissed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"), object: field)
+        let result = XCTWaiter.wait(for: [dismissed], timeout: 3)
+        attach(app, "after-click-away")
+        XCTAssertEqual(result, .completed)
+        XCTAssertEqual(badge.label, "3 mm")
+        attach(app, "click-away-committed-three")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(badge.label, original, "One undo restores the pre-edit geometry")
+        app.buttons["RedoButton"].tap()
+        XCTAssertEqual(badge.label, "3 mm")
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Keypad-4"].tap()
+        startSketchTool(app, "Circle")
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        XCTAssertEqual(badge.label, "4 mm", "Tool switch accepts the pending value")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(badge.label, "3 mm")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(badge.label, original)
+        app.buttons["UndoButton"].tap()
+        XCTAssertFalse(app.buttons["UndoButton"].isEnabled,
+                       "Draw plus two edits only: click-away must not add a stray point")
+    }
+
     private func attach(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = name

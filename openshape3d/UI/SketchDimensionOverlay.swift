@@ -220,6 +220,11 @@ private struct DimensionField: View {
     var body: some View {
         content
             .onAppear { text = viewModel.editingDimension?.text ?? "" }
+            .onChange(of: text) { _, value in
+                if let sessionID = viewModel.editingDimension?.sessionID {
+                    viewModel.updateDimensionDraft(value, sessionID: sessionID)
+                }
+            }
             // A second shape reopens the field under the SAME label id
             // ("candidate"), so `onAppear` does not fire again — re-seed when
             // the edit itself moves.

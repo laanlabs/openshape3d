@@ -529,3 +529,15 @@ Lower-left transient preference implemented; clean22/22 regressions passed.
 Live reverse-width and down/right-height rechecks match native; Doc58images and
 master roadmap publication verified. Remaining quadrant/layout matrix stays open.
 Center, legacy and explicit-constraint fallback retained.
+
+### September 8: numeric click-away correction (verified samples)
+
+SK-12 / DM-11–12: native zero-width rejection preserves geometry, as does clone
+(modal vs inline warning differs). Native Escape cancels but blank click accepts
+a changed dimension; clone blank click/tool activation discarded it. Narrow
+click-away/tool-activation correction live verified; explicit cancellation remains
+separate. [Paired evidence](testing/sketch-parity-numeric-dismissal-2026-09-08.md).
+First run3passed/1new-test-failed at immediate dismissal assertion; targeted
+bounded-wait diagnostic1/1 passed (not one combined clean run). Live2→3 blank
+click and3→4 tool switch pass; invalid0 still preserves4×1.5. Doc64images and
+corrected hashes verified. Landscape/compact and live Escape delivery remain open.

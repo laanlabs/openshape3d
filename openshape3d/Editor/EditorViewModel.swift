@@ -8389,6 +8389,12 @@ final class EditorViewModel {
     /// entities to offset; other tools toggle entity selection, or finalize/
     /// clear pending state on empty space.
     private func handleSketchTap(ray: Ray, tool: SketchTool?) {
+        // Native click-away accepts the value; the same tap must not also
+        // place a point or trim geometry underneath the editor.
+        if editingDimension != nil {
+            finishDimensionEditOnClickAway()
+            return
+        }
         if tool == .rect {
             handleRectangleTap(ray: ray)
             return
@@ -9259,12 +9265,9 @@ final class EditorViewModel {
         if case .sketching(let id, _) = mode {
             commitPendingArc()
             clearChain()
-            // Arming a tool ends any pending value edit. The size field a
-            // freshly drawn shape opens is a big on-canvas card; leaving it up
-            // while the next tool is armed meant the next stroke began ON the
-            // card instead of the canvas. Reaching for another tool is a clear
-            // statement that you are done with that value.
-            editingDimension = nil
+            // Native accepts a pending numeric value when clicking another
+            // tool. Explicit cancellation remains a separate action.
+            finishDimensionEditOnClickAway()
             mode = .sketching(id, tool: tool) // just switch tools
             return
         }
@@ -10754,6 +10757,29 @@ final class EditorViewModel {
     }
     var editingDimension: DimensionEdit?
 
+    // The field keeps its own SwiftUI text state. Mirror drafts without
+    // observable writes on the TextField binding/render path (which previously
+    // caused a render loop). Session identity prevents stale drafts being used
+    // for a different badge or a reopened editor.
+    @ObservationIgnored private var dimensionDraft: (sessionID: UUID, text: String)?
+
+    func updateDimensionDraft(_ text: String, sessionID: UUID) {
+        guard editingDimension?.sessionID == sessionID else { return }
+        dimensionDraft = (sessionID, text)
+    }
+
+    private func finishDimensionEditOnClickAway() {
+        guard let edit = editingDimension else { return }
+        let text = dimensionDraft?.sessionID == edit.sessionID
+            ? dimensionDraft!.text : edit.text
+        // Merely inspecting a badge must not create an extra history step.
+        guard text != edit.text else {
+            cancelDimensionEdit()
+            return
+        }
+        commitDimensionEdit(text)
+    }
+
     /// Whether committing the field leaves a DRIVING dimension behind (the
     /// keypad's lock key). Shapr3D calls these "locked dimensions"; unlocked,
     /// the typed value still resizes the geometry, it just is not recorded as
@@ -11155,6 +11181,7 @@ final class EditorViewModel {
     }
 
     func cancelDimensionEdit() {
+        dimensionDraft = nil
         editingDimension = nil
     }
 
