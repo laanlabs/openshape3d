@@ -8248,6 +8248,7 @@ final class EditorViewModel {
         var sketchID: SketchID
         /// Entities when the drag began (transform baseline).
         var originals: [SketchEntity]
+        var baselineSketch: Sketch
         var pivot: SIMD2<Double>
         var grabPoint: SIMD2<Double>
         var pushed = false
@@ -8358,6 +8359,7 @@ final class EditorViewModel {
             kind: kind,
             sketchID: sketchID,
             originals: entities,
+            baselineSketch: activeSketch ?? sketch,
             pivot: centroid,
             grabPoint: raw
         )
@@ -8447,6 +8449,19 @@ final class EditorViewModel {
         }
         // Rects were pre-decomposed, so the mapping is always one-to-one.
         guard after.count == drag.originals.count else { return }
+        if drag.originals.allSatisfy({ if case .line = $0 { return true }; return false }) {
+            guard let solved = SketchSolverBridge.solveLineTransform(drag.baselineSketch, targets: after)
+            else {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                return
+            }
+            guard solved != drag.baselineSketch.entities || drag.pushed else { return }
+            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
+                before: drag.baselineSketch.entities, after: solved)
+            if drag.pushed { session.amend(command) }
+            else { session.perform(command); drag.pushed = true; sketchGizmoDrag = drag }
+            return
+        }
         guard after != drag.originals || drag.pushed else { return }
         let updates: [DocumentCommand] = zip(drag.originals, after).map {
             UpdateSketchEntityCommand(sketchID: drag.sketchID, before: $0.0, after: $0.1)
@@ -9765,8 +9780,12 @@ final class EditorViewModel {
             adjustingArcBulge = false
             return
         }
-        if sketchGizmoDrag != nil {
+        if let drag = sketchGizmoDrag {
             sketchGizmoDrag = nil // commands already pushed/amended live
+            if drag.pushed {
+                session.rebuildForSketchChange(drag.sketchID)
+                session.save()
+            }
             return
         }
         if let drag = sketchEntityDrag {

@@ -134,6 +134,47 @@ final class RectangleConstructionTests: XCTestCase {
         }
     }
 
+    func testLineGizmoTransformKeepsRectangleClosedAndSavedLocksFixed() throws {
+        let ids = (0..<4).map { _ in UUID() }
+        let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+            heightPoint: SIMD2(4, 7), ids: ids)
+        var sketch = Sketch(plane: .ground, entities: edges,
+            constraints: RectangleConstruction.constraints(for: edges))
+        let moved = SketchTransform.translate(entities: [edges[0]], by: SIMD2(0.5, -2))
+        let solved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(sketch, targets: moved))
+        XCTAssertNotEqual(solved, edges)
+        for index in 0..<4 {
+            XCTAssertLessThan(simd_distance(endpoints(solved[index]).1,
+                endpoints(solved[(index + 1) % 4]).0), 1e-5)
+        }
+        var resultSketch = sketch
+        resultSketch.entities = solved
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(resultSketch), 1e-5)
+        let center = (endpoints(solved[0]).0 + endpoints(solved[2]).0) / 2
+        XCTAssertEqual(ProfileDetector.profiles(at: center, in: resultSketch).count, 1)
+        sketch.constraints.append(SketchConstraint(kind: .fixed,
+            refs: [.init(entityID: ids[0], role: .whole)]))
+        let locked = try XCTUnwrap(SketchSolverBridge.solveLineTransform(sketch, targets: moved))
+        XCTAssertEqual(locked[0], edges[0], "Transform must not relocate the saved lock baseline")
+    }
+
+    func testLineGizmoRotationPreservesHorizontalConstraintAndHistorySnapshot() throws {
+        let id = UUID(), line = SketchEntity.line(id: id, a: .zero, b: SIMD2(4, 0))
+        let sketch = Sketch(plane: .ground, entities: [line], constraints: [
+            SketchConstraint(kind: .horizontal, refs: [.init(entityID: id, role: .whole)])])
+        let targets = SketchTransform.rotate(entities: [line], about: SIMD2(2, 0), angle: .pi / 6)
+        let solved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(sketch, targets: targets))
+        let pair = endpoints(solved[0])
+        XCTAssertEqual(pair.0.y, pair.1.y, accuracy: 1e-5)
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        let command = UpdateSketchEntitiesCommand(sketchID: sketch.id, before: [line], after: solved)
+        command.apply(to: &document)
+        command.revert(in: &document)
+        XCTAssertEqual(document.sketches[0].entities, [line])
+        XCTAssertEqual(document.sketches[0].constraints, sketch.constraints)
+    }
+
     func testCenterRectangleReflectsCornerInEveryQuadrant() throws {
         let center = SIMD2<Double>(4, -2)
         for dx in [-3.0, 3.0] {

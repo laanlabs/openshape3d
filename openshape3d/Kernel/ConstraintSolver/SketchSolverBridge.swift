@@ -113,6 +113,29 @@ nonisolated enum SketchSolverBridge {
                        structuralResidual: structuralResidual(solved))
     }
 
+    /// Move/Rotate line targets are transient pointer intent. Build from the
+    /// original sketch so saved locks and welded junctions retain their meaning.
+    static func solveLineTransform(_ sketch: Sketch, targets: [SketchEntity]) -> [SketchEntity]? {
+        guard !targets.isEmpty, targets.allSatisfy({ if case .line = $0 { return true }; return false })
+        else { return nil }
+        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        var pulls = sys.structural
+        for entity in targets {
+            for slot in mutableSlots(entity) {
+                guard let index = sys.pointIndex[SlotKey(entityID: slot.entityID, role: slot.role)]
+                else { return nil }
+                pulls.append(FixedPointConstraint(p: index, target: slot.position))
+            }
+        }
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed,
+                                               constraints: sys.structural)
+        let residual = sys.structural.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+    }
+
     /// Prefer the normalized lower-left corner for diagonal width/height edits.
     /// Paired reverse-drag checks corrected the earlier first-corner assumption.
     /// Explicit relationships win when holding that corner is incompatible.

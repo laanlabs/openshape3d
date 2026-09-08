@@ -194,6 +194,28 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.waitForExistence(timeout: 3))
     }
 
+    func testSingleEdgeGizmoMoveRetainsClosedRectangleProfile() {
+        let app = start()
+        type(app, "threePoint")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.4))
+        p(app, 0.65, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        app.buttons["Rect"].tap()
+        sleep(1)
+        p(app, 0.2, 0.7).tap()
+        sleep(1)
+        p(app, 0.45, 0.4).tap()
+        sleep(1)
+        XCTAssertTrue(app.buttons["SketchCopyBadge"].exists)
+        attach(app, "single-rectangle-edge-before-gizmo")
+        p(app, 0.5, 0.4).press(forDuration: 0.3, thenDragTo: p(app, 0.5, 0.35))
+        sleep(1)
+        attach(app, "single-rectangle-edge-after-gizmo")
+        app.buttons["Exit Sketching"].tap()
+        p(app, 0.5, 0.5).tap()
+        XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3),
+                      "Moved baseline must remain connected to an extrudable closed profile")
+    }
+
     func testShortThreePointHeightEdgeCanBeSelectedAtItsMiddle() {
         let app = start()
         type(app, "threePoint")

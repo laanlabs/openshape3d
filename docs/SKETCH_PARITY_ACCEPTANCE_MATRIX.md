@@ -426,3 +426,13 @@ its0.52mm editor. Exact endpoint selection retained in both.16unit passes
 plus targeted UI pass after two setup/timing failures, not combined clean
 run. Generic ring/glyph styling remains open. Both Docs blocked, local
 images retained. See short-edge-selection receipt.
+
+### September8 - connected line-control transform integrity
+
+Confirmed clone center-control movement disconnected a rectangle baseline
+from saved coincident sides. All-line gizmo transforms now solve original
+structural constraints and update whole sketch; dependent profiles rebuild.
+Clean20/20 plus targeted profile UI1/1, live move/UndoRedo/closed-profile
+and paired reopen. Saved locks automated-only; non-line transforms and
+white directional controls remain open. Both Docs blocked, local evidence
+retained. See line-gizmo-integrity receipt; not full transform acceptance.
