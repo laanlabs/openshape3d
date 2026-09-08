@@ -490,3 +490,8 @@ SK-03: paired live three-point completion now keeps two badges, no automatic key
 ### Three-point reselection continuation (23:03 EDT)
 
 Confirmed native baseline shrink keeps left side, clone previously rotated/translated after single-edge reselect. Component recovery now supports reselected/reloaded isolated four-line rectangles, with baseline-left/height-far transient sizing preferences and explicit-constraint fallback. Paired live baseline/height sequence and gallery save/reopen retained clone1.5/0.5mm and native140/50mm. Clean21/21 regression (14geometry+7UI). Illustrated Doc33images verified; latest reopen evidence local. See three-point receipt for limits and unresolved live Undo.
+
+
+## September 8 core-sketch milestone start
+
+[Detailed ordered plan](SKETCH_PARITY_NEXT_MILESTONE.md) and [all 56 original QA scenarios](SKETCH_PARITY_ACCEPTANCE_MATRIX.md) retained alongside all 42 issues. [Start receipt](testing/sketch-parity-milestone-start-2026-09-08.md) distinguishes current Peekaboo no-op/input uncertainty from history logic. Fresh clone toolbar/keyboard Undo leaves rectangle unchanged; native keyboard Undo/Redo restores prior segment. No source fix inferred. Clean diagnostic run: gallery-profile history plus line-chain history 2/2 passed on cd0937d. Not live paired history sign-off, not final candidate regression. Current source unchanged; device candidate not ready.
