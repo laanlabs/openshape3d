@@ -352,3 +352,13 @@ reselected annotation can extend vertically outside circle; placement, blue
 manipulation ring, radius/polygon/rectangle leaders remain open. Not a full
 visual acceptance or candidate claim. See
 [receipt](testing/sketch-parity-diameter-annotation-2026-09-08.md).
+
+### September 8 — arc radius annotation
+
+Arc-only radius leader now follows start endpoint outward with arrow/plain
+upright text; viewport extension shortened near edges. Paired right semicircle
+R310→400 native and R0.662→1 clone preserve180°/center/crossing line. Clean
+strengthened arc UI1/1: radius entry plus sweep/history/fullturn. Master20
+images export-verified. Native clears selection after commit, clone retains;
+blue full ring, arbitrary annotation placement and input-delivery anomalies
+remain open. [Receipt](testing/sketch-parity-radius-leader-2026-09-08.md).

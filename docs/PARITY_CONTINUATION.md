@@ -1,37 +1,40 @@
 # Parity continuation checkpoint
 
-September 8, 2026 13:16 EDT. Baseline e283aab pushed; scoped circle diameter/fill
-correction being committed now. No test/build/Peekaboo worker remains active.
-Preexisting untracked IDENTITY.md, SOUL.md, USER.md preserved.
+September 8,2026 13:33 EDT. Baseline a2251b5 pushed. Arc radius correction
+being committed; no test/build/Peekaboo process active. Preexisting untracked
+IDENTITY.md SOUL.md USER.md preserved.
 
-## Verified result and exact next action
+## Last result / exact next
 
-Circle/profile UI regression clean 2/2 in
-/tmp/os3d-diameter-annotation-20260908.xcresult. Live rightward release, Ø1.662→2
-entry, orange selected edge/clear interior, filled extrusion selection, actual
-1 mm cylinder: 3.14 mm³ and 2 × 1 × 2 mm bounds. Master DOCX export 16 images,
-three new PNG hashes matched; Saved to Drive. Receipt diameter-annotation.
+Arc radius leader and explicit edit paired: native right semicircle R310→400;
+clone R0.662→1,180°/centers/crossing lines retained. Clean1/1 strengthened
+arc UI radius2/sweep/history/fullturn, /tmp/os3d-radius-leader-20260908.xcresult.
+Master20 images exact export hashes verified, Saved to Drive. Receipt radius-
+leader has failed fixture/input attempts separately. No speculative input fix.
 
-Next: paired arc radius annotation/handle comparison, then implement only
-confirmed visual differences. Native diameter reselect annotation vertical and
-outside circle remains open; no native edit claimed after old-label miss.
-Clone full blue selection ring differs. Preserve release evidence scope.
+Next: paired selected arc white radial handle versus clone blue full ring.
+Determine native handle behavior with actual drag and compare clone before
+changing control geometry/hit-testing. Also rectangle/polygon leaders and
+constraint/endpoint glyphs remain blocking on-canvas acceptance.
 
-## Actual desktop state
+## Actual desktop
 
-Simulator2386 at275,44 landscape887×736: Untitled2 cylinder from Ø2 circle,
-selected, volume visible, no editor. PID86772 alive. One bottom Distance click
-showed Home; reactivation restored pending tool, on-canvas badge worked. Not
-a crash claim. Native1924 at99,79 Front Sketch02 circleØ760 center1000,200
-selected with vertical external diameter annotation clipped at top; other
-geometry retained, including R100/270° arc center750,299.
-Clicks window-relative, drags global; app switch before workflows; settle and
-inspect each capture. Never overlap UI tests with desktop interactions.
+Simulator2386 at275,44 landscape887×736: Untitled2 Front right semicircle
+center225,300 R1,180°, vertical crossing line225,220–380. Selectedorange,
+bluefullring, new radius leader downward, noeditor. PID90565. Tests reset
+previous cylinder fixture. Native1924 at99,79 Front Sketch02 right semicircle
+center950,525 R400,180°, vertical950,450–600. White radial handle1020,525,
+radius label935,680. Other prior geometry retained.
+
+Input anomalies: center/right drags sometimes no-op or show Home while app
+PIDstaysalive; leftcanvas drags work. Rapid tool-switch race and label overlap
+confounded some attempts; settle/capture before next action. No crash claim.
+Clicks window-relative, drags global; exclusive desktop, no overlap withtests.
 
 ## Publication and remaining gate
 
 Evidence root /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/.
-Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE t13 editable,16 images verified.
+Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE t13 editable,20 images verified.
 Illustrated1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko t11 remains Saving,
 76 images verified,6 pending local snap inserts; preserve unsynced tab/recovery.
 Full42-issue audit and56 acceptance recipes retained. Remaining on-canvas

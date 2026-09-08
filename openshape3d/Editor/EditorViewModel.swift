@@ -10761,6 +10761,7 @@ final class EditorViewModel {
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
         var isStandaloneLineLength = false
+        var isArcRadius = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
     }
@@ -10882,6 +10883,10 @@ final class EditorViewModel {
                   let r = Self.entityRadius(e),
                   let c = localPoint(ConstraintRef(entityID: ref.entityID, role: .center), in: sketch)
             else { return nil }
+            if kind == .radius, case let .arc(_, _, _, angle, _) = e {
+                let end = c + SIMD2(cos(angle), sin(angle)) * r
+                return ((c + end) / 2, c, end)
+            }
             let end = c + SIMD2(r, 0)
             let start = kind == .diameter ? c - SIMD2(r, 0) : c
             return (c + SIMD2(r * 0.5, 0), start, end)
@@ -11105,6 +11110,10 @@ final class EditorViewModel {
                RectangleConstruction.dimensionEdges(containing: first.entityID,
                                                     in: sketch.entities) == nil {
                 label.isStandaloneLineLength = true
+            }
+            if kind == .radius, let ref = refs.first,
+               case .arc? = sketchEntity(ref.entityID, in: sketch) {
+                label.isArcRadius = true
             }
             if kind == .angle, refs.count == 1,
                case let .arc(_, center, radius, start, end)? =

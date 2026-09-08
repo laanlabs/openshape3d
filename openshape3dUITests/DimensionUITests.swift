@@ -89,7 +89,16 @@ final class DimensionUITests: XCTestCase {
         let radius = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "R")).firstMatch
         XCTAssertTrue(angle.waitForExistence(timeout: 3))
         XCTAssertTrue(radius.exists)
-        let beforeAngle = angle.label, beforeRadius = radius.label
+        let beforeAngle = angle.label
+        radius.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-2"].tap()
+        app.buttons["KeypadCommit"].tap()
+        sleep(1)
+        XCTAssertEqual(angle.label, beforeAngle)
+        XCTAssertTrue(radius.label.contains("2"))
+        attach(app, "arc-radius-two-sweep-retained")
+        let beforeRadius = radius.label
         angle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
         app.buttons["Keypad-9"].tap(); app.buttons["Keypad-0"].tap()

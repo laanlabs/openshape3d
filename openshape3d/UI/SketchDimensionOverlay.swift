@@ -124,6 +124,7 @@ struct SketchDimensionOverlay: View {
            let end = project(label.worldEnd) {
             let arc = arcLeader(label)
             let linear = label.isStandaloneLineLength ? SketchLinearDimensionLayout.make(start: start, end: end) : nil
+            let radial = label.isArcRadius ? radiusLeader(start, end, in: size) : nil
             let diameter = label.kind == .diameter ? diameterText(start, end, anchor: anchor) : nil
             if let arc {
                 Path { path in
@@ -139,6 +140,18 @@ struct SketchDimensionOverlay: View {
                     addArrow(to: &path, tip: arc.points[0], toward: arc.points[1])
                     addArrow(to: &path, tip: arc.points[arc.points.count - 1],
                              toward: arc.points[arc.points.count - 2])
+                }
+                .fill(Color.primary)
+                .allowsHitTesting(false)
+            } else if let radial {
+                Path { path in
+                    path.move(to: start)
+                    path.addLine(to: radial.tail)
+                }
+                .stroke(Color.primary, lineWidth: 1)
+                .allowsHitTesting(false)
+                Path { path in
+                    addArrow(to: &path, tip: end, toward: radial.tail)
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
@@ -202,6 +215,14 @@ struct SketchDimensionOverlay: View {
                             .rotationEffect(.radians(arc.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
+                    } else if let radial {
+                        Text(label.text)
+                            .font(.system(size: 16))
+                            .monospacedDigit()
+                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .rotationEffect(.radians(radial.rotation))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     } else if let diameter {
                         Text(label.text)
                             .font(.system(size: 16))
@@ -242,11 +263,39 @@ struct SketchDimensionOverlay: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .position(arc?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
+                .position(arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
             }
         }
+    }
+
+    /// The sampled native radius leader leaves the arc's start endpoint and
+    /// continues outward. Shorten the extension near the viewport edge so its
+    /// explicit dimension control remains reachable.
+    private func radiusLeader(_ center: CGPoint, _ tip: CGPoint, in size: CGSize)
+        -> (tail: CGPoint, anchor: CGPoint, rotation: Double)? {
+        let dx = tip.x - center.x, dy = tip.y - center.y
+        let length = hypot(dx, dy)
+        guard length > 1 else { return nil }
+        let ux = dx / length, uy = dy / length
+        var extensionLength: CGFloat = 220
+        let bounds = CGRect(x: 96, y: 140,
+                            width: max(1, size.width - 192),
+                            height: max(1, size.height - 210))
+        if ux > 0.001 { extensionLength = min(extensionLength, (bounds.maxX - tip.x) / ux) }
+        if ux < -0.001 { extensionLength = min(extensionLength, (bounds.minX - tip.x) / ux) }
+        if uy > 0.001 { extensionLength = min(extensionLength, (bounds.maxY - tip.y) / uy) }
+        if uy < -0.001 { extensionLength = min(extensionLength, (bounds.minY - tip.y) / uy) }
+        extensionLength = max(0, extensionLength)
+        let tail = CGPoint(x: tip.x + ux * extensionLength, y: tip.y + uy * extensionLength)
+        var rotation = atan2(Double(dy), Double(dx))
+        if abs(dx) < length * 0.01 { rotation = -.pi / 2 }
+        else if rotation > .pi / 2 { rotation -= .pi }
+        else if rotation < -.pi / 2 { rotation += .pi }
+        let anchor = CGPoint(x: tip.x + ux * extensionLength * 0.75 + CGFloat(sin(rotation)) * 20,
+                             y: tip.y + uy * extensionLength * 0.75 - CGFloat(cos(rotation)) * 20)
+        return (tail, anchor, rotation)
     }
 
     private func diameterText(_ start: CGPoint, _ end: CGPoint, anchor: CGPoint)
