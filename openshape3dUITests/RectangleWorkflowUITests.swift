@@ -32,6 +32,46 @@ final class RectangleWorkflowUITests: XCTestCase {
         shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
 
+    func testGalleryReopenedDesignCanUndoNewRectangle() {
+        let app = start()
+        p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.55, 0.48))
+        app.buttons["Exit Sketching"].tap()
+        app.navigationBars.buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Designs"].waitForExistence(timeout: 5))
+        app.terminate()
+        app.launchEnvironment.removeValue(forKey: "OS3D_FRESH")
+        app.launchEnvironment.removeValue(forKey: "OS3D_RESET_STORE")
+        app.launch()
+        let card = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Untitled'")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        card.tap()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Rect")
+        p(app, 0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        p(app, 0.35, 0.65).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.82))
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
+        XCTAssertEqual(labels.count, 2)
+        sleep(3) // allow the same autosave window as manual live interaction
+        let undo = app.buttons["UndoButton"]
+        XCTAssertTrue(undo.isEnabled)
+        undo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(labels.firstMatch.waitForNonExistence(timeout: 3),
+                      "Undo in a gallery-reopened project must remove the newly drawn rectangle")
+        attach(app, "gallery-undo-before-profile-check")
+        app.buttons["Exit Sketching"].tap()
+        p(app, 0.5, 0.74).tap()
+        XCTAssertFalse(app.buttons["Extrude"].exists,
+                       "Undo must remove the profile, not only clear selection")
+        app.buttons["RedoButton"].tap()
+        p(app, 0.5, 0.74).tap()
+        XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3),
+                      "Redo must restore the usable profile; selection badges need not return")
+        attach(app, "gallery-redo-restored-profile")
+    }
+
     func testDiagonalWidthEditKeepsProfileNearFirstCorner() throws {
         let app = start()
         type(app, "diagonal")
