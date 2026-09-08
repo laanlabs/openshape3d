@@ -32,16 +32,15 @@ final class DimensionUITests: XCTestCase {
     /// Open the dimension field, clear it, enter `value` ON THE KEYPAD, commit.
     ///
     /// There is no system keyboard to type into any more — the field is edited
-    /// by the on-canvas pad, which is the point of it. Drawing a circle /
-    /// rectangle / polygon already opens the field on lift-off (bug report
-    /// 5ef841c2), so only tap a label when one is not open yet.
+    /// by the on-canvas pad. Completed lines, circles and rectangles retain
+    /// readouts; an explicit badge tap opens the editor.
     private func setDimension(_ app: XCUIApplication, to value: String) {
         let field = app.textFields.matching(identifier: "DimensionField").firstMatch
         if !field.exists {
             let label = app.buttons["DimensionLabel"].firstMatch
             XCTAssertTrue(label.waitForExistence(timeout: 3),
                           "Selecting the entity should show an editable dimension label")
-            label.tap()
+            label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         XCTAssertTrue(field.waitForExistence(timeout: 3), "The dimension field is open")
         XCTAssertTrue(app.buttons["KeypadDelete"].waitForExistence(timeout: 3),
@@ -101,7 +100,7 @@ final class DimensionUITests: XCTestCase {
                        "Line draw + dimension should be exactly two undo steps")
     }
 
-    // MARK: - Circle radius dimension
+    // MARK: - Circle diameter dimension
 
     func testCircleDiameterDimensionDrivesGeometry() throws {
         let app = XCUIApplication()
@@ -115,11 +114,13 @@ final class DimensionUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: dy))
         }
 
-        // Draw a circle (center → radius handle). Lift-off selects it and opens
-        // its radius field, so type straight in — no second tap. Note the
-        // on-screen keyboard that field raises carries its own "Undo" button,
-        // which is why the undo assertion waits until after the commit.
+        // Native release retains diameter without forcing numeric entry.
         p(0.50, 0.50).press(forDuration: 0.15, thenDragTo: p(0.63, 0.50))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.label.hasPrefix("Ø"))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists,
+                       "Circle release must not auto-open the keypad")
+        attach(app, "circle-release-readout")
 
         // A full circle dimensions as a DIAMETER (it reads Ø while you drag it
         // out, so offering R on release showed two numbers for one circle).

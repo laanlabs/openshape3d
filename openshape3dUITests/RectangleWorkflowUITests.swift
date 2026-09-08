@@ -222,11 +222,14 @@ final class RectangleWorkflowUITests: XCTestCase {
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.60, 0.60))
         startSketchTool(app, "Circle")
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.44, 0.35))
-        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3),
+        let diameter = app.buttons.matching(NSPredicate(format:
+            "identifier == 'DimensionLabel' AND label BEGINSWITH 'Ø'")).firstMatch
+        XCTAssertTrue(diameter.waitForExistence(timeout: 3),
                       "The circle draw must not become a rectangle control-point edit")
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        diameter.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
         app.buttons["KeypadCommit"].tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format:
-            "identifier == 'DimensionLabel' AND label BEGINSWITH 'Ø'")).firstMatch.waitForExistence(timeout: 3))
         attach(app, "circle-at-rectangle-corner")
     }
 }

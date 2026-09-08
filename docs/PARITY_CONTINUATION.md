@@ -1,22 +1,23 @@
 # Parity continuation checkpoint
 
-Updated September 8, 2026, 07:21 EDT, dedicated active session.
+Updated September 8, 2026, 07:41 EDT, dedicated active session.
 
 ## Revision, ownership, actual execution
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-Base `6ec8d54` pushed (milestone plan/map/start diagnosis). This checkpoint is
-being committed with the active-plane grid correction. Inspect git HEAD/status
-on resume. App files: EditorViewModel.swift, ViewportBridge.swift, Renderer.swift,
-ShaderTypes.h, Shaders.metal. No other app changes. Pre-existing untracked
+HEAD `0e02425` pushed (active-plane grid); earlier `6ec8d54` contains milestone
+plan/map/start diagnosis. This checkpoint is being committed with the verified circle release fix: EditorViewModel.swift,
+DimensionUITests.swift, RectangleWorkflowUITests.swift; acceptance matrix and new
+line/circle receipt plus this checkpoint. Inspect actual git/processes on resume. Pre-existing untracked
 IDENTITY.md/SOUL.md/USER.md preserved, excluded from task commits.
 
-Dedicated session exclusively owns desktop. No test/build/Peekaboo process is
-running between current interactions. Grid regression finished; no stale running
-claim or duplicate worker/watchdog. Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16,
+Dedicated session exclusively owns desktop. Circle regression completed clean4/4
+(`/tmp/os3d-milestone-circle-20260908.xcresult`). No tests/builds running; this
+session owns sequential live Peekaboo interactions. Grid regression finished. Reconcile actual
+processes before resuming; no duplicate worker/watchdog. Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16,
 window2386 (275,44),683×940; native Shapr3D window1924 (99,79),1515×848.
 Installed tested simulator binary SHA256:
-`c0ea005f51a9295670ccd089fc93001511caac1c02371358e139a861b45528be`.
+`9285e5857dbe2b2afbc00a3989bddeac5634e716fa9016357a4372b10e9247b2`.
 This is not a physical-device artifact.
 
 ## Latest verified result
@@ -52,12 +53,21 @@ drag --from-coords/--to-coords remain global. No service/security changes.
 
 ## Exact next action and queue
 
-Finish push of grid correction, then paired line-chain/finish/cancel in current
-Top sketches. Native currently Top Sketch01, no pending drawing; clone Top empty
-Line sketch. Do not reuse stale earlier rectangle locations/selection. Check new
-live input after cleared entry; distinguish no-op delivery from app behavior.
-Do not repeat identical no-op inputs indefinitely.
-
+Push circle correction after commit, then concentric-circle initiation in current
+Top sketches. Native Circle armed, circle centered(relative1100,600) diameter200,
+original horizontal line remains. Clone Circle armed in new Untitled2, circle
+centered(relative221,335), diameter1, original3 mm line remains. Draw larger circle
+from existing center in each; confirm no control-point interception. Circle fix
+post-release/readout, explicit editor and center-preserving edits paired.
+Illustrated Doc46images verified, three corrected PNG hashes and text matched.
+Line drag/readout paired. Native Escape clears temporary next-segment preview;
+clone keyboard/double-click did not visibly do so. Hardware Keyboard checked;
+Simulator separate keyboard capture tested and returned OFF. No history/Escape
+code change. Missing line Escape binding noted but delivery unresolved. Circle
+palette and endpoint-start drag work: source endpoint/line preserved in both;
+clone forced keypad while native retained diameter. Correct only confirmed gap.
+Receipt `docs/testing/sketch-parity-line-circle-2026-09-08.md`. Native input no-op
+is not blanket: fresh line and circle drags now succeeded.
 Continue milestone ordered matrix: drawing/plane/cancel (offset/face/miss still
 open); rectangle/numeric directions/layout; selection/snapping/constraints/edit;
 persistence/profile/extrusion; final revision regression; verified documentation;

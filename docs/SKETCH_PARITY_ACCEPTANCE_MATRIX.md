@@ -9,14 +9,14 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — partial, not passed | Empty Front exit removes new sketch in both apps; other cancel/visibility variants open. |
-| QA-05 | Line chain | Core — not run | Paired acceptance outstanding. |
-| QA-06 | Line cancel | Core — not run | Paired acceptance outstanding. |
+| QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
+| QA-06 | Line cancel | Core — blocked live | Native Escape clears preview; clone keyboard/double-click delivery unresolved. |
 | QA-07 | Line raw aim | Core — not run | Paired acceptance outstanding. |
 | QA-08 | Diagonal rectangle | Core — partial, not passed | Down-right half-width anchor paired; other quadrants/order open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Sequential center height/width paired; reverse order open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing and reselection paired; cancel/direction matrix open. |
 | QA-11 | Concentric circles | Core — not run | Paired acceptance outstanding. |
-| QA-12 | Circle dimensions | Core — not run | Paired acceptance outstanding. |
+| QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
 | QA-13 | Arc construction | Core — not run | Paired acceptance outstanding. |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core — not run | Paired acceptance outstanding. |

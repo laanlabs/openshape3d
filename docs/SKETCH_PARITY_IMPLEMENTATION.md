@@ -505,3 +505,14 @@ Clean21/21 plane/camera/UI regression. Live Front and Right now show grid/axes;
 Top retained. Empty Front exit leaves no sketch in both apps.
 [Grid receipt](testing/sketch-parity-plane-grid-2026-09-08.md). Offset/face,
 full entry/cancel and drawing coverage remain open. No geometry/snapping changes.
+
+
+### September 8: circle release/readout correction
+
+SK-04 / QA-12/18: paired circle-at-line-endpoint preserves source geometry;
+clone auto-keypad differed from native retained diameter. Circle release now
+keeps readout without numeric entry. Clean4/4 focused UI regression; live explicit
+edit native420→200 and clone2.236→1 preserves center/line. Polygon unchanged.
+[Line/circle receipt](testing/sketch-parity-line-circle-2026-09-08.md). Concentric
+initiation and radius-mode matrix remain open. Live line Escape/history delivery
+remains blocked; not addressed by this circle fix, not candidate-ready.
