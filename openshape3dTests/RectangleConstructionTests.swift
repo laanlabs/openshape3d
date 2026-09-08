@@ -24,6 +24,28 @@ final class RectangleConstructionTests: XCTestCase {
         XCTAssertNil(RectangleConstruction.dimensionEdges(in: trapezoid))
     }
 
+    func testReselectedThreePointBaselinePreservesLeftSide() throws {
+        let ids = (0..<4).map { _ in UUID() }
+        let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+            heightPoint: SIMD2(4, 7), ids: ids)
+        let loaded = try JSONDecoder().decode([SketchEntity].self, from: JSONEncoder().encode(edges))
+        XCTAssertEqual(RectangleConstruction.dimensionEdges(containing: ids[0], in: loaded), ids)
+        let branch = SketchEntity.line(id: UUID(), a: SIMD2(1, 2), b: SIMD2(-4, 2))
+        XCTAssertNil(RectangleConstruction.dimensionEdges(containing: ids[0], in: loaded + [branch]))
+        let dimension = SketchDimension(kind: .distance, refs: [
+            .init(entityID: ids[0], role: .endpointA), .init(entityID: ids[0], role: .endpointB)], value: 2)
+        let sketch = Sketch(plane: .ground, entities: loaded,
+            constraints: RectangleConstruction.constraints(for: loaded), dimensions: [dimension])
+        let outcome = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dimension,
+            preservingLineID: ids[3])
+        XCTAssertTrue(outcome.converged)
+        XCTAssertLessThan(outcome.structuralResidual, 1e-5)
+        XCTAssertEqual(outcome.entities[3], loaded[3])
+        guard case let .line(_, a, b) = outcome.entities[0] else { return XCTFail() }
+        XCTAssertEqual(simd_length(b - a), 2, accuracy: 1e-5)
+        XCTAssertEqual(simd_normalize(b - a).x, 4 / sqrt(17), accuracy: 1e-5)
+    }
+
     func testThreePointHeightPreservesFarEdgeAndUndrivenLength() throws {
         for height in [-1.0, 1.0] {
             let ids = (0..<4).map { _ in UUID() }

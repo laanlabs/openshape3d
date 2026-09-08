@@ -33,3 +33,17 @@ Repeated same clone lower-right workflow: baseline3.041/height1.069mm → height
 Illustrated Doc interim exported and verified28inline images plus follow-up text; `published-threepoint-interim.docx`. Corrected result publication follows. Baseline edit and all-signed-angle/reselected-height lifecycle still require live comparison.
 
 Final illustrated export verified29inline images and corrected-outcome section; `published-threepoint-final.docx` and `publication.json`. Simulator executable SHA256 `990cc2dd9b4dbd1a1935412e5bd31ee02c3f963e5b94d9188162adba10501ef8`. Not a physical-iPad build.
+
+## Reselected baseline follow-up (22:49 EDT, after06af705)
+
+Coordinate-targeted Undo diagnostic passed1/1 at `/tmp/os3d-toolbar-undo-diagnosis-20260907.xcresult`; AX Undo frame(347,36,39.5,36) in1032×1376 window maps to the same live icon center(253,118). Temporary diagnostic removed. Additional global synthOnly/window-ID live attempts still showed no change; no undo product change justified. Master roadmap06af705 update exported and verified in `master-roadmap-published.txt`.
+
+Paired baseline reselect: native276.5863→140mm after height50 keeps left endpoints(671,283),(664,313) and orientation. Clone selected baseline2.062→1mm on reloaded height1 rectangle rotates to almost horizontal, left side translates. Captures `native-baseline-*`, `clone-baseline-*` confirm gap. New component recovery finds exactly4connected rectangular lines from a single edge, rejects branches/larger components, and retains document order. Baseline prefers left edge; height prefers far baseline even after single-edge reselection. Existing constraints still override. Under test; not live signed off. Serial `/tmp/os3d-three-point-reselection-20260907.xcresult` running, geometry+rectangleUI.
+
+Reselection regression finished22:53 EDT:21/21 passed (14geometry+7rectangleUI), one clean run. Only subsequent source edit is a solver comment clarifying baseline/height scope; no behavior change. Live repeat underway.
+
+## Reselection live sign-off (23:03 EDT)
+
+Fresh clone baseline3.041→1.5 keeps left endpoints(221,698),(206,784) and direction, matching native276.5863→140. Clear selection/reselect right edge height1.069→0.5 keeps far baseline endpoints(206,784),(326,804); baseline reselect still1.5mm. Back to gallery/reopen: both1.5 and0.5 readouts retained. Native home/recents/reopen and double-click sketch retained140/50mm. Captures `reselect-*`, `native-reopen-*`. Native prompted upgrade on reopen; dismissed via Skip & Use Limited Version, no purchase/trial started.
+
+Illustrated Doc exported with33inline images and corrected baseline/sequence prose (`published-reselection-final.docx`). Reopen evidence retained locally; publication of final reopen note pending. Current simulator executable SHA25670781f75b6bd975f604b9a5fb847a8cef48f4a8a3ffe26f26c0062359c162810. Not physical-iPad build. Next: gallery-reopened Undo diagnostic, then core plane/line/cancel matrix. Live Undo still unverified; no source change for it.

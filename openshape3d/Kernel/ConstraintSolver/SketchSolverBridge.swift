@@ -103,8 +103,8 @@ nonisolated enum SketchSolverBridge {
     static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
                                    tolerance: Double = 1e-5,
                                    preservingLineID: UUID? = nil) -> Outcome {
-        // A fresh three-point height edit prefers the far baseline, matching
-        // the paired native workflow. This is transient solve intent, never
+        // Three-point sizing can prefer an adjacent side, matching the
+        // paired native baseline/height workflows. This is transient intent, never
         // a persisted Lock; explicit relationships still take precedence.
         if let id = preservingLineID,
            sketch.entities.contains(where: { if case .line = $0 { return $0.id == id }; return false }) {

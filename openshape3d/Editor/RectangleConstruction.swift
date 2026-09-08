@@ -65,6 +65,32 @@ nonisolated enum RectangleConstruction {
         return loop.map(\.id)
     }
 
+    /// Recover an isolated rectangular line component after selecting one
+    /// edge (including save/reload), retaining document order. Branching or
+    /// larger connected components are deliberately not guessed as rectangles.
+    static func dimensionEdges(containing id: UUID, in entities: [SketchEntity]) -> [UUID]? {
+        let lines = entities.filter { if case .line = $0 { return true }; return false }
+        guard let seed = lines.first(where: { $0.id == id }) else { return nil }
+        var connected = [seed]
+        var ids: Set<UUID> = [id]
+        var changed = true
+        func touches(_ lhs: SketchEntity, _ rhs: SketchEntity) -> Bool {
+            guard case let .line(_, a, b) = lhs, case let .line(_, c, d) = rhs else { return false }
+            return [simd_distance(a, c), simd_distance(a, d),
+                    simd_distance(b, c), simd_distance(b, d)].min()! < 1e-5
+        }
+        while changed {
+            changed = false
+            for line in lines where !ids.contains(line.id) {
+                if connected.contains(where: { touches(line, $0) }) {
+                    connected.append(line); ids.insert(line.id); changed = true
+                    if ids.count > 4 { return nil }
+                }
+            }
+        }
+        return dimensionEdges(in: lines.filter { ids.contains($0.id) })
+    }
+
     static func constraints(for edges: [SketchEntity]) -> [SketchConstraint] {
         guard edges.count == 4 else { return [] }
         func whole(_ i: Int) -> ConstraintRef { .init(entityID: edges[i].id, role: .whole) }
