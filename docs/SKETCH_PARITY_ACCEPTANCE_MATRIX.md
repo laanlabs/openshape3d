@@ -400,3 +400,11 @@ Native2000x1000 pairedanchor/editorresult captured. Selectedrectangle still
 showsgenericbluering: separateopen visualgap, notfullacceptance. MasterDoc
 Savingblocked36verifiedimages, clone diagnosisinsertpending andfinalscreens
 localonly. [Receipt](testing/sketch-parity-rectangle-leaders-2026-09-08.md).
+
+### September8 — three-point outside leaders; new anchor discrepancy
+
+Recoveredrectinterior chooses outwardsolidleaders/plainrotatedtext. Clean6/6
+layout+UI andlivebothkeypads/retaineddimensions. Nativeheightthenbaseline
+sampleheldRIGHTside whenbaseline shortened; cloneheldLEFT. Newgeometry
+gapopen—do notclaimsequentialanchorparity. BothDocsblocked, localindex
+containscorrected screenshots. [Receipt](testing/sketch-parity-three-point-leaders-2026-09-08.md).

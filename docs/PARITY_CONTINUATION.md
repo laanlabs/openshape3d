@@ -1,8 +1,9 @@
 # Parity continuation checkpoint
 
-September8,2026 ~16:11EDT. HEAD2ce4be7 pushed; axisrectangleleaders
-readyforcommit. Clean5/5 serial5025; finalpairedliveeditor/anchorchecks
-complete, no tests/Peekaboo workeractive. Preexistingidentityfilesuntouched.
+September8,2026 ~16:26EDT. HEAD8bf9568 pushed; threepointleadersready
+forcommit. Clean6/6 serial76327, liveoutsideleaders/bothkeypadsverified.
+NEW sequentialbaselineanchor discrepancy: nativerightheld vscloneleft.
+No tests/Peekaboo workeractive. Preexistingidentityfilesuntouched.
 
 ## Verified
 
@@ -19,11 +20,13 @@ initialfailures/targetedpasses accurately.
 
 ## Exact next
 
-Commit/push axisrectangleleader correction with pendingpublicationexplicit.
-Continuepairedthreepoint leaders orselectedrectangle controlgap. Current
-clone2x1rect200,289→321,350 selectedorange/fullbluering; leadersleft/below
-remainreadable. Native2000x1000 rect300,187→472,273, toolarmedlabelsnotboth
-shownaftercommit. Fullrectreceipt recordsfailedtapattempts.
+Commit/push scopedthreepointleader correction withanchor-gapexplicit.
+Then reproduce independent threepoint height→baseline sizing in native/clone,
+comparewhich edge/ref/endpointsanchor beforechanging solver. Currentnative
+height800→400 baseline1520.2328→1200 heldrightside1035,523/1024,555;
+cloneheight1.244→1 baseline2.565→2 heldleft495,484/480,542. Priorreceipt
+claimedleftanchor fromanotheredge/sample; do notgeneralize. BothDocsblocked;
+localvisualindex updated.
 
 ## Desktop
 

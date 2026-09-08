@@ -11,13 +11,18 @@ enum SketchLinearDimensionLayout {
         let rotation: Double
     }
 
-    static func make(start: CGPoint, end: CGPoint, leaderOffset: CGFloat = 60) -> Layout? {
+    static func make(start: CGPoint, end: CGPoint, leaderOffset: CGFloat = 60, awayFrom interior: CGPoint? = nil) -> Layout? {
         var dx = end.x - start.x, dy = end.y - start.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
         let nearVertical = abs(dx) < length * 0.01
         if nearVertical ? dy < 0 : dx < 0 { dx = -dx; dy = -dy }
-        let nx = -dy / length, ny = dx / length
+        var nx = -dy / length, ny = dx / length
+        if let interior {
+            let towardMidX = (start.x + end.x) / 2 - interior.x
+            let towardMidY = (start.y + end.y) / 2 - interior.y
+            if towardMidX * nx + towardMidY * ny < 0 { nx = -nx; ny = -ny }
+        }
         func offset(_ point: CGPoint, by distance: CGFloat) -> CGPoint {
             CGPoint(x: point.x + nx * distance, y: point.y + ny * distance)
         }

@@ -10840,6 +10840,7 @@ final class EditorViewModel {
         // World points keep the leader aligned when the camera/plane changes.
         var isStandaloneLineLength = false
         var isRectangleSize = false
+        var worldRectangleCenter: SIMD3<Double>? = nil
         var isArcRadius = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
@@ -11190,10 +11191,17 @@ final class EditorViewModel {
             )
             if kind == .distance, let first = refs.first,
                refs.count == 2, refs.allSatisfy({ $0.entityID == first.entityID }),
-               case .line? = sketchEntity(first.entityID, in: sketch),
-               RectangleConstruction.dimensionEdges(containing: first.entityID,
-                                                    in: sketch.entities) == nil {
-                label.isStandaloneLineLength = true
+               case .line? = sketchEntity(first.entityID, in: sketch) {
+                if let edges = RectangleConstruction.dimensionEdges(containing: first.entityID,
+                                                                     in: sketch.entities) {
+                    let centers = edges.compactMap { sketchEntity($0, in: sketch) }.map(Self.entityCenter)
+                    if centers.count == 4 {
+                        label.isRectangleSize = true
+                        label.worldRectangleCenter = sketch.plane.toWorld(centers.reduce(.zero, +) / 4)
+                    }
+                } else {
+                    label.isStandaloneLineLength = true
+                }
             }
             if (kind == .horizontal || kind == .vertical), refs.count == 2,
                refs[0].entityID == refs[1].entityID,
