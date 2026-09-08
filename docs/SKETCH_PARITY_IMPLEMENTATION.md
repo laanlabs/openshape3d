@@ -729,3 +729,12 @@ baseline edge. Clean17/17 and live both slopes, Undo/Redo, sequential height
 edit. Reopened baseline verified; short height-edge selection remains open.
 Both Docs blocked; local screenshots retained. Not full on-canvas acceptance.
 See three-point-leaders receipt for complete history.
+
+### September 8 - short edge versus endpoint selection
+
+Tap-only point picking now preserves the middle of short lines. Native26px
+edge midpoint selects height; clone30px edge now does likewise and opens
+its0.52mm editor. Exact endpoint selection retained in both.16unit passes
+plus targeted UI pass after two setup/timing failures, not combined clean
+run. Generic ring/glyph styling remains open. Both Docs blocked, local
+images retained. See short-edge-selection receipt.

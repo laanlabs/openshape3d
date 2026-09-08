@@ -8545,7 +8545,8 @@ final class EditorViewModel {
         selectedConstraintID = nil
         selectedDimensionID = nil
         if let pt = SketchHitTester.nearestPoint(
-            to: raw, in: sketch.entities, tolerance: controlPointTolerance
+            to: raw, in: sketch.entities, tolerance: controlPointTolerance,
+            preservingLineInterior: true
         ) {
             let sel = SketchPointSelection(entityID: pt.entityID, role: pt.role)
             if selectedSketchPoints.contains(sel) {

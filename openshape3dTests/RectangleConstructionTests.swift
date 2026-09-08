@@ -115,6 +115,25 @@ final class RectangleConstructionTests: XCTestCase {
         }
     }
 
+    func testShortLineInteriorRemainsSelectableWithoutStealingExactPoints() throws {
+        for scale in [0.001, 0.01, 0.1] {
+            let ids = (0..<4).map { _ in UUID() }
+            let edges = RectangleConstruction.threePoint(a: .zero,
+                b: SIMD2(160 * scale, 0), heightPoint: SIMD2(160 * scale, 40 * scale), ids: ids)
+            let middle = SIMD2(160 * scale, 20 * scale)
+            let tolerance = SketchHitTester.screenControlPointTolerance(worldUnitsPerPoint: scale)
+            XCTAssertNil(SketchHitTester.nearestPoint(to: middle, in: edges,
+                tolerance: tolerance, preservingLineInterior: true))
+            XCTAssertEqual(SketchHitTester.nearestEntity(to: middle, in: edges,
+                tolerance: tolerance)?.entity.id, ids[1])
+            XCTAssertNotNil(SketchHitTester.nearestPoint(to: SIMD2(160 * scale, 2 * scale),
+                in: edges, tolerance: tolerance, preservingLineInterior: true))
+            let pointEntity = SketchEntity.circle(id: UUID(), center: middle, radius: scale)
+            XCTAssertEqual(SketchHitTester.nearestPoint(to: middle, in: edges + [pointEntity],
+                tolerance: tolerance, preservingLineInterior: true)?.entityID, pointEntity.id)
+        }
+    }
+
     func testCenterRectangleReflectsCornerInEveryQuadrant() throws {
         let center = SIMD2<Double>(4, -2)
         for dx in [-3.0, 3.0] {

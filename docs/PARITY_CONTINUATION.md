@@ -1,20 +1,20 @@
 # Parity continuation checkpoint
 
-September 8, 2026 approximately 16:52 EDT. HEAD cfc7fd5 pushed.
-Final evidence documentation dirty; initial append failed encoding, now repaired.
+September 8, 2026 17:07 EDT. HEAD258fee5 pushed; short-edge correction
+verified and ready for commit. Dirty source/tests/receipt/ledger/matrix/checkpoint.
 Preexisting identity files untouched. No tests/build/Peekaboo workers active.
-Clean17/17 regression72820 and live opposite slopes, UndoRedo, sequential
-height edit passed. Native holds lower side regardless of draw direction.
-Clone reopened baseline2 verified; short height edge picked endpoint instead.
-Both Docs still Saving; local evidence retained, not published.
+16unit passes plus targeted43234 UI pass after19901/20358 setup failures.
+Single-tap delivery needs settling before inspecting deselection; no product
+change for test timing. Live midpoint selects short edge/editor0.52; exact
+endpoint still selects endpoint. Native26px edge/300 editor comparison captured.
 
-Exact next: commit evidence checkpoint, then paired short rectangle-edge
-selection/default manipulation control comparison.
-Clone Simulator2386 at275,44: reopened Untitled2 Front, tool off, upperleft
-2 by 0.5 rectangle (239,339)/(340,312)/(347,338)/(245,365). Upper-right
-endpoint selected after short height-edge click. Lower-right rect2 by1.244.
-Native1924 at99,79 FrontSketch02, tool off, latest1200 by600 rectangle
-(250,600)/(350,572)/(364,622)/(264,650); other diagnosis rectangles retained.
+Exact next: commit/push short-edge fix, then paired default selected-line
+normal-arrow manipulation versus clone generic full blue ring. Verify actual
+free/driven line or rectangle-edge move semantics before implementing control.
+Clone2386at275,44 FrontUntitled2 thinrect200300/350260/358290/208330, endpoint
+350260 selected. Native1924at99,79 FrontSketch02 lowerleft1200by300 thinrect
+257625/357597/364622/264650, endpoint357597 highlighted. Both Docs Saving;
+localvisualindex current and full audit retained. Not candidate-ready.
 
 ## Verified
 

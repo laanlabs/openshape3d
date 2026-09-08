@@ -194,6 +194,29 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.waitForExistence(timeout: 3))
     }
 
+    func testShortThreePointHeightEdgeCanBeSelectedAtItsMiddle() {
+        let app = start()
+        type(app, "threePoint")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.4))
+        p(app, 0.65, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.428))
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertEqual(labels.count, 2)
+        let height = labels.element(boundBy: 1).label
+        app.buttons["Rect"].tap()
+        sleep(1) // separate palette dismissal from canvas tap delivery
+        p(app, 0.2, 0.7).tap()
+        sleep(1) // single-tap recognizer waits for the double-tap interval
+        XCTAssertEqual(labels.count, 0, "Blank canvas must clear the previous rectangle selection")
+        attach(app, "short-edge-before-midpoint-tap")
+        p(app, 0.65, 0.414).tap()
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == %@", height))
+            .firstMatch.waitForExistence(timeout: 3), "Middle must select the height edge, not an endpoint")
+        labels.matching(NSPredicate(format: "label == %@", height)).firstMatch
+            .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        attach(app, "short-height-edge-dimension-editor")
+    }
+
     func testThreePointTapsAndCancelDoNotLeaveStrayBaseline() {
         let app = start()
         type(app, "threePoint")

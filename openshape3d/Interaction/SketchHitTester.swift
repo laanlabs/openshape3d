@@ -122,7 +122,8 @@ nonisolated enum SketchHitTester {
     /// its `PointRole`. Used to select individual points for constraints
     /// (plan §C3).
     static func nearestPoint(
-        to p: SIMD2<Double>, in entities: [SketchEntity], tolerance: Double
+        to p: SIMD2<Double>, in entities: [SketchEntity], tolerance: Double,
+        preservingLineInterior: Bool = false
     ) -> PointHit? {
         var best: PointHit?
         for entity in entities {
@@ -131,6 +132,19 @@ nonisolated enum SketchHitTester {
                 if d <= tolerance, best == nil || d < best!.distance {
                     best = PointHit(entityID: entity.id, role: role, point: point, distance: d)
                 }
+            }
+        }
+        if preservingLineInterior, let point = best,
+           let hit = nearestEntity(to: p, in: entities, tolerance: tolerance),
+           case let .line(_, a, b) = hit.entity {
+            let delta = b - a, length = simd_length(delta)
+            if length > 1e-6 {
+                let fraction = simd_dot(p - a, delta) / (length * length)
+                // Oversized endpoint targets must not consume the middle of a
+                // short line. Exact points (including other geometry) still win.
+                if fraction > 0.25, fraction < 0.75,
+                   point.distance > length * 0.25,
+                   hit.distance < point.distance { return nil }
             }
         }
         return best
