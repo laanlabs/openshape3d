@@ -123,7 +123,9 @@ struct SketchDimensionOverlay: View {
            let start = project(label.worldStart),
            let end = project(label.worldEnd) {
             let arc = arcLeader(label)
-            let linear = label.isStandaloneLineLength ? SketchLinearDimensionLayout.make(start: start, end: end) : nil
+            let linear = (label.isStandaloneLineLength || label.isRectangleSize)
+                ? SketchLinearDimensionLayout.make(start: start, end: end,
+                    leaderOffset: label.isRectangleSize ? 100 : 60) : nil
             let radial = label.isArcRadius ? radiusLeader(start, end, in: size) : nil
             let diameter = label.kind == .diameter ? diameterText(start, end, anchor: anchor) : nil
             if let arc {

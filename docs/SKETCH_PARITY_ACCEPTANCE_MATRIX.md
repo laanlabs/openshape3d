@@ -391,3 +391,12 @@ clone UndoRedo andpairedgalleryreopen captured. Clean6/6 (3solver,3UI) passed.
 Master35images exactexportverified including5corrected/refusal/reopen PNGs.
 Diameterleaderdirection, broadercontrols/layout matrix remainopen. Notwhole
 QA12/oncanvas/devicepass. [Receipt](testing/sketch-parity-circle-radial-handle-2026-09-08.md).
+
+### September8 — axis-aligned rectangle leaders
+
+Completed width/height now offsetblackleaders/arrows/plaintext below/left.
+Clean5/5 layout+rectangleUI; live2x1 edits retainlowerleft andusablekeypads.
+Native2000x1000 pairedanchor/editorresult captured. Selectedrectangle still
+showsgenericbluering: separateopen visualgap, notfullacceptance. MasterDoc
+Savingblocked36verifiedimages, clone diagnosisinsertpending andfinalscreens
+localonly. [Receipt](testing/sketch-parity-rectangle-leaders-2026-09-08.md).

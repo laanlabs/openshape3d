@@ -10839,6 +10839,7 @@ final class EditorViewModel {
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
         var isStandaloneLineLength = false
+        var isRectangleSize = false
         var isArcRadius = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
@@ -10951,6 +10952,11 @@ final class EditorViewModel {
             let lo = SIMD2(min(a.x, b.x), min(a.y, b.y)), hi = SIMD2(max(a.x, b.x), max(a.y, b.y))
             if kind == .horizontal {
                 let s = lo, e = SIMD2(hi.x, lo.y)
+                return ((s + e) / 2, s, e)
+            }
+            if refs[0].entityID == refs[1].entityID,
+               case .rect? = sketchEntity(refs[0].entityID, in: sketch) {
+                let s = lo, e = SIMD2(lo.x, hi.y)
                 return ((s + e) / 2, s, e)
             }
             let s = SIMD2(hi.x, lo.y), e = hi
@@ -11188,6 +11194,11 @@ final class EditorViewModel {
                RectangleConstruction.dimensionEdges(containing: first.entityID,
                                                     in: sketch.entities) == nil {
                 label.isStandaloneLineLength = true
+            }
+            if (kind == .horizontal || kind == .vertical), refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               case .rect? = sketchEntity(refs[0].entityID, in: sketch) {
+                label.isRectangleSize = true
             }
             if kind == .radius, let ref = refs.first,
                case .arc? = sketchEntity(ref.entityID, in: sketch) {

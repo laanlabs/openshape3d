@@ -113,7 +113,8 @@ final class RectangleWorkflowUITests: XCTestCase {
         let labels = app.buttons.matching(identifier: "DimensionLabel")
         XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
-        let height = try XCTUnwrap(labels.allElementsBoundByIndex.max { $0.frame.midX < $1.frame.midX })
+        // Native height leader sits left of the rectangle, not on its right edge.
+        let height = try XCTUnwrap(labels.allElementsBoundByIndex.min { $0.frame.midX < $1.frame.midX })
         attach(app, "height-before-badge-tap")
         height.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         attach(app, "height-after-badge-tap")

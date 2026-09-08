@@ -11,7 +11,7 @@ enum SketchLinearDimensionLayout {
         let rotation: Double
     }
 
-    static func make(start: CGPoint, end: CGPoint) -> Layout? {
+    static func make(start: CGPoint, end: CGPoint, leaderOffset: CGFloat = 60) -> Layout? {
         var dx = end.x - start.x, dy = end.y - start.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
@@ -24,10 +24,10 @@ enum SketchLinearDimensionLayout {
         // Vertical text reads bottom-to-top even when projected dx has noise.
         let rotation = nearVertical ? -Double.pi / 2 : atan2(Double(dy), Double(dx))
         let midpoint = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)
-        let leaderMidpoint = offset(midpoint, by: 60)
+        let leaderMidpoint = offset(midpoint, by: leaderOffset)
         let textAnchor = CGPoint(x: leaderMidpoint.x + CGFloat(sin(rotation)) * 20,
                                  y: leaderMidpoint.y - CGFloat(cos(rotation)) * 20)
-        return Layout(start: offset(start, by: 60), end: offset(end, by: 60),
+        return Layout(start: offset(start, by: leaderOffset), end: offset(end, by: leaderOffset),
                       anchor: textAnchor, rotation: rotation)
     }
 }

@@ -1,8 +1,8 @@
 # Parity continuation checkpoint
 
-September8,2026 ~15:54EDT. HEAD2ab1f9c pushed; circle radial correction
-readyforcommit with receipt/ledger/matrix. No tests or Peekaboo worker active.
-Exclusive desktop thissession. PreexistingIDENTITY/SOUL/USER untouched.
+September8,2026 ~16:11EDT. HEAD2ce4be7 pushed; axisrectangleleaders
+readyforcommit. Clean5/5 serial5025; finalpairedliveeditor/anchorchecks
+complete, no tests/Peekaboo workeractive. Preexistingidentityfilesuntouched.
 
 ## Verified
 
@@ -19,10 +19,11 @@ initialfailures/targetedpasses accurately.
 
 ## Exact next
 
-Commit/push reviewedcirclefix, then pairedrectanglewidth/height leaders in
-drawing/selection/edit states. Existingrectbadge/dashedstyle remainsgap.
-Nativecircle diameterdirectionchanges andsmallarcangle/ringproximity remain
-open; no fulloncanvasparity claim. Do notstopaftercommit.
+Commit/push axisrectangleleader correction with pendingpublicationexplicit.
+Continuepairedthreepoint leaders orselectedrectangle controlgap. Current
+clone2x1rect200,289→321,350 selectedorange/fullbluering; leadersleft/below
+remainreadable. Native2000x1000 rect300,187→472,273, toolarmedlabelsnotboth
+shownaftercommit. Fullrectreceipt recordsfailedtapattempts.
 
 ## Desktop
 
@@ -36,7 +37,9 @@ explicitfocus/capture required. No unsupportedscrollforegroundflag retries.
 ## Publication/gate
 
 Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE t13SavedtoDrive,
-35embeddedimages exactexportverified, incl5finalcircle resize/refusal/reopen.
+36embeddedimages verified; nowSavingblocked afterclone rectdiagnosisinsert.
+Finalrectimageslocalonly; master-pending-rectangle-recovery.json recordsqueue.
+Do notclose/reloadtab orduplicateinsert. Prior35circleimagesfullyverified.
 Evidence /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/handle-ui/.
 Originalillustrated1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko t11still
 Saving76verifiedimages/6unsynced; preserveblockedtab/recovery. Full42audit/
