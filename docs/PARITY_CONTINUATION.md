@@ -1,10 +1,9 @@
 # Parity continuation checkpoint
 
 Updated September8,2026 after full-turn live/reopen check. Dedicated session owns
-desktop; no workers running; exclusive live control in dedicated session.
-Branch fix/sketch-parity-foundations; HEAD de2756c pushed.
-Dirty: line Escape binding/action (CommandShortcutsView/EditorViewModel), history
-receipt, matrix/ledger/checkpoint and draft SKETCH_IPAD_AB_CHECKLIST.md.
+desktop; no test/build/Peekaboo worker running; dedicated session live ownership.
+Branch fix/sketch-parity-foundations; HEAD b6ad760 pushed.
+Dirty: CommandShortcutsView dimension Escape, new dimension-escape receipt and checkpoint.
 Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
 
 ## Last verified result
@@ -17,26 +16,24 @@ Current binary SHA256 b9c9d789cb8d3107caa8c7bbd75d0fce8a299dd65342ba028ff15c25e2
 
 ## Exact next action
 
-Live creation and dimension Undo/Redo now pass paired, clone toolbar and CmdZ
-both worked after autosave. No history code changed; prior failure cause unknown.
-Receipt testing/sketch-parity-history-live-repeat-2026-09-08.md. Exactnext:
-Line Escape regression clean12/12 collectedexec55212exit0; livefirst/secondEscape passed.
-Confirmed missing line-state Escape registration; dirty CommandShortcutsView and
-EditorViewModel.cancelLineInput. Nativepreviewclears, clonependingmarkerdoesnot.
-Next: commit/push verifiedlineEscape fix; compare numeric-editor Escape inbothapps.
-Clone freshUntitled2 Top line185–335,y499,2.473,toolinactive. NativeFront retains900line.
-Masterde2756ctext exportverified.
-Native line370–531,y620 now900; clone170–351,y499 now3, selected/toolinactive.
-Other circle/crossingline unchanged. No active worker.
+DimensionEscape clean5/5 collectedexec38946exit0, pairedlivepassed: clone2.473
+withdraft3 Escape→2.473/reopenoriginal, Line staysarmed. Nativecaptured1000draft
+Escape→900. Commit/pushscopedbinding+receipts; publishnumericpair viaeditablemaster.
+Then remaining numeric/rectanglematrix (centerwidth-first/reversequadrants) and
+corepolygon/profileextrusion. No candidate-ready claim.
+LineEscape b6ad760clean12/12 pluspairedlivepassed; masterpairedPNGhashesverified
+master-line-escape-publication.json; historicalheadingrepairverified.
 
 ## Desktop state
 
-Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16, window2386 at275,44,
-landscape887×736. Untitled2 Top sketch, tools inactive, selectedØ1 circlecenter549349,
-r30, crossingline469–630,y349. Native window1924 at99,79,1293×743, Front sketch,
-selectedØ200 circlecenter815258,r18,line761–869,y258. No active modal.
-Clicks window-relative; drags global. Peekaboo see --no-web-focus then inspect.
-Tests reset disposable store/orientation; reconcile afterward. One desktop owner.
+SimulatorAC2FD923-1661-435F-BF47-3E9DF30D1A16 window2386at275,44 landscape887×736.
+FreshUntitled2 Top, line185–335,y499 length2.473; Linearmed,keypadopen seeded2.473.
+Nativewindow1924at99,79 1293×743, FrontSketch02, selected900line370–531,y620,
+keypaddismissed, field900. Existingothergeometryretained. No workers.
+Clickswindowrelative,dragglobal. Peekaboo see --no-web-focus, inspectimages/JSON.
+Testsresetstore/orientation. Orientationmenu maydisableduntilforegroundappactive;
+repeatafterfocusandverify, no systemsettingschanges.
+CurrentbinarySHA256c48be45a5d065e80be016ec3ac701ec5ff2c23dd6bbf9700afaea6007b101bb9.
 
 ## Publication and remaining gate
 

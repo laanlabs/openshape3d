@@ -51,7 +51,11 @@ struct CommandShortcutsView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.mode.sketchTool == .line, viewModel.editingDimension == nil {
+            if viewModel.editingDimension != nil {
+                Button { viewModel.cancelDimensionEdit() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .line {
                 Button { viewModel.cancelLineInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)

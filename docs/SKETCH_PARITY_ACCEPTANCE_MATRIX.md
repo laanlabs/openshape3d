@@ -44,7 +44,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — not run | Paired acceptance outstanding. |
 | QA-39 | Conflict and point states | Core — partial, not passed | False constrained-drag conflict corrected; other conflict/DOF combinations open. |
-| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; explicit Escape delivery/system keyboard remain open. |
+| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; numeric Escape draftdiscard now paired; full systemkeyboard matrix open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |

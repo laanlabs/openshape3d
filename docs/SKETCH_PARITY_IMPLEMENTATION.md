@@ -602,3 +602,12 @@ earlier failures retained, cause unknown. [Receipt](testing/sketch-parity-histor
 Separate line Escape gap confirmed: native clears unfinished preview, clone keeps
 pending anchor and had no binding. Scoped correction under test, live repeat pending.
 Master continuation status verified by anonymous export; illustrated still blocked.
+
+### September8: numeric Escape cancellation
+
+Existing cancelDimensionEdit now has Escape binding prioritized over linecancel.
+Clean5/5UI; pairedlive draftdiscard restoresoriginalvalue withoutgeometrychange,
+cloneLine remainsarmed, reopeningseedoriginal. [Receipt](testing/sketch-parity-dimension-escape-2026-09-08.md).
+Prior b6ad760 lineEscape pairedscreenshots are now exported/hashverified in the
+existing masterroadmap as publicationfallback; illustratedunsyncedtab preserved.
+NumericEscapeimages local pending publication; broadernumericmatrixnotcomplete.
