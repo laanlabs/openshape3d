@@ -124,6 +124,7 @@ struct SketchDimensionOverlay: View {
            let end = project(label.worldEnd) {
             let arc = arcLeader(label)
             let linear = label.isStandaloneLineLength ? SketchLinearDimensionLayout.make(start: start, end: end) : nil
+            let diameter = label.kind == .diameter ? diameterText(start, end, anchor: anchor) : nil
             if let arc {
                 Path { path in
                     path.addLines(arc.points)
@@ -138,6 +139,19 @@ struct SketchDimensionOverlay: View {
                     addArrow(to: &path, tip: arc.points[0], toward: arc.points[1])
                     addArrow(to: &path, tip: arc.points[arc.points.count - 1],
                              toward: arc.points[arc.points.count - 2])
+                }
+                .fill(Color.primary)
+                .allowsHitTesting(false)
+            } else if diameter != nil {
+                Path { path in
+                    path.move(to: start)
+                    path.addLine(to: end)
+                }
+                .stroke(Color.primary, lineWidth: 1)
+                .allowsHitTesting(false)
+                Path { path in
+                    addArrow(to: &path, tip: start, toward: end)
+                    addArrow(to: &path, tip: end, toward: start)
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
@@ -188,6 +202,14 @@ struct SketchDimensionOverlay: View {
                             .rotationEffect(.radians(arc.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
+                    } else if let diameter {
+                        Text(label.text)
+                            .font(.system(size: 16))
+                            .monospacedDigit()
+                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .rotationEffect(.radians(diameter.rotation))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     } else if let linear {
                         Text(label.text)
                             .font(.system(size: 16))
@@ -220,11 +242,22 @@ struct SketchDimensionOverlay: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .position(arc?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
+                .position(arc?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
             }
         }
+    }
+
+    private func diameterText(_ start: CGPoint, _ end: CGPoint, anchor: CGPoint)
+        -> (anchor: CGPoint, rotation: Double)? {
+        let dx = end.x - start.x, dy = end.y - start.y
+        guard hypot(dx, dy) > 1 else { return nil }
+        var rotation = atan2(Double(dy), Double(dx))
+        if rotation > .pi / 2 { rotation -= .pi }
+        if rotation < -.pi / 2 { rotation += .pi }
+        return (CGPoint(x: anchor.x + CGFloat(sin(rotation)) * 20,
+                        y: anchor.y - CGFloat(cos(rotation)) * 20), rotation)
     }
 
     /// Native sweep leaders sit outside the arc with radial extensions and

@@ -341,3 +341,14 @@ edit, nonzero pentagonal extrusion and visibly retained solid after gallery reop
 Clean1/1 UI regression supplements live evidence. Existing side-count editing,
 holes/rebuild and full persistence matrix are open. See
 [polygon receipt](testing/sketch-parity-polygon-release-2026-09-08.md).
+
+### September 8 — scoped circle diameter/interior visual correction
+
+Full diameter leader/arrows/plain text replaces half-radius badge; active sketch
+regions stay unfilled while armed extrusion selection still fills. Paired
+rightward-release evidence and clone Ø2 edit/1 mm cylinder captured. Clean 2/2
+circle/profile UI tests. Master roadmap 16 images export-verified. Native
+reselected annotation can extend vertically outside circle; placement, blue
+manipulation ring, radius/polygon/rectangle leaders remain open. Not a full
+visual acceptance or candidate claim. See
+[receipt](testing/sketch-parity-diameter-annotation-2026-09-08.md).

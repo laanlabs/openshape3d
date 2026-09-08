@@ -885,9 +885,12 @@ final class EditorViewModel {
                     color: selectedColor
                 ))
             }
-            // Closed regions get a fill — the Shapr3D affordance that a
-            // profile can be pulled into 3D.
-            scene.profileFills.append(contentsOf: fillBatches(for: sketch))
+            // Native active sketches leave unselected closed regions clear.
+            // An armed profile tool adds its explicit selection fill below;
+            // do not tint every region merely because its boundary is closed.
+            if sketch.id != activeSketchID {
+                scene.profileFills.append(contentsOf: fillBatches(for: sketch))
+            }
         }
         // The regions an armed profile tool is working on read stronger than
         // the rest: the first one and every extra one tapped in afterwards.
@@ -10880,7 +10883,8 @@ final class EditorViewModel {
                   let c = localPoint(ConstraintRef(entityID: ref.entityID, role: .center), in: sketch)
             else { return nil }
             let end = c + SIMD2(r, 0)
-            return (c + SIMD2(r * 0.5, 0), c, end)
+            let start = kind == .diameter ? c - SIMD2(r, 0) : c
+            return (c + SIMD2(r * 0.5, 0), start, end)
         case .angle:
             if refs.count == 1, let ref = refs.first,
                case let .arc(_, c, r, start, end)? = sketchEntity(ref.entityID, in: sketch) {
