@@ -1,28 +1,30 @@
 # Parity continuation checkpoint
 
-September8,2026 12:31 EDT. HEAD1f211e5 pushed. No active test/build/Peekaboo
-worker. Dirty selected highlight EditorViewModel, receipt, ledger and checkpoint.
-Preexisting IDENTITY.md/SOUL.md/USER.md excluded.
+September8,2026 12:50 EDT. HEADa974343 pushed. No active test/build/Peekaboo
+worker. Dirty standalone lineleader EditorViewModel/SketchDimensionOverlay, new
+SketchLinearDimensionLayout and tests, receipt/ledger/checkpoint. Identityfiles
+preexisting untracked preserved, excluded.
 
-## Last verified / next action
+## Last verified / exact next action
 
-Selected line/arc orange now matches native; deselect returns blue, same persisted
-geometry and values. Build passed; purecolor change verified live, no newtestclaim.
-Master10images exported/hashverified including correctedarc. Commit/push color
-correction then paired linear/radius leader and manipulation-control diagnosis.
-Arc correction1f211e5 previously successive focused1/1passes, live180/90/270
-leader and final180/270 plain tangenttext. Full oncanvas gate remains blocking.
+InitialDimensionUI5/5 passed; liveverticalleaderwrongside failure corrected with
+relativeverticalprojectionclassification/uprighttext. Targeted3unit+1lineUI clean
+passed, final liveverticalleft/plaintextleft, horizontalbelow/3mmcommit and
+verticalkeypad/Escape passed. ArmedLineblue, selectedverticalorange. Master13
+images verified exacthash/export, historicalauditintact. Commit/push standalone
+lineannotationfix then paired circle diameter and arc radius leader comparison,
+remaining manipulationcontrol/endpoint/rectangleUI matrix. Notcandidate-ready.
 
 ## Desktop state
 
-Simulator window2386 at275,44 landscape887×736. ReopenedUntitled2 TopSketch1
-arc270center549349R0.993,start489349,end549289, crossingline469–630y3492.664.
-Arc selectedorange, noeditor. Fullblue ring/diamond stillpresent. Native Front
-Sketch02 selected900line425–543y563orange; arc270center750299R100 unchanged.
-Itemsbutton663118; sketchrow name is renamefield, clickicon692223 to open sketch.
-Viewsbutton556118 (previously misidentified asItems; not inputfailure).
-Nativewindow1924at99,79. Clickswindowrelative/dragglobal. No worker.
-Tested/live simulatorbinary3766a8237a3ea906d7b718cf293166e4a20c238ea1d21aa95b6faeea3e5125f4.
+Simulator window2386at275,44 landscape887×736, freshUntitled2 Top: vertical
+350249→3504503.315mm selectedorange, leaderleftx315/text303, noeditor; horizontal
+484–665y4993mm unselectedblue. Fullblue ring/diamond remains. NativeFrontSketch02
+Linearmed vertical950450→9506001145.7745mm withleaderleftx880/text865. Other
+geometry unchanged:900line425–543y563, arc270center750299R100, pentagonal solid.
+Nativewindow1924at99,79. Clickswindowrelative; dragglobal. Items663118 icon692223
+opensSketch1; nameisrenamefield. Views556118. No workers.
+Tested/livebinary8a684796d7fc7169aefce0fc8ce8c4e4d72d553b9d58855c7bd75ec3685db5a8.
 
 ## Publication and remaining gate
 

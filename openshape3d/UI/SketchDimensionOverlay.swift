@@ -123,6 +123,7 @@ struct SketchDimensionOverlay: View {
            let start = project(label.worldStart),
            let end = project(label.worldEnd) {
             let arc = arcLeader(label)
+            let linear = label.isStandaloneLineLength ? SketchLinearDimensionLayout.make(start: start, end: end) : nil
             if let arc {
                 Path { path in
                     path.addLines(arc.points)
@@ -137,6 +138,21 @@ struct SketchDimensionOverlay: View {
                     addArrow(to: &path, tip: arc.points[0], toward: arc.points[1])
                     addArrow(to: &path, tip: arc.points[arc.points.count - 1],
                              toward: arc.points[arc.points.count - 2])
+                }
+                .fill(Color.primary)
+                .allowsHitTesting(false)
+            } else if let linear {
+                Path { path in
+                    path.move(to: start)
+                    path.addLine(to: linear.start)
+                    path.addLine(to: linear.end)
+                    path.addLine(to: end)
+                }
+                .stroke(Color.primary, lineWidth: 1)
+                .allowsHitTesting(false)
+                Path { path in
+                    addArrow(to: &path, tip: linear.start, toward: linear.end)
+                    addArrow(to: &path, tip: linear.end, toward: linear.start)
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
@@ -172,6 +188,14 @@ struct SketchDimensionOverlay: View {
                             .rotationEffect(.radians(arc.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
+                    } else if let linear {
+                        Text(label.text)
+                            .font(.system(size: 16))
+                            .monospacedDigit()
+                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .rotationEffect(.radians(linear.rotation))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     } else {
                     Text(label.text)
                         .font(.caption.weight(.semibold))
@@ -196,7 +220,7 @@ struct SketchDimensionOverlay: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .position(arc?.anchor ?? clearOfGizmo(anchor, along: start, end))
+                .position(arc?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
             }

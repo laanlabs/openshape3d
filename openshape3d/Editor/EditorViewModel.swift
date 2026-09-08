@@ -829,7 +829,8 @@ final class EditorViewModel {
         // Paired native line/arc selections are orange; under-defined geometry
         // stays blue. Do not conflate selected edges with construction previews
         // or the separate manipulation control.
-        let selectedColor = SIMD4<Float>(1.0, 0.60, 0.0, 1)
+        let selectedColor = mode.sketchTool == nil
+            ? SIMD4<Float>(1.0, 0.60, 0.0, 1) : pendingColor
         let manipulationColor = SIMD4<Float>(0.0, 0.60, 1.0, 1)
         let definedColor = Self.definedSketchColor
         let underDefinedColor = Self.underDefinedSketchColor
@@ -10756,6 +10757,7 @@ final class EditorViewModel {
         let worldEnd: SIMD3<Double>
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
+        var isStandaloneLineLength = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
     }
@@ -11093,6 +11095,13 @@ final class EditorViewModel {
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            if kind == .distance, let first = refs.first,
+               refs.count == 2, refs.allSatisfy({ $0.entityID == first.entityID }),
+               case .line? = sketchEntity(first.entityID, in: sketch),
+               RectangleConstruction.dimensionEdges(containing: first.entityID,
+                                                    in: sketch.entities) == nil {
+                label.isStandaloneLineLength = true
+            }
             if kind == .angle, refs.count == 1,
                case let .arc(_, center, radius, start, end)? =
                     sketchEntity(refs[0].entityID, in: sketch) {

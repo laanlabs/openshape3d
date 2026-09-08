@@ -643,3 +643,13 @@ now orange; pending previews/manipulation controls remain separate. Build passed
 live line/arc select-deselect restored blue withoutgeometry/valuechange. No new
 automatedtest claim for purecolor correction. Endpoint halos, ring and other
 leaders remain open. [Receipt](testing/sketch-parity-selection-highlight-2026-09-08.md).
+
+### September8: standalone line dimension leaders
+
+Offsetblackleaders/arrows/plainuprighttext replace dashedgeometryoverlays for
+standalone lines. Nativehorizontalbelow/verticalleft paired; finalclonevertical
+andhorizontalplacement/keypad/3mmcommit verified. Armeddrawingblue preserved.
+Initial5/5UI passed but liveverticalprojectionfailure exposed sign sensitivity;
+correctedlayout then clean3unit+1UI and live repeat passed. Rectangleloops and
+point-to-point layout unchanged; broaderannotation/gizmo gateopen.
+[Receipt](testing/sketch-parity-linear-annotation-2026-09-08.md).
