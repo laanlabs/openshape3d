@@ -550,3 +550,14 @@ aligned. Renderer requests redraw after drawable size change. Clean15/15 Camera/
 Dimension tests; live portrait→landscape→portrait with no intervening canvas
 refresh now aligned. [Receipt](testing/sketch-parity-resize-rendering-2026-09-08.md).
 Landscape/compact keypad reachability and full device input remain open.
+
+### September8: constrained endpoint drag (paired verified sample)
+
+QA36/37/39 / ED08: native locked-left horizontal line permits diagonal pointer
+motion projected along its free axis; clone falsely rejected with conflict.
+Transient pointer preference now projects back onto saved structural constraints.
+14unit checks passed, then exact locked-line UI1/1 passed after correcting older
+fixtures. Actual endpoint Undo/Redo restoration checked; temporary toolbar title
+values were stale and removed. Live3→3.5mm keeps locked endpoint/direction and
+matches native repeat. [Receipt](testing/sketch-parity-constrained-drag-2026-09-08.md).
+Full selection/constraint matrix and live toolbar input remain open.

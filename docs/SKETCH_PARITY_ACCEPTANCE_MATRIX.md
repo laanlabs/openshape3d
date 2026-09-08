@@ -299,3 +299,11 @@ click-away vs Escape,3/4mm live correction and regression history. Resize-render
 receipt records clean15/15 and paired resize alignment fix. Edge-layout receipt
 records landscape keypad/half-height samples and verified72image publication.
 These do not complete compact/system-keyboard/right-palette or all numeric cases.
+
+## September8 constrained-edit evidence
+
+QA23/35/36/37/39 partial: endpoint selection, point Lock, free-axis diagonal drag
+compared live. Confirmed clone false conflict corrected; fixed endpoint retained.
+See constrained-drag receipt for14unit passes plus corrected1UI pass (not a single
+combined run), actual geometry history assertions, failed fixture diagnostics and
+live evidence. Broader relation/selection/history matrix remains open.

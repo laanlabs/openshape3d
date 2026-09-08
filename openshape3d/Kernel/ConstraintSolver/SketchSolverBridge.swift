@@ -84,17 +84,33 @@ nonisolated enum SketchSolverBridge {
             fixed: sys.fixed,
             constraints: sys.solveConstraints
         )
-        let solved = result.variables
+        var solved = result.variables
+        var converged = result.converged
+        func structuralResidual(_ variables: [Double]) -> Double {
+            var sumSquares = 0.0
+            for constraint in sys.structural {
+                for r in constraint.residuals(variables) { sumSquares += r * r }
+            }
+            return sumSquares.squareRoot()
+        }
+        // A pointer target is a preference, not another saved constraint.
+        // When it is off the allowed motion (e.g. a horizontal line with one
+        // endpoint locked), first pull toward it, then project the compromise
+        // back onto the structural system. Otherwise a valid one-DOF edit is
+        // rejected as a conflict merely because the pointer moved diagonally.
+        // Genuine structural contradictions still report their residual below.
+        if movingEntity != nil, dragTarget != nil,
+           structuralResidual(solved) > 1e-6 {
+            let projected = ConstraintSolver.solve(
+                initial: solved, fixed: sys.fixed, constraints: sys.structural)
+            solved = projected.variables
+            converged = projected.converged
+        }
         let dof = knownDOF ?? nullSpaceAnalysis(sys, at: solved).dof
         let newEntities = writeBack(sketch.entities, sys: sys, vars: solved)
-        // Structural residuals evaluated AT the solution (no second solve).
-        var sumSquares = 0.0
-        for constraint in sys.structural {
-            for r in constraint.residuals(solved) { sumSquares += r * r }
-        }
         return Outcome(entities: newEntities, dof: dof,
-                       converged: result.converged,
-                       structuralResidual: sumSquares.squareRoot())
+                       converged: converged,
+                       structuralResidual: structuralResidual(solved))
     }
 
     /// Prefer the normalized lower-left corner for diagonal width/height edits.

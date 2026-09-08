@@ -1,18 +1,20 @@
 # Parity continuation checkpoint
 
-Updated September8,2026,08:45 EDT. Dedicated active session; no duplicate workers.
+Updated September8,2026,09:13 EDT. Dedicated active session; no duplicate workers.
 
 ## Revision and ownership
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-HEADe004769 pushed. Dirty: edge-layout documentation, acceptance matrix and
-this checkpoint. Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
-This session exclusively owns desktop; parent does not operate it. No subagents.
-
-**Actual execution:** exec38658 completed0, clean15/15 (11Camera+4Dimension)
-at08:34:50 EDT. No test/Peekaboo worker active between interactions. Live corrected
-portrait↔landscape rotation passed without canvas refresh; Doc68images and master roadmap update verified.
-Reconcile actual processes on resume.
+HEADd984465 pushed (edge-layout documentation). Dirty constrained-drag fix:
+SketchSolverBridge.swift, DragSolveBridgeTests.swift, EditorView.swift,
+DragSolveUITests.swift; new drag receipt/checkpoint.
+Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
+**Actual running work:** no test/build/Peekaboo child process. Dedicated session
+active, exclusive desktop; next paired constraint removal/settings checks.
+Last UI run exec7390 completed0: exact locked-line drag/geometry Undo/Redo passed.
+Initial14unit passes + corrected1UI pass, NOT a clean combined run. Failed old
+armed-Line fixture, two-point-rect marker assumption and stale AX title diagnostic
+retained. Diagnostic AX source removed; no history implementation change.
 
 Simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16 (iPad13M5/iOS26.5), window2386.
 Portrait window683×940 at275,44; landscape887×737. Tests force portrait/reset store;
@@ -41,23 +43,21 @@ No device artifact claim.
   for asynchronous single-tap recognition; NOT one combined clean run.
   `testing/sketch-parity-numeric-dismissal-2026-09-08.md`.
 
-## Current confirmed discrepancy / exact next action
+## Latest correction / exact next action
 
-Clone portrait→landscape rotation stretched cached Metal rectangle while markers
-reprojected correctly. Waiting/opening keypad did not fix; tool-off scene redraw
-aligned them. Native corner-resize preserved aspect/alignment. Direct native
-resize command failed mutation-receipt validation; only actual corner drag counts.
-Renderer now requests `setNeedsDisplay` on drawable-size change.
-`testing/sketch-parity-resize-rendering-2026-09-08.md`.
+Constrained endpoint projection is regression-tested and paired live. Clone fresh
+Untitled2 Top landscape: locked171,515; free352→383,y515,3→3.5mm. Native locked
+401,455; free632→661,y455; unrelated rectangles unchanged. No false conflict.
+Receipt: testing/sketch-parity-constrained-drag-2026-09-08.md.
+Live executablee0c92bc8929490962e12311111f0a2d222f8a12b114f9e4605cd934076ec08ec
+includes temporary toolbar AX titles removed before commit; solver unchanged.
 
-**Next:** checkpoint edge-layout documentation then start paired selection/
-editing integrity. Numeric/layout remains partial: right-palette Settings click
-has no observed sheet, compact/system keyboard untested. Do not mark those passed.
-Clone landscape887×736 at275,44,Untitled2 Top Rectangle armed, no editor;
-rectangles4×1.5(center) and3×0.5(bottomright504–686,y575–606). Native1293×743 at99,79,
-FrontSketch02 Rectangle armed,three rectangles:600×150,580×165,700×125bottomright.
-Edge-height keypad/commit usable in both; receipt sketch-parity-edge-layout-2026-09-08.md.
-No running test/Peekaboo worker between calls. Continue independent core checks.
+**Next:** paired point-lock removal and free drag, then constraint/snap settings
+using available rail settings. Native foreground, free right endpoint661,455
+selected, lockedleft401,455. Clone Untitled2 line3.5mm, lockedleft171,515,
+right383,515 selected. Click coordinates window-relative, drags global.
+No parallelGUI/tests. Remaining numeric/layout partial: right-palette Settings
+click no observed sheet, compact/system keyboard untested. Full queue below.
 
 ## Publication and retained audit
 
@@ -65,8 +65,9 @@ Evidence root:
 `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/`
 Folders history, planes, line-cancel, quadrants, numeric, layout.
 [Illustrated Doc](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit)
-verified72inline images, all4edge-layout PNG hashes/text matched anonymous DOCX
-export. `published-edge-layout.docx`, `edge-layout-publication.json`.
+verified76inline images; corrected drag text and both PNG hashes matched anonymous
+DOCX export. `published-drag-fixed.docx`, `drag-fixed-publication.json`; master
+constrained-drag update also verified.
 Numeric corrected64image export retained; anchor58image export/master roadmap
 verification retained. Final gallery-reopen publication completed earlier this
 milestone (clone1.5/0.5,native140/50). Full42issue audit and56QA recipes preserved.
