@@ -1,11 +1,11 @@
 # Parity continuation checkpoint
 
-Updated September8,2026,08:38 EDT. Dedicated active session; no duplicate workers.
+Updated September8,2026,08:45 EDT. Dedicated active session; no duplicate workers.
 
 ## Revision and ownership
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-HEAD4c1120e pushed. Dirty: Renderer.swift redraw-on-resize fix; new resize receipt,
+HEADe004769 pushed. Dirty: edge-layout documentation, acceptance matrix and
 this checkpoint. Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved.
 This session exclusively owns desktop; parent does not operate it. No subagents.
 
@@ -50,11 +50,14 @@ resize command failed mutation-receipt validation; only actual corner drag count
 Renderer now requests `setNeedsDisplay` on drawable-size change.
 `testing/sketch-parity-resize-rendering-2026-09-08.md`.
 
-**Next:** commit/push verified narrow Renderer fix;
-continue landscape/compact keypad reachability. Clone fresh Untitled2 Top,
-4×1.5 rectangle, Rectangle armed, no editor, portrait683×940. Both rotation
-directions aligned outline/markers without canvas input. Native resized reference
-remains1293×743. No merge; continue remaining matrix after layout checks.
+**Next:** checkpoint edge-layout documentation then start paired selection/
+editing integrity. Numeric/layout remains partial: right-palette Settings click
+has no observed sheet, compact/system keyboard untested. Do not mark those passed.
+Clone landscape887×736 at275,44,Untitled2 Top Rectangle armed, no editor;
+rectangles4×1.5(center) and3×0.5(bottomright504–686,y575–606). Native1293×743 at99,79,
+FrontSketch02 Rectangle armed,three rectangles:600×150,580×165,700×125bottomright.
+Edge-height keypad/commit usable in both; receipt sketch-parity-edge-layout-2026-09-08.md.
+No running test/Peekaboo worker between calls. Continue independent core checks.
 
 ## Publication and retained audit
 
@@ -62,8 +65,8 @@ Evidence root:
 `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/`
 Folders history, planes, line-cancel, quadrants, numeric, layout.
 [Illustrated Doc](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit)
-verified68inline images, corrected resize PNG hash/text matched anonymous DOCX
-export. `published-resize-fixed.docx`, `resize-fixed-publication.json`.
+verified72inline images, all4edge-layout PNG hashes/text matched anonymous DOCX
+export. `published-edge-layout.docx`, `edge-layout-publication.json`.
 Numeric corrected64image export retained; anchor58image export/master roadmap
 verification retained. Final gallery-reopen publication completed earlier this
 milestone (clone1.5/0.5,native140/50). Full42issue audit and56QA recipes preserved.

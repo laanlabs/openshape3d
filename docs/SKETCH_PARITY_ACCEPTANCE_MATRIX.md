@@ -33,18 +33,18 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-26 | Annotation on-state | Core — not run | Paired acceptance outstanding. |
 | QA-27 | Dimension type | Core — not run | Paired acceptance outstanding. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
-| QA-29 | Badge layout | Core — not run | Paired acceptance outstanding. |
+| QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
 | QA-30 | Rectangle sequence | Core — partial, not passed | Center and three-point two-axis edits paired; keyboard/edge matrix open. |
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
-| QA-33 | Invalid numeric input | Core — not run | Paired acceptance outstanding. |
+| QA-33 | Invalid numeric input | Core — partial live pass | Zero width rejects without mutation in both apps; remaining invalid forms open. |
 | QA-34 | Locked/unlocked value | Core — not run | Paired acceptance outstanding. |
 | QA-35 | Constraint rail | Core — not run | Paired acceptance outstanding. |
 | QA-36 | Constraint types | Core — not run | Paired acceptance outstanding. |
 | QA-37 | Selection anchor | Core — not run | Paired acceptance outstanding. |
 | QA-38 | Disconnect | Core — not run | Paired acceptance outstanding. |
 | QA-39 | Conflict and point states | Core — not run | Paired acceptance outstanding. |
-| QA-40 | Keypad transitions | Core — partial, not passed | Tool-switch regressions passed historically; full paired transition matrix open. |
+| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; explicit Escape delivery/system keyboard remain open. |
 | QA-41 | Trim primitives | Core — not run | Paired acceptance outstanding. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — not run | Paired acceptance outstanding. |
@@ -291,3 +291,11 @@ Existing SweepLoft failures separately attributed; no claim that sketch work fix
 ## Evidence dimensions
 
 Implementation/regression/live/publication are tracked independently in `SKETCH_PARITY_IMPLEMENTATION.md` and receipts. Historical rectangle/readout tests are not a final candidate regression. Today’s history diagnosis is in `testing/sketch-parity-milestone-start-2026-09-08.md`. No installable physical-device artifact identified yet.
+
+## September8 numeric/layout evidence
+
+QA29/30/33/40 partial updates: numeric-dismissal receipt records zero rejection,
+click-away vs Escape,3/4mm live correction and regression history. Resize-rendering
+receipt records clean15/15 and paired resize alignment fix. Edge-layout receipt
+records landscape keypad/half-height samples and verified72image publication.
+These do not complete compact/system-keyboard/right-palette or all numeric cases.
