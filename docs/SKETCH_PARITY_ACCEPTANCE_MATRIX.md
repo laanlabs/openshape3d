@@ -374,3 +374,11 @@ blocked-drag notice is automated-verified; Copy-mode interaction and full
 transform styling remain open. Master export verifies25 embedded images,
 including exact corrected resize and paired reopen PNGs. No candidate claim.
 [Receipt](testing/sketch-parity-radial-handle-2026-09-08.md).
+
+### September8 — arc Copy mode continuation
+
+Explicit Move/Rotate now survives copied selection IDs. Clean1/1 focused UI
+checks mode/radius/copiedposition UndoRedo. Paired native/clone Copy plus final
+clone secondmove/Undo captured. Master28images exactexportverified. Persistent
+Copy arming and general transform/label styling remain open, not full Copy
+acceptance. [Receipt](testing/sketch-parity-arc-copy-mode-2026-09-08.md).

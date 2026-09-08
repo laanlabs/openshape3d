@@ -8326,7 +8326,11 @@ final class EditorViewModel {
         // Copy chip: duplicate first; the drag then moves the copies.
         if sketchCopyOnDrag {
             sketchCopyOnDrag = false
+            let retainTransformMode = sketchTransformActive
             entities = duplicateSketchEntities(entities, in: sketchID)
+            // The copied IDs are a continuation of this explicit operation,
+            // not a new canvas selection that should dismiss Move/Rotate.
+            sketchTransformActive = retainTransformMode
         }
 
         // Rotation decomposes rects into 4 lines once, up front, so every

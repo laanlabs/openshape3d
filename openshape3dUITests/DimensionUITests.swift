@@ -62,6 +62,55 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testArcCopyRetainsExplicitTransformMode() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Arc")
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.3, 0.55).press(forDuration: 0.15, thenDragTo: p(0.65, 0.55))
+        p(0.48, 0.42).tap()
+        sleep(1)
+        if app.buttons["KeypadCommit"].exists { app.buttons["KeypadCommit"].tap() }
+        sleep(1)
+        tapPaletteTool(app, group: "Sketch", label: "Arc")
+        // Committing the pending arc does not select it. Select its default
+        // sagitta midpoint (a quarter chord length above the baseline).
+        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        p(0.475, bulgeY).tap()
+        sleep(1)
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        let radius = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "R")).firstMatch
+        XCTAssertTrue(radius.waitForExistence(timeout: 3))
+        let originalRadius = radius.label
+        let radialHandle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
+        app.buttons["SketchCopyBadge"].tap()
+        XCTAssertFalse(radialHandle.exists)
+        // Default sagitta is a quarter chord; its circle center lies 3/8
+        // chord below the chord midpoint in this head-on fixture.
+        let centerY = 0.55 + 0.13125 * window.frame.width / window.frame.height
+        p(0.475, centerY).press(forDuration: 0.2, thenDragTo: p(0.595, centerY))
+        sleep(1)
+        XCTAssertEqual(app.buttons["SketchTransformMode"].label, "Done")
+        XCTAssertFalse(radialHandle.exists, "Copy must not dismiss explicit Move/Rotate")
+        XCTAssertEqual(radius.label, originalRadius)
+        attach(app, "arc-copy-transform-retained")
+        app.buttons["SketchTransformMode"].tap()
+        XCTAssertTrue(radialHandle.waitForExistence(timeout: 3))
+        let copiedFrame = radialHandle.frame
+        app.buttons["UndoButton"].tap() // copied arc translation
+        sleep(1)
+        XCTAssertLessThan(radialHandle.frame.midX, copiedFrame.midX - 20,
+                          "Undo must restore the copied arc to its original location")
+        app.buttons["RedoButton"].tap()
+        sleep(1)
+        XCTAssertEqual(radialHandle.frame.midX, copiedFrame.midX, accuracy: 2)
+    }
+
     func testArcSweepBadgeEditAndUndoRetainRadius() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

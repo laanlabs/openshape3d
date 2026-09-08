@@ -1,9 +1,10 @@
 # Parity continuation checkpoint
 
-September8,2026. HEAD4cfe3f0; selected single-arc radial correction ready for
-reviewable commit. No xcodebuild or Peekaboo worker running, exclusive desktop
-owned by this session. Final UI28143 and orientation43798 have completed; earlier
-running claims superseded. Preexisting IDENTITY.md/SOUL.md/USER.md untouched.
+September8,2026 ~15:38EDT. HEAD66cb99b pushed; Copy-mode correction ready
+forcommit with receipt/ledger/matrix. No tests or Peekaboo worker running.
+Targeted72373 clean1/1 passed35.365s; live copiedarc retainsMoveRotate,
+secondmove andUndo work. Master28images exactexportverified. Preexisting
+IDENTITY/SOUL/USER untouched.
 
 ## Verified
 
@@ -19,14 +20,14 @@ Doc still blocked76images,6unsynced local inserts; preserve tab/recovery.
 
 ## Exact next
 
-Commit/push reviewed radial correction and docs, then paired explicit arc Copy
-interaction or next on-canvas circle/rectangle gap. Inspect Copy selection-change
-reset of sketchTransformActive before claiming copy parity. Do not stop at commit.
+Commit/push Copy mode correction; continue paired selected-circle controls
+and/or rectangle leaders. Smallarc transform-mode anglelabel/ring proximity
+and native persistent Copy arming remain open. Do not stop aftercommit.
 
 ## Desktop
 
 Simulator2386 at275,44 landscape887x736. Reopened Front rightarc center225,300
-R1.155/180 rotated~20degrees, radialmode; body295,300 selects. Native1924 at99,79
+originalR0.662/180 at225,300 pluscopiedarc405,300 selectedexplicittransform. Native1924 at99,79
 FrontSketch02 arc center818,543 R539.1552/180, radiuslabel partiallybottomclipped;
 measurementstrip readable. Explicitfocus/capture before input: inactivewindow/
 Home transition cause unresolved, not a proven crash. ScrollCLI bridge mismatch
