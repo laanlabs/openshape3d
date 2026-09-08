@@ -6,7 +6,11 @@ import simd
 nonisolated enum SketchRadialDrag {
     static func solve(_ sketch: Sketch, entityID: UUID, radius: Double) -> [SketchEntity]? {
         guard radius.isFinite, radius > 1e-3,
-              case .arc? = sketch.entities.first(where: { $0.id == entityID }) else { return nil }
+              let entity = sketch.entities.first(where: { $0.id == entityID }) else { return nil }
+        switch entity {
+        case .arc, .circle: break
+        default: return nil
+        }
         var proposed = sketch
         proposed.dimensions.append(SketchDimension(kind: .radius,
             refs: [.init(entityID: entityID, role: .whole)], value: radius))

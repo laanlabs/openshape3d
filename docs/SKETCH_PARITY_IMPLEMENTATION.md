@@ -694,3 +694,12 @@ checks mode/radius/copiedposition UndoRedo. Paired native/clone Copy plus final
 clone secondmove/Undo captured. Master28images exactexportverified. Persistent
 Copy arming and general transform/label styling remain open, not full Copy
 acceptance. [Receipt](testing/sketch-parity-arc-copy-mode-2026-09-08.md).
+
+### September8 — selected circle radial sizing
+
+Single-circle radial handle replaces defaultbluefullring; explicitMoveRotate
+retained. Paired freecenter-preserving resize anddrivendiameterrefusal notice,
+clone UndoRedo andpairedgalleryreopen captured. Clean6/6 (3solver,3UI) passed.
+Master35images exactexportverified including5corrected/refusal/reopen PNGs.
+Diameterleaderdirection, broadercontrols/layout matrix remainopen. Notwhole
+QA12/oncanvas/devicepass. [Receipt](testing/sketch-parity-circle-radial-handle-2026-09-08.md).

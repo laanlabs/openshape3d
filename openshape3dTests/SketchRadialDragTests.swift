@@ -20,6 +20,24 @@ final class SketchRadialDragTests: XCTestCase {
         XCTAssertTrue(sketch.constraints.isEmpty)
     }
 
+    func testCircleRadialIntentPreservesCenterAndRespectsDiameter() throws {
+        let id = UUID()
+        let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)
+        var sketch = Sketch(plane: .ground, entities: [circle])
+        let result = try XCTUnwrap(SketchRadialDrag.solve(sketch, entityID: id, radius: 6))
+        guard case let .circle(_, center, radius) = result[0] else { return XCTFail() }
+        XCTAssertEqual(center.x, 2, accuracy: 1e-6)
+        XCTAssertEqual(center.y, 3, accuracy: 1e-6)
+        XCTAssertEqual(radius, 6, accuracy: 1e-5)
+        XCTAssertTrue(sketch.dimensions.isEmpty)
+        sketch.dimensions = [SketchDimension(kind: .diameter,
+            refs: [.init(entityID: id, role: .whole)], value: 8)]
+        XCTAssertNil(SketchRadialDrag.solve(sketch, entityID: id, radius: 6))
+        sketch.dimensions = []
+        sketch.constraints = [SketchConstraint(kind: .fixed, refs: [.init(entityID: id, role: .whole)])]
+        XCTAssertNil(SketchRadialDrag.solve(sketch, entityID: id, radius: 6))
+    }
+
     func testDrivingRadiusAndLockRefuseConflictingDrag() {
         let id = UUID()
         let arc = SketchEntity.arc(id: id, center: .zero, radius: 4, startAngle: 0, endAngle: .pi)

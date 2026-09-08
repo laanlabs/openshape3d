@@ -1,45 +1,47 @@
 # Parity continuation checkpoint
 
-September8,2026 ~15:38EDT. HEAD66cb99b pushed; Copy-mode correction ready
-forcommit with receipt/ledger/matrix. No tests or Peekaboo worker running.
-Targeted72373 clean1/1 passed35.365s; live copiedarc retainsMoveRotate,
-secondmove andUndo work. Master28images exactexportverified. Preexisting
-IDENTITY/SOUL/USER untouched.
+September8,2026 ~15:54EDT. HEAD2ab1f9c pushed; circle radial correction
+readyforcommit with receipt/ledger/matrix. No tests or Peekaboo worker active.
+Exclusive desktop thissession. PreexistingIDENTITY/SOUL/USER untouched.
 
 ## Verified
 
-See testing/sketch-parity-radial-handle-2026-09-08.md for full failed/targeted
-test history:2unit+2distinctUI passes across runs, final arc1/1 passed58.517s.
-Live free R0.662→1.155, intermediate Undo/Redo/drivenR1 refusal, final explicit
-rotation~20degrees, Done and gallery reopen preserveR1.155/180 and crossing line.
-Native free310→539.1552, driven400 refusal and reopen539.1552/180 captured.
-Final notice automated-only; Copy-mode interaction not yet validated.
-Binary915031d77b9609075c58fef2e1fd6bd25dcfadbb933f940a8319dde7148c728e.
-Master25images export verified including3final exact PNGs. Original illustrated
-Doc still blocked76images,6unsynced local inserts; preserve tab/recovery.
+Circle radial extension: clean6/6 /tmp/os3d-circle-radial-20260908.xcresult
+(3solver,3circle/arc/Copy UI), exec71287 completed0. Finalbinary
+0157edfdbde7a8ed38207732cc9b95a73f96e1d66b85dfc5482c62959dbd3c01.
+Live nativefreeØ800→1415.6774, cloneØ1.323→2.311, centersfixed. Clone
+UndoRedo restoresboth. Typed nativeØ1000/cloneØ2 bothrefuseupwardradial
+dragwithnotice; pairedgalleryreopen retainsdiameter/upwardhandle. Native
+trialpromptcoordinatesdidnotdismiss; AXelem25Skipworked. No purchase.
+Fullreceipt docs/testing/sketch-parity-circle-radial-handle-2026-09-08.md.
+Earlier66cb99b arc radial and2ab1f9c Copymodefix pushed; receipts retain
+initialfailures/targetedpasses accurately.
 
 ## Exact next
 
-Commit/push Copy mode correction; continue paired selected-circle controls
-and/or rectangle leaders. Smallarc transform-mode anglelabel/ring proximity
-and native persistent Copy arming remain open. Do not stop aftercommit.
+Commit/push reviewedcirclefix, then pairedrectanglewidth/height leaders in
+drawing/selection/edit states. Existingrectbadge/dashedstyle remainsgap.
+Nativecircle diameterdirectionchanges andsmallarcangle/ringproximity remain
+open; no fulloncanvasparity claim. Do notstopaftercommit.
 
 ## Desktop
 
-Simulator2386 at275,44 landscape887x736. Reopened Front rightarc center225,300
-originalR0.662/180 at225,300 pluscopiedarc405,300 selectedexplicittransform. Native1924 at99,79
-FrontSketch02 arc center818,543 R539.1552/180, radiuslabel partiallybottomclipped;
-measurementstrip readable. Explicitfocus/capture before input: inactivewindow/
-Home transition cause unresolved, not a proven crash. ScrollCLI bridge mismatch
-recorded; do not repeat unsupportedforeground flags.
+Simulator2386at275,44 landscape887x736, reopenedUntitled2Front circle
+center600,300 radius60screenpx Ø2 selected, radialhandle600,221.
+Native1924at99,79 FrontSketch02 reopenedmanygeometryproject: circle
+center890,278 radius44 Ø1000 selected, upwardhandle890,217. Othercircle
+lockedØ760 andtwoarcs preserved. Inputforeground/Home causeunknown;
+explicitfocus/capture required. No unsupportedscrollforegroundflag retries.
 
-## Remaining gate
+## Publication/gate
 
+Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE t13SavedtoDrive,
+35embeddedimages exactexportverified, incl5finalcircle resize/refusal/reopen.
 Evidence /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/handle-ui/.
-Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE editable fallback;
-illustrated1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko preserve blockedtab.
-Full42issue audit/56recipes retained. Circle/rectangle/polygon leaders/handles,
-glyphs, numeric/selection/editing matrix, persistence/final single-revision
-regression, publication backlog and installable device artifact remain. Not
-candidate-ready. No merge/device install assumptions/restart/logout/security
-changes/secrets/duplicate workers. Preserve30minute watchdog.
+Originalillustrated1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko t11still
+Saving76verifiedimages/6unsynced; preserveblockedtab/recovery. Full42audit/
+56recipes retained. Remainingrectangle/polygon/glyph/controlplacement, numeric/
+selection/editing, persistence/finalsinglerevisionregression, publicationbacklog,
+installabledeviceartifact/checklist. Notcandidate-ready. No merge/deviceinstall
+assumptions/restart/logout/securitychanges/secrets/duplicateworkers. Preserve
+30minutewatchdog.

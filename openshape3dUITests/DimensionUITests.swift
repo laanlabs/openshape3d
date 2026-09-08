@@ -263,6 +263,19 @@ final class DimensionUITests: XCTestCase {
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists,
                        "Circle release must not auto-open the keypad")
         attach(app, "circle-release-readout")
+        tapPaletteTool(app, group: "Sketch", label: "Circle")
+        sleep(1)
+        let radial = app.descendants(matching: .any).matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3))
+        let originalDiameter = app.buttons["DimensionLabel"].firstMatch.label
+        let grab = radial.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
+        sleep(1)
+        XCTAssertNotEqual(app.buttons["DimensionLabel"].firstMatch.label, originalDiameter)
+        attach(app, "circle-radial-resize")
+        app.buttons["UndoButton"].tap()
+        sleep(1)
+        XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, originalDiameter)
 
         // A full circle dimensions as a DIAMETER (it reads Ø while you drag it
         // out, so offering R on release showed two numbers for one circle).

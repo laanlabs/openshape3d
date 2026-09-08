@@ -954,7 +954,7 @@ final class EditorViewModel {
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if mode.sketchTool == nil, selectedSingleArc == nil || sketchTransformActive,
+            if mode.sketchTool == nil, selectedSingleRadialEntity == nil || sketchTransformActive,
                let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
@@ -8176,12 +8176,19 @@ final class EditorViewModel {
     var sketchCopyOnDrag = false
     var sketchTransformActive = false
 
-    var selectedSingleArc: SketchEntity? {
+    var selectedSingleRadialEntity: SketchEntity? {
         guard mode.isSketching, mode.sketchTool == nil,
               selectedSketchEntityIDs.count == 1,
-              let entity = activeSketch?.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }),
-              case .arc = entity else { return nil }
-        return entity
+              let entity = activeSketch?.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }) else { return nil }
+        switch entity {
+        case .arc, .circle: return entity
+        default: return nil
+        }
+    }
+
+    var selectedSingleArc: SketchEntity? {
+        guard case .arc? = selectedSingleRadialEntity else { return nil }
+        return selectedSingleRadialEntity
     }
 
     private struct SketchRadialDragState {
@@ -8193,12 +8200,16 @@ final class EditorViewModel {
     }
     private var sketchRadialDrag: SketchRadialDragState?
 
-    func updateArcRadiusDrag(delta: Double) {
+    func updateRadialRadiusDrag(delta: Double) {
         if sketchRadialDrag == nil {
-            guard let sketch = activeSketch,
-                  case let .arc(id, _, radius, _, _)? = selectedSingleArc else { return }
+            guard let sketch = activeSketch, let entity = selectedSingleRadialEntity else { return }
+            let radius: Double
+            switch entity {
+            case let .arc(_, _, r, _, _), let .circle(_, _, r): radius = r
+            default: return
+            }
             editingDimension = nil
-            sketchRadialDrag = .init(sketch: sketch, entityID: id, radius: radius)
+            sketchRadialDrag = .init(sketch: sketch, entityID: entity.id, radius: radius)
         }
         guard var drag = sketchRadialDrag else { return }
         guard let entities = SketchRadialDrag.solve(drag.sketch, entityID: drag.entityID,
@@ -8218,7 +8229,7 @@ final class EditorViewModel {
         sketchRadialDrag = drag
     }
 
-    func endArcRadiusDrag() {
+    func endRadialRadiusDrag() {
         if let drag = sketchRadialDrag, drag.pushed {
             session.rebuildForSketchChange(drag.sketch.id)
             session.save()
@@ -8305,7 +8316,7 @@ final class EditorViewModel {
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
     private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
-        guard selectedSingleArc == nil || sketchTransformActive else { return false }
+        guard selectedSingleRadialEntity == nil || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
               let centroid = sketchSelectionCentroid,
