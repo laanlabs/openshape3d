@@ -333,3 +333,11 @@ afterautosave. Earlier no-response cause unknown, no speculative history changes
 Line Escape missing binding confirmed and under regression; not yet passed.
 [Fullturn conversion](testing/sketch-parity-arc-full-circle-2026-09-08.md) clean25/25,
 paired conversion plus clone-only reopen. No whole-case promotion.
+
+## September8 polygon/profile sample
+
+QA15/50/51 PARTIAL: paired retained radius/no automatic editor, explicit radius
+edit, nonzero pentagonal extrusion and visibly retained solid after gallery reopen.
+Clean1/1 UI regression supplements live evidence. Existing side-count editing,
+holes/rebuild and full persistence matrix are open. See
+[polygon receipt](testing/sketch-parity-polygon-release-2026-09-08.md).

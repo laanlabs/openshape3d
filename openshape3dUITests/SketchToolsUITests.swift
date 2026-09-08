@@ -43,6 +43,14 @@ final class SketchToolsUITests: XCTestCase {
         let polygonVertex = window.coordinate(withNormalizedOffset: CGVector(dx: 0.54, dy: 0.42))
         polygonCenter.press(forDuration: 0.15, thenDragTo: polygonVertex)
 
+        let radius = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(radius.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].exists,
+                       "Polygon release retains its radius badge without forcing numeric input")
+        radius.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3),
+                      "Explicit radius tap must still open numeric input")
+
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a polygon should push an undoable command")
 

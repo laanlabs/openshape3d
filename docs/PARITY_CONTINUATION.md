@@ -1,40 +1,27 @@
 # Parity continuation checkpoint
 
-Updated September8,2026 after full-turn live/reopen check. Dedicated session owns
-desktop; no test/build/Peekaboo worker running; dedicated session live ownership.
-Branch fix/sketch-parity-foundations; HEAD ae5cdd0 pushed.
-Dirty: numericEscape publication receipt and checkpoint only; source clean.
-Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
+September8,2026 reconciliation: HEAD19666b2 pushed. No test/build/Peekaboo
+process is running. Dedicated session owns desktop; prior35766/7541 completed.
+Dirty: polygon release EditorViewModel, SketchToolsUITests, receipt, ledger, matrix
+and this checkpoint. Preexisting untracked IDENTITY/SOUL/USER preserved.
 
-## Last verified result
+## Last verified result and next action
 
-Fullturn regression clean25/25, /tmp/os3d-milestone-arc-full-circle-20260908.xcresult.
-Native270→360 createsØ200 circle. Clone persistedR0.5/180→360 createsØ1 circle,
-no obsolete angle/radius, center/crossing line unchanged. Clone-only fullcircle
-reopen retainedØ1. Receipt: testing/sketch-parity-arc-full-circle-2026-09-08.md.
-Current binary SHA256 b9c9d789cb8d3107caa8c7bbd75d0fce8a299dd65342ba028ff15c25e2d4d192.
-
-## Exact next action
-
-Centerreverse-drag width-first thenheight pairedpassed, no codechange.
-Receipt testing/sketch-parity-center-width-first-2026-09-08.md, imagesquadrants.
-Clone0.825×0.664center550350; native280×220center1000200. Priorlineunchanged.
-Next corepolygon creation andprofile-to-solid smoke inbothapps, thenremainingmatrix.
-No workersrunning. Sourceclean atae5cdd0; dirtyreceipt/matrix/publicationcheckpoint.
-NumericEscape clean5/5+paired, lineEscapeclean12/12+paired; master4images verified
-master-numeric-escape-publication.json, historicalheadingintact. Illustratedstill76.
+Polygon release fix clean1/1 UI passed. Paired live radius edits, actual nonzero
+extrusion and gallery-reopened solids pass sampled workflow. Native reopened-valid
+screenshot inspected: pentagonal solid retained. Finish master screenshot
+publication, verify export, commit scoped correction, then polygon count and
+on-canvas visual/interaction acceptance. Jason's on-canvas matching gate remains
+blocking; do not substitute geometry-only acceptance or call candidate ready.
 
 ## Desktop state
 
-SimulatorAC2FD923-1661-435F-BF47-3E9DF30D1A16 window2386at275,44 landscape887×736.
-FreshUntitled2 Top, line185–335,y499 length2.473; CenterRectarmed, rectangle
-center550350corners525330–574370,0.825×0.664, bothbadgesvisible.
-Nativewindow1924at99,79 1293×743, FrontSketch02, selectedcenterrectangleleftside975200, rectangle280×220center1000200,
-keypaddismissed; prior900line370–531,y620 unchanged. Existingothergeometryretained. No workers.
-Clickswindowrelative,dragglobal. Peekaboo see --no-web-focus, inspectimages/JSON.
-Testsresetstore/orientation. Orientationmenu maydisableduntilforegroundappactive;
-repeatafterfocusandverify, no systemsettingschanges.
-CurrentbinarySHA256c48be45a5d065e80be016ec3ac701ec5ff2c23dd6bbf9700afaea6007b101bb9.
+Simulator window2386 at275,44 landscape887×736, Untitled2 reopened iso pentagonal
+solid R1 extrusion1, unselected. Native window1924 at99,79 1293×743 reopened iso
+project with R200 extruded100 pentagonal solid and existing sketch geometry.
+Trial offer skipped; no new trial. Clicks windowrelative; drags global.
+No active worker. Browser master caret before historical September7 heading;
+original illustrated unsynced tab preserved.
 
 ## Publication and remaining gate
 
@@ -52,3 +39,8 @@ profile/extrusion, final single-revision regression, verified publication, ident
 installable iPad artifact and Pencil A/B checklist. Not candidate-ready.
 No merge, physical-install assumptions, Mac restart/logout/security/lock/Screen
 Sharing changes or secrets. Preserve existing30minute watchdog; no duplicate workers.
+
+Publication: existing master roadmap now6 embedded PNGs, including both polygon
+reopen captures verified by exact SHA256 in anonymous DOCX export. Historical
+heading inspected intact. master-polygon-publication.json/master-polygon.docx
+retained locally. Original illustrated tab remains unsynced76; not conflated.

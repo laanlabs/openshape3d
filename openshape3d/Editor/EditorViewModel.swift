@@ -9732,12 +9732,11 @@ final class EditorViewModel {
         commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
         if tool == .rect { clearRectanglePlacement() }
         // Paired native rechecks: rectangles retain both size badges and
-        // circles retain their diameter on release. Open numeric input only
-        // after an explicit dimension tap. Polygon awaits its own comparison.
+        // circles retain their diameter and polygons their radius on release.
+        // Open numeric input only after an explicit dimension tap.
         if tool == .circle || tool == .rect || tool == .polygon {
             selectedSketchEntityIDs = [entity.id]
             selectedSketchPoints.removeAll()
-            if tool == .polygon { beginDimensionForSelection() }
         }
         if tool == .line {
             let first = chainStart ?? start

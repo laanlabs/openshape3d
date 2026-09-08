@@ -611,3 +611,17 @@ cloneLine remainsarmed, reopeningseedoriginal. [Receipt](testing/sketch-parity-d
 Prior b6ad760 lineEscape pairedscreenshots are now exported/hashverified in the
 existing masterroadmap as publicationfallback; illustratedunsyncedtab preserved.
 NumericEscapeimages local pending publication; broadernumericmatrixnotcomplete.
+
+### September8: polygon release and downstream persistence
+
+Polygon release now retains radius without forcing a keypad, matching native.
+Clean1/1 strengthened profile UI test; paired explicit radius edits, actual
+nonzero extrusion and gallery-reopened solids verified. QA15/50/51 remain partial;
+side-count editing and full on-canvas visual parity are not signed off.
+[Receipt](testing/sketch-parity-polygon-release-2026-09-08.md). Master publication
+pending; illustrated unsynced tab preserved at76 verified images.
+
+Publication: existing master roadmap now6 embedded PNGs, including both polygon
+reopen captures verified by exact SHA256 in anonymous DOCX export. Historical
+heading inspected intact. master-polygon-publication.json/master-polygon.docx
+retained locally. Original illustrated tab remains unsynced76; not conflated.
