@@ -13,7 +13,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Backspace/double-tap/tool-switch matrix open. |
 | QA-07 | Line raw aim | Core — partial, not passed | Acquisition-off/Auto-off slight slope sampled paired; all-angle matrix open. |
 | QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
-| QA-09 | Center rectangle | Core — partial, not passed | Sequential center height/width paired; reverse order open. |
+| QA-09 | Center rectangle | Core — partial, not passed | Center height-first and reverse-drag width-first paired, center retained; full quadrant/constraint matrix open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |

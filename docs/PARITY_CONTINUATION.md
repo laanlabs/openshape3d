@@ -2,8 +2,8 @@
 
 Updated September8,2026 after full-turn live/reopen check. Dedicated session owns
 desktop; no test/build/Peekaboo worker running; dedicated session live ownership.
-Branch fix/sketch-parity-foundations; HEAD b6ad760 pushed.
-Dirty: CommandShortcutsView dimension Escape, new dimension-escape receipt and checkpoint.
+Branch fix/sketch-parity-foundations; HEAD ae5cdd0 pushed.
+Dirty: numericEscape publication receipt and checkpoint only; source clean.
 Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
 
 ## Last verified result
@@ -16,20 +16,21 @@ Current binary SHA256 b9c9d789cb8d3107caa8c7bbd75d0fce8a299dd65342ba028ff15c25e2
 
 ## Exact next action
 
-DimensionEscape clean5/5 collectedexec38946exit0, pairedlivepassed: clone2.473
-withdraft3 Escape→2.473/reopenoriginal, Line staysarmed. Nativecaptured1000draft
-Escape→900. Commit/pushscopedbinding+receipts; publishnumericpair viaeditablemaster.
-Then remaining numeric/rectanglematrix (centerwidth-first/reversequadrants) and
-corepolygon/profileextrusion. No candidate-ready claim.
-LineEscape b6ad760clean12/12 pluspairedlivepassed; masterpairedPNGhashesverified
-master-line-escape-publication.json; historicalheadingrepairverified.
+Centerreverse-drag width-first thenheight pairedpassed, no codechange.
+Receipt testing/sketch-parity-center-width-first-2026-09-08.md, imagesquadrants.
+Clone0.825×0.664center550350; native280×220center1000200. Priorlineunchanged.
+Next corepolygon creation andprofile-to-solid smoke inbothapps, thenremainingmatrix.
+No workersrunning. Sourceclean atae5cdd0; dirtyreceipt/matrix/publicationcheckpoint.
+NumericEscape clean5/5+paired, lineEscapeclean12/12+paired; master4images verified
+master-numeric-escape-publication.json, historicalheadingintact. Illustratedstill76.
 
 ## Desktop state
 
 SimulatorAC2FD923-1661-435F-BF47-3E9DF30D1A16 window2386at275,44 landscape887×736.
-FreshUntitled2 Top, line185–335,y499 length2.473; Linearmed,keypadopen seeded2.473.
-Nativewindow1924at99,79 1293×743, FrontSketch02, selected900line370–531,y620,
-keypaddismissed, field900. Existingothergeometryretained. No workers.
+FreshUntitled2 Top, line185–335,y499 length2.473; CenterRectarmed, rectangle
+center550350corners525330–574370,0.825×0.664, bothbadgesvisible.
+Nativewindow1924at99,79 1293×743, FrontSketch02, selectedcenterrectangleleftside975200, rectangle280×220center1000200,
+keypaddismissed; prior900line370–531,y620 unchanged. Existingothergeometryretained. No workers.
 Clickswindowrelative,dragglobal. Peekaboo see --no-web-focus, inspectimages/JSON.
 Testsresetstore/orientation. Orientationmenu maydisableduntilforegroundappactive;
 repeatafterfocusandverify, no systemsettingschanges.

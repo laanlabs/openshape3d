@@ -29,3 +29,8 @@ master-line-escape.docx and master-line-escape-publication.json (bothPNGhashes,
 caption and historicalheading intact). Initialcaption insertion splitheading;
 undid only those newinserts, reinserted andverifiedrepair. Illustratedunsyncedtab
 stillpreserved76verified. NumericEscapeimageslocal, publicationpending.
+
+Numeric pair published and verified in master roadmap: master-numeric-escape.docx,
+master-numeric-escape-publication.json; bothPNGhashes/caption/historicalheading
+match, noorphanS. Master now4images (lineEscape pair +numericEscape pair).
+Illustrated still76unsynced; otherarc/trim/equalitynewimages remainlocal.
