@@ -175,6 +175,25 @@ final class RectangleConstructionTests: XCTestCase {
         XCTAssertEqual(document.sketches[0].constraints, sketch.constraints)
     }
 
+    func testRectangleNormalTransformHoldsOppositeEdgeAndDrivingSizes() throws {
+        let ids = (0..<4).map { _ in UUID() }
+        let edges = RectangleConstruction.threePoint(a: .zero, b: SIMD2(4, 1),
+            heightPoint: SIMD2(3, 5), ids: ids)
+        let delta = simd_normalize(SIMD2<Double>(1, -4)) * 0.5
+        let targets = SketchTransform.translate(entities: [edges[0]], by: delta)
+        var sketch = Sketch(plane: .ground, entities: edges,
+            constraints: RectangleConstruction.constraints(for: edges))
+        let solved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(sketch,
+            targets: targets, preservingLineID: ids[2]))
+        XCTAssertEqual(solved[2], edges[2])
+        XCTAssertLessThan(simd_distance(endpoints(solved[0]).0, delta), 1e-5)
+        sketch.dimensions = [sizeDimension(ids[1], .distance, sqrt(17))]
+        let blocked = try XCTUnwrap(SketchSolverBridge.solveLineTransform(sketch,
+            targets: targets, preservingLineID: ids[2]))
+        XCTAssertLessThan(simd_distance(endpoints(blocked[0]).0, .zero), 1e-5)
+        XCTAssertEqual(blocked[2], edges[2])
+    }
+
     func testCenterRectangleReflectsCornerInEveryQuadrant() throws {
         let center = SIMD2<Double>(4, -2)
         for dx in [-3.0, 3.0] {

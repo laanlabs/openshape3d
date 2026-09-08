@@ -436,3 +436,14 @@ Clean20/20 plus targeted profile UI1/1, live move/UndoRedo/closed-profile
 and paired reopen. Saved locks automated-only; non-line transforms and
 white directional controls remain open. Both Docs blocked, local evidence
 retained. See line-gizmo-integrity receipt; not full transform acceptance.
+
+### September 8 - rectangle normal edge handle
+
+Isolated four-line rectangle edge now has a white outward-normal resize handle;
+explicit Move/Rotate/Copy retained. Live free movement holds the opposite edge,
+Undo/Redo restores geometry, and saved Lock refuses with notice. Gallery reopen
+retains 2.565 mm, Lock, handle and an extrudable closed profile. 22 distinct
+checks pass across initial 21-pass/1-query-failure run and targeted UI pass,
+not a clean combined run. Both Docs remain Saving; corrected images local only.
+Axis-aligned rect controls and non-line transforms remain open.
+See [normal-handle receipt](testing/sketch-parity-rectangle-normal-handle-2026-09-08.md).

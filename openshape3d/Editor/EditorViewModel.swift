@@ -954,7 +954,7 @@ final class EditorViewModel {
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if mode.sketchTool == nil, selectedSingleRadialEntity == nil || sketchTransformActive,
+            if mode.sketchTool == nil, !hasContextualSketchHandle || sketchTransformActive,
                let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
@@ -8186,6 +8186,73 @@ final class EditorViewModel {
         }
     }
 
+    var selectedRectangleEdge: SketchEntity? {
+        guard mode.isSketching, mode.sketchTool == nil,
+              selectedSketchEntityIDs.count == 1, let sketch = activeSketch,
+              let entity = sketch.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }),
+              case .line = entity,
+              RectangleConstruction.dimensionEdges(containing: entity.id, in: sketch.entities) != nil
+        else { return nil }
+        return entity
+    }
+
+    var hasContextualSketchHandle: Bool {
+        selectedSingleRadialEntity != nil || selectedRectangleEdge != nil
+    }
+
+    private struct RectangleEdgeDrag {
+        var sketch: Sketch
+        var edge: SketchEntity
+        var oppositeID: UUID
+        var normal: SIMD2<Double>
+        var pushed = false
+        var showedBlockedNotice = false
+    }
+    private var rectangleEdgeDrag: RectangleEdgeDrag?
+
+    func updateRectangleEdgeDrag(delta: Double) {
+        if rectangleEdgeDrag == nil {
+            guard let sketch = activeSketch, let edge = selectedRectangleEdge,
+                  case let .line(_, a, b) = edge,
+                  let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch.entities),
+                  let index = loop.firstIndex(of: edge.id),
+                  let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
+                  case let .line(_, c, d) = opposite else { return }
+            var normal = simd_normalize(SIMD2(-(b - a).y, (b - a).x))
+            if simd_dot((a + b - c - d) / 2, normal) < 0 { normal = -normal }
+            rectangleEdgeDrag = .init(sketch: sketch, edge: edge, oppositeID: opposite.id, normal: normal)
+        }
+        guard var drag = rectangleEdgeDrag else { return }
+        let targets = SketchTransform.translate(entities: [drag.edge], by: drag.normal * delta)
+        guard let solved = SketchSolverBridge.solveLineTransform(drag.sketch, targets: targets,
+                preservingLineID: drag.oppositeID) else {
+            if !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true; rectangleEdgeDrag = drag
+            }
+            return
+        }
+        if solved == drag.sketch.entities, abs(delta) > 1e-6, !drag.showedBlockedNotice {
+            showNotice("Locked or constrained sketch parts can't be moved.")
+            drag.showedBlockedNotice = true
+        }
+        if solved != drag.sketch.entities || drag.pushed {
+            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketch.id,
+                before: drag.sketch.entities, after: solved)
+            if drag.pushed { session.amend(command) }
+            else { session.perform(command); drag.pushed = true }
+        }
+        rectangleEdgeDrag = drag
+    }
+
+    func endRectangleEdgeDrag() {
+        if let drag = rectangleEdgeDrag, drag.pushed {
+            session.rebuildForSketchChange(drag.sketch.id)
+            session.save()
+        }
+        rectangleEdgeDrag = nil
+    }
+
     var selectedSingleArc: SketchEntity? {
         guard case .arc? = selectedSingleRadialEntity else { return nil }
         return selectedSingleRadialEntity
@@ -8252,6 +8319,7 @@ final class EditorViewModel {
         var pivot: SIMD2<Double>
         var grabPoint: SIMD2<Double>
         var pushed = false
+        var showedBlockedNotice = false
     }
     private var sketchGizmoDrag: SketchGizmoDrag?
 
@@ -8317,7 +8385,7 @@ final class EditorViewModel {
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
     private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
-        guard selectedSingleRadialEntity == nil || sketchTransformActive else { return false }
+        guard !hasContextualSketchHandle || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
               let centroid = sketchSelectionCentroid,
@@ -8454,6 +8522,12 @@ final class EditorViewModel {
             else {
                 showNotice("Locked or constrained sketch parts can't be moved.")
                 return
+            }
+            if solved == drag.baselineSketch.entities, after != drag.originals,
+               !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchGizmoDrag = drag
             }
             guard solved != drag.baselineSketch.entities || drag.pushed else { return }
             let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,

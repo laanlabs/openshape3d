@@ -1,20 +1,21 @@
 # Parity continuation checkpoint
 
-September8,2026 approximately17:23EDT. HEADb41b8ca pushed.
-Line-gizmo integrity source/tests/receipt/ledger/matrix/checkpoint dirty and
-verified, ready for commit. No tests/build/Peekaboo workers active.
-Clean20/20 plus targeted closed-profile1/1; live connected move, UndoRedo,
-clone reopened extrusion profile and native1200/937.3093reopen verified.
-Saved lock behavior automated-only, live refusal remains pending.
+September 8, 2026 approximately 17:42 EDT. HEAD fdca5f9; verified normal-handle
+source/tests/overlay/receipt/ledger/matrix/plan checkpoint ready to commit.
+No build, test runner or Peekaboo worker active. This session owns desktop.
+Initial normal-handle run: 21 passes/1 accessibility-query failure. Targeted
+query correction passed 1/1, product unchanged; 22 distinct passes, not combined.
+Live white handle movement, Undo/Redo, locked refusal and explicit transform
+toggle verified; reopened closed profile, Lock, 2.565 mm and handle verified.
+Full receipt docs/testing/sketch-parity-rectangle-normal-handle-2026-09-08.md.
 
-Exact next: commit/push integrity correction then live locked-edge refusal
-and implement confirmed rectangle-edge white normal arrow with explicit
-Move/Rotate retained. Native standalone line does not show the same arrow.
-Clone2386at275,44: Untitled2 reopened model view, extrusion selection cancelled,
-closed single rectangle, no active sketch. Native1924at99,79 FrontSketch02
-new fit scale: rect628238/696257/682310/613291; rightedge selected,
-1200baseline and937.3093height visible. Both Docs Saving; local index current.
-Preexisting identity files untouched. Notcandidate-ready; no merge/install.
+Exact next: commit/push verified correction, then paired axis-aligned rectangle
+edge/control diagnosis. Clone2386 at275,44 Untitled2 Front selected locked
+baseline507442/657482, opposite480542/630582. Native1924 at99,79 Front
+Sketch02 selected locked rightedge696257/682310, rectangle1200x937.3093.
+Both Docs checked17:41 still Saving; preserve tabs, no duplicate insertions.
+Nine corrected PNGs local indexed, not published. Candidate gate remains open.
+Preexisting identity files untouched; no duplicateworkers/watchdogs/merge.
 
 ## Verified
 

@@ -153,3 +153,9 @@ clean25-test regression, live saved-radius migration and clone gallery reopen.
 Return next to live history availability immediately after an edit and after
 autosave, distinguishing disabled state from input delivery before changing code.
 Candidate gate remains open; illustrated publication still blocked.
+
+## September 8, 17:41 execution update
+
+Four-line rectangle normal handle now live-compared through free/locked motion,
+history and reopen. Next is axis-aligned rectangle edge/control behavior, then
+remaining numeric/selection matrix. Both Docs Saving; no candidate gate claim.

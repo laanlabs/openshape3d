@@ -115,10 +115,16 @@ nonisolated enum SketchSolverBridge {
 
     /// Move/Rotate line targets are transient pointer intent. Build from the
     /// original sketch so saved locks and welded junctions retain their meaning.
-    static func solveLineTransform(_ sketch: Sketch, targets: [SketchEntity]) -> [SketchEntity]? {
+    static func solveLineTransform(_ sketch: Sketch, targets: [SketchEntity],
+                                   preservingLineID: UUID? = nil) -> [SketchEntity]? {
         guard !targets.isEmpty, targets.allSatisfy({ if case .line = $0 { return true }; return false })
         else { return nil }
-        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        var anchored = sketch
+        if let id = preservingLineID {
+            anchored.constraints.append(SketchConstraint(kind: .fixed,
+                refs: [.init(entityID: id, role: .whole)]))
+        }
+        let sys = buildSystem(from: anchored, movingEntity: nil, dragTarget: nil)
         var pulls = sys.structural
         for entity in targets {
             for slot in mutableSlots(entity) {

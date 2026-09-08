@@ -949,6 +949,7 @@ struct EditorView: View {
             }
             .overlay {
                 SketchRadialHandleOverlay(viewModel: viewModel)
+                SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
             }
@@ -1096,7 +1097,7 @@ struct EditorView: View {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
                     HStack {
-                    if viewModel.selectedSingleRadialEntity != nil {
+                    if viewModel.hasContextualSketchHandle {
                         Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
                             viewModel.sketchTransformActive.toggle()
                         }
@@ -1105,7 +1106,7 @@ struct EditorView: View {
                         .accessibilityIdentifier("SketchTransformMode")
                     }
                     Button {
-                        if viewModel.selectedSingleRadialEntity != nil { viewModel.sketchTransformActive = true }
+                        if viewModel.hasContextualSketchHandle { viewModel.sketchTransformActive = true }
                         viewModel.sketchCopyOnDrag.toggle()
                     } label: {
                         Label("Copy", systemImage: "plus.square.on.square")

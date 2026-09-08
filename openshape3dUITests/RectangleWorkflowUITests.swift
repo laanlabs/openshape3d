@@ -206,6 +206,7 @@ final class RectangleWorkflowUITests: XCTestCase {
         p(app, 0.45, 0.4).tap()
         sleep(1)
         XCTAssertTrue(app.buttons["SketchCopyBadge"].exists)
+        app.buttons["SketchTransformMode"].tap()
         attach(app, "single-rectangle-edge-before-gizmo")
         p(app, 0.5, 0.4).press(forDuration: 0.3, thenDragTo: p(app, 0.5, 0.35))
         sleep(1)
@@ -214,6 +215,36 @@ final class RectangleWorkflowUITests: XCTestCase {
         p(app, 0.5, 0.5).tap()
         XCTAssertTrue(app.buttons["Extrude"].waitForExistence(timeout: 3),
                       "Moved baseline must remain connected to an extrudable closed profile")
+    }
+
+    func testRectangleNormalHandleMovesAndRefusesSavedLock() {
+        let app = start()
+        type(app, "threePoint")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.4))
+        p(app, 0.65, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        app.buttons["Rect"].tap()
+        sleep(1)
+        p(app, 0.2, 0.7).tap()
+        sleep(1)
+        p(app, 0.45, 0.4).tap()
+        sleep(1)
+        let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let before = handle.frame.midY
+        let center = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        center.press(forDuration: 0.3, thenDragTo: center.withOffset(CGVector(dx: 0, dy: -45)))
+        XCTAssertLessThan(handle.frame.midY, before - 20)
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(handle.frame.midY, before, accuracy: 2)
+        app.buttons["RedoButton"].tap()
+        XCTAssertLessThan(handle.frame.midY, before - 20)
+        app.buttons["ConstraintRail-fixed"].tap()
+        let lockedPosition = handle.frame.midY
+        let lockedCenter = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        lockedCenter.press(forDuration: 0.3, thenDragTo: lockedCenter.withOffset(CGVector(dx: 0, dy: -45)))
+        XCTAssertEqual(handle.frame.midY, lockedPosition, accuracy: 2)
+        XCTAssertTrue(app.staticTexts["Locked or constrained sketch parts can't be moved."].waitForExistence(timeout: 3))
+        attach(app, "rectangle-normal-handle-saved-lock-refusal")
     }
 
     func testShortThreePointHeightEdgeCanBeSelectedAtItsMiddle() {
