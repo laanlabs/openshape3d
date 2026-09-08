@@ -68,3 +68,40 @@ exact hashes matched. Corrected-result publication verified:46 inline images, co
 three new PNG hashes found in anonymous DOCX export (published-circle-fixed.docx,
 circle-fixed-publication.json). No candidate gate
 claim. Prior active-plane fix/publication remains complete at0e02425.
+
+
+## Follow-on acceptance at7400e01 (07:48 EDT)
+
+QA-11 concentric initiation: both apps created a larger circle from the existing
+center without moving inner circle or source line. Native inner200/outer420 mm;
+clone inner1/outer2.236 mm. Circle tool armed, mouse drag, Top plane. This recipe
+passes in the sampled input/layout; physical Pencil remains unverified.
+`native-concentric.png`, `clone-concentric.png`.
+
+QA-10 partial construction cancellation: native three-point first-point/baseline
+preview and subsequent perpendicular-height preview cancelled with Escape;
+clone explicit Cancel Rectangle works after first point and after baseline while
+height is pending. No new rectangle remains, old line/circles stay unchanged.
+Native hover previews are available on macOS; clone simulated mouse did not
+produce equivalent displaced hover. This is state/geometry cancellation evidence,
+not identical hover or keyboard-input parity.
+`native-rectangle-first-preview.png`, `native-rectangle-after-deselect.png`,
+`native-rectangle-height-hover.png`, `native-rectangle-height-cancel.png`,
+`clone-rectangle-first-point.png`, `clone-rectangle-first-cancel.png`,
+`clone-rectangle-baseline-preview.png`, `clone-rectangle-baseline-cancel-settled.png`.
+
+Evidence caution: immediate captures sometimes show the previous Metal frame
+while the status controls already update. Settled app capture and full-desktop
+capture confirmed the clone baseline disappeared without another viewport input.
+Use an explicit1–2second settle interval, recapture before assigning failure.
+Full-screen capture still returns failure while saving inspectable artifact.
+No source renderer/cancellation patch inferred from the intermediate frame.
+
+History remained unchanged after held-touch input and a separate toolbar click
+with2second settle (`clone-undo-settled.png`). An additional viewport blank tap
+also retained geometry. Keep live history blocked; do not promote XCTest results.
+No new regression run for these unchanged acceptance cases; previous4/4 circle
+run remains the latest focused run, not a full core suite.
+Concentric/cancellation publication verified:52 inline images, follow-on text and
+all six new image hashes matched in published-cancellation.docx; receipt
+cancellation-publication.json.

@@ -1,15 +1,14 @@
 # Parity continuation checkpoint
 
-Updated September 8, 2026, 07:41 EDT, dedicated active session.
+Updated September 8, 2026, 07:50 EDT, dedicated active session.
 
 ## Revision, ownership, actual execution
 
 Branch `fix/sketch-parity-foundations`, [PR29](https://github.com/laanlabs/openshape3d/pull/29).
-HEAD `0e02425` pushed (active-plane grid); earlier `6ec8d54` contains milestone
-plan/map/start diagnosis. This checkpoint is being committed with the verified circle release fix: EditorViewModel.swift,
-DimensionUITests.swift, RectangleWorkflowUITests.swift; acceptance matrix and new
-line/circle receipt plus this checkpoint. Inspect actual git/processes on resume. Pre-existing untracked
-IDENTITY.md/SOUL.md/USER.md preserved, excluded from task commits.
+HEAD `7400e01` pushed (circle release fix); `0e02425` grid and `6ec8d54`
+milestone plan/map/start diagnosis also pushed. This documentation checkpoint
+records concentric/cancellation acceptance. No app changes after tested7400e01.
+Pre-existing untracked IDENTITY.md/SOUL.md/USER.md preserved and excluded.
 
 Dedicated session exclusively owns desktop. Circle regression completed clean4/4
 (`/tmp/os3d-milestone-circle-20260908.xcresult`). No tests/builds running; this
@@ -53,13 +52,15 @@ drag --from-coords/--to-coords remain global. No service/security changes.
 
 ## Exact next action and queue
 
-Push circle correction after commit, then concentric-circle initiation in current
-Top sketches. Native Circle armed, circle centered(relative1100,600) diameter200,
-original horizontal line remains. Clone Circle armed in new Untitled2, circle
-centered(relative221,335), diameter1, original3 mm line remains. Draw larger circle
-from existing center in each; confirm no control-point interception. Circle fix
-post-release/readout, explicit editor and center-preserving edits paired.
-Illustrated Doc46images verified, three corrected PNG hashes and text matched.
+Begin remaining diagonal drag-quadrant sizing matrix, starting up-left. Native
+Top Sketch01, rectangle type menu open (Diagonal70,528). Clone Top Untitled2,
+three-point armed but no pending placement, concentric circles and line present.
+Use empty native upper-left canvas and clone lower canvas; inspect current images.
+Concentric initiation sample passes in both. Three-point first-point/height-stage
+cancellation paired (native Escape vs clone Cancel), no phantom rectangle.
+Immediate captures can contain prior frame: settle1–2seconds and recapture.
+Illustrated Doc52images verified with all six new PNG hashes and follow-on text.
+No active test/build worker; exclusive desktop remains this session.
 Line drag/readout paired. Native Escape clears temporary next-segment preview;
 clone keyboard/double-click did not visibly do so. Hardware Keyboard checked;
 Simulator separate keyboard capture tested and returned OFF. No history/Escape

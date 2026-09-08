@@ -14,15 +14,15 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-07 | Line raw aim | Core — not run | Paired acceptance outstanding. |
 | QA-08 | Diagonal rectangle | Core — partial, not passed | Down-right half-width anchor paired; other quadrants/order open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Sequential center height/width paired; reverse order open. |
-| QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing and reselection paired; cancel/direction matrix open. |
-| QA-11 | Concentric circles | Core — not run | Paired acceptance outstanding. |
+| QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
+| QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
 | QA-13 | Arc construction | Core — not run | Paired acceptance outstanding. |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core — not run | Paired acceptance outstanding. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
-| QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner paired only. |
+| QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
 | QA-19 | Snap categories | Core — not run | Paired acceptance outstanding. |
 | QA-20 | Snap zoom | Core — not run | Paired acceptance outstanding. |
 | QA-21 | Snap feedback | Core — not run | Paired acceptance outstanding. |
