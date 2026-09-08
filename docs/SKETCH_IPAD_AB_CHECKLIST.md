@@ -40,15 +40,22 @@ screenshots. Keep the original design when a result differs.
 
 ## Known differences / unresolved before candidate
 
-- Clone arc sweep uses a dashed chord annotation rather than native's curved leader.
+- Arc sweep now uses a curved leader (1f211e5); small-label overlap and broader
+  angle/orientation coverage remain open, not the obsolete dashed-chord gap.
 - Arc endpoint welding/reference matrix and broader core acceptance remain open.
 - Some native mouse selection behavior differs from simulated touch; physical
   touch/Pencil must decide that comparison.
 - Line Escape now passes paired live two-stage cancellation; other cancel states open.
 - Earlier live history no-response cause unknown; later paired creation/dimension
   repeats succeeded without history-code changes. Retest on the physical device.
-- Illustrated Google Doc publication is blocked at76 verified images; newer
-  evidence retained locally. Final publication and final-revision regression pending.
+- Both Google Docs are blocked in Saving: illustrated76 verified images,
+  master36 verified images with unsynced insertions preserved. New evidence is
+  indexed locally; publication and final-revision regression remain pending.
+- Four-line rectangle white normal controls, saved-lock refusal and history
+  passed paired live checks (378715b). Axis-aligned edge controls are under
+  regression; per-edge constraint semantics and driven translation need care.
+- Circle/arc contextual radial controls are implemented and live-compared;
+  broader control/label/glyph and non-line constrained-transform coverage remains.
 
 A readiness notice requires an identified installable artifact and the remaining
 core gate; this checklist alone is not that notice.

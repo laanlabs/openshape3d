@@ -759,3 +759,13 @@ checks pass across initial 21-pass/1-query-failure run and targeted UI pass,
 not a clean combined run. Both Docs remain Saving; corrected images local only.
 Axis-aligned rect controls and non-line transforms remain open.
 See [normal-handle receipt](testing/sketch-parity-rectangle-normal-handle-2026-09-08.md).
+
+### September 8 - axis-aligned rectangle edge controls
+
+Edge-specific orange highlight/white normal handle added without decomposing
+stored rectangles. Clean32/32 (20geometry,12UI). Live free top resize and
+Undo/Redo, driven-height translation, right-edge resize and paired gallery
+reopen verified. Clone2.977x1 remains extrudable. Native per-edge Lock versus
+clone whole-rect Lock and selected-side leader placement remain open, not
+full rectangle acceptance. Both Docs blocked; corrected screenshots local.
+See [axis-edge receipt](testing/sketch-parity-axis-edge-controls-2026-09-08.md).

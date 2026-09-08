@@ -19,7 +19,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
 | QA-13 | Arc construction | Core — not run | Paired acceptance outstanding. |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
-| QA-15 | Polygon | Core — not run | Paired acceptance outstanding. |
+| QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
 | QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
@@ -30,7 +30,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-23 | Selection state | Core — partial, not passed | Point/edge, blank deselect and connected rectangle samples; other entity/tool states open. |
 | QA-24 | Multi-selection | Core — partial, not passed | Connected rectangle double-click paired; mouse/touch additive difference recorded. |
 | QA-25 | Annotation off-state | Core — partial, not passed | Completed horizontal line and rectangle badges paired; full selection matrix open. |
-| QA-26 | Annotation on-state | Core — not run | Paired acceptance outstanding. |
+| QA-26 | Annotation on-state | Core - partial, not passed | Orange selection, offset line/rectangle leaders, full circle diameter and curved arc annotation sampled paired; glyph/control and selected-side layout matrix open. |
 | QA-27 | Dimension type | Core — partial, not passed | Line/rectangle/circle radius-diameter and arc sweep samples; full type matrix open. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
@@ -38,7 +38,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Zero width rejects without mutation in both apps; remaining invalid forms open. |
-| QA-34 | Locked/unlocked value | Core — not run | Paired acceptance outstanding. |
+| QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc radial refusal and four-line rectangle saved Lock paired; driven rectangle translation under followup; broader value-lock matrix open. |
 | QA-35 | Constraint rail | Core — partial, not passed | Lock removal and inference toggles sampled; rail matrix open. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
@@ -49,15 +49,15 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
-| QA-45 | Move/rotate/copy | Core — not run | Paired acceptance outstanding. |
+| QA-45 | Move/rotate/copy | Core - partial, not passed | Arc Copy/explicit mode, free radial handles, connected line movement and rectangle normal control paired; generic non-line constraints and broad transform matrix open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — not run | Paired acceptance outstanding. |
 | QA-49 | Profile topology | Core — partial, not passed | Trimmed open U versus intact rectangle handoff paired; nested/self-intersection open. |
-| QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; zero-distance preview cancelled; actual solid build open. |
-| QA-51 | Save/reopen | Core — partial, not passed | Three-point values retained after paired reopen; broader state matrix open. |
+| QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
+| QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
-| QA-53 | Layout | Core — not run | Paired acceptance outstanding. |
+| QA-53 | Layout | Core - partial, not passed | Landscape normal/radial handles, leaders and accessible keypad samples paired; portrait/handedness/full glyph overlap matrix open. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
 | QA-55 | Sustained use | Core — not run | Paired acceptance outstanding. |
 | QA-56 | Downstream smoke | Core — not run | Paired acceptance outstanding. |
@@ -447,3 +447,13 @@ checks pass across initial 21-pass/1-query-failure run and targeted UI pass,
 not a clean combined run. Both Docs remain Saving; corrected images local only.
 Axis-aligned rect controls and non-line transforms remain open.
 See [normal-handle receipt](testing/sketch-parity-rectangle-normal-handle-2026-09-08.md).
+
+### September 8 - axis-aligned rectangle edge controls
+
+Edge-specific orange highlight/white normal handle added without decomposing
+stored rectangles. Clean32/32 (20geometry,12UI). Live free top resize and
+Undo/Redo, driven-height translation, right-edge resize and paired gallery
+reopen verified. Clone2.977x1 remains extrudable. Native per-edge Lock versus
+clone whole-rect Lock and selected-side leader placement remain open, not
+full rectangle acceptance. Both Docs blocked; corrected screenshots local.
+See [axis-edge receipt](testing/sketch-parity-axis-edge-controls-2026-09-08.md).

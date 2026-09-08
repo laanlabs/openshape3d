@@ -142,6 +142,39 @@ nonisolated enum SketchSolverBridge {
         return writeBack(sketch.entities, sys: sys, vars: projected.variables)
     }
 
+    /// A free axis-aligned edge resizes against the opposite side. A saved
+    /// dimension on that axis instead preserves size and translates the shape.
+    /// Solve from the original sketch so explicit locks/relationships still win.
+    static func solveAxisRectangleEdge(_ sketch: Sketch, id: UUID, edge: Int,
+                                       delta: Double) -> [SketchEntity]? {
+        guard let entity = sketch.entities.first(where: { $0.id == id }),
+              case let .rect(_, lo, hi) = entity,
+              let geometry = RectangleConstruction.axisEdge(entity, index: edge) else { return nil }
+        let axis = edge % 2 == 0 ? 1 : 0
+        let driven = sketch.dimensions.contains {
+            $0.kind == (axis == 0 ? .horizontal : .vertical) &&
+            $0.refs.count == 2 && $0.refs.allSatisfy { $0.entityID == id }
+        }
+        let shift = geometry.normal * delta
+        var newLo = lo, newHi = hi
+        if driven { newLo += shift; newHi += shift }
+        else if edge == 0 || edge == 3 { newLo += shift }
+        else { newHi += shift }
+        guard newHi.x - newLo.x > 1e-3, newHi.y - newLo.y > 1e-3 else { return nil }
+        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        var pulls = sys.structural
+        for slot in mutableSlots(.rect(id: id, min: newLo, max: newHi)) {
+            guard let index = sys.pointIndex[SlotKey(entityID: id, role: slot.role)] else { return nil }
+            pulls.append(FixedPointConstraint(p: index, target: slot.position))
+        }
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed, constraints: sys.structural)
+        let residual = sys.structural.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+    }
+
     /// Prefer the normalized lower-left corner for diagonal width/height edits.
     /// Paired reverse-drag checks corrected the earlier first-corner assumption.
     /// Explicit relationships win when holding that corner is incompatible.

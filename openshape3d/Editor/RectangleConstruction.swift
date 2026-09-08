@@ -22,6 +22,26 @@ nonisolated enum RectangleConstruction {
         return .rect(id: id, min: simd_min(other, corner), max: simd_max(other, corner))
     }
 
+    /// Counter-clockwise edges: bottom, right, top, left in sketch coordinates.
+    static func axisEdge(_ entity: SketchEntity, index: Int) -> (a: SIMD2<Double>, b: SIMD2<Double>, normal: SIMD2<Double>)? {
+        guard case let .rect(_, lo, hi) = entity, (0..<4).contains(index) else { return nil }
+        let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+        let normals: [SIMD2<Double>] = [SIMD2(0, -1), SIMD2(1, 0), SIMD2(0, 1), SIMD2(-1, 0)]
+        return (corners[index], corners[(index + 1) % 4], normals[index])
+    }
+
+    static func nearestAxisEdge(_ entity: SketchEntity, to point: SIMD2<Double>) -> Int? {
+        (0..<4).min { i, j in
+            func distance(_ index: Int) -> Double {
+                guard let e = axisEdge(entity, index: index) else { return .infinity }
+                let v = e.b - e.a
+                let t = min(1, max(0, simd_dot(point - e.a, v) / simd_length_squared(v)))
+                return simd_distance(point, e.a + t * v)
+            }
+            return distance(i) < distance(j)
+        }
+    }
+
     static func threePoint(a: SIMD2<Double>, b: SIMD2<Double>, heightPoint: SIMD2<Double>,
                            ids: [UUID]) -> [SketchEntity] {
         guard ids.count == 4 else { return [] }

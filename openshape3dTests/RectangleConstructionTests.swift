@@ -3,6 +3,31 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testAxisEdgeResizeAndDrivenTranslationRespectSavedLock() throws {
+        let id = UUID(), lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(12, 9)
+        let rectangle = SketchEntity.rect(id: id, min: lo, max: hi)
+        for edge in 0..<4 {
+            let geometry = try XCTUnwrap(RectangleConstruction.axisEdge(rectangle, index: edge))
+            XCTAssertEqual(RectangleConstruction.nearestAxisEdge(rectangle, to: (geometry.a + geometry.b) / 2), edge)
+            for driven in [false, true] {
+                var sketch = Sketch(plane: .ground, entities: [rectangle])
+                if driven {
+                    sketch.dimensions = [sizeDimension(id, edge % 2 == 0 ? .vertical : .horizontal,
+                                                      edge % 2 == 0 ? 6 : 10)]
+                }
+                let result = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleEdge(sketch, id: id, edge: edge, delta: 2))
+                guard case let .rect(_, a, b) = result[0] else { return XCTFail() }
+                let shift = geometry.normal * 2
+                let expectedLo = driven || edge == 0 || edge == 3 ? lo + shift : lo
+                let expectedHi = driven || edge == 1 || edge == 2 ? hi + shift : hi
+                XCTAssertLessThan(simd_distance(a, expectedLo), 1e-5)
+                XCTAssertLessThan(simd_distance(b, expectedHi), 1e-5)
+                sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole)])]
+                XCTAssertEqual(SketchSolverBridge.solveAxisRectangleEdge(sketch, id: id, edge: edge, delta: 2), sketch.entities)
+            }
+        }
+    }
+
     func testDimensionEdgesRecognizeReloadedReversedRectangleButRejectOtherSelections() throws {
         let ids = (0..<4).map { _ in UUID() }
         let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),

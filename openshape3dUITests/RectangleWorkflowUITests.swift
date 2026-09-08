@@ -217,6 +217,36 @@ final class RectangleWorkflowUITests: XCTestCase {
                       "Moved baseline must remain connected to an extrudable closed profile")
     }
 
+    func testAxisRectangleEdgeHandleResizesAndChangesSelectedSide() {
+        let app = start()
+        type(app, "diagonal")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        app.buttons["Rect"].tap()
+        sleep(1)
+        p(app, 0.2, 0.7).tap()
+        sleep(1)
+        p(app, 0.5, 0.4).tap()
+        sleep(1)
+        let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let before = handle.frame.midY
+        let center = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        center.press(forDuration: 0.3, thenDragTo: center.withOffset(CGVector(dx: 0, dy: -45)))
+        XCTAssertLessThan(handle.frame.midY, before - 20)
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(handle.frame.midY, before, accuracy: 2)
+        app.buttons["RedoButton"].tap()
+        XCTAssertLessThan(handle.frame.midY, before - 20)
+        p(app, 0.65, 0.5).tap()
+        sleep(1)
+        XCTAssertGreaterThan(handle.frame.midX, app.frame.width * 0.65)
+        app.buttons["SketchTransformMode"].tap()
+        XCTAssertFalse(handle.exists)
+        app.buttons["SketchTransformMode"].tap()
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        attach(app, "axis-rectangle-right-edge-handle")
+    }
+
     func testRectangleNormalHandleMovesAndRefusesSavedLock() {
         let app = start()
         type(app, "threePoint")

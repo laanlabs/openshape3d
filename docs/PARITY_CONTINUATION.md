@@ -1,20 +1,18 @@
 # Parity continuation checkpoint
 
-September 8, 2026 approximately 17:42 EDT. HEAD fdca5f9; verified normal-handle
-source/tests/overlay/receipt/ledger/matrix/plan checkpoint ready to commit.
-No build, test runner or Peekaboo worker active. This session owns desktop.
-Initial normal-handle run: 21 passes/1 accessibility-query failure. Targeted
-query correction passed 1/1, product unchanged; 22 distinct passes, not combined.
-Live white handle movement, Undo/Redo, locked refusal and explicit transform
-toggle verified; reopened closed profile, Lock, 2.565 mm and handle verified.
-Full receipt docs/testing/sketch-parity-rectangle-normal-handle-2026-09-08.md.
-
-Exact next: commit/push verified correction, then paired axis-aligned rectangle
-edge/control diagnosis. Clone2386 at275,44 Untitled2 Front selected locked
-baseline507442/657482, opposite480542/630582. Native1924 at99,79 Front
-Sketch02 selected locked rightedge696257/682310, rectangle1200x937.3093.
-Both Docs checked17:41 still Saving; preserve tabs, no duplicate insertions.
-Nine corrected PNGs local indexed, not published. Candidate gate remains open.
+September8,2026 approximately18:04EDT. HEAD378715b; verified axis-edge source/
+tests/docs ready to commit. Clean32/32 serial76586 completed0, all desktop
+commands collected; no worker active. This session owns desktop.
+Live free top resize/history, driven-height translation and right resize
+passed; paired gallery reopen retained native2504.6139x1504.6161 and
+clone2.977x1. Clone closed profile offers Extrude; preview cancelled.
+Exact next: commit/push correction then selected-side leader placement,
+followed by native per-edge Lock versus clone whole-rect semantics.
+Native1924at99,79 FrontSketch02 right edge945493->945571 selected,
+rectangle815493->945571. Clone2386at275,44 Untitled2 Front right edge
+380279->380340 selected, opposite200279->200340; height1driven, width2.977free.
+Both Docs Saving/editing temporarily disabled; preserve unsynced tabs.
+13newcorrected PNGs indexed local only. Full receipts/audit retained.
 Preexisting identity files untouched; no duplicateworkers/watchdogs/merge.
 
 ## Verified

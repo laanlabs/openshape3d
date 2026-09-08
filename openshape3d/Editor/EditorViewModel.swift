@@ -869,7 +869,18 @@ final class EditorViewModel {
                 }
             }
             let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
-            let regularSelected = selected.filter { !construction.contains($0.id) }
+            let edgeSelected = selected.filter { selectedAxisRectangleEdge?.id == $0.id && selectedSketchEntityIDs.count == 1 }
+            for entity in edgeSelected {
+                guard let pick = selectedAxisRectangleEdge,
+                      let edge = RectangleConstruction.axisEdge(entity, index: pick.index) else { continue }
+                scene.sketchLines.append(SketchLineBatch(
+                    segments: SketchTessellator.segments(for: [entity], on: sketch.plane),
+                    color: committedColorFor(entity.id)))
+                scene.sketchLines.append(SketchLineBatch(
+                    segments: SketchTessellator.segments(for: [.line(id: entity.id, a: edge.a, b: edge.b)], on: sketch.plane),
+                    color: selectedColor))
+            }
+            let regularSelected = selected.filter { !construction.contains($0.id) && !edgeSelected.contains($0) }
             if !regularSelected.isEmpty {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.segments(for: regularSelected, on: sketch.plane),
@@ -8109,6 +8120,7 @@ final class EditorViewModel {
             if oldValue != selectedSketchEntityIDs {
                 sketchTransformActive = false
                 sketchRadialDrag = nil
+                selectedAxisRectangleEdge = nil
             }
         }
     }
@@ -8186,6 +8198,23 @@ final class EditorViewModel {
         }
     }
 
+    var selectedAxisRectangleEdge: (id: UUID, index: Int)?
+
+    var rectangleHandleGeometry: (a: SIMD2<Double>, b: SIMD2<Double>, normal: SIMD2<Double>)? {
+        guard mode.isSketching, mode.sketchTool == nil, selectedSketchPoints.isEmpty,
+              let sketch = activeSketch else { return nil }
+        if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+           let entity = sketch.entities.first(where: { $0.id == pick.id }) {
+            return RectangleConstruction.axisEdge(entity, index: pick.index)
+        }
+        guard let edge = selectedRectangleEdge, case let .line(_, a, b) = edge,
+              let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch.entities),
+              let index = loop.firstIndex(of: edge.id),
+              let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
+              case let .line(_, c, d) = opposite else { return nil }
+        return (a, b, simd_normalize((a + b - c - d) / 2))
+    }
+
     var selectedRectangleEdge: SketchEntity? {
         guard mode.isSketching, mode.sketchTool == nil,
               selectedSketchEntityIDs.count == 1, let sketch = activeSketch,
@@ -8197,13 +8226,14 @@ final class EditorViewModel {
     }
 
     var hasContextualSketchHandle: Bool {
-        selectedSingleRadialEntity != nil || selectedRectangleEdge != nil
+        selectedSingleRadialEntity != nil || rectangleHandleGeometry != nil
     }
 
     private struct RectangleEdgeDrag {
         var sketch: Sketch
         var edge: SketchEntity
         var oppositeID: UUID
+        var axisEdge: Int? = nil
         var normal: SIMD2<Double>
         var pushed = false
         var showedBlockedNotice = false
@@ -8211,6 +8241,12 @@ final class EditorViewModel {
     private var rectangleEdgeDrag: RectangleEdgeDrag?
 
     func updateRectangleEdgeDrag(delta: Double) {
+        if rectangleEdgeDrag == nil, let pick = selectedAxisRectangleEdge,
+           let sketch = activeSketch, let edge = sketch.entities.first(where: { $0.id == pick.id }),
+           let geometry = rectangleHandleGeometry {
+            rectangleEdgeDrag = .init(sketch: sketch, edge: edge, oppositeID: edge.id,
+                                      axisEdge: pick.index, normal: geometry.normal)
+        }
         if rectangleEdgeDrag == nil {
             guard let sketch = activeSketch, let edge = selectedRectangleEdge,
                   case let .line(_, a, b) = edge,
@@ -8224,8 +8260,14 @@ final class EditorViewModel {
         }
         guard var drag = rectangleEdgeDrag else { return }
         let targets = SketchTransform.translate(entities: [drag.edge], by: drag.normal * delta)
-        guard let solved = SketchSolverBridge.solveLineTransform(drag.sketch, targets: targets,
-                preservingLineID: drag.oppositeID) else {
+        let outcome: [SketchEntity]?
+        if let edge = drag.axisEdge {
+            outcome = SketchSolverBridge.solveAxisRectangleEdge(drag.sketch, id: drag.edge.id, edge: edge, delta: delta)
+        } else {
+            outcome = SketchSolverBridge.solveLineTransform(drag.sketch, targets: targets,
+                preservingLineID: drag.oppositeID)
+        }
+        guard let solved = outcome else {
             if !drag.showedBlockedNotice {
                 showNotice("Locked or constrained sketch parts can't be moved.")
                 drag.showedBlockedNotice = true; rectangleEdgeDrag = drag
@@ -8648,7 +8690,16 @@ final class EditorViewModel {
         if let hit = SketchHitTester.nearestEntity(
             to: raw, in: sketch.entities, tolerance: entityPickTolerance
         ) {
-            if selectedSketchEntityIDs.contains(hit.entity.id) {
+            if case .rect = hit.entity,
+               let index = RectangleConstruction.nearestAxisEdge(hit.entity, to: raw) {
+                if selectedAxisRectangleEdge?.id == hit.entity.id,
+                   selectedAxisRectangleEdge?.index == index {
+                    selectedSketchEntityIDs.remove(hit.entity.id)
+                } else {
+                    selectedSketchEntityIDs.insert(hit.entity.id)
+                    selectedAxisRectangleEdge = (hit.entity.id, index)
+                }
+            } else if selectedSketchEntityIDs.contains(hit.entity.id) {
                 selectedSketchEntityIDs.remove(hit.entity.id)
             } else {
                 selectedSketchEntityIDs.insert(hit.entity.id)

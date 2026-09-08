@@ -11,16 +11,11 @@ struct SketchRectangleEdgeHandleOverlay: View {
     var body: some View {
         let _ = viewModel.cameraEpoch
         if !viewModel.sketchTransformActive, viewModel.editingDimension == nil,
-           let edge = viewModel.selectedRectangleEdge,
-           case let .line(_, a, b) = edge,
+           let geometry = viewModel.rectangleHandleGeometry,
            let sketch = viewModel.activeSketch,
-           let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch.entities),
-           let index = loop.firstIndex(of: edge.id),
-           let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
-           case let .line(_, c, d) = opposite,
            let camera = viewModel.cameraControl {
-            let middle = (a + b) / 2
-            let outward = simd_normalize(middle - (c + d) / 2)
+            let middle = (geometry.a + geometry.b) / 2
+            let outward = geometry.normal
             if let p = camera.worldToScreenPoint(sketch.plane.toWorld(middle)),
                let q = camera.worldToScreenPoint(sketch.plane.toWorld(middle + outward)) {
                 let delta = SIMD2(Double(q.x - p.x), Double(q.y - p.y))
