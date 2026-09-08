@@ -1,21 +1,19 @@
 # Parity continuation checkpoint
 
-September 8, 2026 approximately 18:46 EDT. HEAD e7390f4 pushed; current
-selected-side leader/custom 44pt Undo/Redo correction ready to commit, with
-strengthened UI test and documentation. No build/test/Peekaboo worker active.
-Final serial7585 clean2/2; /tmp/os3d-axis-edge-leaders-customtarget-20260908.log/.xcresult.
-Live painted-center Undo237118 and Redo280118 now restore/reapply height
-1.859/2.229 in portrait, unlike prior Label-frame correction. No history logic
-changed; all temporary tracing removed. Top/right editors commit2x1; gallery
-reopen retains both. Ten corrected screenshots indexed locally, not published.
-Clone2386 portrait683x940 at275,44, Untitled2 Front rightedge411420->411500
-selected, driven2x1. Native1924 FrontSketch02 free right945493->945571 selected,
-2504.6139x1504.6161. Next: commit/push verified leader/history correction, then
-paired per-edge Lock vs whole-rect semantics (native lock right, move left).
-Other-axis leader-side memory remains open. Both Docs Saving/editingdisabled;
-18:37 anonymous exports still76/36. Preserve tabs/recovery; no duplicateinsert.
-Preexisting IDENTITY/SOUL/USER files untouched. No duplicate workers/watchdogs,
-merge or device-install claim. Candidate gate remains open.
+September8 approximately19:03EDT. HEAD143348e pushed; verified side-Lock
+correction ready to commit. No build/test/Peekaboo worker active. Final40834
+clean36/36 (21construction+14merge+1UI); initial68951 clean23/23.
+Live clone opposite-left expands with right locked, UndoRedo and locked-right
+refusal pass. Reopened Lock still allows only left; glyphDelete frees right.
+Native Unlock frees right and gallery reopen retains3661.2358x1504.6161.
+Native attempted Undo coordinates were view rotations, excluded from evidence.
+Exact next commit/push side-Lock, then contextual Lock/Unlock rail toggle;
+clone currently only removes Lock by glyph/Delete. Constrained-edge colors
+also differ. Native1924 FrontSketch02 right951490->951566 selected/unlocked.
+Clone2386 portrait Untitled2 Front right480350->480500 selected/unlocked,
+3.466x1.859. Both Docs blocked; local index14newcorrectedPNGs, no publication.
+No candidate/merge/device claim; preexisting identity files untouched.
+Preserve tabs/recovery and30min watchdog, no duplicate desktop workers.
 
 ## Verified
 

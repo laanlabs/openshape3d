@@ -217,6 +217,39 @@ final class RectangleWorkflowUITests: XCTestCase {
                       "Moved baseline must remain connected to an extrudable closed profile")
     }
 
+    func testAxisRectangleSideLockLeavesOppositeEdgeFree() {
+        let app = start()
+        type(app, "diagonal")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        app.buttons["Rect"].tap()
+        sleep(1)
+        p(app, 0.2, 0.7).tap()
+        sleep(1)
+        p(app, 0.65, 0.5).tap()
+        sleep(1)
+        app.buttons["Lock"].tap()
+        p(app, 0.35, 0.5).tap()
+        sleep(1)
+        let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let before = handle.frame.midX
+        let center = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        center.press(forDuration: 0.3, thenDragTo: center.withOffset(CGVector(dx: -40, dy: 0)))
+        XCTAssertLessThan(handle.frame.midX, before - 25)
+        app.buttons["UndoButton"].tap()
+        let restored = NSPredicate { _, _ in abs(handle.frame.midX - before) <= 2 }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: restored, object: nil)], timeout: 3), .completed)
+        app.buttons["RedoButton"].tap()
+        XCTAssertLessThan(handle.frame.midX, before - 25)
+        p(app, 0.65, 0.5).tap()
+        sleep(1)
+        let fixedX = handle.frame.midX
+        let lockedCenter = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        lockedCenter.press(forDuration: 0.3, thenDragTo: lockedCenter.withOffset(CGVector(dx: 40, dy: 0)))
+        XCTAssertEqual(handle.frame.midX, fixedX, accuracy: 2)
+        attach(app, "axis-side-lock-opposite-free-selected-fixed")
+    }
+
     func testAxisRectangleEdgeHandleResizesAndChangesSelectedSide() {
         let app = start()
         type(app, "diagonal")

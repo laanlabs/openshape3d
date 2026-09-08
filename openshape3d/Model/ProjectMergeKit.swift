@@ -152,7 +152,7 @@ nonisolated enum ProjectMergeKit {
         }
 
         func remap(_ ref: ConstraintRef) -> ConstraintRef {
-            ConstraintRef(entityID: newEntity(ref.entityID), role: ref.role)
+            ConstraintRef(entityID: newEntity(ref.entityID), role: ref.role, rectangleEdge: ref.rectangleEdge)
         }
 
         func remap(_ plane: ConstructionPlane, translation: SIMD3<Double>) -> ConstructionPlane {

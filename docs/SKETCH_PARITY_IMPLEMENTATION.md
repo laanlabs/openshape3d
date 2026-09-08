@@ -778,3 +778,12 @@ and live one-click Undo/Redo pass. Top/right edits and gallery reopen retain2x1.
 History logic unchanged. Prior failed diagnoses retained in axis-edge receipt.
 Other-axis leader-side memory and per-edge Lock semantics remain open.
 Both Docs blocked; post-fix evidence indexed locally, publication pending.
+
+### September 8 - persisted rectangle side Lock
+
+Selected side Lock now pins only that edge; legacy whole locks unchanged.
+Clean23/23 initial and36/36 follow-up, including import scope and point-state
+checks. Paired free opposite-edge movement/removal; clone locked-side refusal,
+Undo/Redo and gallery-reopened scope verified. Native reopened unlocked values
+retained. Rail Unlock toggle and edge colors remain open. Docs blocked;
+local evidence indexed. See [side-Lock receipt](testing/sketch-parity-rectangle-side-lock-2026-09-08.md).

@@ -3,6 +3,39 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testAxisSideLocksPersistAndAllowOnlyOppositeEdgeResize() throws {
+        let id = UUID(), rectangle = SketchEntity.rect(id: id, min: SIMD2(2, 3), max: SIMD2(12, 9))
+        let legacy = Data("{\"entityID\":\"\(id.uuidString)\",\"role\":\"whole\"}".utf8)
+        XCTAssertNil(try JSONDecoder().decode(ConstraintRef.self, from: legacy).rectangleEdge)
+        for edge in 0..<4 {
+            var sketch = Sketch(plane: .ground, entities: [rectangle])
+            sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: edge)])]
+            sketch = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sketch))
+            XCTAssertEqual(sketch.constraints[0].refs[0].rectangleEdge, edge)
+            let states = SketchSolverBridge.pointStates(sketch)
+            let pinnedRole: PointRole = edge == 0 || edge == 3 ? .endpointA : .endpointB
+            let freeRole: PointRole = pinnedRole == .endpointA ? .endpointB : .endpointA
+            XCTAssertEqual(states[SketchPointKey(entityID: id, role: pinnedRole)], .locked)
+            XCTAssertEqual(states[SketchPointKey(entityID: id, role: freeRole)], .free)
+            let original = try XCTUnwrap(RectangleConstruction.axisEdge(rectangle, index: edge))
+            XCTAssertEqual(SketchSolverBridge.solveAxisRectangleEdge(sketch, id: id, edge: edge, delta: 2), sketch.entities)
+            let opposite = (edge + 2) % 4
+            let resized = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleEdge(sketch, id: id, edge: opposite, delta: 2))
+            let locked = try XCTUnwrap(RectangleConstruction.axisEdge(resized[0], index: edge))
+            let moving = try XCTUnwrap(RectangleConstruction.axisEdge(resized[0], index: opposite))
+            let before = try XCTUnwrap(RectangleConstruction.axisEdge(rectangle, index: opposite))
+            XCTAssertLessThan(simd_distance(locked.a, original.a), 1e-5)
+            XCTAssertLessThan(simd_distance(locked.b, original.b), 1e-5)
+            XCTAssertLessThan(simd_distance(moving.a, before.a + before.normal * 2), 1e-5)
+            XCTAssertLessThan(simd_distance(moving.b, before.b + before.normal * 2), 1e-5)
+            sketch.dimensions = [sizeDimension(id, edge % 2 == 0 ? .vertical : .horizontal, edge % 2 == 0 ? 6 : 10)]
+            let driven = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleEdge(sketch, id: id, edge: opposite, delta: 2))
+            guard case let .rect(_, a, b) = driven[0] else { return XCTFail() }
+            XCTAssertLessThan(simd_distance(a, SIMD2(2, 3)), 1e-5)
+            XCTAssertLessThan(simd_distance(b, SIMD2(12, 9)), 1e-5)
+        }
+    }
+
     func testAxisEdgeResizeAndDrivenTranslationRespectSavedLock() throws {
         let id = UUID(), lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(12, 9)
         let rectangle = SketchEntity.rect(id: id, min: lo, max: hi)

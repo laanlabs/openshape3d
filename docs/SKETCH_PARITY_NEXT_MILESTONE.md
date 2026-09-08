@@ -167,3 +167,10 @@ Undo correction passes live and focused clean2/2. Saved2x1 editors/reopen pass.
 Next: paired per-edge Lock semantics, then remaining numeric/selection matrix.
 Leader-side memory remains a known visual difference. Both Docs blocked;
 publication and installable-candidate gates remain open.
+
+## September 8, 19:03 execution update
+
+Side-specific rectangle Lock now verified through free/blocked movement,
+Undo/Redo, removal and reopened scope; final scoped36/36 clean. Next contextual
+Unlock action and constrained-edge colors, then remaining acceptance matrix.
+Docs publication remains externally blocked; candidate gate still open.

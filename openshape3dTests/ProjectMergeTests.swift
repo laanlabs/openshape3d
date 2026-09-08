@@ -191,6 +191,25 @@ final class ProjectMergeTests: XCTestCase {
                        "a constraint pointing at the OLD id would be dead on arrival")
     }
 
+    func testInsertedRectangleSideLockKeepsItsScope() throws {
+        let id = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(10, 6))],
+            constraints: [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 1)])])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        let newID = inserted.entities[0].id
+        XCTAssertNotEqual(newID, id)
+        XCTAssertEqual(inserted.constraints[0].refs[0].entityID, newID)
+        XCTAssertEqual(inserted.constraints[0].refs[0].rectangleEdge, 1)
+        let moved = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleEdge(inserted, id: newID, edge: 3, delta: 2))
+        guard case let .rect(_, lo, hi) = moved[0] else { return XCTFail() }
+        XCTAssertEqual(lo.x, -2, accuracy: 1e-5)
+        XCTAssertEqual(hi.x, 10, accuracy: 1e-5)
+        XCTAssertEqual(lo.y, 0, accuracy: 1e-5)
+        XCTAssertEqual(hi.y, 6, accuracy: 1e-5)
+    }
+
     // MARK: Variables
 
     func testGuestVariablesAreBroughtAcross() {

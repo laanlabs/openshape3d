@@ -27,10 +27,14 @@ nonisolated enum PointRole: String, Codable, Equatable, Sendable {
 nonisolated struct ConstraintRef: Codable, Equatable, Sendable {
     var entityID: UUID
     var role: PointRole
+    /// Optional side of an axis-aligned rectangle (bottom/right/top/left).
+    /// Only used by whole-operand Lock; absent in legacy whole-entity locks.
+    var rectangleEdge: Int? = nil
 
-    init(entityID: UUID, role: PointRole) {
+    init(entityID: UUID, role: PointRole, rectangleEdge: Int? = nil) {
         self.entityID = entityID
         self.role = role
+        self.rectangleEdge = rectangleEdge
     }
 }
 

@@ -10736,7 +10736,12 @@ final class EditorViewModel {
             var refs = pts.map(ref)
             let pointed = Set(pts.map(\.entityID))
             for e in selectedSketchEntities where !pointed.contains(e.id) {
-                refs.append(whole(e))
+                if let edge = selectedAxisRectangleEdge, edge.id == e.id,
+                   selectedSketchEntityIDs == [e.id] {
+                    refs.append(ConstraintRef(entityID: e.id, role: .whole, rectangleEdge: edge.index))
+                } else {
+                    refs.append(whole(e))
+                }
             }
             return refs.isEmpty ? nil : refs
         }
@@ -11049,6 +11054,10 @@ final class EditorViewModel {
     /// Plane-local position of a constraint ref's point on its entity.
     private func localPoint(_ ref: ConstraintRef, in sketch: Sketch) -> SIMD2<Double>? {
         guard let e = sketchEntity(ref.entityID, in: sketch) else { return nil }
+        if ref.role == .whole, let index = ref.rectangleEdge,
+           let edge = RectangleConstruction.axisEdge(e, index: index) {
+            return (edge.a + edge.b) / 2
+        }
         switch (e, ref.role) {
         case let (.line(_, a, _), .endpointA): return a
         case let (.line(_, _, b), .endpointB): return b

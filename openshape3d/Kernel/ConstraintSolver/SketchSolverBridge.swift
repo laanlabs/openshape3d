@@ -562,6 +562,18 @@ nonisolated enum SketchSolverBridge {
                 case .endpointA, .endpointB, .center:
                     if let pi = pIdx(ref.entityID, ref.role) { fixPoint(pi) }
                 case .whole:
+                    if let edge = ref.rectangleEdge, (0..<4).contains(edge),
+                       case .rect? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                       let a = pIdx(ref.entityID, .endpointA),
+                       let b = pIdx(ref.entityID, .endpointB) {
+                        // A=lower-left, B=upper-right: pin three coordinates,
+                        // leaving only the opposite edge's normal coordinate free.
+                        let normalAxis = edge % 2 == 0 ? 1 : 0
+                        fixed.insert(2 * a + (1 - normalAxis))
+                        fixed.insert(2 * b + (1 - normalAxis))
+                        fixed.insert(2 * (edge == 0 || edge == 3 ? a : b) + normalAxis)
+                        continue
+                    }
                     for pi in entityPoints[ref.entityID] ?? [] { fixPoint(pi) }
                     if let rv = radiusVar[ref.entityID] { fixed.insert(rv) }
                     if let av = arcSweepVar[ref.entityID] { fixed.insert(av) }
@@ -986,6 +998,12 @@ nonisolated extension SketchSolverBridge {
         for c in sketch.constraints where c.kind == .fixed {
             for ref in c.refs {
                 if ref.role == .whole {
+                    // Side locks are classified from the actual fixed variables
+                    // below, not as if both rectangle corners were fully locked.
+                    if let edge = ref.rectangleEdge, (0..<4).contains(edge),
+                       case .rect? = sketch.entities.first(where: { $0.id == ref.entityID }) {
+                        continue
+                    }
                     lockedWholeEntities.insert(ref.entityID)
                 } else {
                     lockedPoints.insert(SketchPointKey(entityID: ref.entityID, role: ref.role))
