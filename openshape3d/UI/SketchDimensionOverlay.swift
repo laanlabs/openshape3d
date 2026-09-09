@@ -308,8 +308,12 @@ struct SketchDimensionOverlay: View {
         var rotation = atan2(Double(dy), Double(dx))
         if rotation > .pi / 2 { rotation -= .pi }
         if rotation < -.pi / 2 { rotation += .pi }
-        return (CGPoint(x: anchor.x + CGFloat(sin(rotation)) * 20,
-                        y: anchor.y - CGFloat(cos(rotation)) * 20), rotation)
+        // A 44pt dimension button centered only 20pt off the diameter
+        // intercepts the painted move handle. Keep both controls usable in
+        // explicit Move/Rotate; ordinary selection retains the close leader.
+        let clearance: CGFloat = viewModel.sketchTransformActive ? 60 : 20
+        return (CGPoint(x: anchor.x + CGFloat(sin(rotation)) * clearance,
+                        y: anchor.y - CGFloat(cos(rotation)) * clearance), rotation)
     }
 
     /// Native sweep leaders sit outside the arc with radial extensions and

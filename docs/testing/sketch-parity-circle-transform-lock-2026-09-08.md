@@ -48,3 +48,24 @@ refusal screenshots published to illustrated newtab; export verification pending
 Other primitive transforms and central diameter-label interference remain open.
 
 Publication verified: illustrated85 images (native/refusal2 new PNG SHA256 matches); first export84 lagged last image, repeat85 verified. Master38 images and circle/final-reopen note exported. Original stalled tabs preserved.
+
+## Diameter hit-target followup (~22:16 EDT, baseline36127b6)
+
+Freshfreeclonecircle450650 Ø0.992, explicitmode paintedcenterdrag450650→450570
+ignored; offset450670→450590 movescenterto450570. Native current drivenØ1000
+circle (Unlock applied) retainsdiameterleader inMove/Rotate, contrary to earlier
+assumption that mode universallyhideslabels. Keepreadoutvisible; extenddiameter
+textclearance20→60UIKitpt onlyinexplicitmode so44ptbuttonclearsthemovehandle.
+No nativecenter-handlemovement parityclaim (nativeusesaxiscontrols). Screenshot
+os3d-circle-center-native-mode.png plusclonecenter/offsetresultslocal.
+Serial37465 /tmp/os3d-circle-center-clearance-20260908.log/.xcresult running2UI
+checks:actualcenterdrag/history/editorreachability andexistingdrivendiameter.
+Postfixlive/publicationpending. No otherworkers.
+
+Clearancefollowup37465 clean2/2. Postfixlivecenter450650→450570 moves,
+UndoRedo restores650/570. Labelat470535 opensusablekeypad; unchangedcommit,
+Done/galleryreopen retainsØ0.992/center570 withordinarycloseleader. Native
+explicitdrivenØleader retained referencepublished, clonepostfiximagependingexport.
+Blue ring/diamond vsnativewhitedirectionalcontrols remainsblockingvisualgap.
+
+Clearance publication: illustrated89images/twonewPNGhashes verified (first88laggedlast); master38paintedcenter/finalreopen noteexportverified.

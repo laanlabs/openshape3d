@@ -817,3 +817,11 @@ Free rotation/move retainsradius/sweep; liveUndoRedo/relock/reopen/refusal and
 nativepersistedLock verified.11 distinctpassingchecks (initialanglefixturefailure,
 correctedtargetedrerun), notcleancombined. Endpointwelding/otherprimitivepathsopen.
 See [arc-transform receipt](testing/sketch-parity-arc-transform-lock-2026-09-08.md).
+
+
+### September 8 — explicit circle diameter/move-target clearance
+
+Freecirclecenterdrag was intercepted by44ptdiameterbutton; offsetdragworked.
+Native retainsdrivenØ in explicitmode, so readoutkept. Mode-only60pt textoffset
+clearscenter; normal20pt unchanged. Clean2/2 pluslivecenterdrag/history/editor/
+reopen. Fulltransformcontrolstyle remainsopen. Circle-transform receiptupdated.

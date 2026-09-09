@@ -62,6 +62,41 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testCircleExplicitCenterMoveRemainsClearOfDiameterButton() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.5, 0.6).press(forDuration: 0.15, thenDragTo: p(0.6, 0.6))
+        tapPaletteTool(app, group: "Sketch", label: "Circle")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let value = label.label
+        let original = label.frame
+        let mode = app.buttons["SketchTransformMode"]
+        mode.tap()
+        let center = CGPoint(x: window.frame.minX + window.frame.width * 0.5,
+                             y: window.frame.minY + window.frame.height * 0.6)
+        XCTAssertFalse(label.frame.contains(center), "Diameter touch target must not intercept the move center")
+        p(0.5, 0.6).press(forDuration: 0.3, thenDragTo: p(0.5, 0.5))
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        mode.tap()
+        XCTAssertEqual(label.label, value)
+        XCTAssertLessThan(label.frame.midY, original.midY - 50, "Painted center must actually move the circle")
+        attach(app, "circle-painted-center-moved-diameter-retained")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midY, original.midY, accuracy: 3)
+        app.buttons["RedoButton"].tap()
+        XCTAssertLessThan(label.frame.midY, original.midY - 50)
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+    }
+
     func testArcCopyRetainsExplicitTransformMode() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -1,26 +1,26 @@
 # Parity continuation checkpoint
 
-September8 ~22:13EDT. HEAD4a09b06 before verified arc-transform commit.
-Dirty solver/VM/SketchRadialDragTests plusreceipt/ledger/milestoneplan.
-No build/test/Peekaboo workeractive. Initial37654 8unit+2UIpasses,onefixturefail
-(storeddegreesinsteadofradians); corrected39680targeted1/1passes.11distinctchecks.
-Pairednative lockedarc refusestranslation/45rotation; clone nowrefusesboth.
-Unlock free45rotation+40pxrightmove retainR1.241/106.26,UndoRedo passes.
-Relock+reopen retainscenter320460/orientation/values andfreshrotationrefuses.
-Native MAINSketch02Front arc775446,R539.1552/180,Unlock retainedafterreopen.
-Illustrated87images/twoarcPNGhashes andmaster38arc/finalreopen noteverified.
-Evidence root/arc-transform; originalstalledDocst11/t13 preserved.
-Exactnext pairedcircle explicitmode diametertext obstructingcenterhandle:
-native modehasnoØlabel, clonecenterdragpreviouslyintercepted whileoffsetworks.
-Reproduce freecirclecenterdrag then adjustonlyconfirmedoverlay, test/live/docs/next.
-Remainingotherprimitive/mixedtransforms, fullsnapgridQA20/21/directarc/numeric/
-selection, finalsinglerevisionregression+installableartifact/devicechecklist.
-Simulator5147at27544, FrontUntitled2 lockedarc320460 explicitmodeselected.
-Native1924at9979, MAINFrontSketch02 lockedarc775446 selectednormalmode.
+September8 ~22:24EDT. HEAD36127b6 before verifiedcircleclearancecommit.
+DirtySketchDimensionOverlay/DimensionUITests+receipt/ledger. Serial37465 clean2/2,
+no build/test/Peekaboo workeractive. Livepaintedcenter450650→450570 moves,
+UndoRedo andraisedØlabelkeypadopen pass. Unchangedcommit+galleryreopen retains
+Ø0.992/center570 withnormalcloseleader. Illustrated89images/2newPNGhashes and
+master38finalreopen noteverified. Previousarc/circleLock fixes pushed/verified.
+Exactnext explicittransformcontrols: nativewhitedirectionalaxes vsclonebluering.
+Freshnativefreecircleaxisdragdidnothing(excluded), clickverticalaxis then1000
+commitscenter801334→801292 whileØ1000preserved; screenshot
+/tmp/os3d-transform-native-axis-typed.png. Native currentMAINFrontSketch02,
+explicitMove/Rotatewith1000mmverticalfield. Circleunlocked, arc775446locked.
+CloneFrontUntitled2 circle450570selectednormalmode; noexplicitaxiscontrols.
+Needpairedcloneaxisabsencecapture, then implementconfirmedcontrol/typedaxisgap,
+focusedtests/live/docs/next. Nativecenterhandleandfreecanvasdragnotclaimedidentical.
+Otherprimitive/mixedtransforms/fullsnapgrid/directarc/numeric/selectionremain;
+finalsinglerevisionregression+identifiedinstallableartifact/devicegateopen.
+Simulator5147at27544; native1924at9979; dedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16.
 EveryPeekaboo --bridge-socket '/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'.
-DedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16, no concurrentworkers.
 Activeillustratedt15 7442C07B27B3DEA86715C808891BAD9B,mastert14 77EDB2C49ACE004AFAD551FCDE5ECD9A.
-No merge/deviceinstall/Macrestart/securitychanges/duplicatewatchdog. Identityfilesuntouched.
+OldstalledDocst11/t13 preserved. No merge/deviceinstall/Macrestart/securitychanges/duplicatewatchdog.
+Identityfilesuntouched.
 
 ## Verified
 
