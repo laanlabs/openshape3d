@@ -8612,7 +8612,7 @@ final class EditorViewModel {
         // Rects were pre-decomposed, so the mapping is always one-to-one.
         guard after.count == drag.originals.count else { return }
         if drag.originals.allSatisfy({
-            switch $0 { case .line, .circle: return true; default: return false }
+            switch $0 { case .line, .circle, .arc: return true; default: return false }
         }) {
             guard let solved = SketchSolverBridge.solvePointTransform(drag.baselineSketch, targets: after)
             else {

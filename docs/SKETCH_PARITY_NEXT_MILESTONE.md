@@ -193,3 +193,13 @@ Both Docs still blocked; all new screenshots locally indexed. No candidate claim
 20:00 follow-through: four-line edge Disconnect now clean34/34 plus paired
 movement/history/gallery reopen. Next remaining connection cases and generic
 ring mismatch; publication remains blocked, candidate gate not reached.
+
+
+## September 8, 22:11 execution update
+
+Publication restored in separate existing-Doc tabs; old stalled tabs preserved.
+Circle transform whole-Lock correction4a09b06 clean28/28 pluspairedlive/history/
+reopen. Arc translation/rotation Lock correction now11distinctpassingchecks and
+pairedlive/reopen. Continue remaining numeric/selection acceptance, including
+circle diameter text covering explicit move target, fullsnap/gridmatrix and
+primitive/mixedtransformlimits. Finalregression/installableartifact gateopen.

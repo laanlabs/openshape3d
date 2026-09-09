@@ -807,3 +807,13 @@ still attached. Line/circle gizmo intent now solves original saved constraints.
 Clean28/28; live refusal, Unlock/move, Undo/Redo and relock/gallery-reopen/refusal
 verified. Native reopen retains diameter/Lock. Other primitive transforms and
 label/handle interference remain open. See [circle-transform receipt](testing/sketch-parity-circle-transform-lock-2026-09-08.md).
+
+
+### September 8 — whole-arc transform Lock enforcement
+
+Native lockedarc refused translation and45°rotation; clone acceptedboth withLock.
+Arc transform now solvescenter and preserveswhole-Lock startingorientation.
+Free rotation/move retainsradius/sweep; liveUndoRedo/relock/reopen/refusal and
+nativepersistedLock verified.11 distinctpassingchecks (initialanglefixturefailure,
+correctedtargetedrerun), notcleancombined. Endpointwelding/otherprimitivepathsopen.
+See [arc-transform receipt](testing/sketch-parity-arc-transform-lock-2026-09-08.md).

@@ -2,6 +2,27 @@ import XCTest
 @testable import openshape3d
 
 final class SketchRadialDragTests: XCTestCase {
+    func testArcTransformPreservesDrivenSizeAndWholeLockOrientation() throws {
+        let id = UUID()
+        let arc = SketchEntity.arc(id: id, center: SIMD2(2, 3), radius: 4,
+                                  startAngle: 0, endAngle: .pi)
+        var sketch = Sketch(plane: .ground, entities: [arc])
+        sketch.dimensions = [.init(kind: .radius, refs: [.init(entityID: id, role: .whole)], value: 4),
+                             .init(kind: .angle, refs: [.init(entityID: id, role: .whole)], value: .pi)]
+        let shifted = SketchTransform.translate(entities: [arc], by: SIMD2(1, 2))
+        let targets = SketchTransform.rotate(entities: shifted, about: SIMD2(3, 5), angle: .pi / 4)
+        let moved = try XCTUnwrap(SketchSolverBridge.solvePointTransform(sketch, targets: targets))
+        guard case let .arc(_, center, radius, start, end) = moved[0] else { return XCTFail() }
+        XCTAssertEqual(center.x, 3, accuracy: 1e-5)
+        XCTAssertEqual(center.y, 5, accuracy: 1e-5)
+        XCTAssertEqual(radius, 4, accuracy: 1e-5)
+        XCTAssertEqual(start, .pi / 4, accuracy: 1e-5)
+        XCTAssertEqual(SketchEntity.arcSweep(startAngle: start, endAngle: end), .pi, accuracy: 1e-5)
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole)])]
+        let locked = try XCTUnwrap(SketchSolverBridge.solvePointTransform(sketch, targets: targets))
+        XCTAssertEqual(locked, sketch.entities, "Lock must preserve orientation, not merely the center")
+    }
+
     func testCircleTransformRespectsLockAndDiameterWithoutMovingUnselectedGeometry() throws {
         let id = UUID()
         let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)

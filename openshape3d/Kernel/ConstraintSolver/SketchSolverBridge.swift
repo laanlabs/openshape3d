@@ -122,13 +122,14 @@ nonisolated enum SketchSolverBridge {
         return solvePointTransform(sketch, targets: targets, preservingLineID: preservingLineID)
     }
 
-    /// Lines and circles have all rigid transform intent represented by their
-    /// mutable points. Always solve against the original saved constraints.
-    /// Other primitives need orientation intent as well and retain separate paths.
+    /// Solve rigid line/circle/arc intent against the original saved constraints.
+    /// Arc orientation is carried separately from the center/sweep solver slots;
+    /// a whole-arc Lock retains the original orientation as well as its center.
+    /// Arc endpoint welding remains unsupported by the underlying sketch solver.
     static func solvePointTransform(_ sketch: Sketch, targets: [SketchEntity],
                                     preservingLineID: UUID? = nil) -> [SketchEntity]? {
         guard !targets.isEmpty, targets.allSatisfy({
-            switch $0 { case .line, .circle: return true; default: return false }
+            switch $0 { case .line, .circle, .arc: return true; default: return false }
         }) else { return nil }
         var anchored = sketch
         if let id = preservingLineID {
@@ -150,7 +151,16 @@ nonisolated enum SketchSolverBridge {
         let residual = sys.structural.flatMap { $0.residuals(projected.variables) }
             .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
         guard projected.converged, residual <= 1e-5 else { return nil }
-        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+        let wholeLocked = Set(sketch.constraints.filter { $0.kind == .fixed }
+            .flatMap { $0.refs }.filter { $0.role == .whole }.map { $0.entityID })
+        var oriented = sketch.entities
+        for case let .arc(id, _, _, targetStart, _) in targets where !wholeLocked.contains(id) {
+            guard let index = oriented.firstIndex(where: { $0.id == id }),
+                  case let .arc(_, center, radius, start, end) = oriented[index] else { return nil }
+            oriented[index] = .arc(id: id, center: center, radius: radius,
+                startAngle: targetStart, endAngle: targetStart + SketchEntity.arcSweep(startAngle: start, endAngle: end))
+        }
+        return writeBack(oriented, sys: sys, vars: projected.variables)
     }
 
     /// A free axis-aligned edge resizes against the opposite side. A saved
