@@ -12,11 +12,15 @@ continued through the second endpoint. OpenShape3D displayed only a radius line
 from the circle center to the arc midpoint. Its long line could leave the
 viewport without exposing the defining sweep.
 
-Native and clone both change curvature when the provisional arc's third-point
-region is dragged. The supported Peekaboo Return route did not produce a
-repeatable completion result in either app. A secondary native synthesized-key
-diagnostic blocked before delivery and was terminated. Return/chaining therefore
-remains explicitly inconclusive; no construction or commit semantics changed.
+The clone changes curvature when the pending arc's midpoint is dragged. An
+initial native screenshot appeared to show the same, but a later isolated
+Sketch04 recheck proved that dragging the apparent midpoint starts a chained
+arc instead. That earlier native-adjustment interpretation is withdrawn. The
+supported Peekaboo Return route did not produce a repeatable completion result
+in either app. A secondary native synthesized-key diagnostic blocked before
+delivery and was terminated. Native third-point placement and Return/chaining
+therefore remain explicitly inconclusive; no construction or commit semantics
+changed.
 
 ## Correction
 
@@ -34,13 +38,16 @@ requires both `R` and degree readouts before the pending arc is committed.
 
 - Native upper sample: `/tmp/os3d-arc-pending-native-upper.png`.
 - Clone initial 45-degree sample: `/tmp/os3d-arc-pending-clone-postfix.png`.
-- Native third-point adjustment: `/tmp/os3d-arc-thirddrag-native.png`.
+- Native drag diagnosis, later identified as chained construction:
+  `/tmp/os3d-arc-thirddrag-native.png`.
 - Clone third-point adjustment: `/tmp/os3d-arc-thirddrag-clone.png`.
 
 The clone's 45-degree pending sample keeps both labels visible; after an upward
-third-point drag it updates to `R1.5 mm` and `106.49°`. The native sample likewise
-updates geometry and its two defining readouts. Different project scale means
-the numeric radii are not compared as equal.
+midpoint drag it updates to `R1.5 mm` and `106.49°`. The native initial pending
+sample confirms the two defining readouts and leader conventions, but not the
+same adjustment gesture. Different project scale means the numeric radii are
+not compared as equal. A clone-only major preview reached `225.55°`; the clean
+native major/minor recipe remains open after the chained-arc diagnosis.
 
 Final combined regression `/tmp/os3d-arc-feedback-final-20260909.xcresult`
 passed cleanly in one run: 3 arc UI workflows plus 36 construction, analytic
@@ -51,3 +58,9 @@ DOCX exports and the PNGs are retained in the durable transform-controls report.
 
 QA-13 remains partial because Return/chaining, major/minor and
 tangent-transition cases are unfinished.
+
+The later interpretation correction was appended to both Google Docs and
+independently export-verified without adding images: illustrated 201 placements,
+master 38. Corrected exports are retained as
+`os3d-arc-feedback-corrected-illustrated.docx` and
+`os3d-arc-feedback-corrected-master.docx`.

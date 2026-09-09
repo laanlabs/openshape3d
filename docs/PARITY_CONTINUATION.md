@@ -5,18 +5,22 @@ dirty in LiveDimensionKit, EditorViewModel, SketchLiveDimensionOverlay,
 LiveDimensionTests, DimensionUITests plus ledger/milestone/receipt/checkpoint.
 No test/build/Peekaboo worker running. Focused22/22 and final combined39/39
 passed cleanly; final run has3arcUI +36construction/analytic/live-dimension.
-Paired pending45° and third-point-adjusted states inspected: clone now presents
-two radius rays, curved sweep leader/arrows, endpoint radius and both values.
-Native and clone third-point drag update curvature/readouts. Supported Return
-route remains input-delivery inconclusive; no commit/chaining semantics changed.
+Paired pending45° states inspected: clone now presents two radius rays, curved
+sweep leader/arrows, endpoint radius and both values. Clone midpoint drag updates
+curvature/readouts and a clone-only major preview reached225.55°. A later clean
+native Sketch04 recheck proved apparent-midpoint drag starts a chained arc; the
+earlier native-adjustment interpretation is withdrawn. Native third-point
+placement and supported Return route remain inconclusive; no commit/chaining
+semantics changed.
 Illustrated201 placements/all4 new hashes and master38 final note anonymously
 export verified. Durable PNG/DOCX copies in reports/.../transform-controls.
 Current acceptance inventory:0 fully passed,0 failed,1 device-blocked,55
 incomplete/untested (42 partial,11 explicit deferrals,2 not run). Candidate not
-ready. Exact next: commit/push pending-feedback fix, then QA-13 major/minor and
-tangent-transition live comparison or next highest core visible gap; keep
-Return/chaining open. Clone5147 at275,44 pending adjusted arc before test runner;
-native1924 at99,79 pending adjusted arc. UI test reset disposable clone gallery.
+ready. Pending-feedback fix is pushed as18a2fff; follow-up audit correction dirty.
+Exact next: continue native third-point/major interaction through a supported
+route or move to the next highest core visible gap; keep Return/chaining open.
+Clone5147 at275,44 has clone-only225.55° major preview. Native1924 at99,79 is in
+clean Top Sketch04 with a default arc and chained-arc diagnosis. No runner.
 Preserve identity files, stalled Doc tabs and30minwatchdog. Remaining QA55/56,
 finalsame-revision regression and signed installable device artifact/checklist.
 No merge/device installation/security changes or duplicate workers.

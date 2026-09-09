@@ -445,7 +445,10 @@ radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
 Paired pending arcs exposed a missing clone sweep: native shows two radius rays,
 a curved angular leader, sweep and endpoint radius; clone showed radius only.
 The corrected informational overlay passes focused22/22 and updates both values
-during live third-point drag. Return/chaining remains input-delivery inconclusive
-and was not changed. Final combined39/39 passed in one run; illustrated201/all4
-new hashes and master38 final note export verified. QA-13 remains partial.
+during clone midpoint drag. A later isolated native recheck proved the apparent
+midpoint drag starts a chained arc, so the earlier native-adjustment
+interpretation is withdrawn. Native third-point placement and Return/chaining
+remain inconclusive and were not changed. Final combined39/39 passed in one run;
+illustrated201/all4 new hashes and master38 final note export verified. QA-13
+remains partial.
 [Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).

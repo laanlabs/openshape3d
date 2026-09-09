@@ -1132,7 +1132,10 @@ radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
 Native provisional arcs expose radius and sweep with two radius rays and a
 curved angular leader; clone exposed radius only. Added informational pending
 radius/sweep descriptors and native-style live leaders without changing commit
-semantics. Focused22/22 and final combined39/39 clean; paired initial/third-point
-states live-inspected. Illustrated201/all4 new hashes and master38 note verified.
-Return/chaining remains inconclusive, so QA-13 is partial.
+semantics. Focused22/22 and final combined39/39 clean; paired initial pending
+states and clone midpoint adjustment were live-inspected. A later isolated
+native recheck proved the apparent midpoint drag starts a chained arc, so the
+earlier native-adjustment interpretation is withdrawn. Illustrated201/all4 new
+hashes and master38 note verified. Native third-point placement, Return/chaining
+and major/minor remain inconclusive, so QA-13 is partial.
 [Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).
