@@ -886,3 +886,12 @@ readouts. Clean27/27 (19unit+8UI), paired free/driven circle/arc cases, saved ed
 access and gallery reopen verified. Illustrated108/new4 PNG hashes verified;
 normal radial-handle coordinate offset remains a separate blocking visual gap.
 See [transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
+
+## Radial handle viewport origin — September 9
+
+Circle/arc radial overlays now share the viewport's full-bleed coordinate origin.
+This removes a safe-area offset that placed handles inside geometry/over text.
+Clean2/2 strengthened outside-rim+resize/history tests; paired normal placement
+and clone live portrait/landscape resize, driven refusal and reopen verified.
+Fresh native radial-drag delivery limitation explicitly retained, not a new
+native resize pass. [Receipt](testing/sketch-parity-radial-origin-2026-09-09.md).

@@ -957,6 +957,8 @@ struct EditorView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                 SketchRadialHandleOverlay(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
                 SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()

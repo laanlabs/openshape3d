@@ -229,6 +229,9 @@ final class DimensionUITests: XCTestCase {
         let undrivenRadius = radius.label
         let handle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let arcRimY = window.frame.minY + window.frame.height * bulgeY
+        XCTAssertLessThan(handle.frame.midY, arcRimY - 5,
+                          "Radial handle must sit beyond the arc, not inside it from a safe-area offset")
         let grab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
         sleep(1)
@@ -354,6 +357,9 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         let radial = app.descendants(matching: .any).matching(identifier: "SketchCircleRadiusHandle").firstMatch
         XCTAssertTrue(radial.waitForExistence(timeout: 3))
+        let circleRimY = window.frame.minY + window.frame.height * 0.50 - window.frame.width * 0.13
+        XCTAssertLessThan(radial.frame.midY, circleRimY - 5,
+                          "Radial handle must sit above the circle rim, clear of diameter text")
         let originalDiameter = app.buttons["DimensionLabel"].firstMatch.label
         let grab = radial.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))

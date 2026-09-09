@@ -1,18 +1,18 @@
 # Parity continuation checkpoint
 
-September9 ~00:29EDT. HEAD4d6e64e pushed; circular temporary-readout fix verified,
-committing VM/unit/UI/docs plus prepared not-ready device checklist.
-Serial51127 clean27/27 (19unit+8UI). Live free/driven circle and arc visibility,
-saved dimension editor access, cloneR1/nativeR500 gallery reopen verified.
-Illustrated108/new4 PNG hashes; both final circular-readout notes exported.
-No test/build/Peekaboo worker active. Next confirmed normal radial-handle origin
-offset: native above rim, clone inside circle/arc. Add full-bleed radial overlay
-coordinates and strengthen outside-rim UI assertion; focused regressions/live
-portrait+landscape/free/driven/history/reopen, publish and continue matrix.
-Native1924 MAINFront selectedarc758377 R500/180 (camera refitted); freecircle
-919534/radius36. Clone5147 Untitled2 Front explicitarc280460 R1/106.26, circle
-450650/diameter1. No duplicateworkers/watchdog/merge/deviceinstall/securitychanges.
-Full42audit/56matrix/candidate artifact gate remain open.
+September9 ~00:46EDT. HEAD02b304e pushed; radial origin correction verified,
+committing EditorView+DimensionUI/receipt/ledger/checkpoint. Clean2/2 strengthened
+outside-rim tests. Paired normal placement; clone portrait+landscape resize/history,
+drivenØ1 refusal, gallery arcR1.985/106.26 and circleØ1 handles verified.
+Fresh native radial drag no mutation/local delivery; excluded (prior reference
+resize preserved). Native prior arcR500 Undo restored via Redo; no fresh resizepass.
+Illustrated112/new4 hashes and both final notes export-verified. No workers active.
+Next paired edge-of-canvas annotation layout, then direct rotated/mixed/compact
+controls and remaining core matrix. Native1924 MAINFront selectedcircle919534
+Ø2000, arc758377 R500/180; clone5147 portrait Untitled2 circle450650Ø1 selected,
+arc124517R1.985/106.26 partly off left from rotation viewport resizing.
+No duplicate workers/watchdogs, merge/deviceinstall/security/restart changes.
+Installable device artifact and full visual/core acceptance gate remain open.
 
 ## Earlier checkpoint history
 
