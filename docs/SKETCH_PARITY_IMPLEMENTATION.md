@@ -798,3 +798,12 @@ glyph, one-step history, freed movement and gallery-reopen checks pass. Compact
 menu shares action but remains live-unsampled. Side-Lock receipt retains paired
 native reference and failures/history. Constrained-edge colors remain different;
 next untouched core recipe is direct arc construction (QA-13). Docs blocked.
+
+
+### September 8 — circle explicit transform Lock enforcement
+
+Paired native refused a locked circle translation while clone moved it with Lock
+still attached. Line/circle gizmo intent now solves original saved constraints.
+Clean28/28; live refusal, Unlock/move, Undo/Redo and relock/gallery-reopen/refusal
+verified. Native reopen retains diameter/Lock. Other primitive transforms and
+label/handle interference remain open. See [circle-transform receipt](testing/sketch-parity-circle-transform-lock-2026-09-08.md).

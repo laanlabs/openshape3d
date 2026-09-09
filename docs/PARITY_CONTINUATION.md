@@ -1,30 +1,27 @@
 # Parity continuation checkpoint
 
-September8 approximately21:33EDT. HEADdaa8478 before pending verifiedsnap commit.
-Dirtysnapradius+idlehover model/tests/docs. No build/test/Peekaboo workeractive.
-78332 clean37/37 (36unit+1line-chainUI). VerifiedGuidepoints/Hints on;20pxmiss
-staysseparate and3pxnearstart snaps atoriginal+1.48x clone display scales.
-Native20pxmissfree and3pxhoverpurple reference. At1.94xleftx164,y232no segment,
-excluded and left-inputarea remainsopen. Idlehover implementation25unitpasses,
-no livehint; categorywasoff duringearlierattempts, thoseexcluded. ToggleSLIDER
-DRAG enablesguidepoints; clicksdidnot. No undocumentedpassclaims.
-Finalclone galleryreopenedFrontdesignUntitled2, baseline250350→450350 selected,
-2.477mm preserved; joinedbranch250350→300404. Window5147at27544.
-NativeMAINFrontSketch02 Line active, standalone342359→424359 plusoriginal409;
-20pxprobeundone, nearsegmentattemptnotaccepted. No testsactive.
-Exactnext commit/push correction then investigateleftcanvasinput atx164 vs207
-withpairednative/clone; continue remainingcore numeric/selection/QA20/21matrix.
-
-EveryPeekaboo command explicitly --bridge-socket
-'/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'. Existing
-GUIhosthealthy; defaultdaemonunprivileged. Simulatoronlyapprestartclearedcapture,
-restored dedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16, normalmode. NoMacrestart,
-ScreenSharing/securitychanges. OriginaloldDocst11/t13 six+oneunsyncedpreserved.
-Illustratedt15 7442C07B27B3DEA86715C808891BAD9B Saved83images,3newnative/far/near
-PNGhashesexportverified. Mastert14 77EDB2C49ACE004AFAD551FCDE5ECD9A 38images,
-snap/finalreopen noteexportverified. Root/snap-feedback+verifiedexports current.
-Remainingmatrix/directarc/constraints/grid/deviceartifactgate; no candidate,
-merge/deviceinstall/duplicatewatchdog. Identityfilesuntouched.
+September8 ~22:00EDT. HEADbb2dd70 before verified circle-transform commit.
+Dirty EditorViewModel,SketchSolverBridge,SketchRadialDragTests plus receipt/ledger.
+No build/test/Peekaboo workeractive. Serial76569 clean28/28 (25unit+3UI).
+Native lockedcircle refuses; clone fixed same offsethandle drag refuses withnotice.
+Unlock moves450550→450470 keepingØ0.992, UndoRedo passes. Relock+galleryreopen
+retainscircle470/diameter/Unlock, freshdragrefuses. Native reopenØ1000/Unlock.
+Illustrated85images verified incl2newPNGhashes; master38/finalreopen noteverified.
+Exports and screenshots root/circle-transform. Native current lockedARC center775446,
+R539.1552/180deg: explicitMove/Rotate typed1000 upward REFUSED withnotice,
+/tmp/os3d-arclock-native-refusal.png. Exactnext clone equivalent lockedarc compare,
+then confirmedfix/tests/live/document/next. Circle centerlabel intercept remainsopen.
+Leftcanvas normalzoom164232→220300 draws bothapps; no generalblockedarea.
+Priorpostpinch1.94x unacceptedplacement remainsnarrowinputsample.
+Simulator5147 at27544, Front Untitled2 lockedcircle450470 selectedexplicitmode.
+Native1924 at9979, MAINSketch02Frontfitafterreopen, lockedarc selectedexplicitmode.
+EveryPeekaboo call --bridge-socket '/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'.
+DedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16; no parallelworkers.
+OriginalstalledDocst11/t13 preserved. Activeillustratedt15 7442C07B27B3DEA86715C808891BAD9B,
+mastert14 77EDB2C49ACE004AFAD551FCDE5ECD9A publicationworking.
+Remainingprimitive/mixedtransforms, QA20/21fullsnapgrid, directarc/numeric/selection,
+finalsinglerevisionregression+identifiedinstallableartifact/devicechecklist.
+No merge/deviceinstall/duplicatewatchdog/Macrestart/securitychanges. Identityfilesuntouched.
 
 ## Verified
 

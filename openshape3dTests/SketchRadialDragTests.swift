@@ -2,6 +2,27 @@ import XCTest
 @testable import openshape3d
 
 final class SketchRadialDragTests: XCTestCase {
+    func testCircleTransformRespectsLockAndDiameterWithoutMovingUnselectedGeometry() throws {
+        let id = UUID()
+        let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)
+        let line = SketchEntity.line(id: UUID(), a: SIMD2(-10, -10), b: SIMD2(-5, -10))
+        var sketch = Sketch(plane: .ground, entities: [circle, line])
+        let targets = SketchTransform.translate(entities: [circle], by: SIMD2(0, 2))
+        sketch.dimensions = [.init(kind: .diameter,
+            refs: [.init(entityID: id, role: .whole)], value: 8)]
+        let moved = try XCTUnwrap(SketchSolverBridge.solvePointTransform(sketch, targets: targets))
+        guard case let .circle(_, center, radius) = moved[0] else { return XCTFail() }
+        XCTAssertEqual(center.x, 2, accuracy: 1e-5)
+        XCTAssertEqual(center.y, 5, accuracy: 1e-5)
+        XCTAssertEqual(radius, 4, accuracy: 1e-5)
+        XCTAssertEqual(moved[1], line)
+        for role in [ConstraintRef(entityID: id, role: .whole), ConstraintRef(entityID: id, role: .center)] {
+            sketch.constraints = [.init(kind: .fixed, refs: [role])]
+            let locked = try XCTUnwrap(SketchSolverBridge.solvePointTransform(sketch, targets: targets))
+            XCTAssertEqual(locked, sketch.entities, "A saved circle lock must not move with the target")
+        }
+    }
+
     func testFreeRadiusRetainsCenterSweepAndCrossingLineWithoutSavingIntent() throws {
         let arcID = UUID(), lineID = UUID()
         let arc = SketchEntity.arc(id: arcID, center: SIMD2(2, 3), radius: 4,

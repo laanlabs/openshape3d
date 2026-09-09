@@ -119,6 +119,17 @@ nonisolated enum SketchSolverBridge {
                                    preservingLineID: UUID? = nil) -> [SketchEntity]? {
         guard !targets.isEmpty, targets.allSatisfy({ if case .line = $0 { return true }; return false })
         else { return nil }
+        return solvePointTransform(sketch, targets: targets, preservingLineID: preservingLineID)
+    }
+
+    /// Lines and circles have all rigid transform intent represented by their
+    /// mutable points. Always solve against the original saved constraints.
+    /// Other primitives need orientation intent as well and retain separate paths.
+    static func solvePointTransform(_ sketch: Sketch, targets: [SketchEntity],
+                                    preservingLineID: UUID? = nil) -> [SketchEntity]? {
+        guard !targets.isEmpty, targets.allSatisfy({
+            switch $0 { case .line, .circle: return true; default: return false }
+        }) else { return nil }
         var anchored = sketch
         if let id = preservingLineID {
             anchored.constraints.append(SketchConstraint(kind: .fixed,

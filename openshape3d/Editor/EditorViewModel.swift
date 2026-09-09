@@ -8611,8 +8611,10 @@ final class EditorViewModel {
         }
         // Rects were pre-decomposed, so the mapping is always one-to-one.
         guard after.count == drag.originals.count else { return }
-        if drag.originals.allSatisfy({ if case .line = $0 { return true }; return false }) {
-            guard let solved = SketchSolverBridge.solveLineTransform(drag.baselineSketch, targets: after)
+        if drag.originals.allSatisfy({
+            switch $0 { case .line, .circle: return true; default: return false }
+        }) {
+            guard let solved = SketchSolverBridge.solvePointTransform(drag.baselineSketch, targets: after)
             else {
                 showNotice("Locked or constrained sketch parts can't be moved.")
                 return
