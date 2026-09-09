@@ -15,6 +15,22 @@ final class SketchDiameterDimensionLayoutTests: XCTestCase {
         }
     }
 
+    func testManualAnchorRotatesLeaderWithoutChangingDiameter() throws {
+        for point in [CGPoint(x: 250, y: 300), CGPoint(x: 650, y: 650)] {
+            let layout = try XCTUnwrap(SketchDiameterDimensionLayout.make(
+                start: CGPoint(x: 400, y: 500), end: CGPoint(x: 600, y: 500),
+                anchor: CGPoint(x: 550, y: 500), clearance: 20,
+                available: CGRect(x: 96, y: 140, width: 744, height: 1000),
+                textWidth: 80, manualAnchor: point))
+            XCTAssertEqual(hypot(layout.end.x - layout.start.x, layout.end.y - layout.start.y), 200, accuracy: 0.001)
+            XCTAssertEqual((layout.start.x + layout.end.x) / 2, 500, accuracy: 0.001)
+            XCTAssertEqual((layout.start.y + layout.end.y) / 2, 500, accuracy: 0.001)
+            XCTAssertGreaterThan(hypot(layout.tail.x - 500, layout.tail.y - 500), 100)
+            XCTAssertGreaterThanOrEqual(layout.targetSize.width, 44)
+            XCTAssertGreaterThanOrEqual(layout.targetSize.height, 44)
+        }
+    }
+
     func testObliqueProjectionRetainsRealProjectedRimPoints() throws {
         let start = CGPoint(x: 780, y: 500), end = CGPoint(x: 900, y: 520)
         let layout = try XCTUnwrap(SketchDiameterDimensionLayout.make(

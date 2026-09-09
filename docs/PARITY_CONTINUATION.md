@@ -1,16 +1,17 @@
 # Parity continuation checkpoint
 
-September9 ~01:21EDT. Baselineebffe23; diameter edge correction ready to commit.
-No test/build/Peekaboo process remains. Exclusive desktop owned by this session.
-Final guard3 clean4/4 after compile-only type error and guard2 Top-limit UI fail;
-initial4/4+target1/1+arrow4/4 retained. Live fresh Front value/history/reopen,
-final saved Top outside arrows/text/editor/Escape verified. Docs116/allfour new
-hashes, master38 final gallery-reopen note verified. Receipt diameter-edgeSep9.
-Native1924 Frontcircle947517Ø2000 selected; clone5147 Topcircle514620Ø1 selected.
-Next commit/push reviewed correction, compare native normal reselection/manual
-circle-label positioning with clone; do not stop at batch. Fullvisual/corematrix
-and actual deviceartifact gate open. Identity files excluded, no merge/install/
-security changes, no duplicate worker/watchdog. Preserve older stalled Doc tabs.
+September9 ~01:57EDT. HEAD7945b18 pushed; manual circle-label code/model/unit/UI
+and documentation dirty, identity files excluded. No runner active; exclusive
+Peekaboo workflow. Fresh clone Front430450 Ø1 label moved near300458: free drag
+resets on reselect; typed1 inherits placement; driven drag, Undo/Redo, reselection
+and gallery reopen verified. Native Front964529 Ø1000 diagonal stored label
+reopen verified. Regression26 distinct passes across initial/targeted; two
+immediate reselection failures retained, settled1/1 passed; no selectioncodechange.
+Illustrated121/all3postfix hashes and master38 final note verified. Exact next
+commit/push scoped correction, then compare default selected-circle orientation
+and remaining annotation/core matrix. Oblique manual placement not signed off.
+Device artifact and gate open; no merge/install/security changes/duplicateworkers.
+Preserve old stalled Docs tabs and existing watchdog.
 
 ## Earlier checkpoint history
 

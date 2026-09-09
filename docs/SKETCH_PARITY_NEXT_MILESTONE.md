@@ -227,3 +227,15 @@ and paired reopen. Illustrated116/allfournewhashes and master38 final note
 verified. Continue normal circular reselection/manual annotation positioning,
 then remaining rotated/mixed/compact and core acceptance. Full visual gate and
 identified device artifact remain open; no milestone/candidate completion claim.
+
+## September 9 — manual circle diameter label placement
+
+Free placement now lasts for the current selection; stored diameter placement
+is independently undoable and saved relative to the circle center. Fresh paired
+free/driven label drag, typed-value inheritance, unchanged geometry, history and
+gallery reopen verified. Optional Codable metadata preserves old files and merge.
+Initial25/26, immediate-reselection targeted failure, settled targeted1/1:
+26 distinct passing checks across runs, not one clean run. No selection-code
+change; rapid successive input remains unverified. Scope is head-on circle
+diameter labels; default selected orientation, oblique placement and other
+dimension types remain open. [Receipt](testing/sketch-parity-circle-label-drag-2026-09-09.md).

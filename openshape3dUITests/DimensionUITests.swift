@@ -411,6 +411,32 @@ final class DimensionUITests: XCTestCase {
         XCTAssertEqual(label.label, before)
         app.buttons["RedoButton"].tap()
         XCTAssertEqual(label.label, "Ø1 mm")
+        let initial = label.frame
+        let grab = label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: -160, dy: 50)))
+        sleep(1)
+        XCTAssertEqual(label.label, "Ø1 mm", "Moving annotation must not resize circle")
+        XCTAssertFalse(app.textFields["DimensionField"].exists, "Dragging must not open keypad")
+        XCTAssertLessThan(label.frame.midX, initial.midX - 70)
+        let moved = label.frame
+        attach(app, "driven-circle-label-repositioned")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midX, initial.midX, accuracy: 3)
+        app.buttons["RedoButton"].tap()
+        XCTAssertEqual(label.frame.midX, moved.midX, accuracy: 3)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.75)).tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3))
+        sleep(1) // settle the label/gesture teardown before the next touch
+        attach(app, "circle-label-deselected-before-reselect")
+        // Painted left rim, away from the top radial-control region; live
+        // top and left reselect both work, but the original immediate top tap
+        // failed to acquire selection in this XCTest sequence.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.715, dy: 0.65)).tap()
+        attach(app, "circle-label-after-reselect-touch")
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertEqual(label.frame.midX, moved.midX, accuracy: 3)
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
     }
 
     // MARK: - Dimensions survive leaving the sketch

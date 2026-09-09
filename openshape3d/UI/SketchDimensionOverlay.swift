@@ -14,6 +14,8 @@ import SwiftUI
 
 struct SketchDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
+    @State private var diameterDragStarts: [String: CGPoint] = [:]
+    @State private var diameterDragPreviews: [String: CGPoint] = [:]
     @State private var editorSize = CGSize(width: 280, height: 250)
 
     var body: some View {
@@ -56,6 +58,11 @@ struct SketchDimensionOverlay: View {
                         .position(editorPosition(anchor, in: geo.size))
                 }
             }
+            }
+            .coordinateSpace(name: "SketchDimensionCanvas")
+            .onChange(of: viewModel.selectedSketchEntityIDs) {
+                diameterDragStarts.removeAll()
+                diameterDragPreviews.removeAll()
             }
             .allowsHitTesting(!labels.isEmpty)
             // The Metal viewport is full-bleed; a SwiftUI overlay is safe-area
@@ -128,7 +135,8 @@ struct SketchDimensionOverlay: View {
                     leaderOffset: label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
             let radial = label.isArcRadius ? radiusLeader(start, end, in: size) : nil
-            let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID, in: size) : nil
+            let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
+                manualAnchor: diameterDragPreviews[label.id] ?? label.worldDiameterLabelAnchor.flatMap(project), in: size) : nil
             if let arc {
                 Path { path in
                     path.addLines(arc.points)
@@ -272,6 +280,8 @@ struct SketchDimensionOverlay: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .highPriorityGesture(diameterDrag(label, anchor: diameter?.anchor ?? anchor),
+                    including: diameter != nil ? .all : .none)
                 .position(arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
@@ -308,7 +318,7 @@ struct SketchDimensionOverlay: View {
     }
 
     private func diameterLayout(_ start: CGPoint, _ end: CGPoint, anchor: CGPoint,
-                                text: String, sketchID: SketchID, in size: CGSize) -> SketchDiameterDimensionLayout? {
+                                text: String, sketchID: SketchID, manualAnchor: CGPoint?, in size: CGSize) -> SketchDiameterDimensionLayout? {
         let rail: CGFloat = viewModel.mode.isSketching && !viewModel.sketchTransformActive ? 184 : 16
         let left = AppSettings.shared.paletteOnRight ? rail : 96
         let right = AppSettings.shared.paletteOnRight ? 96 : rail
@@ -324,7 +334,42 @@ struct SketchDimensionOverlay: View {
             .map { (viewModel.cameraControl?.offAxisDegrees(to: $0.plane) ?? 90) < 1.1 } ?? false
         return SketchDiameterDimensionLayout.make(start: start, end: end, anchor: anchor,
             clearance: viewModel.sketchTransformActive ? 60 : 20,
-            available: bounds, textWidth: width, allowVertical: headOn)
+            available: bounds, textWidth: width, allowVertical: headOn, manualAnchor: manualAnchor)
+    }
+
+    private func diameterDrag(_ label: EditorViewModel.SketchDimensionLabel,
+                              anchor: CGPoint) -> some Gesture {
+        DragGesture(minimumDistance: 6, coordinateSpace: .named("SketchDimensionCanvas"))
+            .onChanged { value in
+                guard let sketch = viewModel.session.document.sketches.first(where: { $0.id == label.sketchID }),
+                      (viewModel.cameraControl?.offAxisDegrees(to: sketch.plane) ?? 90) < 1.1 else { return }
+                if diameterDragStarts[label.id] == nil { diameterDragStarts[label.id] = anchor }
+                let origin = diameterDragStarts[label.id] ?? anchor
+                diameterDragPreviews[label.id] = CGPoint(x: origin.x + value.translation.width,
+                                                         y: origin.y + value.translation.height)
+            }
+            .onEnded { _ in
+                defer {
+                    diameterDragStarts[label.id] = nil
+                    diameterDragPreviews[label.id] = nil
+                }
+                guard let point = diameterDragPreviews[label.id],
+                      let sketch = viewModel.session.document.sketches.first(where: { $0.id == label.sketchID }),
+                      let origin = project(sketch.plane.toWorld(.zero)),
+                      let axisX = project(sketch.plane.toWorld(SIMD2(1, 0))),
+                      let axisY = project(sketch.plane.toWorld(SIMD2(0, 1))),
+                      let center = project((label.worldStart + label.worldEnd) / 2) else { return }
+                // Invert the head-on projected sketch basis. The saved offset
+                // follows its circle through camera zoom and translation.
+                let ax = axisX.x - origin.x, ay = axisX.y - origin.y
+                let bx = axisY.x - origin.x, by = axisY.y - origin.y
+                let determinant = ax * by - ay * bx
+                guard abs(determinant) > 0.00001 else { return }
+                let dx = point.x - center.x, dy = point.y - center.y
+                let offset = SIMD2(Double((dx * by - dy * bx) / determinant),
+                                   Double((ax * dy - ay * dx) / determinant))
+                viewModel.moveDiameterLabel(label, offset: offset)
+            }
     }
 
     /// Native sweep leaders sit outside the arc with radial extensions and

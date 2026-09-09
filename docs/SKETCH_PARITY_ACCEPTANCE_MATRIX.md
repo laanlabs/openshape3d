@@ -469,3 +469,15 @@ reopen. Illustrated104 images/new2 hashes and master38 final notes verified.
 Temporary circular readout visibility correction is under regression, not yet
 live signed off. Full geometry/annotation/compact/direct-drag acceptance and
 installable-candidate gate stay open. Original recipes retained unchanged.
+
+## September 9 — manual circle diameter label placement
+
+Free placement now lasts for the current selection; stored diameter placement
+is independently undoable and saved relative to the circle center. Fresh paired
+free/driven label drag, typed-value inheritance, unchanged geometry, history and
+gallery reopen verified. Optional Codable metadata preserves old files and merge.
+Initial25/26, immediate-reselection targeted failure, settled targeted1/1:
+26 distinct passing checks across runs, not one clean run. No selection-code
+change; rapid successive input remains unverified. Scope is head-on circle
+diameter labels; default selected orientation, oblique placement and other
+dimension types remain open. [Receipt](testing/sketch-parity-circle-label-drag-2026-09-09.md).

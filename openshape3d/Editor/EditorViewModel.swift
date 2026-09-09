@@ -8133,6 +8133,7 @@ final class EditorViewModel {
         didSet {
             if oldValue != selectedSketchEntityIDs {
                 retainedSketchTransform = nil
+                temporaryDiameterLabelOffsets.removeAll()
                 if mode.sketchTool != nil { sketchTransformActive = false }
                 sketchRadialDrag = nil
                 selectedAxisRectangleEdge = nil
@@ -11305,6 +11306,26 @@ final class EditorViewModel {
     /// A dimension label to draw in the sketch overlay: a driving dimension, or
     /// the live candidate for the current selection (`dimensionID == nil`).
     /// Positions are WORLD-space so the overlay reprojects them each camera move.
+    private var temporaryDiameterLabelOffsets: [UUID: SIMD2<Double>] = [:]
+
+    /// Native free readout placement lasts for the selection; driving dimension
+    /// placement is a separate undoable, saved presentation edit.
+    func moveDiameterLabel(_ label: SketchDimensionLabel, offset: SIMD2<Double>) {
+        guard label.kind == .diameter, offset.x.isFinite, offset.y.isFinite,
+              let entityID = label.refs.first?.entityID,
+              let sketch = session.document.sketches.first(where: { $0.id == label.sketchID })
+        else { return }
+        if let dimensionID = label.dimensionID,
+           let before = sketch.dimensions.first(where: { $0.id == dimensionID }) {
+            var after = before
+            after.labelOffset = offset
+            guard before != after else { return }
+            session.perform(UpdateSketchDimensionCommand(sketchID: sketch.id, before: before, after: after))
+        } else {
+            temporaryDiameterLabelOffsets[entityID] = offset
+        }
+    }
+
     struct SketchDimensionLabel: Identifiable {
         let id: String
         /// The sketch this label annotates. Outside sketch mode the overlay
@@ -11321,6 +11342,7 @@ final class EditorViewModel {
         let worldEnd: SIMD3<Double>
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
+        var worldDiameterLabelAnchor: SIMD3<Double>? = nil
         var isStandaloneLineLength = false
         var isRectangleSize = false
         var worldRectangleCenter: SIMD3<Double>? = nil
@@ -11687,6 +11709,15 @@ final class EditorViewModel {
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            if kind == .diameter, let entityID = refs.first?.entityID {
+                let stored = dimensionID.flatMap { id in
+                    sketch.dimensions.first(where: { $0.id == id })?.labelOffset
+                }
+                if let offset = stored ?? temporaryDiameterLabelOffsets[entityID] {
+                    let center = (g.start + g.end) / 2
+                    label.worldDiameterLabelAnchor = sketch.plane.toWorld(center + offset)
+                }
+            }
             if kind == .distance, let first = refs.first,
                refs.count == 2, refs.allSatisfy({ $0.entityID == first.entityID }),
                case .line? = sketchEntity(first.entityID, in: sketch) {
@@ -11933,7 +11964,10 @@ final class EditorViewModel {
             candidateDimensionID = dimID
             setup = UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after)
         } else {
-            let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored, formula: formula)
+            let offset = edit.kind == .diameter
+                ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
+            let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored,
+                                      formula: formula, labelOffset: offset)
             proposed.dimensions.append(dim)
             candidateDimensionID = dim.id
             setup = AddSketchDimensionCommand(sketchID: sketchID, dimension: dim)

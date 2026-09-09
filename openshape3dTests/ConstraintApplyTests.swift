@@ -139,6 +139,52 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(simd_length(undone - moved), 0, accuracy: 1e-5)
     }
 
+    func testDiameterLabelPlacementTransientThenSavedUndoableWithoutGeometryChange() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let entity = SketchEntity.circle(id: id, center: SIMD2(3, 4), radius: 2)
+        let sketch = openSketch(vm, entities: [entity])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        let label = try XCTUnwrap(vm.sketchDimensionLabels.first)
+        let firstOffset = SIMD2<Double>(-5, 3)
+        vm.moveDiameterLabel(label, offset: firstOffset)
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.worldDiameterLabelAnchor,
+                       sketch.plane.toWorld(SIMD2(-2, 7)))
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        XCTAssertEqual(vm.activeSketch!.entities, [entity])
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertNil(vm.sketchDimensionLabels.first?.worldDiameterLabelAnchor)
+        vm.moveDiameterLabel(label, offset: firstOffset)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("4 mm")
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.labelOffset, firstOffset)
+        let geometry = vm.activeSketch!.entities
+        let driven = try XCTUnwrap(vm.sketchDimensionLabels.first)
+        let secondOffset = SIMD2<Double>(-3, 6)
+        vm.moveDiameterLabel(driven, offset: secondOffset)
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.value, 4)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.labelOffset, firstOffset)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.labelOffset, secondOffset)
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.worldDiameterLabelAnchor,
+                       sketch.plane.toWorld(SIMD2(0, 10)))
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(vm.activeSketch!))
+        XCTAssertEqual(reopened.dimensions.first?.labelOffset, secondOffset)
+        XCTAssertEqual(reopened.entities, geometry)
+        let dimension = try XCTUnwrap(reopened.dimensions.first)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(dimension)) as? [String: Any])
+        legacy.removeValue(forKey: "labelOffset")
+        let decoded = try JSONDecoder().decode(SketchDimension.self, from: JSONSerialization.data(withJSONObject: legacy))
+        XCTAssertNil(decoded.labelOffset)
+        XCTAssertEqual(decoded.value, 4)
+    }
+
     func testCircularTransformHidesTemporaryReadoutsButKeepsDrivenDimensions() throws {
         for isArc in [false, true] {
             let vm = try makeViewModel(), id = UUID()

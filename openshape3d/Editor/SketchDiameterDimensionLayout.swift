@@ -11,10 +11,35 @@ struct SketchDiameterDimensionLayout {
 
     static func make(start: CGPoint, end: CGPoint, anchor: CGPoint,
                      clearance: CGFloat, available: CGRect,
-                     textWidth: CGFloat, allowVertical: Bool = true) -> Self? {
+                     textWidth: CGFloat, allowVertical: Bool = true,
+                     manualAnchor: CGPoint? = nil) -> Self? {
         let dx = end.x - start.x, dy = end.y - start.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
+        if allowVertical, let requested = manualAnchor {
+            let center = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)
+            let vx = requested.x - center.x, vy = requested.y - center.y
+            let distance = hypot(vx, vy)
+            if distance > 1 {
+                let ux = vx / distance, uy = vy / distance, radius = length / 2
+                let near = CGPoint(x: center.x + ux * radius, y: center.y + uy * radius)
+                let far = CGPoint(x: center.x - ux * radius, y: center.y - uy * radius)
+                let labelDistance = max(distance, radius + max(44, textWidth) / 2 + 24)
+                let tailDistance = labelDistance + max(44, textWidth) / 2 + 12
+                var angle = atan2(Double(vy), Double(vx))
+                if angle > .pi / 2 { angle -= .pi }
+                if angle < -.pi / 2 { angle += .pi }
+                let textAnchor = CGPoint(
+                    x: center.x + ux * labelDistance + CGFloat(sin(angle)) * 20,
+                    y: center.y + uy * labelDistance - CGFloat(cos(angle)) * 20)
+                let w = max(44, textWidth), c = abs(CGFloat(cos(angle))), t = abs(CGFloat(sin(angle)))
+                return Self(start: far, end: near,
+                    tail: CGPoint(x: center.x + ux * tailDistance, y: center.y + uy * tailDistance),
+                    anchor: textAnchor, rotation: angle,
+                    targetSize: CGSize(width: max(44, c * w + t * 20),
+                                       height: max(44, t * w + c * 20)))
+            }
+        }
         var rotation = atan2(Double(dy), Double(dx))
         if rotation > .pi / 2 { rotation -= .pi }
         if rotation < -.pi / 2 { rotation += .pi }
