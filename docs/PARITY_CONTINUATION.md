@@ -1,23 +1,23 @@
 # Parity continuation checkpoint
 
-September9 ~03:07EDT. HEAD3df7dec pushed; alternate Dimension route correction
-ready to commit. Owned VM/tests/ledger/matrix/milestone/receipt/checkpoint dirty;
-identity files excluded. Serial46352 completed clean9/9; no build/test runner.
-Latest native Escape process8785 pending completion (do not overlap desktop).
-Clone5147 Frontcircle430450Ø2 keypad open after gallery reopen via Constrain
-61,618→Dimension128,625. Native1924 reopened Frontcircle947517Ø2000 pad
-was open, Escape now closing. Paired numeric re-edit/history and saved locks
-verified. Illustrated135/all5 new PNG hashes; master38 final reopen note verified.
-Receipt docs/testing/sketch-parity-dimension-palette-2026-09-09.md.
+September9 ~03:17EDT. HEAD69d3bba pushed. Coplanar creation fix dirty in VM,
+newSketchIdentityTests, PlanesUITests, newreceipt/checkpoint. Initial21925 failed before tests (missing local screenshot helper), corrected.
+Serial76929 owns
+simulator (xcodebuild /tmp/os3d-coplanar-r2-20260909.log/.xcresult), no Peekaboo
+until completion. Native1924 Items open, Sketch02 explicitly active (old
+geometry); new03 line separate. Clone5147 test run may reset current project.
 
-Exact next: finish commit/push; wait8785, inspect native current state. Start
-QA48 coplanar sketch identity: record named Items sketches, exit/restart on same
-plane versus explicitly continuing named item; compare clone routing which
-currently reuses first coincident plane automatically. Do not infer native
-identity from geometry alone. No newproject/purchase/deletion needed. Remaining
-core visual/numeric/selection matrix, final regression and installable device
-artifact gate open. No duplicateworkers/watchdog/merge/install/securitychanges.
-Preserve stalled Doc tabs.
+Verified: unselected native Front Sketch creates03 separate from02; clone
+Front tile reusedSketch1 for new line with oldcircle. Explicit item opens named
+sketch both. Implementation removes automatic first-coincident reuse from
+plane-based creation; tests include ownership/history/hidden+empty/named paths.
+Exact next: inspect76929 compilation/results, fix failures, repeat fresh live
+new coplanar entry + explicit continuation + history/reopen; publish evidence
+and verifyexports, updateledger/matrix/milestone, commit/push, nextmatrix.
+Prior69d3bba clean9/9+pairedlive/reopen; illustrated135/all5hashes/master38 final
+note verified. Corevisual/numeric/profile/sustained/deviceartifact gatesopen.
+No duplicateworkers/watchdog/merge/deviceinstall/securitychanges. Preserveold
+stalledDocs and unrelated identityfiles.
 
 ## Earlier checkpoint history
 

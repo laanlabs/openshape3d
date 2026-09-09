@@ -5520,7 +5520,7 @@ final class EditorViewModel {
             return
         }
 
-        // Tapping a construction plane starts (or continues) a sketch on it.
+        // Tapping a construction plane starts a new sketch on it.
         if let hit = PlanePicking.pick(ray: ray, tiles: constructionPlaneTiles) {
             cancelTool()
             selection.removeAll()
@@ -9821,31 +9821,13 @@ final class EditorViewModel {
         )
     }
 
-    /// Find-or-create the sketch for a plane (same geometric plane → same
-    /// sketch item, Shapr3D's rule) and enter sketching head-on.
+    /// An unselected plane-based entry creates an independent sketch, even on
+    /// a coincident plane. Continue an existing sketch through its item/outline
+    /// instead; geometric coincidence alone is not document identity.
     private func beginSketch(on plane: SketchPlane, tool: SketchTool) {
-        let sketch: Sketch
-        if let existing = session.document.sketches.first(where: {
-            $0.plane.isCoincident(with: plane)
-        }) {
-            sketch = existing
-            // Re-opening a sketch that an extrude auto-hid makes it visible
-            // again, so its profiles stay tappable after Exit Sketching.
-            if existing.isHidden {
-                session.preview { doc in
-                    if let i = doc.sketches.firstIndex(where: { $0.id == existing.id }) {
-                        doc.sketches[i].isHidden = false
-                    }
-                }
-            }
-        } else {
-            let created = Sketch(name: session.document.uniqueSketchName(), plane: plane)
-            session.preview { $0.sketches.append(created) }
-            sketch = created
-            // Eligible for empty-sketch cleanup on exit (see
-            // `removeSketchIfEmpty`); re-opened sketches never are.
-            provisionalSketch = (created.id, session.undoStack.undoCommands.count)
-        }
+        let sketch = Sketch(name: session.document.uniqueSketchName(), plane: plane)
+        session.preview { $0.sketches.append(sketch) }
+        provisionalSketch = (sketch.id, session.undoStack.undoCommands.count)
         mode = .sketching(sketch.id, tool: tool)
         // Direct reference verification (2026-09-07): choosing a sketch plane
         // enters its normal drawing view. Do not require a second Look at
