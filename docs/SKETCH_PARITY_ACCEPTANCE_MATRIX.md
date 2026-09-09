@@ -59,7 +59,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
-| QA-55 | Sustained use | Core — not run | Paired acceptance outstanding. |
+| QA-55 | Sustained use | Core — passed | Ten paired rectangle/circle/line cycles, history, dense-state reopen and clone post-test relaunch passed without a hang; clean 71/71 focused load regression. Automation wall time is not a product benchmark (sustained-use receipt). |
 | QA-56 | Downstream smoke | Core — passed | Paired circle-profile extrusion/cancel/history workflow and clean current-revision 65/65 Sweep/Loft/kernel regression; advanced feature parity and device input are not claimed (downstream-smoke receipt). |
 
 ## Original recipes (preserved)
@@ -291,7 +291,14 @@ Hotkey versus search preference, focus in number field, Escape scope, undo/redo.
 
 ### QA-55 — Sustained use
 
-Repeat golden path ten times, then dense sketch; log latency/hangs, not only screenshots. Issues: ED-12. Result: NOT RUN. Evidence/owner: pending.
+Repeat golden path ten times, then dense sketch; log latency/hangs, not only
+screenshots. Issues: ED-12. Result: PASS — paired ten-cycle
+rectangle/circle/line construction, history and dense-state gallery reopen.
+OpenShape3D also retained the project through unit-test host closure and
+relaunch. No visible hang. Wall-clock automation timings are logged but are not
+a native-versus-clone performance comparison. Physical Pencil/touch endurance
+remains QA-52. Evidence:
+[sustained-use receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
 
 ### QA-56 — Downstream smoke
 

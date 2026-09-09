@@ -42,6 +42,16 @@ coverage passed 65/65 in one serial run. QA-56 is passed without claiming
 advanced downstream parity or physical-device testing.
 [Detailed receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
 
+## Mission log — 2026-09-09, sustained use
+
+QA-55 passed paired ten-cycle rectangle/circle/line construction, history,
+dense-state gallery reopen and clone post-test relaunch. One clean 71/71
+focused profile/cache/constraint/construction/selection run supplements the
+live evidence. No visible hang occurred. Native needed a settled circle-release
+pause; wall-clock automation timings are recorded but are not a performance
+comparison. Physical Pencil endurance remains unverified.
+[Detailed receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
+
 ## Current baseline correction — 2026-09-07
 
 The September 5 sections below are **historical**, not the current implementation contract.

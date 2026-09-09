@@ -519,6 +519,18 @@ current-revision combined arc suite remains clean 63/63.
 Paired live circle-profile extrusion, cancellation and solid history now pass.
 The exact revision also passed one clean 65/65 serial downstream run covering
 two Sweep/Loft UI flows and 63 kernel/feature-graph checks. QA-56 is the first
-fully passed case in the retained 56-case inventory. QA-55 sustained use remains not run;
-device input remains blocked and the milestone candidate gate is not reached.
+fully passed case in the retained 56-case inventory. Device input remains
+blocked and the milestone candidate gate is not reached.
 [Receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
+
+## September 9 — QA-55 sustained-use checkpoint
+
+Ten paired rectangle/circle/line construction cycles, per-cycle history, dense
+sketch state and gallery reopen passed without a visible hang. The clone also
+retained its project after the focused unit-test host closed and the exact
+build relaunched. One clean 71/71 current-revision profile/cache/constraint/
+construction/selection run supplements the live evidence. Native required a
+settled-release pause for circles; invalid fast-switch and clone-orbit attempts
+are retained and excluded. QA-55 passes without claiming comparable automation
+wall times or physical Pencil endurance.
+[Receipt](testing/sketch-parity-sustained-use-2026-09-09.md).

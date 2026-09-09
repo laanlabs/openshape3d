@@ -1,9 +1,10 @@
 # Parity continuation checkpoint
 
-September 9 ~14:15 EDT. Pushed baseline is `1ea2ea5`. Intentional dirty files
+September 9 ~14:20 EDT. Pushed baseline is `7863cfd` over runtime revision
+`1ea2ea5`. Intentional dirty files
 are documentation-only: this checkpoint, the milestone/implementation/
 acceptance/status ledgers, and
-`docs/testing/sketch-parity-downstream-smoke-2026-09-09.md`. Preserve
+`docs/testing/sketch-parity-sustained-use-2026-09-09.md`. Preserve
 untracked `IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo
 worker is running; the simulator remains under this session's exclusive desktop
 ownership.
@@ -24,13 +25,26 @@ QA-56 status block and no stray recovery text; master remains at 38 media assets
 with one dated QA-56 note. Verified DOCX exports and
 `publication-verification.json` are retained with the evidence.
 
-Current acceptance is 1 fully passed, 0 failed, 1 device-blocked and 54
-incomplete (42 partial, 11 deferred, 1 not run), totaling 56. Exact next:
-commit and push this QA-56 documentation checkpoint, then run QA-55 sustained
-use on the same revision and continue toward the final same-revision regression,
-installable artifact and device A/B handoff. Candidate is not ready. No merge,
-physical-device claim, security changes or duplicate workers; preserve the
-watchdog and stale Doc tab.
+QA-55 sustained use also passes: paired ten-cycle rectangle/circle/line
+construction and history, dense-state gallery reopen, and clone post-test
+relaunch completed without a visible hang. The focused current-revision load
+run passed cleanly 71/71 at
+`/tmp/os3d-qa55-sustained-20260909.xcresult`. Native required a 0.7-second
+settle after circle release; invalid immediate-switch/orbit attempts are
+retained and excluded. Automation wall times are logged but are not a product
+performance comparison.
+
+The 13 QA-55 acceptance screenshots are also published and anonymously
+export-verified: illustrated 260 placements / 258 unique media assets with all
+13 placements and all 12 unique hashes; master remains at 38 media assets with
+one dated note.
+
+Current acceptance is 2 fully passed, 0 failed, 1 device-blocked and 53
+incomplete (42 partial, 11 deferred, 0 not run), totaling 56. Exact next:
+commit/push this checkpoint, then run the final same-revision regression and
+identify the installable artifact plus device A/B handoff. Candidate is not
+ready. No merge, physical-device claim, security changes or duplicate workers;
+preserve the watchdog and stale Doc tab.
 
 ## Earlier checkpoint history
 

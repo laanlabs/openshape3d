@@ -1221,3 +1221,13 @@ run passed 65/65: two Sweep/Loft UI workflows and 63 kernel/feature-graph tests.
 QA-56 is promoted to passed without claiming advanced downstream parity,
 identical dimensions, or physical-device input.
 [Receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
+
+## September 9 — QA-55 sustained use
+
+Paired ten-cycle rectangle/circle/line construction and history completed
+without a visible hang. Dense projects survived gallery reopen; the clone also
+survived host closure during a 71/71 focused profile/cache/constraint/
+construction/selection regression and exact-build relaunch. Native circle
+release required a 0.7-second settle before switching tools. Logged automation
+wall times are orchestration evidence, not a product-speed comparison.
+[Receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
