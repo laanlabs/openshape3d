@@ -44,12 +44,12 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
 | QA-39 | Conflict and point states | Core — partial, not passed | False constrained-drag conflict corrected; other conflict/DOF combinations open. |
-| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; numeric Escape draftdiscard now paired; full systemkeyboard matrix open. |
+| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation and dimension Escape paired; explicit-transform keypad-first Escape and subsequent tool exit live verified (4d6e64e). Full system-keyboard matrix open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
-| QA-45 | Move/rotate/copy | Core - partial, not passed | Arc Copy/explicit mode, free radial handles, connected line movement and rectangle normal control paired; generic non-line constraints and broad transform matrix open. |
+| QA-45 | Move/rotate/copy | Core - partial, not passed | White exact-axis/rotation controls, retained re-edit/local frame, circle frame-only history, armed reselection and Escape paired; direct-drag/compact/mixed-selection matrix remains open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — not run | Paired acceptance outstanding. |
@@ -457,3 +457,15 @@ reopen verified. Clone2.977x1 remains extrudable. Native per-edge Lock versus
 clone whole-rect Lock and selected-side leader placement remain open, not
 full rectangle acceptance. Both Docs blocked; corrected screenshots local.
 See [axis-edge receipt](testing/sketch-parity-axis-edge-controls-2026-09-08.md).
+
+### September 9 — explicit transform/history/keyboard updates
+
+QA40/45/51/54 remain partial: white exact controls, retained absolute re-edit,
+rotated local axes, frame-only circle history, settled history/reselection and
+keypad-first Escape have focused tests and paired live receipts. cecd1f5 corrects
+prior native mode-exit interpretation: history clears selection but tool stays
+armed. 4d6e64e Escape clean2/2 plus live selected/unselected exit and clone
+reopen. Illustrated104 images/new2 hashes and master38 final notes verified.
+Temporary circular readout visibility correction is under regression, not yet
+live signed off. Full geometry/annotation/compact/direct-drag acceptance and
+installable-candidate gate stay open. Original recipes retained unchanged.

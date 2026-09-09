@@ -215,3 +215,6 @@ with correction notes export-verified. Escape keypad-first cancellation now unde
 regression. Remaining transform candidate/driven annotation visibility, overlap,
 rotated direct-drag/Copy/compact coverage and full core matrix remain open.
 No installable candidate or physical-device sign-off yet.
+
+Prepared [physical iPad A/B checklist](SKETCH_PARITY_DEVICE_AB.md) September9.
+Artifact fields explicitly pending; configuration is not installation/signing proof.

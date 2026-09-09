@@ -133,9 +133,7 @@ final class DimensionUITests: XCTestCase {
         let original = label.frame
         let mode = app.buttons["SketchTransformMode"]
         mode.tap()
-        let center = CGPoint(x: window.frame.minX + window.frame.width * 0.5,
-                             y: window.frame.minY + window.frame.height * 0.6)
-        XCTAssertFalse(label.frame.contains(center), "Diameter touch target must not intercept the move center")
+        XCTAssertFalse(label.exists, "Free diameter readout is hidden during explicit Move/Rotate")
         p(0.5, 0.6).press(forDuration: 0.3, thenDragTo: p(0.5, 0.5))
         XCTAssertFalse(app.textFields["DimensionField"].exists)
         mode.tap()
@@ -185,10 +183,11 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         XCTAssertEqual(app.buttons["SketchTransformMode"].label, "Done")
         XCTAssertFalse(radialHandle.exists, "Copy must not dismiss explicit Move/Rotate")
-        XCTAssertEqual(radius.label, originalRadius)
+        XCTAssertFalse(radius.exists, "Free arc radius is hidden during the explicit Copy transform")
         attach(app, "arc-copy-transform-retained")
         app.buttons["SketchTransformMode"].tap()
         XCTAssertTrue(radialHandle.waitForExistence(timeout: 3))
+        XCTAssertEqual(radius.label, originalRadius)
         let copiedFrame = radialHandle.frame
         app.buttons["UndoButton"].tap() // copied arc translation
         sleep(1)

@@ -11749,6 +11749,15 @@ final class EditorViewModel {
         // Live candidate — skip if an existing dimension already covers the
         // same refs+kind (so we don't double-draw once it's committed).
         func appendCandidate(id: String, kind: DimensionKind, refs: [ConstraintRef]) {
+            // Native hides temporary circle/arc size readouts in Move/Rotate,
+            // but saved driving dimensions above remain visible and editable.
+            if sketchTransformActive, editingDimension == nil, refs.count == 1,
+               let ref = refs.first, let entity = sketchEntity(ref.entityID, in: sketch) {
+                switch entity {
+                case .circle, .arc: return
+                default: break
+                }
+            }
             let refSet = Set(refs.map { "\($0.entityID)-\($0.role.rawValue)" })
             let existing = sketch.dimensions.contains { d in
                 d.kind == kind &&

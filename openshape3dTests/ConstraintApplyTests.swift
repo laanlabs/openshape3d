@@ -139,6 +139,34 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(simd_length(undone - moved), 0, accuracy: 1e-5)
     }
 
+    func testCircularTransformHidesTemporaryReadoutsButKeepsDrivenDimensions() throws {
+        for isArc in [false, true] {
+            let vm = try makeViewModel(), id = UUID()
+            let entity: SketchEntity = isArc
+                ? .arc(id: id, center: .zero, radius: 2, startAngle: 0, endAngle: .pi / 2)
+                : .circle(id: id, center: .zero, radius: 2)
+            let sketch = openSketch(vm, entities: [entity])
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [id]
+            XCTAssertEqual(vm.sketchDimensionLabels.count, isArc ? 2 : 1)
+            vm.sketchTransformActive = true
+            XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+            vm.sketchTransformActive = false
+            XCTAssertEqual(vm.sketchDimensionLabels.count, isArc ? 2 : 1)
+            vm.beginDimensionForSelection()
+            vm.commitDimensionEdit(isArc ? "2 mm" : "4 mm")
+            let stored = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+            vm.sketchTransformActive = true
+            XCTAssertEqual(vm.sketchDimensionLabels.map(\.dimensionID), [stored.id])
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first)
+            vm.beginDimensionEdit(label)
+            XCTAssertEqual(vm.editingDimension?.dimensionID, stored.id)
+            vm.cancelDimensionEdit()
+            XCTAssertEqual(vm.sketchDimensionLabels.map(\.dimensionID), [stored.id])
+            XCTAssertEqual(vm.activeSketch?.entities, [entity])
+        }
+    }
+
     func testSketchHistoryClearsSelectionButKeepsTransformArmed() throws {
         let vm = try makeViewModel(), id = UUID()
         let circle = SketchEntity.circle(id: id, center: .zero, radius: 2)

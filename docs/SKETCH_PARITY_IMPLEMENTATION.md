@@ -877,3 +877,12 @@ entry first, then exit Move/Rotate without changing geometry. Works with empty
 selection after Undo as well. Clean2/2 supplemental numeric/history+Copy UI
 checks; actual hardware key verified live, with gallery reopen preserving the
 original circle. [Receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
+
+## Circular transform readout visibility — September 9
+
+Temporary circle/arc size readouts now hide during explicit Move/Rotate; saved
+driving dimensions remain visible and editable. Normal selection restores free
+readouts. Clean27/27 (19unit+8UI), paired free/driven circle/arc cases, saved editor
+access and gallery reopen verified. Illustrated108/new4 PNG hashes verified;
+normal radial-handle coordinate offset remains a separate blocking visual gap.
+See [transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).

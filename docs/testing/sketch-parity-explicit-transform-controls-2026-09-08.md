@@ -206,3 +206,51 @@ Illustrated104 embedded images/new2 paired cancellation PNG hashes verified.
 Final reopen notes inserted both Docs; export check follows before commit.
 
 Final both-Doc gallery-reopen notes export-verified (104 illustrated/38 master).
+
+## September 9: temporary circular readouts in Move/Rotate
+Fresh native freecircle1000610/diameter2000 shows diameter in normal selection,
+hides it when explicit Move/Rotate opens. Previously driven nativecircle801292/
+diameter1000 retains its dimension. Earlier free-arc radius/sweep likewise hidden
+in explicit mode. Clonefreecircle450650/0.992 keeps diameter beside white arrows.
+Captures os3d-free-circle-native-release/selected/transform.png and
+os3d-free-circle-clone-transform.png. Correction suppresses only temporary
+single-circle/arc candidates during explicit transform, not saved dimensions.
+Normal selection and dimension editing retain readouts. Unit coverage checks
+free/driven circle+arc and stored-editor access; center-move/Copy UI assertions
+now require temporary readouts absent, dimensions restored after Done.
+Serial51127 owns simulator: /tmp/os3d-transform-readouts-20260909.log/.xcresult,
+ConstraintApply and full DimensionUI suite. No live postfix claim yet.
+
+Additional normal-state observation queued separately: native freecircle1000610
+(radius42 screen px) places radial handle near1000550, beyond top rim568.
+Clone normalcircle450650 (radius40px) shows radial glyph near450638, inside rim610
+and overlapping diameter text. Source radial overlay lacks the full-bleed frame/
+ignoresSafeArea used by adjacent transform and rectangle overlays; suspected
+coordinate-origin offset, not yet corrected. Current51127 tests only readouts.
+
+51127 completed clean27/27:19ConstraintApply+8DimensionUI, no failures/skips.
+Live free/driven recheck resumed; no test worker active.
+
+Live fixedfreecircle: no diameter/leader in explicit mode. Done restores readout;
+driving1mm diameter remains visible in explicit mode and its editor opens.
+Free arc R1.241/106.26 likewise hides both in explicit mode; native free arc
+R539.1552/180 shows neither in explicit mode and both after Escape. No geometry
+change during toggling. Driven-arc check next. Normal radial handles confirmed
+inside clone circle/arc versus outside native rim, coordinate-offset correction
+remains separate. Captures readouts-* in local transform-controls evidence.
+
+Driven arc result paired: native R500 remains with free180 sweep hidden; clone
+R1 remains with free106.26 sweep hidden. Clone gallery reopen/re-entry preserves
+R1 and the same visibility. Native first two reopen attempts used unsupported
+--click-count (no click delivered), corrected to --double; trial skipped via
+inspected accessibility element. Final native geometry readout verification next.
+Illustrated108 embedded images; all four new free-circle/driven-arc PNG hashes
+matched anonymous export. Master final update pending native reopen inspection.
+
+Native final reopen verified R500/180 at center758377 after camera refit.
+First post-reopen click used old coordinates and selected rectangle; corrected
+arc selection from inspected screenshot. No geometry mutation from that click.
+Paired persistence confirmed for sampled values; full layout gate remains open.
+Final notes inserted bothDocs; export verification before commit.
+
+Both final circular-readout/reopen notes export-verified.

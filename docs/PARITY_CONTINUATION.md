@@ -1,16 +1,18 @@
 # Parity continuation checkpoint
 
-September9 ~00:10EDT. HEADcecd1f5 pushed; Escape correction verified, committing.
-Dirty overlay/receipt/ledger/milestone/checkpoint only (identity files excluded).
-Serial38815 completed clean2/2; live keypad-first Escape, tool exit and empty
-armed selection exit pass. Gallery reopen retains circle450650/diameter0.992.
-Illustrated104/new2 PNG hashes and both final reopen notes export-verified.
-No test/build/Peekaboo worker active. Next native free-circle transform dimension
-visibility: native1924 Circle armed, empty area1000610 available. Clone5147
-Untitled2 Front normal selectedcircle450650/0.992. Compare free/driven labels,
-then correct confirmed overlaps and remaining numeric/selection acceptance.
-Original42audit/56matrix retained; candidate/installableartifact gate open.
-No duplicate worker/watchdog/merge/deviceinstall/security/restart changes.
+September9 ~00:29EDT. HEAD4d6e64e pushed; circular temporary-readout fix verified,
+committing VM/unit/UI/docs plus prepared not-ready device checklist.
+Serial51127 clean27/27 (19unit+8UI). Live free/driven circle and arc visibility,
+saved dimension editor access, cloneR1/nativeR500 gallery reopen verified.
+Illustrated108/new4 PNG hashes; both final circular-readout notes exported.
+No test/build/Peekaboo worker active. Next confirmed normal radial-handle origin
+offset: native above rim, clone inside circle/arc. Add full-bleed radial overlay
+coordinates and strengthen outside-rim UI assertion; focused regressions/live
+portrait+landscape/free/driven/history/reopen, publish and continue matrix.
+Native1924 MAINFront selectedarc758377 R500/180 (camera refitted); freecircle
+919534/radius36. Clone5147 Untitled2 Front explicitarc280460 R1/106.26, circle
+450650/diameter1. No duplicateworkers/watchdog/merge/deviceinstall/securitychanges.
+Full42audit/56matrix/candidate artifact gate remain open.
 
 ## Earlier checkpoint history
 
