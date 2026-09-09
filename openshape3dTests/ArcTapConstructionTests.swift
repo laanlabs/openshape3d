@@ -69,6 +69,33 @@ final class ArcTapConstructionTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch!.entities, committed)
     }
 
+    func testReturnAcceptsDefaultArcAndKeepsChainingFromEndpoint() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        let endpoint = SIMD2<Double>(14, 10)
+        tap(vm, SIMD2(10, 10))
+        tap(vm, endpoint)
+        let expected = try XCTUnwrap(vm.pendingArcEntity)
+
+        vm.finishArcInput()
+
+        XCTAssertNil(vm.pendingArc)
+        XCTAssertEqual(vm.activeSketch?.entities, [expected])
+        XCTAssertEqual(vm.mode.sketchTool, .arc)
+
+        let next = SIMD2<Double>(18, 12)
+        let plane = try XCTUnwrap(vm.activeSketch?.plane)
+        let ray = Ray(origin: SIMD3<Float>(plane.toWorld(next) + plane.normal * 10),
+                      direction: SIMD3<Float>(-plane.normal))
+        XCTAssertTrue(vm.updateLinePreview(ray: ray))
+        guard case let .arc(_, center, radius, start, end) = try XCTUnwrap(vm.pendingEntity)
+        else { return XCTFail("Return must retain the accepted endpoint as the chain anchor") }
+        let a = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+        let b = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+        XCTAssertEqual(min(simd_length(a - endpoint), simd_length(b - endpoint)),
+                       0, accuracy: 1e-9)
+    }
+
     func testHoverThirdPointShapesPendingArcBeforeClickCommit() throws {
         let vm = try makeViewModel()
         startArc(vm)

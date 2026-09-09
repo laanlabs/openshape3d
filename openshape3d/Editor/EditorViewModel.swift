@@ -9563,6 +9563,15 @@ final class EditorViewModel {
         mode = .sketching(id, tool: nil)
     }
 
+    /// Hardware Return accepts the default/current third-point shape without
+    /// requiring a canvas tap. Native Shapr3D keeps Arc armed and chains from
+    /// the accepted endpoint, so this is the same commit path as a third tap.
+    func finishArcInput() {
+        guard mode.sketchTool == .arc, pendingArc != nil,
+              editingDimension == nil else { return }
+        commitPendingArc(chain: true)
+    }
+
     /// Register the sketch-level Escape only in a settled, unselected state.
     /// Tool input and contextual operations own Escape ahead of this fallback.
     var canExitSketchWithEscape: Bool {
