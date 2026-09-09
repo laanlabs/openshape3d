@@ -1,19 +1,17 @@
 # Parity continuation checkpoint
 
-September9 ~04:58EDT. HEADb2de2ac pushed; duplicateboundary fix and docs ready
-for commit. No worker active. Red83500 two failures reproduced; green40413
-clean22/22 + curve42416 clean27/27. No combined49run. Fixed temporarygraph
-straightdedup preservesfirstowner/editableentities; arcs/splines excluded.
-Live savedprofile recovered, freshreverseoverlap extrudes; native500mm and
-clone1mm blocks Undo/Redo and finalgalleryreopen inspected. Earlierduplicate-
-only Undo attempts inconclusive; no historycodechange. Native1924 oblique new
-Body03block +Body02bore, sourceSketch03 nowrow193. Clone5147 Untitled2
-oblique twoExtrudes +Sketch1 +hiddenSketch2; inspectrowpositionsbeforeentry.
-Illustrated165 placements/164uniqueassets/all5 evidencehashes verified; master38
-finalnoteverified. Receipt testing/sketch-parity-duplicate-boundary-2026-09-09.md.
-Exact next: commit/push fix; paired point-touch/partialoverlap and remainingcore
-acceptance, then finalregression/installablecandidategate. Preserveidentityfiles,
-stalledtabs/watchdog. No merge/install/securitychanges/duplicateworkers.
+September 9 ~05:12 EDT. HEAD682e1bf pushed; point-touch/partial-overlap tests
+and receipts ready for commit. Clean2/2 serial42414 completed0; no runner.
+Paired touching-loop and partial-overlap profile selection/reopen verified.
+No production code change. Native1924 oblique first loop selected (885,570).
+Clone5147 oblique first loop Extrude open; Cancel550846. Both saved designs
+retain prior bore/block. Illustrated173 placements/172 assets/all8 new hashes,
+master38 final2/2 and reopen note verified; evidence durable. Receipt:
+testing/sketch-parity-point-touch-2026-09-09.md.
+Exact next: commit/push checkpoint, then paired duplicate curved boundary or
+crossing topology. Tiny-gap thresholds, downstream smoke/golden path, final
+single-revision regression and identified installable iPad artifact remain.
+Preserve identity files/stalled tabs/watchdog; no merge/install/security changes.
 
 ## Earlier checkpoint history
 

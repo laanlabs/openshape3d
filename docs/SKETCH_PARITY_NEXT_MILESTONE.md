@@ -386,3 +386,14 @@ pairedblockUndo/Redo and finalreopen pass. Earlierduplicate-only liveUndo remain
 inconclusive. Partialoverlap/duplicatecurves/pointtouch/tinytolerance open.
 Illustrated165 imageplacements/164uniqueassets (reusedidenticalimage), all5
 evidencehashes and master38finalnote exportverified. [Receipt](testing/sketch-parity-duplicate-boundary-2026-09-09.md).
+
+## September 9 — point-touch and partial straight overlap
+
+Both apps independently select loops sharing only one vertex. Partially
+duplicated top boundaries retain their profile; native interior endpoints and
+clone snapped corner-ending sample recorded separately. Clean2/2 precise
+geometry checks cover point touch and both partial-overlap directions. No
+production change. Paired gallery reopen retains selectable loops and prior
+bodies. Illustrated173 placements/all8 new hashes; master38 final note verified.
+[Receipt](testing/sketch-parity-point-touch-2026-09-09.md). Remaining topology
+and installable-device gate still open.

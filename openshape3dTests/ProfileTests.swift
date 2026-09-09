@@ -141,6 +141,43 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(profiles.map(\.area).reduce(0, +), 8, accuracy: 1e-9)
     }
 
+    func testPointTouchLoopsRemainIndependentRegions() {
+        let loops: [[SIMD2<Double>]] = [
+            [SIMD2(0, 0), SIMD2(2, 0), SIMD2(2, 2), SIMD2(0, 2)],
+            [SIMD2(2, 2), SIMD2(3, 2), SIMD2(3, 3), SIMD2(2, 3)]
+        ]
+        let sketch = makeSketch(loops.flatMap { points in
+            points.indices.map { i in
+                SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+            }
+        })
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 5, accuracy: 1e-9)
+        for point in [SIMD2<Double>(1, 1), SIMD2<Double>(2.5, 2.5)] {
+            XCTAssertEqual(profiles.filter { $0.contains(point) }.count, 1)
+        }
+    }
+
+    func testPartialStraightBoundaryOverlapKeepsRegion() throws {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(3, 0), SIMD2(3, 2), SIMD2(0, 2)]
+        let boundary = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        for endX in [2.0, 3.0] {
+            for reversed in [false, true] {
+                let a = SIMD2<Double>(1, 0), b = SIMD2<Double>(endX, 0)
+                let sketch = makeSketch(boundary + [.line(id: UUID(), a: reversed ? b : a, b: reversed ? a : b)])
+                let profiles = ProfileDetector.detectProfiles(in: sketch)
+                XCTAssertEqual(profiles.count, 1)
+                let profile = try XCTUnwrap(profiles.first)
+                XCTAssertEqual(profile.area, 6, accuracy: 1e-9)
+                XCTAssertTrue(profile.contains(SIMD2(1.5, 1)))
+                XCTAssertEqual(sketch.entities.count, 5)
+            }
+        }
+    }
+
     // MARK: - Detection
 
 
