@@ -859,3 +859,13 @@ circle geometry. Clone now records this accepted operation without geometric
 perturbation; Undo consumes it rather than prior creation. Clean19/19 plus live
 frame/X/history/reopen verified; illustrated100/new2 hashes and master note
 exported. Transform rail and annotation overlap/clipping remain next gaps.
+
+## Settled explicit-transform history correction — September 8
+
+Native Undo/Redo clear selection and operation handles while keeping Move/Rotate
+armed; reselecting resumes controls. This corrects the prior mode-exit claim.
+Clone now retains the armed tool/Done, clears selection/value on history, and
+hides the constraint rail during explicit transforms as native does. Clean21/21
+plus live Undo/Redo, reselection and Done verified. Normal circle annotation
+clipping, explicit Escape and remaining visual matrix stay open. See the
+[transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).

@@ -139,7 +139,7 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(simd_length(undone - moved), 0, accuracy: 1e-5)
     }
 
-    func testSketchHistoryClosesExplicitTransformControls() throws {
+    func testSketchHistoryClearsSelectionButKeepsTransformArmed() throws {
         let vm = try makeViewModel(), id = UUID()
         let circle = SketchEntity.circle(id: id, center: .zero, radius: 2)
         let sketch = openSketch(vm, entities: [circle])
@@ -149,12 +149,18 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertTrue(vm.commitSketchTransformControl(.x, text: "1 mm"))
         let moved = vm.activeSketch!.entities
         vm.undo()
-        XCTAssertFalse(vm.sketchTransformActive)
+        XCTAssertTrue(vm.sketchTransformActive)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         XCTAssertNil(vm.retainedSketchTransformValue(.x))
         XCTAssertEqual(vm.activeSketch?.entities, [circle])
         vm.redo()
-        XCTAssertFalse(vm.sketchTransformActive)
+        XCTAssertTrue(vm.sketchTransformActive)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         XCTAssertEqual(vm.activeSketch?.entities, moved)
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertTrue(vm.sketchTransformActive)
+        vm.mode = .sketching(sketch.id, tool: .line)
+        XCTAssertFalse(vm.sketchTransformActive)
     }
 
     func testCircleRotationRetainsFrameWithoutGeometryPerturbationOrHistoryFallthrough() throws {
@@ -163,16 +169,19 @@ final class ConstraintApplyTests: XCTestCase {
         let sketch = openSketch(vm, entities: [circle])
         vm.mode = .sketching(sketch.id, tool: nil)
         vm.selectedSketchEntityIDs = [id]
+        vm.selectedSketchEntityIDs = [id]
         vm.sketchTransformActive = true
         XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
         XCTAssertEqual(vm.activeSketch?.entities, [circle])
         XCTAssertEqual(vm.sketchTransformFrameAngle, .pi / 4, accuracy: 1e-8)
         XCTAssertEqual(vm.retainedSketchTransformValue(.rotation), 45)
         vm.undo()
-        XCTAssertFalse(vm.sketchTransformActive)
+        XCTAssertTrue(vm.sketchTransformActive)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         XCTAssertEqual(vm.activeSketch?.entities, [circle], "Undo the frame, not circle creation")
         vm.redo()
         XCTAssertEqual(vm.activeSketch?.entities, [circle])
+        vm.selectedSketchEntityIDs = [id]
         vm.sketchTransformActive = true
         XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
         XCTAssertTrue(vm.commitSketchTransformControl(.x, text: "2 mm"))

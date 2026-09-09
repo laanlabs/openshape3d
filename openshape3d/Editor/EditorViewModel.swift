@@ -55,7 +55,11 @@ protocol ViewportCameraControl: AnyObject {
 @Observable
 final class EditorViewModel {
     let session: DocumentSession
-    var mode: EditorMode = .idle
+    var mode: EditorMode = .idle {
+        didSet {
+            if !mode.isSketching || mode.sketchTool != nil { sketchTransformActive = false }
+        }
+    }
     var selection: Set<BodyID> = []
 
     /// Multi-select chip (plan §B13, spec §8.1): while on, viewport taps
@@ -4954,9 +4958,15 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
-        // Native history closes the explicit sketch operation, retaining the
-        // committed geometry history but discarding its live controls/value.
-        sketchTransformActive = false
+        // Native drops the operation selection/value but keeps Move/Rotate
+        // armed: selecting another sketch entity restores transform controls.
+        if sketchTransformActive {
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            retainedSketchTransform = nil
+            sketchCopyOnDrag = false
+            editingDimension = nil
+        }
         activeSketchTransformControl = nil
         clearRectanglePlacement()
         if case .rotatingAroundAxis = mode { cancelRotateAxis() }
@@ -8122,7 +8132,8 @@ final class EditorViewModel {
     var selectedSketchEntityIDs: Set<UUID> = [] {
         didSet {
             if oldValue != selectedSketchEntityIDs {
-                sketchTransformActive = false
+                retainedSketchTransform = nil
+                if mode.sketchTool != nil { sketchTransformActive = false }
                 sketchRadialDrag = nil
                 selectedAxisRectangleEdge = nil
             }

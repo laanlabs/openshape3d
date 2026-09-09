@@ -153,3 +153,30 @@ Remaining confirmed visual gaps: diameter text overlaps rotatedX arrow (Xstill
 openscorrecteditor); retainedXvalue hides under right constraint rail. Native
 explicitMove/Rotate screenshots have no constraint rail; clonekeepsit.
 Next compare free-vs-driven dimension visibility and correct transform rail/layout.
+
+## Correction: settled post-history tool state
+The prior interpretation that native Undo closes Move/Rotate was too broad.
+Settled screenshot os3d-transform-annotation-native-start.png shows Move/Rotate
+armed with 'Select items to move or rotate' and no selected handles. Clicking
+circle801271 immediately restores controls (os3d-history-native-reselect-transform.png).
+Thus native clears selection/operation value but retains armed tool, not full
+mode exit. Earlier geometry/restoration evidence stands; mode sign-off withdrawn.
+Correction keeps tool armed, clears selection/retained state for history; keeps
+Done available even without selection. Selection changes retain tool; entering
+a drawing tool or leaving sketch clears it. Nativeexplicit screenshots also
+show no constraint rail; clone rail now hidden in explicit transform (removes
+confirmed right-edge value obstruction). Serial56861 owns simulator:
+/tmp/os3d-transform-armed-history-20260908.log/.xcresult. Unit+axisreselectionUI,
+CopyUI and draw-switch-draw regression. Live correction pending.
+
+56861 completed clean21/21 (18unit+3UI), no failures. Live Undo clears selection
+and controls but keeps Move/Rotate armed; reselection restores controls. Redo
+restores moved circle507593 without selection; Done restores normal rail and
+circle controls. Retained X1mm value visible near right edge while rail hidden.
+Screenshots os3d-armed-history-mode/x1/undo/reselect/redo/done.png inspected.
+Normal circle diameter still overlaps rail after Done: separate open visual gap.
+No test worker active. Earlier mode-exit interpretation explicitly superseded.
+
+Publication: illustrated102 embedded images; both new native/clone armed-state
+PNG SHA256 values match anonymous DOCX media. Master38 images/result prose
+verified. Exports /tmp/os3d-armed-final-illustrated.docx and -master.docx.

@@ -327,7 +327,12 @@ struct EditorView: View {
             switch tool {
             case .text: return "Tap to place text"
             case .project: return "Tap a body to project its edges"
-            case nil: return "Drag to orbit — pick a tool to draw"
+            case nil:
+                if viewModel.sketchTransformActive {
+                    return viewModel.selectedSketchEntityIDs.isEmpty
+                        ? "Select sketch geometry to move or rotate" : "Drag an arrow or tap for an exact value"
+                }
+                return "Drag to orbit — pick a tool to draw"
             default: break
             }
         }
@@ -1016,7 +1021,7 @@ struct EditorView: View {
                     .padding(.bottom, bottomBarInset)
             }
             .overlay(alignment: settings.paletteOnRight ? .leading : .trailing) {
-                if viewModel.mode.isSketching {
+                if viewModel.mode.isSketching, !viewModel.sketchTransformActive {
                     SketchConstraintRail(viewModel: viewModel)
                         .padding(settings.paletteOnRight ? .leading : .trailing, 14)
                         .padding(.top, 100)
@@ -1096,11 +1101,11 @@ struct EditorView: View {
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
                 } else if viewModel.mode.isSketching, viewModel.mode.sketchTool == nil,
-                          !viewModel.selectedSketchEntityIDs.isEmpty {
+                          (!viewModel.selectedSketchEntityIDs.isEmpty || viewModel.sketchTransformActive) {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
                     HStack {
-                    if viewModel.usesExplicitSketchTransform {
+                    if viewModel.usesExplicitSketchTransform || viewModel.sketchTransformActive {
                         Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
                             viewModel.sketchTransformActive.toggle()
                         }
@@ -1119,6 +1124,7 @@ struct EditorView: View {
                     .tint(viewModel.sketchCopyOnDrag ? Color.blue : Color.secondary)
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityIdentifier("SketchCopyBadge")
+                    .disabled(viewModel.selectedSketchEntityIDs.isEmpty)
                     }
                     .fixedSize(horizontal: true, vertical: false)
                     .padding(.trailing, 16)

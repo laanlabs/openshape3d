@@ -1,16 +1,19 @@
 # Parity continuation checkpoint
 
-September8 ~23:42EDT. HEAD427f17d; circle-frame correction verified readycommit.
-No runner active.97346clean19/19, live45frame/X1diagonal/UndoMove+Frame/Redo
-and galleryreopen507593Ø0.992 verified. Illustrated100/new2 hashes and master38
-finalnote exported (firstexportlagged99; repeatverified100).
-Exactnext commitcirclefix; compare nativefree-vs-driven dimension visibility in
-Move/Rotate thenfix confirmed rail/layout gaps. Native screenshots hideconstraint
-rail inexplicittransform; clonekeepsrail whichcoversretainedXvalue near rightedge.
-Diametertext alsooverlaps rotatedXarrow thoughXtapworks.
-Simulator5147 Untitled2reopenedselectedcircle507593Ø0.992,normalmode. Native1924
-MAINFront normalmodeaftercircle45Undo; circle801292Ø1000,arc811426R539.1552/180.
-No duplicateworkers/watchdog/merge/deviceinstall/security/restartchanges.
+September 8 ~23:58 EDT. HEAD1167d8f pushed. Dirty armed-history/rail correction:
+VM/EditorView, ConstraintApply/DimensionUI, receipt/checkpoint/ledger.
+Serial56861 finished clean21/21 (18unit+3UI); no test/build/Peekaboo worker active.
+Live Undo/Redo clear selection while Move/Rotate stays armed; reselect restores
+controls; Done restores normal rail. Retained X1 value now visible without rail.
+Earlier native mode-exit interpretation withdrawn; geometry passes stand.
+Final screenshots os3d-armed-history-redo.png and -done.png inspected/copied.
+Normal circle diameter overlaps rail after Done; separate open visual issue.
+Publication verified: illustrated102 images/new2 PNG hashes; master38/result note.
+Exact next: finish export/hash verification, commit correction; paired explicit
+Escape and free-vs-driven annotation checks, then remaining acceptance matrix.
+Simulator5147 Untitled2 Front circle507593 selected normal mode. Native1924
+MAINFront circle801292 selected in explicit mode. No competing desktop owner.
+No duplicate watchdog/worker, merge/device installation or security changes.
 
 ## Earlier checkpoint history
 
