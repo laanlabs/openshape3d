@@ -223,6 +223,10 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     /// tool, never by hand.
     var patternLinks: [SketchPatternLink]
     var rectangleSizingAnchors: [UUID: RectangleSizingAnchor]
+    /// Endpoints explicitly detached by Disconnect must not silently proximity-
+    /// weld again. Explicit Coincident still reconnects them. Legacy sketches
+    /// retain proximity welding through the empty decode default.
+    var disconnectedEndpoints: [ConstraintRef]
 
     init(
         id: SketchID = SketchID(),
@@ -234,7 +238,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         constraints: [SketchConstraint] = [],
         dimensions: [SketchDimension] = [],
         patternLinks: [SketchPatternLink] = [],
-        rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:]
+        rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:],
+        disconnectedEndpoints: [ConstraintRef] = []
     ) {
         self.id = id
         self.name = name
@@ -246,11 +251,13 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.dimensions = dimensions
         self.patternLinks = patternLinks
         self.rectangleSizingAnchors = rectangleSizingAnchors
+        self.disconnectedEndpoints = disconnectedEndpoints
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
         case constraints, dimensions, patternLinks, rectangleSizingAnchors
+        case disconnectedEndpoints
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -272,6 +279,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             [UUID: RectangleSizingAnchor].self, forKey: .rectangleSizingAnchors) ?? [:]
         patternLinks =
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
+        disconnectedEndpoints = try container.decodeIfPresent(
+            [ConstraintRef].self, forKey: .disconnectedEndpoints) ?? []
     }
 }
 
@@ -285,6 +294,7 @@ nonisolated extension Sketch {
     /// every mutation.
     func validateConstraintRefs() -> Bool {
         let ids = Set(entities.map(\.id))
+        if disconnectedEndpoints.contains(where: { !ids.contains($0.entityID) }) { return false }
         for constraint in constraints
         where constraint.refs.contains(where: { !ids.contains($0.entityID) }) {
             return false

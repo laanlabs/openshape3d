@@ -181,3 +181,15 @@ Contextual Unlock now live verified with history and reopened result; clean9/9.
 Continue direct arc construction (QA-13 still untouched), retaining edge-color
 and compact-menu differences. Publication remains blocked; final artifact/gate
 not reached.
+
+## September 8, 19:53 execution update
+
+QA-13 direct arc now sampled but partial: mouse acquisition/completion remains
+unresolved, not a pass. QA-38 native four-line edge Disconnect and Undo verified;
+clone topology-only action under regression, live movement/reopen pending.
+Primitive rectangle edges and midpoint/non-line connections remain open.
+Both Docs still blocked; all new screenshots locally indexed. No candidate claim.
+
+20:00 follow-through: four-line edge Disconnect now clean34/34 plus paired
+movement/history/gallery reopen. Next remaining connection cases and generic
+ring mismatch; publication remains blocked, candidate gate not reached.

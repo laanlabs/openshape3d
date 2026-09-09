@@ -281,11 +281,11 @@ Acceptance: The specified anchor remains in place unless an existing constraint 
 
 ### DM-09 · Disconnect action is absent
 
-**Queued — implementation needed** · P1
+**Partial — four-line edge verified; remaining connections open** · P1
 
-Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+Evidence: [Disconnect receipt](testing/sketch-parity-disconnect-2026-09-08.md): native and clone detached edge movement, Undo/Redo and gallery-reopened disconnection captured. Corrected clean34/34 after initial compile-only failure. Point-only/proximity/reconnection/import/trim covered automatically. Persisted endpoint exclusions prevent silent proximity rejoining; dimensions/other relations retained.
 
-Next: Add the point-level action with clear enablement and one undoable transaction; preserve unrelated dimensions and relations.
+Next: Paired midpoint, primitive-rectangle and non-line connection checks; generic transform-ring visual difference remains. New screenshots locally indexed; both Docs publication-blocked.
 
 Acceptance: The chosen connection breaks without deleting geometry, other constraints survive, and undo restores the connection.
 

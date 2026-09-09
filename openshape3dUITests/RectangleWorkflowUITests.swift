@@ -297,6 +297,37 @@ final class RectangleWorkflowUITests: XCTestCase {
         attach(app, "axis-rectangle-right-edge-handle")
     }
 
+    func testDisconnectRemovesRectangleHandleAndUndoRestoresConnection() {
+        let app = start()
+        type(app, "threePoint")
+        p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.4))
+        p(app, 0.65, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        app.buttons["Rect"].tap()
+        sleep(1)
+        p(app, 0.2, 0.7).tap()
+        sleep(1)
+        p(app, 0.45, 0.4).tap()
+        let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        let disconnect = app.buttons["ConstraintRailDisconnect"]
+        XCTAssertTrue(disconnect.isEnabled)
+        disconnect.tap()
+        sleep(1)
+        p(app, 0.45, 0.4).tap()
+        XCTAssertTrue(handle.waitForNonExistence(timeout: 3))
+        XCTAssertFalse(disconnect.isEnabled)
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.exists,
+                      "Disconnect must retain the edge's length readout")
+        attach(app, "disconnected-edge-no-rectangle-handle")
+        app.buttons["UndoButton"].tap()
+        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        XCTAssertTrue(disconnect.isEnabled)
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(handle.waitForNonExistence(timeout: 3))
+        XCTAssertFalse(disconnect.isEnabled)
+        attach(app, "disconnect-redo-restores-detached-topology")
+    }
+
     func testRectangleNormalHandleMovesAndRefusesSavedLock() {
         let app = start()
         type(app, "threePoint")

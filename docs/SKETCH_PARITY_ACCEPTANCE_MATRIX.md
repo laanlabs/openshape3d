@@ -17,7 +17,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
-| QA-13 | Arc construction | Core — not run | Paired acceptance outstanding. |
+| QA-13 | Arc construction | Core — partial, not passed | Native isolated45-degree creation and clone chord/bulge sampled; acquisition/completion contract unresolved (direct-arc receipt). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
@@ -38,11 +38,11 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Zero width rejects without mutation in both apps; remaining invalid forms open. |
-| QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc radial refusal and four-line rectangle saved Lock paired; driven rectangle translation under followup; broader value-lock matrix open. |
-| QA-35 | Constraint rail | Core — partial, not passed | Lock removal and inference toggles sampled; rail matrix open. |
+| QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc refusal, axis driven translation and persisted side-Lock paired; broader value-lock matrix open. |
+| QA-35 | Constraint rail | Core — partial, not passed | Contextual Unlock expanded rail, retained other locks, Undo/Redo and reopen sampled; compact/full rail matrix open. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
-| QA-38 | Disconnect | Core — not run | Paired acceptance outstanding. |
+| QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
 | QA-39 | Conflict and point states | Core — partial, not passed | False constrained-drag conflict corrected; other conflict/DOF combinations open. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation commit corrected and paired; numeric Escape draftdiscard now paired; full systemkeyboard matrix open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
@@ -214,7 +214,7 @@ First/Last, reverse order, existing locks override, repeated solve stability. Is
 
 ### QA-38 — Disconnect
 
-Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: NOT RUN. Evidence/owner: pending.
+Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: PARTIAL. Four-line edge Disconnect/move/history/reopen paired and corrected clean34/34 (disconnect receipt). Primitive rectangles/midpoints/non-line cases remain open.
 
 ### QA-39 — Conflict and point states
 

@@ -148,7 +148,10 @@ nonisolated enum ProjectMergeKit {
                     SketchPatternLink(
                         id: UUID(), seedIDs: $0.seedIDs.map(newEntity),
                         instanceIDs: $0.instanceIDs.map { $0.map(newEntity) }, spec: $0.spec)
-                })
+                },
+                rectangleSizingAnchors: Dictionary(uniqueKeysWithValues:
+                    sketch.rectangleSizingAnchors.map { (newEntity($0.key), $0.value) }),
+                disconnectedEndpoints: sketch.disconnectedEndpoints.map(remap))
         }
 
         func remap(_ ref: ConstraintRef) -> ConstraintRef {

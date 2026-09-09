@@ -157,6 +157,88 @@ final class ConstraintApplyTests: XCTestCase {
                           "Horizontal should level the line's endpoints")
     }
 
+    func testDisconnectPreservesDimensionsAndIndependentMovementThroughHistoryAndReload() throws {
+        let vm = try makeViewModel()
+        let edges = RectangleConstruction.threePoint(a: SIMD2(0, 0), b: SIMD2(10, 2),
+            heightPoint: SIMD2(9, 7), ids: (0..<4).map { _ in UUID() })
+        let original = Sketch(plane: .ground, entities: edges,
+            constraints: RectangleConstruction.constraints(for: edges),
+            dimensions: [.init(kind: .distance, refs: [.init(entityID: edges[0].id, role: .endpointA),
+                .init(entityID: edges[0].id, role: .endpointB)], value: sqrt(104))])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectedSketchEntityIDs = [edges[0].id]
+        XCTAssertNotNil(vm.rectangleHandleGeometry)
+        XCTAssertTrue(vm.canDisconnectSketchSelection)
+        vm.disconnectSketchSelection()
+        let detached = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(detached.entities, original.entities)
+        XCTAssertEqual(detached.dimensions, original.dimensions)
+        XCTAssertEqual(detached.constraints.filter { $0.kind != .coincident },
+                       original.constraints.filter { $0.kind != .coincident })
+        XCTAssertEqual(detached.constraints.filter { $0.kind == .coincident }.count, 2)
+        vm.selectedSketchEntityIDs = [edges[0].id]
+        XCTAssertFalse(vm.canDisconnectSketchSelection)
+        XCTAssertNil(vm.rectangleHandleGeometry)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(detached))
+        let targets = SketchTransform.translate(entities: [edges[0]], by: SIMD2(0, 3))
+        let moved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(reopened, targets: targets))
+        for index in edges.indices {
+            guard case let .line(_, a, b) = moved[index],
+                  case let .line(_, c, d) = (index == 0 ? targets[0] : edges[index]) else {
+                return XCTFail("Expected line")
+            }
+            XCTAssertLessThan(simd_distance(a, c), 1e-3)
+            XCTAssertLessThan(simd_distance(b, d), 1e-3)
+        }
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertNotNil(vm.rectangleHandleGeometry)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch, detached)
+        XCTAssertNil(vm.rectangleHandleGeometry)
+    }
+
+    func testDisconnectProximityAndExplicitReconnectAndLegacyDecode() throws {
+        let vm = try makeViewModel()
+        let a = line(SIMD2(0, 0), SIMD2(10, 0))
+        let b = line(SIMD2(10, 0), SIMD2(10, 5))
+        let sketch = openSketch(vm, entities: [a, b])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchPoints = [.init(entityID: a.id, role: .endpointB)]
+        XCTAssertTrue(vm.canDisconnectSketchSelection)
+        vm.disconnectSketchSelection()
+        var detached = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(detached.disconnectedEndpoints, [.init(entityID: a.id, role: .endpointB)])
+        XCTAssertEqual(SketchSolverBridge.solve(detached, movingEntity: nil, dragTarget: nil).dof, 8)
+        detached.constraints.append(.init(kind: .coincident, refs: [
+            .init(entityID: a.id, role: .endpointB), .init(entityID: b.id, role: .endpointA)]))
+        XCTAssertEqual(SketchSolverBridge.solve(detached, movingEntity: nil, dragTarget: nil).dof, 6,
+                       "Explicit reconnection must override the proximity exclusion")
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(sketch)) as? [String: Any])
+        json.removeValue(forKey: "disconnectedEndpoints")
+        let legacy = try JSONDecoder().decode(Sketch.self, from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertTrue(legacy.disconnectedEndpoints.isEmpty)
+        XCTAssertEqual(SketchSolverBridge.solve(legacy, movingEntity: nil, dragTarget: nil).dof, 6)
+
+        var document = DesignDocument()
+        document.sketches = [detached]
+        let deletion = RemoveSketchEntitiesCommand(ids: [a.id], sketch: detached)
+        deletion.apply(to: &document)
+        XCTAssertTrue(document.sketches[0].validateConstraintRefs())
+        XCTAssertTrue(document.sketches[0].disconnectedEndpoints.isEmpty)
+        deletion.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], detached)
+        let fragment = line(SIMD2(5, 0), SIMD2(10, 0))
+        let trim = TrimCommand(sketch: detached, index: 0, removed: a, fragments: [fragment])
+        trim.apply(to: &document)
+        XCTAssertEqual(document.sketches[0].disconnectedEndpoints,
+                       [.init(entityID: fragment.id, role: .endpointB)])
+        XCTAssertTrue(document.sketches[0].validateConstraintRefs())
+        trim.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], detached)
+    }
+
     // MARK: - Adaptive enable/disable rules
 
     /// Spec §3.2 lists Parallel as taking "2+ lines". Three selected lines must

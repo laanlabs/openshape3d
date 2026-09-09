@@ -465,6 +465,10 @@ nonisolated enum SketchSolverBridge {
         // Proximity weld (endpoint-like slots within 1e-6).
         for i in 0..<slots.count where slots[i].endpointLike {
             for j in (i + 1)..<slots.count where slots[j].endpointLike {
+                let a = ConstraintRef(entityID: slots[i].entityID, role: slots[i].role)
+                let b = ConstraintRef(entityID: slots[j].entityID, role: slots[j].role)
+                guard !sketch.disconnectedEndpoints.contains(a),
+                      !sketch.disconnectedEndpoints.contains(b) else { continue }
                 if simd_distance(slots[i].position, slots[j].position) < 1e-6 { union(i, j) }
             }
         }

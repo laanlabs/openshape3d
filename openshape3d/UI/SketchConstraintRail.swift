@@ -71,6 +71,11 @@ struct SketchConstraintRail: View {
                 .accessibilityHint(action.prerequisite)
                 .help(action.prerequisite)
             }
+            Button("Disconnect") { viewModel.disconnectSketchSelection() }
+                .font(.caption.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .disabled(!viewModel.canDisconnectSketchSelection)
+                .accessibilityIdentifier("ConstraintRailDisconnect")
             Divider()
             Menu {
                 ForEach(more) { menuAction($0) }
@@ -88,6 +93,9 @@ struct SketchConstraintRail: View {
     private var compactMenu: some View {
         Menu {
             ForEach(common + more) { menuAction($0) }
+            Button("Disconnect") { viewModel.disconnectSketchSelection() }
+                .disabled(!viewModel.canDisconnectSketchSelection)
+                .accessibilityIdentifier("ConstraintRailDisconnect")
             Divider()
             Button("Constraint Settings") { viewModel.showConstraintSettings = true }
         } label: {

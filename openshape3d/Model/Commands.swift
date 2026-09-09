@@ -406,6 +406,26 @@ struct ChangeSketchPlaneCommand: DocumentCommand {
     func revert(in document: inout DesignDocument) { setPlane(before, in: &document) }
 }
 
+/// Disconnect changes topology only; dimensions, geometry and unrelated
+/// relationships are deliberately outside this command's mutation scope.
+struct DisconnectSketchEndpointsCommand: DocumentCommand {
+    let title = "Disconnect"
+    let sketchID: SketchID
+    let beforeConstraints: [SketchConstraint]
+    let afterConstraints: [SketchConstraint]
+    let beforeEndpoints: [ConstraintRef]
+    let afterEndpoints: [ConstraintRef]
+
+    private func set(_ constraints: [SketchConstraint], _ endpoints: [ConstraintRef],
+                     in document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].constraints = constraints
+        document.sketches[index].disconnectedEndpoints = endpoints
+    }
+    func apply(to document: inout DesignDocument) { set(afterConstraints, afterEndpoints, in: &document) }
+    func revert(in document: inout DesignDocument) { set(beforeConstraints, beforeEndpoints, in: &document) }
+}
+
 /// Solve-on-edit multi-entity update (plan §C1): a constraint solve during a
 /// drag moves several entities at once. `before`/`after` are full snapshots
 /// keyed by ID and applied ABSOLUTELY (set-by-ID, not delta), so the command
@@ -468,7 +488,10 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
     let removedConstraints: [(index: Int, constraint: SketchConstraint)]
     let removedDimensions: [(index: Int, dimension: SketchDimension)]
 
+    let beforeDisconnected: [ConstraintRef]
+
     init(ids: Set<UUID>, sketch: Sketch) {
+        beforeDisconnected = sketch.disconnectedEndpoints
         sketchID = sketch.id
         removed = sketch.entities.enumerated()
             .filter { ids.contains($0.element.id) }
@@ -484,6 +507,7 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
     func apply(to document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         let ids = Set(removed.map(\.entity.id))
+        document.sketches[index].disconnectedEndpoints.removeAll { ids.contains($0.entityID) }
         document.sketches[index].entities.removeAll { ids.contains($0.id) }
         let constraintIDs = Set(removedConstraints.map(\.constraint.id))
         document.sketches[index].constraints.removeAll { constraintIDs.contains($0.id) }
@@ -493,6 +517,7 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].disconnectedEndpoints = beforeDisconnected
         for entry in removed.sorted(by: { $0.index < $1.index }) {
             let at = min(entry.index, document.sketches[index].entities.count)
             document.sketches[index].entities.insert(entry.entity, at: at)
@@ -520,6 +545,8 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
 /// dangling with a displayed value that drives nothing.
 struct TrimCommand: DocumentCommand {
     let title = "Trim"
+    let beforeDisconnected: [ConstraintRef]?
+    let afterDisconnected: [ConstraintRef]?
     let sketchID: SketchID
     let index: Int
     let removed: SketchEntity
@@ -536,6 +563,8 @@ struct TrimCommand: DocumentCommand {
         self.index = index
         self.removed = removed
         self.fragments = fragments
+        beforeDisconnected = nil
+        afterDisconnected = nil
         retargetedConstraints = []
         retargetedDimensions = []
         droppedConstraints = []
@@ -586,6 +615,9 @@ struct TrimCommand: DocumentCommand {
             return nil  // the constrained point was on the span trimmed away
         }
 
+        beforeDisconnected = sketch.disconnectedEndpoints
+        afterDisconnected = sketch.disconnectedEndpoints.compactMap(retarget)
+
         var retargetedC: [(Int, SketchConstraint, SketchConstraint)] = []
         var droppedC: [(Int, SketchConstraint)] = []
         for (i, constraint) in sketch.constraints.enumerated()
@@ -620,6 +652,7 @@ struct TrimCommand: DocumentCommand {
 
     func apply(to document: inout DesignDocument) {
         guard let sketchIndex = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        if let afterDisconnected { document.sketches[sketchIndex].disconnectedEndpoints = afterDisconnected }
         document.sketches[sketchIndex].entities.removeAll { $0.id == removed.id }
         let at = min(index, document.sketches[sketchIndex].entities.count)
         document.sketches[sketchIndex].entities.insert(contentsOf: fragments, at: at)
@@ -643,6 +676,7 @@ struct TrimCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         guard let sketchIndex = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        if let beforeDisconnected { document.sketches[sketchIndex].disconnectedEndpoints = beforeDisconnected }
         let ids = Set(fragments.map(\.id))
         document.sketches[sketchIndex].entities.removeAll { ids.contains($0.id) }
         let at = min(index, document.sketches[sketchIndex].entities.count)

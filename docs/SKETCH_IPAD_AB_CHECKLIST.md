@@ -61,5 +61,10 @@ screenshots. Keep the original design when a result differs.
 - Circle/arc contextual radial controls are implemented and live-compared;
   broader control/label/glyph and non-line constrained-transform coverage remains.
 
+- Ordinary four-line rectangle edge Disconnect now passes paired separation,
+  history and gallery-reopen checks; clean34/34 scoped regression. Retest touching
+  but detached endpoints on device. Midpoint/primitive/non-line cases and the
+  clone generic transform ring remain open. New evidence is local-only.
+
 A readiness notice requires an identified installable artifact and the remaining
 core gate; this checklist alone is not that notice.

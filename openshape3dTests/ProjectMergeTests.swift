@@ -191,6 +191,20 @@ final class ProjectMergeTests: XCTestCase {
                        "a constraint pointing at the OLD id would be dead on arrival")
     }
 
+    func testInsertedDisconnectedEndpointDoesNotReweld() throws {
+        let a = UUID(), b = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground, entities: [
+            .line(id: a, a: SIMD2(0, 0), b: SIMD2(10, 0)),
+            .line(id: b, a: SIMD2(10, 0), b: SIMD2(10, 5))],
+            disconnectedEndpoints: [.init(entityID: a, role: .endpointB)])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        XCTAssertEqual(inserted.disconnectedEndpoints,
+                       [.init(entityID: inserted.entities[0].id, role: .endpointB)])
+        XCTAssertTrue(inserted.validateConstraintRefs())
+        XCTAssertEqual(SketchSolverBridge.solve(inserted, movingEntity: nil, dragTarget: nil).dof, 8)
+    }
+
     func testInsertedRectangleSideLockKeepsItsScope() throws {
         let id = UUID()
         var guest = DesignDocument()

@@ -1,17 +1,20 @@
 # Parity continuation checkpoint
 
-September8 approximately19:12EDT. HEAD4bd2a39 pushed; contextual Unlock
-correction ready to commit. No build/test/Peekaboo worker active. Serial39403
-clean9/9 (7constraintApply+2UI). Live expanded Lock→Unlock, glyph removal,
-Undo/Redo and freedright450→480 pass; gallery reopen2.848x1.859/no Lock.
-Compact menu shares implementation but not live sampled. Exact next commit/push
-Unlock, then paired direct arc construction QA-13 (untested core recipe).
-Constrained-edge colors and other-axis leader-side memory remain known visual
-differences. Native1924FrontSketch02 right951490->951566 unlocked; clone2386
-portraitUntitled2Front right480350->480500 unlocked. Docs both Saving/disabled;
-local index6newUnlockPNGs. Prior sideLock4bd2a39 clean23/23+36/36 and paired
-movement/removal/reopenedclone scope verified. No candidate/merge/device claim.
-Preexisting identity files untouched; preserve tabs/recovery/watchdog.
+September 8, 20:00 EDT. HEAD a6fda2b; verified Disconnect source/tests/docs
+ready for commit. Preexisting IDENTITY/SOUL/USER untouched. No runner active.
+Corrected Disconnect exec50274 finished0 clean34/34; initial test compile-only
+failure retained. Paired four-line edge disconnect/move/history/gallery reopen
+verified; receipt docs/testing/sketch-parity-disconnect-2026-09-08.md.
+Native MAIN FrontSketch02 selected detached top779205→838222,1200mm; other
+three sides fixed. Clone2386 portraitUntitled2 Front selected detached top
+250320→450360,2.527mm; other3sidesfixed. Both reopened while endpoints still
+touching, subsequent movement remains independent. New screenshots LOCAL ONLY.
+Exact next: commit verified four-line correction, then native midpoint/endpoint
+Disconnect comparison and generic transform-ring visual difference. Primitive
+rectangle/non-line cases remain open. Direct arcQA13 remains partial.
+Both Docs Saving/editing disabled at19:51, export verified76illustrated/36master;
+preserve tabs/recovery and do not duplicate inserts. Candidate/artifact gate
+open, no merge/device install/security changes, no duplicate watchdog.
 
 ## Verified
 

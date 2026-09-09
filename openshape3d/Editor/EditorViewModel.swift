@@ -8208,7 +8208,7 @@ final class EditorViewModel {
             return RectangleConstruction.axisEdge(entity, index: pick.index)
         }
         guard let edge = selectedRectangleEdge, case let .line(_, a, b) = edge,
-              let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch.entities),
+              let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch),
               let index = loop.firstIndex(of: edge.id),
               let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
               case let .line(_, c, d) = opposite else { return nil }
@@ -8220,7 +8220,7 @@ final class EditorViewModel {
               selectedSketchEntityIDs.count == 1, let sketch = activeSketch,
               let entity = sketch.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }),
               case .line = entity,
-              RectangleConstruction.dimensionEdges(containing: entity.id, in: sketch.entities) != nil
+              RectangleConstruction.dimensionEdges(containing: entity.id, in: sketch) != nil
         else { return nil }
         return entity
     }
@@ -8250,7 +8250,7 @@ final class EditorViewModel {
         if rectangleEdgeDrag == nil {
             guard let sketch = activeSketch, let edge = selectedRectangleEdge,
                   case let .line(_, a, b) = edge,
-                  let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch.entities),
+                  let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch),
                   let index = loop.firstIndex(of: edge.id),
                   let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
                   case let .line(_, c, d) = opposite else { return }
@@ -10562,6 +10562,66 @@ final class EditorViewModel {
         }
     }
 
+    /// Initial Disconnect scope: selected ordinary lines or their endpoints.
+    /// A primitive rectangle has no independent edge identity; do not silently
+    /// decompose it and lose its dimensions here.
+    private var disconnectOperands: [ConstraintRef] {
+        guard mode.isSketching, mode.sketchTool == nil, let sketch = activeSketch else { return [] }
+        let lines = sketch.entities.filter { if case .line = $0 { return true }; return false }
+        if !selectedSketchPoints.isEmpty {
+            return selectedSketchPoints.compactMap { point in
+                guard lines.contains(where: { $0.id == point.entityID }),
+                      point.role == .endpointA || point.role == .endpointB else { return nil }
+                return ConstraintRef(entityID: point.entityID, role: point.role)
+            }
+        }
+        return lines.filter { selectedSketchEntityIDs.contains($0.id) }.flatMap {
+            [ConstraintRef(entityID: $0.id, role: .endpointA), .init(entityID: $0.id, role: .endpointB)]
+        }
+    }
+
+    private func disconnects(_ constraint: SketchConstraint, operands: [ConstraintRef]) -> Bool {
+        guard constraint.kind == .coincident else { return false }
+        return constraint.refs.contains { ref in
+            operands.contains(ref) || (ref.role == .whole && selectedSketchPoints.isEmpty &&
+                                      operands.contains(where: { $0.entityID == ref.entityID }))
+        }
+    }
+
+    var canDisconnectSketchSelection: Bool {
+        guard let sketch = activeSketch else { return false }
+        let operands = disconnectOperands
+        if sketch.constraints.contains(where: { disconnects($0, operands: operands) }) { return true }
+        for ref in operands where !sketch.disconnectedEndpoints.contains(ref) {
+            guard let p = localPoint(ref, in: sketch) else { continue }
+            for entity in sketch.entities where entity.id != ref.entityID {
+                guard case let .line(_, a, b) = entity else { continue }
+                for (role, q) in [(PointRole.endpointA, a), (.endpointB, b)] {
+                    let other = ConstraintRef(entityID: entity.id, role: role)
+                    if !sketch.disconnectedEndpoints.contains(other), simd_distance(p, q) < 1e-6 { return true }
+                }
+            }
+        }
+        return false
+    }
+
+    func disconnectSketchSelection() {
+        guard canDisconnectSketchSelection, let sketch = activeSketch else { return }
+        let operands = disconnectOperands
+        var endpoints = sketch.disconnectedEndpoints
+        for ref in operands where !endpoints.contains(ref) { endpoints.append(ref) }
+        session.perform(DisconnectSketchEndpointsCommand(sketchID: sketch.id,
+            beforeConstraints: sketch.constraints,
+            afterConstraints: sketch.constraints.filter { !disconnects($0, operands: operands) },
+            beforeEndpoints: sketch.disconnectedEndpoints, afterEndpoints: endpoints))
+        selectedSketchEntityIDs = []
+        selectedSketchPoints = []
+        selectedAxisRectangleEdge = nil
+        selectedConstraintID = nil
+        selectedDimensionID = nil
+        session.save()
+    }
+
     /// Only explicit locks on the selected operands are removable here. A
     /// rectangle's other side (or an unrelated operand in a multi-ref Lock)
     /// must not be unlocked as a side effect.
@@ -11228,7 +11288,11 @@ final class EditorViewModel {
 
     private var selectedRectangleDimensionEdges: [UUID]? {
         guard selectedSketchPoints.isEmpty else { return nil }
-        return RectangleConstruction.dimensionEdges(in: selectedSketchEntities)
+        guard let sketch = activeSketch,
+              let first = selectedSketchEntities.first,
+              let loop = RectangleConstruction.dimensionEdges(containing: first.id, in: sketch),
+              Set(loop) == selectedSketchEntityIDs else { return nil }
+        return loop
     }
 
     private static func lineLengthRefs(_ id: UUID) -> [ConstraintRef] {
@@ -11384,8 +11448,7 @@ final class EditorViewModel {
             if kind == .distance, let first = refs.first,
                refs.count == 2, refs.allSatisfy({ $0.entityID == first.entityID }),
                case .line? = sketchEntity(first.entityID, in: sketch) {
-                if let edges = RectangleConstruction.dimensionEdges(containing: first.entityID,
-                                                                     in: sketch.entities) {
+                if let edges = RectangleConstruction.dimensionEdges(containing: first.entityID, in: sketch) {
                     let centers = edges.compactMap { sketchEntity($0, in: sketch) }.map(Self.entityCenter)
                     if centers.count == 4 {
                         label.isRectangleSize = true
@@ -11643,7 +11706,7 @@ final class EditorViewModel {
         let editedIDs = Set(edit.refs.map(\.entityID))
         let preferredFarEdge: UUID?
         if edit.kind == .distance, editedIDs.count == 1, let editedID = editedIDs.first,
-           let edges = RectangleConstruction.dimensionEdges(containing: editedID, in: sketch.entities) {
+           let edges = RectangleConstruction.dimensionEdges(containing: editedID, in: sketch) {
             // Paired native workflows: baseline sizing keeps the lower side;
             // height sizing keeps the far baseline. Recover the component
             // even when its single edge was reselected after creation/reload.

@@ -15,6 +15,19 @@ nonisolated enum RectangleType: String, CaseIterable, Sendable {
 /// Pure construction math. Rotated rectangles use four ordinary constrained
 /// lines, so existing dimensions, trim, projection, persistence and profiles work.
 nonisolated enum RectangleConstruction {
+    /// Geometric coincidence alone is not a rectangular connection after an
+    /// explicit Disconnect. A later explicit Coincident reconnects the endpoint.
+    static func dimensionEdges(containing id: UUID, in sketch: Sketch) -> [UUID]? {
+        guard let loop = dimensionEdges(containing: id, in: sketch.entities) else { return nil }
+        for ref in sketch.disconnectedEndpoints where loop.contains(ref.entityID) {
+            guard sketch.constraints.contains(where: {
+                $0.kind == .coincident && $0.refs.contains(ref) &&
+                $0.refs.contains(where: { $0.entityID != ref.entityID && loop.contains($0.entityID) })
+            }) else { return nil }
+        }
+        return loop
+    }
+
     static func axisAligned(from anchor: SIMD2<Double>, to corner: SIMD2<Double>,
                             centered: Bool, id: UUID = UUID()) -> SketchEntity? {
         let other = centered ? 2 * anchor - corner : anchor
