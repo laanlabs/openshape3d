@@ -55,6 +55,27 @@ struct SketchTransformControlsOverlay: View {
                 }
             }
         }
+        .overlay {
+            // Register exactly one Escape action for this operation. An open
+            // exact-value editor cancels first; the next Escape exits the tool.
+            // Keep it outside the selection-dependent controls so an armed,
+            // unselected Move/Rotate can also be dismissed after Undo.
+            if viewModel.sketchTransformActive, viewModel.editingDimension == nil {
+                Button {
+                    if editing != nil {
+                        editing = nil
+                        focused = false
+                    } else {
+                        viewModel.sketchTransformActive = false
+                    }
+                } label: { EmptyView() }
+                .keyboardShortcut(.cancelAction)
+                .frame(width: 0, height: 0)
+                .opacity(0)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
+        }
         .onChange(of: viewModel.sketchTransformActive) { _, active in
             if !active { editing = nil; dragging = nil }
         }

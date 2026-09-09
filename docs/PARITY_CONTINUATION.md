@@ -1,19 +1,16 @@
 # Parity continuation checkpoint
 
-September 8 ~23:58 EDT. HEAD1167d8f pushed. Dirty armed-history/rail correction:
-VM/EditorView, ConstraintApply/DimensionUI, receipt/checkpoint/ledger.
-Serial56861 finished clean21/21 (18unit+3UI); no test/build/Peekaboo worker active.
-Live Undo/Redo clear selection while Move/Rotate stays armed; reselect restores
-controls; Done restores normal rail. Retained X1 value now visible without rail.
-Earlier native mode-exit interpretation withdrawn; geometry passes stand.
-Final screenshots os3d-armed-history-redo.png and -done.png inspected/copied.
-Normal circle diameter overlaps rail after Done; separate open visual issue.
-Publication verified: illustrated102 images/new2 PNG hashes; master38/result note.
-Exact next: finish export/hash verification, commit correction; paired explicit
-Escape and free-vs-driven annotation checks, then remaining acceptance matrix.
-Simulator5147 Untitled2 Front circle507593 selected normal mode. Native1924
-MAINFront circle801292 selected in explicit mode. No competing desktop owner.
-No duplicate watchdog/worker, merge/device installation or security changes.
+September9 ~00:10EDT. HEADcecd1f5 pushed; Escape correction verified, committing.
+Dirty overlay/receipt/ledger/milestone/checkpoint only (identity files excluded).
+Serial38815 completed clean2/2; live keypad-first Escape, tool exit and empty
+armed selection exit pass. Gallery reopen retains circle450650/diameter0.992.
+Illustrated104/new2 PNG hashes and both final reopen notes export-verified.
+No test/build/Peekaboo worker active. Next native free-circle transform dimension
+visibility: native1924 Circle armed, empty area1000610 available. Clone5147
+Untitled2 Front normal selectedcircle450650/0.992. Compare free/driven labels,
+then correct confirmed overlaps and remaining numeric/selection acceptance.
+Original42audit/56matrix retained; candidate/installableartifact gate open.
+No duplicate worker/watchdog/merge/deviceinstall/security/restart changes.
 
 ## Earlier checkpoint history
 

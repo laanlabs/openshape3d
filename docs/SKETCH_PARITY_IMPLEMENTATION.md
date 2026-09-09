@@ -869,3 +869,11 @@ hides the constraint rail during explicit transforms as native does. Clean21/21
 plus live Undo/Redo, reselection and Done verified. Normal circle annotation
 clipping, explicit Escape and remaining visual matrix stay open. See the
 [transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
+
+## Explicit-transform Escape — September 9
+
+Confirmed native keypad-first Escape now implemented: cancel uncommitted numeric
+entry first, then exit Move/Rotate without changing geometry. Works with empty
+selection after Undo as well. Clean2/2 supplemental numeric/history+Copy UI
+checks; actual hardware key verified live, with gallery reopen preserving the
+original circle. [Receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).

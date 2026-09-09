@@ -180,3 +180,29 @@ No test worker active. Earlier mode-exit interpretation explicitly superseded.
 Publication: illustrated102 embedded images; both new native/clone armed-state
 PNG SHA256 values match anonymous DOCX media. Master38 images/result prose
 verified. Exports /tmp/os3d-armed-final-illustrated.docx and -master.docx.
+
+## September 9: explicit-transform Escape
+Paired native Escape exits Move/Rotate, preserving circle801292/diameter1000.
+With X editor open, Escape dismisses editor first and leaves operation armed,
+value0/geometry unchanged. Clone ignores Escape both with controls and keypad.
+Captured os3d-transform-escape-native.png, -native-pad.png,
+-native-pad-cancel.png, -clone.png, -clone-pad.png.
+Overlay now registers one Escape handler outside selection-dependent rendering:
+local editor cancels first; otherwise disarms. Existing dimension editor retains
+its own higher-priority shortcut. Serial38815 runs axis/history+Copy UI checks:
+/tmp/os3d-transform-escape-20260909.log/.xcresult. Actual hardware key requires
+post-build live verification; automated tap-based checks are supplemental.
+
+38815 completed clean2/2 in72.3seconds. No test runner remains; live fresh-circle
+Escape recheck underway on installed build.
+
+Post-fix live: inspected uncommitted X1 entry, first Escape dismisses only editor;
+second exits Move/Rotate. Circle450650/diameter0.992 unchanged. Undo creation
+leaves empty armed operation; Escape exits that too, no selection prerequisite.
+Redo creation then gallery reopen/sketch re-entry/reselection retains original
+circle450650/0.992; no canceled move saved. Captures os3d-escape-fixed-input1,
+-first,-second,-empty-armed,-empty-exit and os3d-escape-reopen-final.png.
+Illustrated104 embedded images/new2 paired cancellation PNG hashes verified.
+Final reopen notes inserted both Docs; export check follows before commit.
+
+Final both-Doc gallery-reopen notes export-verified (104 illustrated/38 master).

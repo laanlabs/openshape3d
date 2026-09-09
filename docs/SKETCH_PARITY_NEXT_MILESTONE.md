@@ -203,3 +203,15 @@ reopen. Arc translation/rotation Lock correction now11distinctpassingchecks and
 pairedlive/reopen. Continue remaining numeric/selection acceptance, including
 circle diameter text covering explicit move target, fullsnap/gridmatrix and
 primitive/mixedtransformlimits. Finalregression/installableartifact gateopen.
+
+## September 9, 00:04 execution update
+
+Explicit white transform controls, exact axis values, retained re-edits, rotated
+local frame and circle frame-only history are implemented with focused regression
+and paired live evidence. Settled native history correction cecd1f5 retains the
+armed tool while clearing selection, rather than exiting it (earlier interpretation
+withdrawn). Clean21/21 and live reselection/Done; illustrated102 images and master38
+with correction notes export-verified. Escape keypad-first cancellation now under
+regression. Remaining transform candidate/driven annotation visibility, overlap,
+rotated direct-drag/Copy/compact coverage and full core matrix remain open.
+No installable candidate or physical-device sign-off yet.
