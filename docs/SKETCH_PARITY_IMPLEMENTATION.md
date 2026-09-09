@@ -1084,3 +1084,14 @@ production change. Paired gallery reopen retains selectable loops and prior
 bodies. Illustrated173 placements/all8 new hashes; master38 final note verified.
 [Receipt](testing/sketch-parity-point-touch-2026-09-09.md). Remaining topology
 and installable-device gate still open.
+
+## September 9 — crossing straight-profile correction
+
+Native bow-tie exposes two triangles; clone exposed none. Temporary straight
+intersection splitting now supplies missing graph junctions without changing
+editable entities/constraints. Initial red test failed; corrected clean42/42
+profile/history/seed/curve run. Live independent triangle selection, extrusion,
+Undo/Redo and paired final reopen pass. Illustrated179/all6 new hashes and
+master38 final note export verified. Curved intersections excluded; earlier
+partial-overlap first-loop fill disappeared during later editing, still open.
+[Receipt](testing/sketch-parity-crossing-profiles-2026-09-09.md).

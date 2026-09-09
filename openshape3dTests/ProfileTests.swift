@@ -178,6 +178,37 @@ final class ProfileTests: XCTestCase {
         }
     }
 
+    func testCrossedStraightOutlineExposesTwoTriangularRegions() {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(4, 3), SIMD2(0, 3), SIMD2(4, 0)]
+        let entities = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        let sketch = makeSketch(entities)
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 6, accuracy: 1e-9)
+        for point in [SIMD2<Double>(2, 0.5), SIMD2<Double>(2, 2.5)] {
+            XCTAssertEqual(profiles.filter { $0.contains(point) }.count, 1)
+        }
+        XCTAssertEqual(sketch.entities.count, 4, "Intersection nodes belong to the temporary graph, not the editable sketch")
+        XCTAssertTrue(profiles.allSatisfy { $0.sourceEntityIDs.isSubset(of: Set(entities.map(\.id))) })
+    }
+
+    func testUnsplitStraightDividerCreatesTwoRegionsWithoutChangingSketch() {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(4, 0), SIMD2(4, 2), SIMD2(0, 2)]
+        var entities = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        entities.append(.line(id: UUID(), a: SIMD2(1, 0), b: SIMD2(1, 2)))
+        let sketch = makeSketch(entities)
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 8, accuracy: 1e-9)
+        XCTAssertEqual(sketch.entities.count, 5)
+        XCTAssertEqual(profiles.filter { $0.contains(SIMD2(0.5, 1)) }.count, 1)
+        XCTAssertEqual(profiles.filter { $0.contains(SIMD2(2, 1)) }.count, 1)
+    }
+
     // MARK: - Detection
 
 

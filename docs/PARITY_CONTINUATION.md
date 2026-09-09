@@ -1,16 +1,18 @@
 # Parity continuation checkpoint
 
-September 9 ~05:12 EDT. HEAD682e1bf pushed; point-touch/partial-overlap tests
-and receipts ready for commit. Clean2/2 serial42414 completed0; no runner.
-Paired touching-loop and partial-overlap profile selection/reopen verified.
-No production code change. Native1924 oblique first loop selected (885,570).
-Clone5147 oblique first loop Extrude open; Cancel550846. Both saved designs
-retain prior bore/block. Illustrated173 placements/172 assets/all8 new hashes,
-master38 final2/2 and reopen note verified; evidence durable. Receipt:
-testing/sketch-parity-point-touch-2026-09-09.md.
-Exact next: commit/push checkpoint, then paired duplicate curved boundary or
-crossing topology. Tiny-gap thresholds, downstream smoke/golden path, final
-single-revision regression and identified installable iPad artifact remain.
+September 9 ~05:23 EDT. HEAD6c8dd06 pushed; crossing graph fix/tests/docs
+ready for commit. Red43043 failed; green66431 clean42/42 completed0. No runner.
+Live native/clone bow-tie independent triangle selection, lower-triangle solid,
+Undo/Redo and finalgalleryreopen pass. Original entities/constraints preserved.
+Illustrated179 placements/all6new hashes; master38 final note verified.
+Receipt testing/sketch-parity-crossing-profiles-2026-09-09.md; evidence durable.
+Native1924 oblique Body04 triangular prism, source03 nowrow217. Clone5147
+oblique three bodies, source2 hidden; inspect Items rows before entry.
+Exact next: commit/push verified crossing correction; diagnose partial-overlap
+first-loop missing fill observed during later drawing. Earlier paired partial
+selection/reopen pass remains valid historical evidence, not proof of current
+state. Curved intersections, tiny thresholds, broader downstream/golden path,
+final regression and identified installable iPad candidate gate remain open.
 Preserve identity files/stalled tabs/watchdog; no merge/install/security changes.
 
 ## Earlier checkpoint history
