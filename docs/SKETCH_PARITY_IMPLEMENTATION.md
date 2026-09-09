@@ -835,3 +835,9 @@ Y/45-degree rotation/history/Copy and gallery reopen captured. Earlier failures
 remain in the [transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
 Illustrated 92 images and master final-reopen note export-verified. Retained
 operation values, pivot and rotated local control frame remain blocking gaps.
+
+Retained transform values follow-up: clean17/17 and live absolute45→90 re-edit
+around original pivot, Undo45/Redo90, clone gallery reopen verified. Native
+immediate Home after Redo reverted the transform: acceptance/exit investigation
+open, not paired persistence sign-off. Illustrated94 images verified. Rotated
+local frame and post-history mode still differ. See same transform receipt.

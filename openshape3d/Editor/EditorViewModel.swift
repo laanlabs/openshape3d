@@ -8189,7 +8189,38 @@ final class EditorViewModel {
     /// Copy chip while sketching (spec §1.10): the next gizmo drag
     /// moves/rotates duplicates of the selection. Resets after each drag.
     var sketchCopyOnDrag = false
-    var sketchTransformActive = false
+    var sketchTransformActive = false {
+        didSet { if !sketchTransformActive { retainedSketchTransform = nil } }
+    }
+
+    private struct RetainedSketchTransform {
+        var control: SketchTransformControl
+        var value: Double
+        var drag: SketchGizmoDrag
+        var result: Sketch
+    }
+    private var retainedSketchTransform: RetainedSketchTransform?
+    private var activeSketchTransformControl: SketchTransformControl?
+    private var activeSketchTransformValue = 0.0
+
+    private var validRetainedSketchTransform: RetainedSketchTransform? {
+        guard sketchTransformActive, let retained = retainedSketchTransform,
+              let sketch = activeSketch, sketch.id == retained.result.id,
+              sketch.entities == retained.result.entities,
+              sketch.constraints == retained.result.constraints,
+              selectedSketchEntityIDs == Set(retained.drag.originals.map(\.id)) else { return nil }
+        return retained
+    }
+
+    func retainedSketchTransformValue(_ control: SketchTransformControl) -> Double? {
+        guard let retained = validRetainedSketchTransform, retained.control == control else { return nil }
+        return retained.value
+    }
+
+    var sketchTransformFrameAngle: Double {
+        guard let retained = validRetainedSketchTransform, retained.control == .rotation else { return 0 }
+        return retained.value * .pi / 180
+    }
 
     enum SketchTransformControl: String, CaseIterable {
         case x, y, rotation
@@ -8201,9 +8232,19 @@ final class EditorViewModel {
     func updateSketchTransformControl(_ control: SketchTransformControl, value: Double) {
         guard value.isFinite, sketchTransformActive, let center = sketchSelectionCentroid else { return }
         if sketchGizmoDrag == nil {
-            let grab = control == .rotation ? center + SIMD2(1, 0) : center
-            guard beginSketchGizmoDrag(at: grab, forcedKind: control == .rotation ? .rotate : .move) else { return }
+            if let retained = validRetainedSketchTransform, retained.control == control, !sketchCopyOnDrag {
+                var resumed = retained.drag
+                resumed.pushed = false
+                resumed.undoEntities = activeSketch?.entities
+                sketchGizmoDrag = resumed
+            } else {
+                retainedSketchTransform = nil
+                let grab = control == .rotation ? center + SIMD2(1, 0) : center
+                guard beginSketchGizmoDrag(at: grab, forcedKind: control == .rotation ? .rotate : .move) else { return }
+            }
         }
+        activeSketchTransformControl = control
+        activeSketchTransformValue = value
         guard let drag = sketchGizmoDrag else { return }
         let raw: SIMD2<Double>
         switch control {
@@ -8222,7 +8263,15 @@ final class EditorViewModel {
         if drag.pushed {
             session.rebuildForSketchChange(drag.sketchID)
             session.save()
+            if let control = activeSketchTransformControl, let result = activeSketch,
+               drag.originals.allSatisfy({
+                   switch $0 { case .line, .circle, .arc: return true; default: return false }
+               }) {
+                retainedSketchTransform = RetainedSketchTransform(control: control,
+                    value: activeSketchTransformValue, drag: drag, result: result)
+            }
         }
+        activeSketchTransformControl = nil
     }
 
     @discardableResult
@@ -8238,7 +8287,7 @@ final class EditorViewModel {
         }
         let value = control == .rotation ? parsed :
             (Self.lengthUnit(forSuffix: suffix) ?? AppSettings.shared.unit).mm(fromDisplay: parsed)
-        if abs(value) > 1e-10 { updateSketchTransformControl(control, value: value) }
+        if abs(value) > 1e-10 || retainedSketchTransformValue(control) != nil { updateSketchTransformControl(control, value: value) }
         endSketchTransformControl()
         return true
     }
@@ -8427,6 +8476,7 @@ final class EditorViewModel {
         var grabPoint: SIMD2<Double>
         var pushed = false
         var showedBlockedNotice = false
+        var undoEntities: [SketchEntity]?
     }
     private var sketchGizmoDrag: SketchGizmoDrag?
 
@@ -8437,6 +8487,9 @@ final class EditorViewModel {
 
     /// Centroid of the selected sketch entities (gizmo anchor), plane-local.
     var sketchSelectionCentroid: SIMD2<Double>? {
+        if let retained = validRetainedSketchTransform, retained.control == .rotation {
+            return retained.drag.pivot
+        }
         guard let sketch = activeSketch else { return nil }
         let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !selected.isEmpty else { return nil }
@@ -8701,9 +8754,9 @@ final class EditorViewModel {
                 drag.showedBlockedNotice = true
                 sketchGizmoDrag = drag
             }
-            guard solved != drag.baselineSketch.entities || drag.pushed else { return }
+            guard solved != (drag.undoEntities ?? drag.baselineSketch.entities) || drag.pushed else { return }
             let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
-                before: drag.baselineSketch.entities, after: solved)
+                before: drag.undoEntities ?? drag.baselineSketch.entities, after: solved)
             if drag.pushed { session.amend(command) }
             else { session.perform(command); drag.pushed = true; sketchGizmoDrag = drag }
             return

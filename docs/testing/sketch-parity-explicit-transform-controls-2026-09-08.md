@@ -58,3 +58,32 @@ Native follow-up inspected input 90 before commit: angle replaces prior operatio
 value around original pivot, not an additional rotation. Fast earlier 90 entry
 only delivered 9 and is excluded. Valid evidence os3d-transform-native-input90.png
 and os3d-transform-native-valid90.png. Re-edit/frame correction remains next.
+
+## Retained-operation follow-up under test
+
+Native inspected 90-degree input replaces the prior value around the original
+pivot. Cmd-Z restores the preceding 9-degree geometry (fast-input attempt), not
+the original unrotated arc. Therefore each commit remains a separate undo step.
+Implementation retains the last exact control value and original solver baseline
+for supported line/circle/arc transforms; a repeated value is absolute to that
+operation, not additive. New history commands retain the preceding committed
+geometry as their undo state. Zero restores the operation baseline. Retention
+is invalidated by mode exit, selection/geometry/constraint changes, or Copy.
+Rotation pivot remains fixed; world-aligned directional frame is still open and
+not advertised as matched. Focused serial run 20790:
+/tmp/os3d-transform-retained-20260908.log/.xcresult. No live interactions during it.
+
+20790 completed clean 17/17: 15 unit and two UI workflows. Live retained 45 label
+opens seeded 45, replacement 90 keeps initial pivot (280,380), radius 1.241 mm
+and sweep 106.26 degrees. Undo restores 45 geometry; Redo restores 90 plus value.
+Clone Done/gallery/reopen retains the 90-degree arc. Post-Undo mode remains active
+in clone but native exits Move/Rotate; retained local-axis frame remains open.
+Captures os3d-retained45.png, os3d-retained45-editor.png, os3d-retained90.png,
+os3d-retained-undo45.png, os3d-retained-redo90.png, os3d-retained-reopened.png.
+No runner active. New paired publication inserted; export verification pending.
+
+Illustrated94 images and both new90-degree PNG hashes exported successfully.
+Native immediate Home/reopen after Redo returned to pre-transform right semicircle
+(center775446,R539.1552,sweep180), NOT the rotated top semicircle. Reselection
+confirms it; no paired persistence pass claimed. Explicit native transform
+acceptance/exit path is next to investigate. Clone reopen remains verified.

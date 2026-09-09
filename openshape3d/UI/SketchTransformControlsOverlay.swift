@@ -32,6 +32,17 @@ struct SketchTransformControlsOverlay: View {
                             .allowsHitTesting(false)
                         ForEach(EditorViewModel.SketchTransformControl.allCases, id: \.self) { part in
                             control(part, center: c, x: x, y: y, ux: ux, uy: uy)
+                            if let value = viewModel.retainedSketchTransformValue(part) {
+                                Button { openInput(part) } label: {
+                                    Text(formattedValue(value, part: part))
+                                        .font(.caption.monospacedDigit())
+                                        .padding(6)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                                }
+                                .accessibilityIdentifier("SketchTransformValue-\(part.rawValue)")
+                                .position(x: c.x + (part == .y ? uy.x : ux.x) * 130,
+                                          y: c.y + (part == .y ? uy.y : ux.y) * 130)
+                            }
                         }
                         if let editing {
                             input(editing)
@@ -87,10 +98,22 @@ struct SketchTransformControlsOverlay: View {
                 viewModel.endSketchTransformControl()
                 dragging = nil
             } else {
-                text = "0"; initialValueSelected = true; usingKeyboard = false
-                editing = part
+                openInput(part)
             }
         })
+    }
+
+    private func formattedValue(_ value: Double, part: EditorViewModel.SketchTransformControl) -> String {
+        let displayed = part == .rotation ? value : AppSettings.shared.unit.display(fromMM: value)
+        return String(format: "%.3g", displayed) + (part == .rotation ? "°" : " " + AppSettings.shared.unit.symbol)
+    }
+
+    private func openInput(_ part: EditorViewModel.SketchTransformControl) {
+        let value = viewModel.retainedSketchTransformValue(part) ?? 0
+        let displayed = part == .rotation ? value : AppSettings.shared.unit.display(fromMM: value)
+        text = String(format: "%.12g", displayed)
+        initialValueSelected = true; usingKeyboard = false
+        editing = part
     }
 
     private func input(_ part: EditorViewModel.SketchTransformControl) -> some View {

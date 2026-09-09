@@ -1,7 +1,17 @@
 # Parity continuation checkpoint
 
-September 8 ~22:50 EDT. HEAD b9ad8ea; dirty VM/EditorView/new transform overlay,
-ConstraintApply/DimensionUI tests, transform receipt/checkpoint. No runner active.
+September8 ~23:10EDT. HEAD71856eb; retained-value change ready to commit.
+No runner active. Clean17/17 20790; live retained45→90 with fixed original pivot,
+Undo45/Redo90 and clone gallery reopen verified. Illustrated94/paired90 hashes
+and master correction note exported. Native Home/reopen after Redo returned to
+pre-transform arc; not paired persistence. Native1924 now reselected right arc
+center775446 R539.1552/180 in main Front sketch; explicit acceptance path next.
+Simulator5147 Untitled2 reopened arc90. Exact next commit verified value change,
+then native explicit accept/exit/reopen, rotated-frame and post-history mode.
+No duplicate workers/watchdog; no merge/device installation/security changes.
+
+## Earlier checkpoint history
+
 97350 completed clean 16/16. Live initial arc bounds pivot, 45-degree rotation,
 Undo/Redo, typed X Copy 1 mm and two-arc gallery reopen inspected successfully.
 Receipt: docs/testing/sketch-parity-explicit-transform-controls-2026-09-08.md.

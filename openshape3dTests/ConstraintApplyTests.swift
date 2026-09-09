@@ -84,6 +84,35 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.entities, [arc])
     }
 
+    func testRetainedTransformReeditUsesOriginalPivotAndSeparateUndo() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let arc = SketchEntity.arc(id: id, center: .zero, radius: 2,
+                                  startAngle: -.pi / 2, endAngle: .pi / 2)
+        let sketch = openSketch(vm, entities: [arc])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
+        let first = vm.activeSketch!.entities
+        XCTAssertEqual(vm.retainedSketchTransformValue(.rotation), 45)
+        XCTAssertEqual(vm.sketchSelectionCentroid!.x, 1, accuracy: 1e-6)
+        XCTAssertEqual(vm.sketchSelectionCentroid!.y, 0, accuracy: 1e-6)
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "90"))
+        guard case let .arc(_, center, radius, start, _) = vm.activeSketch?.entities.first else { return XCTFail() }
+        XCTAssertEqual(center.x, 1, accuracy: 1e-5)
+        XCTAssertEqual(center.y, -1, accuracy: 1e-5)
+        XCTAssertEqual(radius, 2, accuracy: 1e-5)
+        XCTAssertEqual(start, 0, accuracy: 1e-5)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, first)
+        vm.session.redo()
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "0"))
+        guard case let .arc(_, restored, _, _, _) = vm.activeSketch?.entities.first else { return XCTFail() }
+        XCTAssertEqual(simd_length(restored), 0, accuracy: 1e-5)
+        vm.sketchTransformActive = false
+        XCTAssertNil(vm.retainedSketchTransformValue(.rotation))
+    }
+
     func testExactSketchAxisInputPreservesDiameterAndLocksAndHistory() throws {
         let vm = try makeViewModel(), id = UUID()
         let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)
