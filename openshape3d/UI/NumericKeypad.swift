@@ -17,9 +17,9 @@ import SwiftUI
 
 struct NumericKeypad: View {
     @Binding var text: String
-    /// Whether committing should leave a driving dimension behind. Nil hides
-    /// the lock key for fields where the idea means nothing.
+    /// Current dimension lock state. Nil hides the key for unrelated fields.
     var isLocked: Bool?
+    var lockEnabled = true
     /// Dimension fields start with their measured value selected. Other
     /// numeric consumers retain append behavior unless they opt in.
     var initialValueSelected: Binding<Bool> = .constant(false)
@@ -94,8 +94,10 @@ struct NumericKeypad: View {
             if let isLocked {
                 iconKey(isLocked ? "lock.fill" : "lock.open",
                         id: "KeypadLock",
-                        tint: isLocked ? Color.accentColor : .secondary,
+                        tint: .primary,
                         action: onToggleLock)
+                    .disabled(!lockEnabled)
+                    .opacity(lockEnabled ? 1 : 0.35)
             } else if onSwitchToSystemKeyboard != nil {
                 Color.clear.frame(width: Self.keyW, height: Self.keyH)
             }

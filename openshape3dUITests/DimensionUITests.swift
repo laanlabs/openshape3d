@@ -386,6 +386,49 @@ final class DimensionUITests: XCTestCase {
         attach(app, "circle-diameter-badge")
     }
 
+    func testDimensionLockActsImmediatelyAndRejectsEditedDraft() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        let center = window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.65))
+        center.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.60)))
+        tapPaletteTool(app, group: "Sketch", label: "Circle")
+        setDimension(app, to: "1")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let lock = app.buttons["KeypadLock"]
+        XCTAssertTrue(lock.isEnabled)
+        app.buttons["Keypad-2"].tap()
+        XCTAssertEqual(field.value as? String, "2")
+        XCTAssertFalse(lock.isEnabled, "Uncommitted size must not toggle a saved dimension")
+        attach(app, "dimension-lock-disabled-for-draft")
+        app.buttons["KeypadDelete"].tap()
+        app.buttons["Keypad-1"].tap()
+        XCTAssertTrue(lock.isEnabled)
+        lock.tap()
+        XCTAssertTrue(field.waitForNonExistence(timeout: 3), "Unlock acts without Commit")
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3), "Native clears selection after lock action")
+        sleep(1)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.715, dy: 0.65)).tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertEqual(label.label, "Ø1 mm")
+        let radial = app.descendants(matching: .any).matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3))
+        let grab = radial.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
+        sleep(1)
+        XCTAssertNotEqual(label.label, "Ø1 mm", "Immediate unlock must actually free radial sizing")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, "Ø1 mm")
+        attach(app, "dimension-unlocked-free-resize-undo")
+    }
+
     func testNearRailCircleDiameterTargetRemainsReachable() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

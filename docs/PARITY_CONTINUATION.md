@@ -1,20 +1,23 @@
 # Parity continuation checkpoint
 
-September9 ~02:17EDT. HEADab071f7 pushed; defaultcircleleader correction ready
-for commit (helper/overlay/layouttest, ledger/matrix/milestone/receipt/checkpoint).
-Identity files excluded. No runner active. Clean6/6+followup2/2; wrong initial
-extra test selector explicitly omitted/corrected. Fresh clone horizontalrelease→
-normalvertical, keypad/typedØ1/manualoverride/Undo and galleryreopen verified.
-Native freeØ1000 defaultvertical reselect/galleryreopen verified. Illustrated125
-bothfinalPNGhashes/master38finalnote verified. Native1924 Frontcircle964529 free
-Ø1000 vertical selected. Clone5147 Front430450 drivenØ1 vertical selected.
-Next commit/push defaultleader correction then confirmed keypad stored-dimension
-unlock difference: native locktap removes drivingdimension/dismisses immediately;
-clone toggles pendingmode and requirescommit. Further compare pendingdraft/history
-before implementing narrow fix. Fresh native circleconstruction inputs failed,
-exclude; stale menu arc was CmdZ-undone and restoration verified. Fullcorevisual,
-oblique annotation and installableartifact gateopen. No duplicateworkers/watchdog,
-merge/deviceinstall/securitychanges. Preserve oldstalledDocs tabs.
+September9 ~02:52EDT. HEAD480bbeb; immediate dimension lock action verified and
+being committed. Dirty owned code/tests/docs listed by git status; identity files
+excluded. No build/test/Peekaboo process active after last screenshot. Clean12/12
+regression, final tint-only build53633 passed, live reopened neutral icon/draft
+disable/Escape verified. Paired line/circle immediate lock/unlock, geometry,
+history and gallery reopen captured. Illustrated130 images/all3 final PNG hashes
+and master38 final reopen/tint notes export-verified. Receipt:
+docs/testing/sketch-parity-dimension-lock-action-2026-09-09.md.
+
+Exact next: finish commit/push, then inspect alternate Dimension command gap:
+clone selected stored circleØ0.992 → Constrain61,618 → Dimension128,625 leaves
+no editor visible and hides radial control. Latest screenshot
+/tmp/os3d-dimension-palette-existing-pad.png; inspect settled followup. Code
+beginDimensionForSelection uses candidate label ID even when stored dimension
+suppresses candidate. Native current savedØ1000 pad open confirms closedlock.
+Clone5147 Frontcircle430450/line300600→350640; native1924 circle964529.
+No duplicateworkers/watchdog, merge/install/securitychanges. Full visual/numeric
+matrix and installable iPad artifact gate remain open. Preserve stalled Doc tabs.
 
 ## Earlier checkpoint history
 

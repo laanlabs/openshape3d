@@ -492,3 +492,19 @@ clone release/selection/keypad/Ø1/manual override/Undo and paired gallery reope
 verified. Immediate dimension unlock vs clone commit and oblique placement remain
 open; fresh native construction input attempts excluded.
 [Receipt](testing/sketch-parity-circle-default-leader-2026-09-09.md).
+
+## September 9 — immediate dimension lock action
+
+Unchanged keypad Lock now immediately adds/removes the measured driving size
+without moving geometry; changed drafts disable the key. Actual stored state is
+shown, with neutral icons. Ordinary numeric commit remains driving. Clean12/12
+(9 unit + 3 UI), then a successful tint-only build and live inspection. Paired
+line/circle action, draft cancellation, freed radial resize/history and gallery
+reopen verified: clone Ø0.992/line0.793, native Ø1000/line1750.6361 retain locks.
+First click away dismisses an editor in both apps; separate selection follows.
+Rapid radial first attempt excluded; settled repeat counted. Wider numeric/visual
+matrix and device artifact remain open.
+[Receipt](testing/sketch-parity-dimension-lock-action-2026-09-09.md).
+
+Publication verified: illustrated130 images, all3 final PNG hashes matched;
+master38 images with final gallery-reopen and tint notes exported.

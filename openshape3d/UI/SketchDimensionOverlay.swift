@@ -481,9 +481,10 @@ private struct DimensionField: View {
             if !usingSystemKeyboard {
                 NumericKeypad(
                     text: $text,
-                    isLocked: viewModel.dimensionCommitLocked,
+                    isLocked: viewModel.editingDimension?.dimensionID != nil,
+                    lockEnabled: viewModel.canToggleDimensionLock(text),
                     initialValueSelected: $initialValueSelected,
-                    onToggleLock: { viewModel.dimensionCommitLocked.toggle() },
+                    onToggleLock: { viewModel.toggleDimensionLock(text) },
                     onCommit: { viewModel.commitDimensionEdit(text) },
                     onSwitchToSystemKeyboard: {
                         usingSystemKeyboard = true

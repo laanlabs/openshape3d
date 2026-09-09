@@ -11386,12 +11386,9 @@ final class EditorViewModel {
         commitDimensionEdit(text)
     }
 
-    /// Whether committing the field leaves a DRIVING dimension behind (the
-    /// keypad's lock key). Shapr3D calls these "locked dimensions"; unlocked,
-    /// the typed value still resizes the geometry, it just is not recorded as
-    /// a constraint — and unlocking one that already exists removes it and
-    /// keeps the geometry where it landed. Locked is the default, and the
-    /// field resets to it, because a typed dimension is normally meant to hold.
+    /// Numeric commits normally leave a driving dimension. The unlocked solve
+    /// path remains available to callers, but the keypad lock key independently
+    /// adds/removes the unchanged measured dimension through toggleDimensionLock.
     var dimensionCommitLocked = true
 
     /// Radius of a circular entity (circle/arc/polygon); nil otherwise.
@@ -11878,6 +11875,36 @@ final class EditorViewModel {
                     ? value
                     : AppSettings.shared.unit.display(fromMM: value))
         )
+    }
+
+    /// The native lock key acts on the current size, not an uncommitted draft.
+    func canToggleDimensionLock(_ text: String) -> Bool {
+        guard let edit = editingDimension else { return false }
+        return text == edit.text
+    }
+
+    func toggleDimensionLock(_ text: String) {
+        guard canToggleDimensionLock(text), let edit = editingDimension,
+              let sketch = activeSketch else { return }
+        if let id = edit.dimensionID {
+            guard sketch.dimensions.contains(where: { $0.id == id }) else { return }
+            deleteDimension(id)
+        } else {
+            guard let measured = measuredValue(kind: edit.kind, refs: edit.refs, in: sketch) else { return }
+            let offset = edit.kind == .diameter
+                ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
+            let dimension = SketchDimension(kind: edit.kind, refs: edit.refs,
+                value: edit.kind == .angle ? measured * .pi / 180 : measured,
+                labelOffset: offset)
+            // Freeze the actual measured size without solving or moving geometry.
+            session.perform(AddSketchDimensionCommand(sketchID: sketch.id, dimension: dimension))
+            session.save()
+        }
+        cancelDimensionEdit()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        selectedSketchPoints.removeAll()
+        selectedSketchEntityIDs.removeAll()
     }
 
     func cancelDimensionEdit() {

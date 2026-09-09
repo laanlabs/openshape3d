@@ -119,6 +119,36 @@ final class DimensionKeypadCommitTests: XCTestCase {
 
     // MARK: The lock key
 
+    func testImmediateLockUnlockPreservesGeometryAndHistoryRejectsDraft() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (sketch, id) = lineReadyToDimension(vm)
+        let geometry = vm.activeSketch!.entities
+        let seed = try XCTUnwrap(vm.editingDimension?.text)
+        XCTAssertTrue(vm.canToggleDimensionLock(seed))
+        XCTAssertFalse(vm.canToggleDimensionLock("25"))
+        vm.toggleDimensionLock("25")
+        XCTAssertNotNil(vm.editingDimension)
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        vm.toggleDimensionLock(seed)
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        let dimension = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+        XCTAssertEqual(dimension.value, 40)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.toggleDimensionLock(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.dimensions, [dimension])
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        vm.session.redo()
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 40, accuracy: 1e-8)
+    }
+
     func testLockedCommitRecordsADrivingDimension() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .millimeters
