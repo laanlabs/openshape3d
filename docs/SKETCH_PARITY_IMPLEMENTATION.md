@@ -1166,3 +1166,17 @@ endpoint continuation; simulator hover delivery remains automated-only.
 Illustrated publication is export-verified at 213 placements with six new
 paired captures; the master remains at 38 images.
 [Receipt](testing/sketch-parity-arc-third-point-chaining-2026-09-09.md).
+
+## September 9 — Arc Return completion
+
+Native Return accepts the current/default Arc after two endpoints and preserves
+it through the following Escape. The clone now registers Return only for that
+pending state and commits through the chained third-point path. Focused 11/11
+and final current-revision combined 35/35 passed cleanly; paired live keyboard
+checks retained the committed arc and shared endpoint. Direct construction
+major/minor boundaries, tangent transition, simulator hover delivery and
+physical Pencil input remain open. Anonymous exports verify the illustrated
+report at 219 placements with all six new image hashes and the master roadmap at
+38 drawings; a displaced prior chained-arc image was restored from the previous
+verified export before publication was counted.
+[Receipt](testing/sketch-parity-arc-return-2026-09-09.md).

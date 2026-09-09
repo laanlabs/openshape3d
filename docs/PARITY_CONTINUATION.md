@@ -1,35 +1,39 @@
 # Parity continuation checkpoint
 
-September 9 ~10:26 EDT. HEAD `2551a50` contains the third-point/chaining
-product code, tests, receipt and ledgers and is ready to push with this
-documentation checkpoint. No test/build/Peekaboo worker is running. The
-current exact simulator binary hash is
-`bfc808e3ae98e2976ed8831d30f5de6797e02f242893980d6b41db5ef366752d`.
+September 9 ~11:30 EDT. HEAD remains pushed `bad0948`; current intentional
+dirty files are `openshape3d/Editor/EditorViewModel.swift`,
+`openshape3d/UI/CommandShortcutsView.swift`,
+`openshape3dTests/ArcTapConstructionTests.swift`, this checkpoint, the milestone/
+implementation/acceptance ledgers, and
+`docs/testing/sketch-parity-arc-return-2026-09-09.md`. Preserve the three
+untracked identity files. No test/build/Peekaboo worker is running.
 
-Native direct Arc is now unambiguous: two endpoints, pointer-hovered third-point
-shape, click commit, then automatic chained preview from the prior endpoint.
-The clone implements hover and touch-only third-point shaping plus the shared
-endpoint continuation. The available live click route reshaped/committed a
-major first arc and the following click exposed a new `R1.46 mm` / `45°`
-pending arc from the shared endpoint. Supported simulator pointer movement did
-not deliver hover, so clone hover is automated-only rather than a product
-failure. Final focused construction passed 10/10. The first broader run passed
-31 unit/live-dimension checks but its three obsolete UI recipes failed; after
-recipe corrections and one directional-handle assertion correction, the final
-current-revision combined run passed cleanly 34/34. The illustrated Google Doc
-is export-verified at 213 placements with all six new paired captures accounted
-for; the master remains at 38 images with its corrected note verified. Evidence
-and exports are under `reports/.../arc-third-point/`.
+Paired live evidence now confirms Arc Return completion: native and clone accept
+the current/default `45°` arc after two endpoints, preserve the committed arc
+through Escape, and retain the endpoint continuation path. The clone adds a
+pending-Arc-only default-action route and `finishArcInput()` chained commit.
+Focused construction passed cleanly 11/11 and the final current-revision combined
+run passed cleanly 35/35 at
+`/tmp/os3d-arc-return-combined-final2-20260909.xcresult`. Six paired screenshots
+and hashes are under `reports/.../arc-return/`. Anonymous exports verify the
+illustrated report at 219 placements with all six new image hashes present and
+the master roadmap at 38 drawings with its dated Return note. One prior chained-
+arc image displaced during editing was identified from the 213-placement export
+and restored before the final verification.
 
-Current acceptance inventory remains 0 fully passed, 0 failed, 1 device-blocked,
-55 incomplete/untested (42 partial, 11 explicit deferrals, 2 not run). Candidate
-is not ready. Exact next: continue QA-13 clean major/minor boundary and
-tangent-transition recipes. Native 1924 remains in Sketch04; the exact clone
-build was last live-inspected on os3d-unit 6268 and the test runner subsequently
-released it. Preserve the three untracked identity files, stalled Doc tabs and
-30-minute watchdog. Remaining QA55/56, final same-revision regression and signed
-installable device artifact/checklist. No merge, physical-device claim,
-security changes or duplicate workers.
+Direct native major/minor boundary attempts were excluded: the sampled desktop
+click/drag sequences advanced into chained arcs before a controlled third point
+was established. Existing typed 180°/270° evidence remains valid, but direct
+construction boundaries and tangent transition stay open. Current acceptance
+inventory remains 0 fully passed, 0 failed, 1 device-blocked and 55 incomplete
+(42 partial, 11 deferred, 2 not run). Candidate is not ready.
+
+Exact next: commit and push the Arc Return correction and verified publication,
+then continue QA-13 tangent transition with a clean native/clone recipe while keeping
+direct major/minor construction explicitly open. Remaining QA-55/56, final
+same-revision regression, signed installable artifact and device A/B handoff
+remain gates. No merge, physical-device claim, security changes or duplicate
+workers; preserve the existing watchdog and stalled Doc tabs.
 
 ## Earlier checkpoint history
 

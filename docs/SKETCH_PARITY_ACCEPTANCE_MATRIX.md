@@ -17,7 +17,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
-| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, chained shared endpoint and two-stage Escape cancellation paired; clone hover path is automated-only, and clean major/minor boundaries plus tangent transition remain open (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point-chaining receipts). |
+| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint and two-stage Escape cancellation paired; clone hover path is automated-only, and clean direct major/minor boundaries plus tangent transition remain open (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
@@ -116,8 +116,9 @@ R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. 
 
 Prescribed endpoints/side, major/minor, tangent transition, cancel. Issues:
 SK-10. Result: PARTIAL — endpoint/default side, third-point commit, chained
-shared endpoint and cancellation are paired; clone hover is automated-only and
-major/minor boundaries plus tangent transition remain open. Evidence:
+shared endpoint, Return completion and cancellation are paired; clone hover is
+automated-only and direct major/minor boundaries plus tangent transition remain
+open. Evidence: [Return receipt](testing/sketch-parity-arc-return-2026-09-09.md),
 [third-point/chaining receipt](testing/sketch-parity-arc-third-point-chaining-2026-09-09.md)
 and linked earlier arc receipts.
 

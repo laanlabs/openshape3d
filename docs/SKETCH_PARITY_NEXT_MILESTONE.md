@@ -473,3 +473,16 @@ binary passed the live two-stage repeat with an existing arc retained. QA-13 is
 still partial because third-point placement, Return/chaining, major/minor and
 tangent transition remain open.
 [Receipt](testing/sketch-parity-arc-cancellation-2026-09-09.md).
+
+## September 9 — QA-13 Return checkpoint
+
+Native Return accepts the current/default Arc after its first two endpoints.
+OpenShape3D now routes the default keyboard action only in that pending state and
+commits through the same shared-endpoint chaining path as a third-point click.
+Paired live Return/Escape checks passed; focused 11/11 and final combined 35/35
+passed cleanly. Direct construction major/minor boundaries and tangent transition
+remain open, as do simulator hover delivery and physical Pencil validation, so
+QA-13 and the milestone remain partial. Publication is anonymously export-
+verified at 219 illustrated placements (all six new hashes) and 38 master
+drawings after restoring one prior chained-arc image displaced during editing.
+[Receipt](testing/sketch-parity-arc-return-2026-09-09.md).
