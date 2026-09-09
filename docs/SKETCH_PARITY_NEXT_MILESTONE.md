@@ -452,3 +452,15 @@ remain inconclusive and were not changed. Final combined39/39 passed in one run;
 illustrated201/all4 new hashes and master38 final note export verified. QA-13
 remains partial.
 [Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).
+
+## September 9 — pending arc cancellation
+
+Native first Escape discards the unfinished arc and disarms Arc while retaining
+committed geometry; the next Escape exits sketch mode. Clone initially ignored
+Escape with a pending arc. Arc-specific cancellation and a guarded neutral-sketch
+fallback now match the paired sequence. The first focused run failed at compile
+time in its new fixture; the corrected run passed cleanly 6/6. The exact updated
+binary passed the live two-stage repeat with an existing arc retained. QA-13 is
+still partial because third-point placement, Return/chaining, major/minor and
+tangent transition remain open.
+[Receipt](testing/sketch-parity-arc-cancellation-2026-09-09.md).

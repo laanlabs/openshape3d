@@ -9528,6 +9528,29 @@ final class EditorViewModel {
         }
     }
 
+    /// Escape abandons an unfinished three-point arc without committing it.
+    /// Native also drops the Arc tool in this state; a following Escape may
+    /// therefore leave sketch mode instead of reviving the discarded preview.
+    func cancelArcInput() {
+        guard case .sketching(let id, tool: .arc) = mode,
+              editingDimension == nil else { return }
+        pendingArc = nil
+        arcTapStart = nil
+        adjustingArcBulge = false
+        activeGuides = []
+        activeSnap = nil
+        mode = .sketching(id, tool: nil)
+    }
+
+    /// Register the sketch-level Escape only in a settled, unselected state.
+    /// Tool input and contextual operations own Escape ahead of this fallback.
+    var canExitSketchWithEscape: Bool {
+        mode.isSketching && mode.sketchTool == nil && editingDimension == nil &&
+        !sketchTransformActive && !selectModeActive && pendingSymbolID == nil &&
+        selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty &&
+        selectedConstraintID == nil && selectedDimensionID == nil
+    }
+
     private func clearChain() {
         chainAnchor = nil
         chainStart = nil

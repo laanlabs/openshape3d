@@ -1139,3 +1139,15 @@ earlier native-adjustment interpretation is withdrawn. Illustrated201/all4 new
 hashes and master38 note verified. Native third-point placement, Return/chaining
 and major/minor remain inconclusive, so QA-13 is partial.
 [Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).
+
+## September 9 — pending arc cancellation
+
+The clone had no Escape route for an armed Arc and left an unfinished preview
+onscreen. `cancelArcInput()` now discards first/two-endpoint transient state,
+clears guides and snap feedback, and disarms without committing or mutating
+history. A guarded neutral-sketch Escape exits sketch mode only when no tool,
+selection or contextual operation owns the key. Corrected focused construction
+tests passed 6/6 after one recorded compile-only fixture failure. The installed
+binary then matched native live: first Escape retained only the committed arc;
+second Escape exited sketching.
+[Receipt](testing/sketch-parity-arc-cancellation-2026-09-09.md).

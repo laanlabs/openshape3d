@@ -91,4 +91,38 @@ final class ArcTapConstructionTests: XCTestCase {
         vm.deselectSketchTool()
         XCTAssertTrue(vm.activeSketch!.entities.isEmpty)
     }
+
+    func testEscapeDropsFirstEndpointAndDisarmsArcWithoutHistory() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        let undoDepth = vm.session.undoStack.undoCommands.count
+        tap(vm, SIMD2(10, 10))
+
+        vm.cancelArcInput()
+
+        XCTAssertNil(vm.pendingArc)
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertTrue(vm.activeSketch!.entities.isEmpty)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoDepth)
+    }
+
+    func testEscapeDropsPendingArcButPreservesCommittedGeometryAndHistory() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        let committed = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let sketchID = try XCTUnwrap(vm.activeSketch?.id)
+        vm.session.perform(AddSketchEntityCommand(sketchID: sketchID, entity: committed))
+        let undoDepth = vm.session.undoStack.undoCommands.count
+        tap(vm, SIMD2(10, 10))
+        tap(vm, SIMD2(14, 10))
+        XCTAssertNotNil(vm.pendingArc)
+
+        vm.cancelArcInput()
+
+        XCTAssertNil(vm.pendingArc)
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertTrue(vm.canExitSketchWithEscape)
+        XCTAssertEqual(vm.activeSketch!.entities, [committed])
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoDepth)
+    }
 }

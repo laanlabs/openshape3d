@@ -59,6 +59,14 @@ struct CommandShortcutsView: View {
                 Button { viewModel.cancelLineInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .arc {
+                Button { viewModel.cancelArcInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.canExitSketchWithEscape {
+                Button { viewModel.finishSketch() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
             }
             ForEach(CommandRegistry.routableChordedCommands) { command in
                 if let chord = command.chord, let key = chord.keyEquivalent,
