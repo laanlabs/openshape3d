@@ -351,3 +351,16 @@ transform-controls reports. This samples downstream bore rebuild, not full
 Sweep/Loft/downstream smoke or all profile topology/device readiness.
 
 [Receipt](testing/sketch-parity-consumed-source-2026-09-09.md).
+
+## September 9 — visible gap closure / hidden-source control
+
+Paired visible20px gap rejects profile selection; explicit closure produces a
+profile, Undo/Redo removes/restores it and gallery reopen retains it. Controlled
+hidden-source entry/Exit matches native; initial mismatch was differing state,
+not a code defect. No new code/tests. Tiny tolerance, touching/duplicate/crossing
+cases remain open. [Receipt](testing/sketch-parity-gap-closure-2026-09-09.md).
+Publication pending; prior illustrated151/master38 verified.
+
+Final publication: illustrated155 embedded images, all4 new closure/reopen
+PNG hashes and corrected prose verified by DOCX export. Master38 retains final
+reopen/visibility correction note. Export copies retained locally.

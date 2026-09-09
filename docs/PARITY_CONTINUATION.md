@@ -1,19 +1,17 @@
 # Parity continuation checkpoint
 
-September9 ~04:07EDT. HEAD68914bc pushed; consumed-source documentation ready
-for checkpoint commit. No test/build/Peekaboo worker active. Clean5/5 existing
-history/profile-seed checks. Paired named source bore edits, Undo/Redo and final
-reopen inspected. Illustrated151 images/all4 new hashes and master38 final
-note exported and verified. No code changes in this lane; dirty receipt/ledger/
-matrix/milestone/checkpoint; unrelated identity files preserved.
-
-Native1924 model mode, reopenedBody02/Sketch03 withØ1800bore. Clone saved
-Untitled2 hasExtrude/Sketch2 withØ0.75offsetbore; unit tests terminatedapp,
-relaunch beforedesktop. Exact next: commit/push docs, paired QA49 tiny-gap/
-touching-loop profile cases, then remaining numeric/visual/sustained and device
-artifact. Full downstream smoke and overlap/visibility variants still open.
-Receipt docs/testing/sketch-parity-consumed-source-2026-09-09.md. Preserve old
-stalled Docs tabs/watchdog; no merge/install/security changes or duplicateworkers.
+September 9 ~04:31 EDT. HEAD30625e0 pushed; gap receipt/ledger/matrix/milestone
+and checkpoint dirty. No test/build/Peekaboo worker active. Paired visible20px
+open-gap rejection, closure/profile selection, Undo/Redo and gallery reopen
+inspected in both apps. Explicit hidden-source editing/Exit matches; earlier
+visibility mismatch corrected as differing state, no code change. No new tests.
+Native1924 reopened oblique with closed region left of existing bore; clone5147
+Untitled2 reopened oblique with closed region below bore. Both sources visible.
+Exact next: commit verified gap documentation, then paired touching loops / duplicate edge / construction
+crossing and remaining core matrix. Receipt testing/sketch-parity-gap-closure-
+2026-09-09.md. Illustrated155/all4 new hashes and master38 prose export verified.
+No merge/install/security changes, duplicate workers/watchdogs. Preserve identity
+files and old stalled Docs tabs. Candidate gate remains open.
 
 ## Earlier checkpoint history
 
