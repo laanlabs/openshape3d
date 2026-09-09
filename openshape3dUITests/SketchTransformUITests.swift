@@ -93,6 +93,68 @@ final class SketchTransformUITests: XCTestCase {
         app.buttons["Exit Sketching"].tap()
     }
 
+    func testSingleLineRequiresExplicitTransformAndCopyStillMoves() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        p(0.35, 0.42).press(forDuration: 0.15, thenDragTo: p(0.65, 0.42))
+        app.buttons["Line"].tap()
+        sleep(1)
+        p(0.75, 0.70).tap()
+        sleep(1)
+        p(0.42, 0.42).tap()
+        let mode = app.buttons["SketchTransformMode"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 3))
+        XCTAssertEqual(mode.label, "Move/Rotate")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.exists)
+        let original = label.frame
+        attach(app, "single-line-default-dimension-no-ring")
+        p(0.42, 0.42).press(forDuration: 0.3, thenDragTo: p(0.42, 0.48))
+        XCTAssertGreaterThan(label.frame.midY, original.midY + 30,
+                             "Direct body dragging remains available outside transform mode")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midY, original.midY, accuracy: 3)
+        mode.tap()
+        XCTAssertEqual(mode.label, "Done")
+        let center = CGPoint(x: window.frame.width * 0.5, y: window.frame.height * 0.42)
+        for glyph in app.buttons.matching(identifier: "ConstraintGlyph").allElementsBoundByIndex {
+            XCTAssertFalse(glyph.frame.contains(center), "Constraint glyph must not cover the move target")
+        }
+        attach(app, "single-line-explicit-before-center-drag")
+        p(0.5, 0.42).press(forDuration: 0.3, thenDragTo: p(0.58, 0.42))
+        XCTAssertGreaterThan(label.frame.midX, original.midX + 30)
+        attach(app, "single-line-explicit-move")
+        app.buttons["SketchCopyBadge"].tap()
+        p(0.58, 0.42).press(forDuration: 0.3, thenDragTo: p(0.58, 0.58))
+        XCTAssertGreaterThan(label.frame.midY, original.midY + 80)
+        XCTAssertEqual(mode.label, "Done", "Copy must retain explicit transform mode")
+        mode.tap()
+        XCTAssertEqual(mode.label, "Move/Rotate")
+        attach(app, "single-line-copy-done")
+        sleep(1)
+        p(0.75, 0.70).tap()
+        sleep(1)
+        attach(app, "single-line-copy-selection-cleared")
+        p(0.48, 0.42).tap()
+        sleep(1)
+        attach(app, "single-line-copy-original-reselected")
+        XCTAssertTrue(label.waitForExistence(timeout: 3), "Copy must leave the original line selectable")
+        XCTAssertEqual(label.frame.midY, original.midY, accuracy: 3,
+                       "Copy must not proximity-weld and translate its source")
+        attach(app, "single-line-copy-original-retained")
+    }
+
     func testRotateAroundWorldAxisTypedAngleCommitUndo() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

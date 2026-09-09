@@ -157,6 +157,44 @@ final class ConstraintApplyTests: XCTestCase {
                           "Horizontal should level the line's endpoints")
     }
 
+    func testCopiedLinesRemainIndependentThroughHistoryAndReload() throws {
+        let vm = try makeViewModel()
+        let a = line(SIMD2(0, 0), SIMD2(10, 0))
+        let b = line(SIMD2(10, 0), SIMD2(10, 5))
+        let original = Sketch(plane: .ground, entities: [a, b])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        let copies = vm.duplicateSketchEntities([a, b], in: original.id)
+        let copied = try XCTUnwrap(vm.activeSketch)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(copied))
+        let targets = SketchTransform.translate(entities: copies, by: SIMD2(0, 3))
+        let moved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(reopened, targets: targets))
+        XCTAssertEqual(Array(moved.prefix(2)), original.entities, "Copy must not move sources")
+        for index in copies.indices {
+            guard case let .line(_, a, b) = moved[index + 2],
+                  case let .line(_, c, d) = targets[index] else { return XCTFail("Expected line") }
+            XCTAssertLessThan(simd_distance(a, c), 1e-4)
+            XCTAssertLessThan(simd_distance(b, d), 1e-4)
+        }
+        XCTAssertEqual(copied.constraints.filter { $0.kind == .coincident }.count, 1)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch, copied)
+    }
+
+    func testCopyDoesNotReconnectPreviouslyDisconnectedSources() throws {
+        let vm = try makeViewModel()
+        let a = line(SIMD2(0, 0), SIMD2(10, 0))
+        let b = line(SIMD2(10, 0), SIMD2(10, 5))
+        var original = Sketch(plane: .ground, entities: [a, b])
+        original.disconnectedEndpoints = [.init(entityID: a.id, role: .endpointB)]
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        _ = vm.duplicateSketchEntities([a, b], in: original.id)
+        XCTAssertTrue(try XCTUnwrap(vm.activeSketch).constraints.isEmpty)
+    }
+
     func testDisconnectPreservesDimensionsAndIndependentMovementThroughHistoryAndReload() throws {
         let vm = try makeViewModel()
         let edges = RectangleConstruction.threePoint(a: SIMD2(0, 0), b: SIMD2(10, 2),

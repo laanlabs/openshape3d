@@ -1097,7 +1097,7 @@ struct EditorView: View {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
                     HStack {
-                    if viewModel.hasContextualSketchHandle {
+                    if viewModel.usesExplicitSketchTransform {
                         Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
                             viewModel.sketchTransformActive.toggle()
                         }
@@ -1106,7 +1106,7 @@ struct EditorView: View {
                         .accessibilityIdentifier("SketchTransformMode")
                     }
                     Button {
-                        if viewModel.hasContextualSketchHandle { viewModel.sketchTransformActive = true }
+                        if viewModel.usesExplicitSketchTransform { viewModel.sketchTransformActive = true }
                         viewModel.sketchCopyOnDrag.toggle()
                     } label: {
                         Label("Copy", systemImage: "plus.square.on.square")

@@ -965,7 +965,7 @@ final class EditorViewModel {
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if mode.sketchTool == nil, !hasContextualSketchHandle || sketchTransformActive,
+            if mode.sketchTool == nil, !usesExplicitSketchTransform || sketchTransformActive,
                let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
@@ -8229,6 +8229,16 @@ final class EditorViewModel {
         selectedSingleRadialEntity != nil || rectangleHandleGeometry != nil
     }
 
+    /// Native single-line selection exposes its dimension, not the transform
+    /// gizmo. Keep direct body/endpoint dragging; Move/Rotate or Copy opts in.
+    var usesExplicitSketchTransform: Bool {
+        if hasContextualSketchHandle { return true }
+        guard selectedSketchEntityIDs.count == 1, selectedSketchPoints.isEmpty,
+              let entity = selectedSketchEntities.first else { return false }
+        if case .line = entity { return true }
+        return false
+    }
+
     private struct RectangleEdgeDrag {
         var sketch: Sketch
         var edge: SketchEntity
@@ -8427,7 +8437,7 @@ final class EditorViewModel {
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
     private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
-        guard !hasContextualSketchHandle || sketchTransformActive else { return false }
+        guard !usesExplicitSketchTransform || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
               let centroid = sketchSelectionCentroid,
@@ -8480,18 +8490,57 @@ final class EditorViewModel {
 
     /// Clone `entities` with fresh IDs in one undo step; the copies become
     /// the selection and the drag baseline.
-    private func duplicateSketchEntities(
+    func duplicateSketchEntities(
         _ entities: [SketchEntity], in sketchID: SketchID
     ) -> [SketchEntity] {
         var copies: [SketchEntity] = []
+        var sourceIDs: [UUID: UUID] = [:]
         var commands: [DocumentCommand] = []
         for entity in entities {
             for copy in PatternKit.transformed(entity, by: .identity) {
                 copies.append(copy)
+                sourceIDs[copy.id] = entity.id
                 commands.append(AddSketchEntityCommand(sketchID: sketchID, entity: copy))
             }
         }
         guard !commands.isEmpty else { return entities }
+        // Copies initially overlap their sources. Prevent the solver's proximity
+        // weld from moving originals along with them, including after undo/reopen.
+        // Preserve coincident joins *within* the copied line group explicitly.
+        if let sketch = activeSketch {
+            var slots: [(ConstraintRef, SIMD2<Double>)] = []
+            for copy in copies {
+                if case let .line(id, a, b) = copy {
+                    slots.append((.init(entityID: id, role: .endpointA), a))
+                    slots.append((.init(entityID: id, role: .endpointB), b))
+                }
+            }
+            if !slots.isEmpty {
+                var constraints = sketch.constraints
+                for i in slots.indices {
+                    for j in slots.indices where j > i {
+                        if slots[i].0.entityID != slots[j].0.entityID,
+                           simd_distance(slots[i].1, slots[j].1) < 1e-6 {
+                            guard let firstID = sourceIDs[slots[i].0.entityID],
+                                  let secondID = sourceIDs[slots[j].0.entityID] else { continue }
+                            let first = ConstraintRef(entityID: firstID, role: slots[i].0.role)
+                            let second = ConstraintRef(entityID: secondID, role: slots[j].0.role)
+                            let explicitlyJoined = sketch.constraints.contains {
+                                $0.kind == .coincident && $0.refs.contains(first) && $0.refs.contains(second)
+                            }
+                            guard explicitlyJoined || (!sketch.disconnectedEndpoints.contains(first)
+                                && !sketch.disconnectedEndpoints.contains(second)) else { continue }
+                            constraints.append(.init(kind: .coincident,
+                                refs: [slots[i].0, slots[j].0]))
+                        }
+                    }
+                }
+                commands.append(DisconnectSketchEndpointsCommand(sketchID: sketchID,
+                    beforeConstraints: sketch.constraints, afterConstraints: constraints,
+                    beforeEndpoints: sketch.disconnectedEndpoints,
+                    afterEndpoints: sketch.disconnectedEndpoints + slots.map { $0.0 }))
+            }
+        }
         session.perform(commands.count == 1
             ? commands[0]
             : CompositeCommand(title: "Copy", commands: commands))

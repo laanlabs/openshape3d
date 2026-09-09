@@ -1,20 +1,28 @@
 # Parity continuation checkpoint
 
-September 8, 20:00 EDT. HEAD a6fda2b; verified Disconnect source/tests/docs
-ready for commit. Preexisting IDENTITY/SOUL/USER untouched. No runner active.
-Corrected Disconnect exec50274 finished0 clean34/34; initial test compile-only
-failure retained. Paired four-line edge disconnect/move/history/gallery reopen
-verified; receipt docs/testing/sketch-parity-disconnect-2026-09-08.md.
-Native MAIN FrontSketch02 selected detached top779205→838222,1200mm; other
-three sides fixed. Clone2386 portraitUntitled2 Front selected detached top
-250320→450360,2.527mm; other3sidesfixed. Both reopened while endpoints still
-touching, subsequent movement remains independent. New screenshots LOCAL ONLY.
-Exact next: commit verified four-line correction, then native midpoint/endpoint
-Disconnect comparison and generic transform-ring visual difference. Primitive
-rectangle/non-line cases remain open. Direct arcQA13 remains partial.
-Both Docs Saving/editing disabled at19:51, export verified76illustrated/36master;
-preserve tabs/recovery and do not duplicate inserts. Candidate/artifact gate
-open, no merge/device install/security changes, no duplicate watchdog.
+September 8 approximately 20:46 EDT. HEAD 541ea8e before pending commit of
+single-line explicit controls, glyph clearance and Copy source isolation. Tests
+and receipts dirty; identity files untracked/untouched. No test/build/Peekaboo
+worker active. Glyph-clearance clean3/3 + live center40px and UndoRedo passes.
+Copy correction:11unit passes (65041) plus targeted1UI pass70218 after selection
+settling fixes. Earlier 72947/65041 each failed reselection; all retained.
+Live native typed upward1000 Copy keeps original409/copy359, length1621.6547.
+Clone live Copy431→331 preserves original431/priorcopy562; UndoRedo pass.
+Final test design gallery reopened original431/copy562 each2.298 selectable,
+default no ring. Simulator2386 Top sketch with lower copy selected; native1924
+MAIN FrontSketch02 copiedline359 selected, original409 remains. Native drag
+probes inconclusive; typed-axis workflow is accepted evidence, not drag parity.
+
+Publication complete: illustrated newt15 7442C07B27B3DEA86715C808891BAD9B
+Saved,80images exported and two new Copy PNGs exacthash matched; master newt14
+77EDB2C49ACE004AFAD551FCDE5ECD9A 38images, finalfollowthrough/reopen note
+exportverified. Full audit retained. Original stalledt11/t13 six+one unsynced
+images preserved. Local line-controls + verifiedDOCX exports/index retained.
+Exact next commit/push verified change, then QA20/21 paired snap zoom/feedback
+at endpoint/midpoint/center. Remaining QA38 primitive/midpoint/non-line,
+numeric/selection matrix, directarc input, explicit axes/ring, Copy rearming,
+constraint-copy inheritance, final regression/deviceartifact. No candidate claim.
+No merge/deviceinstall/securitychanges/duplicatewatchdog.
 
 ## Verified
 

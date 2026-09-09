@@ -48,6 +48,9 @@ struct SketchConstraintOverlay: View {
             let tint = conflicting ? Color.red : Color.blue
             // Fan out glyphs that share an anchor so each stays tappable.
             let offset = CGFloat(glyph.slot) * 22
+            // Do not put a clickable constraint badge over the transform's
+            // center drag target. Native keeps these glyphs beside its axes.
+            let position = glyphPosition(anchor: anchor, offset: offset, sketchID: glyph.sketchID)
             Button {
                 viewModel.selectConstraint(glyph.id, in: glyph.sketchID)
             } label: {
@@ -66,9 +69,19 @@ struct SketchConstraintOverlay: View {
                     )
             }
             .buttonStyle(.plain)
-            .position(x: anchor.x, y: anchor.y + offset)
+            .position(position)
             .accessibilityIdentifier(
                 conflicting ? "ConstraintGlyphConflict" : "ConstraintGlyph")
         }
+    }
+
+    private func glyphPosition(anchor: CGPoint, offset: CGFloat, sketchID: SketchID) -> CGPoint {
+        let original = CGPoint(x: anchor.x, y: anchor.y + offset)
+        guard viewModel.sketchTransformActive,
+              let sketch = viewModel.activeSketch, sketch.id == sketchID,
+              let centroid = viewModel.sketchSelectionCentroid,
+              let center = viewModel.cameraControl?.worldToScreenPoint(sketch.plane.toWorld(centroid)),
+              abs(original.x - center.x) < 44, abs(original.y - center.y) < 44 else { return original }
+        return CGPoint(x: center.x - 58, y: center.y + 24 + offset)
     }
 }
