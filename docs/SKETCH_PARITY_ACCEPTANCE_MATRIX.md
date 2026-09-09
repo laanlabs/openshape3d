@@ -53,7 +53,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed/overlapping variants open. |
-| QA-49 | Profile topology | Core — partial, not passed | Trimmed open U versus intact rectangle handoff paired; nested/self-intersection open. |
+| QA-49 | Profile topology | Core — partial, not passed | Trimmed open U and nested-circle region/extrusion/history/reopen sampled; touching/gap/duplicate/self-intersection open. |
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
@@ -552,3 +552,24 @@ master38 final reopen note verified. Evidence os3d-reference-fill-native-front.p
 os3d-reference-fill-final-reopen.png, os3d-reference-fill-extrude.png and exports
 retained in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
 transform-controls. No iPad-ready claim.
+
+## September 9 — nested circle profile sample
+
+## Final sampled nested-profile result
+
+Native double-click view cube exposes default oblique view; reselect annulus
+and click0mm badge. Typed500 and committed: Body02 with visible bore. Undo
+removesBody02, Redo restores; gallery reopen retains body/bore. Clone Undo
+removes its offset-hole solid, Redo restores; gallery reopen retains it in
+oblique view. Images inspected. Native concentric and clone offset samples
+are different geometries: paired result is nested-region/extrusion/history/
+persistence behavior, not equal dimensions or complete topology acceptance.
+
+Existing ProfileTests completed clean15/15, including through-hole ray probe,
+/tmp/os3d-nested-profile-20260909.log/.xcresult, serial41439 completed0. No
+implementation changes in this lane. Illustrated147 images with both final
+reopen PNG hashes matched; master38 final15/15 note verified. Exports/evidence
+copied to durable transform-controls report. Touching loops, tiny gaps,
+duplicate edges, downstream rebuild and device artifact remain open.
+
+[Receipt](testing/sketch-parity-nested-profiles-2026-09-09.md).

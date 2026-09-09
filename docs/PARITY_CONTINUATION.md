@@ -1,20 +1,20 @@
 # Parity continuation checkpoint
 
-September9 ~03:39EDT. HEADf4319dd pushed; reference-fill correction and final
-documentation checkpoint ready to commit. Dirty VM, SketchIdentityTests, ledger,
-matrix, milestone, receipt and this checkpoint; unrelated identity files preserved.
-Serial4410 completed clean6/6; no xcodebuild/xctest/Peekaboo runner active.
-Live clone clear reference, model-mode Extrude handoff (cancelled), paired native
-and clone gallery reopen verified. Illustrated145 images/all3 final hashes and
-master38 final reopen note exported and verified.
+September9 ~03:55EDT. HEADed0a004 pushed; nested-profile acceptance documentation
+ready for checkpoint commit. No test/build/Peekaboo runner remains. Existing
+ProfileTests clean15/15; native concentric and clone offset nested-circle solids,
+Undo/Redo and paired gallery reopen inspected. Illustrated147 images/both final
+hashes and master38 final15/15 note exported and verified. No code changes for
+nested lane. Dirty receipt/ledger/matrix/milestone/checkpoint; identity files untouched.
 
-Native1924 editing03 in Front, old02 visible/clear, Items open. Clone5147 editing
-Sketch2 with inactive circle1 clear and active line2. Exact next: commit/push this
-verified fill/documentation change; continue QA49 nested profiles paired live,
-then remaining consumed/overlap/downstream/numeric/visual/sustained matrix and
-installable device artifact. No gate claim. Evidence/receipt:
-docs/testing/sketch-parity-coplanar-identity-2026-09-09.md. Preserve stalled tabs,
-30-minute watchdog and unrelated identity files. No merge/install/security changes.
+Native1924 model mode, Items open Body02/Sketch03 with bore solid retained;
+clone5147 reopened offset-hole solid, model oblique. Exact next: commit docs,
+then paired explicit named editing of consumed Sketch03/Sketch2, verify source
+geometry and downstream rebuild/visibility. Continue remaining topology/numeric/
+visual/sustained matrix and installable artifact; candidate gate still open.
+Receipt docs/testing/sketch-parity-nested-profiles-2026-09-09.md retains invalid
+attempts and scope limitations. No duplicate workers/watchdog/merge/install or
+security changes. Prior fill ed0a004 clean6/6 and145image publication verified.
 
 ## Earlier checkpoint history
 
