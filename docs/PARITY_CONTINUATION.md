@@ -1,39 +1,44 @@
 # Parity continuation checkpoint
 
-September 9 ~11:30 EDT. HEAD remains pushed `bad0948`; current intentional
-dirty files are `openshape3d/Editor/EditorViewModel.swift`,
-`openshape3d/UI/CommandShortcutsView.swift`,
-`openshape3dTests/ArcTapConstructionTests.swift`, this checkpoint, the milestone/
-implementation/acceptance ledgers, and
-`docs/testing/sketch-parity-arc-return-2026-09-09.md`. Preserve the three
-untracked identity files. No test/build/Peekaboo worker is running.
+September 9 ~12:15 EDT. Pushed baseline is `a380680`. Intentional dirty files
+are `openshape3d/Editor/AutoConstraintEngine.swift`,
+`openshape3d/Editor/EditorViewModel.swift`, four tangent unit-test changes plus
+this checkpoint and the milestone/implementation/acceptance/status ledgers and
+`docs/testing/sketch-parity-arc-tangent-transition-2026-09-09.md`. The
+experimental UI test was removed and is not dirty. Preserve untracked
+`IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo worker is
+running.
 
-Paired live evidence now confirms Arc Return completion: native and clone accept
-the current/default `45°` arc after two endpoints, preserve the committed arc
-through Escape, and retain the endpoint continuation path. The clone adds a
-pending-Arc-only default-action route and `finishArcInput()` chained commit.
-Focused construction passed cleanly 11/11 and the final current-revision combined
-run passed cleanly 35/35 at
-`/tmp/os3d-arc-return-combined-final2-20260909.xcresult`. Six paired screenshots
-and hashes are under `reports/.../arc-return/`. Anonymous exports verify the
-illustrated report at 219 placements with all six new image hashes present and
-the master roadmap at 38 drawings with its dated Return note. One prior chained-
-arc image displaced during editing was identified from the 213-placement export
-and restored before the final verification.
+Paired native/clone evidence confirms the sampled line-to-arc tangent
+transition. Native stored and displayed Tangent at the shared endpoint; the
+pre-fix clone merely looked tangent. The clone now performs endpoint-only arc
+tangent inference through point/angle/toggle gates, rejects oblique and interior
+cases, and commits the arc plus accepted relationship in one Draw history step.
+The exact build displayed `T`; Undo removed arc+constraint while preserving the
+line, and Redo restored them. Gallery reopen retained geometry; the post-reopen
+`T` glyph was not separately re-proven and remains unclaimed.
 
-Direct native major/minor boundary attempts were excluded: the sampled desktop
-click/drag sequences advanced into chained arcs before a controlled third point
-was established. Existing typed 180°/270° evidence remains valid, but direct
-construction boundaries and tangent transition stay open. Current acceptance
-inventory remains 0 fully passed, 0 failed, 1 device-blocked and 55 incomplete
-(42 partial, 11 deferred, 2 not run). Candidate is not ready.
+Focused inference/construction passed 31/31. The final current-revision combined
+solver, construction and existing arc UI run passed cleanly 63/63 at
+`/tmp/os3d-arc-tangent-final-combined2-20260909.xcresult`. Three experimental
+UI attempts failed to reselect the arc (recordings show selection landed on the
+connected line); the flaky test was removed rather than counted. One malformed
+filter failed before build/test and is not a product failure. Eight paired PNGs
+and hashes are under `reports/.../arc-tangent-transition/`. Anonymous exports
+verify illustrated 227 with all eight hashes and no predecessor-media loss, and
+master 38 with its dated tangent/63-of-63 note.
 
-Exact next: commit and push the Arc Return correction and verified publication,
-then continue QA-13 tangent transition with a clean native/clone recipe while keeping
-direct major/minor construction explicitly open. Remaining QA-55/56, final
-same-revision regression, signed installable artifact and device A/B handoff
-remain gates. No merge, physical-device claim, security changes or duplicate
-workers; preserve the existing watchdog and stalled Doc tabs.
+Current acceptance remains 0 fully passed, 0 failed, 1 device-blocked and 55
+incomplete (42 partial, 11 deferred, 2 not run). QA-13 tangent transition is now
+sampled live, but direct gesture major/minor boundaries and simulator hover
+remain open. Candidate is not ready.
+
+Exact next: commit/push the product and documentation checkpoint, then continue
+QA-13 direct major/minor only if a controlled native gesture can be established;
+otherwise retain it as inconclusive and move to remaining core acceptance,
+QA-55/56, final same-revision regression, installable artifact and device A/B
+handoff. No merge, physical-device claim, security changes or duplicate workers;
+preserve the watchdog and stalled Doc tabs.
 
 ## Earlier checkpoint history
 

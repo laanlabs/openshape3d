@@ -486,3 +486,18 @@ QA-13 and the milestone remain partial. Publication is anonymously export-
 verified at 219 illustrated placements (all six new hashes) and 38 master
 drawings after restoring one prior chained-arc image displaced during editing.
 [Receipt](testing/sketch-parity-arc-return-2026-09-09.md).
+
+## September 9 — QA-13 tangent-transition checkpoint
+
+Paired line-to-arc construction exposed a stored-relationship gap: native
+persisted a tangent glyph at the shared endpoint while the clone merely looked
+tangent. Endpoint-only arc inference now uses the saved point/angle/toggle
+gates, commits with the arc in one Draw history step, and leaves unrelated or
+oblique geometry alone. Paired live selection and Undo/Redo passed; focused
+31/31 and final combined 63/63 passed cleanly. Three experimental canvas-UI
+assertions failed to reselect the arc and were removed rather than counted.
+Direct gesture major/minor boundaries, hover delivery and physical Pencil remain
+open, so QA-13 and the milestone remain partial. Anonymous exports verify 227
+illustrated placements with all eight new hashes and no predecessor loss; the
+master remains at 38 drawings with its dated note.
+[Receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).

@@ -10,6 +10,19 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
 
+## Mission log — 2026-09-09, arc endpoint tangent transition
+
+Paired native/clone construction confirmed that a visually tangent endpoint Arc
+was not storing the native Tangent relationship. Arc third-point commit now
+performs endpoint-only inference through the saved point, angle, and setting
+gates, then commits the Arc and accepted constraint as one Draw history step.
+Native and the exact clone build both showed the tangent glyph; one-step Undo
+and Redo matched. Focused inference/construction passed 31/31 and the final
+combined solver/construction/existing-arc-UI regression passed cleanly 63/63.
+Direct gesture major/minor boundaries, hover delivery, physical Pencil/touch,
+QA-55/56, final candidate regression, and device-build handoff remain open.
+[Detailed receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
+
 ## Current baseline correction — 2026-09-07
 
 The September 5 sections below are **historical**, not the current implementation contract.

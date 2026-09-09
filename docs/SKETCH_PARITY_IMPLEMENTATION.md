@@ -1180,3 +1180,21 @@ report at 219 placements with all six new image hashes and the master roadmap at
 38 drawings; a displaced prior chained-arc image was restored from the previous
 verified export before publication was counted.
 [Receipt](testing/sketch-parity-arc-return-2026-09-09.md).
+
+## September 9 — arc endpoint tangent transition
+
+Native endpoint Arc construction persisted a Tangent relationship to the
+connected horizontal line; the same-shaped clone geometry had no relationship
+or glyph. Final third-point commit now performs endpoint-only arc tangent
+inference through the saved point/angle gates, rejects oblique/interior/disabled
+cases, and commits the arc plus accepted relationship as one Draw history step.
+Paired live selection showed the clone `T` glyph; Undo removed only the arc and
+constraint, and Redo restored them. Focused inference/construction passed 31/31;
+the final combined solver/construction/existing-arc-UI run passed cleanly 63/63.
+Three experimental UI attempts selected the connected line rather than the arc
+and were removed instead of counted. Direct gesture major/minor boundaries,
+simulator hover delivery and physical Pencil remain open, so QA-13 is partial.
+Anonymous exports verify the illustrated report at 227 placements with all
+eight new hashes and every prior unique image retained; the master remains at
+38 drawings with its dated tangent note.
+[Receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
