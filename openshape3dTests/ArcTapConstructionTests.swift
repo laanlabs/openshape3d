@@ -1,5 +1,6 @@
 import XCTest
 import SwiftData
+import simd
 @testable import openshape3d
 
 @MainActor
@@ -28,6 +29,25 @@ final class ArcTapConstructionTests: XCTestCase {
     private func startArc(_ vm: EditorViewModel) {
         vm.startSketch(tool: .arc)
         vm.handle(.tap(ray: Ray(origin: SIMD3(50, 10, 50), direction: SIMD3(0, -1, 0))))
+    }
+
+    func testDefaultArcIsFortyFiveDegreesToRightOfDirectedChord() throws {
+        for b in [SIMD2<Double>(4, 0), SIMD2(-4, 0), SIMD2(3, 4), SIMD2(0, -0.1)] {
+            let a = SIMD2<Double>(0, 0)
+            let entity = try XCTUnwrap(EditorViewModel.arcEntity(id: UUID(), a: a, b: b,
+                sagitta: EditorViewModel.defaultSagitta(a: a, b: b)))
+            guard case let .arc(_, center, radius, start, end) = entity else { return XCTFail() }
+            let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+            XCTAssertEqual(sweep, .pi / 4, accuracy: 1e-10)
+            let first = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+            let last = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+            XCTAssertEqual(simd_length(first - a), 0, accuracy: 1e-10)
+            XCTAssertEqual(simd_length(last - b), 0, accuracy: 1e-10)
+            let middle = SketchEntity.arcPoint(center: center, radius: radius, angle: start + sweep / 2)
+            let displacement = middle - (a + b) / 2
+            XCTAssertLessThan(b.x * displacement.y - b.y * displacement.x, 0,
+                              "The default bulge follows the directed chord's right side")
+        }
     }
 
     func testTwoEndpointTapsCommitOneUndoableArc() throws {

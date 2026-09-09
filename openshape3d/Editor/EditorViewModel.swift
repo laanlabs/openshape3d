@@ -10376,7 +10376,10 @@ final class EditorViewModel {
     // MARK: - Arc math (chord + sagitta → SketchEntity.arc)
 
     static func defaultSagitta(a: SIMD2<Double>, b: SIMD2<Double>) -> Double {
-        simd_length(b - a) / 4
+        // Paired native endpoint placement: start at 45 degrees on the
+        // chord's right side. Reversing the endpoints reverses the bulge.
+        // s = (chord / 2) * tan(sweep / 4).
+        -simd_length(b - a) * 0.5 * tan(.pi / 16)
     }
 
     /// The point that drags the bulge: the arc midpoint (chord mid + sagitta

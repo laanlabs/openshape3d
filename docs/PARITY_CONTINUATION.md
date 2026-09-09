@@ -1,26 +1,23 @@
 # Parity continuation checkpoint
 
-September9 ~06:03 EDT. HEAD3ca4c2d pushed; two-click arc fix/tests/docs ready
-for commit. No test runner;82401 completed0, targeted1/1. Initial93730 compile
-failure,59803 4/5pass+UI failure retained; five distinct passes across reruns.
-Fresh live clone two-click250300→450300, blankcommit, Undo/Redo, reselect and
-finalgallery reopen passed; R1.553mm/106.26° and radius keypad accessible.
-Native two-click600540→760540 gives45°; subsequent connectedarc600650→760540
-Undo/Redo and finalgallery reopen passed. Excluded accidental largeCircle remains.
-Illustrated191 placements/all4 new result hashes and master38 finalreopen note
-verified; local receipt testing/sketch-parity-direct-arc-recheck-2026-09-09.md.
-Native1924 mainUntitledProject oblique model afterreopen; Sketch03row217.
-Clone5147 Untitled/Sketch1 Ground/Top; two arcs, top selected, radius keypad open
-at350273 (value1.553). UIreset replaced old disposable Untitled2 gallery; prior
-geometry fixtures/screenshots/exports remain durable. No source topology lost
-from repository; no database writes. Preserve identity files and stalledtabs.
-Exact next: commit/push bounded two-click fix, then paired reverse-order native
-arc defaultshape/feedback/finish recheck. Current default106.26° and upward
-bulge differ from native45°/downward sample; no speculative geometry change yet.
-Remaining gate: native arc semantics/visible differences, QA55 goldenpath/dense
-sketch, QA56 downstream smoke, finalsame-revisionregression, identified signed
-installable deviceartifact. No iPad-ready claim, merge/install/securitychanges
-or duplicate watchdog/desktopworker. Existing30minute schedule preserved.
+September9 ~06:25 EDT. Baseline55b28d5 pushed; default45° correction ready
+for commit in EditorViewModel.swift, ArcTapConstructionTests.swift and
+DimensionUITests.swift plus receipt/ledger/milestone/checkpoint.
+Serial10424 completed0: clean18/18; no test/build/Peekaboo worker running.
+Live fresh forward/reverse45°, reverse Undo/Redo and paired gallery reopen
+verified. Clone selected reverse R3.239/45°; forward R3.247/45° retained.
+Native mainUntitledProject model view after reopening; provisional continuation
+cancelled with Escape before Home. Return/chaining still open.
+Illustrated197 placements/all4 result hashes and master38 final note verified;
+local os3d-arc-default-final-illustrated/master.docx and PNGs in durable
+reports/openshape3d-core-sketch-milestone-2026-09-08/transform-controls.
+Exact next: commit/push verified default curvature, then compare pending arc
+radius/sweep feedback and off-canvas leader; fix confirmed presentation gap.
+Clone5147 at275,44; native1924 at99,79. Exclusive desktop owner this session.
+Remaining visible/core matrix, QA55dense/golden path, QA56downstream smoke,
+finalsame-revision regression and signed installable device artifact/checklist.
+Preserve identity files, stalled Doc tabs and30minwatchdog. No merge/device
+installation/security changes or duplicate workers. Candidate not ready.
 
 ## Earlier checkpoint history
 

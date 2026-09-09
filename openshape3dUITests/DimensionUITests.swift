@@ -165,8 +165,8 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
         // Committing the pending arc does not select it. Select its default
-        // sagitta midpoint (a quarter chord length above the baseline).
-        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        // 45-degree sagitta midpoint below the left-to-right chord.
+        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
         p(0.475, bulgeY).tap()
         sleep(1)
         let labels = app.buttons.matching(identifier: "DimensionLabel")
@@ -177,8 +177,8 @@ final class DimensionUITests: XCTestCase {
         app.buttons["SketchCopyBadge"].tap()
         XCTAssertFalse(radialHandle.exists)
         // Explicit arc transform uses its visible bounds center: halfway
-        // between the quarter-chord sagitta and the chord, not circle center.
-        let centerY = 0.55 - 0.04375 * window.frame.width / window.frame.height
+        // between the 45-degree sagitta and the chord, not circle center.
+        let centerY = 0.55 + 0.0875 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
         p(0.475, centerY).press(forDuration: 0.2, thenDragTo: p(0.595, centerY))
         sleep(1)
         XCTAssertEqual(app.buttons["SketchTransformMode"].label, "Done")
@@ -218,7 +218,7 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
         sleep(1)
-        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
         p(0.475, bulgeY).tap()
         sleep(1)
         attach(app, "arc-two-tap-reselected")
@@ -248,8 +248,8 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
         // Committing the pending arc does not select it. Select its default
-        // sagitta midpoint (a quarter chord length above the baseline).
-        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        // 45-degree sagitta midpoint below the left-to-right chord.
+        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
         p(0.475, bulgeY).tap()
         sleep(1)
         attach(app, "arc-selected-before-sweep-editor")
@@ -263,10 +263,10 @@ final class DimensionUITests: XCTestCase {
         let handle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
         let arcRimY = window.frame.minY + window.frame.height * bulgeY
-        XCTAssertLessThan(handle.frame.midY, arcRimY - 5,
+        XCTAssertGreaterThan(handle.frame.midY, arcRimY + 5,
                           "Radial handle must sit beyond the arc, not inside it from a safe-area offset")
         let grab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: 40)))
         sleep(1)
         XCTAssertNotEqual(radius.label, undrivenRadius)
         XCTAssertEqual(angle.label, beforeAngle)
@@ -284,7 +284,7 @@ final class DimensionUITests: XCTestCase {
         attach(app, "arc-radius-two-sweep-retained")
         let beforeRadius = radius.label
         let drivenGrab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        drivenGrab.press(forDuration: 0.15, thenDragTo: drivenGrab.withOffset(CGVector(dx: 0, dy: -40)))
+        drivenGrab.press(forDuration: 0.15, thenDragTo: drivenGrab.withOffset(CGVector(dx: 0, dy: 40)))
         XCTAssertEqual(radius.label, beforeRadius)
         XCTAssertTrue(app.staticTexts["Locked or constrained sketch parts can't be moved."].exists)
         let transformMode = app.buttons["SketchTransformMode"]

@@ -429,3 +429,13 @@ UI failure retained). Fresh live creation/history/reselect/keypad and paired
 gallery reopen verified. Illustrated191 placements/new4 hashes and master38
 finalnote verified. Default45° versus106.26°, pending feedback and bulge/finish
 remain open; not fullQA13. [Receipt](testing/sketch-parity-direct-arc-recheck-2026-09-09.md).
+
+## September 9 — new arc default curvature
+
+Native forward/reverse endpoint inputs produce45° on the directed chord's right
+side; clone produced106.26° on the opposite side. Corrected new construction
+only; saved arcs unchanged. Clean18/18 construction/analytic/arcUI checks; live
+forward/reverse, Undo/Redo and paired gallery reopen verified. Illustrated197
+placements/all4 new hashes and master38 final note export verified. Pending
+radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
+[Receipt](testing/sketch-parity-arc-default-shape-2026-09-09.md).
