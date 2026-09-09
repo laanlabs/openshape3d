@@ -1,16 +1,16 @@
 # Parity continuation checkpoint
 
-September8 ~23:29EDT. HEAD7ec7bca; local-frame/history change verified ready
-to commit. No runner active. Final44749 clean19/19; live45→X1 diagonal, tangent
-rotation glyph, Undo/Redo closing explicit mode and clone reopen verified.
-Native accepted Escape→Exit Sketch→Home reopen retains811426,R539.1552/180.
-Illustrated98/new4 hashes and master38 final note exported; all local copies
-in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/transform-controls.
-Exact next commit/push frame/history correction; then paired symmetric-circle
-transform frame/annotation visibility, direct drag and remaining core matrix.
-Simulator5147 at27544 Untitled2 selected reopened arc394380,R1.241/106.26.
-Native1924 at9979 MAINFront selected arc811426,R539.1552/180 (normal sketch).
-No duplicate workers/watchdog; no merge/device installation/security changes.
+September8 ~23:42EDT. HEAD427f17d; circle-frame correction verified readycommit.
+No runner active.97346clean19/19, live45frame/X1diagonal/UndoMove+Frame/Redo
+and galleryreopen507593Ø0.992 verified. Illustrated100/new2 hashes and master38
+finalnote exported (firstexportlagged99; repeatverified100).
+Exactnext commitcirclefix; compare nativefree-vs-driven dimension visibility in
+Move/Rotate thenfix confirmed rail/layout gaps. Native screenshots hideconstraint
+rail inexplicittransform; clonekeepsrail whichcoversretainedXvalue near rightedge.
+Diametertext alsooverlaps rotatedXarrow thoughXtapworks.
+Simulator5147 Untitled2reopenedselectedcircle507593Ø0.992,normalmode. Native1924
+MAINFront normalmodeaftercircle45Undo; circle801292Ø1000,arc811426R539.1552/180.
+No duplicateworkers/watchdog/merge/deviceinstall/security/restartchanges.
 
 ## Earlier checkpoint history
 

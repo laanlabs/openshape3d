@@ -8776,7 +8776,16 @@ final class EditorViewModel {
                 drag.showedBlockedNotice = true
                 sketchGizmoDrag = drag
             }
-            guard solved != (drag.undoEntities ?? drag.baselineSketch.entities) || drag.pushed else { return }
+            // A circle rotated about its center has unchanged geometry, but
+            // native retains the rotated operation frame and an Undo step.
+            // Record that accepted operation without perturbing its center,
+            // radius, or constraints just to force a geometric difference.
+            let circleFrameOnly = activeSketchTransformControl == .rotation
+                && drag.originals.count == 1
+                && drag.originals.allSatisfy { if case .circle = $0 { return true }; return false }
+                && after == drag.originals
+                && retainedSketchTransform?.value != activeSketchTransformValue
+            guard solved != (drag.undoEntities ?? drag.baselineSketch.entities) || drag.pushed || circleFrameOnly else { return }
             let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
                 before: drag.undoEntities ?? drag.baselineSketch.entities, after: solved)
             if drag.pushed { session.amend(command) }

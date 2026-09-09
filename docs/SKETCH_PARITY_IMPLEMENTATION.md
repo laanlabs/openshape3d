@@ -853,3 +853,9 @@ Illustrated98 images/new4 hashes and master final note exported. Full receipt
 remains [explicit transforms](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
 Remaining annotations, direct rotated drags, symmetric circle frame and full
 numeric/selection/device-candidate acceptance stay open.
+
+Circle frame-only transform: native45 retains local frame/value despite unchanged
+circle geometry. Clone now records this accepted operation without geometric
+perturbation; Undo consumes it rather than prior creation. Clean19/19 plus live
+frame/X/history/reopen verified; illustrated100/new2 hashes and master note
+exported. Transform rail and annotation overlap/clipping remain next gaps.

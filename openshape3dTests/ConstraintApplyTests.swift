@@ -157,6 +157,31 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.entities, moved)
     }
 
+    func testCircleRotationRetainsFrameWithoutGeometryPerturbationOrHistoryFallthrough() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)
+        let sketch = openSketch(vm, entities: [circle])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
+        XCTAssertEqual(vm.activeSketch?.entities, [circle])
+        XCTAssertEqual(vm.sketchTransformFrameAngle, .pi / 4, accuracy: 1e-8)
+        XCTAssertEqual(vm.retainedSketchTransformValue(.rotation), 45)
+        vm.undo()
+        XCTAssertFalse(vm.sketchTransformActive)
+        XCTAssertEqual(vm.activeSketch?.entities, [circle], "Undo the frame, not circle creation")
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch?.entities, [circle])
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
+        XCTAssertTrue(vm.commitSketchTransformControl(.x, text: "2 mm"))
+        guard case let .circle(_, center, radius) = vm.activeSketch?.entities.first else { return XCTFail() }
+        XCTAssertEqual(center.x, 2 + sqrt(2), accuracy: 1e-5)
+        XCTAssertEqual(center.y, 3 + sqrt(2), accuracy: 1e-5)
+        XCTAssertEqual(radius, 4, accuracy: 1e-5)
+    }
+
     func testExactSketchAxisInputPreservesDiameterAndLocksAndHistory() throws {
         let vm = try makeViewModel(), id = UUID()
         let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)

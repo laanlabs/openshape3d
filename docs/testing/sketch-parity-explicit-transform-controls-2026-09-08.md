@@ -130,3 +130,26 @@ final local-frame/history/reopen note exported. No runner active.
 Remaining: transform annotation visibility/placement, direct rotated handle-drag
 matrix, symmetric circle frame behavior, remaining numeric/selection recipes and
 final installable candidate gate. No full parity/device readiness claim.
+
+## Symmetric-circle frame correction under verification
+Native selectedcircle801292 Ø1000 keeps geometry unchanged after inspected45
+rotation but retains45value/rotatedaxes. Undo closesmode without undoing preceding
+accepted arcXmove (arc811426 remains). Clonecircle450650 Ø0.992 after45 drops
+value/frame because no geometry command pushed. Confirmed screenshots
+os3d-circle-frame-native-before/input/45/undo.png and clone-input/45.png.
+Correction records circle frame-only accepted rotation in existing command history
+with identical before/after geometry; do not perturb center/radius to force change.
+This retains frame and ensures Undo consumes operation rather than prior creation.
+Scoped to single circle rotation whose target geometry equals original.
+97346 serial /tmp/os3d-circle-frame-20260908.log/.xcresult owns simulator;
+ConstraintApply unit suite/new frame-history test plus exact-axis UI.
+
+97346 passed clean19/19 (18unit,1UI). Livecircle45 retainsframe/value with
+center450650/Ø0.992unchanged. X1 moves507593; Undo move thenframe preserves
+circle, Redo restoresmove. Gallery reopen/reselect retains507593/Ø0.992.
+Illustrated firstexport99images lackedlastcloneimage; secondexport100images
+includes both new paired PNG hashes. Master circle final-reopen note exported.
+Remaining confirmed visual gaps: diameter text overlaps rotatedX arrow (Xstill
+openscorrecteditor); retainedXvalue hides under right constraint rail. Native
+explicitMove/Rotate screenshots have no constraint rail; clonekeepsit.
+Next compare free-vs-driven dimension visibility and correct transform rail/layout.
