@@ -198,6 +198,39 @@ final class DimensionUITests: XCTestCase {
         XCTAssertEqual(radialHandle.frame.midX, copiedFrame.midX, accuracy: 2)
     }
 
+    func testArcTwoTapEndpointsExposeEditableCommittedArc() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Arc")
+        sleep(1) // settle the final Look at Sketch transition before tap acquisition
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.3, 0.55).tap()
+        sleep(1)
+        p(0.65, 0.55).tap()
+        sleep(1)
+        attach(app, "arc-two-tap-pending")
+        p(0.48, 0.35).tap()
+        sleep(1)
+        tapPaletteTool(app, group: "Sketch", label: "Arc")
+        sleep(1)
+        let bulgeY = 0.55 - 0.0875 * window.frame.width / window.frame.height
+        p(0.475, bulgeY).tap()
+        sleep(1)
+        attach(app, "arc-two-tap-reselected")
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        let radius = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "R")).firstMatch
+        XCTAssertTrue(radius.waitForExistence(timeout: 3))
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label CONTAINS %@", "°")).firstMatch.exists)
+        radius.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        attach(app, "arc-two-tap-radius-editor")
+    }
+
     func testArcSweepBadgeEditAndUndoRetainRadius() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -4987,6 +4987,7 @@ final class EditorViewModel {
         scaleEntryActive = false
         // Pending sketch state may reference entities that no longer exist.
         pendingArc = nil
+        arcTapStart = nil
         adjustingArcBulge = false
         clearChain()
         sketchEntityDrag = nil
@@ -8867,6 +8868,24 @@ final class EditorViewModel {
             placePendingSymbol(ray: ray)
             return
         }
+        if tool == .arc, pendingArc == nil {
+            guard let raw = rawSketchPoint(from: ray) else { return }
+            let point = SnapEngine.snap(raw, in: activeSketch,
+                faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions,
+                tolerance: sketchSnapTolerance).point
+            clearChain()
+            if let start = arcTapStart {
+                guard simd_length(point - start) > 1e-6 else { return }
+                pendingArc = PendingArc(a: start, b: point,
+                    sagitta: Self.defaultSagitta(a: start, b: point))
+                arcTapStart = nil
+            } else {
+                arcTapStart = point
+                selectedSketchEntityIDs.removeAll()
+                selectedSketchPoints.removeAll()
+            }
+            return
+        }
         if pendingArc != nil {
             // Tap elsewhere finalizes the bulge-adjustable pending arc.
             clearChain()
@@ -9449,6 +9468,7 @@ final class EditorViewModel {
         var sagitta: Double
     }
     var pendingArc: PendingArc?
+    private var arcTapStart: SIMD2<Double>?
     private var adjustingArcBulge = false
 
     var pendingArcEntity: SketchEntity? {
@@ -10343,6 +10363,7 @@ final class EditorViewModel {
 
     /// Commits the pending arc (next tool action / tap elsewhere / exit).
     func commitPendingArc() {
+        arcTapStart = nil
         guard let arc = pendingArc else { return }
         pendingArc = nil
         adjustingArcBulge = false

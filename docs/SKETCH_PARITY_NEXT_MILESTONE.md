@@ -419,3 +419,13 @@ at existing node precision fixes it without editing geometry. Corrected clean
 paired final reopen pass. Illustrated184/all5 hashes; master38 final note
 verified. Initial pass and subsequent failure retained in audit.
 [Receipt](testing/sketch-parity-partial-overlap-stability-2026-09-09.md).
+
+## QA-13 endpoint input checkpoint — September 9
+
+Native two endpoint clicks created an arc; clone ignored them. Added the missing
+route into existing pending-arc construction. Five distinct regression checks
+pass across corrected/targeted runs (initial compile failure and immediate-input
+UI failure retained). Fresh live creation/history/reselect/keypad and paired
+gallery reopen verified. Illustrated191 placements/new4 hashes and master38
+finalnote verified. Default45° versus106.26°, pending feedback and bulge/finish
+remain open; not fullQA13. [Receipt](testing/sketch-parity-direct-arc-recheck-2026-09-09.md).

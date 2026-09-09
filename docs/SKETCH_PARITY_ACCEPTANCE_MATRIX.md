@@ -53,8 +53,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed named entry/bore rebuild/history/reopen sampled; overlapping selection variants open. |
-| QA-49 | Profile topology | Core — partial, not passed | Trimmed open U and nested-circle region/extrusion/history/reopen sampled; touching/gap/duplicate/self-intersection open. |
-| QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
+| QA-49 | Profile topology | Core — partial, not passed | Paired visible-gap closure, nested holes, shared/point-touch boundaries, duplicate/partial-overlap and straight bow-tie regions/history/reopen verified through 3ca4c2d. Curved intersections and tiny thresholds unverified; not complete topology coverage. |
+| QA-50 | Sketch-to-solid | Core — partial, not passed | Pentagon, nested-hole bore, duplicate-boundary block and bow-tie triangle extrusion/history/reopen paired. Consumed source bore rebuild paired; Sweep/Loft smoke remains open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |

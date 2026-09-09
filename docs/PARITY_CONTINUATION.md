@@ -1,20 +1,26 @@
 # Parity continuation checkpoint
 
-September 9 ~05:34 EDT. HEAD4b510a0 pushed; partial-overlap stability fix/tests/
-docs ready for commit. Red28983 failed, corrected19359 clean43/43 completed0.
-No runner. Saved profile recovered; paired freshpartial+continuedline Undo/Redo,
-finalgallery reopen and independent profile selection passed. Read-only saved
-fixture captured; no database writes. Illustrated184 placements/all5 new hashes,
-master38 final43/43 and reopen note verified. Receipt testing/sketch-parity-
-partial-overlap-stability-2026-09-09.md; evidence/exports durable.
-Native1924 oblique first touching profile selected at878507; source03 row217.
-Clone5147 oblique first touching profile Extrude open; Cancel550846, source2
-visible, Items icon487298 (three bodies). Exact next: commit/push stability fix,
-review candidate gate and remaining bounded core acceptance; prioritize golden
-path/downstream/persistence checks and identify installable device artifact.
-Curved intersections/tiny thresholds remain known unverified limits, not full
-parity. Preserve identity files/stalled tabs/watchdog; no merge/install/security
-changes or duplicate desktop workers.
+September9 ~06:03 EDT. HEAD3ca4c2d pushed; two-click arc fix/tests/docs ready
+for commit. No test runner;82401 completed0, targeted1/1. Initial93730 compile
+failure,59803 4/5pass+UI failure retained; five distinct passes across reruns.
+Fresh live clone two-click250300→450300, blankcommit, Undo/Redo, reselect and
+finalgallery reopen passed; R1.553mm/106.26° and radius keypad accessible.
+Native two-click600540→760540 gives45°; subsequent connectedarc600650→760540
+Undo/Redo and finalgallery reopen passed. Excluded accidental largeCircle remains.
+Illustrated191 placements/all4 new result hashes and master38 finalreopen note
+verified; local receipt testing/sketch-parity-direct-arc-recheck-2026-09-09.md.
+Native1924 mainUntitledProject oblique model afterreopen; Sketch03row217.
+Clone5147 Untitled/Sketch1 Ground/Top; two arcs, top selected, radius keypad open
+at350273 (value1.553). UIreset replaced old disposable Untitled2 gallery; prior
+geometry fixtures/screenshots/exports remain durable. No source topology lost
+from repository; no database writes. Preserve identity files and stalledtabs.
+Exact next: commit/push bounded two-click fix, then paired reverse-order native
+arc defaultshape/feedback/finish recheck. Current default106.26° and upward
+bulge differ from native45°/downward sample; no speculative geometry change yet.
+Remaining gate: native arc semantics/visible differences, QA55 goldenpath/dense
+sketch, QA56 downstream smoke, finalsame-revisionregression, identified signed
+installable deviceartifact. No iPad-ready claim, merge/install/securitychanges
+or duplicate watchdog/desktopworker. Existing30minute schedule preserved.
 
 ## Earlier checkpoint history
 
