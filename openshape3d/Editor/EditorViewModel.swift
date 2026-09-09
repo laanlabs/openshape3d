@@ -4988,6 +4988,10 @@ final class EditorViewModel {
         // Pending sketch state may reference entities that no longer exist.
         pendingArc = nil
         arcTapStart = nil
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
         adjustingArcBulge = false
         clearChain()
         sketchEntityDrag = nil
@@ -7972,6 +7976,11 @@ final class EditorViewModel {
 
     /// In-progress entity during a sketch drag (rubber band).
     var pendingEntity: SketchEntity?
+    /// A chained Arc stays armed after its third-point commit. Pointer/Pencil
+    /// hover previews the next chord from the prior endpoint without advancing
+    /// the tap state; the next click still owns endpoint two.
+    private var arcEndpointHoverPreviewActive = false
+    private let arcEndpointPreviewID = UUID()
     private var sketchStrokeStart: SIMD2<Double>?
     /// Where the drag currently is, plane-local. Only the live dimension
     /// readout needs it — a circle's Ø leader swings to follow the finger.
@@ -8882,6 +8891,8 @@ final class EditorViewModel {
             clearChain()
             if let start = arcTapStart {
                 guard simd_length(point - start) > 1e-6 else { return }
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
                 pendingArc = PendingArc(a: start, b: point,
                     sagitta: Self.defaultSagitta(a: start, b: point))
                 arcTapStart = nil
@@ -8893,9 +8904,15 @@ final class EditorViewModel {
             return
         }
         if pendingArc != nil {
-            // Tap elsewhere finalizes the bulge-adjustable pending arc.
+            // Pointer/Pencil hover normally establishes the third-point shape.
+            // A touch-only device has no hover, so the committing tap must also
+            // apply its location before finalizing the arc.
+            if var arc = pendingArc, let raw = rawSketchPoint(from: ray) {
+                arc.sagitta = Self.clampedSagitta(Self.signedSagitta(of: raw, arc: arc), arc: arc)
+                pendingArc = arc
+            }
             clearChain()
-            commitPendingArc()
+            commitPendingArc(chain: true)
             return
         }
         // Line tool: taps place polyline vertices (extend the chain / close the
@@ -9536,6 +9553,10 @@ final class EditorViewModel {
               editingDimension == nil else { return }
         pendingArc = nil
         arcTapStart = nil
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
         adjustingArcBulge = false
         activeGuides = []
         activeSnap = nil
@@ -9559,13 +9580,46 @@ final class EditorViewModel {
         _ = clearLinePreviewIfNeeded()
     }
 
-    /// Rubber-band preview for the line tool: while a tap-chain is open, show the
-    /// segment from the current anchor to the hovered point (pointer/Pencil),
-    /// snapped, and flag when the hover sits on the chain's start so the next tap
-    /// closes the loop. A nil ray (hover left) or a non-line-chain state clears
-    /// it. Returns true when the visible state changed so the viewport redraws.
+    /// Pointer/Pencil-hover previews for tap-built sketch tools. An arc's third
+    /// point is the hovered point after its two endpoints; Line and Rectangle
+    /// retain their existing rubber-band previews below. A nil ray keeps an
+    /// arc's last valid shape and clears only the transient line preview.
     @discardableResult
     func updateLinePreview(ray: Ray?) -> Bool {
+        if mode.sketchTool == .arc, var arc = pendingArc,
+           let ray, let raw = rawSketchPoint(from: ray) {
+            let before = arc.sagitta
+            arc.sagitta = Self.clampedSagitta(Self.signedSagitta(of: raw, arc: arc), arc: arc)
+            pendingArc = arc
+            return abs(before - arc.sagitta) > 1e-9
+        }
+        if mode.sketchTool == .arc, pendingArc == nil, let start = arcTapStart {
+            let previous = pendingEntity
+            guard let ray, let sketch = activeSketch,
+                  let raw = rawSketchPoint(from: ray) else {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+                return previous != nil
+            }
+            let snap = SnapEngine.snap(raw, in: sketch,
+                faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions,
+                tolerance: sketchSnapTolerance)
+            guard simd_length(snap.point - start) > 1e-6 else {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+                return previous != nil
+            }
+            pendingEntity = Self.arcEntity(id: arcEndpointPreviewID, a: start, b: snap.point,
+                sagitta: Self.defaultSagitta(a: start, b: snap.point))
+            sketchStrokeCurrent = snap.point
+            activeSnap = snap.snappedToPoint ? (snap.kind, snap.point) : nil
+            arcEndpointHoverPreviewActive = pendingEntity != nil
+            return previous != pendingEntity
+        }
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
         // Before the first click, identify the point the line would start on.
         // This is feedback only: do not create an anchor, segment or undo entry.
         if mode.sketchTool == .line, !tapChainActive, sketchStrokeStart == nil {
@@ -10391,15 +10445,24 @@ final class EditorViewModel {
     }
 
     /// Commits the pending arc (next tool action / tap elsewhere / exit).
-    func commitPendingArc() {
-        arcTapStart = nil
+    func commitPendingArc(chain: Bool = false) {
+        if !chain {
+            arcTapStart = nil
+            if arcEndpointHoverPreviewActive {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+            }
+        }
         guard let arc = pendingArc else { return }
         pendingArc = nil
+        pendingEntity = nil
+        arcEndpointHoverPreviewActive = false
         adjustingArcBulge = false
         guard case .sketching(let sketchID, _) = mode,
               let entity = Self.arcEntity(id: arc.id, a: arc.a, b: arc.b, sagitta: arc.sagitta)
         else { return }
         session.perform(AddSketchEntityCommand(sketchID: sketchID, entity: entity))
+        arcTapStart = chain ? arc.b : nil
     }
 
     // MARK: - Arc math (chord + sagitta → SketchEntity.arc)

@@ -216,6 +216,15 @@ regression. Remaining transform candidate/driven annotation visibility, overlap,
 rotated direct-drag/Copy/compact coverage and full core matrix remain open.
 No installable candidate or physical-device sign-off yet.
 
+## September 9 — QA-13 third-point/chaining update
+
+Native direct Arc now has an unambiguous recipe: two endpoints, a hovered/clicked
+third point, then automatic shared-endpoint continuation. OpenShape3D matches the
+available click/touch route and has automated hover coverage; final relevant
+regression is clean 34/34. Major/minor boundary and tangent-transition cases
+remain open, as does physical Pencil input, so QA-13 and the milestone remain
+partial.
+
 Prepared [physical iPad A/B checklist](SKETCH_PARITY_DEVICE_AB.md) September9.
 Artifact fields explicitly pending; configuration is not installation/signing proof.
 

@@ -1151,3 +1151,18 @@ tests passed 6/6 after one recorded compile-only fixture failure. The installed
 binary then matched native live: first Escape retained only the committed arc;
 second Escape exited sketching.
 [Receipt](testing/sketch-parity-arc-cancellation-2026-09-09.md).
+
+## September 9 — arc third point and chained continuation
+
+An isolated native recheck established the actual direct-Arc contract: pointer
+hover chooses the third point, click commits it, and the prior endpoint
+automatically starts the next chained arc. The clone now updates pending sagitta
+from hover or a touch-only third tap, retains the second endpoint as the next
+anchor, previews the next arc without premature commit, and cancels that
+transient chain without history mutation. Final current-revision regression
+passed cleanly 34/34 after recording and correcting obsolete UI fixture
+assumptions. Exact-binary live clicks verified third-point shaping and shared
+endpoint continuation; simulator hover delivery remains automated-only.
+Illustrated publication is export-verified at 213 placements with six new
+paired captures; the master remains at 38 images.
+[Receipt](testing/sketch-parity-arc-third-point-chaining-2026-09-09.md).

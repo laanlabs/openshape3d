@@ -59,13 +59,119 @@ final class ArcTapConstructionTests: XCTestCase {
         tap(vm, SIMD2(14, 10))
         XCTAssertNotNil(vm.pendingArc)
         XCTAssertTrue(vm.activeSketch!.entities.isEmpty)
-        let expected = try XCTUnwrap(vm.pendingArcEntity)
-        tap(vm, SIMD2(20, 20))
-        XCTAssertEqual(vm.activeSketch!.entities, [expected])
+        let third = EditorViewModel.arcBulgePoint(of: try XCTUnwrap(vm.pendingArc))
+        tap(vm, third)
+        let committed = vm.activeSketch!.entities
+        XCTAssertEqual(committed.count, 1)
         vm.undo()
         XCTAssertTrue(vm.activeSketch!.entities.isEmpty)
         vm.redo()
+        XCTAssertEqual(vm.activeSketch!.entities, committed)
+    }
+
+    func testHoverThirdPointShapesPendingArcBeforeClickCommit() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        tap(vm, SIMD2(10, 10))
+        tap(vm, SIMD2(14, 10))
+        let initial = try XCTUnwrap(vm.pendingArc)
+        let plane = try XCTUnwrap(vm.activeSketch?.plane)
+        let third = SIMD2<Double>(12, 14)
+        let ray = Ray(origin: SIMD3<Float>(plane.toWorld(third) + plane.normal * 10),
+                      direction: SIMD3<Float>(-plane.normal))
+
+        XCTAssertTrue(vm.updateLinePreview(ray: ray))
+        let shaped = try XCTUnwrap(vm.pendingArc)
+        XCTAssertNotEqual(shaped.sagitta, initial.sagitta)
+        XCTAssertEqual(shaped.a, initial.a)
+        XCTAssertEqual(shaped.b, initial.b)
+        let expected = try XCTUnwrap(vm.pendingArcEntity)
+        XCTAssertFalse(vm.updateLinePreview(ray: nil),
+                       "leaving hover keeps the last valid third-point shape")
+
+        tap(vm, third)
+
+        XCTAssertNil(vm.pendingArc)
         XCTAssertEqual(vm.activeSketch!.entities, [expected])
+        XCTAssertEqual(vm.mode.sketchTool, .arc)
+    }
+
+    func testThirdTapShapesAndCommitsArcWithoutHover() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        tap(vm, SIMD2(10, 10))
+        tap(vm, SIMD2(14, 10))
+        let initial = try XCTUnwrap(vm.pendingArc)
+        let third = SIMD2<Double>(12, 14)
+
+        tap(vm, third)
+
+        XCTAssertNil(vm.pendingArc)
+        guard case let .arc(_, center, radius, start, end) = try XCTUnwrap(vm.activeSketch?.entities.first)
+        else { return XCTFail("third tap must commit an arc") }
+        let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+        XCTAssertNotEqual(sweep, .pi / 4, accuracy: 1e-6)
+        let first = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+        let last = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+        let forward = simd_length(first - initial.a) + simd_length(last - initial.b)
+        let reverse = simd_length(first - initial.b) + simd_length(last - initial.a)
+        XCTAssertEqual(min(forward, reverse), 0, accuracy: 1e-9)
+        XCTAssertTrue(center.x.isFinite)
+    }
+
+    func testCommittedArcAutomaticallyAnchorsNextEndpointPreviewAndTap() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        let shared = SIMD2<Double>(14, 10)
+        tap(vm, SIMD2(10, 10))
+        tap(vm, shared)
+        tap(vm, SIMD2(12, 14))
+        XCTAssertEqual(vm.activeSketch?.entities.count, 1)
+
+        let nextEndpoint = SIMD2<Double>(18, 12)
+        let plane = try XCTUnwrap(vm.activeSketch?.plane)
+        let ray = Ray(origin: SIMD3<Float>(plane.toWorld(nextEndpoint) + plane.normal * 10),
+                      direction: SIMD3<Float>(-plane.normal))
+        XCTAssertTrue(vm.updateLinePreview(ray: ray))
+        guard case let .arc(_, center, radius, start, end) = try XCTUnwrap(vm.pendingEntity)
+        else { return XCTFail("post-commit hover must preview the next arc") }
+        let previewA = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+        let previewB = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+        XCTAssertEqual(min(simd_length(previewA - shared), simd_length(previewB - shared)),
+                       0, accuracy: 1e-9)
+
+        tap(vm, nextEndpoint)
+
+        XCTAssertNil(vm.pendingEntity)
+        XCTAssertEqual(vm.pendingArc?.a, shared)
+        XCTAssertEqual(vm.pendingArc?.b, nextEndpoint)
+        XCTAssertEqual(vm.activeSketch?.entities.count, 1,
+                       "the chained endpoint tap must not commit the next arc early")
+    }
+
+    func testEscapeAfterCommittedArcDropsChainedPreviewWithoutHistory() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        tap(vm, SIMD2(10, 10))
+        tap(vm, SIMD2(14, 10))
+        tap(vm, SIMD2(12, 14))
+        let committed = vm.activeSketch!.entities
+        let undoDepth = vm.session.undoStack.undoCommands.count
+
+        let plane = try XCTUnwrap(vm.activeSketch?.plane)
+        let point = SIMD2<Double>(18, 12)
+        let ray = Ray(origin: SIMD3<Float>(plane.toWorld(point) + plane.normal * 10),
+                      direction: SIMD3<Float>(-plane.normal))
+        XCTAssertTrue(vm.updateLinePreview(ray: ray))
+        XCTAssertNotNil(vm.pendingEntity)
+
+        vm.cancelArcInput()
+
+        XCTAssertNil(vm.pendingEntity)
+        XCTAssertNil(vm.pendingArc)
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertEqual(vm.activeSketch!.entities, committed)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoDepth)
     }
 
     func testToolSwitchDropsOnlyUnfinishedFirstEndpoint() throws {
@@ -125,4 +231,5 @@ final class ArcTapConstructionTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch!.entities, [committed])
         XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoDepth)
     }
+
 }

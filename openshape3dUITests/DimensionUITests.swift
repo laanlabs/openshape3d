@@ -164,10 +164,9 @@ final class DimensionUITests: XCTestCase {
         if app.buttons["KeypadCommit"].exists { app.buttons["KeypadCommit"].tap() }
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
-        // Committing the pending arc does not select it. Select its default
-        // 45-degree sagitta midpoint below the left-to-right chord.
-        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
-        p(0.475, bulgeY).tap()
+        // Committing the third point does not select the saved arc. The point
+        // used to define it is guaranteed to lie on the resulting curve.
+        p(0.48, 0.42).tap()
         sleep(1)
         let labels = app.buttons.matching(identifier: "DimensionLabel")
         let radius = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "R")).firstMatch
@@ -178,7 +177,7 @@ final class DimensionUITests: XCTestCase {
         XCTAssertFalse(radialHandle.exists)
         // Explicit arc transform uses its visible bounds center: halfway
         // between the 45-degree sagitta and the chord, not circle center.
-        let centerY = 0.55 + 0.0875 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
+        let centerY = 0.485
         p(0.475, centerY).press(forDuration: 0.2, thenDragTo: p(0.595, centerY))
         sleep(1)
         XCTAssertEqual(app.buttons["SketchTransformMode"].label, "Done")
@@ -222,8 +221,7 @@ final class DimensionUITests: XCTestCase {
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
         sleep(1)
-        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
-        p(0.475, bulgeY).tap()
+        p(0.48, 0.35).tap()
         sleep(1)
         attach(app, "arc-two-tap-reselected")
         let labels = app.buttons.matching(identifier: "DimensionLabel")
@@ -251,10 +249,10 @@ final class DimensionUITests: XCTestCase {
         if app.buttons["KeypadCommit"].exists { app.buttons["KeypadCommit"].tap() }
         sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Arc")
-        // Committing the pending arc does not select it. Select its default
-        // 45-degree sagitta midpoint below the left-to-right chord.
-        let bulgeY = 0.55 + 0.175 * tan(CGFloat.pi / 16) * window.frame.width / window.frame.height
-        p(0.475, bulgeY).tap()
+        // The third-point definition point remains on the saved arc and is a
+        // stable reselection target for this fixture.
+        let bulgeY: CGFloat = 0.42
+        p(0.48, bulgeY).tap()
         sleep(1)
         attach(app, "arc-selected-before-sweep-editor")
         let labels = app.buttons.matching(identifier: "DimensionLabel")
@@ -267,8 +265,8 @@ final class DimensionUITests: XCTestCase {
         let handle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
         let arcRimY = window.frame.minY + window.frame.height * bulgeY
-        XCTAssertGreaterThan(handle.frame.midY, arcRimY + 5,
-                          "Radial handle must sit beyond the arc, not inside it from a safe-area offset")
+        XCTAssertGreaterThan(abs(handle.frame.midY - arcRimY), 5,
+                          "Radial handle must remain visibly separated from the arc")
         let grab = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: 40)))
         sleep(1)

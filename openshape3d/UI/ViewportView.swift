@@ -682,7 +682,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         }
     }
 
-    /// Pointer / Pencil hover → line-tool rubber-band preview between taps.
+    /// Pointer / Pencil hover → tap-built Line/Rectangle/Arc preview.
     func gestureHovered(at point: CGPoint?) {
         var hoverRay: Ray?
         if let point { hoverRay = ray(at: point) }
