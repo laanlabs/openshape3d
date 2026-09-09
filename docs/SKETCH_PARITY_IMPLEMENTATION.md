@@ -115,7 +115,9 @@ Acceptance: With all snaps off, committed coordinates follow input without grid 
 
 Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
 
-Next: Separate numerical geometry tolerance from screen-space acquisition; tie grid snap to visible/locked grid resolution where appropriate.
+Evidence update: [screen-relative snap receipt](testing/sketch-parity-preplacement-snap-2026-09-08.md), clean37/37 plus live near/far at two clone scales and native far/near reference. Camera-relative12UI-point acquisition implemented; idle-line hover feedback is automated-only.
+
+Next: Complete full zoom/overlap matrix, line closure thresholds and visible/locked grid agreement; resolve simulator hover/switch-click and left-edge input samples.
 
 Acceptance: Zoom does not unexpectedly close a different segment or make endpoints impossible to acquire; displayed resolution matches actual snap steps.
 

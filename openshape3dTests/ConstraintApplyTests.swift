@@ -157,6 +157,38 @@ final class ConstraintApplyTests: XCTestCase {
                           "Horizontal should level the line's endpoints")
     }
 
+    func testLineHoverNamesSnapsBeforePlacementWithoutEditingGeometry() throws {
+        let vm = try makeViewModel()
+        let settings = AppSettings.shared
+        let guidepoints = settings.snapToSketchGuidepoints
+        let hints = settings.showSnapHints
+        defer { settings.snapToSketchGuidepoints = guidepoints; settings.showSnapHints = hints }
+        settings.snapToSketchGuidepoints = true
+        settings.showSnapHints = true
+        let original = Sketch(plane: .ground, entities: [line(SIMD2(0, 0), SIMD2(10, 0))])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: .line)
+        func ray(_ x: Double) -> Ray {
+            let p = original.plane.toWorld(SIMD2(x, 0))
+            let n = original.plane.normal
+            return Ray(origin: SIMD3<Float>(Float(p.x+n.x*10), Float(p.y+n.y*10), Float(p.z+n.z*10)),
+                       direction: SIMD3<Float>(Float(-n.x), Float(-n.y), Float(-n.z)))
+        }
+        XCTAssertTrue(vm.updateLinePreview(ray: ray(0)))
+        XCTAssertEqual(vm.activeSnapLabel?.text, "Endpoint")
+        XCTAssertNil(vm.pendingEntity)
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.updateLinePreview(ray: ray(5)))
+        XCTAssertEqual(vm.activeSnapLabel?.text, "Midpoint")
+        XCTAssertTrue(vm.updateLinePreview(ray: nil))
+        XCTAssertNil(vm.activeSnapLabel)
+        settings.snapToSketchGuidepoints = false
+        _ = vm.updateLinePreview(ray: ray(0))
+        XCTAssertNil(vm.activeSnapLabel)
+        vm.session.undo()
+        XCTAssertNil(vm.activeSketch, "Hover must not add an undoable edit")
+    }
+
     func testCopiedLinesRemainIndependentThroughHistoryAndReload() throws {
         let vm = try makeViewModel()
         let a = line(SIMD2(0, 0), SIMD2(10, 0))

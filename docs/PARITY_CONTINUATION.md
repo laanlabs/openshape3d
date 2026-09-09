@@ -1,28 +1,30 @@
 # Parity continuation checkpoint
 
-September 8 approximately 20:46 EDT. HEAD 541ea8e before pending commit of
-single-line explicit controls, glyph clearance and Copy source isolation. Tests
-and receipts dirty; identity files untracked/untouched. No test/build/Peekaboo
-worker active. Glyph-clearance clean3/3 + live center40px and UndoRedo passes.
-Copy correction:11unit passes (65041) plus targeted1UI pass70218 after selection
-settling fixes. Earlier 72947/65041 each failed reselection; all retained.
-Live native typed upward1000 Copy keeps original409/copy359, length1621.6547.
-Clone live Copy431→331 preserves original431/priorcopy562; UndoRedo pass.
-Final test design gallery reopened original431/copy562 each2.298 selectable,
-default no ring. Simulator2386 Top sketch with lower copy selected; native1924
-MAIN FrontSketch02 copiedline359 selected, original409 remains. Native drag
-probes inconclusive; typed-axis workflow is accepted evidence, not drag parity.
+September8 approximately21:33EDT. HEADdaa8478 before pending verifiedsnap commit.
+Dirtysnapradius+idlehover model/tests/docs. No build/test/Peekaboo workeractive.
+78332 clean37/37 (36unit+1line-chainUI). VerifiedGuidepoints/Hints on;20pxmiss
+staysseparate and3pxnearstart snaps atoriginal+1.48x clone display scales.
+Native20pxmissfree and3pxhoverpurple reference. At1.94xleftx164,y232no segment,
+excluded and left-inputarea remainsopen. Idlehover implementation25unitpasses,
+no livehint; categorywasoff duringearlierattempts, thoseexcluded. ToggleSLIDER
+DRAG enablesguidepoints; clicksdidnot. No undocumentedpassclaims.
+Finalclone galleryreopenedFrontdesignUntitled2, baseline250350→450350 selected,
+2.477mm preserved; joinedbranch250350→300404. Window5147at27544.
+NativeMAINFrontSketch02 Line active, standalone342359→424359 plusoriginal409;
+20pxprobeundone, nearsegmentattemptnotaccepted. No testsactive.
+Exactnext commit/push correction then investigateleftcanvasinput atx164 vs207
+withpairednative/clone; continue remainingcore numeric/selection/QA20/21matrix.
 
-Publication complete: illustrated newt15 7442C07B27B3DEA86715C808891BAD9B
-Saved,80images exported and two new Copy PNGs exacthash matched; master newt14
-77EDB2C49ACE004AFAD551FCDE5ECD9A 38images, finalfollowthrough/reopen note
-exportverified. Full audit retained. Original stalledt11/t13 six+one unsynced
-images preserved. Local line-controls + verifiedDOCX exports/index retained.
-Exact next commit/push verified change, then QA20/21 paired snap zoom/feedback
-at endpoint/midpoint/center. Remaining QA38 primitive/midpoint/non-line,
-numeric/selection matrix, directarc input, explicit axes/ring, Copy rearming,
-constraint-copy inheritance, final regression/deviceartifact. No candidate claim.
-No merge/deviceinstall/securitychanges/duplicatewatchdog.
+EveryPeekaboo command explicitly --bridge-socket
+'/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'. Existing
+GUIhosthealthy; defaultdaemonunprivileged. Simulatoronlyapprestartclearedcapture,
+restored dedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16, normalmode. NoMacrestart,
+ScreenSharing/securitychanges. OriginaloldDocst11/t13 six+oneunsyncedpreserved.
+Illustratedt15 7442C07B27B3DEA86715C808891BAD9B Saved83images,3newnative/far/near
+PNGhashesexportverified. Mastert14 77EDB2C49ACE004AFAD551FCDE5ECD9A 38images,
+snap/finalreopen noteexportverified. Root/snap-feedback+verifiedexports current.
+Remainingmatrix/directarc/constraints/grid/deviceartifactgate; no candidate,
+merge/deviceinstall/duplicatewatchdog. Identityfilesuntouched.
 
 ## Verified
 

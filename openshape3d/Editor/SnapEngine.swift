@@ -57,6 +57,13 @@ nonisolated enum SnapEngine {
     static let gridSpacing: Double = 0.5
     static let pointTolerance: Double = 0.35
 
+    /// Viewport acquisition is screen-relative; the legacy default remains for
+    /// geometry-only callers without a camera. This is a UI-point radius, not
+    /// simulator screenshot pixels or model millimetres.
+    static func screenPointTolerance(worldUnitsPerPoint: Double) -> Double {
+        max(1e-9, worldUnitsPerPoint * 12)
+    }
+
     /// Ranking when several candidates are in range. An endpoint is a harder
     /// commitment than a midpoint, and both beat a centre, so a tie near a
     /// corner resolves the way the user expects instead of by float noise.
@@ -81,12 +88,12 @@ nonisolated enum SnapEngine {
     /// edges the same status as existing sketch geometry.
     static func snap(
         _ p: SIMD2<Double>, in sketch: Sketch?, faceLoops: [[SIMD2<Double>]] = [],
-        options: SnapOptions = .init()
+        options: SnapOptions = .init(), tolerance: Double = pointTolerance
     ) -> SnapResult {
         var best: (candidate: SnapCandidate, distance: Double)?
         func consider(_ candidate: SnapCandidate) {
             let d = simd_length(candidate.point - p)
-            guard d <= pointTolerance else { return }
+            guard d <= tolerance else { return }
             if let current = best {
                 let better = priority(candidate.kind) > priority(current.candidate.kind)
                     || (priority(candidate.kind) == priority(current.candidate.kind)

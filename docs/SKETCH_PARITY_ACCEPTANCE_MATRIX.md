@@ -24,8 +24,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
 | QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
 | QA-19 | Snap categories | Core — partial, not passed | Raw acquisition-off and Grid-only paired; guidepoint combinations open. |
-| QA-20 | Snap zoom | Core — not run | Paired acceptance outstanding. |
-| QA-21 | Snap feedback | Core — not run | Paired acceptance outstanding. |
+| QA-20 | Snap zoom | Core — partial | Screen-relative acquisition corrected; native near/far reference + two clone scales, clean37/37. Full zoom/grid matrix open. |
+| QA-21 | Snap feedback | Core — partial, not passed | Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved. |
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
 | QA-23 | Selection state | Core — partial, not passed | Point/edge, blank deselect and connected rectangle samples; other entity/tool states open. |
 | QA-24 | Multi-selection | Core — partial, not passed | Connected rectangle double-click paired; mouse/touch additive difference recorded. |
@@ -142,11 +142,11 @@ Each category on/off independently; all off truly free. Issues: SK-05. Result: N
 
 ### QA-20 — Snap zoom
 
-0.1x/1x/10x, tiny and large parts, visible grid agreement. Issues: SK-06. Result: NOT RUN. Evidence/owner: pending.
+0.1x/1x/10x, tiny and large parts, visible grid agreement. Issues: SK-06. Result: PARTIAL. Screen-relative radius37/37; near/far at original and1.48x clone scales, native reference. Full zoom/grid matrix open; see preplacement-snap receipt.
 
 ### QA-21 — Snap feedback
 
-Endpoint versus midpoint versus center versus edge, overlapping candidates. Issues: SK-05/06. Result: NOT RUN. Evidence/owner: pending.
+Endpoint versus midpoint versus center versus edge, overlapping candidates. Issues: SK-05/06. Result: PARTIAL. Native Endpoint hover captured; clone idle feedback25unitpasses but live unresolved. Other feedback/overlap cases open.
 
 ### QA-22 — 3D references
 

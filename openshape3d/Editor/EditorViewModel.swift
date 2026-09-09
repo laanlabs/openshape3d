@@ -8171,6 +8171,9 @@ final class EditorViewModel {
     /// Screen-sized acquisition targets at the current camera scale. Only a
     /// numerical epsilon floor remains; model-unit floors swallow short edges.
     private var worldPerPoint: Double { cameraControl?.worldUnitsPerPoint ?? 0.01 }
+    private var sketchSnapTolerance: Double {
+        SnapEngine.screenPointTolerance(worldUnitsPerPoint: worldPerPoint)
+    }
     private var controlPointTolerance: Double {
         SketchHitTester.screenControlPointTolerance(worldUnitsPerPoint: worldPerPoint)
     }
@@ -9166,7 +9169,7 @@ final class EditorViewModel {
                 plane: sketch.plane,
                 entities: sketch.entities.filter { $0.id != drag.before.id }
             )
-            let point = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions).point
+            let point = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
             after = SketchHitTester.applying(control, at: point, to: drag.before)
         } else {
             // Body translate: grid-capture each axis, like the extrude drag.
@@ -9207,7 +9210,7 @@ final class EditorViewModel {
             plane: sketch.plane,
             entities: drag.baseline.filter { $0.id != drag.before.id }
         )
-        let target = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions).point
+        let target = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
 
         // Always solve from the fixed pre-drag baseline so the target is
         // absolute and the result is deterministic across frames.
@@ -9305,6 +9308,7 @@ final class EditorViewModel {
     /// True while a hover is previewing the next line segment (pointer/Pencil),
     /// so the preview can be torn down without disturbing a real drag.
     private var lineHoverPreviewActive = false
+    private var lineSnapHoverActive = false
     /// The hovered next-segment endpoint sits on the chain's start, so the next
     /// tap will CLOSE the loop — the overlay highlights the start to signal it.
     private(set) var lineWillClose = false
@@ -9338,6 +9342,20 @@ final class EditorViewModel {
     /// it. Returns true when the visible state changed so the viewport redraws.
     @discardableResult
     func updateLinePreview(ray: Ray?) -> Bool {
+        // Before the first click, identify the point the line would start on.
+        // This is feedback only: do not create an anchor, segment or undo entry.
+        if mode.sketchTool == .line, !tapChainActive, sketchStrokeStart == nil {
+            let previous = activeSnap
+            if let ray, let sketch = activeSketch, let raw = rawSketchPoint(from: ray) {
+                let snap = SnapEngine.snap(raw, in: sketch,
+                    faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
+                activeSnap = snap.snappedToPoint ? (snap.kind, snap.point) : nil
+            } else {
+                activeSnap = nil
+            }
+            lineSnapHoverActive = activeSnap != nil
+            return previous?.kind != activeSnap?.kind || previous?.point != activeSnap?.point
+        }
         if mode.sketchTool == .rect, hasPendingRectangle {
             let before = rectanglePreview
             let previousEntity = pendingEntity
@@ -9364,7 +9382,7 @@ final class EditorViewModel {
               let ray, let sketch = activeSketch, let raw = rawSketchPoint(from: ray)
         else { return clearLinePreviewIfNeeded() }
 
-        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions)
+        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
         var end = snap.point
         var willClose = false
         if let start = chainStart,
@@ -9392,7 +9410,8 @@ final class EditorViewModel {
 
     @discardableResult
     private func clearLinePreviewIfNeeded() -> Bool {
-        guard lineHoverPreviewActive else { return false }
+        guard lineHoverPreviewActive || lineSnapHoverActive else { return false }
+        lineSnapHoverActive = false
         lineHoverPreviewActive = false
         lineWillClose = false
         pendingEntity = nil
@@ -9747,7 +9766,7 @@ final class EditorViewModel {
     /// Ray → snapped plane-local point, while sketching.
     private func sketchPoint(from ray: Ray) -> SIMD2<Double>? {
         guard let raw = rawSketchPoint(from: ray) else { return nil }
-        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions)
+        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
         activeSnap = (result.kind, result.point)
         return result.point
     }
@@ -9837,9 +9856,10 @@ final class EditorViewModel {
         // No drawing tool armed: empty-space drags orbit the camera so the
         // sketch can be viewed from an angle (Shapr3D).
         guard tool != nil else { return false }
-        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions).point
+        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
         if tool == .line, let anchor = chainAnchor {
-            if simd_length(raw - anchor) <= SnapEngine.pointTolerance {
+            if simd_length(raw - anchor) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? sketchSnapTolerance : 1e-9) {
                 point = anchor // continue the chain exactly at the last endpoint
             } else {
                 clearChain()
@@ -10073,7 +10093,7 @@ final class EditorViewModel {
         else { return }
         _ = clearLinePreviewIfNeeded() // the tap supersedes any hover preview
 
-        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions).point
+        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
 
         guard tapChainActive, let anchor = chainAnchor, let start = chainStart else {
             // Not chaining: a tap on geometry selects it (dimension/constraint
