@@ -1,28 +1,35 @@
 # Parity continuation checkpoint
 
-September 9 ~09:27 EDT. HEAD `3f25d8a` is pushed; the arc-cancellation correction, tests,
-receipt and ledger updates are committed. Only this checkpoint is dirty. No test/build/Peekaboo worker is
-running. Pending readout feedback previously passed cleanly 39/39 and is pushed
-as `18a2fff`; the audit correction is pushed as `772a1e9`.
+September 9 ~10:26 EDT. HEAD `2551a50` contains the third-point/chaining
+product code, tests, receipt and ledgers and is ready to push with this
+documentation checkpoint. No test/build/Peekaboo worker is running. The
+current exact simulator binary hash is
+`bfc808e3ae98e2976ed8831d30f5de6797e02f242893980d6b41db5ef366752d`.
 
-Paired Arc Escape is now live-verified on the exact corrected simulator binary.
-Native and clone both discard the unfinished arc/readouts and disarm Arc on the
-first Escape while retaining an existing committed arc; a second Escape exits
-sketch mode. The first focused cancellation run failed at compilation because a
-new fixture omitted a required ID; the corrected focused run passed cleanly 6/6.
-Evidence is under `reports/.../arc-cancellation/`; the illustrated report is
-export-verified at 207 placements with all six new hashes, and the master remains
-at 38 images with its new note verified. Native third-point placement, Return/chaining,
-major/minor and tangent transition remain open.
+Native direct Arc is now unambiguous: two endpoints, pointer-hovered third-point
+shape, click commit, then automatic chained preview from the prior endpoint.
+The clone implements hover and touch-only third-point shaping plus the shared
+endpoint continuation. The available live click route reshaped/committed a
+major first arc and the following click exposed a new `R1.46 mm` / `45°`
+pending arc from the shared endpoint. Supported simulator pointer movement did
+not deliver hover, so clone hover is automated-only rather than a product
+failure. Final focused construction passed 10/10. The first broader run passed
+31 unit/live-dimension checks but its three obsolete UI recipes failed; after
+recipe corrections and one directional-handle assertion correction, the final
+current-revision combined run passed cleanly 34/34. The illustrated Google Doc
+is export-verified at 213 placements with all six new paired captures accounted
+for; the master remains at 38 images with its corrected note verified. Evidence
+and exports are under `reports/.../arc-third-point/`.
 
 Current acceptance inventory remains 0 fully passed, 0 failed, 1 device-blocked,
 55 incomplete/untested (42 partial, 11 explicit deferrals, 2 not run). Candidate
-is not ready. Exact next: continue the next QA-13 construction case or the highest-priority
-independent core gap, retaining Return/chaining and native major/minor as open. Clone 5147 at 275,44 is back in model mode with the saved
-arc; native 1924 at 99,79 is in model mode with Sketch04 visible. Preserve the
-three untracked identity files, stalled Doc tabs and 30-minute watchdog. Remaining
-QA55/56, final same-revision regression and signed installable device artifact/
-checklist. No merge, physical-device claim, security changes or duplicate workers.
+is not ready. Exact next: continue QA-13 clean major/minor boundary and
+tangent-transition recipes. Native 1924 remains in Sketch04; the exact clone
+build was last live-inspected on os3d-unit 6268 and the test runner subsequently
+released it. Preserve the three untracked identity files, stalled Doc tabs and
+30-minute watchdog. Remaining QA55/56, final same-revision regression and signed
+installable device artifact/checklist. No merge, physical-device claim,
+security changes or duplicate workers.
 
 ## Earlier checkpoint history
 
