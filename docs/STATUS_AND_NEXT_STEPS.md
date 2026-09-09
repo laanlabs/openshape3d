@@ -23,6 +23,16 @@ Direct gesture major/minor boundaries, hover delivery, physical Pencil/touch,
 QA-55/56, final candidate regression, and device-build handoff remain open.
 [Detailed receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
 
+## Mission log — 2026-09-09, direct arc boundaries
+
+Controlled native and clone gestures now cover direct minor, semicircle and
+major construction. Native sampled 90/180/220 degrees; the differently scaled
+clone sampled 81.91/176.03/214.93 degrees. Clone toolbar Undo removed only the
+major arc and Redo restored its profile. QA-13 remains partial for simulator
+hover delivery and physical Pencil/touch; no exact macOS-to-iPad coordinate or
+device-input equivalence is claimed.
+[Detailed receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
+
 ## Current baseline correction — 2026-09-07
 
 The September 5 sections below are **historical**, not the current implementation contract.

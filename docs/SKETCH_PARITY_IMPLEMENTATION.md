@@ -1198,3 +1198,16 @@ Anonymous exports verify the illustrated report at 227 placements with all
 eight new hashes and every prior unique image retained; the master remains at
 38 drawings with its dated tangent note.
 [Receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
+
+## September 9 — direct arc major/minor boundaries
+
+A controlled two-endpoint drag plus third-point click established direct native
+minor, semicircle and major construction at 90, 180 and 220 degrees. The exact
+clone build exercised the same three regions at a different viewport scale and
+reported 81.91, 176.03 and 214.93 degrees. Clone Undo removed only the sampled
+major arc and Redo restored the closed profile. This closes the direct gesture
+boundary item without claiming pixel-coordinate equivalence. QA-13 remains
+partial because clone hover is automated-only and physical Pencil/touch is not
+tested. No product source changed; the last relevant current-revision suite is
+the clean 63/63 arc tangent combined run.
+[Receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).

@@ -17,7 +17,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
-| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation and sampled line-to-arc tangent transition paired; clone hover path is automated-only, and clean direct major/minor gesture boundaries remain open (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent receipts). |
+| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
@@ -116,9 +116,12 @@ R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. 
 
 Prescribed endpoints/side, major/minor, tangent transition, cancel. Issues:
 SK-10. Result: PARTIAL — endpoint/default side, third-point commit, chained
-shared endpoint, Return completion and cancellation are paired; clone hover is
-automated-only and direct major/minor boundaries plus tangent transition remain
-open. Evidence: [Return receipt](testing/sketch-parity-arc-return-2026-09-09.md),
+shared endpoint, Return completion, cancellation, tangent transition and direct
+minor/semicircle/major boundaries are paired. Native sampled 90/180/220 degrees;
+the differently scaled clone sampled 81.91/176.03/214.93 degrees and restored
+the major profile through Undo/Redo. Clone hover is automated-only and physical
+Pencil/touch remains unverified. Evidence: [boundary receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md),
+[Return receipt](testing/sketch-parity-arc-return-2026-09-09.md),
 [third-point/chaining receipt](testing/sketch-parity-arc-third-point-chaining-2026-09-09.md)
 and linked earlier arc receipts.
 

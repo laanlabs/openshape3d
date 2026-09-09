@@ -1,13 +1,12 @@
 # Parity continuation checkpoint
 
-September 9 ~12:15 EDT. Pushed baseline is `a380680`. Intentional dirty files
-are `openshape3d/Editor/AutoConstraintEngine.swift`,
-`openshape3d/Editor/EditorViewModel.swift`, four tangent unit-test changes plus
-this checkpoint and the milestone/implementation/acceptance/status ledgers and
-`docs/testing/sketch-parity-arc-tangent-transition-2026-09-09.md`. The
-experimental UI test was removed and is not dirty. Preserve untracked
-`IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo worker is
-running.
+September 9 ~12:40 EDT. Pushed baseline is `44d72bb`. Intentional dirty files
+are documentation-only: this checkpoint, the milestone/implementation/
+acceptance/status ledgers, and
+`docs/testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md`. Preserve
+untracked `IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo
+worker is running; the simulator remains under this session's exclusive desktop
+ownership.
 
 Paired native/clone evidence confirms the sampled line-to-arc tangent
 transition. Native stored and displayed Tangent at the shared endpoint; the
@@ -28,17 +27,23 @@ and hashes are under `reports/.../arc-tangent-transition/`. Anonymous exports
 verify illustrated 227 with all eight hashes and no predecessor-media loss, and
 master 38 with its dated tangent/63-of-63 note.
 
-Current acceptance remains 0 fully passed, 0 failed, 1 device-blocked and 55
-incomplete (42 partial, 11 deferred, 2 not run). QA-13 tangent transition is now
-sampled live, but direct gesture major/minor boundaries and simulator hover
-remain open. Candidate is not ready.
+Controlled direct gestures now also pair minor, semicircle, and major arcs:
+native 90/180/220 degrees and the differently scaled clone
+81.91/176.03/214.93 degrees. Clone toolbar Undo removed the sampled major arc
+and Redo restored its profile. This is category evidence, not coordinate
+equivalence. Current acceptance remains 0 fully passed, 0 failed, 1
+device-blocked and 55 incomplete (42 partial, 11 deferred, 2 not run). QA-13
+remains partial for simulator hover delivery and physical Pencil/touch.
+Candidate is not ready.
 
-Exact next: commit/push the product and documentation checkpoint, then continue
-QA-13 direct major/minor only if a controlled native gesture can be established;
-otherwise retain it as inconclusive and move to remaining core acceptance,
-QA-55/56, final same-revision regression, installable artifact and device A/B
-handoff. No merge, physical-device claim, security changes or duplicate workers;
-preserve the watchdog and stalled Doc tabs.
+The eight boundary/history captures are now published and anonymously
+export-verified: illustrated 234 media assets with all eight new hashes and
+every predecessor unique hash retained; master 38 with its dated note. Exact
+next: commit and push this documentation checkpoint, then move to the
+highest-priority remaining core acceptance case. QA-55/56, final same-revision regression,
+installable artifact and device A/B handoff remain gates. No merge,
+physical-device claim, security changes or duplicate workers; preserve the
+watchdog and stalled Doc tabs.
 
 ## Earlier checkpoint history
 

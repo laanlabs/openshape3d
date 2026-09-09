@@ -501,3 +501,15 @@ open, so QA-13 and the milestone remain partial. Anonymous exports verify 227
 illustrated placements with all eight new hashes and no predecessor loss; the
 master remains at 38 drawings with its dated note.
 [Receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
+
+## September 9 — QA-13 direct boundary checkpoint
+
+Controlled native gestures produced direct 90-degree minor, 180-degree
+semicircle and 220-degree major arcs. The exact clone build, at a different
+screen scale, produced 81.91, 176.03 and 214.93 degrees and restored the major
+profile through toolbar Undo/Redo. Direct minor-to-major construction is now
+paired; this is behavioral category evidence rather than coordinate equality.
+QA-13 remains partial for clone hover delivery and physical Pencil/touch. No
+source change or additional automated run was needed; the last relevant
+current-revision combined arc suite remains clean 63/63.
+[Receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
