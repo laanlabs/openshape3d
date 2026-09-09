@@ -80,4 +80,20 @@ final class SketchIdentityTests: XCTestCase {
         vm.openItemSketch(first.id)
         XCTAssertEqual(vm.activeSketch?.id, first.id)
     }
+
+    func testReferenceProfilesStayClearDuringSketchingButReturnForModelHandoff() throws {
+        let vm = try makeViewModel()
+        let reference = Sketch(name: "Reference", plane: .ground,
+            entities: [.circle(id: UUID(), center: .zero, radius: 2)])
+        vm.session.perform(AddSketchCommand(sketch: reference))
+        XCTAssertFalse(vm.scene.profileFills.isEmpty,
+                       "Closed regions remain visible for model-mode extrusion")
+        let active = try enterGround(vm)
+        XCTAssertNotEqual(active.id, reference.id)
+        XCTAssertTrue(vm.scene.profileFills.isEmpty,
+                      "An inactive coplanar circle must not appear as a filled active region")
+        XCTAssertFalse(vm.scene.sketchLines.isEmpty, "Reference outlines remain visible")
+        vm.finishSketch()
+        XCTAssertFalse(vm.scene.profileFills.isEmpty)
+    }
 }

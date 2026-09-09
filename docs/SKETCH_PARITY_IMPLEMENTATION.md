@@ -413,7 +413,7 @@ Acceptance: Only chosen items project; linked output updates after source change
 
 ### ED-06 · Every coincident plane reuses the first existing sketch
 
-**Queued — verify first** · P1
+**Confirmed and corrected; sampled paired identity/visibility/reopen verified** · P1
 
 Evidence: CODE-CONFIRMED RISK — exact reference gesture needs A/B
 
@@ -964,3 +964,36 @@ center/history and final reopened closed-lock editor paired. Native reference
 is size editing, not an identical alternate palette. Illustrated135 images/all5
 new hashes and master38 final reopen note export-verified.
 [Receipt](testing/sketch-parity-dimension-palette-2026-09-09.md).
+
+## September 9 — independent coplanar sketch identity (f4319dd)
+
+Paired native unselected Front entry creates03 independently of02; clone first-
+coincident reuse incorrectly joined new geometry to1. Plane-based creation now
+allocates a new identity; explicit named item/outline continuation is retained.
+Corrected16/16 (12unit+4UI); initial missing-helper compilation failure ran no
+tests. Live independent circle1/line2, named edit, independent visibility and
+paired gallery reopen with hidden old/visible new sketch verified. Consumed/
+overlapping selection/downstream variants remain open.
+[Receipt](testing/sketch-parity-coplanar-identity-2026-09-09.md).
+
+Illustrated142 images/all4 final hashes and master38 final note verified.
+
+Inactive profile blue-fill gap now under separate focused regression4410;
+rendering keeps all unselected profiles clear during sketching, while preserving
+model-mode extrusion fills. No live post-fix claim yet.
+
+## September 9 — inactive reference profile fill verified
+
+Focused serial4410 completed clean6/6 (4 SketchIdentity unit + 2 Plane UI).
+No runner remains. Fresh live Front circle1/line2: inactive circle clear during
+Sketch2 editing; Exit restores profile fill; interior selection offers Extrude,
+cancelled without creating a body. Gallery reopen retains two items and clear
+reference while explicitly reopening2. Native reopened03 likewise shows old02
+clear; normalized Front screenshot inspected. Reference color/style differences
+remain outside this fill correction. Consumed/overlap/downstream cases remain open.
+
+Illustrated145 images and all3 new PNG hashes verified by anonymous DOCX export;
+master38 final reopen note verified. Evidence os3d-reference-fill-native-front.png,
+os3d-reference-fill-final-reopen.png, os3d-reference-fill-extrude.png and exports
+retained in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
+transform-controls. No iPad-ready claim.

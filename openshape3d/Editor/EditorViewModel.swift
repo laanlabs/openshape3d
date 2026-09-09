@@ -900,10 +900,11 @@ final class EditorViewModel {
                     color: selectedColor
                 ))
             }
-            // Native active sketches leave unselected closed regions clear.
+            // While sketching, native leaves unselected closed regions clear,
+            // including reference profiles belonging to other sketch items.
             // An armed profile tool adds its explicit selection fill below;
             // do not tint every region merely because its boundary is closed.
-            if sketch.id != activeSketchID {
+            if activeSketchID == nil {
                 scene.profileFills.append(contentsOf: fillBatches(for: sketch))
             }
         }

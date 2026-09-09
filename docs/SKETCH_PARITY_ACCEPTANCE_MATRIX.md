@@ -52,7 +52,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-45 | Move/rotate/copy | Core - partial, not passed | White exact-axis/rotation controls, retained re-edit/local frame, circle frame-only history, armed reselection and Escape paired; direct-drag/compact/mixed-selection matrix remains open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
-| QA-48 | Coplanar sketch identity | Core — not run | Paired acceptance outstanding. |
+| QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed/overlapping variants open. |
 | QA-49 | Profile topology | Core — partial, not passed | Trimmed open U versus intact rectangle handoff paired; nested/self-intersection open. |
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
@@ -519,3 +519,36 @@ center/history and final reopened closed-lock editor paired. Native reference
 is size editing, not an identical alternate palette. Illustrated135 images/all5
 new hashes and master38 final reopen note export-verified.
 [Receipt](testing/sketch-parity-dimension-palette-2026-09-09.md).
+
+## September 9 — independent coplanar sketch identity (f4319dd)
+
+Paired native unselected Front entry creates03 independently of02; clone first-
+coincident reuse incorrectly joined new geometry to1. Plane-based creation now
+allocates a new identity; explicit named item/outline continuation is retained.
+Corrected16/16 (12unit+4UI); initial missing-helper compilation failure ran no
+tests. Live independent circle1/line2, named edit, independent visibility and
+paired gallery reopen with hidden old/visible new sketch verified. Consumed/
+overlapping selection/downstream variants remain open.
+[Receipt](testing/sketch-parity-coplanar-identity-2026-09-09.md).
+
+Illustrated142 images/all4 final hashes and master38 final note verified.
+
+Inactive profile blue-fill gap now under separate focused regression4410;
+rendering keeps all unselected profiles clear during sketching, while preserving
+model-mode extrusion fills. No live post-fix claim yet.
+
+## September 9 — inactive reference profile fill verified
+
+Focused serial4410 completed clean6/6 (4 SketchIdentity unit + 2 Plane UI).
+No runner remains. Fresh live Front circle1/line2: inactive circle clear during
+Sketch2 editing; Exit restores profile fill; interior selection offers Extrude,
+cancelled without creating a body. Gallery reopen retains two items and clear
+reference while explicitly reopening2. Native reopened03 likewise shows old02
+clear; normalized Front screenshot inspected. Reference color/style differences
+remain outside this fill correction. Consumed/overlap/downstream cases remain open.
+
+Illustrated145 images and all3 new PNG hashes verified by anonymous DOCX export;
+master38 final reopen note verified. Evidence os3d-reference-fill-native-front.png,
+os3d-reference-fill-final-reopen.png, os3d-reference-fill-extrude.png and exports
+retained in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
+transform-controls. No iPad-ready claim.
