@@ -408,3 +408,14 @@ Undo/Redo and paired final reopen pass. Illustrated179/all6 new hashes and
 master38 final note export verified. Curved intersections excluded; earlier
 partial-overlap first-loop fill disappeared during later editing, still open.
 [Receipt](testing/sketch-parity-crossing-profiles-2026-09-09.md).
+
+## September 9 — numerical partial-overlap stability
+
+The earlier partial-overlap profile vanished after more constrained drawing.
+Read-only saved geometry exposed ~4e-14mm offset in the duplicate segment, not
+an open boundary. Exact fixture failed; temporary graph overlap normalization
+at existing node precision fixes it without editing geometry. Corrected clean
+43/43; live saved recovery, fresh overlap plus continued line Undo/Redo and
+paired final reopen pass. Illustrated184/all5 hashes; master38 final note
+verified. Initial pass and subsequent failure retained in audit.
+[Receipt](testing/sketch-parity-partial-overlap-stability-2026-09-09.md).

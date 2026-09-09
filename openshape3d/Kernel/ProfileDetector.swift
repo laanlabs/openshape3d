@@ -391,8 +391,29 @@ nonisolated enum ProfileDetector {
             for j in straightIndices.dropFirst(offset + 1) {
                 let c = chains[j].points[0], v = chains[j].points[1] - c
                 let denominator = cross(r, v)
-                // Parallel/collinear overlap is not a proper crossing.
-                guard abs(denominator) > 1e-12 * simd_length(r) * simd_length(v) else { continue }
+                let length = simd_length(r)
+                // Normalize numerically collinear overlaps into matching
+                // subsegments before deduplication. Solver roundoff can put a
+                // partial duplicate a few ulps off its boundary; angle sorting
+                // must not turn that into a spur that swallows the whole face.
+                // Use node precision, not the much broader endpoint weld.
+                if abs(cross(c - a, r)) / length <= quantum,
+                   abs(cross(c + v - a, r)) / length <= quantum {
+                    let rr = simd_length_squared(r)
+                    let t0 = simd_dot(c - a, r) / rr
+                    let t1 = simd_dot(c + v - a, r) / rr
+                    let lo = max(0, min(t0, t1)), hi = min(1, max(t0, t1))
+                    if hi > lo {
+                        for t in [lo, hi] {
+                            let point = a + r * t
+                            let u = min(1, max(0, simd_dot(point - c, v) / simd_length_squared(v)))
+                            cuts[i, default: []].append((t, point))
+                            cuts[j, default: []].append((u, point))
+                        }
+                    }
+                    continue
+                }
+                guard abs(denominator) > 1e-12 * length * simd_length(v) else { continue }
                 let t = cross(c - a, v) / denominator
                 let u = cross(c - a, r) / denominator
                 guard t >= 0, t <= 1, u >= 0, u <= 1 else { continue }

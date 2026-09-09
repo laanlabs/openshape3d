@@ -209,6 +209,31 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(profiles.filter { $0.contains(SIMD2(2, 1)) }.count, 1)
     }
 
+    func testSavedNearlyCollinearOverlapKeepsBothTouchingRegions() {
+        // Live saved sketch after further constrained drawing: the partial
+        // top-edge overlap differs by roughly 4e-14 mm, not a visible gap.
+        let entities: [SketchEntity] = [
+            .line(id: UUID(), a: SIMD2(-2.373746275901889, 3.673585865586188), b: SIMD2(-1.6294044916705066, 3.673585865586189)),
+            .line(id: UUID(), a: SIMD2(-1.6294044916705066, 3.673585865586189), b: SIMD2(-1.629404491670507, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-1.629404491670507, 2.9292402267455695), b: SIMD2(-2.3737462759017, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-2.3737462759017, 2.9292402267455695), b: SIMD2(-2.373746275901889, 3.673585865586188)),
+            .line(id: UUID(), a: SIMD2(-1.629404491670507, 2.9292402267455695), b: SIMD2(-1.1331766843795776, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-1.1331766843795776, 2.9292402267455695), b: SIMD2(-1.1331766843795776, 2.436713218688899)),
+            .line(id: UUID(), a: SIMD2(-1.1331766843795776, 2.436713218688899), b: SIMD2(-1.6294044916704575, 2.436713218688899)),
+            .line(id: UUID(), a: SIMD2(-1.6294044916704575, 2.436713218688899), b: SIMD2(-1.629404491670507, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-2.1276707562923103, 3.673585865586149), b: SIMD2(-1.6294044916705066, 3.673585865586189))
+        ]
+        for ordered in [entities, Array(entities.reversed())] {
+            let sketch = makeSketch(ordered)
+            let profiles = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(profiles.count, 2)
+            XCTAssertEqual(profiles.filter { $0.contains(SIMD2(-2, 3.3)) }.count, 1)
+            XCTAssertEqual(profiles.filter { $0.contains(SIMD2(-1.4, 2.7)) }.count, 1)
+            XCTAssertEqual(sketch.entities.count, 9)
+        }
+    }
+
+
     // MARK: - Detection
 
 

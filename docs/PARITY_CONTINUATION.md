@@ -1,19 +1,20 @@
 # Parity continuation checkpoint
 
-September 9 ~05:23 EDT. HEAD6c8dd06 pushed; crossing graph fix/tests/docs
-ready for commit. Red43043 failed; green66431 clean42/42 completed0. No runner.
-Live native/clone bow-tie independent triangle selection, lower-triangle solid,
-Undo/Redo and finalgalleryreopen pass. Original entities/constraints preserved.
-Illustrated179 placements/all6new hashes; master38 final note verified.
-Receipt testing/sketch-parity-crossing-profiles-2026-09-09.md; evidence durable.
-Native1924 oblique Body04 triangular prism, source03 nowrow217. Clone5147
-oblique three bodies, source2 hidden; inspect Items rows before entry.
-Exact next: commit/push verified crossing correction; diagnose partial-overlap
-first-loop missing fill observed during later drawing. Earlier paired partial
-selection/reopen pass remains valid historical evidence, not proof of current
-state. Curved intersections, tiny thresholds, broader downstream/golden path,
-final regression and identified installable iPad candidate gate remain open.
-Preserve identity files/stalled tabs/watchdog; no merge/install/security changes.
+September 9 ~05:34 EDT. HEAD4b510a0 pushed; partial-overlap stability fix/tests/
+docs ready for commit. Red28983 failed, corrected19359 clean43/43 completed0.
+No runner. Saved profile recovered; paired freshpartial+continuedline Undo/Redo,
+finalgallery reopen and independent profile selection passed. Read-only saved
+fixture captured; no database writes. Illustrated184 placements/all5 new hashes,
+master38 final43/43 and reopen note verified. Receipt testing/sketch-parity-
+partial-overlap-stability-2026-09-09.md; evidence/exports durable.
+Native1924 oblique first touching profile selected at878507; source03 row217.
+Clone5147 oblique first touching profile Extrude open; Cancel550846, source2
+visible, Items icon487298 (three bodies). Exact next: commit/push stability fix,
+review candidate gate and remaining bounded core acceptance; prioritize golden
+path/downstream/persistence checks and identify installable device artifact.
+Curved intersections/tiny thresholds remain known unverified limits, not full
+parity. Preserve identity files/stalled tabs/watchdog; no merge/install/security
+changes or duplicate desktop workers.
 
 ## Earlier checkpoint history
 
