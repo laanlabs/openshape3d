@@ -948,6 +948,9 @@ struct EditorView: View {
                 SketchDimensionOverlay(viewModel: viewModel)
             }
             .overlay {
+                SketchTransformControlsOverlay(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
                 SketchRadialHandleOverlay(viewModel: viewModel)
                 SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

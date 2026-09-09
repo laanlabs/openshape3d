@@ -825,3 +825,13 @@ Freecirclecenterdrag was intercepted by44ptdiameterbutton; offsetdragworked.
 Native retainsdrivenØ in explicitmode, so readoutkept. Mode-only60pt textoffset
 clearscenter; normal20pt unchanged. Clean2/2 pluslivecenterdrag/history/editor/
 reopen. Fulltransformcontrolstyle remainsopen. Circle-transform receiptupdated.
+
+## Explicit transform controls and initial arc pivot — September 8
+
+White directional X/Y/rotation controls and exact numeric entry replace the
+explicit-mode ring; center drag and Copy retained. Single-arc rotation uses exact
+visible bounds for its initial pivot. Clean 16/16 focused regression, live typed
+Y/45-degree rotation/history/Copy and gallery reopen captured. Earlier failures
+remain in the [transform receipt](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
+Illustrated 92 images and master final-reopen note export-verified. Retained
+operation values, pivot and rotated local control frame remain blocking gaps.

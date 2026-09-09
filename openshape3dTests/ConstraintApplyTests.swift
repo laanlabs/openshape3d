@@ -63,6 +63,52 @@ final class ConstraintApplyTests: XCTestCase {
         return nil
     }
 
+    func testTypedArcRotationUsesVisibleBoundsPivot() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let arc = SketchEntity.arc(id: id, center: .zero, radius: 2,
+                                  startAngle: -.pi / 2, endAngle: .pi / 2)
+        let sketch = openSketch(vm, entities: [arc])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertEqual(vm.sketchSelectionCentroid!.x, 1, accuracy: 1e-8)
+        XCTAssertEqual(vm.sketchSelectionCentroid!.y, 0, accuracy: 1e-8)
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45 deg"))
+        guard case let .arc(_, center, radius, start, end) = vm.activeSketch?.entities.first else { return XCTFail() }
+        XCTAssertEqual(center.x, 1 - sqrt(0.5), accuracy: 1e-5)
+        XCTAssertEqual(center.y, -sqrt(0.5), accuracy: 1e-5)
+        XCTAssertEqual(radius, 2, accuracy: 1e-5)
+        XCTAssertEqual(start, -.pi / 4, accuracy: 1e-5)
+        XCTAssertEqual(SketchEntity.arcSweep(startAngle: start, endAngle: end), .pi, accuracy: 1e-5)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [arc])
+    }
+
+    func testExactSketchAxisInputPreservesDiameterAndLocksAndHistory() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let circle = SketchEntity.circle(id: id, center: SIMD2(2, 3), radius: 4)
+        let sketch = openSketch(vm, entities: [circle])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.y, text: "2 cm"))
+        guard case let .circle(_, center, radius) = vm.activeSketch?.entities.first else { return XCTFail() }
+        XCTAssertEqual(center.x, 2, accuracy: 1e-5)
+        XCTAssertEqual(center.y, 23, accuracy: 1e-5)
+        XCTAssertEqual(radius, 4, accuracy: 1e-5)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [circle])
+        vm.session.redo()
+        let moved = vm.activeSketch!.entities
+        vm.session.perform(AddSketchConstraintCommand(sketchID: sketch.id,
+            constraint: .init(kind: .fixed, refs: [.init(entityID: id, role: .whole)])))
+        XCTAssertTrue(vm.commitSketchTransformControl(.x, text: "5 mm"))
+        XCTAssertEqual(vm.activeSketch?.entities, moved)
+        XCTAssertFalse(vm.commitSketchTransformControl(.x, text: "5 deg"))
+        XCTAssertFalse(vm.commitSketchTransformControl(.rotation, text: "5 cm"))
+        XCTAssertEqual(vm.activeSketch?.entities, moved)
+    }
+
     func testUnlockSelectedRectangleSidePreservesOtherLocksAndHistory() throws {
         let vm = try makeViewModel(), id = UUID()
         let sketch = openSketch(vm, entities: [.rect(id: id, min: .zero, max: SIMD2(10, 6))])

@@ -965,7 +965,7 @@ final class EditorViewModel {
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if mode.sketchTool == nil, !usesExplicitSketchTransform || sketchTransformActive,
+            if mode.sketchTool == nil, !usesExplicitSketchTransform, !sketchTransformActive,
                let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
@@ -8191,6 +8191,58 @@ final class EditorViewModel {
     var sketchCopyOnDrag = false
     var sketchTransformActive = false
 
+    enum SketchTransformControl: String, CaseIterable {
+        case x, y, rotation
+        var title: String { self == .rotation ? "Angle" : (self == .x ? "X" : "Y") }
+    }
+
+    /// The overlay supplies signed plane-axis distance or degrees, independent
+    /// of zoom. Reuse the same baseline, Copy and coalesced history as canvas drags.
+    func updateSketchTransformControl(_ control: SketchTransformControl, value: Double) {
+        guard value.isFinite, sketchTransformActive, let center = sketchSelectionCentroid else { return }
+        if sketchGizmoDrag == nil {
+            let grab = control == .rotation ? center + SIMD2(1, 0) : center
+            guard beginSketchGizmoDrag(at: grab, forcedKind: control == .rotation ? .rotate : .move) else { return }
+        }
+        guard let drag = sketchGizmoDrag else { return }
+        let raw: SIMD2<Double>
+        switch control {
+        case .x: raw = drag.grabPoint + SIMD2(value, 0)
+        case .y: raw = drag.grabPoint + SIMD2(0, value)
+        case .rotation:
+            let angle = value * .pi / 180
+            raw = drag.pivot + SIMD2(cos(angle), sin(angle))
+        }
+        updateSketchGizmoDrag(raw: raw, quantize: false)
+    }
+
+    func endSketchTransformControl() {
+        guard let drag = sketchGizmoDrag else { return }
+        sketchGizmoDrag = nil
+        if drag.pushed {
+            session.rebuildForSketchChange(drag.sketchID)
+            session.save()
+        }
+    }
+
+    @discardableResult
+    func commitSketchTransformControl(_ control: SketchTransformControl, text: String) -> Bool {
+        guard let parsed = ExpressionEvaluator.evaluate(text, variables: session.variableValues()), parsed.isFinite else {
+            showNotice("Enter a valid distance or angle.")
+            return false
+        }
+        let suffix = NumericKeypad.trailingUnit(in: text)
+        guard control == .rotation ? (suffix == nil || suffix == "deg") : suffix != "deg" else {
+            showNotice("Use an angle for rotation or a length for movement.")
+            return false
+        }
+        let value = control == .rotation ? parsed :
+            (Self.lengthUnit(forSuffix: suffix) ?? AppSettings.shared.unit).mm(fromDisplay: parsed)
+        if abs(value) > 1e-10 { updateSketchTransformControl(control, value: value) }
+        endSketchTransformControl()
+        return true
+    }
+
     var selectedSingleRadialEntity: SketchEntity? {
         guard mode.isSketching, mode.sketchTool == nil,
               selectedSketchEntityIDs.count == 1,
@@ -8379,7 +8431,7 @@ final class EditorViewModel {
     private var sketchGizmoDrag: SketchGizmoDrag?
 
     /// Gizmo dimensions in plane units (floored for constant screen size).
-    private var sketchGizmoHandleRadius: Double { max(0.4, 22 * worldPerPoint) }
+    private var sketchGizmoHandleRadius: Double { sketchTransformActive ? 22 * worldPerPoint : max(0.4, 22 * worldPerPoint) }
     private var sketchGizmoRingRadius: Double { max(1.4, 64 * worldPerPoint) }
     private var sketchGizmoRingWidth: Double { max(0.35, 16 * worldPerPoint) }
 
@@ -8388,8 +8440,29 @@ final class EditorViewModel {
         guard let sketch = activeSketch else { return nil }
         let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !selected.isEmpty else { return nil }
+        if sketchTransformActive, selected.count == 1 {
+            return Self.explicitSketchTransformCenter(selected[0])
+        }
         let sum = selected.reduce(SIMD2<Double>.zero) { $0 + Self.entityCenter($1) }
         return sum / Double(selected.count)
+    }
+
+    /// Native's initial single-arc transform pivot is the visible arc bounds,
+    /// not the center of its supporting circle. Include cardinal extrema so
+    /// short/major arcs and angle seams do not depend on tessellation density.
+    nonisolated static func explicitSketchTransformCenter(_ entity: SketchEntity) -> SIMD2<Double> {
+        guard case let .arc(_, center, radius, start, end) = entity else { return entityCenter(entity) }
+        let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+        var angles = [start, end]
+        for cardinal in [0.0, Double.pi / 2, Double.pi, 3 * Double.pi / 2] {
+            var offset = (cardinal - start).truncatingRemainder(dividingBy: 2 * .pi)
+            if offset < 0 { offset += 2 * .pi }
+            if offset <= sweep + 1e-10 { angles.append(cardinal) }
+        }
+        let points = angles.map { SketchEntity.arcPoint(center: center, radius: radius, angle: $0) }
+        let lo = points.reduce(points[0]) { simd_min($0, $1) }
+        let hi = points.reduce(points[0]) { simd_max($0, $1) }
+        return (lo + hi) / 2
     }
 
     nonisolated static func entityCenter(_ entity: SketchEntity) -> SIMD2<Double> {
@@ -8439,7 +8512,7 @@ final class EditorViewModel {
 
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
-    private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
+    private func beginSketchGizmoDrag(at raw: SIMD2<Double>, forcedKind: SketchGizmoDragKind? = nil) -> Bool {
         guard !usesExplicitSketchTransform || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
@@ -8448,9 +8521,11 @@ final class EditorViewModel {
         else { return false }
         let distance = simd_length(raw - centroid)
         let kind: SketchGizmoDragKind
-        if distance <= sketchGizmoHandleRadius {
+        if let forcedKind {
+            kind = forcedKind
+        } else if distance <= sketchGizmoHandleRadius {
             kind = .move
-        } else if abs(distance - sketchGizmoRingRadius) <= sketchGizmoRingWidth {
+        } else if !sketchTransformActive, abs(distance - sketchGizmoRingRadius) <= sketchGizmoRingWidth {
             kind = .rotate
         } else {
             return false
@@ -8584,7 +8659,7 @@ final class EditorViewModel {
         return result
     }
 
-    private func updateSketchGizmoDrag(raw: SIMD2<Double>) {
+    private func updateSketchGizmoDrag(raw: SIMD2<Double>, quantize: Bool = true) {
         guard var drag = sketchGizmoDrag else { return }
         let after: [SketchEntity]
         switch drag.kind {
@@ -8595,8 +8670,8 @@ final class EditorViewModel {
                 (delta.x / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing,
                 (delta.y / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing
             )
-            if AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
-            if AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
+            if quantize, AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
+            if quantize, AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
             after = SketchTransform.translate(entities: drag.originals, by: delta)
         case .rotate:
             // 5° steps while dragging (matches the body rings).
@@ -8604,7 +8679,8 @@ final class EditorViewModel {
                 drag.grabPoint.y - drag.pivot.y, drag.grabPoint.x - drag.pivot.x
             )
             let currentAngle = atan2(raw.y - drag.pivot.y, raw.x - drag.pivot.x)
-            let degrees = ((currentAngle - anchorAngle) * 180 / .pi / 5).rounded() * 5
+            let rawDegrees = (currentAngle - anchorAngle) * 180 / .pi
+            let degrees = quantize ? (rawDegrees / 5).rounded() * 5 : rawDegrees
             after = SketchTransform.rotate(
                 entities: drag.originals, about: drag.pivot, angle: degrees * .pi / 180
             )

@@ -1,26 +1,24 @@
 # Parity continuation checkpoint
 
-September8 ~22:24EDT. HEAD36127b6 before verifiedcircleclearancecommit.
-DirtySketchDimensionOverlay/DimensionUITests+receipt/ledger. Serial37465 clean2/2,
-no build/test/Peekaboo workeractive. Livepaintedcenter450650→450570 moves,
-UndoRedo andraisedØlabelkeypadopen pass. Unchangedcommit+galleryreopen retains
-Ø0.992/center570 withnormalcloseleader. Illustrated89images/2newPNGhashes and
-master38finalreopen noteverified. Previousarc/circleLock fixes pushed/verified.
-Exactnext explicittransformcontrols: nativewhitedirectionalaxes vsclonebluering.
-Freshnativefreecircleaxisdragdidnothing(excluded), clickverticalaxis then1000
-commitscenter801334→801292 whileØ1000preserved; screenshot
-/tmp/os3d-transform-native-axis-typed.png. Native currentMAINFrontSketch02,
-explicitMove/Rotatewith1000mmverticalfield. Circleunlocked, arc775446locked.
-CloneFrontUntitled2 circle450570selectednormalmode; noexplicitaxiscontrols.
-Needpairedcloneaxisabsencecapture, then implementconfirmedcontrol/typedaxisgap,
-focusedtests/live/docs/next. Nativecenterhandleandfreecanvasdragnotclaimedidentical.
-Otherprimitive/mixedtransforms/fullsnapgrid/directarc/numeric/selectionremain;
-finalsinglerevisionregression+identifiedinstallableartifact/devicegateopen.
-Simulator5147at27544; native1924at9979; dedicatedAC2FD923-1661-435F-BF47-3E9DF30D1A16.
-EveryPeekaboo --bridge-socket '/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'.
-Activeillustratedt15 7442C07B27B3DEA86715C808891BAD9B,mastert14 77EDB2C49ACE004AFAD551FCDE5ECD9A.
-OldstalledDocst11/t13 preserved. No merge/deviceinstall/Macrestart/securitychanges/duplicatewatchdog.
-Identityfilesuntouched.
+September 8 ~22:50 EDT. HEAD b9ad8ea; dirty VM/EditorView/new transform overlay,
+ConstraintApply/DimensionUI tests, transform receipt/checkpoint. No runner active.
+97350 completed clean 16/16. Live initial arc bounds pivot, 45-degree rotation,
+Undo/Redo, typed X Copy 1 mm and two-arc gallery reopen inspected successfully.
+Receipt: docs/testing/sketch-parity-explicit-transform-controls-2026-09-08.md.
+Exact next: publish verified control/pivot/reopen evidence and commit; continue
+native retained operation value re-edit and rotating control-frame comparison.
+Native 1924 at 99,79 remains free arc rotated 45 degrees in explicit mode.
+Simulator 5147 at 275,44 has reopened Untitled 2 with two copied arcs.
+Every Peekaboo call uses healthy GUI bridge socket in user Application Support.
+No competing desktop workers, build, or UI tests. Dedicated simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16.
+Illustrated 92 images/new 3 PNG hashes and master 38-image final reopen note
+export-verified. Native inspected 90-degree re-edit replaces operation angle. Active tabs 7442C07B27B3DEA86715C808891BAD9B and
+77EDB2C49ACE004AFAD551FCDE5ECD9A; preserve older stalled tabs.
+Retained values/pivot/frame, remaining numeric/selection matrix, final regression
+and installable candidate gate still open. Identity files untouched. No merge,
+device installation, restart/security changes, or duplicate watchdog.
+
+## Historical receipts (not current execution/publication state)
 
 ## Verified
 

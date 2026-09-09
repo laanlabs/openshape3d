@@ -62,6 +62,46 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testSketchAxisTypedMoveCancelAndUndo() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.5, 0.6).press(forDuration: 0.15, thenDragTo: p(0.6, 0.6))
+        tapPaletteTool(app, group: "Sketch", label: "Circle")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let before = label.frame, value = label.label
+        let mode = app.buttons["SketchTransformMode"]
+        mode.tap()
+        let y = app.buttons["SketchTransform-y"]
+        XCTAssertTrue(y.waitForExistence(timeout: 3))
+        y.tap()
+        XCTAssertTrue(app.textFields["SketchTransformField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-1"].tap()
+        app.buttons["SketchTransformCancel"].tap()
+        mode.tap()
+        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+        mode.tap()
+        y.tap()
+        app.buttons["Keypad-1"].tap()
+        app.buttons["KeypadCommit"].tap()
+        mode.tap()
+        XCTAssertEqual(label.label, value)
+        XCTAssertEqual(label.frame.midX, before.midX, accuracy: 3)
+        XCTAssertLessThan(label.frame.midY, before.midY - 20)
+        attach(app, "sketch-typed-y-move-diameter-preserved")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+        app.buttons["RedoButton"].tap()
+        XCTAssertLessThan(label.frame.midY, before.midY - 20)
+    }
+
     func testCircleExplicitCenterMoveRemainsClearOfDiameterButton() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
@@ -125,9 +165,9 @@ final class DimensionUITests: XCTestCase {
         let radialHandle = app.descendants(matching: .any).matching(identifier: "SketchArcRadiusHandle").firstMatch
         app.buttons["SketchCopyBadge"].tap()
         XCTAssertFalse(radialHandle.exists)
-        // Default sagitta is a quarter chord; its circle center lies 3/8
-        // chord below the chord midpoint in this head-on fixture.
-        let centerY = 0.55 + 0.13125 * window.frame.width / window.frame.height
+        // Explicit arc transform uses its visible bounds center: halfway
+        // between the quarter-chord sagitta and the chord, not circle center.
+        let centerY = 0.55 - 0.04375 * window.frame.width / window.frame.height
         p(0.475, centerY).press(forDuration: 0.2, thenDragTo: p(0.595, centerY))
         sleep(1)
         XCTAssertEqual(app.buttons["SketchTransformMode"].label, "Done")
