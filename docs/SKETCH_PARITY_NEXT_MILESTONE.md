@@ -331,3 +331,23 @@ copied to durable transform-controls report. Touching loops, tiny gaps,
 duplicate edges, downstream rebuild and device artifact remain open.
 
 [Receipt](testing/sketch-parity-nested-profiles-2026-09-09.md).
+
+## September 9 — named consumed-source rebuild
+
+## Final source-edit result
+
+Both apps Undo restored the old source diameter and bore; Redo restored the
+larger source/bore. Both gallery reopens retained enlarged solids. Native
+Body02/Sketch03 and cloneExtrude/Sketch2 retained original ownership; no new
+sketch was created by named entry. Broader visibility toggle cases remain open.
+Existing history/profile-seed regression completed clean5/5 (2+3), serial70997,
+/tmp/os3d-consumed-source-20260909.log/.xcresult. Unit tests terminated clone
+app after the already captured final reopen; relaunch before more live work.
+No code change in this lane.
+
+Illustrated151 images and all4 new PNG hashes verified by DOCX export; master38
+final5/5 and gallery-reopen note verified. Evidence/export retained in durable
+transform-controls reports. This samples downstream bore rebuild, not full
+Sweep/Loft/downstream smoke or all profile topology/device readiness.
+
+[Receipt](testing/sketch-parity-consumed-source-2026-09-09.md).

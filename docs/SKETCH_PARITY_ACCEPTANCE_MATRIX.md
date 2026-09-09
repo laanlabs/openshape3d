@@ -52,7 +52,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-45 | Move/rotate/copy | Core - partial, not passed | White exact-axis/rotation controls, retained re-edit/local frame, circle frame-only history, armed reselection and Escape paired; direct-drag/compact/mixed-selection matrix remains open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
-| QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed/overlapping variants open. |
+| QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed named entry/bore rebuild/history/reopen sampled; overlapping selection variants open. |
 | QA-49 | Profile topology | Core — partial, not passed | Trimmed open U and nested-circle region/extrusion/history/reopen sampled; touching/gap/duplicate/self-intersection open. |
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
@@ -573,3 +573,23 @@ copied to durable transform-controls report. Touching loops, tiny gaps,
 duplicate edges, downstream rebuild and device artifact remain open.
 
 [Receipt](testing/sketch-parity-nested-profiles-2026-09-09.md).
+
+## September 9 — named consumed-source rebuild
+
+## Final source-edit result
+
+Both apps Undo restored the old source diameter and bore; Redo restored the
+larger source/bore. Both gallery reopens retained enlarged solids. Native
+Body02/Sketch03 and cloneExtrude/Sketch2 retained original ownership; no new
+sketch was created by named entry. Broader visibility toggle cases remain open.
+Existing history/profile-seed regression completed clean5/5 (2+3), serial70997,
+/tmp/os3d-consumed-source-20260909.log/.xcresult. Unit tests terminated clone
+app after the already captured final reopen; relaunch before more live work.
+No code change in this lane.
+
+Illustrated151 images and all4 new PNG hashes verified by DOCX export; master38
+final5/5 and gallery-reopen note verified. Evidence/export retained in durable
+transform-controls reports. This samples downstream bore rebuild, not full
+Sweep/Loft/downstream smoke or all profile topology/device readiness.
+
+[Receipt](testing/sketch-parity-consumed-source-2026-09-09.md).

@@ -1,20 +1,19 @@
 # Parity continuation checkpoint
 
-September9 ~03:55EDT. HEADed0a004 pushed; nested-profile acceptance documentation
-ready for checkpoint commit. No test/build/Peekaboo runner remains. Existing
-ProfileTests clean15/15; native concentric and clone offset nested-circle solids,
-Undo/Redo and paired gallery reopen inspected. Illustrated147 images/both final
-hashes and master38 final15/15 note exported and verified. No code changes for
-nested lane. Dirty receipt/ledger/matrix/milestone/checkpoint; identity files untouched.
+September9 ~04:07EDT. HEAD68914bc pushed; consumed-source documentation ready
+for checkpoint commit. No test/build/Peekaboo worker active. Clean5/5 existing
+history/profile-seed checks. Paired named source bore edits, Undo/Redo and final
+reopen inspected. Illustrated151 images/all4 new hashes and master38 final
+note exported and verified. No code changes in this lane; dirty receipt/ledger/
+matrix/milestone/checkpoint; unrelated identity files preserved.
 
-Native1924 model mode, Items open Body02/Sketch03 with bore solid retained;
-clone5147 reopened offset-hole solid, model oblique. Exact next: commit docs,
-then paired explicit named editing of consumed Sketch03/Sketch2, verify source
-geometry and downstream rebuild/visibility. Continue remaining topology/numeric/
-visual/sustained matrix and installable artifact; candidate gate still open.
-Receipt docs/testing/sketch-parity-nested-profiles-2026-09-09.md retains invalid
-attempts and scope limitations. No duplicate workers/watchdog/merge/install or
-security changes. Prior fill ed0a004 clean6/6 and145image publication verified.
+Native1924 model mode, reopenedBody02/Sketch03 withØ1800bore. Clone saved
+Untitled2 hasExtrude/Sketch2 withØ0.75offsetbore; unit tests terminatedapp,
+relaunch beforedesktop. Exact next: commit/push docs, paired QA49 tiny-gap/
+touching-loop profile cases, then remaining numeric/visual/sustained and device
+artifact. Full downstream smoke and overlap/visibility variants still open.
+Receipt docs/testing/sketch-parity-consumed-source-2026-09-09.md. Preserve old
+stalled Docs tabs/watchdog; no merge/install/security changes or duplicateworkers.
 
 ## Earlier checkpoint history
 
