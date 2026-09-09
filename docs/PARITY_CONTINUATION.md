@@ -1,23 +1,23 @@
 # Parity continuation checkpoint
 
-September9 ~02:52EDT. HEAD480bbeb; immediate dimension lock action verified and
-being committed. Dirty owned code/tests/docs listed by git status; identity files
-excluded. No build/test/Peekaboo process active after last screenshot. Clean12/12
-regression, final tint-only build53633 passed, live reopened neutral icon/draft
-disable/Escape verified. Paired line/circle immediate lock/unlock, geometry,
-history and gallery reopen captured. Illustrated130 images/all3 final PNG hashes
-and master38 final reopen/tint notes export-verified. Receipt:
-docs/testing/sketch-parity-dimension-lock-action-2026-09-09.md.
+September9 ~03:07EDT. HEAD3df7dec pushed; alternate Dimension route correction
+ready to commit. Owned VM/tests/ledger/matrix/milestone/receipt/checkpoint dirty;
+identity files excluded. Serial46352 completed clean9/9; no build/test runner.
+Latest native Escape process8785 pending completion (do not overlap desktop).
+Clone5147 Frontcircle430450Ø2 keypad open after gallery reopen via Constrain
+61,618→Dimension128,625. Native1924 reopened Frontcircle947517Ø2000 pad
+was open, Escape now closing. Paired numeric re-edit/history and saved locks
+verified. Illustrated135/all5 new PNG hashes; master38 final reopen note verified.
+Receipt docs/testing/sketch-parity-dimension-palette-2026-09-09.md.
 
-Exact next: finish commit/push, then inspect alternate Dimension command gap:
-clone selected stored circleØ0.992 → Constrain61,618 → Dimension128,625 leaves
-no editor visible and hides radial control. Latest screenshot
-/tmp/os3d-dimension-palette-existing-pad.png; inspect settled followup. Code
-beginDimensionForSelection uses candidate label ID even when stored dimension
-suppresses candidate. Native current savedØ1000 pad open confirms closedlock.
-Clone5147 Frontcircle430450/line300600→350640; native1924 circle964529.
-No duplicateworkers/watchdog, merge/install/securitychanges. Full visual/numeric
-matrix and installable iPad artifact gate remain open. Preserve stalled Doc tabs.
+Exact next: finish commit/push; wait8785, inspect native current state. Start
+QA48 coplanar sketch identity: record named Items sketches, exit/restart on same
+plane versus explicitly continuing named item; compare clone routing which
+currently reuses first coincident plane automatically. Do not infer native
+identity from geometry alone. No newproject/purchase/deletion needed. Remaining
+core visual/numeric/selection matrix, final regression and installable device
+artifact gate open. No duplicateworkers/watchdog/merge/install/securitychanges.
+Preserve stalled Doc tabs.
 
 ## Earlier checkpoint history
 

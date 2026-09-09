@@ -384,6 +384,16 @@ final class DimensionUITests: XCTestCase {
         XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, "Ø10 mm",
                        "the badge carries the CAD leader")
         attach(app, "circle-diameter-badge")
+        tapPaletteTool(app, group: "Constrain", label: "Dimension")
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3),
+                      "Palette entry must reopen the stored diameter, not an invisible candidate")
+        XCTAssertEqual(app.textFields["DimensionField"].firstMatch.value as? String, "10")
+        setDimension(app, to: "8")
+        XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, "Ø8 mm")
+        XCTAssertTrue(app.staticTexts["4.00 mm"].waitForExistence(timeout: 3))
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, "Ø10 mm")
+        attach(app, "circle-palette-existing-dimension-reedit-history")
     }
 
     func testDimensionLockActsImmediatelyAndRejectsEditedDraft() throws {

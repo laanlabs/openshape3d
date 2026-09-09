@@ -953,3 +953,14 @@ matrix and device artifact remain open.
 
 Publication verified: illustrated130 images, all3 final PNG hashes matched;
 master38 images with final gallery-reopen and tint notes exported.
+
+## September 9 — alternate Dimension entry for stored sizes
+
+Constrain → Dimension used a suppressed candidate label when a stored size
+already existed, leaving no visible keypad. It now reuses the matching stored
+label/ID. Clean9/9 (7unit+2UI). Live circleØ1→Ø2, unchanged center, Undo/Redo
+and gallery reopen with palette entry verified; native existingØ1000→Ø2000
+center/history and final reopened closed-lock editor paired. Native reference
+is size editing, not an identical alternate palette. Illustrated135 images/all5
+new hashes and master38 final reopen note export-verified.
+[Receipt](testing/sketch-parity-dimension-palette-2026-09-09.md).

@@ -161,6 +161,30 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 20, accuracy: 1e-6)
     }
 
+    func testPaletteReopensStoredDimensionWithoutDuplicatingIt() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (sketch, id) = lineReadyToDimension(vm)
+        vm.commitDimensionEdit("20")
+        let stored = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionForSelection()
+        let edit = try XCTUnwrap(vm.editingDimension)
+        XCTAssertEqual(edit.dimensionID, stored.id)
+        XCTAssertTrue(vm.sketchDimensionLabels.contains { $0.id == edit.labelID },
+                      "The editor must target a rendered label, not a suppressed candidate")
+        vm.commitDimensionEdit("30")
+        XCTAssertEqual(vm.activeSketch?.dimensions.count, 1)
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.id, stored.id)
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 30, accuracy: 1e-6)
+        vm.session.undo()
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 20, accuracy: 1e-6)
+        vm.beginDimensionForSelection()
+        vm.toggleDimensionLock(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 20, accuracy: 1e-6)
+    }
+
     /// Unlocked, the value still drives the solve — the geometry lands exactly
     /// where it was asked to — it just is not written down as a constraint.
     func testUnlockedCommitResizesWithoutRecordingADimension() throws {

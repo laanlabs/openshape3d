@@ -11853,11 +11853,19 @@ final class EditorViewModel {
         )
     }
 
-    /// Palette Dimension action: open the field for the selection candidate
-    /// (creating a new driving dimension on commit).
+    /// Palette Dimension action uses the stored label when this size is already
+    /// driven; otherwise it opens the new selection candidate.
     func beginDimensionForSelection() {
         guard let cand = dimensionCandidate, let sketch = activeSketch,
               let value = measuredValue(kind: cand.kind, refs: cand.refs, in: sketch) else { return }
+        let refs = Set(cand.refs.map { "\($0.entityID)-\($0.role.rawValue)" })
+        if let storedLabel = sketchDimensionLabels.first(where: {
+            $0.dimensionID != nil && $0.kind == cand.kind &&
+            Set($0.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refs
+        }) {
+            beginDimensionEdit(storedLabel)
+            return
+        }
         // Locked is the default for every fresh edit: a typed dimension is
         // normally meant to hold, and a sticky unlock would silently stop
         // recording them.
