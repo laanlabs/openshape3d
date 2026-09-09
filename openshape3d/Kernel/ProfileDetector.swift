@@ -376,6 +376,18 @@ nonisolated enum ProfileDetector {
             }
         }
 
+        // A repeated straight stroke is still an editable entity, but it is
+        // only one geometric boundary. Parallel coincident half-edges create
+        // zero-area cycles and can swallow an otherwise closed face. Keep the
+        // first entity as the stable boundary owner; do not mutate the sketch.
+        // Only straight chains qualify: arcs/splines with the same endpoints
+        // may enclose a real region and must remain distinct.
+        var straightBoundaries = Set<Set<NodeKey>>()
+        chains = chains.filter { chain in
+            guard !chain.isArc, chain.spline == nil, chain.points.count == 2 else { return true }
+            return straightBoundaries.insert(Set(chain.points.map(NodeKey.init))).inserted
+        }
+
         // Planar FACE TRAVERSAL over half-edges.
         //
         // The previous walker followed a chain and gave up at any node whose

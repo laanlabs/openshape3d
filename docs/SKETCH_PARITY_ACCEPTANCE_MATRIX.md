@@ -616,3 +616,15 @@ checks; live Front/oblique, regular/construction history and final reopen pass.
 Multi-scale dash test automated-only: bridge scroll rejected. Curved phase,
 point-touch, duplicates/tiny tolerance remain open. Illustrated160/all5 new
 hashes and master38 final note export verified. [Receipt](testing/sketch-parity-touching-construction-2026-09-09.md).
+
+## September 9 — duplicate straight boundary correction
+
+Paired duplicate topedge preserved nativeprofile but removed cloneprofile.
+Temporary profilegraph now collapses coincident straight boundaries, preserving
+editableentities and firstboundaryowner; arcs/splines remain distinct. Initial
+2testsfailed; corrected22profile/history/seed +27curve/entity checks passed in
+separate cleanruns. Live savedprofile recovered; freshreverseoverlap extrudes;
+pairedblockUndo/Redo and finalreopen pass. Earlierduplicate-only liveUndo remains
+inconclusive. Partialoverlap/duplicatecurves/pointtouch/tinytolerance open.
+Illustrated165 imageplacements/164uniqueassets (reusedidenticalimage), all5
+evidencehashes and master38finalnote exportverified. [Receipt](testing/sketch-parity-duplicate-boundary-2026-09-09.md).

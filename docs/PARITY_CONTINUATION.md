@@ -1,17 +1,19 @@
 # Parity continuation checkpoint
 
-September9 ~04:45EDT. HEAD603d6b2 pushed; construction dash correction and
-receipt/ledger/matrix/milestone/checkpoint ready for commit. No worker active.
-Serial1296 completed0 clean24/24 (9construction+15profile). Updated live
-selected/unselected Front and oblique construction dashes, regular/construction
-history and paired final gallery reopen inspected. Multi-zoom automated-only;
-bridge scroll rejected twice. Native1924 oblique reopened merged region leftof
-bore; clone5147 oblique reopened merged region below bore. Both construction
-dividers persist. Illustrated160/all5 new hashes and master38 note verified.
-Exact next: commit/push verified dash correction; paired duplicate boundary /
-point-touch and remaining core acceptance. Receipt testing/sketch-parity-touching-
-construction-2026-09-09.md. Preserve identity files/stalledtabs/watchdog.
-No merge/install/security changes or duplicateworkers. Candidate gate open.
+September9 ~04:58EDT. HEADb2de2ac pushed; duplicateboundary fix and docs ready
+for commit. No worker active. Red83500 two failures reproduced; green40413
+clean22/22 + curve42416 clean27/27. No combined49run. Fixed temporarygraph
+straightdedup preservesfirstowner/editableentities; arcs/splines excluded.
+Live savedprofile recovered, freshreverseoverlap extrudes; native500mm and
+clone1mm blocks Undo/Redo and finalgalleryreopen inspected. Earlierduplicate-
+only Undo attempts inconclusive; no historycodechange. Native1924 oblique new
+Body03block +Body02bore, sourceSketch03 nowrow193. Clone5147 Untitled2
+oblique twoExtrudes +Sketch1 +hiddenSketch2; inspectrowpositionsbeforeentry.
+Illustrated165 placements/164uniqueassets/all5 evidencehashes verified; master38
+finalnoteverified. Receipt testing/sketch-parity-duplicate-boundary-2026-09-09.md.
+Exact next: commit/push fix; paired point-touch/partialoverlap and remainingcore
+acceptance, then finalregression/installablecandidategate. Preserveidentityfiles,
+stalledtabs/watchdog. No merge/install/securitychanges/duplicateworkers.
 
 ## Earlier checkpoint history
 

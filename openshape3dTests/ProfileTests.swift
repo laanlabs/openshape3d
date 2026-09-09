@@ -101,6 +101,46 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(profiles[0].area, 9, accuracy: 1e-9)
     }
 
+    func testDuplicateStraightBoundaryKeepsProfileAndOriginalEdgeIdentity() throws {
+        let a = SIMD2<Double>(0, 0), b = SIMD2<Double>(3, 0)
+        let c = SIMD2<Double>(3, 2), d = SIMD2<Double>(0, 2)
+        let original = UUID(), duplicate = UUID()
+        let boundary: [SketchEntity] = [
+            .line(id: original, a: a, b: b),
+            .line(id: UUID(), a: b, b: c),
+            .line(id: UUID(), a: c, b: d),
+            .line(id: UUID(), a: d, b: a)
+        ]
+        for reversed in [false, true] {
+            let sketch = makeSketch(boundary + [
+                .line(id: duplicate, a: reversed ? b : a, b: reversed ? a : b)
+            ])
+            let profiles = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(profiles.count, 1)
+            let profile = try XCTUnwrap(profiles.first)
+            XCTAssertEqual(profile.area, 6, accuracy: 1e-9)
+            XCTAssertTrue(profile.contains(SIMD2(1, 1)))
+            XCTAssertTrue(profile.edgeEntityIDs.contains(original))
+            XCTAssertFalse(profile.edgeEntityIDs.contains(duplicate))
+            XCTAssertEqual(sketch.entities.count, 5, "Detection must not delete editable duplicate entities")
+        }
+    }
+
+    func testDuplicatedDividerStillSeparatesAdjacentProfiles() {
+        let a = SIMD2<Double>(0, 0), b = SIMD2<Double>(2, 0)
+        let c = SIMD2<Double>(2, 2), d = SIMD2<Double>(0, 2)
+        let e = SIMD2<Double>(4, 0), f = SIMD2<Double>(4, 2)
+        let sketch = makeSketch([
+            .line(id: UUID(), a: a, b: b), .line(id: UUID(), a: b, b: c),
+            .line(id: UUID(), a: c, b: d), .line(id: UUID(), a: d, b: a),
+            .line(id: UUID(), a: b, b: e), .line(id: UUID(), a: e, b: f),
+            .line(id: UUID(), a: f, b: c), .line(id: UUID(), a: c, b: b)
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 8, accuracy: 1e-9)
+    }
+
     // MARK: - Detection
 
 
