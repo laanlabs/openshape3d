@@ -15,6 +15,21 @@ final class SketchDiameterDimensionLayoutTests: XCTestCase {
         }
     }
 
+    func testNormalSelectionUsesOutsideVerticalLeaderWithRoomyCanvas() throws {
+        let layout = try XCTUnwrap(SketchDiameterDimensionLayout.make(
+            start: CGPoint(x: 400, y: 500), end: CGPoint(x: 600, y: 500),
+            anchor: CGPoint(x: 550, y: 500), clearance: 20,
+            available: CGRect(x: 96, y: 140, width: 744, height: 1000),
+            textWidth: 80, preferVertical: true))
+        XCTAssertEqual(layout.rotation, .pi / 2)
+        XCTAssertEqual(layout.start.x, 500)
+        XCTAssertEqual(layout.end.x, 500)
+        XCTAssertEqual(abs(layout.start.y - layout.end.y), 200)
+        XCTAssertLessThan(layout.tail.y, 400)
+        XCTAssertGreaterThan(layout.anchor.x, 500)
+        XCTAssertLessThan(layout.anchor.y + layout.targetSize.height / 2, 400)
+    }
+
     func testManualAnchorRotatesLeaderWithoutChangingDiameter() throws {
         for point in [CGPoint(x: 250, y: 300), CGPoint(x: 650, y: 650)] {
             let layout = try XCTUnwrap(SketchDiameterDimensionLayout.make(

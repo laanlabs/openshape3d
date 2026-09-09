@@ -926,3 +926,14 @@ Initial25/26, immediate-reselection targeted failure, settled targeted1/1:
 change; rapid successive input remains unverified. Scope is head-on circle
 diameter labels; default selected orientation, oblique placement and other
 dimension types remain open. [Receipt](testing/sketch-parity-circle-label-drag-2026-09-09.md).
+
+## September 9 — default selected-circle outside leader
+
+Paired removal of a driving diameter then reselection confirmed native outside
+vertical versus clone interior horizontal. Normal head-on selection now prefers
+the outside leader; drawing readouts and manual overrides remain. Clean6/6 plus
+followup2/2; initially mistyped omitted selector corrected, not counted. Fresh
+clone release/selection/keypad/Ø1/manual override/Undo and paired gallery reopen
+verified. Immediate dimension unlock vs clone commit and oblique placement remain
+open; fresh native construction input attempts excluded.
+[Receipt](testing/sketch-parity-circle-default-leader-2026-09-09.md).

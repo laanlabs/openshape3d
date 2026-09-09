@@ -334,7 +334,8 @@ struct SketchDimensionOverlay: View {
             .map { (viewModel.cameraControl?.offAxisDegrees(to: $0.plane) ?? 90) < 1.1 } ?? false
         return SketchDiameterDimensionLayout.make(start: start, end: end, anchor: anchor,
             clearance: viewModel.sketchTransformActive ? 60 : 20,
-            available: bounds, textWidth: width, allowVertical: headOn, manualAnchor: manualAnchor)
+            available: bounds, textWidth: width, allowVertical: headOn, manualAnchor: manualAnchor,
+            preferVertical: !viewModel.sketchTransformActive && viewModel.mode.sketchTool != .circle)
     }
 
     private func diameterDrag(_ label: EditorViewModel.SketchDimensionLabel,

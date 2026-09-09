@@ -1,17 +1,20 @@
 # Parity continuation checkpoint
 
-September9 ~01:57EDT. HEAD7945b18 pushed; manual circle-label code/model/unit/UI
-and documentation dirty, identity files excluded. No runner active; exclusive
-Peekaboo workflow. Fresh clone Front430450 Ø1 label moved near300458: free drag
-resets on reselect; typed1 inherits placement; driven drag, Undo/Redo, reselection
-and gallery reopen verified. Native Front964529 Ø1000 diagonal stored label
-reopen verified. Regression26 distinct passes across initial/targeted; two
-immediate reselection failures retained, settled1/1 passed; no selectioncodechange.
-Illustrated121/all3postfix hashes and master38 final note verified. Exact next
-commit/push scoped correction, then compare default selected-circle orientation
-and remaining annotation/core matrix. Oblique manual placement not signed off.
-Device artifact and gate open; no merge/install/security changes/duplicateworkers.
-Preserve old stalled Docs tabs and existing watchdog.
+September9 ~02:17EDT. HEADab071f7 pushed; defaultcircleleader correction ready
+for commit (helper/overlay/layouttest, ledger/matrix/milestone/receipt/checkpoint).
+Identity files excluded. No runner active. Clean6/6+followup2/2; wrong initial
+extra test selector explicitly omitted/corrected. Fresh clone horizontalrelease→
+normalvertical, keypad/typedØ1/manualoverride/Undo and galleryreopen verified.
+Native freeØ1000 defaultvertical reselect/galleryreopen verified. Illustrated125
+bothfinalPNGhashes/master38finalnote verified. Native1924 Frontcircle964529 free
+Ø1000 vertical selected. Clone5147 Front430450 drivenØ1 vertical selected.
+Next commit/push defaultleader correction then confirmed keypad stored-dimension
+unlock difference: native locktap removes drivingdimension/dismisses immediately;
+clone toggles pendingmode and requirescommit. Further compare pendingdraft/history
+before implementing narrow fix. Fresh native circleconstruction inputs failed,
+exclude; stale menu arc was CmdZ-undone and restoration verified. Fullcorevisual,
+oblique annotation and installableartifact gateopen. No duplicateworkers/watchdog,
+merge/deviceinstall/securitychanges. Preserve oldstalledDocs tabs.
 
 ## Earlier checkpoint history
 

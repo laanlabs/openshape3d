@@ -12,7 +12,7 @@ struct SketchDiameterDimensionLayout {
     static func make(start: CGPoint, end: CGPoint, anchor: CGPoint,
                      clearance: CGFloat, available: CGRect,
                      textWidth: CGFloat, allowVertical: Bool = true,
-                     manualAnchor: CGPoint? = nil) -> Self? {
+                     manualAnchor: CGPoint? = nil, preferVertical: Bool = false) -> Self? {
         let dx = end.x - start.x, dy = end.y - start.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
@@ -48,16 +48,18 @@ struct SketchDiameterDimensionLayout {
         let target = CGRect(x: ordinary.x - max(44, textWidth) / 2,
                             y: ordinary.y - 22,
                             width: max(44, textWidth), height: 44)
-        if !allowVertical || available.contains(target) {
+        if !allowVertical || (!preferVertical && available.contains(target)) {
             return Self(start: start, end: end, tail: end,
                         anchor: ordinary, rotation: rotation,
                         targetSize: CGSize(width: max(44, textWidth), height: 44))
         }
-        // Near side chrome, use the sampled native outside vertical leader.
-        // Put the text on the inward side and choose the roomier vertical end.
+        // Normal selection and side-chrome fallback use the native outside leader.
+        // Prefer above/right for selection; fit near-edge labels inside the canvas.
         let center = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)
         let radius = length / 2
-        let upward = center.y - available.minY >= available.maxY - center.y
+        let upward = preferVertical
+            ? center.y - radius - available.minY >= max(44, textWidth) + 48
+            : center.y - available.minY >= available.maxY - center.y
         let sign: CGFloat = upward ? -1 : 1
         let near = CGPoint(x: center.x, y: center.y + sign * radius)
         let far = CGPoint(x: center.x, y: center.y - sign * radius)
@@ -67,7 +69,9 @@ struct SketchDiameterDimensionLayout {
         func fit(_ value: CGFloat, _ low: CGFloat, _ high: CGFloat) -> CGFloat {
             high >= low ? min(max(value, low), high) : (low + high) / 2
         }
-        let inward: CGFloat = center.x > available.midX ? -1 : 1
+        let inward: CGFloat = preferVertical
+            ? (center.x + 46 <= available.maxX ? 1 : -1)
+            : (center.x > available.midX ? -1 : 1)
         let x = fit(center.x + inward * 24, available.minX + 22, available.maxX - 22)
         let halfText = max(44, textWidth) / 2
         let y = fit(near.y + sign * extensionLength * 0.7,
