@@ -96,6 +96,33 @@ final class ArcTapConstructionTests: XCTestCase {
                        0, accuracy: 1e-9)
     }
 
+    func testThirdPointTangentTransitionIsOneUndoableDrawStep() throws {
+        let vm = try makeViewModel()
+        startArc(vm)
+        let sketchID = try XCTUnwrap(vm.activeSketch?.id)
+        let lineID = UUID()
+        let line = SketchEntity.line(id: lineID, a: SIMD2(0, 0), b: SIMD2(4, 0))
+        vm.session.perform(AddSketchEntityCommand(sketchID: sketchID, entity: line))
+        let undoDepth = vm.session.undoStack.undoCommands.count
+
+        tap(vm, SIMD2(4, 0))
+        tap(vm, SIMD2(8, 4))
+        tap(vm, SIMD2(4 + 4 / sqrt(2), 4 - 4 / sqrt(2)))
+
+        let arc = try XCTUnwrap(vm.activeSketch?.entities.first(where: { $0.id != lineID }))
+        let tangent = try XCTUnwrap(vm.activeSketch?.constraints.first(where: { $0.kind == .tangent }))
+        XCTAssertEqual(Set(tangent.refs.map(\.entityID)), Set([lineID, arc.id]))
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoDepth + 1,
+                       "the arc and inferred tangent are one Draw history step")
+
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [line])
+        XCTAssertTrue(vm.activeSketch?.constraints.isEmpty == true)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch?.entities.count, 2)
+        XCTAssertEqual(vm.activeSketch?.constraints.filter { $0.kind == .tangent }.count, 1)
+    }
+
     func testHoverThirdPointShapesPendingArcBeforeClickCommit() throws {
         let vm = try makeViewModel()
         startArc(vm)

@@ -278,6 +278,39 @@ final class AutoConstraintEngineTests: XCTestCase {
         XCTAssertNil(constraint(r, .tangent))
     }
 
+    func testArcTangentDetectedOnlyAtConnectedLineEndpoint() {
+        let lineID = UUID()
+        let line = SketchEntity.line(id: lineID, a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(4, 4), radius: 4,
+                                   startAngle: -.pi / 2, endAngle: 0)
+
+        let result = AutoConstraintEngine.inferArcTangencies(
+            arc: arc, existing: [line], settings: AutoConstraintSettings())
+
+        XCTAssertEqual(result, [.init(kind: .tangent, selfRole: .whole,
+                                      targetEntityID: lineID, targetRole: .whole)])
+    }
+
+    func testArcTangentRejectsConnectedButObliqueLine() {
+        let line = SketchEntity.line(id: UUID(), a: SIMD2(0, 1), b: SIMD2(4, 0))
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(4, 4), radius: 4,
+                                   startAngle: -.pi / 2, endAngle: 0)
+
+        XCTAssertTrue(AutoConstraintEngine.inferArcTangencies(
+            arc: arc, existing: [line], settings: AutoConstraintSettings()).isEmpty)
+    }
+
+    func testArcTangentRespectsDisabledSetting() {
+        let line = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(4, 4), radius: 4,
+                                   startAngle: -.pi / 2, endAngle: 0)
+        var settings = AutoConstraintSettings()
+        settings.tangent = false
+
+        XCTAssertTrue(AutoConstraintEngine.inferArcTangencies(
+            arc: arc, existing: [line], settings: settings).isEmpty)
+    }
+
     // MARK: - Master enable gate
 
     func testDisabledYieldsEmptyResult() {

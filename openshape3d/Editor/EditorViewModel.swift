@@ -10468,10 +10468,23 @@ final class EditorViewModel {
         arcEndpointHoverPreviewActive = false
         adjustingArcBulge = false
         guard case .sketching(let sketchID, _) = mode,
+              let sketch = activeSketch,
               let entity = Self.arcEntity(id: arc.id, a: arc.a, b: arc.b, sagitta: arc.sagitta)
         else { return }
-        session.perform(AddSketchEntityCommand(sketchID: sketchID, entity: entity))
-        arcTapStart = chain ? arc.b : nil
+        pendingInferredConstraints = AutoConstraintEngine.inferArcTangencies(
+            arc: entity, existing: sketch.entities,
+            settings: effectiveAutoConstrainSettings)
+        commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
+        pendingInferredConstraints = []
+        if chain,
+           let committed = activeSketch?.entities.first(where: { $0.id == entity.id }),
+           case let .arc(_, center, radius, start, end) = committed {
+            let a = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+            let b = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+            arcTapStart = simd_length(a - arc.b) <= simd_length(b - arc.b) ? a : b
+        } else {
+            arcTapStart = chain ? arc.b : nil
+        }
     }
 
     // MARK: - Arc math (chord + sagitta → SketchEntity.arc)

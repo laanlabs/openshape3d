@@ -109,6 +109,61 @@ nonisolated enum AutoConstraintEngine {
         }
     }
 
+    /// Arc construction has a third-point stage, so its final tangent cannot
+    /// be inferred by the two-point stroke path above. Match native's endpoint
+    /// transition: when an arc endpoint is already on a line endpoint and the
+    /// radius is perpendicular to that line within the configured angle gate,
+    /// emit a real Tangent relationship. Interior crossings and merely nearby
+    /// lines are deliberately excluded.
+    static func inferArcTangencies(
+        arc: SketchEntity,
+        existing: [SketchEntity],
+        settings: AutoConstraintSettings
+    ) -> [Inferred] {
+        guard settings.enabled, settings.tangent,
+              case let .arc(_, center, radius, start, end) = arc,
+              radius > lengthEpsilon else { return [] }
+
+        let arcEndpoints = [
+            SketchEntity.arcPoint(center: center, radius: radius, angle: start),
+            SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+        ]
+        let tolerance = settings.angleToleranceDeg * .pi / 180
+        var inferred: [Inferred] = []
+        var usedLines: Set<UUID> = []
+
+        for endpoint in arcEndpoints {
+            let radialVector = endpoint - center
+            let radialLength = simd_length(radialVector)
+            guard radialLength > lengthEpsilon else { continue }
+            let radial = radialVector / radialLength
+            var best: (id: UUID, deviation: Double)?
+
+            for entity in existing {
+                guard case let .line(id, a, b) = entity, !usedLines.contains(id) else { continue }
+                let lineVector = b - a
+                let lineLength = simd_length(lineVector)
+                guard lineLength > lengthEpsilon,
+                      min(simd_length(endpoint - a), simd_length(endpoint - b))
+                        <= settings.pointTolerance else { continue }
+                let direction = lineVector / lineLength
+                let deviation = asin(min(1, abs(simd_dot(direction, radial))))
+                if deviation <= tolerance,
+                   best == nil || deviation < best!.deviation {
+                    best = (id, deviation)
+                }
+            }
+
+            if let best {
+                usedLines.insert(best.id)
+                inferred.append(Inferred(
+                    kind: .tangent, selfRole: .whole,
+                    targetEntityID: best.id, targetRole: .whole))
+            }
+        }
+        return inferred
+    }
+
     // MARK: - Non-line tools: point-snap only
 
     private static func inferPointSnapOnly(
