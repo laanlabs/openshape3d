@@ -6,6 +6,9 @@ struct SketchTransformControlsOverlay: View {
     @Bindable var viewModel: EditorViewModel
     @State private var editing: EditorViewModel.SketchTransformControl?
     @State private var dragging: EditorViewModel.SketchTransformControl?
+    @State private var dragX = SIMD2<Double>(1, 0)
+    @State private var dragY = SIMD2<Double>(0, 1)
+    @State private var dragOffset = SIMD2<Double>.zero
     @State private var text = "0"
     @State private var initialValueSelected = true
     @State private var usingKeyboard = false
@@ -20,8 +23,8 @@ struct SketchTransformControlsOverlay: View {
                let plane = viewModel.activeSketch?.plane,
                let camera = viewModel.cameraControl,
                let c = camera.worldToScreenPoint(plane.toWorld(center)),
-               let px = camera.worldToScreenPoint(plane.toWorld(center + SIMD2(1, 0))),
-               let py = camera.worldToScreenPoint(plane.toWorld(center + SIMD2(0, 1))) {
+               let px = camera.worldToScreenPoint(plane.toWorld(center + SIMD2(cos(viewModel.sketchTransformFrameAngle), sin(viewModel.sketchTransformFrameAngle)))),
+               let py = camera.worldToScreenPoint(plane.toWorld(center + SIMD2(-sin(viewModel.sketchTransformFrameAngle), cos(viewModel.sketchTransformFrameAngle)))) {
                 let x = SIMD2(Double(px.x - c.x), Double(px.y - c.y))
                 let y = SIMD2(Double(py.x - c.x), Double(py.y - c.y))
                 if simd_length(x) > 0.01, simd_length(y) > 0.01 {
@@ -63,7 +66,7 @@ struct SketchTransformControlsOverlay: View {
                          ux: SIMD2<Double>, uy: SIMD2<Double>) -> some View {
         let offset = part == .x ? ux * 80 : part == .y ? uy * 80 : (ux + uy) * 80
         let anchor = CGPoint(x: center.x + offset.x, y: center.y + offset.y)
-        let rotation = part == .x ? atan2(ux.y, ux.x) : part == .y ? atan2(uy.y, uy.x) : atan2(offset.y, offset.x)
+        let rotation = part == .x ? atan2(ux.y, ux.x) : part == .y ? atan2(uy.y, uy.x) : atan2(offset.y, offset.x) + .pi / 2
         return ZStack {
             Image(systemName: part == .rotation ? "arrow.left.and.right" : "arrow.right")
                 .foregroundStyle(Color(white: 0.2)).scaleEffect(1.10)
@@ -82,14 +85,18 @@ struct SketchTransformControlsOverlay: View {
         .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .global).onChanged { value in
             let delta = SIMD2(Double(value.translation.width), Double(value.translation.height))
             guard simd_length(delta) > 2 || dragging != nil else { return }
-            if dragging == nil { editing = nil; dragging = part }
+            if dragging == nil {
+                editing = nil; dragging = part
+                dragX = x; dragY = y; dragOffset = offset
+            }
             let amount: Double
             if part == .rotation {
-                let start = atan2(simd_dot(offset, uy), simd_dot(offset, ux))
-                let current = atan2(simd_dot(offset + delta, uy), simd_dot(offset + delta, ux))
+                let initialX = simd_normalize(dragX), initialY = simd_normalize(dragY)
+                let start = atan2(simd_dot(dragOffset, initialY), simd_dot(dragOffset, initialX))
+                let current = atan2(simd_dot(dragOffset + delta, initialY), simd_dot(dragOffset + delta, initialX))
                 amount = (current - start) * 180 / .pi
             } else {
-                let axis = part == .x ? x : y
+                let axis = part == .x ? dragX : dragY
                 amount = simd_dot(delta, simd_normalize(axis)) / simd_length(axis)
             }
             viewModel.updateSketchTransformControl(part, value: amount)

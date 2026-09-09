@@ -841,3 +841,15 @@ around original pivot, Undo45/Redo90, clone gallery reopen verified. Native
 immediate Home after Redo reverted the transform: acceptance/exit investigation
 open, not paired persistence sign-off. Illustrated94 images verified. Rotated
 local frame and post-history mode still differ. See same transform receipt.
+
+## Local transform axes and history mode — September8
+
+Confirmed native45-degree rotation changes subsequent X movement direction;
+clone world-axis movement corrected. Retained local frame drives arrows and
+numeric movement; translated pivot stays coherent. Tangent rotation glyph and
+Undo/Redo closing explicit controls corrected. Clean19/19 final regression, live
+diagonal X/history and accepted-operation paired gallery reopen verified.
+Illustrated98 images/new4 hashes and master final note exported. Full receipt
+remains [explicit transforms](testing/sketch-parity-explicit-transform-controls-2026-09-08.md).
+Remaining annotations, direct rotated drags, symmetric circle frame and full
+numeric/selection/device-candidate acceptance stay open.

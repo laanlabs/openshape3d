@@ -87,3 +87,46 @@ Native immediate Home/reopen after Redo returned to pre-transform right semicirc
 (center775446,R539.1552,sweep180), NOT the rotated top semicircle. Reselection
 confirms it; no paired persistence pass claimed. Explicit native transform
 acceptance/exit path is next to investigate. Clone reopen remains verified.
+
+## Local-frame follow-through
+Native explicit Escape→Exit Sketch→Home/reopen preserves45-degree arc;
+os3d-native-accepted-front.png confirms accepted-operation persistence. Earlier
+immediate Home after Redo is a distinct unaccepted path, not a persistence pass.
+Native new45-degree operation then inspected X1000 moves center781455→811425
+(diagonal screen +30,-30), frame retained. Clone same new45 thenX1 moved
+supporting center337324→418324 (horizontal). Confirmed local-axis direction gap.
+Implementation now carries frame angle to rendering and next exact axis movement;
+accepted movement translates the retained pivot without recentering geometry bounds.
+Rotation pointer gesture captures its initial axes so the rotating visual frame
+does not alter the gesture's reference basis. Serial24151 owns simulator:
+/tmp/os3d-transform-frame-20260908.log/.xcresult. Live corrected repeat pending.
+
+Native accepted-operation persistence addendum exported in both existing Docs;
+public DOCX text contains the acceptance-path resolution. All earlier contrary
+path evidence retained. No new image count claimed beyond verified94/38.
+
+24151 passed clean18/18 (16unit,2UI). Live corrected45-degree frame thenX1mm
+moves supporting center337437→394380, originalpivot280380→337323, preserving
+R1.241/106.26 and diagonal control orientation. Native sample+30,-30 matches
+direction, with different physical scale. Rotation double-arrow still radial
+in clone versus native tangent; fixed +90-degree glyph orientation. Also closes
+explicit mode/retained value on UI Undo/Redo, matching native observed history.
+44749 serial /tmp/os3d-transform-frame-history2-20260908.log/.xcresult owns
+simulator for strengthened history unit/UI plus frame/Copy regressions.
+
+44749 passed clean19/19 (17unit,2UI), no failures/skips. Final live repeat
+45→X1mm moves337437→394380 with tangent rotation arrow and diagonal axes.
+Undo restores prior geometry and closes explicit mode/value; Redo reapplies
+geometry without reopening controls, matching observed native mode behavior.
+Clone gallery reopen/reselect retains center394380,R1.241,sweep106.26.
+Final captures os3d-frame-final45.png, -x1.png, -undo.png, -redo.png, -reopened.png.
+Native accepted movement reopen in progress; no runner active.
+
+Native accepted movement reopen/reselection retains center811426,R539.1552mm,
+180degrees. Both accepted-operation persistence samples verified, with distinct
+angles/scales and native exit path explicitly recorded. Illustrated98images,
+all four new local-frame/final PNG hashes matched exported media; master38-image
+final local-frame/history/reopen note exported. No runner active.
+Remaining: transform annotation visibility/placement, direct rotated handle-drag
+matrix, symmetric circle frame behavior, remaining numeric/selection recipes and
+final installable candidate gate. No full parity/device readiness claim.

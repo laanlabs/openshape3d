@@ -1,13 +1,15 @@
 # Parity continuation checkpoint
 
-September8 ~23:10EDT. HEAD71856eb; retained-value change ready to commit.
-No runner active. Clean17/17 20790; live retained45→90 with fixed original pivot,
-Undo45/Redo90 and clone gallery reopen verified. Illustrated94/paired90 hashes
-and master correction note exported. Native Home/reopen after Redo returned to
-pre-transform arc; not paired persistence. Native1924 now reselected right arc
-center775446 R539.1552/180 in main Front sketch; explicit acceptance path next.
-Simulator5147 Untitled2 reopened arc90. Exact next commit verified value change,
-then native explicit accept/exit/reopen, rotated-frame and post-history mode.
+September8 ~23:29EDT. HEAD7ec7bca; local-frame/history change verified ready
+to commit. No runner active. Final44749 clean19/19; live45→X1 diagonal, tangent
+rotation glyph, Undo/Redo closing explicit mode and clone reopen verified.
+Native accepted Escape→Exit Sketch→Home reopen retains811426,R539.1552/180.
+Illustrated98/new4 hashes and master38 final note exported; all local copies
+in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/transform-controls.
+Exact next commit/push frame/history correction; then paired symmetric-circle
+transform frame/annotation visibility, direct drag and remaining core matrix.
+Simulator5147 at27544 Untitled2 selected reopened arc394380,R1.241/106.26.
+Native1924 at9979 MAINFront selected arc811426,R539.1552/180 (normal sketch).
 No duplicate workers/watchdog; no merge/device installation/security changes.
 
 ## Earlier checkpoint history

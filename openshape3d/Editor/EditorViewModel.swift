@@ -4954,6 +4954,10 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        // Native history closes the explicit sketch operation, retaining the
+        // committed geometry history but discarding its live controls/value.
+        sketchTransformActive = false
+        activeSketchTransformControl = nil
         clearRectanglePlacement()
         if case .rotatingAroundAxis = mode { cancelRotateAxis() }
     }
@@ -8218,8 +8222,15 @@ final class EditorViewModel {
     }
 
     var sketchTransformFrameAngle: Double {
-        guard let retained = validRetainedSketchTransform, retained.control == .rotation else { return 0 }
-        return retained.value * .pi / 180
+        if let drag = sketchGizmoDrag, let control = activeSketchTransformControl {
+            return drag.frameAngle + (control == .rotation ? activeSketchTransformValue * .pi / 180 : 0)
+        }
+        guard let retained = validRetainedSketchTransform else { return 0 }
+        return retained.drag.frameAngle + (retained.control == .rotation ? retained.value * .pi / 180 : 0)
+    }
+
+    private func sketchTransformOffset(_ control: SketchTransformControl, value: Double, angle: Double) -> SIMD2<Double> {
+        control == .x ? SIMD2(cos(angle), sin(angle)) * value : SIMD2(-sin(angle), cos(angle)) * value
     }
 
     enum SketchTransformControl: String, CaseIterable {
@@ -8238,9 +8249,14 @@ final class EditorViewModel {
                 resumed.undoEntities = activeSketch?.entities
                 sketchGizmoDrag = resumed
             } else {
+                let frameAngle = sketchTransformFrameAngle
                 retainedSketchTransform = nil
                 let grab = control == .rotation ? center + SIMD2(1, 0) : center
                 guard beginSketchGizmoDrag(at: grab, forcedKind: control == .rotation ? .rotate : .move) else { return }
+                // Starting a different local-axis operation keeps the accepted
+                // frame and pivot rather than recomputing the new geometry bounds.
+                sketchGizmoDrag?.frameAngle = frameAngle
+                sketchGizmoDrag?.pivot = center
             }
         }
         activeSketchTransformControl = control
@@ -8248,8 +8264,8 @@ final class EditorViewModel {
         guard let drag = sketchGizmoDrag else { return }
         let raw: SIMD2<Double>
         switch control {
-        case .x: raw = drag.grabPoint + SIMD2(value, 0)
-        case .y: raw = drag.grabPoint + SIMD2(0, value)
+        case .x, .y:
+            raw = drag.grabPoint + sketchTransformOffset(control, value: value, angle: drag.frameAngle)
         case .rotation:
             let angle = value * .pi / 180
             raw = drag.pivot + SIMD2(cos(angle), sin(angle))
@@ -8477,6 +8493,7 @@ final class EditorViewModel {
         var pushed = false
         var showedBlockedNotice = false
         var undoEntities: [SketchEntity]?
+        var frameAngle = 0.0
     }
     private var sketchGizmoDrag: SketchGizmoDrag?
 
@@ -8487,8 +8504,13 @@ final class EditorViewModel {
 
     /// Centroid of the selected sketch entities (gizmo anchor), plane-local.
     var sketchSelectionCentroid: SIMD2<Double>? {
-        if let retained = validRetainedSketchTransform, retained.control == .rotation {
-            return retained.drag.pivot
+        if let drag = sketchGizmoDrag, let control = activeSketchTransformControl {
+            return control == .rotation ? drag.pivot : drag.pivot + sketchTransformOffset(control,
+                value: activeSketchTransformValue, angle: drag.frameAngle)
+        }
+        if let retained = validRetainedSketchTransform {
+            return retained.control == .rotation ? retained.drag.pivot : retained.drag.pivot + sketchTransformOffset(retained.control,
+                value: retained.value, angle: retained.drag.frameAngle)
         }
         guard let sketch = activeSketch else { return nil }
         let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
