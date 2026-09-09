@@ -1,29 +1,28 @@
 # Parity continuation checkpoint
 
-September9 ~08:49 EDT. HEADaa34577 pushed. Pending arc feedback correction is
-dirty in LiveDimensionKit, EditorViewModel, SketchLiveDimensionOverlay,
-LiveDimensionTests, DimensionUITests plus ledger/milestone/receipt/checkpoint.
-No test/build/Peekaboo worker running. Focused22/22 and final combined39/39
-passed cleanly; final run has3arcUI +36construction/analytic/live-dimension.
-Paired pending45° states inspected: clone now presents two radius rays, curved
-sweep leader/arrows, endpoint radius and both values. Clone midpoint drag updates
-curvature/readouts and a clone-only major preview reached225.55°. A later clean
-native Sketch04 recheck proved apparent-midpoint drag starts a chained arc; the
-earlier native-adjustment interpretation is withdrawn. Native third-point
-placement and supported Return route remain inconclusive; no commit/chaining
-semantics changed.
-Illustrated201 placements/all4 new hashes and master38 final note anonymously
-export verified. Durable PNG/DOCX copies in reports/.../transform-controls.
-Current acceptance inventory:0 fully passed,0 failed,1 device-blocked,55
-incomplete/untested (42 partial,11 explicit deferrals,2 not run). Candidate not
-ready. Pending-feedback fix is pushed as18a2fff; follow-up audit correction dirty.
-Exact next: continue native third-point/major interaction through a supported
-route or move to the next highest core visible gap; keep Return/chaining open.
-Clone5147 at275,44 has clone-only225.55° major preview. Native1924 at99,79 is in
-clean Top Sketch04 with a default arc and chained-arc diagnosis. No runner.
-Preserve identity files, stalled Doc tabs and30minwatchdog. Remaining QA55/56,
-finalsame-revision regression and signed installable device artifact/checklist.
-No merge/device installation/security changes or duplicate workers.
+September 9 ~09:27 EDT. HEAD `3f25d8a` is pushed; the arc-cancellation correction, tests,
+receipt and ledger updates are committed. Only this checkpoint is dirty. No test/build/Peekaboo worker is
+running. Pending readout feedback previously passed cleanly 39/39 and is pushed
+as `18a2fff`; the audit correction is pushed as `772a1e9`.
+
+Paired Arc Escape is now live-verified on the exact corrected simulator binary.
+Native and clone both discard the unfinished arc/readouts and disarm Arc on the
+first Escape while retaining an existing committed arc; a second Escape exits
+sketch mode. The first focused cancellation run failed at compilation because a
+new fixture omitted a required ID; the corrected focused run passed cleanly 6/6.
+Evidence is under `reports/.../arc-cancellation/`; the illustrated report is
+export-verified at 207 placements with all six new hashes, and the master remains
+at 38 images with its new note verified. Native third-point placement, Return/chaining,
+major/minor and tangent transition remain open.
+
+Current acceptance inventory remains 0 fully passed, 0 failed, 1 device-blocked,
+55 incomplete/untested (42 partial, 11 explicit deferrals, 2 not run). Candidate
+is not ready. Exact next: continue the next QA-13 construction case or the highest-priority
+independent core gap, retaining Return/chaining and native major/minor as open. Clone 5147 at 275,44 is back in model mode with the saved
+arc; native 1924 at 99,79 is in model mode with Sketch04 visible. Preserve the
+three untracked identity files, stalled Doc tabs and 30-minute watchdog. Remaining
+QA55/56, final same-revision regression and signed installable device artifact/
+checklist. No merge, physical-device claim, security changes or duplicate workers.
 
 ## Earlier checkpoint history
 
