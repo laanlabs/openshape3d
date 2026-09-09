@@ -17,7 +17,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
-| QA-13 | Arc construction | Core — partial, not passed | Native isolated45-degree creation and clone chord/bulge sampled; acquisition/completion contract unresolved (direct-arc receipt). |
+| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°/pending radius+sweep/third-point drag paired; Return completion/chaining, major/minor and tangent transition remain unresolved (direct-arc/default-shape/pending-feedback receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |

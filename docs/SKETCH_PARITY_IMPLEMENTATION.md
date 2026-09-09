@@ -1126,3 +1126,13 @@ forward/reverse, Undo/Redo and paired gallery reopen verified. Illustrated197
 placements/all4 new hashes and master38 final note export verified. Pending
 radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
 [Receipt](testing/sketch-parity-arc-default-shape-2026-09-09.md).
+
+## September 9 — pending arc defining readouts
+
+Native provisional arcs expose radius and sweep with two radius rays and a
+curved angular leader; clone exposed radius only. Added informational pending
+radius/sweep descriptors and native-style live leaders without changing commit
+semantics. Focused22/22 and final combined39/39 clean; paired initial/third-point
+states live-inspected. Illustrated201/all4 new hashes and master38 note verified.
+Return/chaining remains inconclusive, so QA-13 is partial.
+[Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).

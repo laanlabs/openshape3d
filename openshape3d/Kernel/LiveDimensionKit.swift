@@ -19,12 +19,12 @@ import simd
 nonisolated enum LiveDimensionKit {
 
     nonisolated enum Kind: String, Equatable, Sendable {
-        case length, diameter, radius
+        case length, diameter, radius, angle
 
         /// Leader shown before the number, the way CAD reads it.
         var prefix: String {
             switch self {
-            case .length: ""
+            case .length, .angle: ""
             case .diameter: "Ø"
             case .radius: "R"
             }
@@ -51,6 +51,11 @@ nonisolated enum LiveDimensionKit {
         var start: SIMD2<Double>
         var end: SIMD2<Double>
         var offset: SIMD2<Double>
+        /// Pending arcs also expose their sweep. These points describe the
+        /// actual arc; the overlay offsets them in screen space so the angular
+        /// leader stays legible at any zoom.
+        var arcCenter: SIMD2<Double>? = nil
+        var arcPoints: [SIMD2<Double>] = []
 
         var lineStart: SIMD2<Double> { start + offset }
         var lineEnd: SIMD2<Double> { end + offset }
@@ -146,14 +151,23 @@ nonisolated enum LiveDimensionKit {
 
         case let .arc(_, center, radius, startAngle, endAngle):
             guard radius > minimumSpan else { return [] }
-            // Radius to the arc's MIDPOINT: the leader then lands on the arc
-            // wherever it was swept to, instead of off one of its ends.
-            let mid = startAngle + SketchEntity.arcSweep(
-                startAngle: startAngle, endAngle: endAngle) / 2
+            let sweep = SketchEntity.arcSweep(startAngle: startAngle, endAngle: endAngle)
+            let end = center + SIMD2(cos(endAngle), sin(endAngle)) * radius
+            let count = max(8, Int(ceil(sweep / (.pi / 64))))
+            let points = (0...count).map { index in
+                let angle = startAngle + sweep * Double(index) / Double(count)
+                return center + SIMD2(cos(angle), sin(angle)) * radius
+            }
+            // Native's pending three-point arc reads both defining quantities:
+            // R continues outward from the second endpoint, while the sweep
+            // follows a curved leader outside the arc with two radius rays.
             return [Dimension(id: "radius", kind: .radius, value: radius,
                               start: center,
-                              end: center + SIMD2(cos(mid), sin(mid)) * radius,
-                              offset: .zero)]
+                              end: end, offset: .zero,
+                              arcCenter: center),
+                    Dimension(id: "sweep", kind: .angle, value: sweep * 180 / .pi,
+                              start: points[0], end: points[points.count - 1],
+                              offset: .zero, arcCenter: center, arcPoints: points)]
 
         case .spline:
             // A fit spline has no single number that defines it; showing its
@@ -165,7 +179,13 @@ nonisolated enum LiveDimensionKit {
     /// Formatted label, e.g. "Ø661.60 mm" — the caller supplies the unit so
     /// the readout follows the Units setting.
     static func label(_ dimension: Dimension, unit: DisplayUnit) -> String {
-        dimension.kind.prefix + unit.lengthString(fromMM: dimension.value)
+        if dimension.kind == .angle {
+            let nearest = dimension.value.rounded()
+            return abs(dimension.value - nearest) < 0.005
+                ? String(format: "%.0f°", nearest)
+                : String(format: "%.2f°", dimension.value)
+        }
+        return dimension.kind.prefix + unit.lengthString(fromMM: dimension.value)
     }
 
     // MARK: - Helpers

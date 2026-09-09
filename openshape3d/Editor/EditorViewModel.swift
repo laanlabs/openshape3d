@@ -8010,6 +8010,9 @@ final class EditorViewModel {
         /// False when the dimension line sits ON the geometry, so the witness
         /// leaders would be zero-length.
         let hasWitnessLines: Bool
+        let isArcRadius: Bool
+        let worldArcCenter: SIMD3<Double>?
+        let worldArcPoints: [SIMD3<Double>]
     }
 
     /// Dimensions for the stroke in flight — width/height while dragging a
@@ -8033,7 +8036,10 @@ final class EditorViewModel {
                     worldWitnessEnd: sketch.plane.toWorld(d.end),
                     worldLabel: sketch.plane.toWorld(d.labelPoint),
                     drawsEdgeTicks: d.kind.drawsEdgeTicks,
-                    hasWitnessLines: simd_length(d.offset) > 1e-9)
+                    hasWitnessLines: simd_length(d.offset) > 1e-9,
+                    isArcRadius: d.kind == .radius && d.arcCenter != nil,
+                    worldArcCenter: d.arcCenter.map(sketch.plane.toWorld),
+                    worldArcPoints: d.arcPoints.map(sketch.plane.toWorld))
             }
         }
     }

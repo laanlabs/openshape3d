@@ -439,3 +439,13 @@ forward/reverse, Undo/Redo and paired gallery reopen verified. Illustrated197
 placements/all4 new hashes and master38 final note export verified. Pending
 radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
 [Receipt](testing/sketch-parity-arc-default-shape-2026-09-09.md).
+
+## September 9 — pending arc readout checkpoint
+
+Paired pending arcs exposed a missing clone sweep: native shows two radius rays,
+a curved angular leader, sweep and endpoint radius; clone showed radius only.
+The corrected informational overlay passes focused22/22 and updates both values
+during live third-point drag. Return/chaining remains input-delivery inconclusive
+and was not changed. Final combined39/39 passed in one run; illustrated201/all4
+new hashes and master38 final note export verified. QA-13 remains partial.
+[Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).
