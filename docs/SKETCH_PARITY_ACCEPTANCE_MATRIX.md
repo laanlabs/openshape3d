@@ -60,7 +60,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
 | QA-55 | Sustained use | Core — not run | Paired acceptance outstanding. |
-| QA-56 | Downstream smoke | Core — not run | Paired acceptance outstanding. |
+| QA-56 | Downstream smoke | Core — passed | Paired circle-profile extrusion/cancel/history workflow and clean current-revision 65/65 Sweep/Loft/kernel regression; advanced feature parity and device input are not claimed (downstream-smoke receipt). |
 
 ## Original recipes (preserved)
 
@@ -295,7 +295,12 @@ Repeat golden path ten times, then dense sketch; log latency/hangs, not only scr
 
 ### QA-56 — Downstream smoke
 
-Existing SweepLoft failures separately attributed; no claim that sketch work fixed them. Issues: ED-12. Result: NOT RUN. Evidence/owner: pending.
+Existing SweepLoft failures separately attributed; no claim that sketch work
+fixed them. Issues: ED-12. Result: PASS — paired circle-profile extrusion and
+solid Undo/Redo; clone preview cancellation; clean 65/65 Sweep/Loft UI, kernel
+and feature-graph regression on the same revision. Advanced feature parity and
+physical-device input are not claimed. Evidence:
+[downstream-smoke receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
 
 ## Evidence dimensions
 

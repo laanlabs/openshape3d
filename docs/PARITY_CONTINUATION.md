@@ -1,49 +1,36 @@
 # Parity continuation checkpoint
 
-September 9 ~12:40 EDT. Pushed baseline is `44d72bb`. Intentional dirty files
+September 9 ~14:15 EDT. Pushed baseline is `1ea2ea5`. Intentional dirty files
 are documentation-only: this checkpoint, the milestone/implementation/
 acceptance/status ledgers, and
-`docs/testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md`. Preserve
+`docs/testing/sketch-parity-downstream-smoke-2026-09-09.md`. Preserve
 untracked `IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo
 worker is running; the simulator remains under this session's exclusive desktop
 ownership.
 
-Paired native/clone evidence confirms the sampled line-to-arc tangent
-transition. Native stored and displayed Tangent at the shared endpoint; the
-pre-fix clone merely looked tangent. The clone now performs endpoint-only arc
-tangent inference through point/angle/toggle gates, rejects oblique and interior
-cases, and commits the arc plus accepted relationship in one Draw history step.
-The exact build displayed `T`; Undo removed arc+constraint while preserving the
-line, and Redo restored them. Gallery reopen retained geometry; the post-reopen
-`T` glyph was not separately re-proven and remains unclaimed.
+QA-56 downstream smoke passes. Paired native Shapr3D and exact-build clone
+workflows carried an isolated circle profile through extrusion commit and solid
+Undo/Redo; the clone also canceled its first preview with the profile intact.
+Native used typed 100 mm and clone used a dragged 1.24 mm preview, so this is
+workflow evidence rather than dimensional equivalence. One serial
+current-revision run passed cleanly 65/65: two Sweep/Loft UI workflows plus 63
+kernel/feature-graph checks at
+`/tmp/os3d-qa56-downstream-20260909.xcresult`.
 
-Focused inference/construction passed 31/31. The final current-revision combined
-solver, construction and existing arc UI run passed cleanly 63/63 at
-`/tmp/os3d-arc-tangent-final-combined2-20260909.xcresult`. Three experimental
-UI attempts failed to reselect the arc (recordings show selection landed on the
-connected line); the flaky test was removed rather than counted. One malformed
-filter failed before build/test and is not a product failure. Eight paired PNGs
-and hashes are under `reports/.../arc-tangent-transition/`. Anonymous exports
-verify illustrated 227 with all eight hashes and no predecessor-media loss, and
-master 38 with its dated tangent/63-of-63 note.
+Twelve inspected paired PNGs and hashes are under
+`reports/.../downstream-smoke/`. Google Docs publication is anonymously
+export-verified: illustrated 246 media assets with all 12 new hashes, one clean
+QA-56 status block and no stray recovery text; master remains at 38 media assets
+with one dated QA-56 note. Verified DOCX exports and
+`publication-verification.json` are retained with the evidence.
 
-Controlled direct gestures now also pair minor, semicircle, and major arcs:
-native 90/180/220 degrees and the differently scaled clone
-81.91/176.03/214.93 degrees. Clone toolbar Undo removed the sampled major arc
-and Redo restored its profile. This is category evidence, not coordinate
-equivalence. Current acceptance remains 0 fully passed, 0 failed, 1
-device-blocked and 55 incomplete (42 partial, 11 deferred, 2 not run). QA-13
-remains partial for simulator hover delivery and physical Pencil/touch.
-Candidate is not ready.
-
-The eight boundary/history captures are now published and anonymously
-export-verified: illustrated 234 media assets with all eight new hashes and
-every predecessor unique hash retained; master 38 with its dated note. Exact
-next: commit and push this documentation checkpoint, then move to the
-highest-priority remaining core acceptance case. QA-55/56, final same-revision regression,
-installable artifact and device A/B handoff remain gates. No merge,
+Current acceptance is 1 fully passed, 0 failed, 1 device-blocked and 54
+incomplete (42 partial, 11 deferred, 1 not run), totaling 56. Exact next:
+commit and push this QA-56 documentation checkpoint, then run QA-55 sustained
+use on the same revision and continue toward the final same-revision regression,
+installable artifact and device A/B handoff. Candidate is not ready. No merge,
 physical-device claim, security changes or duplicate workers; preserve the
-watchdog and stalled Doc tabs.
+watchdog and stale Doc tab.
 
 ## Earlier checkpoint history
 

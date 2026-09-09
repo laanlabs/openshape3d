@@ -33,6 +33,15 @@ hover delivery and physical Pencil/touch; no exact macOS-to-iPad coordinate or
 device-input equivalence is claimed.
 [Detailed receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
 
+## Mission log — 2026-09-09, downstream smoke
+
+Native and clone each carried an isolated circle through closed-profile
+selection, extrusion commit and solid Undo/Redo; the clone also canceled a
+preview cleanly. Current-revision Sweep/Loft UI plus kernel/feature-graph
+coverage passed 65/65 in one serial run. QA-56 is passed without claiming
+advanced downstream parity or physical-device testing.
+[Detailed receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
+
 ## Current baseline correction — 2026-09-07
 
 The September 5 sections below are **historical**, not the current implementation contract.

@@ -513,3 +513,12 @@ QA-13 remains partial for clone hover delivery and physical Pencil/touch. No
 source change or additional automated run was needed; the last relevant
 current-revision combined arc suite remains clean 63/63.
 [Receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
+
+## September 9 — QA-56 downstream checkpoint
+
+Paired live circle-profile extrusion, cancellation and solid history now pass.
+The exact revision also passed one clean 65/65 serial downstream run covering
+two Sweep/Loft UI flows and 63 kernel/feature-graph checks. QA-56 is the first
+fully passed case in the retained 56-case inventory. QA-55 sustained use remains not run;
+device input remains blocked and the milestone candidate gate is not reached.
+[Receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).

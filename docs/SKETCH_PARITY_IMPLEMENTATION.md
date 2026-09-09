@@ -1211,3 +1211,13 @@ partial because clone hover is automated-only and physical Pencil/touch is not
 tested. No product source changed; the last relevant current-revision suite is
 the clean 63/63 arc tangent combined run.
 [Receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
+
+## September 9 — QA-56 downstream smoke
+
+Native and clone each carried an isolated circle from a selectable closed
+profile through extrusion commit and solid Undo/Redo. The clone also canceled a
+first preview without mutating the profile. A single current-revision serial
+run passed 65/65: two Sweep/Loft UI workflows and 63 kernel/feature-graph tests.
+QA-56 is promoted to passed without claiming advanced downstream parity,
+identical dimensions, or physical-device input.
+[Receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
