@@ -606,3 +606,13 @@ Publication pending; prior illustrated151/master38 verified.
 Final publication: illustrated155 embedded images, all4 new closure/reopen
 PNG hashes and corrected prose verified by DOCX export. Master38 retains final
 reopen/visibility correction note. Export copies retained locally.
+
+## September 9 — shared boundary / construction rendering
+
+Paired adjacent regions select independently; construction divider merges the
+regions. Fixed confirmed oversized model-unit construction dashes with viewport
+8/4-point pattern for selected/unselected paths. Clean24/24 construction/profile
+checks; live Front/oblique, regular/construction history and final reopen pass.
+Multi-scale dash test automated-only: bridge scroll rejected. Curved phase,
+point-touch, duplicates/tiny tolerance remain open. Illustrated160/all5 new
+hashes and master38 final note export verified. [Receipt](testing/sketch-parity-touching-construction-2026-09-09.md).

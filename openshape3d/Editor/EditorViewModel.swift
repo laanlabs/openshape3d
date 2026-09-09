@@ -867,7 +867,7 @@ final class EditorViewModel {
             // Dashed construction entities, grouped by state color.
             let constructionUnselected = unselected.filter { construction.contains($0.id) }
             for (color, group) in Dictionary(grouping: constructionUnselected, by: { committedColorFor($0.id) }) {
-                let segs = SketchTessellator.dashedSegments(for: group, on: sketch.plane)
+                let segs = SketchTessellator.dashedSegments(for: group, on: sketch.plane, worldUnitsPerPoint: worldPerPoint)
                 if !segs.isEmpty {
                     scene.sketchLines.append(SketchLineBatch(segments: segs, color: color))
                 }
@@ -895,7 +895,7 @@ final class EditorViewModel {
             if !constructionSelected.isEmpty {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.dashedSegments(
-                        for: constructionSelected, on: sketch.plane
+                        for: constructionSelected, on: sketch.plane, worldUnitsPerPoint: worldPerPoint
                     ),
                     color: selectedColor
                 ))

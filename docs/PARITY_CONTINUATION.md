@@ -1,17 +1,17 @@
 # Parity continuation checkpoint
 
-September 9 ~04:31 EDT. HEAD30625e0 pushed; gap receipt/ledger/matrix/milestone
-and checkpoint dirty. No test/build/Peekaboo worker active. Paired visible20px
-open-gap rejection, closure/profile selection, Undo/Redo and gallery reopen
-inspected in both apps. Explicit hidden-source editing/Exit matches; earlier
-visibility mismatch corrected as differing state, no code change. No new tests.
-Native1924 reopened oblique with closed region left of existing bore; clone5147
-Untitled2 reopened oblique with closed region below bore. Both sources visible.
-Exact next: commit verified gap documentation, then paired touching loops / duplicate edge / construction
-crossing and remaining core matrix. Receipt testing/sketch-parity-gap-closure-
-2026-09-09.md. Illustrated155/all4 new hashes and master38 prose export verified.
-No merge/install/security changes, duplicate workers/watchdogs. Preserve identity
-files and old stalled Docs tabs. Candidate gate remains open.
+September9 ~04:45EDT. HEAD603d6b2 pushed; construction dash correction and
+receipt/ledger/matrix/milestone/checkpoint ready for commit. No worker active.
+Serial1296 completed0 clean24/24 (9construction+15profile). Updated live
+selected/unselected Front and oblique construction dashes, regular/construction
+history and paired final gallery reopen inspected. Multi-zoom automated-only;
+bridge scroll rejected twice. Native1924 oblique reopened merged region leftof
+bore; clone5147 oblique reopened merged region below bore. Both construction
+dividers persist. Illustrated160/all5 new hashes and master38 note verified.
+Exact next: commit/push verified dash correction; paired duplicate boundary /
+point-touch and remaining core acceptance. Receipt testing/sketch-parity-touching-
+construction-2026-09-09.md. Preserve identity files/stalledtabs/watchdog.
+No merge/install/security changes or duplicateworkers. Candidate gate open.
 
 ## Earlier checkpoint history
 
