@@ -128,7 +128,7 @@ struct SketchDimensionOverlay: View {
                     leaderOffset: label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
             let radial = label.isArcRadius ? radiusLeader(start, end, in: size) : nil
-            let diameter = label.kind == .diameter ? diameterText(start, end, anchor: anchor) : nil
+            let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID, in: size) : nil
             if let arc {
                 Path { path in
                     path.addLines(arc.points)
@@ -158,16 +158,21 @@ struct SketchDimensionOverlay: View {
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
-            } else if diameter != nil {
+            } else if let diameter {
                 Path { path in
-                    path.move(to: start)
-                    path.addLine(to: end)
+                    path.move(to: diameter.start)
+                    path.addLine(to: diameter.tail)
                 }
                 .stroke(Color.primary, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
-                    addArrow(to: &path, tip: start, toward: end)
-                    addArrow(to: &path, tip: end, toward: start)
+                    let outside = diameter.tail != diameter.end
+                    let startBody = outside
+                        ? CGPoint(x: 2 * diameter.start.x - diameter.end.x,
+                                  y: 2 * diameter.start.y - diameter.end.y) : diameter.end
+                    let endBody = outside ? diameter.tail : diameter.start
+                    addArrow(to: &path, tip: diameter.start, toward: startBody)
+                    addArrow(to: &path, tip: diameter.end, toward: endBody)
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
@@ -231,8 +236,9 @@ struct SketchDimensionOverlay: View {
                             .font(.system(size: 16))
                             .monospacedDigit()
                             .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .fixedSize()
                             .rotationEffect(.radians(diameter.rotation))
-                            .frame(minWidth: 44, minHeight: 44)
+                            .frame(width: diameter.targetSize.width, height: diameter.targetSize.height)
                             .contentShape(Rectangle())
                     } else if let linear {
                         Text(label.text)
@@ -301,19 +307,24 @@ struct SketchDimensionOverlay: View {
         return (tail, anchor, rotation)
     }
 
-    private func diameterText(_ start: CGPoint, _ end: CGPoint, anchor: CGPoint)
-        -> (anchor: CGPoint, rotation: Double)? {
-        let dx = end.x - start.x, dy = end.y - start.y
-        guard hypot(dx, dy) > 1 else { return nil }
-        var rotation = atan2(Double(dy), Double(dx))
-        if rotation > .pi / 2 { rotation -= .pi }
-        if rotation < -.pi / 2 { rotation += .pi }
-        // A 44pt dimension button centered only 20pt off the diameter
-        // intercepts the painted move handle. Keep both controls usable in
-        // explicit Move/Rotate; ordinary selection retains the close leader.
-        let clearance: CGFloat = viewModel.sketchTransformActive ? 60 : 20
-        return (CGPoint(x: anchor.x + CGFloat(sin(rotation)) * clearance,
-                        y: anchor.y - CGFloat(cos(rotation)) * clearance), rotation)
+    private func diameterLayout(_ start: CGPoint, _ end: CGPoint, anchor: CGPoint,
+                                text: String, sketchID: SketchID, in size: CGSize) -> SketchDiameterDimensionLayout? {
+        let rail: CGFloat = viewModel.mode.isSketching && !viewModel.sketchTransformActive ? 184 : 16
+        let left = AppSettings.shared.paletteOnRight ? rail : 96
+        let right = AppSettings.shared.paletteOnRight ? 96 : rail
+        let bounds = CGRect(x: left, y: 140, width: max(1, size.width - left - right),
+                            height: max(1, size.height - 250))
+        let width = (text as NSString).size(withAttributes: [
+            .font: UIFont.monospacedDigitSystemFont(ofSize: 16, weight: .regular)
+        ]).width
+        // A projected oblique circle is an ellipse: do not invent vertical
+        // rim points from its horizontal projected radius. Top/Bottom cameras
+        // deliberately clamp one degree shy of normal (elevationLimit = 89°).
+        let headOn = viewModel.session.document.sketches.first(where: { $0.id == sketchID })
+            .map { (viewModel.cameraControl?.offAxisDegrees(to: $0.plane) ?? 90) < 1.1 } ?? false
+        return SketchDiameterDimensionLayout.make(start: start, end: end, anchor: anchor,
+            clearance: viewModel.sketchTransformActive ? 60 : 20,
+            available: bounds, textWidth: width, allowVertical: headOn)
     }
 
     /// Native sweep leaders sit outside the arc with radial extensions and

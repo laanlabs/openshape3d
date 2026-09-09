@@ -895,3 +895,22 @@ Clean2/2 strengthened outside-rim+resize/history tests; paired normal placement
 and clone live portrait/landscape resize, driven refusal and reopen verified.
 Fresh native radial-drag delivery limitation explicitly retained, not a new
 native resize pass. [Receipt](testing/sketch-parity-radial-origin-2026-09-09.md).
+
+## September 9 — near-rail diameter annotation
+
+[Edge-layout receipt](testing/sketch-parity-diameter-edge-2026-09-09.md): exact
+native/clone translations expose a clone diameter touch target behind the rail.
+Head-on edge fallback uses an outside vertical leader and matching rotated target;
+roomy horizontal release layout stays unchanged. Initial layout4/4 + target1/1
+and live keypad/value/history/reopen passed. Final native outside-arrow/text
+refinement4/4 passed; added oblique-projection guard had a compile-only type
+failure, corrected and under rerun. Final live rendering/publication pending.
+Normal reselection/manual annotation orientation and oblique edge layout remain
+open; no complete visual-gate or device-ready claim.
+
+Final guard run clean4/4 after compile-only type correction and Top1degree-limit
+UI failure; all history retained in receipt. Final live saved Top Ø1 outside
+arrows/top-to-bottom text and explicit keypad checked; prior fresh Front value/
+history and paired gallery reopen checked. Final publication underway.
+
+Illustrated116/allfournewhashes and master38 final gallery-reopen note verified.

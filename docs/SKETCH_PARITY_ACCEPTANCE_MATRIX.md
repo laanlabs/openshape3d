@@ -57,7 +57,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Closed rectangle offers extrusion; pentagon nonzero solid extrusion and paired gallery reopen verified (polygon-release receipt); nested profiles/downstream rebuild open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
-| QA-53 | Layout | Core - partial, not passed | Landscape normal/radial handles, leaders and accessible keypad samples paired; portrait/handedness/full glyph overlap matrix open. |
+| QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
 | QA-55 | Sustained use | Core — not run | Paired acceptance outstanding. |
 | QA-56 | Downstream smoke | Core — not run | Paired acceptance outstanding. |

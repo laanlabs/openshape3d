@@ -1,18 +1,16 @@
 # Parity continuation checkpoint
 
-September9 ~00:46EDT. HEAD02b304e pushed; radial origin correction verified,
-committing EditorView+DimensionUI/receipt/ledger/checkpoint. Clean2/2 strengthened
-outside-rim tests. Paired normal placement; clone portrait+landscape resize/history,
-drivenØ1 refusal, gallery arcR1.985/106.26 and circleØ1 handles verified.
-Fresh native radial drag no mutation/local delivery; excluded (prior reference
-resize preserved). Native prior arcR500 Undo restored via Redo; no fresh resizepass.
-Illustrated112/new4 hashes and both final notes export-verified. No workers active.
-Next paired edge-of-canvas annotation layout, then direct rotated/mixed/compact
-controls and remaining core matrix. Native1924 MAINFront selectedcircle919534
-Ø2000, arc758377 R500/180; clone5147 portrait Untitled2 circle450650Ø1 selected,
-arc124517R1.985/106.26 partly off left from rotation viewport resizing.
-No duplicate workers/watchdogs, merge/deviceinstall/security/restart changes.
-Installable device artifact and full visual/core acceptance gate remain open.
+September9 ~01:21EDT. Baselineebffe23; diameter edge correction ready to commit.
+No test/build/Peekaboo process remains. Exclusive desktop owned by this session.
+Final guard3 clean4/4 after compile-only type error and guard2 Top-limit UI fail;
+initial4/4+target1/1+arrow4/4 retained. Live fresh Front value/history/reopen,
+final saved Top outside arrows/text/editor/Escape verified. Docs116/allfour new
+hashes, master38 final gallery-reopen note verified. Receipt diameter-edgeSep9.
+Native1924 Frontcircle947517Ø2000 selected; clone5147 Topcircle514620Ø1 selected.
+Next commit/push reviewed correction, compare native normal reselection/manual
+circle-label positioning with clone; do not stop at batch. Fullvisual/corematrix
+and actual deviceartifact gate open. Identity files excluded, no merge/install/
+security changes, no duplicate worker/watchdog. Preserve older stalled Doc tabs.
 
 ## Earlier checkpoint history
 

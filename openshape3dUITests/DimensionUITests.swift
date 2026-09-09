@@ -386,6 +386,33 @@ final class DimensionUITests: XCTestCase {
         attach(app, "circle-diameter-badge")
     }
 
+    func testNearRailCircleDiameterTargetRemainsReachable() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        let center = window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.65))
+        center.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.60)))
+        tapPaletteTool(app, group: "Sketch", label: "Circle")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let rail = app.buttons["ConstraintRailDisconnect"]
+        XCTAssertTrue(rail.exists)
+        XCTAssertLessThan(label.frame.maxX, rail.frame.minX,
+                          "The complete diameter touch target must clear side controls")
+        attach(app, "near-rail-circle-outside-diameter")
+        let before = label.label
+        setDimension(app, to: "1")
+        XCTAssertEqual(label.label, "Ø1 mm")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, before)
+        app.buttons["RedoButton"].tap()
+        XCTAssertEqual(label.label, "Ø1 mm")
+    }
+
     // MARK: - Dimensions survive leaving the sketch
 
     /// What Shapr3D actually does, verified by driving it on 2026-09-06: with

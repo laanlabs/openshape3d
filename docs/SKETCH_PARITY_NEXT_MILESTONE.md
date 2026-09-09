@@ -218,3 +218,12 @@ No installable candidate or physical-device sign-off yet.
 
 Prepared [physical iPad A/B checklist](SKETCH_PARITY_DEVICE_AB.md) September9.
 Artifact fields explicitly pending; configuration is not installation/signing proof.
+
+## September 9, 01:21 execution update
+
+Near-rail circle diameter target/leader correction has paired live evidence,
+final4/4 regression after documented compile/Top-limit failures, live edit/history
+and paired reopen. Illustrated116/allfournewhashes and master38 final note
+verified. Continue normal circular reselection/manual annotation positioning,
+then remaining rotated/mixed/compact and core acceptance. Full visual gate and
+identified device artifact remain open; no milestone/candidate completion claim.
