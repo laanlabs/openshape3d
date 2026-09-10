@@ -18,6 +18,15 @@ prior text characters retained in order (new text was inserted inside prior text
 so whole-string substring comparison is not applicable). Other queue batches
 below remain pending.
 
+## 16:23 recovered corner-state batch
+
+Five corner-state images published once; export
+`/tmp/os3d-qa08-backlog-corners-published.docx` verifies486 placements,
+all5newhashes once, prior481image placements and prior text retained. Dated
+recovered heading once. This closes publication of the corner correction below,
+not its remaining native history/edge-color acceptance gaps. Other backlog
+sections remain pending.
+
 ## Historical sign-out blocker
 
 Google Docs signed out during the QA-08 post-fix update. Preserve existing tabs.

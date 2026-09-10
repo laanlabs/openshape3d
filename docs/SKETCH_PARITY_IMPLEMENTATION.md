@@ -1689,3 +1689,21 @@ text/images verified. Earlier publication backlog still pending. QA-09 remains
 partial: ring/glyph/selection presentation, broader references and device inputs
 are not closed. Unsupported referenced diagonal rectangles remain protected by
 refusal. Immutable05be744 IPA unchanged; no new readiness claim.
+
+## September 10 — Rotated center rectangle explicit controls
+
+`dcb69b3`: after center-rectangle migration, require explicit Move/Rotate rather
+than a default ring. Clean3/3 and live rotation/controls/geometry history/reopen
+verified. Illustrated481/master38 publication verified without prior loss.
+Native internal relation visibility comparison confirms another presentation
+gap; its correction is under regression, not yet live-verified. QA09 remains
+partial; immutableIPA unchanged. See center-matrix receipt.
+
+## September 10 — Migrated rectangle structural badges
+
+Suppress implicit parallel/perpendicular/coincident badge cluster for saved
+migrated rectangle groups; keep model/Items rules, explicit rule selection and
+conflict visibility. CenterLock uses existing control. Clean12/12 after compile-
+only failure; live edge/centerUnlock/movement/history/Items-rule/reopen verified.
+Illustrated490/master38 export verified. Selected-edge dual saved dimensions
+remain a confirmed follow-up; no QA09 closure.

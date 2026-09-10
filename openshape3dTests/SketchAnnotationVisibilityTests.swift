@@ -188,6 +188,47 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testMigratedRectangleStructuralBadgesStayImplicitButAccessible() throws {
+        let vm = try makeViewModel(), id = UUID(), outsideID = UUID()
+        var source = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        source.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        var migrated = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(
+            source, id: id, edgeIDs: [id, UUID(), UUID(), UUID()]))
+        let structural = Array(migrated.constraints.dropFirst())
+        migrated.entities.append(.line(id: outsideID, a: SIMD2(5, 0), b: SIMD2(9, 0)))
+        let external = SketchConstraint(kind: .parallel, refs: [
+            .init(entityID: id, role: .whole), .init(entityID: outsideID, role: .whole)])
+        migrated.constraints.append(external)
+        vm.session.perform(AddSketchCommand(sketch: migrated))
+        vm.mode = .sketching(migrated.id, tool: nil)
+        vm.selectedSketchEntityIDs = Set(migrated.entities.map(\.id))
+        for always in [false, true] {
+            AppSettings.shared.alwaysShowConstraints = always
+            XCTAssertEqual(Set(vm.sketchConstraintGlyphs.map(\.id)), [source.constraints[0].id, external.id])
+            XCTAssertTrue(try XCTUnwrap(vm.sketchConstraintGlyphs.first {
+                $0.id == source.constraints[0].id
+            }).isRectangleCenterLock, "Use the existing selected-center control, not another generic padlock")
+            for relation in structural {
+                vm.selectedConstraintID = relation.id
+                XCTAssertTrue(vm.sketchConstraintGlyphs.contains { $0.id == relation.id },
+                              "Items selection must still expose the structural rule")
+                vm.selectedConstraintID = nil
+            }
+        }
+        vm.sketchConflictAttribution.constraintIDs = [structural[0].id]
+        XCTAssertTrue(vm.sketchConstraintGlyphs.contains { $0.id == structural[0].id },
+                      "A conflicting structural rule must remain visible for diagnosis")
+        vm.sketchConflictAttribution = .init()
+        XCTAssertEqual(vm.activeSketch, migrated, "Visibility must not change saved constraints or geometry")
+        XCTAssertEqual(structural.count, 7)
+        XCTAssertFalse(RectangleConstruction.isStructuralRelation(external, in: migrated))
+        var ordinary = migrated
+        ordinary.rotatedRectangleEdges = [:]
+        XCTAssertFalse(RectangleConstruction.isStructuralRelation(structural[0], in: ordinary))
+    }
+
     func testRectangleSideLockUsesContextualUnlockWithoutMidpointGlyph() throws {
         let vm = try makeViewModel()
         let id = UUID()

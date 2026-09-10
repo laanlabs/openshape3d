@@ -373,3 +373,19 @@ textdiff reports only755insertedcharacters, no deleted/replacedpriorcontent.
 Ring publication final export481placements: all3newimages, prior478image
 placements and full prior text retained. Initialexport480missedlastimage while
 saving; no reinsert. Master38note verifiedonce, no image/text loss.
+
+Structural badge correction: first build failed on ConstraintRef Set/Hashable,
+no tests ran. Replaced with unordered pair equality. Corrected run clean12/12
+(`/tmp/os3d-qa09-structural-glyphs-corrected-20260910.xcresult`), includes11
+annotation tests and1migration/history. Internal7rules retained in model/Items;
+only ordinary badges hidden for saved migrated group. Explicit selection and
+conflicts remain visible; external relation visibility unchanged. Migrated
+centerLock now uses existing directcentercontrol, not duplicategenericbadge.
+Live edge selection clear; directcenterUnlock/move320630→350600, Undo restores
+position thenLock. ItemsParallelclick exposes onebluebadge. Finalgalleryreopen
+Items retainsLock/two distances; no geometryloss. NativeAlwaysON comparison
+showsno internalbadges, restoredOFF. Full QA09 notclosed; nativeoneedge shows
+bothsavedsizeleaders whilecloneoneedge showsonlyone, nextconfirmedgap.
+Illustrated490placements/all4hashes/no predecessor loss and master38note verified;
+prior text retained. Fiveoldercornerimages verified486beforethisbatch. Evidence
+glyph-* and native-settings-verify retained/hashed. No runner; IPAunchanged.

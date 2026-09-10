@@ -199,6 +199,34 @@ nonisolated enum RectangleConstruction {
         }?.0
     }
 
+    /// Structural relations replacing the implicit rules of a rotated primitive.
+    /// Match only the saved ordered group, not arbitrary connected sketch lines.
+    static func isStructuralRelation(_ constraint: SketchConstraint, in sketch: Sketch) -> Bool {
+        guard constraint.refs.count == 2 else { return false }
+        func matches(_ a: ConstraintRef, _ b: ConstraintRef) -> Bool {
+            constraint.refs == [a, b] || constraint.refs == [b, a]
+        }
+        return sketch.rotatedRectangleEdges.values.contains { ids in
+            guard ids.count == 4, Set(ids).count == 4,
+                  ids.allSatisfy({ id in sketch.entities.contains {
+                      if case .line = $0 { return $0.id == id }; return false
+                  } }) else { return false }
+            func whole(_ i: Int) -> ConstraintRef { .init(entityID: ids[i], role: .whole) }
+            switch constraint.kind {
+            case .parallel:
+                return matches(whole(0), whole(2)) || matches(whole(1), whole(3))
+            case .perpendicular:
+                return matches(whole(0), whole(1))
+            case .coincident:
+                return (0..<4).contains { i in
+                    matches(ConstraintRef(entityID: ids[i], role: .endpointB),
+                            ConstraintRef(entityID: ids[(i + 1) % 4], role: .endpointA))
+                }
+            default: return false
+            }
+        }
+    }
+
     static func constraints(for edges: [SketchEntity]) -> [SketchConstraint] {
         guard edges.count == 4 else { return [] }
         func whole(_ i: Int) -> ConstraintRef { .init(entityID: edges[i].id, role: .whole) }

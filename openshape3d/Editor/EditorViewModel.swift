@@ -11587,6 +11587,12 @@ final class EditorViewModel {
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
             for c in sketch.constraints {
+                // Rotation preserves the primitive's structural rules in the
+                // solver, without exposing a new cluster of implicit badges.
+                // Items selection and conflict diagnosis still expose a rule.
+                if selectedConstraintID != c.id,
+                   !sketchConflictAttribution.constraintIDs.contains(c.id),
+                   RectangleConstruction.isStructuralRelation(c, in: sketch) { continue }
                 // Native axis-rectangle side Locks read through their green
                 // corners/edges and contextual Unlock, not a midpoint badge.
                 if c.kind == .fixed, c.refs.count == 1,
@@ -11611,7 +11617,8 @@ final class EditorViewModel {
                     isRectangleCenterLock: c.kind == .fixed && c.refs.count == 1 &&
                         c.refs[0].role == .center && sketch.entities.contains(where: {
                             if case .rect = $0 { return $0.id == c.refs[0].entityID }; return false
-                        })
+                        }) || (c.kind == .fixed && c.refs.count == 1 && c.refs[0].role == .center &&
+                               RectangleConstruction.centerDiagonalReferences(c.refs[0].entityID, in: sketch) != nil)
                 ))
             }
         }

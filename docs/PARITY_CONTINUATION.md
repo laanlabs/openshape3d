@@ -1,36 +1,31 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 15:55 EDT
+## Active continuation — September 10 16:28 EDT
 
-HEAD1769624 pushed; safe center-rectangle rotation migration tested/live-verified. Final related run clean74/74
-at `/tmp/os3d-qa09-rotation-final-20260910.xcresult` and .log (71unit+3UI).
-Completed exec58259 clean3/3: focused default-ring correction + rotation/Copy workflows,
-`/tmp/os3d-qa09-rotation-explicit-controls-20260910.xcresult` and .log.
-Dirty EditorViewModel + two tests make migrated whole-group transform explicit.
-Prior red numeric/initial UI-selection failures retained.
-Paired native rotation and direction-preserving resize4×2; clone2×1.6288 with
-center fixed. Clone Unlock/translation and separate Undo restoration passed.
-Both final gallery reopen states verified; exact cloneJSON and screenshot hashes
-in workspace reports/.../center-matrix. Native Front all36selected, smallrotated
-4×2center703351. Final UI regression reset clone fixture to single-line Copy case;
-relaunch/check before next live interaction. No claim retained clone testfixture
-is still the rectangle; its savedJSON/evidence preserved before UI reset.
+HEAD dcb69b3 pushed. Default-ring fix clean3/3; live direct rotation/explicit
+controls/UndoRedo geometry/reopen Lock+dimensions verified. Illustrated481
+placements/all3 new hashes; master38 note verified. Prior QA08 backlog six images
+verified at478. No text/image loss. Immutable05be744IPA unchanged.
 
-Publication recovered in fresh authorized tabs: illustrated472placements/470media,
-all6newhashes once, original full text/images retained. Old stalledtab preserved.
-Master38-image note export verified, original text/media hashes retained; earlier
-signedout backlog queued locally.
-Live ring-free corner rotation, explicit controls and Undo/Redo geometry passed.
-Gallery reopen/Items Lock and both distances verified; no test runner.
-Ring publication481placements/all3hashes; master38 dated note verified. Earlier diagonal backlog
-export verified478 placements, all6hashes once, no prior image loss and all prior
-text retained as ordered subsequence (inserted addendum interrupts substring).
-Exactnext finish saved selection/control check, document/publish ring follow-up, then
-continue default ring/
-constraint-glyph clutter after corner rotation, remaining QA09 reference/selection
-acceptance and prior publication backlog. No full QA09 closure. Inventory4passed,
-0failed,1deviceblocked,51incomplete. Immutable05be744IPA unchanged. Unrelated
-identity files preserved; soleowner, no duplicateworkers/merge/deviceinstall.
+Verified structural badge presentation follow-up: RectangleConstruction,
+EditorViewModel and SketchAnnotationVisibilityTests. Native AlwaysShowConstraints
+ON still hides internal rectangle relations; restoredOFF. Clone suppresses only
+saved migrated group's structural relations, preserving explicit selection and
+conflict glyphs. CenterLock uses existing contextual control. First build failed
+because ConstraintRef is not Hashable; no tests ran. Corrected order-independent
+pair equality/conflict assertion passed clean12/12; no runner. Live edge/center
+Unlock/movement/Undo/Items rule/finalreopen passed. Illustrated490/all4hashes,
+master38 note verified; predecessor text/images retained.
+Result /tmp/os3d-qa09-structural-glyphs-corrected-20260910.xcresult and .log.
+
+Exact next commit/push this verified correction, then saved migrated rectangle
+selected-edge dual dimensions: native showsboth, cloneonlyselectedsize. Continue
+remaining QA09 and publication
+backlog. Inventory4passed/0failed/1deviceblocked/51incomplete. No full QA09/device
+claim. Native saved tinyrotated4×2; clone saved rotated1.9795×1.4814. Evidence
+center-matrix/ring-* and native-*glyph* copied/hashlogged; receipt
+ docs/testing/sketch-parity-center-matrix-2026-09-10.md. Soleowner; no merge,
+installation, host restart/security changes. Unrelated identity files preserved.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
