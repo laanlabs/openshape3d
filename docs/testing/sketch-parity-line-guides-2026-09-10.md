@@ -199,3 +199,19 @@ no predecessor loss vs445. /tmp/os3d-line-guides-distance-final.docx. Master38
 final live/reopen note verified, no predecessor media loss:
 /tmp/os3d-line-guides-distance-final-master.docx. No further product edits after
 passing unit33 and finalSettings1. Next signed/reverse samples; QA07partial.
+
+## QA-07 finite closure
+
+At pushed eb9b4ab, native reverse(-100,-4) snaps/glyph,(-100,-6)raw15.05mm;
+clone(-60,-2)snaps0.742/H,(-60,-3)raw0.742. Cloneoutside also shows a different
+inferredrelation; raw slope remains, not claiming generalnon-axisparity.
+Both finalgalleryreopens retainnewpair: clone8lines/native22edges. Six closure
+screenshots local/hashmanifest and insertedonce in illustrated; exportpending.
+QA07 originalrecipe near-horizontalabove/below atseveralzoomlevels nowpassed;
+H/V/signedreverse/historysupplementit. GeneralQA19snapcategories/hover/device
+remainopen. Inventory4passed/0failed/1deviceblocked/51incomplete (40partial11deferred).
+No furtherproductchanges/tests since35distinctpasses; nextQA08remainingquadrants.
+
+Closure publication verified: illustrated460placements/458media, all6closurehashes
+once/no loss vs454; master38closure/finalreopen note present/no media loss.
+/tmp/os3d-line-guides-closure.docx and-closure-master.docx. QA07passed scopeabove.

@@ -569,3 +569,13 @@ in native and tested clone. Scoped product fix0c8c268; initial6/6 plus revised
 Inventory3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
 Continue QA-06 remaining Backspace/double-click/tool-switch cancellation routes;
 no device-ready/full-parity claim. Receipt testing/sketch-parity-empty-entry-2026-09-10.md.
+
+## September 10 — QA-07 finite recipe closure
+
+Pushed eb9b4ab screen-distance guide fix has paired above/below at changedscales,
+signed/reverse and H/V supplements, Guide/Auto independence, history and final
+saved recovery (clone8lines/native22edges). QA07 original raw-aimrecipe passed;
+general snap categories/hover/physicalinput remain separate. Relevant35distinct
+checks pass across retained runs, notonecombinedcleanrun. Inventory4passed/
+0failed/1deviceblocked/51incomplete (40partial11deferred),total56. NextQA08
+remainingdiagonalquadrants andnumericanchor comparison. Immutable05be744IPA unchanged.

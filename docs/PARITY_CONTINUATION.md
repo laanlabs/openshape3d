@@ -2,30 +2,23 @@
 
 ## Active continuation — September 10, QA-07 tighter guide boundary
 
-HEAD bfe938c pushed; screen-distance product/tests/docs dirty and ready for
-reviewable checkpoint after publication verification. No runner. All35 relevant
-checks passed across separate runs:33unit+normalchain1 in combined34/35, final
-SettingsUI1 at /tmp/os3d-line-guide-settings-thumb-20260910.xcresult. Earlier
-33/35, two34/35 and focusedfixture failures retained in receipt. No testlogic
-weakened: finalFormscroll/whole-rowbounds/thumbtap verifies actualguide-only
-stroke, Undo/Redo. TinyFloat boundary allowance corrects exact4pt equality.
+Product eb9b4ab pushed. QA07 finite raw-aim recipe closed after signed/reverse
+samples and finalpairreopen. Native(-100,-4)snaps/axisglyph,(-100,-6)raw15.05;
+clone(-60,-2)snaps0.742/H,(-60,-3)raw0.742. Latestfinalsavedsketches retain8clone
+lines and22nativeedges. No runner. No furtherproductedit since35distinctpassing
+checks acrossruns; all Float/Settingsfixture failures retained in line-guidesreceipt.
+Illustrated460placements/458media, all6closurehashesonce/no loss vs454; master38
+closure/finalreopen note verified. Exports /tmp/os3d-line-guides-closure.docx and
+-closure-master.docx. Local reports/.../line-guides/SHA256SUMS current.
 
-Live corrected clone60x2 snapsH0.745/noH,60x3raw0.744;2x60snapsV0.742/noV,
-Undo removes/Redo restoresonlylastline. Fit changedscale:60x2snaps0.364,
-60x3raw0.363. AutoON60x2snaps0.364/H. Native repeat100x4snaps13.3412/glyph.
-Both finalgalleryreopens verified:clone6lines andsaved0.364/H; native20edges and
-13.3412/glyph. Clone7715 at72,30 groundsketchline selected, toolsdisarmed;
-native1924 at99,79 Front selectedlast13.3412line, toolsdisarmed.
-
-Illustrated445/443media andmaster38 diagnosis/clarification exportverified.
-Illustrated final454placements/452media, all9hashesonce/no predecessorloss
-exportverified /tmp/os3d-line-guides-distance-final.docx. Master38finalreopen
-note also verified /tmp/os3d-line-guides-distance-final-master.docx. Receipt
- docs/testing/sketch-parity-line-guides-2026-09-10.md. Local evidence
-reports/.../line-guides/SHA256SUMS updated. Next verifypublication,commit/push
-scopedcorrection; continueQA07 signed/reverseboundary variants thenfiniteclosure.
-Inventory3passed/0failed/1deviceblocked/52incomplete. Preserve unrelatedidentity/
-memory andimmutable05be744IPA; no deviceinstall,merge,duplicateworker/watchdog.
+Inventory4passed/0failed/1deviceblocked/51incomplete (40partial11deferred),total56.
+QA04,QA07,QA55,QA56 passed; general snap/hover/Pencil remains separate. Native1924
+FrontSketch03 selectedall22, toolsdisarmed; clone7715 groundSketch1,8lines,
+toolsdisarmed. Both apps/reports preserved. Exactnext: QA08 remainingdiagonal
+mixedquadrants andsequentialwidth/height anchor withpaired freshisolatedrectangles,
+thenQA09centermatrix. Read latestrectangle/selected-side receipts before edits.
+No newtest/builduntilneeded, exclusive desktop maintained. Immutable05be744IPA,
+unrelatedidentity/memory, watchdog untouched. No merge/install/securitychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
