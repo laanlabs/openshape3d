@@ -154,6 +154,28 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "1 mm")
     }
 
+    func testMixedLengthSourceConversionRecoveryAndHistory() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .inches
+        let (original, _) = lineReadyToDimension(vm)
+        vm.commitDimensionEdit("0.1 cm + 0.2 mm")
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.2, accuracy: 1e-6)
+        XCTAssertNil(vm.activeSketch?.dimensions.first?.formula)
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "0.1 cm + 0.2 mm")
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("1 cm + 2 deg")
+        XCTAssertNotNil(vm.editingDimension?.validationMessage)
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.2, accuracy: 1e-6)
+        vm.commitDimensionEdit("1 cm - 2 mm")
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 8, accuracy: 1e-6)
+        vm.session.undo()
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.2, accuracy: 1e-6)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        XCTAssertEqual(vm.editingDimension?.text, "0.1 cm + 0.2 mm")
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.2, accuracy: 1e-6)
+    }
+
     func testPolygonCountEditsPreserveGeometryReferencesAndHistory() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .inches

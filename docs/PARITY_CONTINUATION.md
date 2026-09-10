@@ -1,20 +1,19 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10, explicit-unit source verified
+## Active continuation — September 10, mixed-unit addition verified
 
-Base3130e1c; explicit-unit source implementation/docs ready to commit/push.
-Clean16/16 /tmp/os3d-explicit-unit-source-20260910.xcresult; no runner active.
-Paired unit source/bare replacement/UndoRedo andgalleryreopen passed. Native20mm
-source retained; clone0.1cm source/1mm geometry retained. Receipt:
-docs/testing/sketch-parity-explicit-unit-source-2026-09-10.md.
-Illustrated328/all4hashes/no predecessor loss, master38 note verified.
-Nextcommit/push, then paired type-mismatch/mixed-unit expression checks under
-QA32/33; do not infer desktopinput failures from inactivewindows. Native1924
-20mm numeric editor open; clone6492 0.1cm editor open. Sole desktop/buildowner.
-Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744IPA unchanged.
-No physicalinstall/merge/restart/securitychanges; preserve unrelatedidentity/memory
-and originalstalledtabs, no duplicateworkers/watchdogs. Unit-display switching
-remains automated-only; keyboard syntheticEscape discrepancy retained.
+Base aa8d7d9 pushed. Mixed-unit additive implementation/tests/docs readycommit.
+Clean27/27 /tmp/os3d-mixed-unit-20260910.xcresult; exec43798exit0, no runner.
+Paired native12mm/clone1.2mm commits, UndoRedo and retainedsource reopening pass;
+clone gallery reopen retains source. Native gallery repeat not performed this batch.
+Illustrated332/all4hashes/no predecessor loss verified /tmp/os3d-mixed-publication.docx.
+Master38/newnoteonce/priorunitnote/allmedia verified /tmp/os3d-mixed-master.docx.
+Receipt docs/testing/sketch-parity-mixed-unit-2026-09-10.md; local mixed-unit evidence hashed.
+Next commit/push, then paired type-mismatch numeric
+warning under QA32/33. Native1924 mixedsource keypad open; clone6492 saved mixedsource
+keypad open. Sole desktop/build owner. Preserve unrelated identity/memory files.
+Counts2passed/0failed/1device-blocked/53incomplete; immutable05be744IPA unchanged.
+No physical installation, merge, restart, security changes or duplicate watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

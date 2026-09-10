@@ -29,6 +29,37 @@ nonisolated enum ExpressionEvaluator {
         "pi", "radians",
     ]
 
+    /// Fully unit-qualified additive lengths, returned in document millimetres.
+    /// Kept separate from the legacy scalar/variable evaluator: changing that
+    /// evaluator's unit convention would double-convert existing formulas.
+    /// Products, unqualified terms and angle/length mixtures are not accepted.
+    static func additiveLengthMM(_ text: String) -> Double? {
+        var source = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if source.hasPrefix("=") { source.removeFirst() }
+        let number = #"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"#
+        let term = #"([+-]?)\s*("# + number + #")\s*(mm|cm|m)"#
+        guard let regex = try? NSRegularExpression(pattern: term) else { return nil }
+        let ns = source as NSString
+        let matches = regex.matches(in: source, range: NSRange(location: 0, length: ns.length))
+        guard matches.count >= 2 else { return nil }
+        var end = 0
+        var total = 0.0
+        for (index, match) in matches.enumerated() {
+            let gap = ns.substring(with: NSRange(location: end, length: match.range.location - end))
+            guard gap.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  let value = Double(ns.substring(with: match.range(at: 2))) else { return nil }
+            let sign = ns.substring(with: match.range(at: 1))
+            guard index == 0 || !sign.isEmpty else { return nil }
+            let unit = ns.substring(with: match.range(at: 3))
+            let scale = unit == "m" ? 1000.0 : unit == "cm" ? 10.0 : 1.0
+            total += (sign == "-" ? -value : value) * scale
+            end = NSMaxRange(match.range)
+        }
+        guard ns.substring(from: end).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              total.isFinite else { return nil }
+        return total
+    }
+
     /// Evaluate `text` to a Double, or nil when it is empty / malformed.
     /// A trailing alphabetic unit suffix (mm, cm, in, "), whitespace, and a
     /// leading "=" are tolerated. Backwards-compatible entry point: no

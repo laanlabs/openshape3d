@@ -12107,7 +12107,9 @@ final class EditorViewModel {
         // Phase D: evaluate against document variables so a dimension can read
         // e.g. "width/2"; store the raw text as the driving formula only when it
         // references a variable/function (a plain number keeps `formula: nil`).
-        guard let parsed = ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
+        let additiveMM = edit.kind != .angle && !edit.isPolygonSideCount
+            ? ExpressionEvaluator.additiveLengthMM(rawText) : nil
+        guard let parsed = additiveMM ?? ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
             editingDimension?.validationMessage = ExpressionEvaluator.validationMessage(
                 rawText, variables: session.variableValues())
             return
@@ -12145,7 +12147,7 @@ final class EditorViewModel {
         let bodyText = typedUnitSymbol.map {
             String(rawText.trimmingCharacters(in: .whitespaces).dropLast($0.count))
         } ?? rawText
-        let formula = ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
+        let formula = additiveMM != nil || ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
         let isArcSweep = edit.kind == .angle && edit.refs.count == 1 && edit.refs.first.map {
             if case .arc? = sketchEntity($0.entityID, in: sketch) { return true }
             return false
@@ -12176,7 +12178,7 @@ final class EditorViewModel {
         // inches. `deg` is not a length and only makes sense on an angle.
         let typedUnit = Self.lengthUnit(forSuffix: typedUnitSymbol)
         let parsedMM: Double
-        if edit.kind == .angle || formula != nil {
+        if additiveMM != nil || edit.kind == .angle || formula != nil {
             parsedMM = parsed
         } else if let typedUnit {
             parsedMM = typedUnit.mm(fromDisplay: parsed)
@@ -12194,7 +12196,7 @@ final class EditorViewModel {
             sketch.dimensions.first(where: { $0.id == id })?.displayExpression
         }
         let isArithmetic = Double(trimmedBody) == nil
-        let retainedScalar = isArithmetic ? "(\(trimmedBody)) \(expressionUnit)"
+        let retainedScalar = additiveMM != nil ? rawText : isArithmetic ? "(\(trimmedBody)) \(expressionUnit)"
             : "\(trimmedBody) \(expressionUnit)"
         let displayExpression = formula == nil && (isArithmetic || typedUnitSymbol != nil)
             ? (previousExpression == rawText ? rawText : retainedScalar) : nil

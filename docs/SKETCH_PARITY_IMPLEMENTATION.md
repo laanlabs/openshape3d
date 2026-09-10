@@ -1362,3 +1362,12 @@ correctly but discarded it. Retention now includes explicit-unit numbers, while
 bare numbers clear source. Clean16/16; paired source/bare-value/history and both
 galleryreopens retain native20mm/clone0.1cm. Display-unit switching remains
 automated-only. [Receipt](testing/sketch-parity-explicit-unit-source-2026-09-10.md).
+
+## September 10 — mixed-unit additive lengths (QA33 partial)
+
+Native `1 cm + 2 mm`→12mm; clone equivalent previously produced syntax warning.
+Fully-qualified mm/cm/m additive lengths now convert per term, retain source and
+f(x), and avoid variable-formula/double-conversion paths. Clean27/27 parser/keypad
+checks; paired commit/source/UndoRedo and clone gallery reopen pass. No arbitrary
+dimensional algebra or native gallery repeat claim. Illustrated332 verified with
+allfour hashes/no predecessor loss. Receipt: testing/sketch-parity-mixed-unit-2026-09-10.md.

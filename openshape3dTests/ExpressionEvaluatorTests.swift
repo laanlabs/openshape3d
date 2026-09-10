@@ -23,6 +23,18 @@ final class ExpressionEvaluatorTests: XCTestCase {
         XCTAssertNil(ExpressionEvaluator.validationMessage("1/zero", variables: ["zero": 2]))
     }
 
+    func testFullyQualifiedAdditiveLengths() throws {
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1 cm + 2 mm")), 12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("=0.1 cm + 0.2 mm")), 1.2, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1e-2 m - 2 mm + .1 cm")), 9)
+        for invalid in ["1 cm + 2", "1 cm + 2 deg", "1 cm * 2 mm", "1 m m + 2 mm",
+                        "1 cm 2 mm", "1 cm + 2 mm junk", "1 cm ++ 2 mm", "1e999 m + 1 mm"] {
+            XCTAssertNil(ExpressionEvaluator.additiveLengthMM(invalid), invalid)
+        }
+        // Existing scalar evaluator retains its established suffix convention.
+        XCTAssertEqual(ExpressionEvaluator.evaluate("2 cm"), 2)
+    }
+
     func testPlainNumbers() {
         XCTAssertEqual(ExpressionEvaluator.evaluate("20"), 20)
         XCTAssertEqual(ExpressionEvaluator.evaluate("25.4"), 25.4)
