@@ -349,3 +349,9 @@ predecessor image loss and original full text retained. Addendum was prepended,
 not appended; audit retained. Existing stalled tab preserved. Earlier backlog
 still queued; master update verification pending. New evidence paths directed-*
 and native-directed-* copied/hashed. Ring/glyph-density mismatch remains visible.
+
+Migration committed/pushed03338a4. Master dated note export verified once;
+38 image placements and all original media hashes retained (export file names
+changed, so name equality was not used as loss evidence). Original full text
+retained. Fresh report tabs t20/t21; old stalled t11 preserved. Remaining default
+ring/glyph density next; earlier backlog still queued. No runner at checkpoint.

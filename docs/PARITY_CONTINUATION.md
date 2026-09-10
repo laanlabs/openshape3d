@@ -2,8 +2,7 @@
 
 ## Active continuation — September 10 15:55 EDT
 
-HEAD6f4cb56 pushed; safe center-rectangle rotation migration tested/live-verified,
-currently dirty and ready for documentation commit. Final related run clean74/74
+HEAD03338a4 pushed; safe center-rectangle rotation migration tested/live-verified. Final related run clean74/74
 at `/tmp/os3d-qa09-rotation-final-20260910.xcresult` and .log (71unit+3UI).
 No runner remains. Prior red numeric/initial UI-selection failures retained.
 Paired native rotation and direction-preserving resize4×2; clone2×1.6288 with
@@ -16,8 +15,9 @@ is still the rectangle; its savedJSON/evidence preserved before UI reset.
 
 Publication recovered in fresh authorized tabs: illustrated472placements/470media,
 all6newhashes once, original full text/images retained. Old stalledtab preserved.
-Master note/export verification pending; earlier signedout backlog queued locally.
-Exactnext finish master/local docs, commit/push migration; continue default ring/
+Master38-image note export verified, original text/media hashes retained; earlier
+signedout backlog queued locally.
+Exactnext continue default ring/
 constraint-glyph clutter after corner rotation, remaining QA09 reference/selection
 acceptance and prior publication backlog. No full QA09 closure. Inventory4passed,
 0failed,1deviceblocked,51incomplete. Immutable05be744IPA unchanged. Unrelated
