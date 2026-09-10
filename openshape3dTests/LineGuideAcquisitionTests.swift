@@ -53,4 +53,26 @@ final class LineGuideAcquisitionTests: XCTestCase {
         XCTAssertEqual(result.snappedPoint, SIMD2(100, 0))
         XCTAssertEqual(result.constraints.first?.kind, .horizontal)
     }
+    func testScreenDistanceBandIsIndependentOfLengthAndZoom() {
+        for scale in [0.01, 1.0] {
+            for length in [100.0, 200.0, 300.0] {
+                for rise in [-5.0, -4.0, 4.0, 5.0] {
+                    for vertical in [false, true] {
+                        for auto in [false, true] {
+                            var settings = AutoConstraintSettings()
+                            settings.enabled = auto
+                            let delta = (vertical ? SIMD2(rise, length) : SIMD2(length, rise)) * scale
+                            let result = AutoConstraintEngine.inferLineInput(anchor: .zero,
+                                current: delta, existing: [], settings: settings, guideLines: true,
+                                guideDistanceTolerance: 4 * scale)
+                            let component = vertical ? result.snappedPoint.x : result.snappedPoint.y
+                            XCTAssertEqual(component, abs(rise) <= 4 ? 0 : rise * scale, accuracy: 1e-8)
+                            XCTAssertEqual(result.constraints.count, abs(rise) <= 4 && auto ? 1 : 0)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -11,7 +11,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
-| QA-07 | Line raw aim | Core — partial, not passed | Guide Lines independently controls near-axis acquisition; paired off/on and on/off, history/reopen verified; 35/35. All-angle/second-scale matrix open. |
+| QA-07 | Line raw aim | Core — partial, not passed | Guide Lines independently controls near-axis acquisition; paired off/on and on/off, history/reopen verified; 35/35. Screen-distance correction live verified for short H/V near/outside at two scales, Auto on/off, history and paired reopen; signed/reverse variants remain. |
 | QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Center height-first and reverse-drag width-first paired, center retained; full quadrant/constraint matrix open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
@@ -90,7 +90,7 @@ Enter, Escape once/twice, Backspace, double-tap, tool switch. Issues: SK-09. Res
 
 ### QA-07 — Line raw aim
 
-Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-06; DM-14. Result: PARTIAL — independent guide acquisition corrected; paired raw/guide-only/on-on cases and history/reopen verified,35/35. Native and clone second-scale above/below sampled; tighter short-line boundary exposes screen-space versus angular acquisition gap. Evidence: testing/sketch-parity-line-guides-2026-09-10.md.
+Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-06; DM-14. Result: PARTIAL — independent guide acquisition corrected; paired raw/guide-only/on-on cases and history/reopen verified,35/35. Native and clone second-scale above/below sampled; short-line screen-space correction tested and live repeated at two scales; signed/reverse variants remain. Evidence: testing/sketch-parity-line-guides-2026-09-10.md.
 
 ### QA-08 — Diagonal rectangle
 

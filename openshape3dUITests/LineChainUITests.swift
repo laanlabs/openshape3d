@@ -71,9 +71,19 @@ final class LineChainUITests: XCTestCase {
         app.buttons["ConstraintRailSettings"].tap()
         func setSwitch(_ id: String, on: Bool) {
             let control = app.switches[id].firstMatch
-            for _ in 0..<5 where !control.isHittable { app.swipeUp() }
-            XCTAssertTrue(control.isHittable, id)
+            let form = app.collectionViews.firstMatch
+            XCTAssertTrue(form.waitForExistence(timeout: 5))
+            func visible() -> Bool {
+                control.exists && control.isHittable
+                    && form.frame.insetBy(dx: 0, dy: 20).contains(control.frame)
+            }
+            for _ in 0..<8 where !visible() {
+                form.swipeUp()
+            }
+            XCTAssertTrue(visible(), "\(id): row \(control.frame), form \(form.frame)")
             if (control.value as? String == "1") != on {
+                // Hit the visible thumb; row-center taps need not toggle a
+                // SwiftUI Form control even when accessibility says hittable.
                 control.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
             }
             XCTAssertEqual(control.value as? String, on ? "1" : "0", id)

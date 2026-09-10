@@ -27,7 +27,8 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
     // Equality inference can move existing geometry, so require explicit opt-in.
     // Codable still restores the saved choice; manual Equal is unaffected.
     var equal = false
-    /// Half-width of the horizontal/vertical snap, in degrees.
+    /// Angular fallback for inference without a screen-space guide tolerance.
+    /// Live line guides use a four-screen-point band (September 10 correction).
     ///
     /// Measured against Shapr3D on 2026-09-06 by drawing lines at known angles
     /// and checking whether the committed edge was snapped flat and carried a
@@ -39,6 +40,12 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
 }
 
 nonisolated enum AutoConstraintEngine {
+    /// Ray intersections pass through Float coordinates. Admit only numerical
+    /// roundoff at the screen-distance boundary, not an extra visible snap band.
+    static func withinAxisDistance(_ delta: Double, tolerance: Double) -> Bool {
+        abs(delta) <= tolerance + max(abs(tolerance) * 1e-6, 1e-9)
+    }
+
     // Nested types are marked `nonisolated` explicitly: under the module's
     // `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` they do not inherit the outer
     // enum's isolation, and the nonisolated `infer` constructs them via their
@@ -94,7 +101,8 @@ nonisolated enum AutoConstraintEngine {
     /// off; disabling Guide Lines preserves raw aim even when Auto is on.
     static func inferLineInput(
         anchor: SIMD2<Double>, current: SIMD2<Double>, existing: [SketchEntity],
-        settings: AutoConstraintSettings, guideLines: Bool
+        settings: AutoConstraintSettings, guideLines: Bool,
+        guideDistanceTolerance: Double? = nil
     ) -> Result {
         var acquisition = settings
         if !settings.enabled {
@@ -108,8 +116,12 @@ nonisolated enum AutoConstraintEngine {
         acquisition.horizontalVertical = guideLines ||
             (settings.enabled && settings.horizontalVertical && exactlyAxisAligned)
         acquisition.enabled = settings.enabled || guideLines
-        var result = infer(tool: .line, anchor: anchor, current: current,
-                           existing: existing, settings: acquisition)
+        guard acquisition.enabled else {
+            return Result(snappedPoint: current, guides: [], constraints: [])
+        }
+        var result = inferLine(anchor: anchor, current: current,
+            existing: existing, settings: acquisition,
+            axisDistanceTolerance: guideLines ? guideDistanceTolerance : nil)
         if !settings.enabled {
             result.constraints = []
         } else if !settings.horizontalVertical {
@@ -226,7 +238,8 @@ nonisolated enum AutoConstraintEngine {
         anchor: SIMD2<Double>,
         current: SIMD2<Double>,
         existing: [SketchEntity],
-        settings: AutoConstraintSettings
+        settings: AutoConstraintSettings,
+        axisDistanceTolerance: Double? = nil
     ) -> Result {
         var snapped = current
         var guides: [Guide] = []
@@ -258,7 +271,9 @@ nonisolated enum AutoConstraintEngine {
         if settings.horizontalVertical, !didPointSnap, length > lengthEpsilon {
             let devHorizontal = atan2(abs(dir.y), abs(dir.x))  // 0 == horizontal
             let devVertical = atan2(abs(dir.x), abs(dir.y))    // 0 == vertical
-            if devHorizontal <= tolRad, devHorizontal <= devVertical {
+            let nearHorizontal = axisDistanceTolerance.map { withinAxisDistance(dir.y, tolerance: $0) } ?? (devHorizontal <= tolRad)
+            let nearVertical = axisDistanceTolerance.map { withinAxisDistance(dir.x, tolerance: $0) } ?? (devVertical <= tolRad)
+            if nearHorizontal, devHorizontal <= devVertical {
                 snapped = SIMD2(current.x, anchor.y)
                 constraints.append(Inferred(
                     kind: .horizontal, selfRole: .whole, targetEntityID: nil, targetRole: nil))
@@ -267,7 +282,7 @@ nonisolated enum AutoConstraintEngine {
                 guides.append(Guide(
                     kind: .horizontal, a: SIMD2(x0, anchor.y), b: SIMD2(x1, anchor.y)))
                 didHV = true
-            } else if devVertical <= tolRad {
+            } else if nearVertical {
                 snapped = SIMD2(anchor.x, current.y)
                 constraints.append(Inferred(
                     kind: .vertical, selfRole: .whole, targetEntityID: nil, targetRole: nil))

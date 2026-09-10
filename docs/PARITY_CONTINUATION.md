@@ -2,26 +2,30 @@
 
 ## Active continuation — September 10, QA-07 tighter guide boundary
 
-HEAD983e3f7 pushed; follow-up tests/docs ready for checkpoint commit. Product
-unchanged. Clean35/35 then SettingsUI1/1 and expanded drag/UI3/3 separate runs.
-No runner. Scoped os3d-unit reboot authorized by parent restored live canvas;
-only affected device rebooted. Shapr3D/reports/other sims/IPA preserved.
-Native and clone changed-scale above/below samples passed. Illustrated440/438
-media/all6hashes/no loss; master38 recovery note exportverified.
-Tighter boundary confirms next gap: native100x4 and200x4 snap,100x5 and200x6
-remainraw;4x100snapsvertical. AutoON100x4 also savesaxisglyph. Clone60x2
-(~100x3.35UIKitpoints) and200x4 stayraw due1degree rule. Native supports screen
-space~4point acquisition, not simply largerangle. Crowdedlong300x6 sample also
-acquired otherguideendpoint, so length notclean. Next implement narrowly scoped
-screen-space H/V acquisition, persistent relation follows acquiredguide with
-AutoON, preserve other saved/grid/point behavior; focused tests + pairedrepeat.
-Native1924 FrontLinearmed GuideON/AutoON, manytestlines; clone7715 at72,30
-TopLinearmed GuideON/AutoOFF with7lines onsecondscale, lastshort0.411mm.
-Boundary captures local-only. Receipt testing/sketch-parity-line-guides-2026-09-10.md.
-Own follow-updirty LineGuideWorkflowTests,LineChainUITests,matrix,receipt/checkpoint;
-unrelated identity/memory untouched. Inventory3passed/0failed/1deviceblocked/
-52incomplete; immutableIPA05be744 unchanged. No merge/deviceinstall/Macrestart/
-securitychanges/duplicateworker/watchdog.
+HEAD bfe938c pushed; screen-distance product/tests/docs dirty and ready for
+reviewable checkpoint after publication verification. No runner. All35 relevant
+checks passed across separate runs:33unit+normalchain1 in combined34/35, final
+SettingsUI1 at /tmp/os3d-line-guide-settings-thumb-20260910.xcresult. Earlier
+33/35, two34/35 and focusedfixture failures retained in receipt. No testlogic
+weakened: finalFormscroll/whole-rowbounds/thumbtap verifies actualguide-only
+stroke, Undo/Redo. TinyFloat boundary allowance corrects exact4pt equality.
+
+Live corrected clone60x2 snapsH0.745/noH,60x3raw0.744;2x60snapsV0.742/noV,
+Undo removes/Redo restoresonlylastline. Fit changedscale:60x2snaps0.364,
+60x3raw0.363. AutoON60x2snaps0.364/H. Native repeat100x4snaps13.3412/glyph.
+Both finalgalleryreopens verified:clone6lines andsaved0.364/H; native20edges and
+13.3412/glyph. Clone7715 at72,30 groundsketchline selected, toolsdisarmed;
+native1924 at99,79 Front selectedlast13.3412line, toolsdisarmed.
+
+Illustrated445/443media andmaster38 diagnosis/clarification exportverified.
+Illustrated final454placements/452media, all9hashesonce/no predecessorloss
+exportverified /tmp/os3d-line-guides-distance-final.docx. Master38finalreopen
+note also verified /tmp/os3d-line-guides-distance-final-master.docx. Receipt
+ docs/testing/sketch-parity-line-guides-2026-09-10.md. Local evidence
+reports/.../line-guides/SHA256SUMS updated. Next verifypublication,commit/push
+scopedcorrection; continueQA07 signed/reverseboundary variants thenfiniteclosure.
+Inventory3passed/0failed/1deviceblocked/52incomplete. Preserve unrelatedidentity/
+memory andimmutable05be744IPA; no deviceinstall,merge,duplicateworker/watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

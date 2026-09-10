@@ -8081,7 +8081,8 @@ final class EditorViewModel {
         if tool == .line {
             return AutoConstraintEngine.inferLineInput(anchor: anchor, current: current,
                 existing: existing, settings: settings,
-                guideLines: AppSettings.shared.snapToSketchGuidelines)
+                guideLines: AppSettings.shared.snapToSketchGuidelines,
+                guideDistanceTolerance: 4 * worldPerPoint)
         }
         return AutoConstraintEngine.infer(tool: tool, anchor: anchor, current: current,
                                          existing: existing, settings: settings)
@@ -10197,14 +10198,16 @@ final class EditorViewModel {
     }
 
     /// Drop inferred horizontal/vertical constraints whose stroke was not
-    /// actually aimed within `toleranceDeg`. Pure, so it is testable without a
+    /// actually aimed within the screen-distance band (or angular fallback).
+    /// Pure, so it is testable without a
     /// gesture. Non-H/V inferences (point snaps, parallel, tangent…) pass
     /// through untouched — they are about what the stroke MET, not its angle.
     nonisolated static func aimedConstraints(
         _ constraints: [AutoConstraintEngine.Inferred],
         from rawStart: SIMD2<Double>?,
         to rawEnd: SIMD2<Double>?,
-        toleranceDeg: Double
+        toleranceDeg: Double,
+        axisDistanceTolerance: Double? = nil
     ) -> [AutoConstraintEngine.Inferred] {
         guard let rawStart, let rawEnd else { return constraints }
         let d = rawEnd - rawStart
@@ -10214,8 +10217,8 @@ final class EditorViewModel {
         let devVertical = atan2(abs(d.x), abs(d.y))
         return constraints.filter { inferred in
             switch inferred.kind {
-            case .horizontal: devHorizontal <= tol
-            case .vertical: devVertical <= tol
+            case .horizontal: axisDistanceTolerance.map { AutoConstraintEngine.withinAxisDistance(d.y, tolerance: $0) } ?? (devHorizontal <= tol)
+            case .vertical: axisDistanceTolerance.map { AutoConstraintEngine.withinAxisDistance(d.x, tolerance: $0) } ?? (devVertical <= tol)
             default: true
             }
         }
@@ -10264,7 +10267,9 @@ final class EditorViewModel {
                 result.constraints,
                 from: sketchStrokeStartRaw,
                 to: rawSketchPoint(from: ray),
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines && tool == .line
+                    ? 4 * worldPerPoint : nil)
         } else {
             activeGuides = []
             pendingInferredConstraints = []
@@ -10330,7 +10335,9 @@ final class EditorViewModel {
                 result.constraints,
                 from: sketchStrokeStartRaw,
                 to: rawSketchPoint(from: ray),
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines && tool == .line
+                    ? 4 * worldPerPoint : nil)
         }
         if tool == .rect, rectangleType == .threePoint {
             placeThreePointRectangle(from: start, to: end, sketchID: sketchID)
@@ -10460,7 +10467,8 @@ final class EditorViewModel {
             // the aimed direction; gating keeps the rule in one place.
             pendingInferredConstraints = Self.aimedConstraints(
                 result.constraints, from: anchor, to: rawEnd,
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines ? 4 * worldPerPoint : nil)
         } else {
             pendingInferredConstraints = []
         }

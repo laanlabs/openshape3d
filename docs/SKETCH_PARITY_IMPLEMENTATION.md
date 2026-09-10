@@ -1533,3 +1533,14 @@ raw shallow aim; guide-on/Auto-off snaps without saved H/V. Paired live cases,
 history and gallery reopen verified; combined35/35 regression passed. Other
 directional relations and second-scale matrix remain open. Illustrated434 and
 master38 dated note export-verified. See [receipt](testing/sketch-parity-line-guides-2026-09-10.md).
+
+## September 10 — screen-distance line guide correction
+
+QA07 confirmed short-line gap: native acquires4point near-axis deviations even
+when their angle exceeds1degree; clone now uses4logicalscreenpoints for line
+H/V guides and the corresponding raw-aim saved-relation gate. Other inference
+tolerances retained; tiny Float boundary allowance doesnot expand visibleband.
+Thirtyfive distinct checks pass across combined34/35 plus finalSettings1/1,
+with earlier failed runs retained. Live short H/V near/outside, changedFit scale,
+AutoOFF/no relation andAutoON/H, one-step history and pairedgalleryreopen passed.
+Remaining signed/reverse variants keepQA07partial. See line-guides receipt.

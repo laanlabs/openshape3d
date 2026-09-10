@@ -132,3 +132,70 @@ AutoON100x4 snaps and addsaxisglyph13.3412. This supports screen-space acquisiti
 near4points, independent of existing angular saved-inference setting; requires
 focused implementation/verification. Do not merely increase1degree default.
 Boundary images currently local-only, not included in440publication.
+
+## Screen-distance correction under regression
+
+Line-specific guide acquisition uses four logical screen points via camera scale;
+other inference retains existing tolerances. Saved H/V raw-aim gate uses the same
+band when Guide Lines is on. Initial combined35 finished33passed/2failed: Float
+ray roundoff at the exact4point boundary, and a Settings fixture targeting a
+clipped switch. Tiny relative numerical slack and sheet-scoped scrolling now
+rerunning the same35 in distance-corrected result. No post-fix live claim yet.
+Failure video25s shows Auto row below medium sheet;29s shows sheet dismissed.
+Exact mistaken target cause remains inferred, not a product Settings defect.
+Illustrated diagnosis export445placements/443media/all5hashesonce/no predecessor
+loss vs440; /tmp/os3d-line-guides-distance-diagnosis.docx. Master38 remains prior.
+
+Second combined distance-corrected run34/35: all33unit and normalchainUI pass;
+SettingsUI failed because its window-bottom swipe was below the floating sheet.
+Inspected38s recording confirms sheet bottom above window bottom. Fixture now
+uses Done-relative content swipes and bidirectional visibility checks; same35
+rerunning at /tmp/os3d-line-guide-distance-sheet-20260910.xcresult. No product
+Settings change or post-fix live claim.
+
+Third distance-sheet run34/35, same unit/normalchain passes; strict sheet-relative
+visibility helper failed before Grid. Both ineffective scrolling helpers removed.
+Focused direct switch.tap diagnostic now checks actual Settings workflow without
+extrapolating offscreen AX coordinates. All failed runs retained.
+
+Direct switch.tap diagnostic failed before Guidepoints: offscreen Form rows are
+virtualized, requiring container scroll before query. Next focused run uses
+Form UICollectionView swipeUp plus switch.tap; no product changes added.
+
+Form scrolling diagnostic reached Auto but its tap left value1: inspected38s
+video shows Auto clipped at bottom while reporting hittable. Fixture now requires
+whole switch frame inside visible Form bounds before tapping. Focused visible
+run follows. Master38 boundary note and prior recovery reopen clarification
+export-verified at /tmp/os3d-line-guides-distance-master.docx; media preserved.
+
+Visible-row diagnostic still left AutoON after direct tap. Reinstated thumb
+coordinate after Form-bounds check, retaining container-based scroll. Focused
+settings-thumb run pending. No passing Settings result claimed from these runs.
+
+## Corrected live repeat and persistence
+
+Final Settings thumb-target diagnostic passed1/1 at
+/tmp/os3d-line-guide-settings-thumb-20260910.xcresult. Thus35distinct relevant
+checks pass across runs:33unit plus normalchain1 in34/35, finalSettings1. This
+is not one clean combined run. Failed fixtures retained, not product regressions.
+
+Exact installed build, GuideON/AutoOFF:60x2desktoppx horizontal snaps0.745mm,
+60x3 remains sloped0.744mm;2x60 snapsvertical0.742mm/noV. Live Undo removes
+only vertical and Redo restores it. At Fit-changed scale60x2 snaps0.364mm,
+60x3 staysraw0.363mm. Screenshot scale~0.596px/UIKitpoint; these are inside/
+outside samples, not exact physical-device boundary measurements. AutoON via
+inspected thumb drag:60x2 snaps0.364mm/H. Click alone didnot toggle; excluded.
+Native repeat100x4 snaps13.3412mm/axisglyph. Native gallery reopen retained20
+edges and reselected13.3412mm glyph; clone retainedall6lines acrossbothscales,
+reselected0.364mm/H. Clone returns stored sketch view scale rather than temporary
+Fit scale; geometry persists. Native trial prompt skipped without purchase.
+Screenshots /tmp/os3d-qa07-distance-*.png copied to local line-guides evidence/hash
+manifest. Nine final images inserted once in illustrated; exportverification
+pending (expected454placements). QA07 not fully closed: finish signed/reverse
+boundary variants before finite recipe signoff. Immutable05be744IPA unchanged.
+
+Final publication verified: illustrated454placements/452media, all9newhashesonce,
+no predecessor loss vs445. /tmp/os3d-line-guides-distance-final.docx. Master38
+final live/reopen note verified, no predecessor media loss:
+/tmp/os3d-line-guides-distance-final-master.docx. No further product edits after
+passing unit33 and finalSettings1. Next signed/reverse samples; QA07partial.

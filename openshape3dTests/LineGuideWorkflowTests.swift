@@ -6,6 +6,19 @@ import simd
 @MainActor
 final class LineGuideWorkflowTests: XCTestCase {
     private static var retained: [EditorViewModel] = []
+    private static var cameras: [GuideCamera] = []
+    private final class GuideCamera: ViewportCameraControl {
+        var worldUnitsPerPoint = 1.0
+        func fitScene() {}
+        func moveCameraHeadOn(to plane: SketchPlane) {}
+        func animateToStandardView(_ view: StandardView) {}
+        func setProjection(orthographic: Bool) {}
+        func fitTo(bounds: (min: SIMD3<Float>, max: SIMD3<Float>)) {}
+        func worldToScreenPoint(_ world: SIMD3<Double>) -> CGPoint? { nil }
+        func offAxisDegrees(to plane: SketchPlane) -> Double { 0 }
+        func orientationCubeLabels() -> [OrientationCube.FaceLabel] { [] }
+        func gizmoWorldScale(at origin: SIMD3<Float>) -> Float { 1 }
+    }
 
     private func makeViewModel() throws -> EditorViewModel {
         let schema = Schema([Project.self, PersistedBody.self, PersistedSketch.self,
@@ -16,6 +29,9 @@ final class LineGuideWorkflowTests: XCTestCase {
         let project = Project(name: "Line Delete input")
         context.insert(project)
         let vm = EditorViewModel(project: project, modelContext: context)
+        let camera = GuideCamera()
+        Self.cameras.append(camera)
+        vm.cameraControl = camera
         Self.retained.append(vm)
         return vm
     }
@@ -100,8 +116,9 @@ final class LineGuideWorkflowTests: XCTestCase {
             settings.snapToSketchGuidelines = guides
             for auto in [false, true] {
                 for scale in [0.01, 1.0] {
-                    for rise in [-5.0, -1.0, 1.0, 5.0] {
+                    for rise in [-5.0, -4.0, -1.0, 1.0, 4.0, 5.0] {
                         let vm = try makeViewModel()
+                        (vm.cameraControl as? GuideCamera)?.worldUnitsPerPoint = scale
                         startLine(vm)
                         vm.autoConstrainSettings.enabled = auto
                         let a = SIMD2<Double>(10, 10) * scale
@@ -115,7 +132,7 @@ final class LineGuideWorkflowTests: XCTestCase {
                         vm.updateSketchStroke(ray: ray(b))
                         let preview = try XCTUnwrap(vm.pendingEntity)
                         guard case let .line(_, pa, pb) = preview else { return XCTFail() }
-                        let snaps = guides && abs(rise) == 1
+                        let snaps = guides && abs(rise) <= 4
                         XCTAssertEqual(pa.y, a.y, accuracy: 1e-5)
                         XCTAssertEqual(pb.y, snaps ? a.y : b.y, accuracy: 1e-5)
                         vm.endSketchStroke(ray: ray(b))
