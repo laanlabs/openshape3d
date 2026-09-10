@@ -20,6 +20,8 @@ final class NumericKeypadTextTests: XCTestCase {
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 cm"), "cm")
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "45 deg"), "deg")
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "0.05 in"), "in")
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "0.0025 ft"), "ft")
+        XCTAssertNil(NumericKeypad.trailingUnit(in: "loft"))
         XCTAssertNil(NumericKeypad.trailingUnit(in: "pin"))
         XCTAssertNil(NumericKeypad.trailingUnit(in: "20"))
         XCTAssertNil(NumericKeypad.trailingUnit(in: "25.4/2"))
@@ -30,6 +32,7 @@ final class NumericKeypadTextTests: XCTestCase {
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "cm"), .centimeters)
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "m"), .meters)
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "in"), .inches)
+        XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "ft"), .feet)
         // deg is an angle, not a length — it must not scale a distance.
         XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: "deg"))
         XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: nil))
@@ -314,6 +317,27 @@ final class DimensionKeypadCommitTests: XCTestCase {
             XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
             vm.session.redo()
             XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.27, accuracy: 1e-6)
+        }
+    }
+
+    func testExplicitFeetConvertAndRetainSourceWithoutVariableFormula() throws {
+        for displayUnit in [DisplayUnit.millimeters, .centimeters] {
+            let vm = try makeViewModel()
+            AppSettings.shared.unit = displayUnit
+            let (original, id) = lineReadyToDimension(vm)
+            vm.commitDimensionEdit("0.0025 ft")
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 0.762, accuracy: 1e-6)
+            let dimension = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+            XCTAssertNil(dimension.formula)
+            XCTAssertEqual(dimension.displayExpression, "0.0025 ft")
+            vm.selectedSketchEntityIDs = [id]
+            vm.beginDimensionForSelection()
+            XCTAssertEqual(vm.editingDimension?.text, "0.0025 ft")
+            vm.session.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+            XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
+            vm.session.redo()
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 0.762, accuracy: 1e-6)
         }
     }
 

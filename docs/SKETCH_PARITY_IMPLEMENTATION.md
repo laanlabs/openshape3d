@@ -1416,3 +1416,12 @@ now converts to1.27mm and retains source rather than a spurious variableformula.
 Clean33/33, live corrected conversion, paired source/history and clonegallery
 reopen verified. Feet/quote/mixedimperial remain open. Illustrated357/all4 hashes
 and master38 verified. Receipt testing/sketch-parity-imperial-unit-2026-09-10.md.
+
+## September 10 — explicit feet and quoted-keyboard refusal
+
+Native0.05ft→15.24mm, clone0.0025ft wrongly treated asmm. Keyboard ftmapping now
+converts0.762mm with source/history retention. Clean34/34, pairedsource/history
+and clonegalleryreopen pass. Quotedkeyboardroute syntaxrefusal andvalidin recovery
+match; smartpunctuation scope explicit, no universalquoteclaim. Illustrated363/all6
+hashes/master38 verified. Receipts testing/sketch-parity-feet-unit-2026-09-10.md
+and testing/sketch-parity-quoted-inch-2026-09-10.md. Mixedimperial remainsopen.

@@ -227,7 +227,7 @@ struct NumericKeypad: View {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         // Longest first so "mm" is never mistaken for a trailing "m".
         // Keyboard-only unit tokens need not add buttons to the compact pad.
-        return (units + ["in"]).sorted { $0.count > $1.count }
+        return (units + ["in", "ft"]).sorted { $0.count > $1.count }
             .first { token in
                 guard trimmed.hasSuffix(token) else { return false }
                 let body = trimmed.dropLast(token.count)
