@@ -1433,3 +1433,11 @@ without treating the unit suffix as a variable. Clean35/35; paired source/histor
 and clone gallery reopen verified. Illustrated368/master38 export-verified.
 Receipt: testing/sketch-parity-mixed-imperial-2026-09-10.md. Narrow expression
 field remains a visible difference; no full QA closure or updated IPA claim.
+
+### September 10: complete ordinary expression field
+
+The input grows with text within96–320pt instead of clipping every source at96pt.
+Clean2/2 keyboard/keypad UI checks; paired native source switching and clone
+portrait/landscape/source commit plus saved reopen inspected. Illustrated373/all5
+hashes and master38/final reopen note verified. Theme differences retained.
+Receipt: testing/sketch-parity-expression-field-width-2026-09-10.md.

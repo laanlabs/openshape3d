@@ -1,17 +1,17 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, mixed imperial fix verified
+## Active continuation — September 10, expression field verified
 
-Baseline135cfd8 pushed. Mixed imperial additive conversion implemented with guarded
-fully-qualified terms; clean35/35 /tmp/os3d-mixed-imperial-20260910.xcresult.
-Native20.32mm and clone1.016mm result/source/history inspected; clone gallery
-reopen retains source/value. Illustrated368/all5 hashes/no predecessor loss;
-master38 dated note verified. Receipt docs/testing/sketch-parity-mixed-imperial-2026-09-10.md.
-No test/build runner. Native1924 and clone6492 have mixed-source keyboard editors
-open. Next commit this verified fix, then correct the confirmed narrow expression
-field (96pt hard-coded width) with paired evidence and focused regression.
-Identity/memory files untouched. Counts2passed/0failed/1deviceblocked/53incomplete.
-Existing05be744 IPA unchanged; no device install/merge/restart/security changes.
+Baseline0e2f312 pushed; expression-width correction clean2/2 in one run at
+/tmp/os3d-expression-width-20260910.xcresult. Paired native source/keypad and clone
+portrait/landscape keyboard/keypad,1.016mm commit and saved reopen inspected.
+Illustrated373/all5 hashes/no predecessor loss; master38/new/prior/finalreopen note
+verified. Receipt docs/testing/sketch-parity-expression-field-width-2026-09-10.md.
+No runner. Clone6492 landscape source keypad open on saved circle1.016mm;
+native1924 source keypad0.025ft+0.5in open. Next commit verified correction and
+compare display-unit changes/source stability in both apps. Preserve identity/
+memory/stalled Doc tabs. Counts2passed/0failed/1deviceblocked/53incomplete.
+Immutable05be744 IPA unchanged; no deviceinstall/merge/restart/security changes.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

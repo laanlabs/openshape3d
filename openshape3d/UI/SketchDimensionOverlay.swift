@@ -560,6 +560,16 @@ private struct DimensionField: View {
         }
     }
 
+    /// Retain the whole ordinary expression instead of scrolling it inside the
+    /// old fixed 96-point slot. Very long formulas still scroll; the bounded
+    /// width lets editorPosition keep the entire row clear of the side rails.
+    private var expressionWidth: CGFloat {
+        let font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize,
+                                     weight: .semibold)
+        let measured = (text as NSString).size(withAttributes: [.font: font]).width
+        return min(320, max(96, ceil(measured) + 20))
+    }
+
     private var valueRow: some View {
         HStack(spacing: 4) {
             // A real TextField either way: with the pad it is a display that
@@ -568,7 +578,7 @@ private struct DimensionField: View {
             TextField("", text: $text)
                 .keyboardType(.numbersAndPunctuation)
                 .autocorrectionDisabled()
-                .frame(width: 96)
+                .frame(width: expressionWidth)
                 .focused($focused)
                 // While the pad is the input method the field is a READOUT: it
                 // must not take taps (that would raise the system keyboard the

@@ -195,7 +195,17 @@ Width then height via keyboard and touch, both at screen edge. Issues: DM-11. Re
 
 ### QA-31 — Unit conversion
 
-mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM-10. Result: NOT RUN. Evidence/owner: pending.
+mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM-10.
+Result: comprehensive acceptance remains deferred, not passed. September10 sampled
+metric source retention, explicit inches/feet and mixed feet+inches now have paired
+live result/source/history and clone saved-reopen evidence. Latest mixed run35/35;
+illustrated368/master38 export-verified. Quoted-inch keyboard route refused in both
+apps, but smart punctuation leaves exact ASCII/Unicode coverage unverified. Physical
+touch, all imperial formats and complete display-setting matrix remain open.
+Receipts: testing/sketch-parity-imperial-unit-2026-09-10.md,
+testing/sketch-parity-feet-unit-2026-09-10.md,
+testing/sketch-parity-quoted-inch-2026-09-10.md,
+testing/sketch-parity-mixed-imperial-2026-09-10.md.
 
 ### QA-32 — Expression evaluation
 
