@@ -1,5 +1,47 @@
 # Parity continuation checkpoint
 
+## Active continuation — September 9, 22:48 EDT
+
+Parent clarification: candidate handoff does NOT complete authorized parity work.
+HEAD a40c22c; immutable 05be744 IPA/receipts preserved. Keypad regression
+exec62721 completed clean8/8. Retention regression exec70335 completed clean9/9
+(/tmp/os3d-numeric-retention-20260909.xcresult), no runner.
+Continue the 42 partial/11 deferred cases; no install/merge. Untracked identity
+files and memory/ are unrelated and preserved.
+
+Read-only device check: paired 11-inch iPad Pro (3rd generation), iPadOS26.6.1,
+Developer Mode enabled, device UDID included in the preserved IPA profile. No
+installation or physical-input test performed.
+
+Capture recovery: OpenClaw bridge socket absent; existing Peekaboo GUI bridge at
+Application Support/Peekaboo/bridge.sock is healthy with capture/input grants.
+Both foreground/background image and screen image fail with web-focus outcome
+error; supported see route succeeds for native1924 and simulator6492. Do not
+classify capture-route errors as app failures.
+
+Next closure batch: QA-33 invalid numeric input + QA-40 keypad cleanup. Compare
+zero/negative/malformed/divide-by-zero, unchanged geometry/history on refusal,
+valid recovery, explicit Escape versus click-away/tool-switch commit, portrait/
+landscape controls. Known prior discrepancy: clone modal error vs native inline
+feedback. Native existing project and clone exact-tested build captured via see;
+no product changes or new passing claims in this continuation yet.
+
+Completed runner: focused invalid-recovery test (exec4190) passed clean1/1;
+result /tmp/os3d-invalid-recovery-20260909.xcresult. Only test fixture added.
+Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md. Next: collect
+implement paired field-anchored malformed-expression diagnostic, then
+QA40/publication. Live retained2+ correction/recovery to3mm passed; clean9/9.
+Illustrated270placements/new5 hashes verified; expression addendum/master pending. Native negative dismisses while
+1/0 and2+ retain editor with inline warning; clone2+ dismissal reproduced.
+VM now preserves editing state on parser failure; next live result pending.
+/tmp/os3d-numeric-notice-20260909.xcresult passed8/8; live clone zero refusal,
+valid1mm recovery and Undo2mm passed. Native valid20mm recovery/Cmd+Z passed. Paired zero mismatch captured; dimension parse/range feedback
+changed to transient notice (solver conflicts unchanged). Product VM and test
+are dirty along with these docs. Publish current evidence and continue closure;
+do not stop at artifact handoff.
+
+## Prior handoff checkpoint (superseded as stopping condition)
+
 September 9 ~22:30 EDT. Final regression correction revision `05be744` and final
 artifact/publication documentation revision `7f6b3e3` are pushed to PR #29.
 The working tree contains only preserved untracked `IDENTITY.md`, `SOUL.md`, and

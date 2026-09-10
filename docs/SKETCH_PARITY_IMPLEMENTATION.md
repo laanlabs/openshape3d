@@ -1262,3 +1262,12 @@ is claimed. See [the device A/B handoff](SKETCH_PARITY_DEVICE_AB.md) and
 The final illustrated Google Doc export verifies 265 image placements / 263
 unique media, including each of five new final-gate screenshot hashes once. The
 master roadmap export retains 38 drawings and exactly one final candidate note.
+
+## September 9 — numeric-refusal continuation after candidate handoff
+
+QA33 current paired zero input confirms native nonmodal warning versus clone
+blocking alert. Dimension parse/range refusals now use transient notices; geometry
+and solver-conflict rules unchanged. Clean8/8 keypad commit checks plus live zero
+refusal, valid recovery and one-step Undo. QA33/40 remain partial, styling differences
+retained; publication pending. [Receipt](testing/sketch-parity-invalid-recovery-2026-09-09.md).
+Immutable05be744 IPA preserved; continued work is not included in that artifact.

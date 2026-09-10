@@ -117,6 +117,39 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 200, accuracy: 1e-6)
     }
 
+    /// Invalid submissions must not become dimensions or consume history, and
+    /// the next valid edit must remain usable after any rejected expression.
+    func testInvalidLengthInputsPreserveGeometryAndAllowRecovery() throws {
+        for raw in ["0", "-1", "", "1/0", "2+", "unknown_dimension"] {
+            let vm = try makeViewModel()
+            AppSettings.shared.unit = .millimeters
+            let (sketch, id) = lineReadyToDimension(vm)
+            let original = try XCTUnwrap(vm.activeSketch)
+            vm.commitDimensionEdit(raw)
+            XCTAssertNotNil(vm.notice, raw)
+            XCTAssertNil(vm.errorMessage, "Numeric refusal must not block the canvas: \(raw)")
+            if raw == "0" || raw == "-1" {
+                XCTAssertNil(vm.editingDimension, raw)
+            } else {
+                XCTAssertNotNil(vm.editingDimension, "Malformed expressions stay editable: \(raw)")
+            }
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities, raw)
+            XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty, raw)
+            if vm.editingDimension == nil {
+                vm.selectedSketchEntityIDs = [id]
+                vm.beginDimensionForSelection()
+            }
+            vm.commitDimensionEdit("25")
+            XCTAssertNil(vm.errorMessage, raw)
+            XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 25, accuracy: 1e-6)
+            vm.session.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities, raw)
+            vm.session.undo()
+            XCTAssertFalse(vm.session.document.sketches.contains { $0.id == sketch.id },
+                           "Rejected input must not insert a history step: \(raw)")
+        }
+    }
+
     // MARK: The lock key
 
     func testImmediateLockUnlockPreservesGeometryAndHistoryRejectsDraft() throws {

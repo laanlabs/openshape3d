@@ -12057,14 +12057,16 @@ final class EditorViewModel {
             editingDimension = nil
             return
         }
-        editingDimension = nil
         // Phase D: evaluate against document variables so a dimension can read
         // e.g. "width/2"; store the raw text as the driving formula only when it
         // references a variable/function (a plain number keeps `formula: nil`).
         guard let parsed = ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
-            errorMessage = "Couldn't read \"\(rawText)\" as a number."
+            showNotice("Couldn't read \"\(rawText)\" as a number.")
             return
         }
+        // Keep malformed expressions editable; valid out-of-range values dismiss.
+        // Paired native 1/0 and 2+ retain the keypad, unlike zero/negative sizes.
+        editingDimension = nil
         // A trailing unit is letters, so `identifiers(in:)` reads "20 cm" as the
         // variable `cm` — which made it a "formula", skipped the unit
         // conversion below, and stored nonsense in `formula`. Strip the unit
@@ -12084,12 +12086,12 @@ final class EditorViewModel {
         case .angle:
             let upperBound = isArcSweep ? 360.0 : 180.0
             guard parsed > 0, parsed < upperBound || completesCircle else {
-                errorMessage = "Angle must be between 0° and \(Int(upperBound))°."
+                showNotice("Angle must be between 0° and \(Int(upperBound))°.")
                 return
             }
         default:
             guard parsed > 0 else {
-                errorMessage = "Dimension must be greater than zero."
+                showNotice("Dimension must be greater than zero.")
                 return
             }
         }
