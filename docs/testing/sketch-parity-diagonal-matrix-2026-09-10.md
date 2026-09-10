@@ -186,3 +186,47 @@ Final captures: `native-corners-left-locked`, `final-partial`, `final-undo`,
 `final-redo`, `final-reopen-state` under the os3d-qa08 prefix in diagonal-matrix.
 All copied and hashed locally. Google signed-out blocker persists; no new
 publication claim beyond illustrated466/master38. Immutable05be744IPA untouched.
+
+### Center-only Lock resize diagnosis
+
+Corner correction c634c30 pushed. Native fresh18×12 center-only Lock then
+width9 preserves midpoint and height12, unlike clone's whole-entity selection
+from center dot. New focused regression is running against unchanged solver;
+no center implementation claim yet. Evidence center-native-widthselected and
+center-native-width9 copied/hashed; publication still blocked.
+
+Center Lock regression reproduced two assertions on old solver (4.5 midpoint
+drift, translation allowed). Corrected fixed-midpoint residual passed clean30/30
+kernel+pointstate suite at center-lock-kernel xcresult. UI routing is now under
+combined regression; no post-fix live claim yet. Derived rectangle centers expose
+only supported local Lock, not unsupported point relationships.
+
+Initial center UI run failed no-label assertion (2 labels). Live mouse point
+selection succeeded; center Lock width1.913→1 preserved center and height1.736.
+The touch beginSketchEntityDrag path still selected whole entity; corrected to
+point scope. New local Lock glyph covered center; now offset40 below center.
+Followup combined running; retain failed run and do not claim final UI pass.
+
+Touch follow-up ui2:30 kernel passed, UI refusal failed because fixture toggled
+already-selected center off. Explicit clear/select and Unlock assertion yielded
+ui3 focused1/1 pass. Extended numeric final run found no width labels and crashed
+unchecked optional; guard/capture added and touch center→edge transition now
+clears center point/set edge. Final2 pending. Preserve every intermediate run.
+
+### Center-only Lock final regression and live result
+
+Final2 clean31/31:24 rectangle geometry,6 point-state,1 strengthened UI. Result
+`/tmp/os3d-qa08-center-lock-final2-20260910.xcresult`. Prior red kernel2assertions,
+UI1/no-label failure, UI2/selection setup failure, UI3focusedpass, and extended
+final fixture crash retained. Final2 explicitly checks selection, refusal,
+center-locked halfwidth midpoint/height preservation and numeric Undo/Redo.
+
+Exact-build live: center point orange only, Lock glyph below rather than covering
+it; center-locked drag refused. Width0.957→0.5 preserved local midpoint362,464
+and height1.736; Undo0.957/Redo0.5. Unlock permitted40right20down translation;
+relock and gallery reopen retained movedcenter402,484, savedwidth0.5 and Lock.
+Native width18→9 centered at849,417, height12 preserved before reopen. Native
+reopen trial modal7759 then blocked supported focus/capture: project1924 click
+rejected because modal focused; modal/screen capture reports indeterminate
+web-focus error. No native persistence failure or new paired reopen pass claimed.
+All screenshots locally copied/hashed. Google still signed-out; publication pending.

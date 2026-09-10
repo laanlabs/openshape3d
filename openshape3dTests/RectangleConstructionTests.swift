@@ -3,6 +3,28 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testRectangleCenterLockAllowsSymmetricSizingButRejectsTranslation() throws {
+        let id = UUID(), lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(20, 15)
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: lo, max: hi)])
+        sketch.rectangleSizingAnchors[id] = .minMin
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let dimension = sizeDimension(id, .horizontal, 9)
+        sketch.dimensions = [dimension]
+        let result = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dimension)
+        XCTAssertTrue(result.converged)
+        XCTAssertLessThan(result.structuralResidual, 1e-5)
+        guard case let .rect(_, a, b) = result.entities[0] else { return XCTFail() }
+        XCTAssertLessThan(simd_distance((a + b) / 2, (lo + hi) / 2), 1e-5)
+        XCTAssertEqual(b.x - a.x, 9, accuracy: 1e-5)
+        XCTAssertEqual(b.y - a.y, 12, accuracy: 1e-5)
+        sketch.entities = result.entities
+        let blocked = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleTranslation(
+            sketch, id: id, delta: SIMD2(4, 2)))
+        XCTAssertEqual(blocked, sketch.entities)
+        let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sketch))
+        XCTAssertEqual(decoded.constraints, sketch.constraints)
+    }
+
     func testRectangleCenterTranslationPreservesSizeAndSavedConnections() throws {
         let id = UUID(), lineID = UUID()
         let lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(12, 9), delta = SIMD2<Double>(4, -2)

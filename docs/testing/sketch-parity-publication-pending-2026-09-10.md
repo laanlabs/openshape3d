@@ -73,3 +73,20 @@ Final captures: `native-corners-left-locked`, `final-partial`, `final-undo`,
 `final-redo`, `final-reopen-state` under the os3d-qa08 prefix in diagonal-matrix.
 All copied and hashed locally. Google signed-out blocker persists; no new
 publication claim beyond illustrated466/master38. Immutable05be744IPA untouched.
+
+### Center-only rectangle Lock correction — September 10
+
+Native center Lock permits width18→9 about the unchanged midpoint while height12
+remains. Clone now selects only the center point (mouse and touch drag-start),
+saves a center-scoped Lock, and lowers it to a fixed-midpoint equation without
+new rectangle variables. Unsupported derived-center relationships stay disabled.
+Center colors show selection/Lock; local glyph is offset below the drag target.
+Final clean31/31 at `/tmp/os3d-qa08-center-lock-final2-20260910.xcresult`, after
+retained kernel/UI failures and fixture corrections. Exact-build live clone
+width0.957→0.5 preserves midpoint/height1.736; Undo/Redo, locked refusal, Unlock
+translation40×20, relock and gallery reopen all captured. Native resize is live
+compared; latest native reopen remains pending at trial modal7759 because supported
+focus/capture routes are inconsistent. No native persistence failure claimed.
+Publication remains queued, not verified: Google signed-out, last illustrated466 /
+master38. Immutable05be744IPA unchanged. QA08 remains partial; wider selection,
+constraint icon styling/visibility and other acceptance cases remain open.

@@ -135,7 +135,13 @@ final class RectangleWorkflowUITests: XCTestCase {
         let redone = try bounds()
         XCTAssertEqual(redone.minX, after.minX, accuracy: 2)
         XCTAssertEqual(redone.minY, after.minY, accuracy: 2)
+        p(app, 0.72, 0.72).tap() // clear the center selected by the preceding drag
+        center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 0,
+                       "Center selection must not select the whole rectangle")
         app.buttons["ConstraintRail-fixed"].tap()
+        XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Unlock")
+        attach(app, "rectangle-center-only-locked")
         let lockedCenter = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         lockedCenter.press(forDuration: 0.15,
             thenDragTo: lockedCenter.withOffset(CGVector(dx: 60, dy: 35)))
@@ -144,6 +150,29 @@ final class RectangleWorkflowUITests: XCTestCase {
         app.buttons["Undo"].tap()
         XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Lock",
                        "Undo after a refused drag must remove the lock, not a no-op movement")
+        app.buttons["ConstraintRail-fixed"].tap()
+        XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Unlock")
+        tapAxisEdge(app, side: .top)
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        attach(app, "rectangle-center-lock-edge-selected")
+        let width = try XCTUnwrap(app.buttons.matching(identifier: "DimensionLabel").allElementsBoundByIndex
+            .min { $0.frame.midY < $1.frame.midY })
+        width.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let original = try XCTUnwrap(Double((field.value as? String) ?? ""))
+        for c in String(format: "%.4f", original / 2) { app.buttons["Keypad-\(c)"].tap() }
+        app.buttons["KeypadCommit"].tap()
+        let resized = try bounds()
+        XCTAssertEqual(resized.midX, after.midX, accuracy: 2)
+        XCTAssertEqual(resized.midY, after.midY, accuracy: 2)
+        XCTAssertEqual(resized.width, after.width / 2, accuracy: 2)
+        XCTAssertEqual(resized.height, after.height, accuracy: 2)
+        attach(app, "rectangle-center-lock-symmetric-width")
+        app.buttons["Undo"].tap()
+        XCTAssertEqual(try bounds().width, after.width, accuracy: 2)
+        app.buttons["Redo"].tap()
+        XCTAssertEqual(try bounds().width, resized.width, accuracy: 2)
     }
 
     func testReverseDiagonalWidthEditKeepsProfileAtLeftSide() throws {

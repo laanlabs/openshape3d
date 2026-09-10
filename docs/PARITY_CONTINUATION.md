@@ -1,21 +1,24 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, rectangle corners verified
+## Active continuation — September 10, center Lock verified / native modal blocked
 
-Base HEAD3c6a8b6 pushed; corner correction ready for commit. Final30/30 clean
-at `/tmp/os3d-qa08-corner-final-20260910.xcresult`. No runner active. Live exact
-build partial Lock colors/hollow shape, whole Lock, Undo/Redo and gallery reopen
-passed in clone. Native partial Lock point convention matched; native latest
-Undo only reselected edge, did not visibly clear Lock, so this repeat inconclusive.
-Screenshot receipts and SHA256SUMS in report diagonal-matrix; publication queued
-in docs/testing/sketch-parity-publication-pending-2026-09-10.md. Google signed-out
-blocker persists, illustrated466/master38 verified only. ImmutableIPA untouched.
-Next commit/push marker correction, then native center-only Lock + dimension
-resize comparison to establish scope before implementing center selection.
-Native1924 FrontSketch04 contains middle18×12 left-locked rectangle selected;
-clone7715 sketch open, Items panel open,1.913×1.736 left-side-locked rectangle.
-Dirty product/test files and docs belong to this correction; preserve unrelated
-untracked identity/memory. Inventory4passed/0failed/1deviceblocked/51incomplete.
+HEADc634c30 pushed; center Lock change ready for commit. Final2 clean31/31 at
+/tmp/os3d-qa08-center-lock-final2-20260910.xcresult. No runner active.
+Native18→9 centerfixed/height12 compared; exact-build clone0.957→0.5 centerfixed /
+height1.736, Undo/Redo, refusal, Unlock40×20, relock/gallery reopen passed.
+Full intermediate failures preserved in diagonal-matrix receipt. Local images
+and hashes retained; Google signed-out, illustrated466/master38 last verified.
+Native reopen currently trial modal7759 bounds346,230,800,440 overproject1924.
+Projectclick rejects focus; modalclick1040,266 reports success but prompt remains;
+modal/screen capture indeterminate webfocus; synthOnlyEscape also no visiblechange.
+No native persistence-failure claim. Preserve Shapr3D/reporttabs, no restart/security.
+Exact next commit/push centerfix, broader rectangle UI regression while native
+input recovery is pending; inspect existing supported capture alternatives from
+prior recovery receipt before further modal actions. Clone7715 sketch saved
+0.5×1.736 centerlocked atlocal402,484; Items open. No active Peekaboo command.
+Dirty center implementation/tests/docs belong to this task; unrelateduntracked
+identity/memory preserved. Inventory4passed/0failed/1deviceblocked/51incomplete.
+IPA05be744 immutable and unchanged. Continue remaining QA08 acceptance.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

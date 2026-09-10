@@ -31,7 +31,7 @@ struct SketchPointStateOverlay: View {
                 }
                 ForEach(viewModel.sketchRectangleCenterMarkers) { marker in
                     if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
-                        Circle().fill(Self.free)
+                        Circle().fill(marker.isSelected ? Color.orange : (marker.state == .free ? Self.free : Self.constrained))
                             .frame(width: 5, height: 5)
                             .position(x: pt.x, y: pt.y)
                             .accessibilityIdentifier("RectangleCenterControl")

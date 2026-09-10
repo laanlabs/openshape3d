@@ -719,7 +719,14 @@ nonisolated enum SketchSolverBridge {
             currentSource = .constraint(c.id)
             switch c.kind {
             case .fixed:
-                break // handled via the fixed set
+                // Rectangle centers are derived from their diagonal corners.
+                // Pin only the midpoint so both size axes remain editable.
+                for ref in c.refs where ref.role == .center {
+                    guard case let .rect(_, lo, hi)? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                          let a = pIdx(ref.entityID, .endpointA),
+                          let b = pIdx(ref.entityID, .endpointB) else { continue }
+                    lower(FixedMidpointConstraint(a: a, b: b, target: (lo + hi) / 2))
+                }
             case .coincident:
                 guard c.refs.count == 2 else { break }
                 let r0 = c.refs[0], r1 = c.refs[1]

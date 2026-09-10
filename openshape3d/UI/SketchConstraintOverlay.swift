@@ -76,7 +76,15 @@ struct SketchConstraintOverlay: View {
     }
 
     private func glyphPosition(anchor: CGPoint, offset: CGFloat, sketchID: SketchID) -> CGPoint {
-        let original = CGPoint(x: anchor.x, y: anchor.y + offset)
+        var original = CGPoint(x: anchor.x, y: anchor.y + offset)
+        // Keep the rectangle's center control available below a local Lock.
+        if let sketch = viewModel.activeSketch, sketch.id == sketchID,
+           viewModel.sketchRectangleCenterMarkers.contains(where: { marker in
+               guard let center = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) else { return false }
+               return abs(anchor.x - center.x) < 4 && abs(anchor.y - center.y) < 4
+           }) {
+            original.y += 40
+        }
         guard viewModel.sketchTransformActive,
               let sketch = viewModel.activeSketch, sketch.id == sketchID,
               let centroid = viewModel.sketchSelectionCentroid,

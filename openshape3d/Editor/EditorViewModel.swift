@@ -8121,6 +8121,7 @@ final class EditorViewModel {
         var world: SIMD3<Float>
         var state: SketchPointState
         var isRectangleCorner = false
+        var isSelected = false
     }
 
     /// Memoized `sketchPointMarkers`, keyed on the document revision and active
@@ -8176,8 +8177,14 @@ final class EditorViewModel {
         guard let sketch = activeSketch else { return [] }
         return sketch.entities.compactMap { entity in
             guard case let .rect(id, lo, hi) = entity else { return nil }
+            let locked = sketch.constraints.contains { constraint in
+                constraint.kind == .fixed && constraint.refs.contains {
+                    $0.entityID == id && ($0.role == .center || ($0.role == .whole && $0.rectangleEdge == nil))
+                }
+            }
             return SketchPointMarker(id: "\(id):rectangleCenter",
-                world: SIMD3<Float>(sketch.plane.toWorld((lo + hi) / 2)), state: .free)
+                world: SIMD3<Float>(sketch.plane.toWorld((lo + hi) / 2)), state: locked ? .locked : .free,
+                isSelected: selectedSketchPoints.contains(.init(entityID: id, role: .center)))
         }
     }
 
@@ -8988,13 +8995,11 @@ final class EditorViewModel {
         if let control = SketchHitTester.nearestControlPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance),
            control.kind == .center, case .rect = control.entity {
-            selectedSketchPoints.removeAll()
-            if selectedSketchEntityIDs == [control.entity.id], selectedAxisRectangleEdge == nil {
-                selectedSketchEntityIDs.removeAll()
-            } else {
-                selectedSketchEntityIDs = [control.entity.id]
-                selectedAxisRectangleEdge = nil
-            }
+            let point = SketchPointSelection(entityID: control.entity.id, role: .center)
+            let wasSelected = selectedSketchPoints == [point]
+            selectedSketchEntityIDs.removeAll()
+            selectedAxisRectangleEdge = nil
+            selectedSketchPoints = wasSelected ? [] : [point]
             return true
         }
         if let pt = SketchHitTester.nearestPoint(
@@ -9014,6 +9019,7 @@ final class EditorViewModel {
         ) {
             if case .rect = hit.entity,
                let index = RectangleConstruction.nearestAxisEdge(hit.entity, to: raw) {
+                selectedSketchPoints.remove(SketchPointSelection(entityID: hit.entity.id, role: .center))
                 if selectedAxisRectangleEdge?.id == hit.entity.id,
                    selectedAxisRectangleEdge?.index == index {
                     selectedSketchEntityIDs.remove(hit.entity.id)
@@ -9402,8 +9408,20 @@ final class EditorViewModel {
             to: raw, in: sketch.entities, tolerance: entityPickTolerance
         ) : nil
         guard let entity = control?.entity ?? body?.entity else { return false }
-        if !selectedSketchEntityIDs.contains(entity.id) {
-            selectedSketchEntityIDs = [entity.id]
+        if control?.kind == .center, case .rect = entity {
+            selectedSketchEntityIDs.removeAll()
+            selectedAxisRectangleEdge = nil
+            selectedSketchPoints = [.init(entityID: entity.id, role: .center)]
+        } else {
+            if case .rect = entity {
+                selectedSketchPoints.remove(.init(entityID: entity.id, role: .center))
+                if let index = RectangleConstruction.nearestAxisEdge(entity, to: raw) {
+                    selectedAxisRectangleEdge = (entity.id, index)
+                }
+            }
+            if !selectedSketchEntityIDs.contains(entity.id) {
+                selectedSketchEntityIDs = [entity.id]
+            }
         }
         sketchEntityDrag = SketchEntityDrag(
             sketchID: sketch.id,
@@ -11011,6 +11029,14 @@ final class EditorViewModel {
 
     func canApplyConstraint(_ kind: SketchConstraintKind) -> Bool {
         guard mode.isSketching else { return false }
+        // Derived rectangle centers currently support only a local Lock.
+        // Do not advertise point relationships the solver cannot yet lower.
+        if kind != .fixed, let sketch = activeSketch,
+           selectedSketchPoints.contains(where: { point in
+               point.role == .center && sketch.entities.contains(where: {
+                   if case .rect = $0 { return $0.id == point.entityID }; return false
+               })
+           }) { return false }
         let points = selectedSketchPoints.count
         let lines = selectedLineEntities.count
         let circles = selectedRadiusEntities.count
@@ -11671,6 +11697,7 @@ final class EditorViewModel {
         case let (.line(_, _, b), .endpointB): return b
         case let (.rect(_, mn, _), .endpointA): return mn
         case let (.rect(_, _, mx), .endpointB): return mx
+        case let (.rect(_, lo, hi), .center): return (lo + hi) / 2
         case let (.line(_, a, b), .whole): return (a + b) / 2
         default:
             switch e {

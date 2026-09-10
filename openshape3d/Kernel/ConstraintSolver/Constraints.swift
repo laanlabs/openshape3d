@@ -152,6 +152,19 @@ nonisolated struct FixedPointConstraint: ConstraintResidual {
     }
 }
 
+/// Fix a derived midpoint without introducing an independent point variable.
+nonisolated struct FixedMidpointConstraint: ConstraintResidual {
+    let a: Int
+    let b: Int
+    let target: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(a) + pointIndices(b) }
+    var residualCount: Int { 2 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        let d = (point(vars, a) + point(vars, b)) / 2 - target
+        return [d.x, d.y]
+    }
+}
+
 // MARK: - Distance dimensions
 
 /// Distance between two points equals `distance` (|B - A| - d = 0).
