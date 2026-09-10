@@ -564,10 +564,9 @@ private struct DimensionField: View {
     /// old fixed 96-point slot. Very long formulas still scroll; the bounded
     /// width lets editorPosition keep the entire row clear of the side rails.
     private var expressionWidth: CGFloat {
-        let font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize,
-                                     weight: .semibold)
+        let font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         let measured = (text as NSString).size(withAttributes: [.font: font]).width
-        return min(320, max(96, ceil(measured) + 20))
+        return min(320, max(192, ceil(measured) + 20))
     }
 
     private var valueRow: some View {
@@ -679,10 +678,10 @@ private struct DimensionField: View {
                 .accessibilityIdentifier("DimensionCommit")
             }
         }
-        .font(.caption.weight(.semibold))
+        .font(.system(size: 16, weight: .semibold))
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+        .background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 2))
     }
 }

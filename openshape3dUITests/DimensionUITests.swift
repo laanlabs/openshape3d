@@ -155,6 +155,11 @@ final class DimensionUITests: XCTestCase {
         let measuredFeet = label.label
         label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
+        let field = app.textFields["DimensionField"]
+        let pad = app.otherElements["NumericKeypad"].firstMatch
+        XCTAssertTrue(pad.exists)
+        XCTAssertGreaterThan(field.frame.width, pad.frame.width * 0.7,
+                             "Short values retain a readable, near-keypad-width editor")
         attach(app, "untouched-rounded-foot-seed")
         app.buttons["KeypadCommit"].tap()
         XCTAssertEqual(label.label, measuredFeet, "Untouched rounded seed must not resize the line")

@@ -1,20 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, Settings target verified
+## Active continuation — September 10, field correction verified
 
-Baseline7532ae9 pushed. Settings target fixreadycommit: EditorView, SettingsUI
-fixture, ledger/receipt/checkpoint. Initial1pass/1fixture-heightfailure, targeted
-centerbehavior1/1pass. Liveportraitmodel/sketch andlandscapesketch gearcenter
-opens. Illustrated396/all5/no loss/master38 verified. No runner.
-Receipt `docs/testing/sketch-parity-settings-target-2026-09-10.md`.
-Next commit/push, continue same-light-theme numericfield comparison. Clone6492
-landscape887x736at72,30, Settingslargesheetopen, ThemejustchangedSystem→Light;
-Doneglobal660246. Existingline endpointsrelative383333..474333,1.5mm fromUI
-fixture. Native1924 constraintsettingspopup open; clickblankdismiss. Native
-line20mm/circle15.24mm retained. Priorroundedseedlivehistorylimit documented.
-Counts2passed/0failed/1deviceblocked/53incomplete. Immutable05be744IPA unchanged.
-Preserveunrelatedidentity/memory/stalledDocs. No install/merge/restart/security
-changes/duplicateworker/watchdog; sole desktop/buildownerhere.
+Base HEAD 6c8ffaf; field correction ready for commit. Dirty owned files:
+EditorView, SketchDimensionOverlay, NumericKeypad, DimensionUITests, ledger,
+this checkpoint and field-surfaces receipt. Initial 4/4 then revised 3/3 clean;
+not one combined final run. Paired native 20→10 mm and clone 1→0.5 mm edits,
+Undo/Redo and gallery reopen pass. Light and Dark clone keypad occludes point
+markers; system keyboard field/commit stays visible. No runner active.
+Illustrated 403 placements/all seven hashes/no predecessor loss; master 38 and
+final reopen note verified. Receipt: testing/sketch-parity-field-surfaces-2026-09-10.md.
+Native1924 saved10mm editor open; clone6492 portrait Dark saved0.5mm editor open.
+Exact next: commit/push verified correction; paired QA-04 empty-sketch entry and
+cancellation on Top/Front/Right, preserving existing visibility and final reopen.
+Counts 2 passed / 0 failed / 1 device-blocked / 53 incomplete. Immutable05be744
+IPA untouched. Preserve identity/memory and stalled Doc tabs. No install, merge,
+restart/security changes or duplicate workers/watchdogs; sole ownership here.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

@@ -52,7 +52,8 @@ struct NumericKeypad: View {
             }
         }
         .padding(10)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        // A numeric editor must obscure the sketch points/edges below it.
+        .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary, lineWidth: 0.5))
         .shadow(color: .black.opacity(0.18), radius: 12, y: 4)
         // An identifier on a styled container collapses it into ONE element and

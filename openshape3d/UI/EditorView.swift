@@ -949,6 +949,11 @@ struct EditorView: View {
                 SketchConstraintOverlay(viewModel: viewModel)
             }
             .overlay {
+                // Informational point markers belong below numeric editors:
+                // otherwise endpoint circles paint over opaque keypad keys.
+                SketchPointStateOverlay(viewModel: viewModel)
+            }
+            .overlay {
                 // Sketch dimension annotations + inline editors (plan §C2).
                 SketchDimensionOverlay(viewModel: viewModel)
             }
@@ -962,11 +967,6 @@ struct EditorView: View {
                 SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
-            }
-            .overlay {
-                // Per-point DOF markers: blue hollow = free, green =
-                // constrained, blue square = locked. Non-interactive (plan §C4).
-                SketchPointStateOverlay(viewModel: viewModel)
             }
             .overlay {
                 // Live width/height/Ø readout for the stroke in flight (§1.1).

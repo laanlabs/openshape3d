@@ -1478,3 +1478,16 @@ portrait model/sketch and landscapecenter access. UIKitexternaltoolbarheight36;
 initialtestheightassumption corrected, then centerbehaviorpassed1/1; separate
 imperialworkflow1pass. Illustrated396/all5/no loss/master38 verified. Lighttheme
 comparison now underway; no fullsettingspanel/nativeplatform equivalence claim.
+
+## September 10 — Numeric editor proportions and occlusion
+
+Confirmed matched-Light discrepancy: clone short fields were narrow/small and
+endpoint markers painted over keypad keys. Increased field type/minimum width,
+made surfaces opaque and placed informational point markers below editors.
+Initial four UI checks passed but live short-line evidence exposed the remaining
+layer issue; revised three checks passed after correction. Paired numeric edits,
+Undo/Redo and saved gallery reopen verified; Light/Dark and system-keyboard
+coverage inspected in clone. Illustrated 403 placements/all seven hashes/no
+predecessor loss and master 38/reopen note export-verified. Platform scaling and
+physical input remain unverified; immutable IPA unchanged.
+[Full receipt](testing/sketch-parity-field-surfaces-2026-09-10.md).
