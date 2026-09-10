@@ -1,27 +1,25 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, 13:53 EDT
+## Active continuation — September10 14:13 EDT
 
-HEAD3eb9c9b pushed; center-release correction and QA09 docs ready to commit.
-No runner active. Final combined26/26 passed (87.869s):
-`/tmp/os3d-qa09-center-release-combined-20260910.xcresult`. Earlier zero-test
-selector and focused readout regression retained. Live release halo/padlock/
-dual readouts, direct center Lock, paired one-step Undo/Redo and gallery reopen
-verified. Evidence copied/hashed in reports/.../center-matrix; full receipt
-`docs/testing/sketch-parity-center-matrix-2026-09-10.md`.
+HEAD7fb14cf pushed; center leader correction/docs ready to commit. No runner.
+Final corrected27/27,41.579s:
+`/tmp/os3d-qa09-center-leaders-final-20260910.xcresult`. Live allfour clone
+leader directions match controlled native; paired two-axis center sizing/history
+and gallery reopen verified. Initial compile-only failure and wrong-expectation
+27/27 retained/withdrawn in QA09receipt.
 
-Exact next: commit/push verified release correction, then direction-dependent
-center leaders (native up-right below/right; down-left above/left; clone always
-below/left), remaining QA09 quadrant/constraint acceptance. Native Sketch04
-reopened, six rectangles retained; old top edge selected, newest center green.
-Clone Sketch1 reopened, two rectangles and center Locks intact, Items open.
-No pending drawing. UI tests replaced earlier half-sizing clone fixture; do not
-claim its exact final reopen. Native6×4 persistence verified.
-
-Google signed out; illustrated466/master38 last verified, later evidence local
-only. Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA
-untouched; no merge/device install/restart/security changes. Sole desktop/build
-owner; unrelated identity files preserved.
+Exact next commit/push leader correction; diagnose numeric display half-tie:
+clone width0.869/2 shows0.435, then height0.626/2 changes width display0.434,
+no visible width/center movement. Need exact saved/source values and native
+same-value comparison before fix. Then remaining QA09 constraints/finite cases.
+Clone saved Sketch1 five rectangles; up-left centerlocal450,290 half-size
+bounds432,278–467,303, labels0.434/0.313, short-side/centerselection. Native
+Sketch04 nine rectangles, newestup-left2×2, all36edgesselected afterreopen.
+No pendingdrawing. Both docs signedout, local center-matrix evidence copied/hashed.
+Inventory4passed/0failed/1deviceblocked/51incomplete; lastpublication466/master38.
+Immutable05be744IPA untouched. Soledesktop/buildowner; unrelatedfilespreserved.
+No merge/deviceinstall/restart/securitychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

@@ -182,6 +182,30 @@ nonisolated extension SketchEntity {
 /// current normalized bounds, so translating a rectangle cannot stale its anchor.
 nonisolated enum RectangleSizingAnchor: String, Codable, Equatable, Sendable {
     case center, minMin, minMax, maxMin, maxMax
+    // Center sizing remains center-preserving. These variants only retain the
+    // creation-direction corner for default dimension leader placement.
+    case centerMinMin, centerMinMax, centerMaxMin, centerMaxMax
+
+    static func centered(from center: SIMD2<Double>, to corner: SIMD2<Double>) -> Self {
+        switch diagonal(first: center, min: SIMD2(min(center.x, corner.x), min(center.y, corner.y))) {
+        case .minMin: .centerMinMin
+        case .minMax: .centerMinMax
+        case .maxMin: .centerMaxMin
+        default: .centerMaxMax
+        }
+    }
+
+    // Center rectangles put width opposite the vertical drag direction and
+    // height toward the horizontal drag direction; diagonal creation differs.
+    var annotationCornerUsesMax: (x: Bool, y: Bool)? {
+        switch self {
+        case .centerMinMin: (false, false)
+        case .centerMinMax: (true, false)
+        case .centerMaxMin: (false, true)
+        case .centerMaxMax: (true, true)
+        default: cornerUsesMax
+        }
+    }
 
     static func diagonal(first: SIMD2<Double>, min: SIMD2<Double>) -> Self {
         if first.x <= min.x + 1e-9 {
@@ -192,7 +216,7 @@ nonisolated enum RectangleSizingAnchor: String, Codable, Equatable, Sendable {
 
     var cornerUsesMax: (x: Bool, y: Bool)? {
         switch self {
-        case .center: nil
+        case .center, .centerMinMin, .centerMinMax, .centerMaxMin, .centerMaxMax: nil
         case .minMin: (false, false)
         case .minMax: (false, true)
         case .maxMin: (true, false)

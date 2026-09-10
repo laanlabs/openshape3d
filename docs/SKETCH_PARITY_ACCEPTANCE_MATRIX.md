@@ -98,7 +98,7 @@ All four drag quadrants; native anchor policy; exact width/height. Original firs
 
 ### QA-09 — Center rectangle
 
-Origin anchor; center fixed under both dimensions. Issues: SK-03. Result: PARTIAL — prior height-first and up-left width-first paired; September10 right-up width/height halves also preserve center. Remaining quadrant/constraint/history/reopen and release-center selection/leader-side UI checks. Evidence: testing/sketch-parity-center-width-first-2026-09-08.md; testing/sketch-parity-center-matrix-2026-09-10.md. Google publication blocked.
+Origin anchor; center fixed under both dimensions. Issues: SK-03. Result: PARTIAL — prior height-first and up-left width-first paired; September10 right-up width/height halves also preserve center. Release center halo/direct Lock now verified with26/26 and paired history/reopen. Center-specific leaders corrected with final27/27 and allfour controlled release directions; paired up-left two-axis sizing/history/reopen verified. Remaining constraints, broader exact UI/publication and half-tie display rounding diagnosis. Evidence: testing/sketch-parity-center-width-first-2026-09-08.md; testing/sketch-parity-center-matrix-2026-09-10.md. Google publication blocked.
 
 ### QA-10 — Three-point rectangle
 

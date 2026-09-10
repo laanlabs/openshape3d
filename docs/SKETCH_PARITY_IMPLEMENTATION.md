@@ -1633,3 +1633,14 @@ and saved recovery verified. Final combined26/26 after a retained readout
 regression and corrected selector. QA09 remains partial for direction-dependent
 leaders and remaining matrix; Google publication blocked by sign-out. Receipt:
 `testing/sketch-parity-center-matrix-2026-09-10.md`.
+
+### September10 — center-specific dimension leader directions
+
+Fresh four-quadrant native checks establish width opposite vertical drag and
+height toward horizontal drag (not diagonal rectangle's rule). Persisted center
+creation-direction variants preserve solver center sizing and selected-edge
+overrides. Corrected final27/27, live allfour clone releases, paired two-axis
+size/history and saved recovery verified. Earlier passing incorrect expectation
+withdrawn in receipt. QA09 remains partial; half-tie display0.435→0.434 after
+height edit remains separate numeric diagnosis. Google publication blocked.
+Evidence: `testing/sketch-parity-center-matrix-2026-09-10.md`.

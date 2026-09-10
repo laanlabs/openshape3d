@@ -170,3 +170,11 @@ Paired release diagnosis and post-fix selected halo/direct Lock, one-step
 Lock Undo/Redo and final gallery reopen. Clean combined26/26 after retained
 zero-test and failed focused attempts. Receipt: center-matrix-2026-09-10.md.
 Do not count as published: Google signed out, last466/master38 unchanged.
+
+### QA09 corrected center leader sides
+
+Local `center-matrix/os3d-qa09-leaders-*.png` with SHA256SUMS: fresh native
+down-right/up-left mapping correction, allfour clone release states, paired
+numeric/history and final reopen. Final27/27; prior incorrect interpretation
+retained/withdrawn. Numeric0.435→0.434 display follow-up remains open. No inserts
+attempted while signed out; publication466/master38 unchanged.

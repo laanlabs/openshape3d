@@ -460,11 +460,12 @@ final class RectangleConstructionTests: XCTestCase {
     }
 
     func testCenterAndLegacySizingKeepExistingCenterBehavior() throws {
-        for anchors in [false, true] {
+        for anchor in [nil, .center, .centerMinMin, .centerMinMax, .centerMaxMin,
+                       .centerMaxMax] as [RectangleSizingAnchor?] {
             let id = UUID()
             var sketch = Sketch(plane: .ground,
                 entities: [.rect(id: id, min: SIMD2(2, 4), max: SIMD2(22, 16))],
-                rectangleSizingAnchors: anchors ? [id: .center] : [:])
+                rectangleSizingAnchors: anchor.map { [id: $0] } ?? [:])
             let dim = sizeDimension(id, .horizontal, 8)
             sketch.dimensions = [dim]
             let result = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dim)

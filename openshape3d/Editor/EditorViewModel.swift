@@ -7982,7 +7982,7 @@ final class EditorViewModel {
             } else if let entity = RectangleConstruction.axisAligned(
                 from: anchor, to: point, centered: rectangleType == .center) {
                 pendingInferredConstraints = []
-                commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
+                commitDrawnEntity(entity, sketchID: sketchID, in: sketch, rectangleEnd: point)
                 clearRectanglePlacement()
                 selectedSketchEntityIDs = [entity.id]
                 selectedSketchPoints = rectangleType == .center
@@ -10480,7 +10480,7 @@ final class EditorViewModel {
             pendingArc = PendingArc(a: start, b: end, sagitta: Self.defaultSagitta(a: start, b: end))
             return
         }
-        commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
+        commitDrawnEntity(entity, sketchID: sketchID, in: sketch, rectangleEnd: end)
         if tool == .rect { clearRectanglePlacement() }
         // Paired native rechecks: rectangles retain both size badges and
         // circles retain their diameter and polygons their radius on release.
@@ -10507,12 +10507,14 @@ final class EditorViewModel {
     /// settles. Shared by drag-draw (`endSketchStroke`) and the line tool's
     /// tap-to-place chaining (`placeLineChainPoint`).
     private func commitDrawnEntity(
-        _ entity: SketchEntity, sketchID: SketchID, in sketch: Sketch
+        _ entity: SketchEntity, sketchID: SketchID, in sketch: Sketch,
+        rectangleEnd: SIMD2<Double>? = nil
     ) {
         var sizingAnchor: RectangleSizingAnchor?
         if case let .rect(_, lo, _) = entity,
            let first = rectangleAnchor ?? sketchStrokeStart {
-            sizingAnchor = rectangleType == .center ? .center
+            sizingAnchor = rectangleType == .center
+                ? rectangleEnd.map { .centered(from: first, to: $0) } ?? .center
                 : .diagonal(first: first, min: lo)
         }
         let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity,
@@ -11813,13 +11815,12 @@ final class EditorViewModel {
                let edge = RectangleConstruction.axisEdge(entity, index: pick.index) {
                 return ((edge.a + edge.b) / 2, edge.a, edge.b)
             }
-            // Diagonal creation retains its first corner independently of the
-            // normalized sizing anchor. Native places the two default leaders
-            // according to that drag direction; center/legacy rectangles keep
-            // their existing defaults below.
+            // Creation direction determines default leader sides, independently
+            // of the solver's center/lower-left sizing policy. Legacy center
+            // rectangles without direction metadata keep their old defaults.
             if refs[0].entityID == refs[1].entityID,
                case .rect? = sketchEntity(refs[0].entityID, in: sketch),
-               let corner = sketch.rectangleSizingAnchors[refs[0].entityID]?.cornerUsesMax {
+               let corner = sketch.rectangleSizingAnchors[refs[0].entityID]?.annotationCornerUsesMax {
                 let s: SIMD2<Double>, e: SIMD2<Double>
                 if kind == .horizontal {
                     let y = corner.x ? hi.y : lo.y

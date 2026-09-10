@@ -78,3 +78,77 @@ and clone saved-lock PNGs, plus diagnosis predecessors; copied and hashed in
 `reports/.../center-matrix/SHA256SUMS`. Google remains signed out; all new
 images are local-only and queued. Release-control fix verified; leader-direction
 gap and broader QA09 matrix remain open. Immutable05be744 IPA untouched.
+
+## Direction-dependent leaders — in progress
+
+Release correction7fb14cf pushed. Inspected retained September8 native up-left
+`quadrants/os3d-center-native-before.png`: width above / height right. Together
+with today's up-right below/right and down-left above/left confirms three
+center directions. Down-right below/left still needs direct native confirmation.
+
+Implemented persisted center-direction variants of RectangleSizingAnchor;
+`cornerUsesMax` stays nil for every center variant so solver behavior is unchanged.
+Only annotation-side lookup uses creation direction. Tap and drag pass the final
+corner explicitly. Legacy `.center` keeps prior default sides. Selected-edge
+override remains higher priority. Tests extend serialization, center sizing and
+selected-edge checks and cover real drag/Undo/Redo in all four directions.
+Serialexec15631 owns simulator:
+`/tmp/os3d-qa09-center-leaders-20260910.xcresult` + `.log`. Live post-fix pending.
+
+Initial leader run15631 failed compilation before tests: fixture assigned the
+private rectangleType setter. Corrected to public setRectangleType(.center);
+no product change for this compilation failure. Initial result/log retained.
+
+Corrected compilation run passed27/27,49.102s. Live fourth-direction check
+then contradicted the inferred diagonal-equivalent mapping: native down-right
+989,719→1029,754 produced8×6 with width ABOVE/height RIGHT. Inset repeat
+799,449→824,469 produced4×4 with the same sides, so not just bottom clipping.
+Fresh up-left799,549→774,529 produced4×4 with width BELOW/height LEFT.
+Thus the old September8 receipt's described up-left direction cannot support
+the current mapping (capture shows above/right, but the exact input route was
+not recovered); retain it as historical evidence, withdraw it as controlled
+direction proof. No geometry was removed; native now9rectangles.
+
+Confirmed center rule: width opposite vertical drag, height toward horizontal
+drag. Today up-right below/right and down-left above/left remain consistent.
+Corrected center-only label mapping; diagonal policy untouched. Initial27/27
+was automated correctness against an incorrect expectation, NOT live parity.
+Rerun with corrected expected sides follows; no final live claim yet.
+
+## Corrected leader mapping live verified — September10 14:13 EDT
+
+Final corrected run clean27/27,41.579s, zero failures/skips:
+`/tmp/os3d-qa09-center-leaders-final-20260910.xcresult`. Earlier compilation
+failure and the passing-but-wrong-expectation run remain above. No runner active.
+
+Exact-build clone four release samples (local centers; global drag endpoints):
+- Up-right center200,660,272,690→307,665: below/right,0.863×0.619.
+- Down-left center450,660,522,690→487,715: above/left,0.865×0.619.
+- Down-right center200,290,272,320→307,345: above/right,0.870×0.626.
+- Up-left center450,290,522,320→487,295: below/left,0.869×0.626.
+All preserve halo/padlock and no-auto-keypad release. Matches today's controlled
+native samples. Native original nine rectangles and clone original test rectangle
+remain intact. Default leader-side correction is live-compared, not full UI parity.
+
+Clone up-left width0.869/2 then height0.626/2 keeps center450,290: bounds
+415,265–485,315 →432,265–467,315 →432,278–467,303. Both explicit editors usable.
+Two Undo restore height then width; two Redo restore both bounds and leader sides.
+Native fresh up-left4×4 →2×4 →2×2 keeps center700,470, height Undo/Redo restores
+prior/new bounds. Native input literal2; clone arithmetic, not identical source
+entry method. Native clears selection/readouts between edits; retained difference.
+
+Separate observed rounding issue: clone width displays0.435 after width half,
+then0.434 after height half; height0.313. Width geometry has no visible pixel
+change. Do not infer solver drift vs rounding without exact-value diagnosis;
+this remains next numeric follow-up, not silently closed.
+
+Paired gallery reopen retains native2×2 and allnine rectangles, clone five
+rectangles/half-size result and leader sides. Clone first bottom-edge click
+selected center (short geometry); subsequent left-side click exposed retained
+0.434/0.313 labels. Native first re-entry click during trial dismissal did not
+enter; settled retry worked, no purchase. Native ends all36edges selected after
+Items re-entry; clone has short-rectangle selection.
+
+Evidence all `os3d-qa09-leaders-*.png` copied/hashed with predecessors under
+center-matrix. Google still signed out; no new publication count. Final leader
+fix ready to commit; next rounding diagnosis and remaining finite QA09 constraints.

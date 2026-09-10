@@ -69,7 +69,9 @@ final class ConstraintApplyTests: XCTestCase {
         let cases: [(RectangleSizingAnchor?, Double, Double)] = [
             (.maxMax, 9, 2), (.minMin, 3, 12),
             (.minMax, 3, 2), (.maxMin, 9, 12),
-            (.center, 3, 2), (nil, 3, 2)
+            (.center, 3, 2), (nil, 3, 2),
+            (.centerMaxMax, 9, 2), (.centerMinMin, 3, 12),
+            (.centerMinMax, 9, 12), (.centerMaxMin, 3, 2)
         ]
         for (anchor, widthY, heightX) in cases {
             let vm = try makeViewModel(), id = UUID()
@@ -97,6 +99,44 @@ final class ConstraintApplyTests: XCTestCase {
                 XCTAssertEqual(label.worldEnd, sketch.plane.toWorld(edge.b))
             }
             XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+        }
+    }
+
+    func testCenterRectangleDragRetainsLeaderDirectionWithoutChangingSizingIntent() throws {
+        let settings = AppSettings.shared
+        let oldGrid = settings.snapToGrid
+        settings.snapToGrid = false
+        defer { settings.snapToGrid = oldGrid }
+        for (delta, expected) in [
+            (SIMD2<Double>(5, 3), RectangleSizingAnchor.centerMinMin),
+            (SIMD2<Double>(5, -3), .centerMinMax),
+            (SIMD2<Double>(-5, 3), .centerMaxMin),
+            (SIMD2<Double>(-5, -3), .centerMaxMax)
+        ] {
+            let vm = try makeViewModel()
+            let original = openSketch(vm, entities: [])
+            vm.mode = .sketching(original.id, tool: .rect)
+            vm.setRectangleType(.center)
+            vm.autoConstrainSettings.enabled = false
+            let center = SIMD2<Double>(20, 20)
+            func ray(_ p: SIMD2<Double>) -> Ray {
+                Ray(origin: SIMD3<Float>(original.plane.toWorld(p) + original.plane.normal * 10),
+                    direction: SIMD3<Float>(-original.plane.normal))
+            }
+            XCTAssertTrue(vm.beginSketchStroke(ray: ray(center)))
+            vm.updateSketchStroke(ray: ray(center + delta))
+            vm.endSketchStroke(ray: ray(center + delta))
+            let saved = try XCTUnwrap(vm.activeSketch)
+            let id = try XCTUnwrap(saved.entities.first?.id)
+            XCTAssertEqual(saved.rectangleSizingAnchors[id], expected)
+            XCTAssertNil(expected.cornerUsesMax, "Label direction must not turn center sizing into corner sizing")
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            vm.undo()
+            XCTAssertTrue(vm.activeSketch!.rectangleSizingAnchors.isEmpty)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch?.rectangleSizingAnchors[id], expected)
+            let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(saved))
+            XCTAssertEqual(decoded.rectangleSizingAnchors[id], expected)
         }
     }
 
