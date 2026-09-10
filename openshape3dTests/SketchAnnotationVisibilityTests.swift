@@ -188,6 +188,51 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testAxisRectangleSizeCommitClearsSideButRetainsEditedReadoutThroughHistory() throws {
+        for side in 0..<4 {
+            let vm = try makeViewModel(), id = UUID()
+            let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+            var source = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+            source.rectangleSizingAnchors[id] = .center
+            source.dimensions = [.init(kind: .horizontal, refs: refs, value: 4),
+                                 .init(kind: .vertical, refs: refs, value: 2)]
+            vm.session.perform(AddSketchCommand(sketch: source))
+            vm.mode = .sketching(source.id, tool: nil)
+            AppSettings.shared.alwaysShowDimensions = false
+            vm.selectedSketchEntityIDs = [id]
+            vm.selectedAxisRectangleEdge = (id, side)
+            let kind: DimensionKind = side % 2 == 0 ? .horizontal : .vertical
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == kind })
+            vm.beginDimensionEdit(label)
+            vm.cancelDimensionEdit()
+            XCTAssertEqual(vm.selectedSketchEntityIDs, [id])
+            XCTAssertEqual(vm.activeSketch, source)
+            vm.beginDimensionEdit(label)
+            vm.commitDimensionEdit(side % 2 == 0 ? "3" : "1")
+            let edited = try XCTUnwrap(vm.activeSketch)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.rectangleHandleGeometry)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            let retained = try XCTUnwrap(vm.sketchDimensionLabels.first)
+            XCTAssertEqual(retained.dimensionID, label.dimensionID)
+            XCTAssertEqual(retained.refs, refs)
+            let edge = try XCTUnwrap(RectangleConstruction.axisEdge(edited.entities[0], index: side))
+            XCTAssertEqual(retained.worldStart, edited.plane.toWorld(edge.a))
+            XCTAssertEqual(retained.worldEnd, edited.plane.toWorld(edge.b))
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, source)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            XCTAssertEqual(vm.sketchDimensionLabels.first?.displayValue, side % 2 == 0 ? 4 : 2)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, edited)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            vm.selectedDimensionID = nil
+            XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "Blank deselection clears retained readout")
+        }
+    }
+
     func testMigratedRectangleSingleEdgeKeepsBothSavedSizesWithoutDuplicates() throws {
         let vm = try makeViewModel(), id = UUID(), unrelated = UUID()
         var source = Sketch(plane: .ground, entities: [

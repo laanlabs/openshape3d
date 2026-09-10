@@ -11968,7 +11968,10 @@ final class EditorViewModel {
             guard refs.count == 2, let a = localPoint(refs[0], in: sketch),
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             let lo = SIMD2(min(a.x, b.x), min(a.y, b.y)), hi = SIMD2(max(a.x, b.x), max(a.y, b.y))
-            if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+            let retainedSize = selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty &&
+                sketch.dimensions.contains { $0.id == selectedDimensionID && $0.kind == kind && $0.refs == refs }
+            if let pick = selectedAxisRectangleEdge,
+               (selectedSketchEntityIDs == [pick.id] || retainedSize),
                refs.allSatisfy({ $0.entityID == pick.id }),
                (kind == .horizontal) == (pick.index % 2 == 0),
                let entity = sketchEntity(pick.id, in: sketch),
@@ -12867,6 +12870,15 @@ final class EditorViewModel {
         // and rejected values above retain the point, as in native sketching.
         if selectedMigratedRectangleCornerEdges != nil { selectedSketchPoints.removeAll() }
         if selectedMigratedRectangleEdges != nil { selectedSketchEntityIDs.removeAll() }
+        if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+           selectedSketchPoints.isEmpty, edit.kind == .horizontal || edit.kind == .vertical,
+           edit.refs.allSatisfy({ $0.entityID == pick.id }) {
+            selectedSketchEntityIDs.removeAll()
+            // Selection's observer clears its side; keep that presentation
+            // metadata without restoring the entity or its manipulation handle.
+            selectedAxisRectangleEdge = pick
+            selectedDimensionID = dimensionCommitLocked ? candidateDimensionID : nil
+        }
         session.save()
     }
 

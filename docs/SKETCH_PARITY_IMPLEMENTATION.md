@@ -1797,3 +1797,14 @@ Successful size commit clears selected migrated edge/handle and retains both
 parallel presentations of selected saved size through Undo/Redo. Cancel/refusal
 retainselection. Clean14/14, pairedcommit/history and finalgalleryreopen;
 illustrated567/master38 with all6hashes and no predecessorloss verified.
+
+## September 10 — axis selected-size commit cleanup
+
+Successful explicit axis-rectangle side size commits now clear entity/handle
+selection and retain the edited dimension on the chosen side through history.
+Cancel/refusal paths are unchanged. Initial 41/42 exposed erased side metadata;
+corrected same-set rerun passed 42/42. Live right commit/Undo/Redo, left cancel
+and commit, and paired gallery reopen are captured. Fresh native center first
+commit matches this lifecycle; previously dimensioned opposite-side extra
+labels remain a separate open visual case. Illustrated608/master38 publication
+verified. [Closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md).

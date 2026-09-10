@@ -287,8 +287,17 @@ final class RectangleWorkflowUITests: XCTestCase {
         let labels = app.buttons.matching(identifier: "DimensionLabel")
         XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
-        // Native height leader sits left of the rectangle, not on its right edge.
-        let height = try XCTUnwrap(labels.allElementsBoundByIndex.min { $0.frame.midX < $1.frame.midX })
+        // This down-right center release puts height on the right. The old
+        // minimum-X heuristic selected width after the leader parity fix.
+        let height = try XCTUnwrap(labels.allElementsBoundByIndex.max { $0.frame.midX < $1.frame.midX })
+        func cornerBounds() throws -> CGRect {
+            let points = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+                .allElementsBoundByIndex.map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+            let minX = try XCTUnwrap(points.map(\.x).min()), maxX = try XCTUnwrap(points.map(\.x).max())
+            let minY = try XCTUnwrap(points.map(\.y).min()), maxY = try XCTUnwrap(points.map(\.y).max())
+            return CGRect(x: minX, y: minY, width: maxX-minX, height: maxY-minY)
+        }
+        let before = try cornerBounds()
         attach(app, "height-before-badge-tap")
         height.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         attach(app, "height-after-badge-tap")
@@ -308,6 +317,12 @@ final class RectangleWorkflowUITests: XCTestCase {
         commit.tap()
         XCTAssertFalse(field.exists)
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1.5 mm'")).firstMatch.waitForExistence(timeout: 3))
+        let after = try cornerBounds()
+        XCTAssertEqual(after.width, before.width, accuracy: 1, "Height entry must leave width unchanged")
+        XCTAssertEqual(after.midX, before.midX, accuracy: 1)
+        XCTAssertEqual(after.midY, before.midY, accuracy: 1, "Center sizing must preserve its origin")
+        XCTAssertGreaterThan(abs(after.height-before.height), 2, "The actual height must change")
+        attach(app, "height-commit-preserves-width-and-center")
     }
 
     func testCenterRectangleExtendsAcrossItsStartingPoint() {
