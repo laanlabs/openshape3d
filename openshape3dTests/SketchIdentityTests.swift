@@ -60,8 +60,26 @@ final class SketchIdentityTests: XCTestCase {
         vm.session.perform(AddSketchCommand(sketch: original))
         let fresh = try enterGround(vm)
         XCTAssertNotEqual(fresh.id, original.id)
+        XCTAssertEqual(vm.itemSketches, [original])
         vm.finishSketch()
         XCTAssertEqual(vm.session.document.sketches, [original])
+    }
+
+    func testNewEntryItemsRowFollowsGeometryWithoutRemovingHistoryIdentity() throws {
+        let vm = try makeViewModel()
+        let persisted = Sketch(name: "Persisted empty", plane: .ground)
+        vm.session.perform(AddSketchCommand(sketch: persisted))
+        let fresh = try enterGround(vm)
+        XCTAssertEqual(vm.itemSketches.map(\.id), [persisted.id])
+        let line = SketchEntity.line(id: UUID(), a: .zero, b: SIMD2(2, 0))
+        vm.session.perform(AddSketchEntityCommand(sketchID: fresh.id, entity: line))
+        XCTAssertEqual(vm.itemSketches.map(\.id), [persisted.id, fresh.id])
+        vm.undo()
+        XCTAssertEqual(vm.itemSketches.map(\.id), [persisted.id])
+        XCTAssertTrue(vm.session.document.sketches.contains { $0.id == fresh.id },
+                      "Only presentation hides the empty row; Redo retains its target")
+        vm.redo()
+        XCTAssertEqual(vm.itemSketches.last?.entities, [line])
     }
 
     func testExplicitNamedContinuationKeepsIdentityAcrossToolSwitches() throws {

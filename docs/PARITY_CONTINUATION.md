@@ -1,21 +1,23 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, field correction verified
+## Active continuation — September 10, provisional Items verified
 
-Base HEAD 6c8ffaf; field correction ready for commit. Dirty owned files:
-EditorView, SketchDimensionOverlay, NumericKeypad, DimensionUITests, ledger,
-this checkpoint and field-surfaces receipt. Initial 4/4 then revised 3/3 clean;
-not one combined final run. Paired native 20→10 mm and clone 1→0.5 mm edits,
-Undo/Redo and gallery reopen pass. Light and Dark clone keypad occludes point
-markers; system keyboard field/commit stays visible. No runner active.
-Illustrated 403 placements/all seven hashes/no predecessor loss; master 38 and
-final reopen note verified. Receipt: testing/sketch-parity-field-surfaces-2026-09-10.md.
-Native1924 saved10mm editor open; clone6492 portrait Dark saved0.5mm editor open.
-Exact next: commit/push verified correction; paired QA-04 empty-sketch entry and
-cancellation on Top/Front/Right, preserving existing visibility and final reopen.
-Counts 2 passed / 0 failed / 1 device-blocked / 53 incomplete. Immutable05be744
-IPA untouched. Preserve identity/memory and stalled Doc tabs. No install, merge,
-restart/security changes or duplicate workers/watchdogs; sole ownership here.
+BaseHEADd5cb119; scopedItemsfix readyforcommit. DirtyEditorViewModel,
+ItemsPanelView,SketchIdentityTests,checkpoint,ledger,matrix,newemptyentryreceipt.
+Initialcombined6/6 thenrefined5/5identity, bothclean. Finalcurrent-buildlive
+emptyRight/firstline/Undo/Redo rowlifecycle passes; nativefirstlinecomparison
+matched. Underlyinghistoryidentityretained. PairedRightemptyExit/twoEscapes,
+hidden-sketch/bodypreservation andbothgalleryreopensverified. No runner.
+Publication411/all8hashes/no predecessorloss; master38/newnote/reopenverified.
+Receipt testing/sketch-parity-empty-entry-2026-09-10.md.
+Native1924 modelingoblique, Sketch03newlinevisible, Sketch02/Body01hidden,
+Sketch01visible. Clone6492 portraitDark modelingoblique Itemsopen; MyPart/
+Sketch1hidden, Sketch2Frontline/Sketch3Rightlinevisible.
+Exact next: commit/push scopedfix; finishQA04 isolatednativeTop emptyentry
+(existingTopSketch command auto-reenters existing row), current-buildFront/Top
+Exit/Escape/hiddenvariants. Broader56caseacceptance still2passed/0failed/
+1deviceblocked/53incomplete. IPA05be744 unchanged; no install/merge/restart/
+securitychanges/duplicateworkers. Preserveidentity/memory/stalledDocs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

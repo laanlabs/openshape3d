@@ -52,9 +52,10 @@ struct ItemsPanelView: View {
                 }
 
                 sectionHeader("Sketches")
-                let looseSketches = document.sketches.filter { !filed.contains(.sketch($0.id)) }
+                let sketches = viewModel.itemSketches
+                let looseSketches = sketches.filter { !filed.contains(.sketch($0.id)) }
                 if looseSketches.isEmpty {
-                    emptyRow(document.sketches.isEmpty ? "No sketches yet" : "All sketches are in folders")
+                    emptyRow(sketches.isEmpty ? "No sketches yet" : "All sketches are in folders")
                 }
                 ForEach(looseSketches) { sketch in
                     itemRow(.sketch(sketch.id), depth: 0, tree: tree)

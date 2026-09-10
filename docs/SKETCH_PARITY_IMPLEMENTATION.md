@@ -1491,3 +1491,16 @@ coverage inspected in clone. Illustrated 403 placements/all seven hashes/no
 predecessor loss and master 38/reopen note export-verified. Platform scaling and
 physical input remain unverified; immutable IPA unchanged.
 [Full receipt](testing/sketch-parity-field-surfaces-2026-09-10.md).
+
+## September 10 — Provisional Items presentation
+
+QA-04 exposed a visible distinction: native omits empty new sketch context from
+Items; clone listed it immediately. Filter only the current provisional empty
+entry. First geometry reveals its row; Undo hides it again and Redo restores it,
+with underlying history identity preserved. Persisted empty sketches remain
+listed. Initial6/6 identity/Items checks, then refined5/5 identity after native
+history comparison corrected the initial row-retention interpretation. Live
+final first-line history, paired Right empty Exit/Escape, hidden-sketch integrity
+and both gallery reopens verified. Full QA-04 remains partial for isolated Top
+and remaining exact-build variants.
+[Receipt](testing/sketch-parity-empty-entry-2026-09-10.md).

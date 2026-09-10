@@ -10023,6 +10023,17 @@ final class EditorViewModel {
         }
     }
 
+    /// A new entry with no geometry is a drawing context, not an Items row.
+    /// Undo may empty it again; retain its document/history identity underneath.
+    /// Persisted empty sketches are not provisional and remain discoverable.
+    var itemSketches: [Sketch] {
+        guard let provisional = provisionalSketch else { return session.document.sketches }
+        return session.document.sketches.filter { sketch in
+            sketch.id != provisional.id || !sketch.entities.isEmpty ||
+                !sketch.constraints.isEmpty || !sketch.dimensions.isEmpty
+        }
+    }
+
     /// Set by `beginSketch` when it creates a brand-new sketch row: the id
     /// plus the undo depth at creation, consumed by `removeSketchIfEmpty`.
     private var provisionalSketch: (id: SketchID, undoDepth: Int)?

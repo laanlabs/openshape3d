@@ -8,7 +8,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-01 | Plane selection | Core — partial, not passed | Origin Front/Right/Top grid availability paired; offset/face/miss matrix open. |
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
-| QA-04 | Empty entry | Core — partial, not passed | Empty Front exit removes new sketch in both apps; other cancel/visibility variants open. |
+| QA-04 | Empty entry | Core — partial, not passed | Front/Right empty Exit/Escape and hidden-sketch preservation sampled; provisional Items/first-line history corrected. Top isolated/current-build variants remain open. |
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Backspace/double-tap/tool-switch matrix open. |
 | QA-07 | Line raw aim | Core — partial, not passed | Acquisition-off/Auto-off slight slope sampled paired; all-angle matrix open. |
