@@ -458,6 +458,23 @@ struct UpdateSketchEntitiesCommand: DocumentCommand {
     }
 }
 
+/// Atomic topology/reference migration together with the initiating gesture.
+/// Both snapshots retain the same sketch identity; Undo restores the primitive
+/// and its original references rather than leaving a separate decomposition.
+struct ReplaceSketchGeometryCommand: DocumentCommand {
+    let title: String
+    let before: Sketch
+    let after: Sketch
+
+    private func replace(_ sketch: Sketch, in document: inout DesignDocument) {
+        guard before.id == after.id,
+              let index = document.sketches.firstIndex(where: { $0.id == before.id }) else { return }
+        document.sketches[index] = sketch
+    }
+    func apply(to document: inout DesignDocument) { replace(after, in: &document) }
+    func revert(in document: inout DesignDocument) { replace(before, in: &document) }
+}
+
 /// The 2D position a `ConstraintRef` role names on an entity, for re-anchoring
 /// constraints across trim. Nil for roles the entity doesn't have (and for
 /// `.whole`, which is not a point).
@@ -489,24 +506,31 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
     let removedDimensions: [(index: Int, dimension: SketchDimension)]
 
     let beforeDisconnected: [ConstraintRef]
+    let removedRectangleAnchors: [UUID: RectangleSizingAnchor]
+    let removedRectangleGroups: [UUID: [UUID]]
 
     init(ids: Set<UUID>, sketch: Sketch) {
+        let affectedGroups = sketch.rotatedRectangleEdges.filter { !ids.isDisjoint(with: $0.value) }
+        removedRectangleGroups = affectedGroups
+        removedRectangleAnchors = sketch.rectangleSizingAnchors.filter { ids.contains($0.key) || affectedGroups[$0.key] != nil }
         beforeDisconnected = sketch.disconnectedEndpoints
         sketchID = sketch.id
         removed = sketch.entities.enumerated()
             .filter { ids.contains($0.element.id) }
             .map { (index: $0.offset, entity: $0.element) }
         removedConstraints = sketch.constraints.enumerated()
-            .filter { $0.element.refs.contains { ids.contains($0.entityID) } }
+            .filter { $0.element.refs.contains { ids.contains($0.entityID) || ($0.role == .center && affectedGroups[$0.entityID] != nil) } }
             .map { (index: $0.offset, constraint: $0.element) }
         removedDimensions = sketch.dimensions.enumerated()
-            .filter { $0.element.refs.contains { ids.contains($0.entityID) } }
+            .filter { $0.element.refs.contains { ids.contains($0.entityID) || ($0.role == .center && affectedGroups[$0.entityID] != nil) } }
             .map { (index: $0.offset, dimension: $0.element) }
     }
 
     func apply(to document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         let ids = Set(removed.map(\.entity.id))
+        document.sketches[index].rectangleSizingAnchors = document.sketches[index].rectangleSizingAnchors.filter { removedRectangleAnchors[$0.key] == nil }
+        document.sketches[index].rotatedRectangleEdges = document.sketches[index].rotatedRectangleEdges.filter { removedRectangleGroups[$0.key] == nil }
         document.sketches[index].disconnectedEndpoints.removeAll { ids.contains($0.entityID) }
         document.sketches[index].entities.removeAll { ids.contains($0.id) }
         let constraintIDs = Set(removedConstraints.map(\.constraint.id))
@@ -518,6 +542,8 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
     func revert(in document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         document.sketches[index].disconnectedEndpoints = beforeDisconnected
+        document.sketches[index].rotatedRectangleEdges.merge(removedRectangleGroups) { _, restored in restored }
+        document.sketches[index].rectangleSizingAnchors.merge(removedRectangleAnchors) { _, restored in restored }
         for entry in removed.sorted(by: { $0.index < $1.index }) {
             let at = min(entry.index, document.sketches[index].entities.count)
             document.sketches[index].entities.insert(entry.entity, at: at)

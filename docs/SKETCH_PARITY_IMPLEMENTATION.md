@@ -1671,3 +1671,21 @@ bothdimensions duringdecomposition (savedJSONconfirmed). Interimguardnowrefuses
 referencedprimitive-rectangle rotation, retainsintent/history. Clean12/12 andlive
 refusal/Itemsretention verified. This fixesdata loss, NOTnative rotationalfreedom;
 safe migration remains blocking. Receipt center-matrixSeptember10.
+
+## September 10 — Center-locked rectangle rotation integrity
+
+Native permits direct corner rotation with a fixed center and two driving sizes.
+Safe center-rectangle migration now uses four constrained lines with retained
+center/dimension IDs and arithmetic source; one Undo restores the primitive.
+Persisted ordered edge identity survives attached branches and is remapped on
+project insertion. Deleting a defining edge removes dependent center references
+in the same undoable edit. Canonical endpoint distance refs avoid duplicate or
+ignored sizes; center-locked numeric edits preserve direction transiently.
+Paired rotation/size/center checks and final gallery reopen verified; final
+related regression clean **74/74** after retained red/fixture failures. See
+[center matrix receipt](testing/sketch-parity-center-matrix-2026-09-10.md).
+Illustrated report now472 placements/470media; all6new hashes and predecessor
+text/images verified. Earlier publication backlog still pending. QA-09 remains
+partial: ring/glyph/selection presentation, broader references and device inputs
+are not closed. Unsupported referenced diagonal rectangles remain protected by
+refusal. Immutable05be744 IPA unchanged; no new readiness claim.

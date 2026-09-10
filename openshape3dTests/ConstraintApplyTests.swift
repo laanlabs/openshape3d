@@ -216,6 +216,7 @@ final class ConstraintApplyTests: XCTestCase {
         for hasDimension in [false, true] {
             let vm = try makeViewModel(), id = UUID()
             var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 3))])
+            sketch.rectangleSizingAnchors[id] = .minMin
             if hasDimension {
                 sketch.dimensions = [.init(kind: .horizontal, refs: [
                     .init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)
@@ -236,6 +237,73 @@ final class ConstraintApplyTests: XCTestCase {
             vm.session.undo()
             XCTAssertNil(vm.activeSketch, "Rejected rotation must not insert a history step")
         }
+    }
+
+    func testCenterRectangleRotationMigratesIntentInOneUndoStep() throws {
+        let vm = try makeViewModel(), id = UUID()
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])
+        sketch.rectangleSizingAnchors[id] = .center
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+        sketch.dimensions = [.init(kind: .horizontal, refs: refs, value: 4, displayExpression: "(2+2) mm"),
+                             .init(kind: .vertical, refs: refs, value: 2)]
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "45"))
+        let rotated = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(rotated.entities.count, 4)
+        XCTAssertEqual(rotated.dimensions.map(\.id), sketch.dimensions.map(\.id))
+        XCTAssertEqual(rotated.dimensions.map(\.value), [4, 2])
+        XCTAssertEqual(rotated.dimensions.first?.displayExpression, "(2+2) mm")
+        XCTAssertTrue(rotated.constraints.contains(sketch.constraints[0]))
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "90"))
+        let reedited = try XCTUnwrap(vm.activeSketch)
+        XCTAssertNotEqual(reedited.entities, rotated.entities)
+        XCTAssertEqual(reedited.dimensions, rotated.dimensions)
+        XCTAssertEqual(reedited.rotatedRectangleEdges, rotated.rotatedRectangleEdges)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, rotated, "Retained angle re-edit is a separate exact Undo step")
+        let center = try XCTUnwrap(vm.sketchRectangleCenterMarkers.first)
+        XCTAssertEqual(center.state, .locked)
+        XCTAssertLessThan(simd_distance(center.world, SIMD3<Float>(sketch.plane.toWorld(SIMD2(4, 4)))), 1e-5)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch, rotated)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(rotated)), rotated)
+        vm.selectedSketchEntityIDs = Set(rotated.entities.map(\.id))
+        let widthLabel = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == sketch.dimensions[0].id })
+        vm.beginDimensionEdit(widthLabel)
+        vm.commitDimensionEdit("1")
+        XCTAssertEqual(vm.activeSketch?.dimensions.count, 2, "Edit existing driving size, never add a duplicate")
+        XCTAssertEqual(vm.activeSketch?.dimensions.map(\.id), sketch.dimensions.map(\.id))
+        XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [1, 2])
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, rotated)
+        vm.session.undo()
+        vm.sketchTransformActive = false
+        vm.selectedSketchEntityIDs = []
+        func ray(_ p: SIMD2<Double>) -> Ray {
+            Ray(origin: SIMD3<Float>(sketch.plane.toWorld(p) + sketch.plane.normal * 10),
+                direction: SIMD3<Float>(-sketch.plane.normal))
+        }
+        XCTAssertTrue(vm.beginSketchStroke(ray: ray(SIMD2(6, 5))))
+        vm.updateSketchStroke(ray: ray(SIMD2(4 + sqrt(5), 4)))
+        vm.endSketchStroke(ray: ray(SIMD2(4 + sqrt(5), 4)))
+        let direct = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(direct.entities.count, 4)
+        XCTAssertEqual(direct.dimensions.map(\.id), sketch.dimensions.map(\.id))
+        XCTAssertTrue(direct.constraints.contains(sketch.constraints[0]))
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch)
+        vm.session.perform(CompositeCommand(title: "Legacy Decomposition", commands: [
+            RemoveSketchEntitiesCommand(ids: [id], sketch: sketch),
+            AddSketchEntityCommand(sketchID: sketch.id, entity: .line(id: id, a: .zero, b: SIMD2(1, 0)))
+        ]))
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch, "Undo must restore rectangle sizing metadata too")
     }
 
     func testRetainedTransformReeditUsesOriginalPivotAndSeparateUndo() throws {
@@ -265,6 +333,37 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(simd_length(restored), 0, accuracy: 1e-5)
         vm.sketchTransformActive = false
         XCTAssertNil(vm.retainedSketchTransformValue(.rotation))
+    }
+
+    func testMigratedRectangleCenterUnlockAndDragPreserveDimensions() throws {
+        let vm = try makeViewModel(), id = UUID()
+        var primitive = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])
+        primitive.rectangleSizingAnchors[id] = .center
+        primitive.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+        primitive.dimensions = [.init(kind: .horizontal, refs: refs, value: 4), .init(kind: .vertical, refs: refs, value: 2)]
+        let sketch = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(primitive, id: id,
+            edgeIDs: [id, UUID(), UUID(), UUID()]))
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        func ray(_ p: SIMD2<Double>) -> Ray {
+            Ray(origin: SIMD3<Float>(sketch.plane.toWorld(p) + sketch.plane.normal * 10),
+                direction: SIMD3<Float>(-sketch.plane.normal))
+        }
+        vm.handle(.tap(ray: ray(SIMD2(4, 4))))
+        XCTAssertTrue(vm.canUnlockSketchSelection)
+        XCTAssertEqual(vm.sketchRectangleCenterLockMarkers.count, 1)
+        vm.toggleRectangleCenterLock()
+        XCTAssertFalse(vm.canUnlockSketchSelection)
+        XCTAssertTrue(vm.beginSketchStroke(ray: ray(SIMD2(4, 4))))
+        vm.updateSketchStroke(ray: ray(SIMD2(7, 6)))
+        vm.endSketchStroke(ray: ray(SIMD2(7, 6)))
+        let center = try XCTUnwrap(vm.sketchRectangleCenterMarkers.first)
+        XCTAssertLessThan(simd_distance(center.world, SIMD3<Float>(sketch.plane.toWorld(SIMD2(7, 6)))), 1e-5)
+        XCTAssertEqual(vm.activeSketch?.dimensions, sketch.dimensions)
+        vm.session.undo()
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch)
     }
 
     func testRotatedSketchAxisMovementPreservesFrameAndAbsoluteReedit() throws {

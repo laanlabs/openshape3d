@@ -70,10 +70,12 @@ nonisolated enum SketchSolverBridge {
         movingEntity: UUID?,
         dragTarget: SIMD2<Double>?,
         knownDOF: Int? = nil,
-        preservingRectangleCorner: UUID? = nil
+        preservingRectangleCorner: UUID? = nil,
+        preservingLineDirection: UUID? = nil
     ) -> Outcome {
         let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget,
-                              preservingRectangleCorner: preservingRectangleCorner)
+                              preservingRectangleCorner: preservingRectangleCorner,
+                              preservingLineDirection: preservingLineDirection)
         guard !sys.initial.isEmpty else {
             return Outcome(entities: sketch.entities, dof: 0,
                            converged: true, structuralResidual: 0)
@@ -233,6 +235,16 @@ nonisolated enum SketchSolverBridge {
                                    tolerance: Double = 1e-5,
                                    preservingLineID: UUID? = nil,
                                    preservingPoint: ConstraintRef? = nil) -> Outcome {
+        let editedIDs = Set(dimension.refs.map(\.entityID))
+        if dimension.kind == .distance, editedIDs.count == 1, let edge = editedIDs.first,
+           let group = sketch.rotatedRectangleEdges.first(where: { $0.value.contains(edge) }),
+           sketch.constraints.contains(where: {
+               $0.kind == .fixed && $0.refs == [.init(entityID: group.key, role: .center)]
+           }) {
+            let directed = solveOutcome(sketch, movingEntity: nil, dragTarget: nil,
+                                        preservingLineDirection: edge)
+            if directed.converged && directed.structuralResidual <= tolerance { return directed }
+        }
         // Fresh standalone line sizing retains the drawing start. This is only
         // a transient preference: a saved endpoint lock can override it.
         if let point = preservingPoint {
@@ -508,7 +520,8 @@ nonisolated enum SketchSolverBridge {
         from sketch: Sketch,
         movingEntity: UUID?,
         dragTarget: SIMD2<Double>?,
-        preservingRectangleCorner: UUID? = nil
+        preservingRectangleCorner: UUID? = nil,
+        preservingLineDirection: UUID? = nil
     ) -> System {
         // 1. Raw point slots for every entity.
         var slots: [RawSlot] = []
@@ -674,6 +687,12 @@ nonisolated enum SketchSolverBridge {
             structural.append(residual)
             structuralSources.append(currentSource)
         }
+        if let id = preservingLineDirection, let (a, b) = linePair(id) {
+            let delta = SIMD2(initial[2*b] - initial[2*a], initial[2*b+1] - initial[2*a+1])
+            if simd_length(delta) > 1e-9 {
+                lower(LineDirectionConstraint(a: a, b: b, direction: simd_normalize(delta)))
+            }
+        }
         func appendAlign(_ refs: [ConstraintRef], horizontal: Bool) {
             let wholeLines = refs.filter { $0.role == .whole }
             if !wholeLines.isEmpty {
@@ -732,6 +751,14 @@ nonisolated enum SketchSolverBridge {
                 // Rectangle centers are derived from their diagonal corners.
                 // Pin only the midpoint so both size axes remain editable.
                 for ref in c.refs where ref.role == .center {
+                    if let (first, opposite) = RectangleConstruction.centerDiagonalReferences(ref.entityID, in: sketch),
+                       let a = pIdx(first.entityID, first.role),
+                       let b = pIdx(opposite.entityID, opposite.role) {
+                        let target = SIMD2((initial[2 * a] + initial[2 * b]) / 2,
+                                           (initial[2 * a + 1] + initial[2 * b + 1]) / 2)
+                        lower(FixedMidpointConstraint(a: a, b: b, target: target))
+                        continue
+                    }
                     guard case let .rect(_, lo, hi)? = sketch.entities.first(where: { $0.id == ref.entityID }),
                           let a = pIdx(ref.entityID, .endpointA),
                           let b = pIdx(ref.entityID, .endpointB) else { continue }

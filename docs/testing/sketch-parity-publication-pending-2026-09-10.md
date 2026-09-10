@@ -1,5 +1,15 @@
 # Pending report publication — September 10, 2026
 
+## 15:55 recovery update
+
+Fresh authorized tab `parity-publication-recheck` is editable/SavedtoDrive.
+Center-rotation addendum and six screenshots verified at472placements/470media;
+all six hashes once, original full text and image placements retained. Prior
+stalled tab preserved. Earlier sections below remain queued, not automatically
+published by this recovery. Master continuation note verification pending.
+
+## Historical sign-out blocker
+
 Google Docs signed out during the QA-08 post-fix update. Preserve existing tabs.
 The illustrated report is read-only; the master says to sign in from another tab.
 Restore the authorized Google session through host-owned sign-in. Never request

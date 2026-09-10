@@ -191,6 +191,22 @@ final class ProjectMergeTests: XCTestCase {
                        "a constraint pointing at the OLD id would be dead on arrival")
     }
 
+    func testInsertedRotatedRectangleRetainsRemappedCenterIdentity() throws {
+        let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
+        var original = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 2))])
+        original.rectangleSizingAnchors[id] = .center
+        original.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        var guest = DesignDocument()
+        guest.sketches = [try XCTUnwrap(RectangleConstruction.prepareCenterRotation(original, id: id, edgeIDs: ids))]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        let newIDs = inserted.entities.map(\.id)
+        XCTAssertTrue(Set(newIDs).isDisjoint(with: ids))
+        XCTAssertEqual(inserted.rotatedRectangleEdges[newIDs[0]], newIDs)
+        XCTAssertEqual(inserted.constraints[0].refs[0].entityID, newIDs[0])
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(newIDs[0], in: inserted))
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(inserted)), inserted)
+    }
+
     func testInsertedDimensionRetainsScalarExpressionAndRemapsReferences() {
         let line = UUID()
         var guest = DesignDocument()

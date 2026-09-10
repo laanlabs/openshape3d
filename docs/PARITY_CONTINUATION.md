@@ -1,22 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 15:05 EDT
+## Active continuation — September 10 15:55 EDT
 
-HEAD452e722; rotationintegrityguard beingcommitted. No runner:10008clean12/12,
-35.083s `/tmp/os3d-qa09-rotation-integrity-20260910.xcresult`. PairednativecenterLock
-+2×2 permitscornerrotation; cloneaxisrectcannot. Cloneexplicitrotation previously
-LOSTcenterLock/bothdimensions; savedJSONverified andtwoUndo restored. Interim
-rotationguardnowrefusesreferencedrectangles; live notice,unchangedgeometry and
-ItemsLock/Width/Heightretentionverified. GuardisNOTrotationparityclosure.
-Exactnext verifycommitpush, postrefusalpairedgalleryreopen, then safe rotation
-reference/representation migration design+tests (center,dimensions,externalrefs,
-Undo/persistence/controls). Do not removeconstraints or recoloralone.
-ClonecurrentItemsopen,explicitMoveRotatearmed,rectselected,center320630locked,
-1.9822×1.4842 plusunrelatedline1mm. NativeFrontnine rectangles,smallcenter703351
-locked2×2,rotationundone; ConstraintSettingsopen,AutoON. Soleowner.
-AllrotationPNGs copied/hashed; lossJSONretained externally. Docs signedout466/
-master38, newevidencequeued. Inventory4passed/0failed/1deviceblocked/51incomplete.
-Immutable05be744IPA untouched. Unrelatedidentityfilespreserved. No newworkers.
+HEAD6f4cb56 pushed; safe center-rectangle rotation migration tested/live-verified,
+currently dirty and ready for documentation commit. Final related run clean74/74
+at `/tmp/os3d-qa09-rotation-final-20260910.xcresult` and .log (71unit+3UI).
+No runner remains. Prior red numeric/initial UI-selection failures retained.
+Paired native rotation and direction-preserving resize4×2; clone2×1.6288 with
+center fixed. Clone Unlock/translation and separate Undo restoration passed.
+Both final gallery reopen states verified; exact cloneJSON and screenshot hashes
+in workspace reports/.../center-matrix. Native Front all36selected, smallrotated
+4×2center703351. Final UI regression reset clone fixture to single-line Copy case;
+relaunch/check before next live interaction. No claim retained clone testfixture
+is still the rectangle; its savedJSON/evidence preserved before UI reset.
+
+Publication recovered in fresh authorized tabs: illustrated472placements/470media,
+all6newhashes once, original full text/images retained. Old stalledtab preserved.
+Master note/export verification pending; earlier signedout backlog queued locally.
+Exactnext finish master/local docs, commit/push migration; continue default ring/
+constraint-glyph clutter after corner rotation, remaining QA09 reference/selection
+acceptance and prior publication backlog. No full QA09 closure. Inventory4passed,
+0failed,1deviceblocked,51incomplete. Immutable05be744IPA unchanged. Unrelated
+identity files preserved; soleowner, no duplicateworkers/merge/deviceinstall.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

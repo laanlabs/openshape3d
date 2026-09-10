@@ -281,3 +281,71 @@ explicitrotationdrag nowrefuseswithnotice, no geometrychange. Itemsstillshows
 Lock, Width1.98, Height1.48 plusunrelatedlineDistance1.00. Screenshotguard-retained
 verifiesstoredentries, nottemporarylabels. No freshpostrefusalreopen yet; no
 rotationparityclaim. Guardimagescopied/hashed.
+
+Postguardpairedgalleryreopen nowverified: cloneItemsLock/Width/Height intact;
+nativeFront2×2centerlocked preserved. Trialskip dismissed; firsttoo-fastItems
+doubleclickdidnotenter, settledrepeat+NormalToSketch succeeded. FinalPNGs copied.
+
+Migrationred1test/2assertions: prepared4linesretainedsymboliccenterLockbutsolver
+ignoredlinecenter. ValidatedcenterDiagonalReferences now resolvesonlypersisted
+centerintent+isolatedrectangle; fixedmidpointlowering retainscenter. Corrected
+geometry27/27. AtomicReplaceSketchGeometryCommand integration then29/29: identity/
+source/center/dimensions preserved, oneUndo restoresprimitive, Redo/restoredJSON.
+Directcornerroute forcenterLock+bothsizesadded; regression23646 running.
+No postmigrationliveclaimyet. Unsupportedrefscontinueguard. Groupcenterhandle
+interaction and postrotationresize/history/reopen stillneedverification.
+
+Directrun29/29; livefirstattemptstayedaxisaligned. Savedfixtureanchors[] revealed
+olddecompositionUndo restoredrectangle but AddlineUndo removedsizinganchor, not
+restoredbyRemoveSketchEntitiesCommand. ExactJSONmigration-live-before retained.
+Delete/decompositionUndo nowpreservesremovedanchors; explicitcenterLockallows
+legacyintent recovery, notarbitraryunannotatedrectangles. Legacyrun29/29.
+Migratedcenterhit/Unlock/translation nowunder95062 regression; no livepostlegacy
+claimyet. No geometry/UIpass substitutedforliveevidence.
+
+Center-controls run completed clean29/29. Live legacy fixture now rotates around
+center320630; readouts1.9822/1.4842 and Items Lock + both distances remain.
+One Undo restores primitive/Width/Height, one Redo restores rotated geometry.
+PNG migration-legacy-{start,rotated,items,undo,redo} retained in /tmp; copy pending.
+Found review risk: isolated-loop inference would drop virtual center after adding
+an attached branch. Added persisted ordered edge group (legacy decode empty),
+merge remapping and deletion/Undo metadata cleanup. Group-identity unit regression
+exec59861 running; no live or passing claim for this latest follow-up yet.
+
+Group identity run clean30/30. New live top rectangle center320300 rotated with
+1.9898/1.2511 dimensions. Numeric width1 then changed height to1.3327: FAILED.
+Saved group-resized.json proves migration used single whole-edge distance refs,
+which are not canonical driving line-length refs; reopening created another
+endpoint-pair dimension rather than editing the saved ID. New pure resize test
+reproduced failure (expected1, actual4) in rotation-resize-red, one failed test.
+Migration now maps to endpointA/endpointB pairs. Corrected size-references run
+clean30/30 includes real resize, preserved other size, VM dimension-ID/count and
+exact Undo. New focused UI workflow running exec4905, rotation-size-ui result.
+No corrected live resize claim yet. Screens and JSON copied/hashed locally.
+
+Initial size UI failed at line76 before rotation (0labels): immediate disarm→edge
+selection. Event tap495.5,550.5 lies on painted top edge in extracted recording;
+1s settling interval added. Settled UI passed1/1, including actualrotationlevels.
+FFmpeg extraction unavailable due missing x265 dylib; AVFoundation extracted
+recording frame without altering host installation. Failure retained.
+Live corrected saved fixture opens Lock+two dimensions; width1→2 retains other
+1.6288 and center329480. Angle changed about43→40degrees. Native isolated tiny
+centerlocked rectangle rotated then size2→4 retains prior angle and center703351.
+Thus temporary direction preference added for migrated centerlocked numericedit,
+not a persistent constraint. Combined direction regression exec67522 running.
+New merge identity remap and center-dimension deletion cleanup included.
+
+Direction combined passed48/48. Exact-build clone width1→2 retains orientation
+(~39.5degrees), center329480 and other size1.6288. Direct center Unlock then drag
+moves center to379520; Undo restores329480, secondUndo restoresLock. Gallery
+reopen retains2/1.628840059041977, Lock and group metadata; finalJSON retained.
+Native gallery reopen retains4×2 rotated rectangle around703351. Initial immediate
+post-trial Items doubleclick did not enter; settled repeat + Normal worked.
+Final related run `rotation-final` clean74/74:71 units +3UI, including retained
+angle re-edit exactUndo, center controls, Copy and project remapping. No runner.
+Fresh authorized browser tab recovered editing/SavedtoDrive. New six-image
+addendum export verified472placements/470media, all6hashes exactlyonce, no
+predecessor image loss and original full text retained. Addendum was prepended,
+not appended; audit retained. Existing stalled tab preserved. Earlier backlog
+still queued; master update verification pending. New evidence paths directed-*
+and native-directed-* copied/hashed. Ring/glyph-density mismatch remains visible.

@@ -3,6 +3,94 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testPreparedCenterRotationRetainsSizesAndCenterLock() throws {
+        let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])
+        sketch.rectangleSizingAnchors[id] = .center
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        sketch.dimensions = [sizeDimension(id, .horizontal, 4), sizeDimension(id, .vertical, 2)]
+        let prepared = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(sketch, id: id, edgeIDs: ids))
+        XCTAssertEqual(prepared.id, sketch.id)
+        XCTAssertEqual(prepared.constraints.first, sketch.constraints.first)
+        XCTAssertEqual(prepared.dimensions.map(\.id), sketch.dimensions.map(\.id))
+        XCTAssertEqual(prepared.dimensions.map(\.value), [4, 2])
+        let rotated = SketchTransform.rotate(entities: prepared.entities, about: SIMD2(4, 4), angle: 0.61)
+        let solved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(prepared, targets: rotated))
+        XCTAssertEqual(solved.count, 4)
+        for (actual, expected) in zip(solved, rotated) {
+            guard case let .line(_, a, b) = actual, case let .line(_, c, d) = expected else { return XCTFail() }
+            XCTAssertLessThan(simd_distance(a, c), 1e-5)
+            XCTAssertLessThan(simd_distance(b, d), 1e-5)
+        }
+        let translated = SketchTransform.translate(entities: prepared.entities, by: SIMD2(3, 2))
+        let blocked = try XCTUnwrap(SketchSolverBridge.solveLineTransform(prepared, targets: translated))
+        guard case let .line(_, a, _) = blocked[0], case let .line(_, c, _) = blocked[2] else { return XCTFail() }
+        XCTAssertEqual((a.x + c.x) / 2, 4, accuracy: 1e-5)
+        XCTAssertEqual((a.y + c.y) / 2, 4, accuracy: 1e-5)
+        var resizedSketch = prepared
+        resizedSketch.entities = solved
+        var widthEdit = resizedSketch.dimensions[0]
+        widthEdit.value = 1
+        resizedSketch.dimensions[0] = widthEdit
+        let resized = SketchSolverBridge.solveDimensionEdit(resizedSketch, dimension: widthEdit)
+        XCTAssertTrue(resized.converged)
+        guard case let .line(_, ra, rb) = resized.entities[0],
+              case let .line(_, rc, rd) = resized.entities[1] else { return XCTFail() }
+        XCTAssertEqual(simd_distance(ra, rb), 1, accuracy: 1e-5)
+        XCTAssertEqual(simd_distance(rc, rd), 2, accuracy: 1e-5)
+        XCTAssertEqual(atan2(rb.y-ra.y, rb.x-ra.x), 0.61, accuracy: 1e-5)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(prepared))
+        XCTAssertEqual(reopened, prepared)
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(id, in: reopened))
+        sketch.rectangleSizingAnchors = [:]
+        let legacy = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(sketch, id: id, edgeIDs: ids))
+        XCTAssertEqual(legacy.rectangleSizingAnchors[id], .center,
+                       "An explicit center Lock safely recovers missing legacy intent")
+    }
+
+    @MainActor
+    func testMigratedCenterSurvivesBranchAndDeletesWithoutDanglingLock() throws {
+        let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])
+        sketch.rectangleSizingAnchors[id] = .center
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        sketch.dimensions = [sizeDimension(id, .horizontal, 4), sizeDimension(id, .vertical, 2)]
+        var prepared = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(sketch, id: id, edgeIDs: ids))
+        prepared.entities.append(.line(id: UUID(), a: SIMD2(6, 5), b: SIMD2(8, 7)))
+        XCTAssertNil(RectangleConstruction.dimensionEdges(containing: id, in: prepared))
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(id, in: prepared))
+        let translated = SketchTransform.translate(entities: Array(prepared.entities.prefix(4)), by: SIMD2(3, 2))
+        let solved = try XCTUnwrap(SketchSolverBridge.solveLineTransform(prepared, targets: translated))
+        guard case let .line(_, a, _) = solved.first(where: { $0.id == id }),
+              case let .line(_, c, _) = solved.first(where: { $0.id == ids[2] }) else { return XCTFail() }
+        XCTAssertEqual((a.x + c.x) / 2, 4, accuracy: 1e-5)
+        XCTAssertEqual((a.y + c.y) / 2, 4, accuracy: 1e-5)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(prepared))
+        XCTAssertEqual(reopened.rotatedRectangleEdges[id], ids)
+        for removedID in ids {
+            var document = DesignDocument()
+            document.sketches = [reopened]
+            let deletion = RemoveSketchEntitiesCommand(ids: [removedID], sketch: reopened)
+            deletion.apply(to: &document)
+            XCTAssertTrue(document.sketches[0].rotatedRectangleEdges.isEmpty)
+            XCTAssertFalse(document.sketches[0].constraints.contains { $0.kind == .fixed })
+            deletion.revert(in: &document)
+            XCTAssertEqual(document.sketches[0], reopened)
+        }
+    }
+
+    func testCenterRotationPreparationRefusesUnmappedReferences() {
+        let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 2))])
+        sketch.rectangleSizingAnchors[id] = .center
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 0)])]
+        XCTAssertNil(RectangleConstruction.prepareCenterRotation(sketch, id: id, edgeIDs: ids))
+        sketch.constraints = []
+        sketch.dimensions = [.init(kind: .distance, refs: [.init(entityID: id, role: .endpointA),
+            .init(entityID: UUID(), role: .endpointA)], value: 4)]
+        XCTAssertNil(RectangleConstruction.prepareCenterRotation(sketch, id: id, edgeIDs: ids))
+    }
+
     func testRectangleCenterLockAllowsSymmetricSizingButRejectsTranslation() throws {
         let id = UUID(), lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(20, 15)
         var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: lo, max: hi)])

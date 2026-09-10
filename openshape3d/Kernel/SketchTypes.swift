@@ -247,6 +247,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     /// tool, never by hand.
     var patternLinks: [SketchPatternLink]
     var rectangleSizingAnchors: [UUID: RectangleSizingAnchor]
+    /// Ordered edges of a migrated center rectangle; independent of later branches.
+    var rotatedRectangleEdges: [UUID: [UUID]]
     /// Endpoints explicitly detached by Disconnect must not silently proximity-
     /// weld again. Explicit Coincident still reconnects them. Legacy sketches
     /// retain proximity welding through the empty decode default.
@@ -263,6 +265,7 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         dimensions: [SketchDimension] = [],
         patternLinks: [SketchPatternLink] = [],
         rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:],
+        rotatedRectangleEdges: [UUID: [UUID]] = [:],
         disconnectedEndpoints: [ConstraintRef] = []
     ) {
         self.id = id
@@ -274,6 +277,7 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.constraints = constraints
         self.dimensions = dimensions
         self.patternLinks = patternLinks
+        self.rotatedRectangleEdges = rotatedRectangleEdges
         self.rectangleSizingAnchors = rectangleSizingAnchors
         self.disconnectedEndpoints = disconnectedEndpoints
     }
@@ -281,7 +285,7 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
         case constraints, dimensions, patternLinks, rectangleSizingAnchors
-        case disconnectedEndpoints
+        case disconnectedEndpoints, rotatedRectangleEdges
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -301,6 +305,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             try container.decodeIfPresent([SketchDimension].self, forKey: .dimensions) ?? []
         rectangleSizingAnchors = try container.decodeIfPresent(
             [UUID: RectangleSizingAnchor].self, forKey: .rectangleSizingAnchors) ?? [:]
+        rotatedRectangleEdges = try container.decodeIfPresent(
+            [UUID: [UUID]].self, forKey: .rotatedRectangleEdges) ?? [:]
         patternLinks =
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
         disconnectedEndpoints = try container.decodeIfPresent(

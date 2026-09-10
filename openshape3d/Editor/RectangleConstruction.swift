@@ -15,6 +15,65 @@ nonisolated enum RectangleType: String, CaseIterable, Sendable {
 /// Pure construction math. Rotated rectangles use four ordinary constrained
 /// lines, so existing dimensions, trim, projection, persistence and profiles work.
 nonisolated enum RectangleConstruction {
+    /// The old primitive ID belongs to the first edge after safe preparation.
+    /// Its center remains the midpoint of opposite vertices, not that edge's
+    /// midpoint. Persisted edge identity survives later attached geometry.
+    static func centerDiagonalReferences(_ id: UUID, in sketch: Sketch) -> (ConstraintRef, ConstraintRef)? {
+        guard let anchor = sketch.rectangleSizingAnchors[id], anchor.cornerUsesMax == nil,
+              let edges = sketch.rotatedRectangleEdges[id], edges.count == 4, edges.first == id,
+              Set(edges).count == 4, edges.allSatisfy({ edge in
+                  sketch.entities.contains { if case .line = $0 { return $0.id == edge }; return false }
+              }),
+              case let .line(_, a, _)? = sketch.entities.first(where: { $0.id == id }),
+              case let .line(_, c, d)? = sketch.entities.first(where: { $0.id == edges[2] }) else { return nil }
+        let oppositeRole: PointRole = simd_distance(a, c) > simd_distance(a, d) ? .endpointA : .endpointB
+        return (.init(entityID: id, role: .endpointA), .init(entityID: edges[2], role: oppositeRole))
+    }
+
+    /// Prepare an isolated center rectangle for rotation without removing its
+    /// saved dimension/constraint identities and an explicit group center.
+    static func prepareCenterRotation(_ sketch: Sketch, id: UUID, edgeIDs: [UUID]) -> Sketch? {
+        let hasCenterLock = sketch.constraints.contains {
+            $0.kind == .fixed && $0.refs == [.init(entityID: id, role: .center)]
+        }
+        let centerIntent = sketch.rectangleSizingAnchors[id] ?? (hasCenterLock ? .center : nil)
+        guard edgeIDs.count == 4, edgeIDs.first == id, Set(edgeIDs).count == 4,
+              sketch.patternLinks.isEmpty,
+              !sketch.disconnectedEndpoints.contains(where: { $0.entityID == id }),
+              let anchor = centerIntent, anchor.cornerUsesMax == nil,
+              let index = sketch.entities.firstIndex(where: { $0.id == id }),
+              case let .rect(_, lo, hi) = sketch.entities[index],
+              edgeIDs.dropFirst().allSatisfy({ newID in !sketch.entities.contains { $0.id == newID } }) else { return nil }
+        for constraint in sketch.constraints where constraint.refs.contains(where: { $0.entityID == id }) {
+            guard constraint.kind == .fixed, constraint.refs == [.init(entityID: id, role: .center)] else { return nil }
+        }
+        for dimension in sketch.dimensions where dimension.refs.contains(where: { $0.entityID == id }) {
+            guard dimension.kind == .horizontal || dimension.kind == .vertical,
+                  dimension.refs == [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)] else { return nil }
+        }
+        let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+        let lines: [SketchEntity] = (0..<4).map {
+            .line(id: edgeIDs[$0], a: corners[$0], b: corners[($0 + 1) % 4])
+        }
+        var result = sketch
+        result.rectangleSizingAnchors[id] = anchor
+        result.rotatedRectangleEdges[id] = edgeIDs
+        result.entities.replaceSubrange(index...index, with: lines)
+        result.constraints += constraints(for: lines)
+        for i in result.dimensions.indices where result.dimensions[i].refs.contains(where: { $0.entityID == id }) {
+            let edgeID = edgeIDs[result.dimensions[i].kind == .horizontal ? 0 : 1]
+            result.dimensions[i].kind = .distance
+            result.dimensions[i].refs = [.init(entityID: edgeID, role: .endpointA),
+                                         .init(entityID: edgeID, role: .endpointB)]
+        }
+        if result.constructionEntityIDs.contains(id) {
+            result.constructionEntityIDs.formUnion(edgeIDs)
+        }
+        // A branched component cannot safely serve as this rectangle's center.
+        guard dimensionEdges(containing: id, in: result) == edgeIDs else { return nil }
+        return result
+    }
+
     /// Geometric coincidence alone is not a rectangular connection after an
     /// explicit Disconnect. A later explicit Coincident reconnects the endpoint.
     static func dimensionEdges(containing id: UUID, in sketch: Sketch) -> [UUID]? {

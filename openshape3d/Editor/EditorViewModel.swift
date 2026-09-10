@@ -8229,16 +8229,32 @@ final class EditorViewModel {
     var sketchRectangleCenterMarkers: [SketchPointMarker] {
         guard let sketch = activeSketch else { return [] }
         return sketch.entities.compactMap { entity in
-            guard case let .rect(id, lo, hi) = entity else { return nil }
+            let id = entity.id
+            let center: SIMD2<Double>
+            if case let .rect(_, lo, hi) = entity {
+                center = (lo + hi) / 2
+            } else if let (a, b) = RectangleConstruction.centerDiagonalReferences(id, in: sketch),
+                      let first = localPoint(a, in: sketch), let opposite = localPoint(b, in: sketch) {
+                center = (first + opposite) / 2
+            } else { return nil }
             let locked = sketch.constraints.contains { constraint in
                 constraint.kind == .fixed && constraint.refs.contains {
                     $0.entityID == id && ($0.role == .center || ($0.role == .whole && $0.rectangleEdge == nil))
                 }
             }
             return SketchPointMarker(id: "\(id):rectangleCenter",
-                world: SIMD3<Float>(sketch.plane.toWorld((lo + hi) / 2)), state: locked ? .locked : .free,
+                world: SIMD3<Float>(sketch.plane.toWorld(center)), state: locked ? .locked : .free,
                 isSelected: selectedSketchPoints.contains(.init(entityID: id, role: .center)))
         }
+    }
+
+    private func migratedRectangleCenter(at raw: SIMD2<Double>, in sketch: Sketch) -> (UUID, SIMD2<Double>)? {
+        sketch.rectangleSizingAnchors.keys.compactMap { id -> (UUID, SIMD2<Double>)? in
+            guard RectangleConstruction.centerDiagonalReferences(id, in: sketch) != nil,
+                  let center = localPoint(.init(entityID: id, role: .center), in: sketch),
+                  simd_distance(center, raw) <= controlPointTolerance else { return nil }
+            return (id, center)
+        }.min { simd_distance($0.1, raw) < simd_distance($1.1, raw) }
     }
 
     // MARK: - Sketch element selection + drag-editing
@@ -8371,6 +8387,9 @@ final class EditorViewModel {
     /// of zoom. Reuse the same baseline, Copy and coalesced history as canvas drags.
     private var rotationWouldDiscardRectangleReferences: Bool {
         guard !sketchCopyOnDrag, let sketch = activeSketch else { return false }
+        if selectedSketchEntityIDs.count == 1, let id = selectedSketchEntityIDs.first,
+           RectangleConstruction.prepareCenterRotation(sketch, id: id,
+                edgeIDs: [id, UUID(), UUID(), UUID()]) != nil { return false }
         let ids = Set(sketch.entities.compactMap { entity -> UUID? in
             guard selectedSketchEntityIDs.contains(entity.id), case .rect = entity else { return nil }
             return entity.id
@@ -8390,6 +8409,7 @@ final class EditorViewModel {
                 var resumed = retained.drag
                 resumed.pushed = false
                 resumed.undoEntities = activeSketch?.entities
+                if resumed.replacementBefore != nil { resumed.replacementBefore = activeSketch }
                 sketchGizmoDrag = resumed
             } else {
                 let frameAngle = sketchTransformFrameAngle
@@ -8641,6 +8661,8 @@ final class EditorViewModel {
         var pushed = false
         var showedBlockedNotice = false
         var undoEntities: [SketchEntity]?
+        var replacementBefore: Sketch?
+        var directRectangleCorner = false
         var frameAngle = 0.0
     }
     private var sketchGizmoDrag: SketchGizmoDrag?
@@ -8755,6 +8777,20 @@ final class EditorViewModel {
         }
         var entities = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !entities.isEmpty else { return false }
+
+        if kind == .rotate, !sketchCopyOnDrag, entities.count == 1,
+           let id = entities.first?.id,
+           let prepared = RectangleConstruction.prepareCenterRotation(sketch, id: id,
+                edgeIDs: [id, UUID(), UUID(), UUID()]),
+           let edges = RectangleConstruction.dimensionEdges(containing: id, in: prepared) {
+            sketchGizmoDrag = SketchGizmoDrag(kind: kind, sketchID: sketchID,
+                originals: prepared.entities.filter { edges.contains($0.id) },
+                baselineSketch: prepared, pivot: centroid, grabPoint: raw,
+                replacementBefore: sketch)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
 
         // Decomposition currently removes the primitive and its references.
         // Consume the gesture without changing history until rotation can
@@ -8911,7 +8947,7 @@ final class EditorViewModel {
             )
             let currentAngle = atan2(raw.y - drag.pivot.y, raw.x - drag.pivot.x)
             let rawDegrees = (currentAngle - anchorAngle) * 180 / .pi
-            let degrees = quantize ? (rawDegrees / 5).rounded() * 5 : rawDegrees
+            let degrees = quantize && !drag.directRectangleCorner ? (rawDegrees / 5).rounded() * 5 : rawDegrees
             after = SketchTransform.rotate(
                 entities: drag.originals, about: drag.pivot, angle: degrees * .pi / 180
             )
@@ -8942,10 +8978,22 @@ final class EditorViewModel {
                 && after == drag.originals
                 && retainedSketchTransform?.value != activeSketchTransformValue
             guard solved != (drag.undoEntities ?? drag.baselineSketch.entities) || drag.pushed || circleFrameOnly else { return }
-            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
-                before: drag.undoEntities ?? drag.baselineSketch.entities, after: solved)
+            let command: DocumentCommand
+            if let before = drag.replacementBefore {
+                var migrated = drag.baselineSketch
+                migrated.entities = solved
+                command = ReplaceSketchGeometryCommand(title: "Rotate", before: before, after: migrated)
+            } else {
+                command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
+                    before: drag.undoEntities ?? drag.baselineSketch.entities, after: solved)
+            }
             if drag.pushed { session.amend(command) }
-            else { session.perform(command); drag.pushed = true; sketchGizmoDrag = drag }
+            else {
+                session.perform(command)
+                drag.pushed = true
+                if drag.replacementBefore != nil { selectedSketchEntityIDs = Set(drag.originals.map(\.id)) }
+                sketchGizmoDrag = drag
+            }
             return
         }
         guard after != drag.originals || drag.pushed else { return }
@@ -9071,6 +9119,13 @@ final class EditorViewModel {
         // Tapping geometry clears any constraint/dimension glyph selection.
         selectedConstraintID = nil
         selectedDimensionID = nil
+        if let (id, _) = migratedRectangleCenter(at: raw, in: sketch) {
+            let point = SketchPointSelection(entityID: id, role: .center)
+            let wasSelected = selectedSketchPoints == [point]
+            selectedSketchEntityIDs = []
+            selectedSketchPoints = wasSelected ? [] : [point]
+            return true
+        }
         if let control = SketchHitTester.nearestControlPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance),
            control.kind == .center, case .rect = control.entity {
@@ -9480,6 +9535,17 @@ final class EditorViewModel {
     /// points (endpoints/centers/handles) win, then the entity body
     /// (translate). Selects the grabbed entity.
     private func beginSketchEntityDrag(at raw: SIMD2<Double>, in sketch: Sketch) -> Bool {
+        if let (id, center) = migratedRectangleCenter(at: raw, in: sketch),
+           let edges = RectangleConstruction.dimensionEdges(containing: id, in: sketch) {
+            selectedSketchEntityIDs = []
+            selectedSketchPoints = [.init(entityID: id, role: .center)]
+            sketchGizmoDrag = SketchGizmoDrag(kind: .move, sketchID: sketch.id,
+                originals: sketch.entities.filter { edges.contains($0.id) }, baselineSketch: sketch,
+                pivot: center, grabPoint: raw)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
         let control = SketchHitTester.nearestControlPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance
         )
@@ -9487,6 +9553,22 @@ final class EditorViewModel {
             to: raw, in: sketch.entities, tolerance: entityPickTolerance
         ) : nil
         guard let entity = control?.entity ?? body?.entity else { return false }
+        if case .rectCorner? = control?.kind,
+           sketch.constraints.contains(where: { $0.kind == .fixed && $0.refs == [.init(entityID: entity.id, role: .center)] }),
+           Set(sketch.dimensions.filter { $0.refs.contains(where: { $0.entityID == entity.id }) }.map(\.kind)) == [.horizontal, .vertical],
+           let prepared = RectangleConstruction.prepareCenterRotation(sketch, id: entity.id,
+                edgeIDs: [entity.id, UUID(), UUID(), UUID()]),
+           let edges = RectangleConstruction.dimensionEdges(containing: entity.id, in: prepared) {
+            selectedSketchPoints = []
+            selectedSketchEntityIDs = [entity.id]
+            sketchGizmoDrag = SketchGizmoDrag(kind: .rotate, sketchID: sketch.id,
+                originals: prepared.entities.filter { edges.contains($0.id) }, baselineSketch: prepared,
+                pivot: Self.entityCenter(entity), grabPoint: raw,
+                replacementBefore: sketch, directRectangleCorner: true)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
         if control?.kind == .center, case .rect = entity {
             selectedSketchEntityIDs.removeAll()
             selectedAxisRectangleEdge = nil
@@ -11782,6 +11864,11 @@ final class EditorViewModel {
 
     /// Plane-local position of a constraint ref's point on its entity.
     private func localPoint(_ ref: ConstraintRef, in sketch: Sketch) -> SIMD2<Double>? {
+        if ref.role == .center,
+           let (a, b) = RectangleConstruction.centerDiagonalReferences(ref.entityID, in: sketch),
+           let first = localPoint(a, in: sketch), let opposite = localPoint(b, in: sketch) {
+            return (first + opposite) / 2
+        }
         guard let e = sketchEntity(ref.entityID, in: sketch) else { return nil }
         if ref.role == .whole, let index = ref.rectangleEdge,
            let edge = RectangleConstruction.axisEdge(e, index: index) {

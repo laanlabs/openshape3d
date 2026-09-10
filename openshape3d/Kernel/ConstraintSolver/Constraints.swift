@@ -426,3 +426,15 @@ nonisolated struct ArcSweepConstraint: ConstraintResidual {
     var residualCount: Int { 1 }
     func residuals(_ vars: [Double]) -> [Double] { [vars[sweepVar] - sweep] }
 }
+
+/// Transient numeric-edit preference: retain a line direction without fixing its length.
+nonisolated struct LineDirectionConstraint: ConstraintResidual {
+    let a: Int
+    let b: Int
+    let direction: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(a) + pointIndices(b) }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        [cross2(point(vars, b) - point(vars, a), direction)]
+    }
+}

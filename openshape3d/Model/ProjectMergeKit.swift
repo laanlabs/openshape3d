@@ -152,6 +152,8 @@ nonisolated enum ProjectMergeKit {
                 },
                 rectangleSizingAnchors: Dictionary(uniqueKeysWithValues:
                     sketch.rectangleSizingAnchors.map { (newEntity($0.key), $0.value) }),
+                rotatedRectangleEdges: Dictionary(uniqueKeysWithValues:
+                    sketch.rotatedRectangleEdges.map { (newEntity($0.key), $0.value.map(newEntity)) }),
                 disconnectedEndpoints: sketch.disconnectedEndpoints.map(remap))
         }
 

@@ -63,6 +63,52 @@ final class RectangleWorkflowUITests: XCTestCase {
         )).tap()
     }
 
+    func testCenterLockedRectangleRotationRetainsEditableSizes() throws {
+        let app = start()
+        type(app, "center")
+        p(app, 0.48, 0.48).press(forDuration: 0.15, thenDragTo: p(app, 0.61, 0.56))
+        let lock = app.buttons["RectangleCenterLockToggle"]
+        XCTAssertTrue(lock.waitForExistence(timeout: 3))
+        lock.tap()
+        app.buttons["Rect"].tap()
+        sleep(1) // settle disarming before geometry selection
+        tapAxisEdge(app, side: .top)
+        let labels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertTrue(labels.firstMatch.waitForExistence(timeout: 3))
+        XCTAssertEqual(labels.count, 2)
+        for index in 0..<2 {
+            labels.element(boundBy: index).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
+            app.buttons["KeypadCommit"].tap()
+        }
+        let expected = labels.allElementsBoundByIndex.map(\.label).sorted()
+        let points = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+            .allElementsBoundByIndex.map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+        let maxX = try XCTUnwrap(points.map(\.x).max()), minY = try XCTUnwrap(points.map(\.y).min())
+        let maxY = try XCTUnwrap(points.map(\.y).max())
+        let origin = app.windows.firstMatch.coordinate(withNormalizedOffset: .zero)
+        let frame = app.windows.firstMatch.frame
+        let corner = origin.withOffset(CGVector(dx: maxX-frame.minX, dy: minY-frame.minY))
+        corner.press(forDuration: 0.15, thenDragTo: origin.withOffset(
+            CGVector(dx: maxX-frame.minX+20, dy: (minY+maxY)/2-frame.minY)))
+        XCTAssertEqual(labels.allElementsBoundByIndex.map(\.label).sorted(), expected)
+        let rotatedLevels = Set(app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+            .allElementsBoundByIndex.map { Int($0.frame.midY.rounded()) })
+        XCTAssertGreaterThan(rotatedLevels.count, 2, "Corner drag must actually rotate the rectangle")
+        attach(app, "center-locked-rectangle-rotated-sizes")
+        let otherSize = labels.element(boundBy: 1).label
+        labels.element(boundBy: 0).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-1"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertEqual(labels.count, 2)
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == %@", otherSize)).firstMatch.exists)
+        XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.exists)
+        attach(app, "rotated-rectangle-resized-preserves-other-size")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(labels.allElementsBoundByIndex.map(\.label).sorted(), expected)
+    }
+
     func testGalleryReopenedDesignCanUndoNewRectangle() {
         let app = start()
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.55, 0.48))
