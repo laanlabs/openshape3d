@@ -90,3 +90,32 @@ focus/capture routes are inconsistent. No native persistence failure claimed.
 Publication remains queued, not verified: Google signed-out, last illustrated466 /
 master38. Immutable05be744IPA unchanged. QA08 remains partial; wider selection,
 constraint icon styling/visibility and other acceptance cases remain open.
+
+Pending center-fix image set (not inserted; no duplicate retry):
+- os3d-qa08-center-native-widthselected.png
+- os3d-qa08-center-native-width9.png
+- os3d-qa08-center-final-selected.png
+- os3d-qa08-center-final-refuse.png
+- os3d-qa08-center-final-width05.png
+- os3d-qa08-center-final-reopen-state.png
+All exact hashes retained in report diagonal-matrix/SHA256SUMS.
+
+Follow-up read-only browser check during the rectangle suite: correct openclaw profile/t18 remains
+Request edit access/Sign in; t19 text explicitly says signed out/Trying to connect.
+Empty interactive snapshots were not evidence of recovered login. No insertion
+or reload attempted; original tabs preserved. Local pending evidence remains
+unpublished and no count beyond466/38 is claimed.
+
+### Broader regression and recovered native reopen
+
+35382d4 broader RectangleWorkflowUITests passed clean15/15, zero failures/skips
+at `/tmp/os3d-qa08-center-lock-rectangle-suite-20260910.xcresult` (463.879s).
+No runner remains. Supported `see --mode screen --no-web-focus` saved an inspected
+image despite AX error: an earlier openshape3dUITests-Runner crash dialog covered
+the Shapr3D trial prompt. Dismissed Ignore (failed fixture xcresult retained), then
+Skip immediately worked. No Shapr3D/Simulator restart or host security change.
+Native gallery-opened Sketch04 re-entered/NormaltoSketch: middle9×12 and green
+locked center retained (`os3d-qa08-native-center-reopen-values.png`). This closes
+the previously pending paired center-Lock persistence sample. Earlier failed
+modal deliveries/capture errors are retained, not attributed to native persistence.
+Google remains signed-out; this result and new image are queued locally only.

@@ -230,3 +230,17 @@ reopen trial modal7759 then blocked supported focus/capture: project1924 click
 rejected because modal focused; modal/screen capture reports indeterminate
 web-focus error. No native persistence failure or new paired reopen pass claimed.
 All screenshots locally copied/hashed. Google still signed-out; publication pending.
+
+### Broader regression and recovered native reopen
+
+35382d4 broader RectangleWorkflowUITests passed clean15/15, zero failures/skips
+at `/tmp/os3d-qa08-center-lock-rectangle-suite-20260910.xcresult` (463.879s).
+No runner remains. Supported `see --mode screen --no-web-focus` saved an inspected
+image despite AX error: an earlier openshape3dUITests-Runner crash dialog covered
+the Shapr3D trial prompt. Dismissed Ignore (failed fixture xcresult retained), then
+Skip immediately worked. No Shapr3D/Simulator restart or host security change.
+Native gallery-opened Sketch04 re-entered/NormaltoSketch: middle9×12 and green
+locked center retained (`os3d-qa08-native-center-reopen-values.png`). This closes
+the previously pending paired center-Lock persistence sample. Earlier failed
+modal deliveries/capture errors are retained, not attributed to native persistence.
+Google remains signed-out; this result and new image are queued locally only.

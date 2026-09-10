@@ -12,7 +12,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
 | QA-07 | Line raw aim | Core — passed | Finite near-horizontal above/below recipe across native/clone scales, signed/reverse and H/V supplements, independent Guide/Auto, history and final reopen verified at eb9b4ab. 35 distinct checks across runs; general snap/hover/device remains separate. |
-| QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
+| QA-08 | Diagonal rectangle | Core — partial live pass | All quadrant/default leader samples; center translation/Lock and four-corner corrections verified. Residual visual details/publication open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Center height-first and reverse-drag width-first paired, center retained; full quadrant/constraint matrix open. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
@@ -94,7 +94,7 @@ Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-
 
 ### QA-08 — Diagonal rectangle
 
-All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — mixed-quadrant sequential sizing, default leader sides, center translation/history and paired saved recovery now live verified September 10. Leader and final center groups each passed clean25/25. Remaining: two corner markers, center-point selection/Lock scope and residual acceptance details. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md and testing/sketch-parity-diagonal-matrix-2026-09-10.md. Post-fix Google publication blocked by sign-out.
+All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — mixed-quadrant sequential sizing, default leader sides, center translation/history and paired saved recovery now live verified September 10. Leader and translation groups each passed clean25/25; four-corner marker correction c634c30 final30/30 and center-only Lock35382d4 final31/31 with paired sizing verified. Remaining: partial-constraint edge colors, constraint glyph styling/visibility, and publication; native latest center-lock reopen recovered and passed after dismissing the retained test-crash dialog. Center relationships beyond Lock remain unsupported and are not generalized as parity. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md and testing/sketch-parity-diagonal-matrix-2026-09-10.md. Post-fix Google publication blocked by sign-out.
 
 ### QA-09 — Center rectangle
 

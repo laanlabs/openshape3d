@@ -1,24 +1,23 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, center Lock verified / native modal blocked
+## Active continuation — September 10, center Lock recovered / next visual details
 
-HEADc634c30 pushed; center Lock change ready for commit. Final2 clean31/31 at
-/tmp/os3d-qa08-center-lock-final2-20260910.xcresult. No runner active.
-Native18→9 centerfixed/height12 compared; exact-build clone0.957→0.5 centerfixed /
-height1.736, Undo/Redo, refusal, Unlock40×20, relock/gallery reopen passed.
-Full intermediate failures preserved in diagonal-matrix receipt. Local images
-and hashes retained; Google signed-out, illustrated466/master38 last verified.
-Native reopen currently trial modal7759 bounds346,230,800,440 overproject1924.
-Projectclick rejects focus; modalclick1040,266 reports success but prompt remains;
-modal/screen capture indeterminate webfocus; synthOnlyEscape also no visiblechange.
-No native persistence-failure claim. Preserve Shapr3D/reporttabs, no restart/security.
-Exact next commit/push centerfix, broader rectangle UI regression while native
-input recovery is pending; inspect existing supported capture alternatives from
-prior recovery receipt before further modal actions. Clone7715 sketch saved
-0.5×1.736 centerlocked atlocal402,484; Items open. No active Peekaboo command.
-Dirty center implementation/tests/docs belong to this task; unrelateduntracked
-identity/memory preserved. Inventory4passed/0failed/1deviceblocked/51incomplete.
-IPA05be744 immutable and unchanged. Continue remaining QA08 acceptance.
+HEAD35382d4 pushed. Final31/31 and broader RectangleWorkflowUI15/15 both clean,
+separate runs; all earlier failures retained. No test/Peekaboo runner active.
+Exact-build center-only Lock/resize/refusal/Unlock/history/clone reopen passed.
+Native latest9×12 centerlocked reopen now passed: fullscreen no-web-focus capture
+revealed prior test-fixture crash dialog covering trial prompt. Ignore dismissed
+only crash dialog; Skip then worked. No restart/security/account changes.
+Evidence copied/hashed in report diagonal-matrix; receipt and pendingpublication
+updated. Google stillsignedout, illustrated466/master38 lastverified only.
+Immutable05be744IPA unchanged. Inventory4passed/0failed/1deviceblocked/51incomplete.
+Exact next documentation checkpoint commit/push, then compare remaining QA08
+partial-constraint edge coloring and center/Lock glyph styling/visibility, using
+same-state native/clone. Do not generalize unproven per-edge DOF color rules.
+Native1924 FrontSketch04 middle9×12 centerlocked, right edge selected; two prior
+rectangles15×11 and15.5×9.5 intact. Simulator7715 ended broadUItests and needs
+relaunch before live; earlier centerfixture may be replaced by lastUItest project.
+Own dirty documentation only. Preserve unrelateduntracked identity/memory.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
