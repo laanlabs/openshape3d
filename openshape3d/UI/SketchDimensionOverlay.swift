@@ -13,6 +13,8 @@
 import SwiftUI
 import UIKit
 
+// The Metal canvas has a fixed light gradient, even with dark UI chrome.
+// Annotation ink follows that canvas, not the system foreground (white in dark mode).
 struct SketchDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
     @State private var diameterDragStarts: [String: CGPoint] = [:]
@@ -148,33 +150,33 @@ struct SketchDimensionOverlay: View {
                     path.move(to: end)
                     path.addLine(to: arc.points[arc.points.count - 1])
                 }
-                .stroke(Color.primary, lineWidth: 1)
+                .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
                     addArrow(to: &path, tip: arc.points[0], toward: arc.points[1])
                     addArrow(to: &path, tip: arc.points[arc.points.count - 1],
                              toward: arc.points[arc.points.count - 2])
                 }
-                .fill(Color.primary)
+                .fill(Color.black)
                 .allowsHitTesting(false)
             } else if let radial {
                 Path { path in
                     path.move(to: start)
                     path.addLine(to: radial.tail)
                 }
-                .stroke(Color.primary, lineWidth: 1)
+                .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
                     addArrow(to: &path, tip: end, toward: radial.tail)
                 }
-                .fill(Color.primary)
+                .fill(Color.black)
                 .allowsHitTesting(false)
             } else if let diameter {
                 Path { path in
                     path.move(to: diameter.start)
                     path.addLine(to: diameter.tail)
                 }
-                .stroke(Color.primary, lineWidth: 1)
+                .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
                     let outside = diameter.tail != diameter.end
@@ -185,7 +187,7 @@ struct SketchDimensionOverlay: View {
                     addArrow(to: &path, tip: diameter.start, toward: startBody)
                     addArrow(to: &path, tip: diameter.end, toward: endBody)
                 }
-                .fill(Color.primary)
+                .fill(Color.black)
                 .allowsHitTesting(false)
             } else if let linear {
                 Path { path in
@@ -194,13 +196,13 @@ struct SketchDimensionOverlay: View {
                     path.addLine(to: linear.end)
                     path.addLine(to: end)
                 }
-                .stroke(Color.primary, lineWidth: 1)
+                .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
                     addArrow(to: &path, tip: linear.start, toward: linear.end)
                     addArrow(to: &path, tip: linear.end, toward: linear.start)
                 }
-                .fill(Color.primary)
+                .fill(Color.black)
                 .allowsHitTesting(false)
             } else if !label.isPolygonSideCount {
                 Path { path in
@@ -230,7 +232,7 @@ struct SketchDimensionOverlay: View {
                         Text(label.text)
                             .font(.system(size: 16))
                             .monospacedDigit()
-                            .foregroundStyle(Color.primary)
+                            .foregroundStyle(Color.black)
                             .rotationEffect(.radians(atan2(end.y - start.y, end.x - start.x) - .pi / 2))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
@@ -238,7 +240,7 @@ struct SketchDimensionOverlay: View {
                         Text(label.displayValue.formatted(.number.precision(.fractionLength(0...2))) + "°")
                             .font(.system(size: 16))
                             .monospacedDigit()
-                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .foregroundStyle(conflicting ? Color.red : Color.black)
                             .rotationEffect(.radians(arc.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
@@ -246,7 +248,7 @@ struct SketchDimensionOverlay: View {
                         Text(label.text)
                             .font(.system(size: 16))
                             .monospacedDigit()
-                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .foregroundStyle(conflicting ? Color.red : Color.black)
                             .rotationEffect(.radians(radial.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
@@ -254,7 +256,7 @@ struct SketchDimensionOverlay: View {
                         Text(label.text)
                             .font(.system(size: 16))
                             .monospacedDigit()
-                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .foregroundStyle(conflicting ? Color.red : Color.black)
                             .fixedSize()
                             .rotationEffect(.radians(diameter.rotation))
                             .frame(width: diameter.targetSize.width, height: diameter.targetSize.height)
@@ -263,7 +265,7 @@ struct SketchDimensionOverlay: View {
                         Text(label.text)
                             .font(.system(size: 16))
                             .monospacedDigit()
-                            .foregroundStyle(conflicting ? Color.red : Color.primary)
+                            .foregroundStyle(conflicting ? Color.red : Color.black)
                             .rotationEffect(.radians(linear.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())

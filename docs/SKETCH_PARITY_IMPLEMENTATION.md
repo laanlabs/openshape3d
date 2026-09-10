@@ -1378,7 +1378,7 @@ Native rejects10deg in length field; clone previously silently converted1deg to1
 Length commit now refuses degree suffix before dismissing/mutating, preserving
 draft with matching diagnostic. Clean28/28 and paired rejection/valid recovery
 verified. Clone SelectAll delivery anomaly excluded; explicit deletion succeeds.
-Receipt testing/sketch-parity-unit-type-2026-09-10.md. Publication pendingexport.
+Receipt testing/sketch-parity-unit-type-2026-09-10.md. Publication verified at336 images.
 Reciprocal length-in-angle input remains next; no physicalinputclaim.
 
 ## September 10 — reciprocal length-in-angle refusal (QA33 partial)
@@ -1397,4 +1397,14 @@ Clean2/2 UI with actualkeyboardvisibility/commit assertions; liveportraitwarning
 landscaperotation/draftrecovery/visible90degreecommit andgallerysource-reopen pass.
 NativeMac keyboard-onlyfieldvisible; physicaliPadcomparison stillunverified.
 Receipt testing/sketch-parity-keyboard-occlusion-2026-09-10.md; siximages inserted
-once, exportpending. Next annotationcontrast/theme audit.
+once; export verified at347 images and master38 note. Next annotationcontrast/theme audit.
+
+## September 10 — light-canvas annotation contrast
+
+Dark UI resolved semantic foreground to white despite the fixed light Metal canvas.
+Persistent leaders/text now remain black; paired selected arc and live isolated
+line/circle/rectangle release checks confirm readability. Pending arc dark material
+badges differed from native plain text; removed material and aligned font with
+completed dimensions. Three serial builds passed and final pending45degree live
+repeat passed. No new automated-test or physical-iPad claim; broader placement and
+scale differences remain. Receipt: testing/sketch-parity-annotation-contrast-2026-09-10.md.

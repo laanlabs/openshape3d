@@ -1,22 +1,23 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, keyboard occlusion verified
+## Active continuation — September 10, annotation contrast verified
 
-Base95157fc pushed. Dirty SketchDimensionOverlay.swift container-onlysafearea and
-DimensionUITests.swift lowfieldtest; docs ready afterpublicationverification.
-Clean2/2 /tmp/os3d-keyboard-occlusion-20260910.xcresult exec33061exit0. Liveportrait
-field/warning above keyboard with fixedgeometrypositions; landscaperotation and
-visible90degcommit pass. NativeMac keyboard-onlyfieldvisible (notphysicaliPad).
-Final clone galleryreopen retains90deg/source and accessiblekeyboardfield.
-Siximages exportverified347/all6hashes/no predecessor loss; master38finalreopennote verified.
-Exports: /tmp/os3d-keyboard-occlusion-publication.docx
-completed; master /tmp/os3d-keyboard-occlusion-master.docx completed. Priorillustrated341/master38 retained.
-Receipt docs/testing/sketch-parity-keyboard-occlusion-2026-09-10.md; localhashedfolder.
-Next commit/push, then paired theme/annotationcontrast audit.
-Currentclone6492 portrait90degkeyboardeditor open, fieldrelative440594; native1924
-90degkeyboard-onlyfieldopen lowerleft. No runner. Counts2passed/0failed/1deviceblocked/
-53incomplete; immutable05be744IPA unchanged. No physicalinstall/merge/restart/security
-changes or duplicateworkers/watchdogs. Preserve unrelatedidentity/memory/stalledtabs.
+Baseline `1d28849`; contrast changes ready to commit. Three serial builds passed;
+no runner remains. Exact final simulator app installed/relaunched; saved completed
+rectangle/circle/line/arc retained. Selected arc and isolated line plus paired
+circle/rectangle release use black ink on the fixed light canvas. Pending arc now
+plain black 16pt text rather than dark small badges; final 45-degree live repeat
+inspected. Presentation-only: no new automated-test claim. Different native and
+simulator scales/placements remain explicit, not complete visual equivalence.
+Receipt docs/testing/sketch-parity-annotation-contrast-2026-09-10.md.
+Illustrated353/all6 hashes once/no predecessor loss and master38 new/prior notes
+export-verified. First stale347 export retained; retry without duplicate inserts.
+Next commit/push scoped product/docs, then continue remaining numeric cases from
+QA33/40 criteria. Native1924 and clone6492 each have pending45degree arc; cancel
+before numeric work. No runner. Sole desktop owner remains this session.
+Unrelated identity/memory files and stalled tabs preserved. Immutable05be744 IPA
+unchanged. Counts2passed/0failed/1deviceblocked/53incomplete. No physical install,
+merge, restart/security changes, duplicate workers or watchdogs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

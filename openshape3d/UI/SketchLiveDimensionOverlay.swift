@@ -15,6 +15,8 @@
 
 import SwiftUI
 
+// The Metal canvas has a fixed light gradient, even with dark UI chrome.
+// Annotation ink follows that canvas, not the system foreground (white in dark mode).
 struct SketchLiveDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
 
@@ -53,7 +55,7 @@ struct SketchLiveDimensionOverlay: View {
                 path.move(to: arc.center)
                 path.addLine(to: arc.points[arc.points.count - 1])
             }
-            .stroke(Color.primary.opacity(0.85), lineWidth: 1)
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
             arrowHead(at: arc.points[0], pointingFrom: arc.points[1])
             arrowHead(at: arc.points[arc.points.count - 1],
                       pointingFrom: arc.points[arc.points.count - 2])
@@ -66,7 +68,7 @@ struct SketchLiveDimensionOverlay: View {
                 path.move(to: center)
                 path.addLine(to: radial.tail)
             }
-            .stroke(Color.primary.opacity(0.85), lineWidth: 1)
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
             arrowHead(at: tip, pointingFrom: radial.tail)
             liveText(label.text, rotation: radial.rotation, at: radial.anchor)
         } else if let lineStart = project(label.worldLineStart),
@@ -86,14 +88,14 @@ struct SketchLiveDimensionOverlay: View {
                     path.move(to: witnessEnd)
                     path.addLine(to: lineEnd)
                 }
-                .stroke(Color.primary.opacity(0.45), lineWidth: 0.75)
+                .stroke(Color.black.opacity(0.45), lineWidth: 0.75)
             }
 
             Path { path in
                 path.move(to: lineStart)
                 path.addLine(to: lineEnd)
             }
-            .stroke(Color.primary.opacity(0.85), lineWidth: 1)
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
 
             // Ticks ON the circle where the diameter meets it — without them
             // the arrowheads float against the curve with nothing saying where
@@ -103,7 +105,7 @@ struct SketchLiveDimensionOverlay: View {
                     appendTick(&path, at: lineStart, along: lineEnd)
                     appendTick(&path, at: lineEnd, along: lineStart)
                 }
-                .stroke(Color.primary.opacity(0.85), lineWidth: 1.25)
+                .stroke(Color.black.opacity(0.85), lineWidth: 1.25)
             }
 
             arrowHead(at: lineStart, pointingFrom: lineEnd)
@@ -116,12 +118,12 @@ struct SketchLiveDimensionOverlay: View {
 
     private func liveText(_ text: String, rotation: Double, at anchor: CGPoint) -> some View {
         Text(text)
-            .font(.caption2.weight(.semibold))
+            .font(.system(size: 16))
+            .foregroundStyle(Color.black)
             .monospacedDigit()
             .fixedSize()
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 4))
             .rotationEffect(.radians(rotation))
             .position(anchor)
             .accessibilityIdentifier("LiveDimension")
@@ -201,7 +203,7 @@ struct SketchLiveDimensionOverlay: View {
                                          y: base.y - ux * Self.arrowHalfWidth))
                 path.closeSubpath()
             }
-            .fill(Color.primary.opacity(0.85))
+            .fill(Color.black.opacity(0.85))
         }
     }
 
