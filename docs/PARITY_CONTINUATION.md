@@ -1,21 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, reciprocal type fix verified
+## Active continuation — September 10, keyboard occlusion verified
 
-Basea632f8d; reciprocal length-in-angle guard/test/docs readycommit. Clean33/33
-/tmp/os3d-angle-type-20260910.xcresult exec37057exit0. Paired wrongunitrefusal/90deg
-recovery verified. Illustrated341/all5hashes/no predecessor loss and master38 note
-verified. Receipt docs/testing/sketch-parity-angle-type-2026-09-10.md. No runner.
-Next commit/push, fix confirmed lower dimension editor occlusion behind iPad keyboard.
-SketchDimensionOverlay ignores allsafeareas and clamps tofullcanvas. ParentViewport
-also ignoresall; investigate minimal keyboard-safe area placement without moving
-geometry. Captures /tmp/os3d-angle-type-clone-editor.png (hidden), clone-field-visible.png
-(afterkeyboardhide), localreports/.../angle-type. NativeMac no onscreenkeyboard;
-platformdifference explicit. Keep fullcanvas projected geometry positions unchanged.
-Native1924selected90degree lowerarc; clone6492selected90degree largerarc below2mmline.
-Clonearc centerrelative301383, radius~211, startrelative221577, endrelative496463.
-Anglebadge~global471653. Nativeangle~global669691. Counts2passed/0failed/1deviceblocked/
-53incomplete. Immutable05be744IPA unchanged. No physicalinstall/merge/restart/security
+Base95157fc pushed. Dirty SketchDimensionOverlay.swift container-onlysafearea and
+DimensionUITests.swift lowfieldtest; docs ready afterpublicationverification.
+Clean2/2 /tmp/os3d-keyboard-occlusion-20260910.xcresult exec33061exit0. Liveportrait
+field/warning above keyboard with fixedgeometrypositions; landscaperotation and
+visible90degcommit pass. NativeMac keyboard-onlyfieldvisible (notphysicaliPad).
+Final clone galleryreopen retains90deg/source and accessiblekeyboardfield.
+Siximages exportverified347/all6hashes/no predecessor loss; master38finalreopennote verified.
+Exports: /tmp/os3d-keyboard-occlusion-publication.docx
+completed; master /tmp/os3d-keyboard-occlusion-master.docx completed. Priorillustrated341/master38 retained.
+Receipt docs/testing/sketch-parity-keyboard-occlusion-2026-09-10.md; localhashedfolder.
+Next commit/push, then paired theme/annotationcontrast audit.
+Currentclone6492 portrait90degkeyboardeditor open, fieldrelative440594; native1924
+90degkeyboard-onlyfieldopen lowerleft. No runner. Counts2passed/0failed/1deviceblocked/
+53incomplete; immutable05be744IPA unchanged. No physicalinstall/merge/restart/security
 changes or duplicateworkers/watchdogs. Preserve unrelatedidentity/memory/stalledtabs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)

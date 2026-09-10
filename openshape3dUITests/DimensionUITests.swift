@@ -132,6 +132,41 @@ final class DimensionUITests: XCTestCase {
         }
     }
 
+    func testLowerDimensionEditorStaysAboveSystemKeyboard() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.72))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.72)))
+        let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let before = label.frame
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["DimensionSystemKeyboard"].tap()
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 3), "Needs actual software-keyboard coverage")
+        let field = app.textFields["DimensionField"]
+        let visible = NSPredicate { _, _ in
+            field.exists && field.frame.maxY < keyboard.frame.minY &&
+            app.buttons["DimensionCommit"].frame.maxY < keyboard.frame.minY
+        }
+        expectation(for: visible, evaluatedWith: nil)
+        waitForExpectations(timeout: 3)
+        attach(app, "lower-editor-keyboard-visible")
+        field.typeText("2")
+        XCTAssertEqual(field.value as? String, "2")
+        app.buttons["DimensionNumericKeyboard"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertFalse(field.exists)
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3,
+                       "Keyboard layout must not permanently move the projected geometry")
+    }
+
     func testSystemKeyboardReplacesSeedAndPreservesDraftAcrossKeypadToggle() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

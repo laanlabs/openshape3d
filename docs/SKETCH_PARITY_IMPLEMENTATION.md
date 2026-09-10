@@ -1388,3 +1388,13 @@ pre-mutation unit check preserves draft/geometry with matching diagnostic. Clean
 parser/keypad/arc tests and paired rejection/90degree validrecovery verified.
 Illustrated341/all5hashes and master38 note verified. Receipt testing/sketch-parity-angle-type-2026-09-10.md.
 Separate lower-field occlusion behind iPad keyboard captured; placementfix isnext.
+
+## September 10 — keyboard occlusion (QA40 partial)
+
+Confirmed lower arc angleeditor hiddenbehind iPadsoftwarekeyboard. Container-only
+safeareaignore leaves editorheight keyboard-aware; fullcanvasgeometryunchanged.
+Clean2/2 UI with actualkeyboardvisibility/commit assertions; liveportraitwarning,
+landscaperotation/draftrecovery/visible90degreecommit andgallerysource-reopen pass.
+NativeMac keyboard-onlyfieldvisible; physicaliPadcomparison stillunverified.
+Receipt testing/sketch-parity-keyboard-occlusion-2026-09-10.md; siximages inserted
+once, exportpending. Next annotationcontrast/theme audit.
