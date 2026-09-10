@@ -11487,6 +11487,7 @@ final class EditorViewModel {
         var kind: DimensionKind
         var refs: [ConstraintRef]
         var text: String
+        var validationMessage: String? = nil
     }
     var editingDimension: DimensionEdit?
 
@@ -11499,6 +11500,9 @@ final class EditorViewModel {
     func updateDimensionDraft(_ text: String, sessionID: UUID) {
         guard editingDimension?.sessionID == sessionID else { return }
         dimensionDraft = (sessionID, text)
+        if editingDimension?.validationMessage != nil {
+            editingDimension?.validationMessage = nil
+        }
     }
 
     private func finishDimensionEditOnClickAway() {
@@ -11511,6 +11515,10 @@ final class EditorViewModel {
             return
         }
         commitDimensionEdit(text)
+        if editingDimension?.validationMessage != nil {
+            cancelDimensionEdit()
+            showNotice("Invalid expression.")
+        }
     }
 
     /// Numeric commits normally leave a driving dimension. The unlocked solve
@@ -12061,7 +12069,7 @@ final class EditorViewModel {
         // e.g. "width/2"; store the raw text as the driving formula only when it
         // references a variable/function (a plain number keeps `formula: nil`).
         guard let parsed = ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
-            showNotice("Couldn't read \"\(rawText)\" as a number.")
+            editingDimension?.validationMessage = "Expression is invalid. Check the expression and try again."
             return
         }
         // Keep malformed expressions editable; valid out-of-range values dismiss.

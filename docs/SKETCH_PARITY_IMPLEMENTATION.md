@@ -1271,3 +1271,9 @@ and solver-conflict rules unchanged. Clean8/8 keypad commit checks plus live zer
 refusal, valid recovery and one-step Undo. QA33/40 remain partial, styling differences
 retained; publication pending. [Receipt](testing/sketch-parity-invalid-recovery-2026-09-09.md).
 Immutable05be744 IPA preserved; continued work is not included in that artifact.
+
+Follow-up: malformed expressions retain the keypad with field-anchored yellow
+feedback cleared on edit. Explicit submit retains invalid drafts; click-away
+discards them with a transient warning. Latest combined9/9 and paired live
+click-away/Escape passed. Illustrated274/master38 verified; last dismissal
+addendum pending. Specific parser wording/indicator and full QA33/40 remain open.

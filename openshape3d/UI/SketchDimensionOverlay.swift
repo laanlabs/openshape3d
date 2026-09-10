@@ -491,6 +491,29 @@ private struct DimensionField: View {
                         focused = true
                     }
                 )
+                .overlay(alignment: .topTrailing) {
+                    if let message = viewModel.editingDimension?.validationMessage {
+                        Label(message, systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.black)
+                            .padding(10)
+                            .frame(width: 244, alignment: .leading)
+                            .background(Color(red: 0.98, green: 0.92, blue: 0.69),
+                                        in: RoundedRectangle(cornerRadius: 6))
+                            .accessibilityIdentifier("DimensionValidationMessage")
+                            .allowsHitTesting(false)
+                    }
+                }
+            }
+            if usingSystemKeyboard, let message = viewModel.editingDimension?.validationMessage {
+                Label(message, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.black)
+                    .padding(8)
+                    .frame(width: 244)
+                    .background(Color(red: 0.98, green: 0.92, blue: 0.69),
+                                in: RoundedRectangle(cornerRadius: 6))
+                    .accessibilityIdentifier("DimensionValidationMessage")
             }
         }
     }

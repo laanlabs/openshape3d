@@ -37,7 +37,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-30 | Rectangle sequence | Core — partial, not passed | Center and three-point two-axis edits paired; keyboard/edge matrix open. |
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
-| QA-33 | Invalid numeric input | Core — partial live pass | Zero width rejects without mutation in both apps; remaining invalid forms open. |
+| QA-33 | Invalid numeric input | Core — partial live pass | Paired zero refusal/recovery; malformed drafts retained with yellow diagnostic and valid recovery (Sept9). Negative/divide-by-zero native checked; full paired forms/count limits remain open. |
 | QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc refusal, axis driven translation and persisted side-Lock paired; broader value-lock matrix open. |
 | QA-35 | Constraint rail | Core — partial, not passed | Contextual Unlock expanded rail, retained other locks, Undo/Redo and reopen sampled; compact/full rail matrix open. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
@@ -203,7 +203,7 @@ mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM
 
 ### QA-33 — Invalid numeric input
 
-Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: NOT RUN. Evidence/owner: pending.
+Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/refusal/recovery and malformed retention corrected; clean9/9 focused checks. Native negative/divide-by-zero captured. Remaining paired forms, empty input and count limits are open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md.
 
 ### QA-34 — Locked/unlocked value
 

@@ -637,6 +637,16 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(badge.waitForExistence(timeout: 3))
         let original = badge.label
         badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Keypad-+"].tap()
+        p(0.70, 0.70).tap()
+        let invalidField = app.textFields["DimensionField"].firstMatch
+        let invalidDismissed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"), object: invalidField)
+        XCTAssertEqual(XCTWaiter.wait(for: [invalidDismissed], timeout: 3), .completed)
+        XCTAssertEqual(badge.label, original, "Invalid click-away preserves geometry")
+        XCTAssertTrue(app.staticTexts["EditorNotice"].exists)
+        attach(app, "invalid-click-away-preserves-geometry")
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         app.buttons["Keypad-3"].tap()
         XCTAssertEqual(app.textFields["DimensionField"].firstMatch.value as? String, "3")
         attach(app, "before-click-away")

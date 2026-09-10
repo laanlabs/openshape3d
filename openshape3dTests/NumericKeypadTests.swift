@@ -126,12 +126,15 @@ final class DimensionKeypadCommitTests: XCTestCase {
             let (sketch, id) = lineReadyToDimension(vm)
             let original = try XCTUnwrap(vm.activeSketch)
             vm.commitDimensionEdit(raw)
-            XCTAssertNotNil(vm.notice, raw)
             XCTAssertNil(vm.errorMessage, "Numeric refusal must not block the canvas: \(raw)")
             if raw == "0" || raw == "-1" {
                 XCTAssertNil(vm.editingDimension, raw)
+                XCTAssertNotNil(vm.notice, raw)
             } else {
                 XCTAssertNotNil(vm.editingDimension, "Malformed expressions stay editable: \(raw)")
+                XCTAssertNotNil(vm.editingDimension?.validationMessage, raw)
+                vm.updateDimensionDraft("25", sessionID: try XCTUnwrap(vm.editingDimension?.sessionID))
+                XCTAssertNil(vm.editingDimension?.validationMessage, "Editing clears the stale warning")
             }
             XCTAssertEqual(vm.activeSketch?.entities, original.entities, raw)
             XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty, raw)

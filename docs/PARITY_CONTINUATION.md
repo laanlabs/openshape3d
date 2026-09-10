@@ -1,44 +1,32 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 9, 22:48 EDT
+## Active continuation — September 9, 23:09 EDT
 
-Parent clarification: candidate handoff does NOT complete authorized parity work.
-HEAD a40c22c; immutable 05be744 IPA/receipts preserved. Keypad regression
-exec62721 completed clean8/8. Retention regression exec70335 completed clean9/9
-(/tmp/os3d-numeric-retention-20260909.xcresult), no runner.
-Continue the 42 partial/11 deferred cases; no install/merge. Untracked identity
-files and memory/ are unrelated and preserved.
+Refusal/lifecycle revision5a44568 pushed; field-warning/click-away follow-up now
+verified and ready for documentation commit. Immutable05be744 IPA unchanged.
+No build/test runner. Exclusive desktop ownership; unrelated identity files and
+memory/ preserved. Read-only paired iPad eligibility/profile match verified; no
+installation or physical-input validation.
 
-Read-only device check: paired 11-inch iPad Pro (3rd generation), iPadOS26.6.1,
-Developer Mode enabled, device UDID included in the preserved IPA profile. No
-installation or physical-input test performed.
+Latest combined run /tmp/os3d-numeric-invalid-away-20260909.xcresult clean9/9
+(8keypad unit + strengthened click-away/tool-switch UI). Earlier incremental
+runs each clean8/8 or9/9; do not sum overlapping tests. Live native/clone zero
+refusal, valid recovery/Undo, malformed retention, yellow warning/clear-on-edit,
+invalid blank-click dismissal and Escape preservation captured. Warning exact
+parser wording/field indicator remain different. QA33/40 remain partial.
 
-Capture recovery: OpenClaw bridge socket absent; existing Peekaboo GUI bridge at
-Application Support/Peekaboo/bridge.sock is healthy with capture/input grants.
-Both foreground/background image and screen image fail with web-focus outcome
-error; supported see route succeeds for native1924 and simulator6492. Do not
-classify capture-route errors as app failures.
+Illustrated274placements/all4 final diagnostic hashes verified; master38images
+with continuation note verified. Last click-away/Escape addendum pending.
+Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md; evidence under
+reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery.
 
-Next closure batch: QA-33 invalid numeric input + QA-40 keypad cleanup. Compare
-zero/negative/malformed/divide-by-zero, unchanged geometry/history on refusal,
-valid recovery, explicit Escape versus click-away/tool-switch commit, portrait/
-landscape controls. Known prior discrepancy: clone modal error vs native inline
-feedback. Native existing project and clone exact-tested build captured via see;
-no product changes or new passing claims in this continuation yet.
-
-Completed runner: focused invalid-recovery test (exec4190) passed clean1/1;
-result /tmp/os3d-invalid-recovery-20260909.xcresult. Only test fixture added.
-Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md. Next: collect
-implement paired field-anchored malformed-expression diagnostic, then
-QA40/publication. Live retained2+ correction/recovery to3mm passed; clean9/9.
-Illustrated270placements/new5 hashes verified; expression addendum/master pending. Native negative dismisses while
-1/0 and2+ retain editor with inline warning; clone2+ dismissal reproduced.
-VM now preserves editing state on parser failure; next live result pending.
-/tmp/os3d-numeric-notice-20260909.xcresult passed8/8; live clone zero refusal,
-valid1mm recovery and Undo2mm passed. Native valid20mm recovery/Cmd+Z passed. Paired zero mismatch captured; dimension parse/range feedback
-changed to transient notice (solver conflicts unchanged). Product VM and test
-are dirty along with these docs. Publish current evidence and continue closure;
-do not stop at artifact handoff.
+Next: finish final click-away/Escape publication, then paired negative/division
+clone checks and empty/count limits; continue system-keyboard/edge-layout matrix.
+Native1924 in rotated Top Sketch02 with29.0517mm line selected, keypad closed.
+Clone6492 in Untitled2 ground sketch2mm line selected, keypad closed.
+Peekaboo see works; image route fails web-focus mutation-outcome error. Use
+foreground GLOBAL clicks after app switch; select correct simulator via exposed
+title190,55 (5147 is old overlapping simulator). Never duplicate workers.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

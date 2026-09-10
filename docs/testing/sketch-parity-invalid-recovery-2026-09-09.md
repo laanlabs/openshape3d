@@ -98,3 +98,36 @@ yellow warning remains a visible gap. Initial zero publication export verified
 270placements, all5 added hashes once, dated heading once; export
 /tmp/os3d-numeric-publication.docx. Expression screenshots/addendum and master
 note pending. No full acceptance row closed.
+
+Refusal/lifecycle checkpoint5a44568 pushed. Field-anchored yellow diagnostic now
+implemented in a follow-up, using edit-session validationMessage cleared when
+the draft changes. Specific divide-by-zero/syntax wording remains generic.
+Serial9-check regression /tmp/os3d-numeric-inline-20260909.xcresult (exec16581)
+active; live follow-up pending. No artifact replacement.
+
+Field-warning final run clean9/9. Live2+ yellow field diagnostic, clear-on-edit to
+2+1, and3mm commit all inspected. os3d-inline-result/cleared/recovery screenshots
+retained. Native uses more specific parser text and separate field indicator;
+these exact visual details remain known differences. Master continuation note
+export-verified once with38images (/tmp/os3d-numeric-master.docx). No runner.
+Next invalid-draft click-away/Escape; final4 image publication pending.
+
+## Invalid click-away follow-up
+
+Native malformed2+ blank click dismisses keypad with Invalid expression notice,
+restores29.0517mm. Clone malformed3+ blank click retained keypad, unchanged3mm.
+Screenshots /tmp/os3d-invalid-away-native.png and os3d-invalid-away-clone.png.
+Fix: finishDimensionEditOnClickAway discards retained invalid draft and shows
+notice; explicit submit still keeps correction available. Existing UI test now
+first performs invalid click-away and retains exact final3-action history check.
+Serial8unit+1UI run /tmp/os3d-numeric-invalid-away-20260909.xcresult (exec20039).
+Final4 diagnostic images inserted once; initial export remains270 so pending
+sync, no duplicate insertion.
+
+Final invalid-away run clean9/9. Live clone malformed2+ blank-click now dismisses
+with Invalid expression notice,2mm unchanged; fade and settled screenshots both
+retained. Paired malformed2+ Escape discards without warning and keeps original
+readouts/geometry in both apps. No runner. Final diagnostic publication verified
+274placements/all4 new hashes; prior270assets preserved in initial export and
+final repeated export /tmp/os3d-numeric-publication-final2.docx. Last click-away/
+Escape screenshot addendum still pending.
