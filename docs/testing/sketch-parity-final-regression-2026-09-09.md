@@ -1,9 +1,9 @@
 # Final same-revision regression and gate triage — 2026-09-09
 
 Tested working tree over runtime baseline `8479219` on
-`fix/sketch-parity-foundations` (PR #29). Final correction revision and artifact
-are pending. Physical iPad/Pencil testing
-has not been performed.
+`fix/sketch-parity-foundations` (PR #29). The correction and fixture checkpoint
+is committed and pushed as `05be744`. Physical iPad/Pencil testing has not been
+performed.
 
 ## Initial full run
 
@@ -92,5 +92,32 @@ difference, not a core-sketch parity pass. The production correction is supporte
 by exact-build live clone evidence and the clean full regression.
 
 Five inspected screenshots and hashes are retained under
-`reports/openshape3d-core-sketch-milestone-2026-09-08/final-gate/`. Google Docs
-publication, commit/push and signed device-artifact inspection remain required.
+`reports/openshape3d-core-sketch-milestone-2026-09-08/final-gate/`.
+
+## Device artifact
+
+The exact committed revision was archived for generic iOS and exported as a
+development IPA. The archive passes strict code-signature verification and its
+Designated Requirement. The app is `iPhoneOS`/arm64, bundle
+`com.laan.labs.openshape3d`, version 1.0 (1), minimum iOS 17.0. It uses the
+existing Apple Development team profile (81 provisioned-device entries, expiry
+2027-07-21). The durable IPA is:
+
+`/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/final-gate/OpenShape3D-SketchParity-05be744.ipa`
+
+SHA-256:
+`b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`
+(16,876,597 bytes). The adjacent `device-artifact-05be744.txt` records the
+inspection. This IPA is installable only on devices included in that profile;
+installation and physical Pencil/touch behavior remain unverified.
+
+## Publication verification
+
+The existing illustrated report now contains 265 image placements / 263 unique
+media, up from 260/258. Anonymous DOCX export confirms the final status text and
+all five new exact screenshot hashes once each. The master roadmap retains all
+38 prior drawings and contains exactly one final candidate note. An attempted
+master append briefly replaced the document; it was caught before acceptance,
+reversed through editor Undo, and the restored 38-image predecessor plus one
+final note were independently export-verified. Full publication receipt:
+`reports/.../final-gate/publication-verification-2026-09-09.txt`.

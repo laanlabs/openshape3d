@@ -545,3 +545,17 @@ edge acquisition are captured; native retains a different edge-first solid-tool
 workflow and is not counted as core-sketch parity. Publication, committed revision,
 and signed device artifact inspection remain the final gate actions. Physical
 iPad/Pencil input remains unverified.
+
+## September 9 — installable comparison artifact
+
+Final corrections are committed and pushed as `05be744`. The same revision was
+archived and exported as a development IPA for already provisioned devices. The
+strictly verified iPhoneOS/arm64 artifact is 16,876,597 bytes with SHA-256
+`b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`;
+the team profile contains 81 device entries and expires 2027-07-21. The IPA and
+inspection receipt are retained in the milestone report's `final-gate` folder.
+This identifies a physical comparison candidate without claiming installation,
+Pencil/touch validation, full parity or completion of the retained 56-case map.
+Final publication is anonymously export-verified: the illustrated report has
+265 placements / 263 unique media with all five new screenshot hashes exactly
+once; the master retains 38 drawings and exactly one final candidate note.

@@ -1,26 +1,32 @@
-# Physical iPad A/B checklist — preparation, not a release candidate
+# Physical iPad A/B checklist — provisioned-device candidate handoff
 
-Prepared September 9, 2026. **Not ready for device testing yet.** Core visual and
-interaction acceptance remains open in [the full matrix](SKETCH_PARITY_ACCEPTANCE_MATRIX.md).
-Do not infer physical Pencil results from mouse-operated simulator captures.
+Prepared September 9, 2026. Revision `05be744` is the identified core-sketch
+comparison candidate for a provisioned physical iPad. It is not a release build
+or a full-parity claim. Core visual and interaction coverage remains partial in
+[the full matrix](SKETCH_PARITY_ACCEPTANCE_MATRIX.md), and no physical install,
+touch or Pencil result may be inferred from mouse-operated simulator captures.
 
 ## Artifact gate
 
 | Field | Verified state |
 |---|---|
-| Source | PR #29, `fix/sketch-parity-foundations`; final candidate revision pending |
-| Bundle | `com.laan.labs.openshape3d` in project configuration |
-| Version | Project configuration 1.0 (1); final artifact version pending |
-| Platform | App target includes iPhone/iPad, minimum iOS 17.0; configuration only |
-| Signing | Automatic signing configured; valid device provisioning not yet verified |
-| Device artifact | Not produced or verified; simulator `.app` is not installable on iPad |
-| Artifact hash / receipt | Pending final single-revision build and inspection |
+| Source | PR #29, `fix/sketch-parity-foundations`, revision `05be744` |
+| Bundle | `com.laan.labs.openshape3d` |
+| Version | 1.0 (1) |
+| Platform | `iPhoneOS`, arm64, minimum iOS 17.0 |
+| Signing | Apple Development, team `34FWY7G2HB`; archive signature and Designated Requirement verified |
+| Provisioning | Existing team profile, 81 device entries, expires 2027-07-21; the target iPad must already be included |
+| Device artifact | `OpenShape3D-SketchParity-05be744.ipa`, 16,876,597 bytes |
+| SHA-256 | `b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c` |
+| Durable copy | `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/final-gate/OpenShape3D-SketchParity-05be744.ipa` |
+| Build receipt | Adjacent `device-artifact-05be744.txt`; archive/export logs retained under `/tmp` |
 | Installation | Not performed or implied |
 
-Before release: identify the final revision, pass relevant serial regressions,
-close blocking paired UI gaps, build an actual device artifact, inspect its
-platform/signature/provisioning and record its path and hash. Any device or
-account setup must use normal host-owned UI; never collect credentials in chat.
+The exact source revision passed the final serial regression: 1,598 total,
+1,595 passed, zero failed and three skipped. Before testing, confirm the target
+iPad is in the recorded profile and install through the normal host-owned Xcode
+or device-management flow. Any device or account setup must use normal host-owned
+UI; never collect credentials in chat.
 
 ## Set up a comparable pair
 

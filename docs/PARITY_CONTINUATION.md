@@ -1,9 +1,10 @@
 # Parity continuation checkpoint
 
-September 9 ~22:05 EDT. Runtime baseline is `8479219`; the tested working tree
-contains the final regression corrections plus documentation. Preserve untracked
-`IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build worker is running; this
-session exclusively owns the booted simulator and native Shapr3D.
+September 9 ~22:20 EDT. Final regression correction revision `05be744` is pushed
+to PR #29. The working tree contains only the final artifact/publication
+documentation edits plus preserved untracked `IDENTITY.md`, `SOUL.md`, and
+`USER.md`. No test/build worker is running; this session exclusively owns the
+booted simulator and native Shapr3D.
 
 The authoritative final xcresult passed 1,598 total: 1,595 passed, zero failed and
 three skipped at `/tmp/os3d-final-full-clean-20260909.xcresult` (5,116.835 seconds,
@@ -15,11 +16,24 @@ workflow is recorded as a known downstream difference, not a core-sketch pass.
 Receipt: `docs/testing/sketch-parity-final-regression-2026-09-09.md`; screenshots
 and hashes: `reports/.../final-gate/`.
 
-Exact next: verify diff, commit/push the tested corrections, archive the exact
-committed revision for generic iOS device, inspect signature/provisioning/platform
-and hash the artifact, update the device A/B handoff, then publish and anonymously
-export-verify the final Google Docs status/evidence. No merge, installation or
-physical Pencil result is claimed.
+Exact revision `05be744` archives and exports successfully as a development IPA:
+`reports/.../final-gate/OpenShape3D-SketchParity-05be744.ipa`, 16,876,597 bytes,
+SHA-256 `b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`.
+It is iPhoneOS/arm64, minimum iOS 17.0, strict-signature verified, and uses the
+existing team profile with 81 device entries through 2027-07-21. It is installable
+only on included devices; no installation or physical Pencil result is claimed.
+
+Final publication is anonymously export-verified. The illustrated report now has
+265 placements / 263 unique media and all five final screenshot hashes exactly
+once. The master retains its 38 drawings and exactly one final candidate note.
+The first master append briefly replaced predecessor content; it was caught by
+the export gate, undone, and the restoration verified before publication was
+counted. Receipt: `reports/.../final-gate/publication-verification-2026-09-09.txt`.
+
+Exact next: commit/push this documentation checkpoint and hand off the identified
+IPA plus physical A/B checklist. Preserve the full 56-case map: two passed, zero
+failed, one device-blocked, and 53 incomplete (42 partial, 11 explicitly deferred).
+No merge; device installation and Pencil/touch remain Jason's physical-device gate.
 
 ## Earlier checkpoint history
 

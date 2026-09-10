@@ -1247,3 +1247,18 @@ smoke confirms neutral no-gizmo Blend activation and real edge acquisition;
 native whole-body activation is retained as a downstream workflow difference,
 not core-sketch parity evidence. See
 [final regression receipt](testing/sketch-parity-final-regression-2026-09-09.md).
+
+## September 9 — exact-revision device handoff
+
+Revision `05be744` is pushed and archived as a development-signed iPhoneOS/arm64
+build. The exported 1.0 (1) IPA is 16,876,597 bytes with SHA-256
+`b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`.
+Strict code-signature and Designated Requirement checks pass; the existing team
+profile contains 81 provisioned-device entries and expires 2027-07-21. This is
+an installable comparison artifact only for devices already in that profile.
+No physical installation, Pencil/touch result, full parity, or release readiness
+is claimed. See [the device A/B handoff](SKETCH_PARITY_DEVICE_AB.md) and
+[final regression receipt](testing/sketch-parity-final-regression-2026-09-09.md).
+The final illustrated Google Doc export verifies 265 image placements / 263
+unique media, including each of five new final-gate screenshot hashes once. The
+master roadmap export retains 38 drawings and exactly one final candidate note.
