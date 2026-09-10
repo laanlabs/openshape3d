@@ -93,6 +93,43 @@ final class DimensionKeypadCommitTests: XCTestCase {
         return simd_distance(a, b)
     }
 
+    func testScalarExpressionRetainsUnitsReopensAndClearsWithPlainValue() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .centimeters
+        let (original, id) = lineReadyToDimension(vm)
+        vm.commitDimensionEdit("10+5")
+        let dimension = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+        XCTAssertEqual(dimension.value, 150, accuracy: 1e-6)
+        XCTAssertEqual(dimension.displayExpression, "(10+5) cm")
+        XCTAssertNil(dimension.formula, "Constant arithmetic must not become a variable-driven mm formula")
+        XCTAssertTrue(try XCTUnwrap(vm.sketchDimensionLabels.first).hasExpression)
+        let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(try XCTUnwrap(vm.activeSketch)))
+        XCTAssertEqual(decoded.dimensions.first?.displayExpression, dimension.displayExpression)
+        AppSettings.shared.unit = .inches
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        XCTAssertEqual(vm.editingDimension?.text, "(10+5) cm")
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.value, 150)
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "(10+5) cm")
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("2 mm")
+        XCTAssertNil(vm.activeSketch?.dimensions.first?.displayExpression)
+        XCTAssertFalse(try XCTUnwrap(vm.sketchDimensionLabels.first).hasExpression)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "(10+5) cm")
+        vm.session.redo()
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 2, accuracy: 1e-6)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("= 1+2 cm")
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "(1+2) cm")
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 30, accuracy: 1e-6)
+        let legacy = SketchDimension(kind: .distance, refs: [.init(entityID: id, role: .whole)], value: 4)
+        let legacyRoundTrip = try JSONDecoder().decode(SketchDimension.self, from: JSONEncoder().encode(legacy))
+        XCTAssertNil(legacyRoundTrip.displayExpression)
+    }
+
     func testPolygonCountEditsPreserveGeometryReferencesAndHistory() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .inches

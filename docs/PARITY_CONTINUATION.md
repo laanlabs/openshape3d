@@ -1,26 +1,23 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10, 00:37 EDT
+## Active continuation — September 10, scalar-expression checkpoint
 
-HEAD02e0cd2 pushed; fresh-line anchor correction ready to commit; masterexport verified.
-Dirty EditorViewModel,SketchSolverBridge,RectangleConstructionTests,DimensionUITests,
-ledger/checkpoint/newreceipt. No runner. Initial31/33 then corrected clean33/33:
-/tmp/os3d-fresh-line-anchor-final-20260910.xcresult, exec75430exit0.
-Live clone freshforward/reverse2→1 holds drawingstart, UndoRedo and galleryreopen
-passed; nativefirstsizes holdstart but reselected reverse20→10 holdsleft instead.
-Correction ONLY fresh standalone H/V-constrained first numeric size, savedconstraint
-fallback/no persistedLock. Freeangles/reselection/connected sizing remainopen.
-Clone resizedendpoint continuation persists; native attemptinconclusive, notpairedpass.
-Illustrated306 placements/all4finalhashes/no predecessorloss verified at
-/tmp/os3d-anchor-final-publication.docx. Master38/newdatedheading once/priornote and media retained; export verified
-at /tmp/os3d-anchor-master.docx.
-Next commit/push scopedfix, then controlled vertical/reselected/freeangle
-line sizing and native continuation comparison. Receipt
- docs/testing/sketch-parity-line-sizing-anchor-2026-09-10.md.
-Native1924 reopenedSketch02Top reverse10 selected; clone6492 reopenedUntitled2
-reverse1 selected pluspersistedvertical2. No activeeditor. Only thissessiondesktopowner.
-Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744IPA unchanged.
-No deviceinstall/merge/restart. Preserve unrelatedidentityfiles/memory/stalledtabs.
+Base HEAD58a203a; scalar-expression implementation/docs ready to commit now.
+Final import-inclusive `/tmp/os3d-scalar-expression-complete-20260910.xcresult`
+passed clean31/31, following separate clean16/16 and15/15. No runner active.
+Paired plain-value replacement/Undo/Redo restores or clears f(x); clone expression
+survives relaunch/gallery reopen. Live contrast correction uses explicit gray.
+Receipt: docs/testing/sketch-parity-scalar-expression-2026-09-10.md.
+Illustrated314 placements/all4 final hashes/no predecessor loss; master38 with
+one new scalar note and prior anchor note export-verified. No pending inserts.
+Next: commit/push this correction, then paired keyboard-mode persistence and
+remaining explicit-unit/numeric matrix. Native1924 Sketch02 Top plain10 afterRedo;
+clone6492 requires relaunch after tests. No desktop worker except this session.
+Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744 IPA unchanged.
+Vertical/native continuation remain inconclusive; free-angle/connected/reselected
+sizing remain open. Unit-switch/source import coverage automated-only. No merge,
+physical install or restart/security changes. Preserve unrelatedidentity/memory
+and original stalled tabs; no duplicate watchdog or worker.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

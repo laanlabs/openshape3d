@@ -191,6 +191,22 @@ final class ProjectMergeTests: XCTestCase {
                        "a constraint pointing at the OLD id would be dead on arrival")
     }
 
+    func testInsertedDimensionRetainsScalarExpressionAndRemapsReferences() {
+        let line = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.line(id: line, a: .zero, b: SIMD2(15, 0))],
+            dimensions: [SketchDimension(kind: .distance,
+                refs: [ConstraintRef(entityID: line, role: .endpointA),
+                       ConstraintRef(entityID: line, role: .endpointB)],
+                value: 15, displayExpression: "(10+5) mm")])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        XCTAssertEqual(inserted.dimensions[0].displayExpression, "(10+5) mm")
+        XCTAssertNil(inserted.dimensions[0].formula)
+        XCTAssertNotEqual(inserted.entities[0].id, line)
+        XCTAssertTrue(inserted.dimensions[0].refs.allSatisfy { $0.entityID == inserted.entities[0].id })
+    }
+
     func testInsertedDisconnectedEndpointDoesNotReweld() throws {
         let a = UUID(), b = UUID()
         var guest = DesignDocument()

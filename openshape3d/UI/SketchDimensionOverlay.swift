@@ -288,6 +288,17 @@ struct SketchDimensionOverlay: View {
                         .contentShape(Rectangle())
                     }
                 }
+                .overlay(alignment: .leading) {
+                    if label.hasExpression {
+                        Text("f(x)")
+                            .font(.system(size: 13).italic())
+                            // Canvas stays light even when app chrome is dark.
+                            .foregroundStyle(Color.gray)
+                            .offset(x: -25)
+                            .accessibilityHidden(true)
+                            .allowsHitTesting(false)
+                    }
+                }
                 .buttonStyle(.plain)
                 .highPriorityGesture(diameterDrag(label, anchor: diameter?.anchor ?? anchor),
                     including: diameter != nil ? .all : .none)

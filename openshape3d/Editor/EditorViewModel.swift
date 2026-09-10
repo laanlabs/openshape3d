@@ -11475,6 +11475,7 @@ final class EditorViewModel {
         // World points keep the leader aligned when the camera/plane changes.
         var worldDiameterLabelAnchor: SIMD3<Double>? = nil
         var isPolygonSideCount = false
+        var hasExpression = false
         var isStandaloneLineLength = false
         var isRectangleSize = false
         var worldRectangleCenter: SIMD3<Double>? = nil
@@ -11851,6 +11852,9 @@ final class EditorViewModel {
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            if let dimensionID, let dimension = sketch.dimensions.first(where: { $0.id == dimensionID }) {
+                label.hasExpression = dimension.formula != nil || dimension.displayExpression != nil
+            }
             if kind == .diameter, let entityID = refs.first?.entityID {
                 let stored = dimensionID.flatMap { id in
                     sketch.dimensions.first(where: { $0.id == id })?.labelOffset
@@ -12003,6 +12007,9 @@ final class EditorViewModel {
         // normally meant to hold, and a sticky unlock would silently stop
         // recording them.
         dimensionCommitLocked = true
+        let retainedExpression = label.dimensionID.flatMap { id in
+            activeSketch?.dimensions.first(where: { $0.id == id })?.displayExpression
+        }
         editingDimension = DimensionEdit(
             labelID: label.id,
             dimensionID: label.dimensionID,
@@ -12010,7 +12017,7 @@ final class EditorViewModel {
             refs: label.refs,
             // Seed in the display unit so what you edit matches what you read.
             // Angles are unitless. `commitDimensionEdit` converts back.
-            text: Self.dimensionFieldText(
+            text: retainedExpression ?? Self.dimensionFieldText(
                 label.kind == .angle || label.isPolygonSideCount
                     ? label.displayValue
                     : AppSettings.shared.unit.display(fromMM: label.displayValue)),
@@ -12175,6 +12182,17 @@ final class EditorViewModel {
             parsedMM = AppSettings.shared.unit.mm(fromDisplay: parsed)
         }
         let stored = edit.kind == .angle ? parsedMM * .pi / 180 : parsedMM
+        var trimmedBody = bodyText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedBody.hasPrefix("=") {
+            trimmedBody = String(trimmedBody.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let expressionUnit = edit.kind == .angle ? "deg"
+            : (typedUnit?.symbol ?? AppSettings.shared.unit.symbol)
+        let previousExpression = edit.dimensionID.flatMap { id in
+            sketch.dimensions.first(where: { $0.id == id })?.displayExpression
+        }
+        let displayExpression = formula == nil && Double(trimmedBody) == nil
+            ? (previousExpression == rawText ? rawText : "(\(trimmedBody)) \(expressionUnit)") : nil
 
         var proposed = sketch
         var setup: DocumentCommand
@@ -12185,6 +12203,7 @@ final class EditorViewModel {
             var after = before
             after.value = stored
             after.formula = formula
+            after.displayExpression = displayExpression
             proposed.dimensions[idx] = after
             candidateDimensionID = dimID
             setup = UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after)
@@ -12192,7 +12211,8 @@ final class EditorViewModel {
             let offset = edit.kind == .diameter
                 ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
             let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored,
-                                      formula: formula, labelOffset: offset)
+                                      formula: formula, labelOffset: offset,
+                                      displayExpression: displayExpression)
             proposed.dimensions.append(dim)
             candidateDimensionID = dim.id
             setup = AddSketchDimensionCommand(sketchID: sketchID, dimension: dim)

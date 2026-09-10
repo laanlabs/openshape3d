@@ -1333,3 +1333,14 @@ finalhashes/no predecessorloss verified. Masterdated note appended, exportpendin
 
 Master38 placements/newdatedheading once/prior keyboard note and media retained;
 export verified /tmp/os3d-anchor-master.docx.
+
+## September 10 — retained scalar arithmetic (QA33/40 partial)
+
+Native numeric edits retain arithmetic, reopen it, and display gray italic f(x).
+Clone formerly retained only the result. Optional explicit-unit displayExpression
+now preserves scalar source separately from named-variable formulas; plain numbers
+clear it, Undo/Redo restores it, and import/radius-to-diameter conversion retain it.
+Live gray marker contrast, relaunch/gallery reopen and paired plain-value/history
+checks pass. Initial 16/16, leading-equals 15/15, final import-inclusive clean31/31.
+Unit-switch semantics are automated-only; no full case or device parity closure.
+See [scalar expression receipt](testing/sketch-parity-scalar-expression-2026-09-10.md).

@@ -16,6 +16,11 @@ nonisolated enum ArcDimensionConversion {
             diameter.kind = .diameter
             diameter.value *= 2
             diameter.formula = dimension.formula.map { "(\($0))*2" }
+            if let expression = dimension.displayExpression {
+                let unit = NumericKeypad.trailingUnit(in: expression)
+                let body = unit.map { String(expression.trimmingCharacters(in: .whitespaces).dropLast($0.count)) } ?? expression
+                diameter.displayExpression = "(\(body))*2" + (unit.map { " \($0)" } ?? "")
+            }
             return diameter
         }
         return Result(circle: .circle(id: id, center: center, radius: radius),

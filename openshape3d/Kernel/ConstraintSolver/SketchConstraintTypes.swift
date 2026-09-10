@@ -96,6 +96,10 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
     /// nil for a plain numeric dimension. Decoded via the synthesized Codable's
     /// `decodeIfPresent`, so pre-tranche-3 sketches (no "formula" key) load as nil.
     var formula: String? = nil
+    /// Retained constant arithmetic in its explicit input units. Unlike a
+    /// variable formula, this is presentation/source text, not re-evaluated
+    /// when document variables change. Optional for legacy documents.
+    var displayExpression: String? = nil
     /// Optional annotation anchor relative to the referenced circle center, in
     /// sketch-plane units. Presentation only; never enters the solver.
     var labelOffset: SIMD2<Double>? = nil
@@ -105,12 +109,14 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
          refs: [ConstraintRef],
          value: Double,
          formula: String? = nil,
-         labelOffset: SIMD2<Double>? = nil) {
+         labelOffset: SIMD2<Double>? = nil,
+         displayExpression: String? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
         self.value = value
         self.formula = formula
+        self.displayExpression = displayExpression
         self.labelOffset = labelOffset
     }
 }

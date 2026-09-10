@@ -62,6 +62,33 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testScalarArithmeticReopensAsExpressionAndUndoRestoresPriorValue() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.4))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.4)))
+        let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let original = label.label
+        setDimension(app, to: "1+.5")
+        XCTAssertTrue(label.label.contains("1.5"))
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertEqual(field.value as? String, "(1+.5) mm")
+        attach(app, "retained-arithmetic-expression")
+        app.buttons["KeypadCommit"].tap()
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, original)
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(label.label.contains("1.5"))
+    }
+
     func testFreshForwardAndReverseLineSizeKeepsDrawingStart() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
