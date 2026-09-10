@@ -1,25 +1,20 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, rounded seed verified
+## Active continuation — September 10, Settings target verified
 
-Baseline da96a6d pushed; exact rounded-seed correction ready to commit. Product
-EditorViewModel, unit/UI fixtures, ledger/receipt/checkpoint are the only intended
-changes. Preserve unrelated untracked identity/memory. No runner. Red1 reproduced
-40→39.9288mm; corrected21 then final combined23/23 clean, result
-`/tmp/os3d-rounded-seed-combined-20260910.xcresult`. Live clone fresh2mm stays2mm
-through untouched0.007ft acceptance, lockUndoRedo and finalgalleryreopen. Native
-preserved20mm; native untouched-commit history NOT marked equivalent (Undo
-changed earliercircle; subsequent20mm endpointdrag heldlength and was undone).
-Receipt `docs/testing/sketch-parity-rounded-seed-2026-09-10.md`.
-Illustrated391/all7new hashes/no predecessorloss and master38/newpriorreopennote
-verified. Exports `/tmp/os3d-rounded-seed-{publication,master}.docx`.
-
-Next commit/push this verified fix, then reproduce Settings icon-center versus
-+9px hit gap and inspect same-theme numeric field UI. Clone6492 portrait saved
-sketch selectedlower2mmline, Millimeter; native1924 line20mm restored afterdrag,
-Millimeter circle15.24mm. Sole desktop/build ownership. Counts2passed/0failed/
-1deviceblocked/53incomplete. Immutable05be744IPA unchanged. No install, merge,
-restart/securitychanges, duplicateworkers/watchdogs. Preserve stalledDoc tabs.
+Baseline7532ae9 pushed. Settings target fixreadycommit: EditorView, SettingsUI
+fixture, ledger/receipt/checkpoint. Initial1pass/1fixture-heightfailure, targeted
+centerbehavior1/1pass. Liveportraitmodel/sketch andlandscapesketch gearcenter
+opens. Illustrated396/all5/no loss/master38 verified. No runner.
+Receipt `docs/testing/sketch-parity-settings-target-2026-09-10.md`.
+Next commit/push, continue same-light-theme numericfield comparison. Clone6492
+landscape887x736at72,30, Settingslargesheetopen, ThemejustchangedSystem→Light;
+Doneglobal660246. Existingline endpointsrelative383333..474333,1.5mm fromUI
+fixture. Native1924 constraintsettingspopup open; clickblankdismiss. Native
+line20mm/circle15.24mm retained. Priorroundedseedlivehistorylimit documented.
+Counts2passed/0failed/1deviceblocked/53incomplete. Immutable05be744IPA unchanged.
+Preserveunrelatedidentity/memory/stalledDocs. No install/merge/restart/security
+changes/duplicateworker/watchdog; sole desktop/buildownerhere.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

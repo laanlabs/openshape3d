@@ -15,6 +15,28 @@ final class SettingsUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testSettingsCenterTargetOpensInBothOrientations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launch()
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            let settings = app.buttons["SettingsButton"]
+            XCTAssertTrue(settings.waitForExistence(timeout: 10))
+            XCTAssertGreaterThanOrEqual(settings.frame.width, 44)
+            // UIKit clips toolbar height to 36pt; verify delivered center taps,
+            // not an assumed external height for the SwiftUI content frame.
+            settings.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons["SettingsDone"].waitForExistence(timeout: 3))
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "settings-center-\(orientation.rawValue)"
+            shot.lifetime = .keepAlways; add(shot)
+            app.buttons["SettingsDone"].tap()
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
     func testSnappingControlsPersistAcrossLaunch() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

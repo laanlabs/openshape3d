@@ -1469,3 +1469,12 @@ Live clone2mm preserved through untouched0.007ft acceptance, lockUndoRedo and
 gallery reopen. Native untouched-commit history remains distinct/unconfirmed;
 no blanket history-equivalence claim. Illustrated391/all7/no loss;master38 verified.
 Settings icon-center input and same-theme comparison next; acceptance unchanged.
+
+### September 10: Settings icon-center target
+
+[Settings target receipt](testing/sketch-parity-settings-target-2026-09-10.md).
+Visiblecenter ignored, +9px worked. Explicit44pt content target corrects live
+portrait model/sketch and landscapecenter access. UIKitexternaltoolbarheight36;
+initialtestheightassumption corrected, then centerbehaviorpassed1/1; separate
+imperialworkflow1pass. Illustrated396/all5/no loss/master38 verified. Lighttheme
+comparison now underway; no fullsettingspanel/nativeplatform equivalence claim.

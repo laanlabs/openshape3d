@@ -1632,7 +1632,13 @@ struct EditorView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Label("Settings", systemImage: "gearshape")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "gearshape")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Settings")
                     }
                     .accessibilityIdentifier("SettingsButton")
                 }
