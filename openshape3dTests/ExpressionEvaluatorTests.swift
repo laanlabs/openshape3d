@@ -31,6 +31,12 @@ final class ExpressionEvaluatorTests: XCTestCase {
                         "1 cm 2 mm", "1 cm + 2 mm junk", "1 cm ++ 2 mm", "1e999 m + 1 mm"] {
             XCTAssertNil(ExpressionEvaluator.additiveLengthMM(invalid), invalid)
         }
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("0.025 ft + 0.5 in")), 20.32, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("0.00125 ft + 0.025 in")), 1.016, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1 ft - 6 in")), 152.4, accuracy: 1e-12)
+        for invalid in ["1 ft * 2 in", "1 ft + 2", "1 ft + 2 deg", "1 ft + 2 inch"] {
+            XCTAssertNil(ExpressionEvaluator.additiveLengthMM(invalid), invalid)
+        }
         // Existing scalar evaluator retains its established suffix convention.
         XCTAssertEqual(ExpressionEvaluator.evaluate("2 cm"), 2)
     }

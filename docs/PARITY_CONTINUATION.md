@@ -1,20 +1,17 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, feet fix verified
+## Active continuation — September 10, mixed imperial fix verified
 
-HEAD1c5441e, feet mapping ready to commit. Scoped product/test/docs dirty;
-unrelated identity/memory preserved. Clean34/34 /tmp/os3d-feet-unit-20260910.xcresult.
-Live native0.05ft→15.24mm andclone0.0025ft→0.762mm; pairedsource/UndoRedo and
-finalclonegalleryreopen retain0.0025ft/0.762mm. Nativegallerynotrepeated. Quoted
-keyboardroute refusal/recovery matches withsmartpunctuation caveat, no productchange.
-Illustrated363/all6hashes/no predecessorloss/master38 new/priornotes verified.
-Receipts docs/testing/sketch-parity-{feet-unit,quoted-inch}-2026-09-10.md.
-Next commit/push; pairedmixedimperial additive0.025ft+0.5in native (20.32mm),
-clone0.00125ft+0.025in (1.016mm) on samecircles. Native1924field0.05ftopen;
-clone6492keypad0.0025ftopen. Checkdrafts beforecommit. No runner.
-Counts2passed/0failed/1deviceblocked/53incomplete. Existing05be744IPA unchanged.
-No physicalinstall,merge,restart/securitychanges,duplicateworkers/watchdogs;
-preserveoldstalledreporttabs. Mixedalgebra/fullnumericmatrixremainopen.
+Baseline135cfd8 pushed. Mixed imperial additive conversion implemented with guarded
+fully-qualified terms; clean35/35 /tmp/os3d-mixed-imperial-20260910.xcresult.
+Native20.32mm and clone1.016mm result/source/history inspected; clone gallery
+reopen retains source/value. Illustrated368/all5 hashes/no predecessor loss;
+master38 dated note verified. Receipt docs/testing/sketch-parity-mixed-imperial-2026-09-10.md.
+No test/build runner. Native1924 and clone6492 have mixed-source keyboard editors
+open. Next commit this verified fix, then correct the confirmed narrow expression
+field (96pt hard-coded width) with paired evidence and focused regression.
+Identity/memory files untouched. Counts2passed/0failed/1deviceblocked/53incomplete.
+Existing05be744 IPA unchanged; no device install/merge/restart/security changes.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

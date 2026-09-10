@@ -341,6 +341,27 @@ final class DimensionKeypadCommitTests: XCTestCase {
         }
     }
 
+    func testMixedImperialConversionRetainsSourceWithoutVariableFormula() throws {
+        for displayUnit in [DisplayUnit.millimeters, .centimeters] {
+            let vm = try makeViewModel()
+            AppSettings.shared.unit = displayUnit
+            let (original, id) = lineReadyToDimension(vm)
+            vm.commitDimensionEdit("0.00125 ft + 0.025 in")
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.016, accuracy: 1e-6)
+            let dimension = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+            XCTAssertNil(dimension.formula)
+            XCTAssertEqual(dimension.displayExpression, "0.00125 ft + 0.025 in")
+            vm.selectedSketchEntityIDs = [id]
+            vm.beginDimensionForSelection()
+            XCTAssertEqual(vm.editingDimension?.text, "0.00125 ft + 0.025 in")
+            vm.session.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+            XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
+            vm.session.redo()
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.016, accuracy: 1e-6)
+        }
+    }
+
     func testWithoutASuffixTheDisplayUnitStillApplies() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .centimeters

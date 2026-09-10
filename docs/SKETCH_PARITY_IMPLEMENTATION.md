@@ -1425,3 +1425,11 @@ and clonegalleryreopen pass. Quotedkeyboardroute syntaxrefusal andvalidin recove
 match; smartpunctuation scope explicit, no universalquoteclaim. Illustrated363/all6
 hashes/master38 verified. Receipts testing/sketch-parity-feet-unit-2026-09-10.md
 and testing/sketch-parity-quoted-inch-2026-09-10.md. Mixedimperial remainsopen.
+
+### September 10: mixed imperial additive length source
+
+Native accepts feet+inches; clone now converts fully qualified additive terms
+without treating the unit suffix as a variable. Clean35/35; paired source/history
+and clone gallery reopen verified. Illustrated368/master38 export-verified.
+Receipt: testing/sketch-parity-mixed-imperial-2026-09-10.md. Narrow expression
+field remains a visible difference; no full QA closure or updated IPA claim.

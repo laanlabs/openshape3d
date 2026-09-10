@@ -37,7 +37,7 @@ nonisolated enum ExpressionEvaluator {
         var source = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if source.hasPrefix("=") { source.removeFirst() }
         let number = #"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"#
-        let term = #"([+-]?)\s*("# + number + #")\s*(mm|cm|m)"#
+        let term = #"([+-]?)\s*("# + number + #")\s*(mm|cm|m|ft|in)"#
         guard let regex = try? NSRegularExpression(pattern: term) else { return nil }
         let ns = source as NSString
         let matches = regex.matches(in: source, range: NSRange(location: 0, length: ns.length))
@@ -51,7 +51,14 @@ nonisolated enum ExpressionEvaluator {
             let sign = ns.substring(with: match.range(at: 1))
             guard index == 0 || !sign.isEmpty else { return nil }
             let unit = ns.substring(with: match.range(at: 3))
-            let scale = unit == "m" ? 1000.0 : unit == "cm" ? 10.0 : 1.0
+            let scale: Double
+            switch unit {
+            case "m": scale = 1000
+            case "cm": scale = 10
+            case "ft": scale = 304.8
+            case "in": scale = 25.4
+            default: scale = 1
+            }
             total += (sign == "-" ? -value : value) * scale
             end = NSMaxRange(match.range)
         }
