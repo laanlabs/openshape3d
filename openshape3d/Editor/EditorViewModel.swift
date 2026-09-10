@@ -8369,8 +8369,22 @@ final class EditorViewModel {
 
     /// The overlay supplies signed plane-axis distance or degrees, independent
     /// of zoom. Reuse the same baseline, Copy and coalesced history as canvas drags.
+    private var rotationWouldDiscardRectangleReferences: Bool {
+        guard !sketchCopyOnDrag, let sketch = activeSketch else { return false }
+        let ids = Set(sketch.entities.compactMap { entity -> UUID? in
+            guard selectedSketchEntityIDs.contains(entity.id), case .rect = entity else { return nil }
+            return entity.id
+        })
+        return sketch.constraints.contains { $0.refs.contains { ids.contains($0.entityID) } }
+            || sketch.dimensions.contains { $0.refs.contains { ids.contains($0.entityID) } }
+    }
+
     func updateSketchTransformControl(_ control: SketchTransformControl, value: Double) {
         guard value.isFinite, sketchTransformActive, let center = sketchSelectionCentroid else { return }
+        if control == .rotation, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return
+        }
         if sketchGizmoDrag == nil {
             if let retained = validRetainedSketchTransform, retained.control == control, !sketchCopyOnDrag {
                 var resumed = retained.drag
@@ -8421,6 +8435,10 @@ final class EditorViewModel {
 
     @discardableResult
     func commitSketchTransformControl(_ control: SketchTransformControl, text: String) -> Bool {
+        if control == .rotation, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return false
+        }
         guard let parsed = ExpressionEvaluator.evaluate(text, variables: session.variableValues()), parsed.isFinite else {
             showNotice("Enter a valid distance or angle.")
             return false
@@ -8737,6 +8755,14 @@ final class EditorViewModel {
         }
         var entities = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !entities.isEmpty else { return false }
+
+        // Decomposition currently removes the primitive and its references.
+        // Consume the gesture without changing history until rotation can
+        // migrate those references, rather than silently losing saved intent.
+        if kind == .rotate, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return true
+        }
 
         // Copy chip: duplicate first; the drag then moves the copies.
         if sketchCopyOnDrag {

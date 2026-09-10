@@ -1,22 +1,22 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 14:53 EDT
+## Active continuation — September10 15:05 EDT
 
-HEADe5b0179 pushed. Fieldseedprecision fix being committed; no runner. Corrected
-unitrun94404 clean23/23,2.914s (`/tmp/os3d-qa09-field-precision-units-20260910.xcresult`).
-First4339 matchedonlyscalarUI1/1; filenameunitselector matched0units, retained.
-Liveclone newcenterrectangle1.9822×1.4842 opens1.9822, untouchedaccept samebounds
-240570–400690,center320630. Nativefour-digitfeet reference retained earlierreceipt.
-Exactnext verifycommitpush; native lockedcenter sizing history/rotationfreedom
-and constrainededgecolor comparison; then remainingQA09 partial-side constraints.
-Native9rectangles,smallcenter703351 nowlocked2×2; cornersblue. Priorclone locked
-center320630 went1.9822×1.4842→1×0.75 andheightUndoRedo passed, cornersgreen.
-Thatclonefixture replacedbyUIreset: currentline+freshrectangle,centerfree,only
-widthstored by untouchedaccept; CenterRectarmed. Do notclaim lockedfixture reopen.
-Escapeinputignoredlastliveattempt; visibleCancelRectangle/tooltoggle recovered.
-Evidencealllocked/seed-fixPNGs copied/hashed in center-matrix; Docs signedout,
-lastverified466/master38. Inventory4passed/0failed/1deviceblocked/51incomplete.
-Immutable05be744IPA unchanged. Unrelatedidentityfilespreserved; soleowner.
+HEAD452e722; rotationintegrityguard beingcommitted. No runner:10008clean12/12,
+35.083s `/tmp/os3d-qa09-rotation-integrity-20260910.xcresult`. PairednativecenterLock
++2×2 permitscornerrotation; cloneaxisrectcannot. Cloneexplicitrotation previously
+LOSTcenterLock/bothdimensions; savedJSONverified andtwoUndo restored. Interim
+rotationguardnowrefusesreferencedrectangles; live notice,unchangedgeometry and
+ItemsLock/Width/Heightretentionverified. GuardisNOTrotationparityclosure.
+Exactnext verifycommitpush, postrefusalpairedgalleryreopen, then safe rotation
+reference/representation migration design+tests (center,dimensions,externalrefs,
+Undo/persistence/controls). Do not removeconstraints or recoloralone.
+ClonecurrentItemsopen,explicitMoveRotatearmed,rectselected,center320630locked,
+1.9822×1.4842 plusunrelatedline1mm. NativeFrontnine rectangles,smallcenter703351
+locked2×2,rotationundone; ConstraintSettingsopen,AutoON. Soleowner.
+AllrotationPNGs copied/hashed; lossJSONretained externally. Docs signedout466/
+master38, newevidencequeued. Inventory4passed/0failed/1deviceblocked/51incomplete.
+Immutable05be744IPA untouched. Unrelatedidentityfilespreserved. No newworkers.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

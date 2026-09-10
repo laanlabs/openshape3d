@@ -1654,3 +1654,20 @@ Unchanged driving-dimension acceptance now skips redundant update/solve/history;
 paired native and live clone Undo/Redo pass. Clean36 unit checks, then retained
 1pass/1failure numeric run, corrected3/3. QA09 still partial (constraints, broad
 UI and signed-out publication remain). Receipt: testing/sketch-parity-center-matrix-2026-09-10.md.
+
+### September10 QA09: confirmed locked-center rotation gap
+
+Native centerrectangle with centerLock and both2mm sizes remains rotatable by
+cornerdrag; center/sizes preserved, cornersblue, Auto-constrainingON. Clone
+centerLock + bothsizes marksfullyconstrained and refuses analogouscornerdrag.
+Do not patchcolor alone: axisrect representation has no orientation, and naive
+4lineconversion would invalidate center/dimensionreferences. Scoped migration
+needs validated reference remapping, dimensions, constraints, history/persistence
+and controls. Native rotation undone; clone unchanged. Receipt center-matrix.
+QA09 stayspartial; this is a blocking behavior difference, notfullparity.
+
+QA09 rotation integrity: explicitgizmorotation deleted primitivecenterLock and
+bothdimensions duringdecomposition (savedJSONconfirmed). Interimguardnowrefuses
+referencedprimitive-rectangle rotation, retainsintent/history. Clean12/12 andlive
+refusal/Itemsretention verified. This fixesdata loss, NOTnative rotationalfreedom;
+safe migration remains blocking. Receipt center-matrixSeptember10.

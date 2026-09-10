@@ -188,3 +188,8 @@ attempted while signed out; publication466/master38 unchanged.
   and `os3d-qa09-seed-fix-*` PNGs/hash list in center-matrix. Native4×4→2×2,
   clone1.9822×1.4842→1×0.75 fixedcenter/history; corrected seed1.9822.
   Edgecolors/keyboardroute remain qualified; publicationblocked/signout.
+
+- Center rotation gap + explicitrotationdata loss: nativecornerdragretainscenter/
+  sizes; cloneexplicitrotationlostsavedintent, twoUndo restored. Guardrefusal
+  and Itemsretention screenshots `os3d-qa09-rotation-*` retained/hashed.
+  No parityclaim; migrationopen. Google signedout, notinserted.

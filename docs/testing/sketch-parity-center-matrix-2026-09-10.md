@@ -239,3 +239,45 @@ no newimperiallive claim. Live newclone1.9822×1.4842 center320630 now opens
 readouts. Currentfixture line+freshrectangle replaces earlierlockedrectangle via
 UIreset; that earlierfixture has screenshots, not a newreopenclaim. Allseed-fix
 PNGs copied/hashed. Remainingcenterconstraints/colorfreedom investigation pending.
+
+### Locked-center rotational freedom diagnosis (14:55 EDT)
+
+Native heightUndo restored2×4, Redo2×2; cornerdragglobal812420→822429 rotated
+2×2 aroundfixedcenter703351, retainedboth2mm sizes. Undo restoredaxisalignment.
+Native settings Auto-constraining ON, anchoredentity FirstSelected. Thusnative
+bluecorners are meaningfulremainingrotation, not a standalonecolorbug. Clone
+axisrectangle has no rotationparameter (SketchTransform rotatesnonrightangles
+bydecomposition into4lines); its fullysizedcenterlocked corners aregreen.
+Need preserve center/dimensions/refs if adapting representation; no speculative
+color or destructiveconstraintmigration applied. Native screenshots locked-undo,
+redo,cornerdrag,settings copied/hashed. Currentclonefreshfreecenterfixture not
+used as correspondinglockedrotationcomparison yet.
+
+Corresponding freshclone confirmation: stored both exact1.9822/1.4842 readout
+values through untouchedaccept, directcenterLock then disarmedcornerdrag
+global472600→492660 leavesbounds240570–400690 unchanged. Bothsizebadges/green
+cornersretained. Confirms rotationrefusal, not just hypothesized model limitation.
+Currentclonefixture retainsline+centerlocked/two-sizedrectangle; no pendingtool.
+RotationPNGs copied/hashed. A safe correction needs rotational geometry plus
+center/dimension/external-reference preservation; naive4lineconversion is unsafe.
+
+### Explicit rotation loses saved intent — integrity correction
+
+Clone explicitrotation dragglobal440612→457682 rotatesrectangleaboutcenter,
+but Items now onlyshowsunrelatedlineDistance1.00mm. ReadonlySwiftDataconfirms
+constraints[] and onlythelinedimension remain; savedJSONrotation-loss.json.
+Thevisible1.9822/1.4842 aretemporarymeasurements, notretaineddrivingdimensions.
+TwoUndo restoreaxisrectangle, centerLock and Width/Height Items. Screens
+rotation-clone-explicit/after/items-after/restored copied/hashed.
+Guard prevents rotation of selectedprimitive rectangles referencedbyconstraints
+or dimensions beforedecomposition; plainunreferencedrectangles unchanged.
+Typed/continuouscontrol and canvasgizmoroutes covered. This is interimdata-loss
+protection, notrotationparity. Safe migratedcenter/dimensions/history stillrequired.
+Regressionexec10008 running, no passclaimyet.
+
+Integrity run clean12/12,35.083s; typed+continuous exactintent/history guard,
+arcrotation and puretransforms. Live updatedsavedrectangle reopensintact; same
+explicitrotationdrag nowrefuseswithnotice, no geometrychange. Itemsstillshows
+Lock, Width1.98, Height1.48 plusunrelatedlineDistance1.00. Screenshotguard-retained
+verifiesstoredentries, nottemporarylabels. No freshpostrefusalreopen yet; no
+rotationparityclaim. Guardimagescopied/hashed.

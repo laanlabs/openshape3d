@@ -212,6 +212,32 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.entities, [arc])
     }
 
+    func testReferencedRectangleRotationDoesNotDiscardIntentOrAddHistory() throws {
+        for hasDimension in [false, true] {
+            let vm = try makeViewModel(), id = UUID()
+            var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 3))])
+            if hasDimension {
+                sketch.dimensions = [.init(kind: .horizontal, refs: [
+                    .init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)
+                ], value: 4, displayExpression: "(2+2) mm")]
+            } else {
+                sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+            }
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [id]
+            vm.sketchTransformActive = true
+            XCTAssertFalse(vm.commitSketchTransformControl(.rotation, text: "45"))
+            vm.updateSketchTransformControl(.rotation, value: 30)
+            vm.endSketchTransformControl()
+            XCTAssertEqual(vm.activeSketch?.entities, sketch.entities)
+            XCTAssertEqual(vm.activeSketch?.dimensions, sketch.dimensions)
+            XCTAssertEqual(vm.activeSketch?.constraints, sketch.constraints)
+            vm.session.undo()
+            XCTAssertNil(vm.activeSketch, "Rejected rotation must not insert a history step")
+        }
+    }
+
     func testRetainedTransformReeditUsesOriginalPivotAndSeparateUndo() throws {
         let vm = try makeViewModel(), id = UUID()
         let arc = SketchEntity.arc(id: id, center: .zero, radius: 2,
