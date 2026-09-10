@@ -1,5 +1,23 @@
 # Pending report publication — September 10, 2026
 
+## 18:59 partial-edge and side-glyph evidence recovered
+
+Seven representative before/after/native/reopen images verified at577placements,
+all7hashesonce andno predecessorimage/textloss from570. Master38datednote
+verified. Exports `/tmp/os3d-qa08-backlog-edges-{published,master}.docx`.
+Full diagnostic attempts remain local; representative publication covers the
+historical color and glyph result, not a newly run test. Nativeunselected image
+closes earlier retained allItems visibility uncertainty. Historicalqueuebelow
+is superseded for these results, not erased.
+
+## 18:56 selected-free center halo recovered
+
+Export `/tmp/os3d-qa08-backlog-halo-published.docx` verifies570 placements,
+all4 halo hashes once, no predecessor text/image loss from567. Native locked
+hash already existed, only3 missing images inserted. Initial569 export lacked
+lastimage; retryexport, not reinsertion, verified570. Master38 recovery note
+verified in `...-master.docx`. Historical1/1/live evidence, not new testing.
+
 ## 15:55 recovery update
 
 Fresh authorized tab `parity-publication-recheck` is editable/SavedtoDrive.

@@ -1,18 +1,19 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, selected-side lifecycle verified
+## Active continuation — September 10, earlier evidence recovery
 
-HEADde64aa6 pushed; sidecommit/history correction readytocommit. Firstclean14/14
-`/tmp/os3d-qa09-side-history-20260910.xcresult`, exec4028done; norunner. Live
-native8→9/Undo8/Redo9 andclone2→3/Undo2/Redo3 bothclear edge/handle andkeep
-parallelreadouts. Finalpairedgallery native9×4/clone3×0.5 retained. Illustrated
-567/all6hashes/master38/finalreopennote verified, no predecessorloss.
-Exactnextcommit/push, thenreconcile QA09olderpublicationbacklog/finiteclosure
-criteria. Receiptcenter-matrix2026-09-10; sidehistory-*screenshotsretained/hashed.
-Native1924frontallItemsselection; clone7715rightedgeselectedafterreopen.
-No blanketselection/deviceparity. Inventory4passed/0failed/1deviceblocked/
-51incomplete. PreserveIPA05be744/unrelatedfiles/tabs/watchdog; soleowner.
-No merge/install/hostrestart/securitychanges.
+HEADa24ef1b pushed: sidecommit/history clean14/14 and pairedlive/reopen,
+illustrated567/master38 verified. No runner; soleowner. Native9×4frontallItems,
+clone3×0.5selectedrightedge afterreopen. Now recovering earlier publication
+backlog: halo3missing images inserted, fourthalreadyexisted. Export570/all4
+hashesonce/master38note/no predecessorloss verified; initial569 delayedimage
+resolved byexportonly, no duplicateinsert. Pendingqueue file updated.
+Partial-edge/glyph7representativeimages nowverified577/all7hashes/master38,
+no predecessorloss; oldnativeunselectedcapture closes allItemsvisibility caveat.
+Exactnext QA09 release/leaders/precision/centerLock backlog: inspecthash
+presence against577 beforeinserting; thenfiniteQA08/09closurecriteria. No new
+live/testclaim fromrecoveredimages. Inventory4passed/0failed/1deviceblocked/
+51incomplete. PreserveIPA05be744/unrelatedfiles/tabs/watchdog. No merge/install.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
