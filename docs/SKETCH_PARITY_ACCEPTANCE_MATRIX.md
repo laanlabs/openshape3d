@@ -10,7 +10,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
-| QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Backspace/double-tap/tool-switch matrix open. |
+| QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
 | QA-07 | Line raw aim | Core — partial, not passed | Acquisition-off/Auto-off slight slope sampled paired; all-angle matrix open. |
 | QA-08 | Diagonal rectangle | Core — partial live pass | Lower-left correction: clean22/22, reverse-width and down/right-height live pass; remaining matrix open. |
 | QA-09 | Center rectangle | Core — partial, not passed | Center height-first and reverse-drag width-first paired, center retained; full quadrant/constraint matrix open. |

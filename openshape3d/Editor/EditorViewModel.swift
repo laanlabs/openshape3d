@@ -9553,6 +9553,13 @@ final class EditorViewModel {
         }
     }
 
+    /// Native Delete finishes Line without deleting the last committed segment.
+    /// Numeric editing owns its own Delete key and must not disarm the tool.
+    func deleteLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        deselectSketchTool()
+    }
+
     /// Escape abandons an unfinished three-point arc without committing it.
     /// Native also drops the Arc tool in this state; a following Escape may
     /// therefore leave sketch mode instead of reviving the discarded preview.

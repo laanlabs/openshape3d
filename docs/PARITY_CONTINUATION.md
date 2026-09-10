@@ -1,21 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA-04 closed
+## Active continuation — September 10, QA-06 Delete verified
 
-HEAD0c8c268 pushed. Documentation-only QA04closure readyforcommit; unrelated
-identity/memory untouched. Paired Top/Front/Right empty Exit/twoEscapes,
-visibility, Itemsfirstgeometry/history andfinalgalleryreopen verified.
-Initial6/6 + refined5/5, separatecleanruns. Publication417/all6closurehashes/
-no predecessorloss; master38/newnote/reopen verified. No runner.
-Counts3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
-Native1924 modelingoblique, Sketch03Frontlinevisible; TopSketch02/01 and
-Body01hidden. Clone6492 portraitDarkmodelingoblique Itemsopen; MyPart/Sketch1
-hidden, Sketch2Frontline/Sketch3Rightlinevisible.
-Exact next: commit/push QA04closure docs, then paired QA06 remaining
-Backspace/Delete, double-click and tool-switch cancellation with committedline
-preserved and no ghostsegment. Inspectcurrentinputstate beforeactions.
-Receipt testing/sketch-parity-empty-entry-2026-09-10.md. IPA05be744 unchanged.
-No install/merge/restart/securitychanges/duplicateworkers; preserve stalledDocs.
+Baseline c186931 pushed; verified Line Delete correction ready to commit.
+Dirty own files: CommandShortcutsView.swift, EditorViewModel.swift,
+LineDeleteInputTests.swift, ledger/matrix, receipt and this checkpoint.
+Unrelated identity/memory preserved. No runner; sole desktop owner this session.
+Corrected focused run clean3/3, exec3732 exit0, after initial compile-only fixture
+failure (.length→.distance). /tmp/os3d-line-delete-corrected-20260910.xcresult.
+Native fresh drag→Delete disarms Line and preserves geometry; clone now matches
+actual key, one-step Undo/Redo, Line→Arc preservation and paired gallery reopen.
+No new history step. Native pending hover attempts remain inconclusive; not a pass.
+Illustrated425, all8 diagnosis/correction hashes once, no predecessor loss;
+master38 dated note and final paired reopen wording verified. Exports
+/tmp/os3d-line-delete-final.docx and /tmp/os3d-line-delete-master.docx.
+Receipt testing/sketch-parity-line-delete-2026-09-10.md; local reports/.../line-delete.
+Native1924 oblique modeling, Sketch03 has old80mm plus two17.2694mm lines;
+other items remain hidden. Clone6492 portrait reopened model, one2mm ground line.
+Exact next: commit/push verified Delete correction; then QA06 Return and
+canvas double-click completion, capture before/after and preserve segments.
+Do not infer cancellation from missing native hover previews. QA06 stays partial.
+Inventory3passed/0failed/1deviceblocked/52incomplete; QA04 closed c186931.
+IPA05be744 unchanged; no install/merge/restart/security changes/duplicate workers.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

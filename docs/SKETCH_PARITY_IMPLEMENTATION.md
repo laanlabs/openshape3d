@@ -1514,3 +1514,13 @@ in native and tested clone. Scoped product fix0c8c268; initial6/6 plus revised
 Inventory3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
 Continue QA-06 remaining Backspace/double-click/tool-switch cancellation routes;
 no device-ready/full-parity claim. Receipt testing/sketch-parity-empty-entry-2026-09-10.md.
+
+## September 10 — QA-06 Line Delete shortcut
+
+Native released-line Delete disarms Line without deleting committed geometry.
+Clone previously left Line armed; missing bare Delete route is corrected, only
+while Line is active and no dimension editor owns the key. Clean corrected 3/3
+(two state/history unit checks, tap-chain UI) follows one compile-only fixture
+failure. Actual key, one-step Undo/Redo, Line→Arc and paired saved reopen verified.
+Pending native hover, Return and double-click routes remain open; QA-06 partial.
+[Receipt](testing/sketch-parity-line-delete-2026-09-10.md).
