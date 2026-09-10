@@ -270,6 +270,14 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
         attach(app, "center-rectangle")
+        let centerLock = app.buttons["RectangleCenterLockToggle"]
+        XCTAssertTrue(centerLock.waitForExistence(timeout: 3))
+        XCTAssertEqual(centerLock.label, "Lock center")
+        centerLock.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(NSPredicate(format: "exists == false").evaluate(with: centerLock)
+            || XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: centerLock)], timeout: 3) == .completed)
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 0)
+        attach(app, "released-center-locked")
         app.buttons["Exit Sketching"].tap()
         // This is inside the reflected quadrant, not a diagonal rectangle
         // starting at (.52, .48).

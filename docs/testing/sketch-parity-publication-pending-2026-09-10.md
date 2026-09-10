@@ -162,3 +162,11 @@ single-attempt, glyph-native-setting-after, glyph-clone-top-selected (before),
 glyph-clone-after, glyph-clone-reopen-selected, glyph-native-settings-restored
 (os3d-qa08 prefix,PNG). Native finalreopen colors nowverified in
 glyph-native-unselected. Exacthashes localSHA256SUMS, publication466/38unchanged.
+
+### QA-09 center release / history / saved recovery
+
+Local-only September10 evidence in `reports/.../center-matrix`, SHA256SUMS.
+Paired release diagnosis and post-fix selected halo/direct Lock, one-step
+Lock Undo/Redo and final gallery reopen. Clean combined26/26 after retained
+zero-test and failed focused attempts. Receipt: center-matrix-2026-09-10.md.
+Do not count as published: Google signed out, last466/master38 unchanged.

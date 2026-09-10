@@ -7985,7 +7985,8 @@ final class EditorViewModel {
                 commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
                 clearRectanglePlacement()
                 selectedSketchEntityIDs = [entity.id]
-                selectedSketchPoints.removeAll()
+                selectedSketchPoints = rectangleType == .center
+                    ? [.init(entityID: entity.id, role: .center)] : []
             }
         } else {
             selectedSketchEntityIDs.removeAll()
@@ -8191,7 +8192,9 @@ final class EditorViewModel {
     static let rectangleCenterLockHitSize: CGFloat = 22
 
     var sketchRectangleCenterLockMarkers: [SketchPointMarker] {
-        guard mode.isSketching, mode.sketchTool == nil,
+        let releasedCenter = mode.sketchTool == .rect && rectangleType == .center
+            && !hasPendingRectangle && pendingEntity == nil
+        guard mode.isSketching, mode.sketchTool == nil || releasedCenter,
               editingDimension == nil, !sketchTransformActive else { return [] }
         return sketchRectangleCenterMarkers.filter(\.isSelected)
     }
@@ -8218,6 +8221,7 @@ final class EditorViewModel {
         toggleSketchSelectionLock()
         if !unlocking && canUnlockSketchSelection {
             selectedSketchPoints = []
+            selectedSketchEntityIDs = []
             selectedConstraintID = nil
         }
     }
@@ -10483,7 +10487,8 @@ final class EditorViewModel {
         // Open numeric input only after an explicit dimension tap.
         if tool == .circle || tool == .rect || tool == .polygon {
             selectedSketchEntityIDs = [entity.id]
-            selectedSketchPoints.removeAll()
+            selectedSketchPoints = tool == .rect && rectangleType == .center
+                ? [.init(entityID: entity.id, role: .center)] : []
         }
         if tool == .line {
             let first = chainStart ?? start
@@ -11974,7 +11979,9 @@ final class EditorViewModel {
         // corners, so width/height are axis distances between them, not the
         // corner-to-corner `.distance` — that would dimension the diagonal.
         if let rect = selectedRectEntities.first, selectedRectEntities.count == 1,
-           lines.isEmpty, radii.isEmpty, pts.isEmpty {
+           lines.isEmpty, radii.isEmpty,
+           pts.isEmpty || (mode.sketchTool == .rect && rectangleType == .center &&
+                selectedSketchPoints == [.init(entityID: rect.id, role: .center)]) {
             return (.horizontal, Self.rectCornerRefs(rect.id))
         }
         return nil

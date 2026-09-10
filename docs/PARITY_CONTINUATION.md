@@ -1,24 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 13:23 EDT
+## Active continuation — September 10, 13:53 EDT
 
-HEAD628f48d pushed (partial-edgecolors); sideLockglyph correction committingnow.
-No runner/inputcall. Finalglyph31/31clean8.192s after initial30pass/1staleinchlabel
-fixturefailure; bothxcresults retained. Native/clone selectedtopedge no padlock
-midpoint, normalhandle/contextUnlock; cloneUnlockUndoRedo/finalreopenverified.
-NativeAlwaysShowConstraints restoredOFF verified; settingspopover remainsopen.
-Native finalreopenunselectedcolors recoveredbyactualedgepickthenfarblank;
-previousretainedselectionlimitationclosed for thissample, no globalinputclaim.
-CloneSketch1 upper1.865×1.248toplocked selected, lowerfreecenterwidthdimension.
-NativeSketch04fourrectangles, upperleft14×10toplockedunselected.
-Evidenceallglyph/edges copiedhashed in reportdiagonal-matrix; receipt
- docs/testing/sketch-parity-diagonal-matrix-2026-09-10.md, publicationqueue same date.
-Next: pushglyphcommit; continue QA09 centerrectangle remaining origin/dimension
-matrix. Read caseclosure criteria/receipts before repeating oldchecks. QA08still
-partial for broader exactUI/publication. Inventory4passed/0failed/1deviceblocked/
-51incomplete. Google signedout466/master38 lastverified; retain tabs/localqueue.
-Immutable05be744IPA unchanged. No merge/deviceinstall/Macrestart/securitychanges.
-Unrelatedidentity/memoryfilespreserved. Sole desktop/buildowner, no duplicateworker.
+HEAD3eb9c9b pushed; center-release correction and QA09 docs ready to commit.
+No runner active. Final combined26/26 passed (87.869s):
+`/tmp/os3d-qa09-center-release-combined-20260910.xcresult`. Earlier zero-test
+selector and focused readout regression retained. Live release halo/padlock/
+dual readouts, direct center Lock, paired one-step Undo/Redo and gallery reopen
+verified. Evidence copied/hashed in reports/.../center-matrix; full receipt
+`docs/testing/sketch-parity-center-matrix-2026-09-10.md`.
+
+Exact next: commit/push verified release correction, then direction-dependent
+center leaders (native up-right below/right; down-left above/left; clone always
+below/left), remaining QA09 quadrant/constraint acceptance. Native Sketch04
+reopened, six rectangles retained; old top edge selected, newest center green.
+Clone Sketch1 reopened, two rectangles and center Locks intact, Items open.
+No pending drawing. UI tests replaced earlier half-sizing clone fixture; do not
+claim its exact final reopen. Native6×4 persistence verified.
+
+Google signed out; illustrated466/master38 last verified, later evidence local
+only. Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA
+untouched; no merge/device install/restart/security changes. Sole desktop/build
+owner; unrelated identity files preserved.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

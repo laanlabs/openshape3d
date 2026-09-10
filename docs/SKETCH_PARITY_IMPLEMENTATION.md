@@ -1623,3 +1623,13 @@ September10 follow-up: selected-free rectanglecenter halo added after pointer-aw
 September10: axis-rectangle supporting-edge colors corrected using cached nullspace coordinates. Left/top partial-Lock native samples and clone selected/unselected/Unlock/history/reopen verified; final36/36 clean. Native finalreopen retains locked corners; deselection capture unresolved. QA08 remains partial for other glyph visibility/publication. Same receipt and local queue,466/master38 last published.
 
 September10: axisrect sideLock midpointglyph suppressed after paired selectededge/AlwaysShowConstraints comparison; contextualUnlock/history preserved, final31/31 after staleinchfixturecorrection, livefinalreopenpassed. Native visibilitypreference restored. QA08partial/publicationblocked. Same diagonal-matrixreceipt.
+
+### September10 — center rectangle release control
+
+Fresh center rectangles now select their center on release (tap and drag),
+retaining width/height readouts and direct center padlock while the tool stays
+armed. Lock clears both selection sets; native paired release/Lock/history
+and saved recovery verified. Final combined26/26 after a retained readout
+regression and corrected selector. QA09 remains partial for direction-dependent
+leaders and remaining matrix; Google publication blocked by sign-out. Receipt:
+`testing/sketch-parity-center-matrix-2026-09-10.md`.
