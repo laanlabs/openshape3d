@@ -33,6 +33,14 @@ struct SketchPointStateOverlay: View {
                     if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
                         Circle().fill(marker.isSelected ? Color.orange : (marker.state == .free ? Self.free : Self.constrained))
                             .frame(width: 5, height: 5)
+                            .background {
+                                // Native distinguishes the selected movable center
+                                // from a selected locked point even away from hover.
+                                if marker.isSelected && marker.state == .free {
+                                    Circle().fill(Color.orange.opacity(0.25))
+                                        .frame(width: 16, height: 16)
+                                }
+                            }
                             .position(x: pt.x, y: pt.y)
                             .accessibilityIdentifier("RectangleCenterControl")
                     }

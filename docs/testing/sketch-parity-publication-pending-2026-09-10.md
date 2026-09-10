@@ -133,3 +133,7 @@ Pending final paired images (all hashes in report SHA256SUMS):
 - os3d-qa08-lifecycle-clone-final-reopen.png
 
 Illustrated466/master38 remain last verified; Google signedout. No duplicate insertion or tab reset. Remaining QA08 partial-edge colors and free-versus-locked center halo require separate comparisons. IPAunchanged, physical inputunverified.
+
+### Selected free-center halo — queued, not inserted
+
+Native halo persists awayfrompointer onlyselectedfree, notselectedlocked; clone nowmatches this cue. CleanexistingUI1/1 and exact-build live verified. No core/hit/geometry change; no physicaldevice pixel-equivalence claim. Pending images: `os3d-qa08-halo-native-locked-away.png`, `os3d-qa08-halo-native-free-away.png`, `os3d-qa08-halo-clone-locked-after.png`, `os3d-qa08-halo-clone-free-after.png`. Exact hashes in retained SHA256SUMS. Google signedout; counts unchanged466/38.
