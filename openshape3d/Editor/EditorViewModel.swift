@@ -850,14 +850,30 @@ final class EditorViewModel {
             let unselected = sketch.entities.filter { !selectedSketchEntityIDs.contains($0.id) }
             // Per-entity definition state, only for the sketch being edited —
             // from the memo; a miss solves in the background, never here.
-            let states: [UUID: Bool]? = (sketch.id == activeSketchID)
-                ? sketchDefinitionReport(for: sketch)?.states : nil
+            let definition = (sketch.id == activeSketchID)
+                ? sketchDefinitionReport(for: sketch) : nil
+            let states = definition?.states
             func committedColorFor(_ id: UUID) -> SIMD4<Float> {
                 guard let states else { return committedColor }
                 return (states[id] ?? false) ? definedColor : underDefinedColor
             }
+            func appendRectangleEdges(_ entity: SketchEntity) {
+                for index in 0..<4 {
+                    guard let edge = RectangleConstruction.axisEdge(entity, index: index) else { continue }
+                    let color = definition?.rectangleEdges[entity.id].map {
+                        $0[index] ? definedColor : underDefinedColor
+                    } ?? committedColorFor(entity.id)
+                    let line = SketchEntity.line(id: entity.id, a: edge.a, b: edge.b)
+                    let segments = construction.contains(entity.id)
+                        ? SketchTessellator.dashedSegments(for: [line], on: sketch.plane, worldUnitsPerPoint: worldPerPoint)
+                        : SketchTessellator.segments(for: [line], on: sketch.plane)
+                    scene.sketchLines.append(SketchLineBatch(segments: segments, color: color))
+                }
+            }
+            let axisRectangles = unselected.filter { definition?.rectangleEdges[$0.id] != nil }
+            for entity in axisRectangles { appendRectangleEdges(entity) }
             // Solid committed entities, grouped by state color.
-            let regularUnselected = unselected.filter { !construction.contains($0.id) }
+            let regularUnselected = unselected.filter { !construction.contains($0.id) && !axisRectangles.contains($0) }
             for (color, group) in Dictionary(grouping: regularUnselected, by: { committedColorFor($0.id) }) {
                 let segs = SketchTessellator.segments(for: group, on: sketch.plane)
                 if !segs.isEmpty {
@@ -865,7 +881,7 @@ final class EditorViewModel {
                 }
             }
             // Dashed construction entities, grouped by state color.
-            let constructionUnselected = unselected.filter { construction.contains($0.id) }
+            let constructionUnselected = unselected.filter { construction.contains($0.id) && !axisRectangles.contains($0) }
             for (color, group) in Dictionary(grouping: constructionUnselected, by: { committedColorFor($0.id) }) {
                 let segs = SketchTessellator.dashedSegments(for: group, on: sketch.plane, worldUnitsPerPoint: worldPerPoint)
                 if !segs.isEmpty {
@@ -877,9 +893,7 @@ final class EditorViewModel {
             for entity in edgeSelected {
                 guard let pick = selectedAxisRectangleEdge,
                       let edge = RectangleConstruction.axisEdge(entity, index: pick.index) else { continue }
-                scene.sketchLines.append(SketchLineBatch(
-                    segments: SketchTessellator.segments(for: [entity], on: sketch.plane),
-                    color: committedColorFor(entity.id)))
+                appendRectangleEdges(entity)
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.segments(for: [.line(id: entity.id, a: edge.a, b: edge.b)], on: sketch.plane),
                     color: selectedColor))

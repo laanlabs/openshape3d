@@ -34,6 +34,27 @@ final class SketchPointStatesTests: XCTestCase {
                        [.locked, .locked, .locked, .locked])
     }
 
+    func testAxisRectangleSupportingEdgesRemainDeterminedWithSlidingEndpoints() {
+        for end in [SIMD2<Double>(12, 9), SIMD2<Double>(-8, -3)] {
+            let id = UUID()
+            var sketch = Sketch(plane: .ground, entities: [
+                .rect(id: id, min: SIMD2(2, 3), max: end)])
+            XCTAssertEqual(SketchSolverBridge.definitionReport(sketch).rectangleEdges[id], [false, false, false, false])
+            for edge in 0..<4 {
+                sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: edge)])]
+                var expected = [true, true, true, true]
+                expected[(edge + 2) % 4] = false
+                let report = SketchSolverBridge.definitionReport(sketch)
+                XCTAssertEqual(report.rectangleEdges[id], expected)
+                XCTAssertEqual(report.states[id], false, "The opposite edge still moves")
+            }
+            sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+            XCTAssertEqual(SketchSolverBridge.definitionReport(sketch).rectangleEdges[id], [false, false, false, false])
+            sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole)])]
+            XCTAssertEqual(SketchSolverBridge.definitionReport(sketch).rectangleEdges[id], [true, true, true, true])
+        }
+    }
+
     private func key(_ id: UUID, _ role: PointRole) -> SketchPointKey {
         SketchPointKey(entityID: id, role: role)
     }

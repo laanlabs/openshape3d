@@ -391,6 +391,8 @@ nonisolated enum SketchSolverBridge {
     struct DefinitionReport: Equatable, Sendable {
         var states: [UUID: Bool]
         var dof: Int
+        /// Supporting-line determinacy in axisEdge order; length may remain free.
+        var rectangleEdges: [UUID: [Bool]] = [:]
     }
 
     static func definitionReport(_ sketch: Sketch) -> DefinitionReport {
@@ -409,7 +411,15 @@ nonisolated enum SketchSolverBridge {
         for e in sketch.entities {
             states[e.id] = entityDetermined(e, sys: sys, determined: analysis.determined)
         }
-        return DefinitionReport(states: states, dof: analysis.dof)
+        var edges: [UUID: [Bool]] = [:]
+        for case let .rect(id, _, _) in sketch.entities {
+            guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+                  let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { continue }
+            // Horizontal sides depend on y, vertical sides on x. A free
+            // endpoint may slide along a determined supporting line.
+            edges[id] = [2*a+1, 2*b, 2*b+1, 2*a].map { analysis.determined[$0] }
+        }
+        return DefinitionReport(states: states, dof: analysis.dof, rectangleEdges: edges)
     }
 
     // MARK: - System model

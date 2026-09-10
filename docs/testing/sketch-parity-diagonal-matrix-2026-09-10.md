@@ -297,3 +297,45 @@ All image originals and SHA256SUMS retained in report diagonal-matrix. Google pu
 69d3ad3 pushed successfully. Follow-up native pointer moved away from selectedlocked center: nohalo (`halo-native-locked-away`). DirectUnlock then moveaway: selectedfree center still hasorangehalo (`halo-native-free-away`). Clone samefree-selected state lacks it (`halo-clone-free-before`). Thus not generic hover or everyselectedpoint. Added16pt/25% orangehalo onlyselectedfree rectanglecenter; existing5pt core/hit bounds unchanged. Existing centerUIworkflow under regression; no new paint-mirroring test. Evidence copied/hashed locally; Google signedout.
 
 Halo correction verified: existing center drag/Lock/sizing/history UI passed clean1/1(56.896s) at `/tmp/os3d-qa08-center-halo-20260910.xcresult`. Exact-build live savedlockedcenter selected→nohalo; directUnlock→freecenter retainsorangehalo afterpointermovesaway (`halo-clone-locked-after`, `halo-clone-free-after`), matching native state-specific sample. Hit bounds/core/geometry unchanged. Comparison establishes the visual state cue, not exact physical iPad/macOS pixel equivalence. No runner. Documentation local-only pending sign-in; IPA unchanged.
+
+### Partial-edge-color continuation/input diagnosis
+
+Halo0877725 pushed. More/Rectangle native armed; first drag rejected unsupported `--foreground` option, noaction. Valid900ms drag650,280→800,390 and click650,280 only movedbluecursor/guidepoint; no fresh rectangle exists. Earlier pendingpoint description withdrawn. Escape disarmedtool; blankclicks/secondEscape left centerselection. Explicittargeted foreground/global/synthOnly click now pendingexec40943. Read-only capture attempted whilecallpending returnederrorwithimage, notsuccessfulinputverification. No appfailure or edgecolorrule inferred; originalsintact.
+
+### Partial-edge colors: recovered native input and perpendicular confirmation
+
+The explicit synthOnly input call40943 completed after ~31s with no visible
+selection change. No native geometry failure inferred. Exit Sketch/re-enter
+Sketch04, clear selection, re-arm Rectangle restored the same draw route; a fresh
+14×10 rectangle was created, preserving the prior three rectangles. No restart.
+Native left Lock: left/top/bottom green, right blue. Native top Lock: top/left/right
+green, bottom blue. Clone isolated left Lock: all four edges blue despite correct
+green left corners. This confirms supporting-line rather than whole-entity color
+determinacy for axis rectangles. Evidence: edges-native-fresh-recovered,
+edges-native-left-settled, edges-native-top-locked, edges-clone-left-locked PNGs
+under the retained diagonal-matrix report directory, SHA256SUMS updated.
+Native blank deselection added a history step: first Undo restored selected edge,
+second removed Lock (left-undo/left-undo2 captures); this does not invalidate the
+previous direct-center-toggle one-step history sample.
+Correction uses the existing background DefinitionReport nullspace coordinates,
+not a new synchronous solve. Focused regression currently running; no post-fix
+live claim or publication. Google remains signed out, last verified466/master38.
+
+Initial edge-color regression clean35/35,0failed/skipped (30.531s),
+/tmp/os3d-qa08-edge-colors-20260910.xcresult. Exact-build saved left Lock renders
+left/top/bottom green, right blue; selecting left keeps orange selected ink and
+other green/blue edges. Unlock returns allblue; top Lock yields top/left/right
+green, bottomblue. Clone toolbarUndo removesLock/returnsblue, Redo restores
+threegreen; galleryreopen via Items sketch icon retains same colors/geometry.
+Initial model doubleclicks fit camera, item-name doubleclick selected editable
+text; neither entered sketch. Items sketch ICON click is the successful route.
+Native topLock Undo afterblankdeselect takes2steps (selection thenLock); Redo
+restoresgreen. Galleryreopen retainedfourrectangles andgreen topcorners. After
+NormaltoSketch, blankclicks failedtodeselect; those final captures prove retained
+Lock/corners, NOT a new unselected-color comparison. Earlier unselected paired
+colors remain valid. No native geometryfailure inferred.
+Added a scene-cache integration assertion to ensure threegreen/oneblue batches
+and preservedfreeoppositeedge during single-edge selection. Finalcombinedrun
+41198 nowowns simulator; no product change afterlivecomparison.
+
+Final combined edge-color run clean36/36,0failed/skipped,7.889s: `/tmp/os3d-qa08-edge-colors-final-20260910.xcresult`. No runner remains. Product code unchanged since paired live comparison. Native finalreopen repeated blank/farblank still leaves selected16edges; savedLock/corners verified, unselectedfinalcapture notclaimed.

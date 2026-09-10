@@ -137,3 +137,18 @@ Illustrated466/master38 remain last verified; Google signedout. No duplicate ins
 ### Selected free-center halo — queued, not inserted
 
 Native halo persists awayfrompointer onlyselectedfree, notselectedlocked; clone nowmatches this cue. CleanexistingUI1/1 and exact-build live verified. No core/hit/geometry change; no physicaldevice pixel-equivalence claim. Pending images: `os3d-qa08-halo-native-locked-away.png`, `os3d-qa08-halo-native-free-away.png`, `os3d-qa08-halo-clone-locked-after.png`, `os3d-qa08-halo-clone-free-after.png`. Exact hashes in retained SHA256SUMS. Google signedout; counts unchanged466/38.
+
+### Axis rectangle partial-edge colors — queued, not inserted
+
+Paired native left/top Locks determine three supporting lines; clone corrected
+whole-entityblue to per-edgegreen/blue. Initial35/35 and exact-build colors,
+Unlock/Undo/Redo, clone finalreopen verified. Native finalreopen retains locked
+corners; unselectedreopen colorcapture blocked by retainedselection. Queue:
+`os3d-qa08-edges-native-left-settled.png`, `os3d-qa08-edges-native-top-locked.png`,
+`os3d-qa08-edges-clone-left-locked.png` (before),
+`os3d-qa08-edges-clone-openitem.png`,
+`os3d-qa08-edges-clone-top-locked-after.png`,
+`os3d-qa08-edges-clone-final-reopen.png`,
+`os3d-qa08-edges-native-final-reopen-clear.png` (selected state only).
+All exact hashes retained in diagonal-matrix/SHA256SUMS. Google signedout,
+publication counts unchanged466/master38.

@@ -1,27 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 12:41 EDT, free-center halo
+## Active continuation — September10 13:13 EDT
 
-HEAD69d3ad3 pushed: direct center padlock/lifecycle correction. Final33/33 clean,
-paired mouse/touch-equivalent action, one-step history and galleryreopen verified.
-Full receipt testing/sketch-parity-diagonal-matrix-2026-09-10.md retains failures.
-Inventory4passed/0failed/1deviceblocked/51incomplete; immutable05be744IPAunchanged.
-Google signed-out remains external publication blocker; illustrated466/master38
-lastverified, later evidence local-only, pendingqueue updated. Tabs preserved.
-Next concrete native comparison: selectedfree center retains orangehalo after
-pointer moves away; selectedlocked center has nohalo. Clone lacksfreehalo.
-Captured halo-native-locked-away, halo-native-free-away, halo-clone-free-before.
-Added16pt orange25% halo ONLY selectedfree rectanglecenter; existing5pt core/hit
-bounds unchanged. Cleanexisting centerUI1/1(56.896s) at
-/tmp/os3d-qa08-center-halo-20260910.xcresult; runner62967 completed/no runner.
-Exactbuild live selectedlocked=nohalo, directUnlock free=halo withpointeraway.
-Evidence copied/hashed and queuedlocally. Nowcommitpushhalo/docs, then inspect
-native/clone partial-left-edgeLockcolors on isolated free rectangle beforefixing.
-Native1924 middle9×12 FREE/selected; clone7715 halfwidth FREE/selected.
-Use explicit existing GUI bridge to avoid automatic unpermitteddaemonfallback:
---bridge-socket '/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'
-Appswitchbeforeforegroundglobalclicks; see --no-web-focus. No competingdesktop
-worker, no newwatchdog, noMacrestart/securitychange/deviceinstall/merge.
+Axis-rectangle partial-edge color correction verified, committing now after0877725.
+Finalcombined36/36,0fail/skip,7.889s:
+/tmp/os3d-qa08-edge-colors-final-20260910.xcresult. Initial35/35 also clean.
+No runner/input call remains. Clone needs relaunch after finalunit run.
+Paired left/top Lock supporting-line colors pass: threegreen, oppositeblue.
+Clone selectedorange, Unlockallblue, toolbarUndo/Redo, finalgalleryreopen pass.
+Native same color samples/history pass; afterblankdeselect Undo firstrestores
+selection, secondremovesLock. Native galleryreopen retainsLock/topgreencorners,
+but blankclicks do notclear16edge selection even afterNormaltoSketch. Keep this
+input/state limitation distinct; no geometryfailure or finalunselectedcapture.
+Native Sketch04 has4rectangles, freshupperleft14×10toplocked. Clone savedSketch1
+has2rectangles, upper1.865×1.248toplocked, lowerfreecenter/earlierwidthdimension.
+Evidence /tmp/os3d-qa08-edges-* copied/hashed in reportdiagonal-matrix;
+receipt docs/testing/sketch-parity-diagonal-matrix-2026-09-10.md.
+Next: commit/push this verifiedfix, reportparent, resume QA08 glyph visibility
+comparison. Native ExitSketch/re-enter recovered priorstate; use scoped route
+only, preserve sketches/reporttabs. No Mac/security changes/deviceinstall/merge.
+Google signedout, lastverifiedillustrated466/master38; queue local. Inventory
+4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA unchanged.
+Unrelated IDENTITY/SOUL/USER/memory untracked preserved. No duplicateworker.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
