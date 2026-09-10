@@ -62,6 +62,47 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testSystemKeyboardReplacesSeedAndPreservesDraftAcrossKeypadToggle() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.4))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.4)))
+        let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let original = label.label
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["DimensionSystemKeyboard"].tap()
+        let field = app.textFields["DimensionField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        field.typeText("1")
+        XCTAssertEqual(field.value as? String, "1", "Keyboard entry replaces the untouched seed")
+        let keypad = app.buttons["DimensionNumericKeyboard"]
+        XCTAssertTrue(keypad.exists, "Keyboard field must offer a route back to the numeric pad")
+        keypad.tap()
+        XCTAssertTrue(app.buttons["Keypad-2"].waitForExistence(timeout: 3))
+        XCTAssertEqual(field.value as? String, "1")
+        app.buttons["Keypad-2"].tap()
+        XCTAssertEqual(field.value as? String, "12", "A real draft is not replaced on keyboard switches")
+        app.buttons["DimensionSystemKeyboard"].tap()
+        field.typeText("+")
+        XCTAssertEqual(field.value as? String, "12+")
+        field.typeText("\n")
+        XCTAssertTrue(app.staticTexts["DimensionValidationMessage"].waitForExistence(timeout: 3))
+        XCTAssertTrue(field.exists, "Invalid Return preserves a recoverable draft")
+        field.typeText("1")
+        XCTAssertEqual(field.value as? String, "12+1")
+        field.typeText("\n")
+        XCTAssertFalse(field.exists)
+        XCTAssertTrue(label.label.contains("13"))
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, original, "One Undo restores geometry before numeric edit")
+    }
+
     /// Painted left circle rim, away from both the diameter annotation and the
     /// radial control above the circle. The radial control is 30 points beyond
     /// the top rim, so its distance from the center marker recovers the radius.

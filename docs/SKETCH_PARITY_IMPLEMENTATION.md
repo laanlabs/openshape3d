@@ -1295,3 +1295,19 @@ Final count follow-up: clean11/11, refined opposite-edge label live verified,
 paired geometry reopen preserved; native reopens as selected edges whereas clone
 retains polygon count/radius edit identity. Illustrated288/all3finalhashes/no loss
 and master38dated-note export verified. Next system-keyboard matrix.
+
+## September10 — keyboard-route recovery
+
+Confirmed native first-key seed replacement/123 toggle differed from clone
+append/no-return control. Fixed untouched-seed focus selection, return-to-pad
+while preserving real drafts, variables visibility, and same-session focus
+after rejected Return. Final clean11/11 (9unit+2UI), after retained red append
+and first-fix focus failures. Live first input, both routes, invalid immediate
+recovery, commit and Undo passed paired. Formula indicator, mode persistence
+and sampled line-anchor difference remain separate open comparisons.
+[Receipt](testing/sketch-parity-system-keyboard-2026-09-09.md). Diagnosis292verified;
+final6images inserted once, export pending. ImmutableIPA unchanged.
+
+Keyboard final publication verified298placements/all6hashes/no predecessorloss;
+master38datednote and predecessor retained. No full-row closure; controlled
+line-anchor comparison follows.

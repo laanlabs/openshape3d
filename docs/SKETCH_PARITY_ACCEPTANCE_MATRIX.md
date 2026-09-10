@@ -203,7 +203,7 @@ mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM
 
 ### QA-33 — Invalid numeric input
 
-Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/negative, empty/division/syntax retention, valid recovery, click-away/Escape and Undo captured. Parser/keypad clean22/22 at8eb45f9. Selected-polygon count2 refusal and3.5->3 recovery/history live; corrected9/9 after a fixture failure, expanded final11/11. Native high-count frames lagged; exact upper limit and system-keyboard matrix remain open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md.
+Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/negative, empty/division/syntax retention, valid recovery, click-away/Escape and Undo captured. Parser/keypad clean22/22 at8eb45f9. Selected-polygon count2 refusal and3.5->3 recovery/history live; corrected9/9 after a fixture failure, expanded final11/11. Native high-count frames lagged; exact upper limit and system-keyboard layouts remain open. Sept10 keyboard seed/toggle/invalid-Return immediate recovery and Undo passed paired with final11/11; broader mode persistence/formula behavior remains open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md and testing/sketch-parity-system-keyboard-2026-09-09.md.
 
 ### QA-34 — Locked/unlocked value
 

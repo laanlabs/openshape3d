@@ -11,6 +11,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct SketchDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
@@ -476,6 +477,7 @@ private struct DimensionField: View {
         content
             .onAppear { text = viewModel.editingDimension?.text ?? "" }
             .onChange(of: text) { _, value in
+                if usingSystemKeyboard { initialValueSelected = false }
                 if let sessionID = viewModel.editingDimension?.sessionID {
                     viewModel.updateDimensionDraft(value, sessionID: sessionID)
                 }
@@ -550,10 +552,37 @@ private struct DimensionField: View {
                 .allowsHitTesting(usingSystemKeyboard)
                 .focusable(usingSystemKeyboard)
                 .submitLabel(.done)
-                .onSubmit { viewModel.commitDimensionEdit(text) }
+                .onSubmit {
+                    let sessionID = viewModel.editingDimension?.sessionID
+                    viewModel.commitDimensionEdit(text)
+                    if viewModel.editingDimension?.validationMessage != nil {
+                        // Return normally resigns UIKit focus. A rejected draft
+                        // stays editable without an extra tap, as in native.
+                        focused = false
+                        DispatchQueue.main.async {
+                            if usingSystemKeyboard,
+                               viewModel.editingDimension?.sessionID == sessionID {
+                                focused = true
+                            }
+                        }
+                    }
+                }
                 .accessibilityIdentifier("DimensionField")
+                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                    guard usingSystemKeyboard, initialValueSelected,
+                          let field = notification.object as? UITextField,
+                          field.text == text else { return }
+                    // SwiftUI establishes the caret after the begin-editing
+                    // notification. Select only this editor's untouched seed
+                    // after that focus turn; real drafts keep their insertion point.
+                    DispatchQueue.main.async {
+                        guard field.isFirstResponder, initialValueSelected,
+                              field.text == text else { return }
+                        field.selectAll(nil)
+                    }
+                }
 
-            if !usingSystemKeyboard {
+            Group {
                 // Shapr3D puts a variables affordance in the value field itself,
                 // left of the keyboard toggle: it offers to mint a variable from
                 // what you typed, and to reference one you already have.
@@ -582,7 +611,9 @@ private struct DimensionField: View {
                         .foregroundStyle(.secondary)
                 }
                 .accessibilityIdentifier("DimensionVariables")
+            }
 
+            if !usingSystemKeyboard {
                 Button {
                     usingSystemKeyboard = true
                     focused = true
@@ -593,6 +624,16 @@ private struct DimensionField: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("DimensionSystemKeyboard")
             } else {
+                Button {
+                    focused = false
+                    usingSystemKeyboard = false
+                } label: {
+                    Image(systemName: "123.rectangle")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Numeric keypad")
+                .accessibilityIdentifier("DimensionNumericKeyboard")
                 // With the system keyboard up the pad is gone, so the commit
                 // control has to live here instead.
                 Button {

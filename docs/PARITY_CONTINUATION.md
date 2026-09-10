@@ -1,35 +1,29 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 9, 23:45 EDT
+## Active continuation — September10, 00:11 EDT
 
-HEAD8eb45f9 pushed; selected polygon count/radius-leader correction and documents
-are ready for checkpoint commit; final publication export verified.
-Initial polygon8/1 failure was a fixture scientific-notation expectation; corrected
-9/9, then expanded final clean11/11 at /tmp/os3d-polygon-count-ui-20260909.xcresult.
-No test/build runner. This session exclusively owns desktop/build. Preserved
-unrelated identity files/memory. Immutable05be744 IPA unchanged; no device install.
+HEADbda21f7 pushed. Dirty keyboard-route correction in SketchDimensionOverlay,
+new DimensionUITests regression, receipt/ledger/checkpoint. Initial red append
+failure and first-fix invalidReturn focus failure retained; final clean11/11 at
+/tmp/os3d-system-keyboard-focus-20260910.xcresult. No runner. Exclusive owner.
 
-Live count2 refuses unchanged,3.5->3 preserves center/radius,Undo6/Redo3. Final
-triangle label follows actual opposite edge. Fresh Polygon-armed clone has no
-ring, matching native armed state. Reselected/disarmed ring not compared yet.
-Paired gallery reopen retains geometry: clone3/R1, native3edges/perimeter77.9423
-consistent withR15; native construction count/radius readouts do not return in
-this sample, so reopened editing is not identical. Native256 and999 settle late;
-no high-count boundary conclusion. Defensive clone ceiling10000 is a known
-implementation limit, not native-observed.
-
-Illustrated288 placements/all3 final hashes/no predecessor loss verified at
-/tmp/os3d-count-final-publication.docx. Master38 images/new dated heading once
-and prior note retained at /tmp/os3d-count-master.docx.
-Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md; local
-reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/.
-Next commit/push correction, then paired system-keyboard
-entry/recovery/dismissal matrix. Remaining upper count boundary/reselected-control
-comparison and broader42partial11deferred acceptance. Counts2passed/0failed/
-1device-blocked/53incomplete; not completed parity.
-Native1924 reopened Sketch02, normalTop, selected triangle3edges. Clone6492
-Untitled2 reopened triangle3/R1 selected; old5147 must not be used.
-Peekaboo see healthy; use foreground global coords after correct window focus.
+Paired live keyboard first-value replacement,123 toggle preserves draft, invalid
+Return immediate correction, commit andUndo verified. Native2+->2+1 then3/Undo20;
+clone1+->1+0.5 then1.5/Undo2. Native f(x) arithmetic marker and input-mode persistence
+remain distinct; sampled nativeleft vs clonecenter line sizing needs controlled
+fresh/reselected direction comparison before solverchange.
+Illustrated298 placements/all6 final hashes/no predecessor loss verified at
+/tmp/os3d-keyboard-final-publication.docx. Master38 dated addendum once, prior polygon note retained, export-verified
+at /tmp/os3d-keyboard-master.docx.
+Next commit/push keyboard correction, then paired controlled
+line-length anchor checks (fresh forward/reverse, reselected, constraints).
+Receipt docs/testing/sketch-parity-system-keyboard-2026-09-09.md.
+Evidence reports/openshape3d-core-sketch-milestone-2026-09-08/system-keyboard/.
+Native1924 Sketch02 normalTop line20mm afterUndo, no field. Clone6492 Untitled2
+ground line2mm afterUndo, Line armed. Use global foreground and type --foreground.
+Counts2passed/0failed/1device-blocked/53incomplete(42partial11deferred). Preserved
+05be744 IPA excludes these later corrections; no install/physical validation.
+Preserve identity files/memory and old stalled report tabs. No restart/merge.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
