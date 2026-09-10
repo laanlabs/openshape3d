@@ -1,8 +1,8 @@
 # Parity continuation checkpoint
 
-September 9 ~22:20 EDT. Final regression correction revision `05be744` is pushed
-to PR #29. The working tree contains only the final artifact/publication
-documentation edits plus preserved untracked `IDENTITY.md`, `SOUL.md`, and
+September 9 ~22:30 EDT. Final regression correction revision `05be744` and final
+artifact/publication documentation revision `7f6b3e3` are pushed to PR #29.
+The working tree contains only preserved untracked `IDENTITY.md`, `SOUL.md`, and
 `USER.md`. No test/build worker is running; this session exclusively owns the
 booted simulator and native Shapr3D.
 
@@ -30,10 +30,11 @@ The first master append briefly replaced predecessor content; it was caught by
 the export gate, undone, and the restoration verified before publication was
 counted. Receipt: `reports/.../final-gate/publication-verification-2026-09-09.txt`.
 
-Exact next: commit/push this documentation checkpoint and hand off the identified
-IPA plus physical A/B checklist. Preserve the full 56-case map: two passed, zero
-failed, one device-blocked, and 53 incomplete (42 partial, 11 explicitly deferred).
-No merge; device installation and Pencil/touch remain Jason's physical-device gate.
+Exact next: hand off the identified IPA plus physical A/B checklist. Preserve the
+full 56-case map: two passed, zero failed, one device-blocked, and 53 incomplete
+(42 partial, 11 explicitly deferred). No merge; device installation and
+Pencil/touch remain Jason's physical-device gate. Resume evidence-led fixes if
+that device comparison exposes a core-sketch failure.
 
 ## Earlier checkpoint history
 
