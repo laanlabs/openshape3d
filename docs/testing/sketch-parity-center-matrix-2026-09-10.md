@@ -510,3 +510,33 @@ relaunch/galleryItems retains1.9795×0.5/centerLock; finalnativegallery8×4.
 Illustrated530/all6hashes/no predecessor text/image loss; master38datednote
 verified: `/tmp/os3d-qa09-pointleaders-{published,master}.docx`. Remaining
 historyselection-clearing, extraannotation and broaderQA09 stillopen.
+
+
+## Migrated corner history selection cleanup — September 10
+
+On `724758e`, a fresh paired corner rotation confirmed native Undo/Redo clears
+the selected endpoint and dimensions; clone Undo restored geometry but retained
+the endpoint/labels. Evidence: `pointhistory-native-before/undo/redo` and
+`pointhistory-clone-before/undo` (PNG files in center-matrix evidence directory).
+The correction clears only migrated-corner transient selection in history
+preparation; no geometry command or dimension references changed.
+
+First focused run passed **14/14**, zero failed/skipped:
+`/tmp/os3d-qa09-corner-history-20260910.xcresult` and `.log`.
+The strengthened test asserts exact geometry restoration and absent point/labels
+through ViewModel Undo and Redo, plus the existing constraint/annotation checks.
+Live updated clone rotation, Undo, Redo, reselect and gallery reopen were inspected:
+Undo restores the prior orientation, Redo restores the new orientation, both
+clear the point and labels, and reselect restores adjoining 1.9795 × 0.5 mm.
+Final gallery reopen retains the rotated profile, both dimensions and center Lock.
+Native reference is 8 × 4 mm at its different viewport scale. Evidence prefix
+`os3d-qa09-historyfix-` includes before, undo, redo, reselected and reopen.
+
+Six paired/reference/post-fix images and master note inserted once; export
+verification follows. QA-09 remains partial; broader visual/constraint criteria
+and historical publication backlog are not closed by this narrow correction.
+
+Publication verified: `/tmp/os3d-qa09-historyfix-published.docx` contains 536
+placements, all six new hashes exactly once, no predecessor image/text loss.
+`/tmp/os3d-qa09-historyfix-master.docx` retains 38 placements and the dated note
+exactly once, no predecessor image/text loss.

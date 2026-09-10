@@ -1741,3 +1741,11 @@ relaunch/galleryItems retains1.9795×0.5/centerLock; finalnativegallery8×4.
 Illustrated530/all6hashes/no predecessor text/image loss; master38datednote
 verified: `/tmp/os3d-qa09-pointleaders-{published,master}.docx`. Remaining
 historyselection-clearing, extraannotation and broaderQA09 stillopen.
+
+### September 10 — migrated corner history selection
+
+Confirmed native clears the selected corner/readouts through rotation Undo/Redo;
+clone retained them. Narrow history preparation cleanup passes first clean14/14
+and live Undo/Redo, reselect and gallery reopen. Geometry and saved dimensions
+unchanged. Illustrated536/master38 export verified; QA-09 remains partial.
+Receipt: `testing/sketch-parity-center-matrix-2026-09-10.md`.

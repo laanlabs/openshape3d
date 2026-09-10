@@ -1,27 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 17:42 EDT
+## Active continuation — September 10, corner history live verification
 
-HEAD0dfce1f pushed. Selected-corner/leader correction ready tocommit:
-VM,SketchPointStateOverlay,ConstraintApplyTests,SketchAnnotationVisibilityTests.
-Initialmarker14/14 andfinalclean14/14 in corner-leaders-20260910.xcresult.
-Liveoppositecorners retainorangehaloaway/noedgehandle/ring; bothleadersadjoin
-selectedcorner. Drivingrefs/valuesunchanged, all8referencecases automated.
-Pairedhistorygeometry andfinalreopen retainnative8×4center703351 / clone
-1.9795×0.5center320630withLock. Nativeextra4mmannotation remains; historyclears
-nativepointselectionbutcloneretainsit, nextconfirmedcomparison. No runner.
-
-Illustrated530/all6newhashes/no predecessor text/image loss andmaster38note
-verified in /tmp/os3d-qa09-pointleaders-{published,master}.docx. NativeSketch04
-allselectedafterfinalreopen; cloneoppositelowercornerselectedafterexactbuild
-relaunch/reopen. Evidence pointstate/pointfix/pointleaders incenter-matrix,
-SHA256SUMS current. EarlierallItems dragrefused, scopedEscape11sec andsnapshot
-publicationfailure retained; singleedgeclickthenblank recoverednativeinput.
-
-Exactnext commitpushpointselection, then pairedhistoryselectioncleanup;
-continueQA09numeric/reference andremainingpublicationbacklog. Inventory
-4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPAunchanged.
-Soleowner; no duplicateworkers/merge/install/hostsecurity/restartchanges.
+HEAD `724758e` pushed. Dirty history-selection fix in EditorViewModel and
+ConstraintApplyTests passed first clean 14/14:
+`/tmp/os3d-qa09-corner-history-20260910.xcresult` and `.log`.
+No runner active. Live corrected clone corner rotation, Undo/Redo selection
+clearing, reselect and gallery reopen passed; dimensions 1.9795 × 0.5 mm and
+center Lock retained. Paired native Undo/Redo clears selection, 8 × 4 mm retained.
+Evidence `center-matrix/os3d-qa09-historyfix-*` and `pointhistory-*` copied/hashed.
+Six images and dated master note export-verified: illustrated 536/master 38,
+all six hashes once, no prior image/text loss. Exact next: commit/push narrow
+fix and receipts, then remaining QA-09 constraint/visual
+criteria and publication backlog. Simulator is open in saved Sketch1 with Items.
+Inventory 4 passed / 0 failed / 1 device-blocked / 51 incomplete. Sole owner;
+no merge, device install, host/security changes or duplicate watchdog. Preserve
+immutable 05be744 IPA and unrelated identity files.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

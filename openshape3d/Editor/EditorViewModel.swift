@@ -4979,6 +4979,14 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        // Direct migrated-corner history clears the endpoint/readouts in
+        // native, just as explicit transform history clears its selection.
+        if selectedMigratedRectangleCornerEdges != nil {
+            selectedSketchPoints.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
+        }
         // Native drops the operation selection/value but keeps Move/Rotate
         // armed: selecting another sketch entity restores transform controls.
         if sketchTransformActive {
