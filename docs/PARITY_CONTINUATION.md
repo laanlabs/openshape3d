@@ -1,23 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, scalar-expression checkpoint
+## Active continuation — September10, keyboard preference verified
 
-Base HEAD58a203a; scalar-expression implementation/docs ready to commit now.
-Final import-inclusive `/tmp/os3d-scalar-expression-complete-20260910.xcresult`
-passed clean31/31, following separate clean16/16 and15/15. No runner active.
-Paired plain-value replacement/Undo/Redo restores or clears f(x); clone expression
-survives relaunch/gallery reopen. Live contrast correction uses explicit gray.
-Receipt: docs/testing/sketch-parity-scalar-expression-2026-09-10.md.
-Illustrated314 placements/all4 final hashes/no predecessor loss; master38 with
-one new scalar note and prior anchor note export-verified. No pending inserts.
-Next: commit/push this correction, then paired keyboard-mode persistence and
-remaining explicit-unit/numeric matrix. Native1924 Sketch02 Top plain10 afterRedo;
-clone6492 requires relaunch after tests. No desktop worker except this session.
-Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744 IPA unchanged.
-Vertical/native continuation remain inconclusive; free-angle/connected/reselected
-sizing remain open. Unit-switch/source import coverage automated-only. No merge,
-physical install or restart/security changes. Preserve unrelatedidentity/memory
-and original stalled tabs; no duplicate watchdog or worker.
+Base7a5c618. Keyboard-preference implementation/docs ready to commit/push.
+Final /tmp/os3d-keyboard-preference-commit-route-20260910.xcresult clean11/11.
+No runner active. Earlier10pass/1failure twice: seedappend fixed, syntheticEscape
+route discrepancy retained. Live Peekaboo Escape works after typed2 and preserves
+1.5 geometry. Native/clone keyboard-only reopen and123/keypad reopen passed.
+Preference scoped to editor session, not app-launch lifetime. Receipt:
+docs/testing/sketch-parity-keyboard-preference-2026-09-10.md.
+Illustrated320/all4newhashes/no predecessor loss, master38/newnote verified.
+Exact next: commit/push, then paired explicit-unit expression/numeric editing
+and remaining QA33/40 layouts. Native1924 10mm numeric keypad open; clone6492
+requires launch after tests. No pending publication. Sole desktop/build owner.
+Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744IPA unchanged.
+No physical install/merge/restart/security changes. Preserve unrelatedidentity,
+memory/originalstalledtabs; no duplicate workers/watchdogs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

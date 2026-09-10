@@ -161,6 +161,22 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(label.label.contains("13"))
         app.buttons["UndoButton"].tap()
         XCTAssertEqual(label.label, original, "One Undo restores geometry before numeric edit")
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["DimensionNumericKeyboard"].waitForExistence(timeout: 3),
+                      "Reopening retains the chosen hardware/system keyboard mode")
+        XCTAssertFalse(app.buttons["Keypad-2"].exists)
+        field.typeText("2")
+        XCTAssertEqual(field.value as? String, "2", "Reopened keyboard field receives focus and replaces seed")
+        app.buttons["DimensionCommit"].tap()
+        XCTAssertFalse(field.exists)
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["DimensionNumericKeyboard"].waitForExistence(timeout: 3))
+        app.buttons["DimensionNumericKeyboard"].tap()
+        app.buttons["KeypadCommit"].tap()
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["Keypad-2"].waitForExistence(timeout: 3),
+                      "Switching back to keypad is remembered as well")
+
     }
 
     /// Painted left circle rim, away from both the diameter annotation and the

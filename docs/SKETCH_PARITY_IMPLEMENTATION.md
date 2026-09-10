@@ -1344,3 +1344,13 @@ Live gray marker contrast, relaunch/gallery reopen and paired plain-value/histor
 checks pass. Initial 16/16, leading-equals 15/15, final import-inclusive clean31/31.
 Unit-switch semantics are automated-only; no full case or device parity closure.
 See [scalar expression receipt](testing/sketch-parity-scalar-expression-2026-09-10.md).
+
+## September10 — editor-session keyboard preference (QA40 partial)
+
+Native remembers keyboard-only/keypad choice after dimension dismissal. Clone
+reset on every edit. Preference now belongs to EditorViewModel; reopened keyboard
+editor receives focus and its untouched seed remains selected. Paired same-label
+Escape/reopen and123switch-back pass. Final explicit-commit lifecycle11/11 follows
+a corrected seed-append failure and a retained synthetic-XCTest-Escape discrepancy
+(live Escape passes). No cross-launch preference or physical-input claim.
+See [keyboard preference receipt](testing/sketch-parity-keyboard-preference-2026-09-10.md).

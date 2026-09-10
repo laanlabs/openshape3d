@@ -11496,6 +11496,8 @@ final class EditorViewModel {
         var validationMessage: String? = nil
         var isPolygonSideCount = false
     }
+    // Input-mode preference survives individual dimension edit sessions.
+    var dimensionUsesSystemKeyboard = false
     var editingDimension: DimensionEdit?
 
     // The field keeps its own SwiftUI text state. Mirror drafts without

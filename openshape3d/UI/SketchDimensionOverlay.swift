@@ -457,7 +457,10 @@ struct SketchDimensionOverlay: View {
 /// a function, which a ten-key cannot express.
 private struct DimensionField: View {
     @Bindable var viewModel: EditorViewModel
-    @State private var usingSystemKeyboard = false
+    private var usingSystemKeyboard: Bool {
+        get { viewModel.dimensionUsesSystemKeyboard }
+        nonmutating set { viewModel.dimensionUsesSystemKeyboard = newValue }
+    }
     @FocusState private var focused: Bool
 
     /// The text lives on `editingDimension`, not in `@State`. The overlay
@@ -486,9 +489,15 @@ private struct DimensionField: View {
 
     var body: some View {
         content
-            .onAppear { text = viewModel.editingDimension?.text ?? "" }
+            .onAppear {
+                text = viewModel.editingDimension?.text ?? ""
+                if usingSystemKeyboard { focused = true }
+            }
             .onChange(of: text) { _, value in
-                if usingSystemKeyboard { initialValueSelected = false }
+                // Seeding a reopened keyboard editor is not a user keystroke.
+                if usingSystemKeyboard, value != viewModel.editingDimension?.text {
+                    initialValueSelected = false
+                }
                 if let sessionID = viewModel.editingDimension?.sessionID {
                     viewModel.updateDimensionDraft(value, sessionID: sessionID)
                 }

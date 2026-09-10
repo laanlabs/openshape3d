@@ -203,7 +203,7 @@ mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM
 
 ### QA-33 — Invalid numeric input
 
-Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/negative, empty/division/syntax retention, valid recovery, click-away/Escape and Undo captured. Parser/keypad clean22/22 at8eb45f9. Selected-polygon count2 refusal and3.5->3 recovery/history live; corrected9/9 after a fixture failure, expanded final11/11. Native high-count frames lagged; exact upper limit and system-keyboard layouts remain open. Sept10 keyboard seed/toggle/invalid-Return immediate recovery and Undo passed paired with final11/11; broader mode persistence/formula behavior remains open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md and testing/sketch-parity-system-keyboard-2026-09-09.md.
+Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/negative, empty/division/syntax retention, valid recovery, click-away/Escape and Undo captured. Parser/keypad clean22/22 at8eb45f9. Selected-polygon count2 refusal and3.5->3 recovery/history live; corrected9/9 after a fixture failure, expanded final11/11. Native high-count frames lagged; exact upper limit and system-keyboard layouts remain open. Sept10 keyboard seed/toggle/invalid-Return immediate recovery and Undo passed paired with final11/11; Sept10 scalar arithmetic retention/f(x), plain replacement and history passed paired at7a5c618 (final31/31); explicit-unit/display-unit source stability and import are automated-only. Keyboard-mode preference same-label Escape/reopen and123switch-back passed paired; final explicit-commit11/11 follows two retained failures (seedappend corrected; syntheticEscape differs from live). Full layouts/upper limits remain open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md and testing/sketch-parity-system-keyboard-2026-09-09.md.
 
 ### QA-34 — Locked/unlocked value
 
@@ -231,7 +231,7 @@ Under/fully defined, lock point versus entity, refusal and attribution. Issues: 
 
 ### QA-40 — Keypad transitions
 
-Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12; DM-12. Result: NOT RUN. Evidence/owner: pending.
+Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12; DM-12. Result: PARTIAL (historical NOT RUN superseded). Prior tool/blank/Escape coverage in ledger. Sept10 same-dimension keyboard/keypad preference, seed replacement and live Escape captured paired; explicit-commit lifecycle11/11. Synthetic XCTest Escape discrepancy retained. Full rotation/pan/compact/device-input matrix remains open. Evidence: testing/sketch-parity-keyboard-preference-2026-09-10.md.
 
 ### QA-41 — Trim primitives
 
