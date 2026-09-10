@@ -12252,7 +12252,7 @@ final class EditorViewModel {
         var labels: [SketchDimensionLabel] = []
 
         func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
-                       refs: [ConstraintRef], value: Double) -> SketchDimensionLabel? {
+                       refs: [ConstraintRef], value: Double, presentationEdgeID: UUID? = nil) -> SketchDimensionLabel? {
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
             if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
                Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
@@ -12274,6 +12274,12 @@ final class EditorViewModel {
                     g.end = b
                     g.anchor = (a + b) / 2
                 }
+            }
+            if let presentationEdgeID,
+               case let .line(_, a, b)? = sketchEntity(presentationEdgeID, in: sketch) {
+                g.start = a
+                g.end = b
+                g.anchor = (a + b) / 2
             }
             // Angles are unitless; lengths follow the display unit. The
             // document itself always stores millimetres — `value` is mm here.
@@ -12373,6 +12379,24 @@ final class EditorViewModel {
                 if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
                                          kind: d.kind, refs: d.refs, value: display) {
                     labels.append(label)
+                    // One selected side exposes both adjacent sides. The extra
+                    // readout is another presentation of the same driving size,
+                    // not another dimension or a new solver reference.
+                    if sketch.id == activeSketch?.id, d.kind == .distance,
+                       d.refs.count == 2, d.refs[0].entityID == d.refs[1].entityID,
+                       Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                       let group = selectedMigratedRectangleEdges,
+                       let selectedID = selectedSketchEntityIDs.first,
+                       let selectedIndex = group.firstIndex(of: selectedID),
+                       let drivingIndex = group.firstIndex(of: d.refs[0].entityID),
+                       selectedIndex % 2 != drivingIndex % 2 {
+                        let oppositeID = group[(drivingIndex + 2) % 4]
+                        if let opposite = makeLabel(id: d.id.uuidString + "-side-" + oppositeID.uuidString,
+                            in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                            value: display, presentationEdgeID: oppositeID) {
+                            labels.append(opposite)
+                        }
+                    }
                 }
             }
         }
@@ -12464,19 +12488,17 @@ final class EditorViewModel {
         let definingIDs = Set(label.refs.map(\.entityID))
         // A rectangle's baseline/height editor should not discard the other
         // three selected sides (and its other size badge) when opened.
-        var keepsSelectedParallelSide = false
+        var keepsSelectedRectangleSide = false
         if label.kind == .distance, label.refs.count == 2,
            label.refs[0].entityID == label.refs[1].entityID,
            Set(label.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
            let group = selectedMigratedRectangleEdges,
-           let selectedID = selectedSketchEntityIDs.first,
-           let selectedIndex = group.firstIndex(of: selectedID),
-           let drivingIndex = group.firstIndex(of: label.refs[0].entityID) {
-            keepsSelectedParallelSide = selectedIndex % 2 == drivingIndex % 2
+           group.contains(label.refs[0].entityID) {
+            keepsSelectedRectangleSide = true
         }
         let keepsSelectedCorner = label.kind == .distance &&
             selectedMigratedRectangleCornerEdges.map { definingIDs.isSubset(of: Set($0)) } == true
-        if !keepsSelectedParallelSide && !keepsSelectedCorner &&
+        if !keepsSelectedRectangleSide && !keepsSelectedCorner &&
             (selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs)) {
             selectedSketchEntityIDs = definingIDs
         }

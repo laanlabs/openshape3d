@@ -1780,3 +1780,12 @@ Selected saved rectangle size gets native white/blue outline after Escape while
 its corner remains selected; reselection returns plain text. First clean14/14
 and paired live states verified; no geometry edits. Published555/all4hashes and
 master38. Native extra opposite-side annotation remains under diagnosis.
+
+
+## Migrated rectangle adjacent readouts — September 10
+
+Selected single side exposes selected length and both adjacent lengths, matching
+four native side samples. Extra label shares saved dimension/solver refs; editor
+preserves original edge selection. Corner remains two. Clean14/14, live aliases,
+width edit/history and paired reopen; illustrated561/master38 verified. QA09
+partial: selected-edge commit/history lifecycle remains separately open.

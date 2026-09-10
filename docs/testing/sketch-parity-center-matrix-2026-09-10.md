@@ -640,3 +640,30 @@ and historical publication backlog remain; QA-09 partial.
 
 Publication verified: illustrated555/all4hashesonce andmaster38datednote, no
 predecessor image/text loss. Exports `/tmp/os3d-qa09-badge-{published,master}.docx`.
+
+
+## Single-edge adjacent size presentations — September 10
+
+Native four-side sampling shows selected side plus both perpendicular sides
+(three readouts); selected corner remains two. Native top4→5 updates both
+visible perpendicular values, then Undo restores4. This does not prove two
+independently stored dimensions. Clean clone side shows two. Initial point→edge
+retained generic ring/zero readout; blank and settled edge isolated the size
+case. Screenshots `os3d-qa09-oppositereadout-*` retained/hashed, not published.
+Presentation-only third label shares dimensionID, refs and measured value;
+unique UI ID and opposite-side world geometry. Adjacent editor retains selected
+edge. Serial14-case regression started; live result remains pending.
+
+First clean14/14 `/tmp/os3d-qa09-adjacent-readouts-20260910.xcresult`.
+No runner remains. Live left and top single-side selections show3; new height
+and width aliases open usable editors while retaining selected side. Widthalias
+3→2 updates both displayed widths; toolbarUndo3/Redo2 restores geometry.
+Direct edge-to-edge tap added to selection (two orange edges/ring), so blank
+then settled single edge was used; not evidence of a new single-edge failure.
+Current clone2×0.5, native8×4. Selectededge remains aftercommit/history, a
+separate lifecycle comparison still open. Fresh paired reopen/publication pending.
+
+All four clean clone single-side selections now show3readouts. Paired final
+reopen retains native8×4/clone2×0.5 and native/clone triple presentations.
+Publication verified561/all6hashesonce andmaster38 note, no predecessorimage
+or textloss: `/tmp/os3d-qa09-adjacent-{published,master}.docx`.

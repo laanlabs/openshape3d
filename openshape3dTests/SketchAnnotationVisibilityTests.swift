@@ -208,7 +208,18 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(unrelatedMarkers.allSatisfy { !$0.isRectangleCorner }, "Ordinary line marker styles stay unchanged")
         for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
             vm.selectedSketchEntityIDs = [edge]
-            XCTAssertEqual(vm.sketchDimensionLabels.count, 2, "Every side must show exactly the two saved sizes")
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 3, "Selected side and both adjacent sizes must be visible")
+            XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.id)).count, 3)
+            for label in vm.sketchDimensionLabels {
+                vm.beginDimensionEdit(label)
+                XCTAssertEqual(vm.selectedSketchEntityIDs, [edge])
+                XCTAssertEqual(vm.editingDimension?.refs, label.refs)
+                let presented = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == label.id })
+                XCTAssertEqual(presented.worldStart, label.worldStart)
+                XCTAssertEqual(presented.worldEnd, label.worldEnd)
+                vm.cancelDimensionEdit()
+                XCTAssertEqual(vm.activeSketch, migrated)
+            }
             XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap(\.dimensionID)), Set(source.dimensions.map(\.id)))
             let group = try XCTUnwrap(migrated.rotatedRectangleEdges[id])
             let edgeIndex = try XCTUnwrap(group.firstIndex(of: edge))
@@ -233,7 +244,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
             XCTAssertEqual(vm.activeSketch, migrated, "Opening/dismissing an editor must not mutate the sketch")
             let height = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == source.dimensions[1].id })
             vm.beginDimensionEdit(height)
-            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 3)
             vm.commitDimensionEdit("1")
             XCTAssertEqual(vm.activeSketch?.dimensions.count, 2)
             XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [4, 1])
