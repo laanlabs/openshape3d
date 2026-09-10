@@ -1,33 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 17:23 EDT
+## Active continuation — September 10 17:42 EDT
 
-HEAD c542ad7 pushed: selected-side editor preservation clean13/13/live/reopen,
-illustrated513/all4postfix+5diagnosis/master38 verified. Recovered directpadlock
-backlog now519/all6hashes/no text/image loss verified. No IPA changes.
+HEAD0dfce1f pushed. Selected-corner/leader correction ready tocommit:
+VM,SketchPointStateOverlay,ConstraintApplyTests,SketchAnnotationVisibilityTests.
+Initialmarker14/14 andfinalclean14/14 in corner-leaders-20260910.xcresult.
+Liveoppositecorners retainorangehaloaway/noedgehandle/ring; bothleadersadjoin
+selectedcorner. Drivingrefs/valuesunchanged, all8referencecases automated.
+Pairedhistorygeometry andfinalreopen retainnative8×4center703351 / clone
+1.9795×0.5center320630withLock. Nativeextra4mmannotation remains; historyclears
+nativepointselectionbutcloneretainsit, nextconfirmedcomparison. No runner.
 
-No runner. Corrected75144 completed clean14/14 in reselected-corner-fixed-20260910.
-Red59670 retained1test/2failedassertions. Dirty VM clears priorpointselection
-onlywhen grabbing migratedrectangleendpoint; unitextends migration test.
-Live post-fix corner tap/drag no ring/zero candidate, bothsizes1.9795×0.5,
-center320630. PairedUndoRedo/finalgalleryreopen retained; native8×4center703351.
-Nativeendpoint highlight vscloneselectededgehandle remainsnextcomparison.
-Bothapps sketchopen; cloneoneedge selected, nativeallSketch04selected.
-Fivepublicationimagesinsertedonce (expected524), masterdatednoteinserted;
-exports /tmp/os3d-qa09-cornerfix-{published,master}.docx verified524/all5hashes
-andmaster38note, prior text/images retained.
-Exactnext verifyexports, documentcommitpush; compare settledpointselection.
+Illustrated530/all6newhashes/no predecessor text/image loss andmaster38note
+verified in /tmp/os3d-qa09-pointleaders-{published,master}.docx. NativeSketch04
+allselectedafterfinalreopen; cloneoppositelowercornerselectedafterexactbuild
+relaunch/reopen. Evidence pointstate/pointfix/pointleaders incenter-matrix,
+SHA256SUMS current. EarlierallItems dragrefused, scopedEscape11sec andsnapshot
+publicationfailure retained; singleedgeclickthenblank recoverednativeinput.
 
-Native opposite-side annotation diagnosis: right3→4 updatesbothlabels without
-conflict; blankclick hideslabels, single-edge reselect showswidth8/height4.
-Padlocktoggle caused tip then changed lock icon; Undo restored priorstate.
-No storage inference/extra constraint claim. Postedit displaystate remainsopen.
-Multi-edge native plainclick replacesselection; stationaryShift drag didnot
-acquiretwo. Boxattempt caughtnearby14mmrectangleedge, immediatelyUndo restored
-originalgeometry; excludedfromevidence. No competingworker/hostchanges.
-Exactnext collectredtest, narrow migratedcornerselection fix if reproduced,
-focusedregression/livehistory/reopen/publication; continueQA09/backlog.
-Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA untouched.
+Exactnext commitpushpointselection, then pairedhistoryselectioncleanup;
+continueQA09numeric/reference andremainingpublicationbacklog. Inventory
+4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPAunchanged.
+Soleowner; no duplicateworkers/merge/install/hostsecurity/restartchanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

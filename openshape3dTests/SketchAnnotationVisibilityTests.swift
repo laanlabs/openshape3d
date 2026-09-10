@@ -237,6 +237,29 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
             vm.session.undo()
             XCTAssertEqual(vm.activeSketch, migrated)
         }
+        vm.selectedDimensionID = nil
+        vm.cancelDimensionEdit()
+        vm.selectedSketchEntityIDs = []
+        for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
+            guard case let .line(_, a, b)? = migrated.entities.first(where: { $0.id == edge }) else {
+                return XCTFail("Expected migrated edge")
+            }
+            for (role, corner) in [(PointRole.endpointA, a), (.endpointB, b)] {
+                vm.selectedSketchPoints = [.init(entityID: edge, role: role)]
+                let world = migrated.plane.toWorld(corner)
+                XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+                XCTAssertEqual(vm.selectedMigratedRectangleCornerMarker?.world, SIMD3<Float>(world))
+                for label in vm.sketchDimensionLabels {
+                    XCTAssertTrue(simd_distance(label.worldStart, world) < 1e-9 ||
+                                  simd_distance(label.worldEnd, world) < 1e-9,
+                                  "Both leaders must use sides adjoining the selected corner")
+                    let sourceDimension = try XCTUnwrap(migrated.dimensions.first { $0.id == label.dimensionID })
+                    XCTAssertEqual(label.refs, sourceDimension.refs)
+                    XCTAssertEqual(label.displayValue, sourceDimension.value)
+                }
+            }
+        }
+        vm.selectedSketchPoints = []
         // A real geometry tap clears explicit dimension selection; changing
         // only entity IDs in this fixture must not simulate that incompletely.
         vm.selectedDimensionID = nil

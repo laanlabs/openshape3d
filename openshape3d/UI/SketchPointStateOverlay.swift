@@ -29,6 +29,15 @@ struct SketchPointStateOverlay: View {
                 ForEach(viewModel.sketchPointMarkers) { marker in
                     markerView(marker)
                 }
+                if let marker = viewModel.selectedMigratedRectangleCornerMarker,
+                   let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
+                    Circle().stroke(Color.orange, lineWidth: 1.5)
+                        .background(Circle().fill(Color.white.opacity(0.9)))
+                        .frame(width: 9, height: 9)
+                        .background(Circle().fill(Color.orange.opacity(0.25)).frame(width: 16, height: 16))
+                        .position(x: pt.x, y: pt.y)
+                        .accessibilityIdentifier("SelectedRectangleCorner")
+                }
                 ForEach(viewModel.sketchRectangleCenterMarkers) { marker in
                     if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
                         Circle().fill(marker.isSelected ? Color.orange : (marker.state == .free ? Self.free : Self.constrained))

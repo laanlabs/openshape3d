@@ -8519,7 +8519,7 @@ final class EditorViewModel {
     /// Native single-line selection exposes its dimension, not the transform
     /// gizmo. Keep direct body/endpoint dragging; Move/Rotate or Copy opts in.
     var usesExplicitSketchTransform: Bool {
-        if hasContextualSketchHandle { return true }
+        if hasContextualSketchHandle || selectedMigratedRectangleCornerEdges != nil { return true }
         if selectedSketchPoints.isEmpty, let sketch = activeSketch,
            sketch.rotatedRectangleEdges.values.contains(where: { Set($0) == selectedSketchEntityIDs }) {
             return true
@@ -9575,13 +9575,12 @@ final class EditorViewModel {
         }
         if (control?.kind == .lineStart || control?.kind == .lineEnd),
            sketch.rotatedRectangleEdges.values.contains(where: { $0.contains(entity.id) }) {
-            // A grabbed migrated corner supersedes a preceding point tap.
-            // Keeping both the point and its edge exposes the generic gizmo
-            // and a meaningless zero point-to-edge dimension after release.
-            selectedSketchPoints.removeAll()
-            selectedSketchEntityIDs = [entity.id]
-        }
-        if control?.kind == .center, case .rect = entity {
+            // Keep the grabbed endpoint, not its entire edge, selected.
+            // Never retain a stale point-plus-edge zero-distance candidate.
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints = [.init(entityID: entity.id,
+                role: control?.kind == .lineStart ? .endpointA : .endpointB)]
+        } else if control?.kind == .center, case .rect = entity {
             selectedSketchEntityIDs.removeAll()
             selectedAxisRectangleEdge = nil
             selectedSketchPoints = [.init(entityID: entity.id, role: .center)]
@@ -12072,6 +12071,29 @@ final class EditorViewModel {
         }
     }
 
+    private var selectedMigratedRectangleCornerEdges: [UUID]? {
+        guard selectedSketchEntityIDs.isEmpty, selectedSketchPoints.count == 1,
+              let point = selectedSketchPoints.first,
+              point.role == .endpointA || point.role == .endpointB,
+              let sketch = activeSketch else { return nil }
+        return sketch.rotatedRectangleEdges.values.first { ids in
+            ids.count == 4 && Set(ids).count == 4 && ids.contains(point.entityID) &&
+            ids.allSatisfy { id in
+                if case .line? = sketchEntity(id, in: sketch) { return true }
+                return false
+            }
+        }
+    }
+
+    var selectedMigratedRectangleCornerMarker: SketchPointMarker? {
+        guard selectedMigratedRectangleCornerEdges != nil,
+              let point = selectedSketchPoints.first, let sketch = activeSketch,
+              let local = localPoint(.init(entityID: point.entityID, role: point.role), in: sketch) else { return nil }
+        return SketchPointMarker(id: "selectedMigratedCorner",
+            world: SIMD3<Float>(sketch.plane.toWorld(local)), state: .free,
+            isRectangleCorner: true, isSelected: true)
+    }
+
     private static func lineLengthRefs(_ id: UUID) -> [ConstraintRef] {
         [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
     }
@@ -12205,16 +12227,24 @@ final class EditorViewModel {
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
             if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
                Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
-               let group = selectedMigratedRectangleEdges,
-               let selectedID = selectedSketchEntityIDs.first,
-               let selectedIndex = group.firstIndex(of: selectedID),
-               let dimensionIndex = group.firstIndex(of: refs[0].entityID),
-               selectedIndex % 2 == dimensionIndex % 2,
-               case let .line(_, a, b)? = sketchEntity(selectedID, in: sketch) {
-                // Reposition the saved annotation, never its driving refs.
-                g.start = a
-                g.end = b
-                g.anchor = (a + b) / 2
+               let group = selectedMigratedRectangleEdges ?? selectedMigratedRectangleCornerEdges,
+               let dimensionIndex = group.firstIndex(of: refs[0].entityID) {
+                var presentationID: UUID?
+                if let selectedID = selectedSketchEntityIDs.first,
+                   let selectedIndex = group.firstIndex(of: selectedID),
+                   selectedIndex % 2 == dimensionIndex % 2 {
+                    presentationID = selectedID
+                } else if let point = selectedSketchPoints.first,
+                          let index = group.firstIndex(of: point.entityID) {
+                    let adjacent = (index + (point.role == .endpointA ? 3 : 1)) % 4
+                    presentationID = group[index % 2 == dimensionIndex % 2 ? index : adjacent]
+                }
+                if let presentationID, case let .line(_, a, b)? = sketchEntity(presentationID, in: sketch) {
+                    // Reposition the saved annotation, never its driving refs.
+                    g.start = a
+                    g.end = b
+                    g.anchor = (a + b) / 2
+                }
             }
             // Angles are unitless; lengths follow the display unit. The
             // document itself always stores millimetres — `value` is mm here.
@@ -12302,7 +12332,8 @@ final class EditorViewModel {
                         || (sketch.id == activeSketch?.id && d.kind == .distance &&
                             d.refs.count == 2 && d.refs[0].entityID == d.refs[1].entityID &&
                             Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]) &&
-                            selectedMigratedRectangleEdges?.contains(d.refs[0].entityID) == true)) else { continue }
+                            (selectedMigratedRectangleEdges?.contains(d.refs[0].entityID) == true ||
+                             selectedMigratedRectangleCornerEdges?.contains(d.refs[0].entityID) == true))) else { continue }
                 // Keep genuine geometry differences visible, but do not let a
                 // negligible solver residual move a satisfied driving dimension
                 // across a decimal rounding tie after editing another size.

@@ -1731,3 +1731,13 @@ zero candidate; endpoint-vs-edge selection appearance remains open. Illustrated
 524/all5newhashes/no predecessor loss and master38 dated note/text/images
 verified in `/tmp/os3d-qa09-cornerfix-{published,master}.docx`. Receipt/evidence
 center-matrix September10. Inventory unchanged4passed/1blocked/51incomplete.
+
+Selected migrated endpoint and adjoining leaders: final clean14/14 in
+`/tmp/os3d-qa09-corner-leaders-20260910.xcresult` after initialmarker14/14.
+All8endpointreferences retain savedrefs/values and attachbothleaders tocorner.
+Paired oppositecorner pointer-away samples verifyorangehalo/noedgehandle/ring
+andadjoiningsides. Nativeadditional4mmannotation remains. Exact-buildclone
+relaunch/galleryItems retains1.9795×0.5/centerLock; finalnativegallery8×4.
+Illustrated530/all6hashes/no predecessor text/image loss; master38datednote
+verified: `/tmp/os3d-qa09-pointleaders-{published,master}.docx`. Remaining
+historyselection-clearing, extraannotation and broaderQA09 stillopen.
