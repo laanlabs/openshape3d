@@ -1380,3 +1380,11 @@ draft with matching diagnostic. Clean28/28 and paired rejection/valid recovery
 verified. Clone SelectAll delivery anomaly excluded; explicit deletion succeeds.
 Receipt testing/sketch-parity-unit-type-2026-09-10.md. Publication pendingexport.
 Reciprocal length-in-angle input remains next; no physicalinputclaim.
+
+## September 10 — reciprocal length-in-angle refusal (QA33 partial)
+
+Native45degree arc refuses10mm; clone previously shortened to10degrees. Reciprocal
+pre-mutation unit check preserves draft/geometry with matching diagnostic. Clean33/33
+parser/keypad/arc tests and paired rejection/90degree validrecovery verified.
+Illustrated341/all5hashes and master38 note verified. Receipt testing/sketch-parity-angle-type-2026-09-10.md.
+Separate lower-field occlusion behind iPad keyboard captured; placementfix isnext.

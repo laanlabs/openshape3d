@@ -154,6 +154,34 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "1 mm")
     }
 
+    func testLengthUnitCannotResizeArcSweepAndAllowsImmediateRecovery() throws {
+        let vm = try makeViewModel()
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(3, 4), radius: 2,
+                                  startAngle: 0, endAngle: .pi / 4)
+        let sketch = Sketch(plane: .ground, entities: [arc])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [arc.id]
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .angle }))
+        for draft in ["10 mm", "2 cm", "1 m", "(10+5) mm"] {
+            vm.commitDimensionEdit(draft)
+            XCTAssertEqual(vm.editingDimension?.validationMessage,
+                           "Cannot use length in an angle type parameter.")
+            XCTAssertEqual(vm.activeSketch?.entities, [arc])
+            XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty)
+        }
+        vm.commitDimensionEdit("90 deg")
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertEqual(try XCTUnwrap(vm.activeSketch?.dimensions.first).value, .pi / 2, accuracy: 1e-6)
+        let changed = try XCTUnwrap(vm.activeSketch).entities
+        XCTAssertNotEqual(changed, [arc])
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [arc])
+        XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch?.entities, changed)
+    }
+
     func testAngleUnitCannotResizeLengthAndAllowsImmediateRecovery() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .millimeters

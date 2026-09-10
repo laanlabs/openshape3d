@@ -1,22 +1,22 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, angle-in-length rejection
+## Active continuation — September 10, reciprocal type fix verified
 
-HEAD0b33fdb pushed; mixed additive batch clean27/27, illustrated332/master38 verified.
-Confirmed next gap: native `10 deg` in length retains draft/warning "Cannot use
-angle in a length type parameter." and12mm geometry; clone `1 deg` silently
-commits1mm from1.2mm. Screenshots /tmp/os3d-unit-type-{native,clone}-{draft,result}.png.
-Dirty EditorViewModel.swift adds pre-mutation degree/length rejection;
-NumericKeypadTests.swift verifies unchanged geometry/dimensions, immediate recovery
-and exact Undo/Redo. Serial exec86205 owns simulator, /tmp/os3d-unit-type-20260910.log
-and.xcresult completed clean28/28, exit0. No runner. Live rejection/recovery pass.
-Illustrated336/all4hashes/no predecessor loss and master38 note verified afterexportretry.
-No duplicate insertion. Next
-commit/push, then reciprocal length-in-angle comparison.
-Native1924 selected20mm aftervalid recovery; clone6492 selected2mm afterrecovery.
-Preserve unrelated identity/memory and immutable05be744IPA. No physicalinstall,
-merge/restart/securitychanges/duplicatewatchdog. Counts2passed/0failed/1device-blocked/
-53incomplete; sole desktop/build ownership. Prior batch receipt mixed-unit2026-09-10.
+Basea632f8d; reciprocal length-in-angle guard/test/docs readycommit. Clean33/33
+/tmp/os3d-angle-type-20260910.xcresult exec37057exit0. Paired wrongunitrefusal/90deg
+recovery verified. Illustrated341/all5hashes/no predecessor loss and master38 note
+verified. Receipt docs/testing/sketch-parity-angle-type-2026-09-10.md. No runner.
+Next commit/push, fix confirmed lower dimension editor occlusion behind iPad keyboard.
+SketchDimensionOverlay ignores allsafeareas and clamps tofullcanvas. ParentViewport
+also ignoresall; investigate minimal keyboard-safe area placement without moving
+geometry. Captures /tmp/os3d-angle-type-clone-editor.png (hidden), clone-field-visible.png
+(afterkeyboardhide), localreports/.../angle-type. NativeMac no onscreenkeyboard;
+platformdifference explicit. Keep fullcanvas projected geometry positions unchanged.
+Native1924selected90degree lowerarc; clone6492selected90degree largerarc below2mmline.
+Clonearc centerrelative301383, radius~211, startrelative221577, endrelative496463.
+Anglebadge~global471653. Nativeangle~global669691. Counts2passed/0failed/1deviceblocked/
+53incomplete. Immutable05be744IPA unchanged. No physicalinstall/merge/restart/security
+changes or duplicateworkers/watchdogs. Preserve unrelatedidentity/memory/stalledtabs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

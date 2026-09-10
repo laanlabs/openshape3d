@@ -12121,6 +12121,11 @@ final class EditorViewModel {
             editingDimension?.validationMessage = "Cannot use angle in a length type parameter."
             return
         }
+        if edit.kind == .angle,
+           Self.lengthUnit(forSuffix: NumericKeypad.trailingUnit(in: rawText)) != nil {
+            editingDimension?.validationMessage = "Cannot use length in an angle type parameter."
+            return
+        }
         // Keep malformed expressions editable; valid out-of-range values dismiss.
         // Paired native 1/0 and 2+ retain the keypad, unlike zero/negative sizes.
         editingDimension = nil
