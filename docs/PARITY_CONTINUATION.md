@@ -1,17 +1,17 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, imperial notation verified
+## Active continuation — September 10, imperial keypad verified
 
-Baselineeaf6847 pushed. Compact imperial notation correction clean45/45 in one run,
-/tmp/os3d-imperial-annotation-20260910.xcresult. Native/clone cm/in/ft switch/source
-stability passed; corrected clone0.0033apostrophe/0.04quote and paired gallery
-unit/value/source reopen inspected. Illustrated380/all7 hashes/no predecessor loss;
-master38/new/prior/finalreopen note verified. No runner. Receipt:
-docs/testing/sketch-parity-display-units-2026-09-10.md. Next commit and correct
-confirmed native imperial ft/in keypad unit row versus clone hardcoded metric row.
-Native1924 Foot source editor open (after reframe circle1048,408); clone6492
-landscape Inch source editor open at590225. Settings center905148 ignored,
-offset914148 works; separate target gap retained. Preserveidentity/memory/stalledtabs.
+Baseline647fd42 pushed. Imperial keypad row correction clean22/22 in one run,
+/tmp/os3d-imperial-keypad-20260910.xcresult. Native0.05ft/clone0.0025ft keypad
+commit and pairedUndoRedo withfixedcenters inspected. Clonegallery retains source/
+unitrow; nativegallerynotrepeatedthisbatch. Illustrated384/all4 hashes/noloss;
+master38/new+prior+finalreopen note verified. No runner. Receipt:
+docs/testing/sketch-parity-imperial-keypad-2026-09-10.md. Next commit then paired
+untouched rounded-seed commit diagnosis: clonefresh1mm opens0.003ft seed; no-op
+geometry preservation not yet checked. Native1924 Foot circle0.05ft; clone6492
+portrait Foot circle0.0025ft savededitoropen, lowerfreehorizontal lineavailable.
+Settings center target gap remains. Preserveidentity/memory/stalledtabs.
 Counts2passed/0failed/1deviceblocked/53incomplete. Immutable05be744 IPA unchanged.
 No physical install/merge/restart/securitychanges/duplicateworkers/watchdogs.
 

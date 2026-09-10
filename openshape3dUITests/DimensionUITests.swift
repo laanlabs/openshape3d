@@ -132,6 +132,44 @@ final class DimensionUITests: XCTestCase {
         }
     }
 
+    func testImperialKeypadUnitKeysConvertAndUndo() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+        app.buttons["SettingsButton"].tap()
+        app.segmentedControls["SettingsUnitPicker"].buttons["mm"].tap()
+        app.buttons["SettingsDone"].tap()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.4))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.4)))
+        let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let before = label.frame
+        app.buttons["SettingsButton"].tap()
+        app.segmentedControls["SettingsUnitPicker"].buttons["in"].tap()
+        app.buttons["SettingsDone"].tap()
+        let original = label.label
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["Keypad-ft"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Keypad-in"].exists)
+        XCTAssertFalse(app.buttons["Keypad-mm"].exists)
+        for key in ["0", ".", "0", "5", "in"] { app.buttons["Keypad-" + key].tap() }
+        XCTAssertEqual(app.textFields["DimensionField"].value as? String, "0.05 in")
+        attach(app, "imperial-keypad-inch-entry")
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(label.label.contains("0.05\""))
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, original)
+        XCTAssertEqual(label.frame.midX, before.midX, accuracy: 3)
+        app.buttons["SettingsButton"].tap()
+        app.segmentedControls["SettingsUnitPicker"].buttons["mm"].tap()
+        app.buttons["SettingsDone"].tap()
+    }
+
     func testLowerDimensionEditorStaysAboveSystemKeyboard() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -32,6 +32,13 @@ struct NumericKeypad: View {
     /// unit, and `NumericKeypad.trailingUnit` reads it back for conversion.
     static let units = ["mm", "cm", "m", "deg"]
 
+    private var visibleUnits: [String] {
+        switch AppSettings.shared.unit {
+        case .inches, .feet: ["ft", "in", "deg"]
+        default: Self.units
+        }
+    }
+
     private static let keyW: CGFloat = 44
     private static let keyH: CGFloat = 36
     private static let gap: CGFloat = 6
@@ -65,7 +72,7 @@ struct NumericKeypad: View {
             ForEach(["(", ")"], id: \.self) { token in
                 flatKey(token) { append(token) }
             }
-            ForEach(Self.units, id: \.self) { unit in
+            ForEach(visibleUnits, id: \.self) { unit in
                 flatKey(unit) { appendUnit(unit) }
             }
         }
@@ -226,7 +233,7 @@ struct NumericKeypad: View {
     static func trailingUnit(in text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         // Longest first so "mm" is never mistaken for a trailing "m".
-        // Keyboard-only unit tokens need not add buttons to the compact pad.
+        // Recognition includes both families, regardless of the visible unit row.
         return (units + ["in", "ft"]).sorted { $0.count > $1.count }
             .first { token in
                 guard trimmed.hasSuffix(token) else { return false }

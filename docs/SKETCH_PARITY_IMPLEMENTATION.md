@@ -1450,3 +1450,11 @@ formatter matches sampled notation, leaving input tokens and model units unchang
 Clean45/45, live corrected readouts and paired gallery source/unit reopen;
 illustrated380/all7 hashes/master38 verified. Next keypad ft/in row; Settings
 icon-center delivery remains open. Receipt testing/sketch-parity-display-units-2026-09-10.md.
+
+### September 10: imperial keypad unit family
+
+Native ft/in/deg row now available when clone display unit is inch/foot. Metric
+keys retained otherwise; full token recognition unchanged. Clean22/22 combined
+UI/keypad tests, pairedft-key commits/UndoRedo and clone savedsource/reopen.
+Illustrated384/all4 hashes/master38 verified. Untouched rounded-seed no-op next;
+Settings target gap retained. Receipt testing/sketch-parity-imperial-keypad-2026-09-10.md.
