@@ -1,29 +1,26 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 16:49 EDT
+## Active continuation — September 10 17:11 EDT
 
-HEAD f09b233; verified single-edge readout correction ready to commit/push.
-Final `/tmp/os3d-qa09-side-measurement-corrected-20260910.xcresult` clean13/13,
-no runner. All four side/edit/exactUndo, external/centerselection and divergent
-oppositeedge measurement guard included. Prior12/13fixturefail, compile-only
-labelimmutability and commandinitializer failures retained in receipt. Removed
-unintended measurement-path duplicate beforefinalbuild; labelonlychange remains.
+HEAD ca4bffb pushed. Dirty editor-side preservation in EditorViewModel and
+SketchAnnotationVisibilityTests; clean first run 13/13 in
+/tmp/os3d-qa09-editor-side-preservation-20260910.xcresult. No runner active.
+Live clone selected left height editor stays left on open/Escape; 1→0.5 mm
+retains width 1.9795 and center320630. Undo/Redo verified. Native6→3 retains
+center703351; native additionally shows opposite-side3mm annotations after
+commit, Undo/Redo and reopen. This distinction remains open, not inferred as
+extra constraints yet. Paired gallery reopen native8×3 / clone1.9795×0.5 and
+clone centerLock retained. Both apps currently sketch-open; clone leftside
+selected, native allSketch04 selected. Sole desktop/build owner; no runner.
 
-Pairedlive bothsizes/selectedsideleader, heightedit/native2→1clone1.4814→1,
-history and galleryreopen verified. Native4×1center703351; clone1.9795×1center
-320630. Finalbuild clonegallery/selectedsidevalues rechecked. Illustrated504
-placements/all7newbatchhashes, master38note verified, predecessorcontentretained.
-Recoveredearlierbacklog QA08leaders/corners/centerLock alreadyverified through497.
-
-Exactnext commit/push currentverifiedchange, then compare nativeopposite-side
-editoropening. Clone currently changesselection fromoppositeside tooriginal
-saved drivingedge and moveseditor; notyet nativeproven. NativeFrontall36selected,
-tinyrotated4×1; zoomforpreciseedgeselection. CloneToprotated1.9795×1widthedge
-selected. PeekabooGUIbridgesocketexplicit. No competingrunner. RemainingQA09,
-publicationbacklog and fullacceptancecontinue. Inventory4passed/0failed/
-1deviceblocked/51incomplete. Immutable05be744IPA unchanged, physicalinput
-unverified. Preserveunrelatedidentityfiles/oldstalledDocs/watchdog. No merge,
-install/hostrestart/securitychanges.
+Diagnosis publication509/all5 hashes/no image or text loss verified. Four
+post-fix images and dated text verified at513 placements, all4hashes once and
+no predecessor loss; master38 note/text/images retained. Exact next commit/push;
+then diagnose native opposite-side annotation lifecycle and continue QA09.
+Evidence editor-* PNGs retained/hashed in center-matrix. Peekaboo scroll still
+blocked by CLI/bridge foreground argument mismatch; no zoom/app failure claim.
+Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA untouched;
+no merge/install/host changes. Preserved unrelated identity files and watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

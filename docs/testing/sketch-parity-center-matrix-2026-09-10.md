@@ -424,3 +424,30 @@ path remains in diff. Final-build screenshot publishedonce, illustrated504
 placements/all7batchhashes across503+1, prior text/imagesretained; master38
 finalbuildnoteonce. Exactnext nativeopposite-edge editorselectioncomparison;
 no full QA09closure or IPAchange.
+
+## Selected-side editor preservation — September 10
+
+Confirmed native opposite-height editor retains the selected side on open and
+Escape; clone previously switched to original driving edge. Narrow correction
+keeps selected parallel side while preserving dimension refs and values. Clean
+first run13/13: `/tmp/os3d-qa09-editor-side-preservation-20260910.xcresult`.
+All four side fixtures cover open/cancel selection and leader geometry, unchanged
+sketch and original edit/history checks. No test runner remains.
+
+Live clone left-side open/Escape and 1→0.5 mm commit retain width1.9795 and
+center320630. Undo1/Redo0.5 verified. Native6→3 history retains center703351.
+Paired gallery reopen native8×3 and clone1.9795×0.5 plus centerLock verified.
+Native shows additional opposite-side3mm annotation after commit/reopen; this
+separate lifecycle/constraint distinction remains open, no full QA09 closure.
+Native trial dismissed using Skip; initial rapid entry clicks did not enter,
+settled single Items selection plus Normal to Sketch succeeded. No purchase.
+Evidence editor-* in center-matrix with SHA256SUMS. Diagnosis publication509
+placements/all5 hashes/no predecessor text/image loss verified; four post-fix
+images inserted once and await export verification. Master note pending.
+
+Selected-side editor correction: clean13/13, paired open/Escape and sizing
+history, final gallery reopen verified. Illustrated513 placements/all4postfix
+hashes plus5diagnosis hashes/no predecessor loss; master38 dated note and full
+prior text/images verified. Exports `/tmp/os3d-qa09-editor-fixed-published.docx`
+and `editor-fixed-master.docx`. Native opposite-side annotation distinction
+remains open; QA09/inventory unchanged. See center-matrix September10 receipt.

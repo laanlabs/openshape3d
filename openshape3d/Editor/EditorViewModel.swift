@@ -12396,7 +12396,18 @@ final class EditorViewModel {
         let definingIDs = Set(label.refs.map(\.entityID))
         // A rectangle's baseline/height editor should not discard the other
         // three selected sides (and its other size badge) when opened.
-        if selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs) {
+        var keepsSelectedParallelSide = false
+        if label.kind == .distance, label.refs.count == 2,
+           label.refs[0].entityID == label.refs[1].entityID,
+           Set(label.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+           let group = selectedMigratedRectangleEdges,
+           let selectedID = selectedSketchEntityIDs.first,
+           let selectedIndex = group.firstIndex(of: selectedID),
+           let drivingIndex = group.firstIndex(of: label.refs[0].entityID) {
+            keepsSelectedParallelSide = selectedIndex % 2 == drivingIndex % 2
+        }
+        if !keepsSelectedParallelSide &&
+            (selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs)) {
             selectedSketchEntityIDs = definingIDs
         }
         selectedSketchPoints.removeAll()

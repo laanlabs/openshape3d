@@ -1717,3 +1717,10 @@ includesall4side edit/Undo anddivergentoppositeside guard. Paired live height
 edits/history/finalreopen plusfinalbuildsavedreadoutverified. Earlierfixture
 andcompile-only failures retained. Editoropening stillresetsselectedoppositeside
 todrivingedge; nativecomparisonpending. No fullQA09/deviceclaim.
+
+Selected-side editor correction: clean13/13, paired open/Escape and sizing
+history, final gallery reopen verified. Illustrated513 placements/all4postfix
+hashes plus5diagnosis hashes/no predecessor loss; master38 dated note and full
+prior text/images verified. Exports `/tmp/os3d-qa09-editor-fixed-published.docx`
+and `editor-fixed-master.docx`. Native opposite-side annotation distinction
+remains open; QA09/inventory unchanged. See center-matrix September10 receipt.
