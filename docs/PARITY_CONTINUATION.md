@@ -1,31 +1,29 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 16:28 EDT
+## Active continuation — September 10 16:49 EDT
 
-HEAD dcb69b3 pushed. Default-ring fix clean3/3; live direct rotation/explicit
-controls/UndoRedo geometry/reopen Lock+dimensions verified. Illustrated481
-placements/all3 new hashes; master38 note verified. Prior QA08 backlog six images
-verified at478. No text/image loss. Immutable05be744IPA unchanged.
+HEAD f09b233; verified single-edge readout correction ready to commit/push.
+Final `/tmp/os3d-qa09-side-measurement-corrected-20260910.xcresult` clean13/13,
+no runner. All four side/edit/exactUndo, external/centerselection and divergent
+oppositeedge measurement guard included. Prior12/13fixturefail, compile-only
+labelimmutability and commandinitializer failures retained in receipt. Removed
+unintended measurement-path duplicate beforefinalbuild; labelonlychange remains.
 
-Verified structural badge presentation follow-up: RectangleConstruction,
-EditorViewModel and SketchAnnotationVisibilityTests. Native AlwaysShowConstraints
-ON still hides internal rectangle relations; restoredOFF. Clone suppresses only
-saved migrated group's structural relations, preserving explicit selection and
-conflict glyphs. CenterLock uses existing contextual control. First build failed
-because ConstraintRef is not Hashable; no tests ran. Corrected order-independent
-pair equality/conflict assertion passed clean12/12; no runner. Live edge/center
-Unlock/movement/Undo/Items rule/finalreopen passed. Illustrated490/all4hashes,
-master38 note verified; predecessor text/images retained.
-Result /tmp/os3d-qa09-structural-glyphs-corrected-20260910.xcresult and .log.
+Pairedlive bothsizes/selectedsideleader, heightedit/native2→1clone1.4814→1,
+history and galleryreopen verified. Native4×1center703351; clone1.9795×1center
+320630. Finalbuild clonegallery/selectedsidevalues rechecked. Illustrated504
+placements/all7newbatchhashes, master38note verified, predecessorcontentretained.
+Recoveredearlierbacklog QA08leaders/corners/centerLock alreadyverified through497.
 
-Exact next commit/push this verified correction, then saved migrated rectangle
-selected-edge dual dimensions: native showsboth, cloneonlyselectedsize. Continue
-remaining QA09 and publication
-backlog. Inventory4passed/0failed/1deviceblocked/51incomplete. No full QA09/device
-claim. Native saved tinyrotated4×2; clone saved rotated1.9795×1.4814. Evidence
-center-matrix/ring-* and native-*glyph* copied/hashlogged; receipt
- docs/testing/sketch-parity-center-matrix-2026-09-10.md. Soleowner; no merge,
-installation, host restart/security changes. Unrelated identity files preserved.
+Exactnext commit/push currentverifiedchange, then compare nativeopposite-side
+editoropening. Clone currently changesselection fromoppositeside tooriginal
+saved drivingedge and moveseditor; notyet nativeproven. NativeFrontall36selected,
+tinyrotated4×1; zoomforpreciseedgeselection. CloneToprotated1.9795×1widthedge
+selected. PeekabooGUIbridgesocketexplicit. No competingrunner. RemainingQA09,
+publicationbacklog and fullacceptancecontinue. Inventory4passed/0failed/
+1deviceblocked/51incomplete. Immutable05be744IPA unchanged, physicalinput
+unverified. Preserveunrelatedidentityfiles/oldstalledDocs/watchdog. No merge,
+install/hostrestart/securitychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

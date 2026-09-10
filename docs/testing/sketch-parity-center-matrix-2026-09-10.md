@@ -389,3 +389,38 @@ bothsavedsizeleaders whilecloneoneedge showsonlyone, nextconfirmedgap.
 Illustrated490placements/all4hashes/no predecessor loss and master38note verified;
 prior text retained. Fiveoldercornerimages verified486beforethisbatch. Evidence
 glyph-* and native-settings-verify retained/hashed. No runner; IPAunchanged.
+
+Single-edge dualreadout initialrun12passed/1failed: all4side edit/Undo checks
+passed; unrelated/centerselectionassertions failed becausefixture retained
+explicitselecteddimension. Clearedexplicitselection/cancellededitor before
+unrelatedfixturechecks; corrected13/13clean. Livewidth/heightedge nowshowsboth
+1.9795/1.4814 withno thirdcandidate. Opposite selectedside retainedlabelon
+originalside, unlike native reference; narrowlabelgeometry correctionnowunder
+32682regression selected-side-leaders. Drivingrefs/valuesunchanged. No runner
+claimforprior30721(done); current32682exclusive. Prior13passnotfinalpass.
+RetainedcenterLockpublication497/all7hashes/no predecessor loss verified.
+
+Selected-side finalrun clean13/13 aftercompile-onlyimmutablelabel failure;
+geometry tupleadjusted beforeconstructingimmutablelabel. Live selectedwidth
+andperpendicularside showbothsizes, selectedsideleadercorrect. Firstheighttap
+addedsecondedge/ring, excluded; deselectedthenheightonlyverified. Heightedit
+1.4814→1 retainswidth1.9795/center320630; UndoRedoexactstatescaptured. Native
+2→1 andhistory preservecenter; attemptedtinyreselectionhitcenter, excluded.
+Pairedfinalgalleryreopen: native4×1, cloneLock/1.9795×1. TrialSkip/Normalworked.
+Editoropening shifts selectedoppositeside todrivingedge; retainedasnextnative
+comparison, no parityclaim. Side-* PNGs copied/hashed. Sixreportimages inserted
+once and exportverificationpending; no runner.
+
+Publication503/all6hashes/master38note verified, no predecessor loss. Review
+found broadreplacement alsoadjusted measuredValue, removed beforecommit; new
+unsolvedoppositeside fixture asserts drivingmeasurement4notselectedside6. First
+newguardbuild failed on incorrectReplaceSketchGeometryCommand initializer,
+no tests ran. Correctedtitle/before/after run2037 active, side-measurement-corrected.
+Final exact-build live recheck required; prior live pictures retainedasinterim.
+
+Final correctedmeasurementguardrun clean13/13; no runner. Updatedclone
+relaunch/gallery/selected-side values1.9795×1 verified. No change to measurement
+path remains in diff. Final-build screenshot publishedonce, illustrated504
+placements/all7batchhashes across503+1, prior text/imagesretained; master38
+finalbuildnoteonce. Exactnext nativeopposite-edge editorselectioncomparison;
+no full QA09closure or IPAchange.

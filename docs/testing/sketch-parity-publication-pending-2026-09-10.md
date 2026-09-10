@@ -27,6 +27,15 @@ recovered heading once. This closes publication of the corner correction below,
 not its remaining native history/edge-color acceptance gaps. Other backlog
 sections remain pending.
 
+## 16:32 recovered center-Lock and native reopen batch
+
+Seven retained center-only Lock images now published once, including previously
+blocked then recovered native reopen. Export
+`/tmp/os3d-qa08-backlog-center-published.docx`:497 placements, all7hashes once,
+no predecessor loss from490 and all prior text retained. Recovered datedheading
+once. This closes the center-only Lock/broader-reopen publication queue below;
+direct-padlock, halo, edge-color and later sections remain pending.
+
 ## Historical sign-out blocker
 
 Google Docs signed out during the QA-08 post-fix update. Preserve existing tabs.

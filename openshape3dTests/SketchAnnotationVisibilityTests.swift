@@ -188,6 +188,69 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testMigratedRectangleSingleEdgeKeepsBothSavedSizesWithoutDuplicates() throws {
+        let vm = try makeViewModel(), id = UUID(), unrelated = UUID()
+        var source = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        source.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+        source.dimensions = [.init(kind: .horizontal, refs: refs, value: 4),
+                             .init(kind: .vertical, refs: refs, value: 2)]
+        var migrated = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(
+            source, id: id, edgeIDs: [id, UUID(), UUID(), UUID()]))
+        migrated.entities.append(.line(id: unrelated, a: SIMD2(8, 0), b: SIMD2(10, 0)))
+        vm.session.perform(AddSketchCommand(sketch: migrated))
+        vm.mode = .sketching(migrated.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+        for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
+            vm.selectedSketchEntityIDs = [edge]
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2, "Every side must show exactly the two saved sizes")
+            XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap(\.dimensionID)), Set(source.dimensions.map(\.id)))
+            let group = try XCTUnwrap(migrated.rotatedRectangleEdges[id])
+            let edgeIndex = try XCTUnwrap(group.firstIndex(of: edge))
+            let selectedSize = try XCTUnwrap(vm.sketchDimensionLabels.first {
+                $0.dimensionID == source.dimensions[edgeIndex % 2].id
+            })
+            guard case let .line(_, a, b)? = migrated.entities.first(where: { $0.id == edge }) else {
+                return XCTFail("Expected rectangle side")
+            }
+            XCTAssertEqual(selectedSize.worldStart, migrated.plane.toWorld(a))
+            XCTAssertEqual(selectedSize.worldEnd, migrated.plane.toWorld(b))
+            XCTAssertEqual(selectedSize.refs, migrated.dimensions[edgeIndex % 2].refs,
+                           "Presentation must not remap driving geometry")
+            let height = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == source.dimensions[1].id })
+            vm.beginDimensionEdit(height)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            vm.commitDimensionEdit("1")
+            XCTAssertEqual(vm.activeSketch?.dimensions.count, 2)
+            XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [4, 1])
+            vm.session.undo()
+            XCTAssertEqual(vm.activeSketch, migrated)
+        }
+        // A real geometry tap clears explicit dimension selection; changing
+        // only entity IDs in this fixture must not simulate that incompletely.
+        vm.selectedDimensionID = nil
+        vm.cancelDimensionEdit()
+        vm.selectedSketchEntityIDs = [unrelated]
+        XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == nil })
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchPoints = [.init(entityID: id, role: .center)]
+        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.dimensionID == source.dimensions[1].id },
+                       "Center selection must not expand to the entire saved group")
+        // A malformed/unsolved opposite edge must not silently replace the
+        // driving reference's measurement merely because that edge is selected.
+        var divergent = migrated
+        let opposite = try XCTUnwrap(migrated.rotatedRectangleEdges[id])[2]
+        let oppositeIndex = try XCTUnwrap(divergent.entities.firstIndex { $0.id == opposite })
+        divergent.entities[oppositeIndex] = .line(id: opposite, a: SIMD2(6, 2), b: SIMD2(0, 2))
+        vm.session.perform(ReplaceSketchGeometryCommand(title: "Unsolved fixture", before: migrated, after: divergent))
+        vm.selectedSketchPoints = []
+        vm.selectedSketchEntityIDs = [opposite]
+        let drivingWidth = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == source.dimensions[0].id })
+        XCTAssertEqual(drivingWidth.displayValue, 4, "Selection must not replace driving-side measurement")
+    }
+
     func testMigratedRectangleStructuralBadgesStayImplicitButAccessible() throws {
         let vm = try makeViewModel(), id = UUID(), outsideID = UUID()
         var source = Sketch(plane: .ground, entities: [

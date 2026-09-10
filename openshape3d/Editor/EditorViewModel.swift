@@ -12051,6 +12051,19 @@ final class EditorViewModel {
         return loop
     }
 
+    /// A single side still belongs to its saved migrated center rectangle.
+    /// Keep this distinct from arbitrary connected lines and point selection.
+    private var selectedMigratedRectangleEdges: [UUID]? {
+        guard selectedSketchPoints.isEmpty, selectedSketchEntityIDs.count == 1,
+              let id = selectedSketchEntityIDs.first, let sketch = activeSketch else { return nil }
+        return sketch.rotatedRectangleEdges.values.first { ids in
+            ids.count == 4 && Set(ids).count == 4 && ids.contains(id) &&
+            ids.allSatisfy { edgeID in sketch.entities.contains {
+                if case .line = $0 { return $0.id == edgeID }; return false
+            } }
+        }
+    }
+
     private static func lineLengthRefs(_ id: UUID) -> [ConstraintRef] {
         [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
     }
@@ -12181,7 +12194,20 @@ final class EditorViewModel {
 
         func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
                        refs: [ConstraintRef], value: Double) -> SketchDimensionLabel? {
-            guard let g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+            guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+            if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
+               Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+               let group = selectedMigratedRectangleEdges,
+               let selectedID = selectedSketchEntityIDs.first,
+               let selectedIndex = group.firstIndex(of: selectedID),
+               let dimensionIndex = group.firstIndex(of: refs[0].entityID),
+               selectedIndex % 2 == dimensionIndex % 2,
+               case let .line(_, a, b)? = sketchEntity(selectedID, in: sketch) {
+                // Reposition the saved annotation, never its driving refs.
+                g.start = a
+                g.end = b
+                g.anchor = (a + b) / 2
+            }
             // Angles are unitless; lengths follow the display unit. The
             // document itself always stores millimetres — `value` is mm here.
             // Radius and diameter carry the CAD leader (R / Ø, the same
@@ -12264,7 +12290,11 @@ final class EditorViewModel {
                 guard annotationIsVisible(refs: d.refs,
                     alwaysShow: AppSettings.shared.alwaysShowDimensions,
                     explicitlySelected: selectedDimensionID == d.id
-                        || editingDimension?.dimensionID == d.id) else { continue }
+                        || editingDimension?.dimensionID == d.id
+                        || (sketch.id == activeSketch?.id && d.kind == .distance &&
+                            d.refs.count == 2 && d.refs[0].entityID == d.refs[1].entityID &&
+                            Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]) &&
+                            selectedMigratedRectangleEdges?.contains(d.refs[0].entityID) == true)) else { continue }
                 // Keep genuine geometry differences visible, but do not let a
                 // negligible solver residual move a satisfied driving dimension
                 // across a decimal rounding tie after editing another size.
@@ -12295,6 +12325,18 @@ final class EditorViewModel {
                 default: break
                 }
             }
+            // An opposite side shares the rectangle's saved driving size;
+            // don't add a third temporary label over the same size family.
+            if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
+               let edges = selectedMigratedRectangleEdges,
+               let index = edges.firstIndex(of: refs[0].entityID),
+               sketch.dimensions.contains(where: { dimension in
+                   guard dimension.kind == .distance, dimension.refs.count == 2,
+                         dimension.refs[0].entityID == dimension.refs[1].entityID,
+                         Set(dimension.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                         let other = edges.firstIndex(of: dimension.refs[0].entityID) else { return false }
+                   return index % 2 == other % 2
+               }) { return }
             let refSet = Set(refs.map { "\($0.entityID)-\($0.role.rawValue)" })
             let existing = sketch.dimensions.contains { d in
                 d.kind == kind &&

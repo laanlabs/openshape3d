@@ -1707,3 +1707,13 @@ conflict visibility. CenterLock uses existing control. Clean12/12 after compile-
 only failure; live edge/centerUnlock/movement/history/Items-rule/reopen verified.
 Illustrated490/master38 export verified. Selected-edge dual saved dimensions
 remain a confirmed follow-up; no QA09 closure.
+
+## September 10 — Single-side saved rectangle readouts
+
+Saved migrated center rectangle exposes both driving sizes when one edge is
+selected; no duplicate opposite-side candidate. Matching size leader follows
+selectedparallel side without modifying drivingrefs/measurement. Final13/13
+includesall4side edit/Undo anddivergentoppositeside guard. Paired live height
+edits/history/finalreopen plusfinalbuildsavedreadoutverified. Earlierfixture
+andcompile-only failures retained. Editoropening stillresetsselectedoppositeside
+todrivingedge; nativecomparisonpending. No fullQA09/deviceclaim.
