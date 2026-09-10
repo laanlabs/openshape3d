@@ -1644,3 +1644,13 @@ size/history and saved recovery verified. Earlier passing incorrect expectation
 withdrawn in receipt. QA09 remains partial; half-tie display0.435→0.434 after
 height edit remains separate numeric diagnosis. Google publication blocked.
 Evidence: `testing/sketch-parity-center-matrix-2026-09-10.md`.
+
+### September10: center sizing readout precision and unchanged accept
+
+Compact millimeter labels now expose four decimals, matching native0.4345.
+Numerical solver residuals no longer flip a satisfied dimension across a rounding
+tie. Paired height edits/history and clone saved recovery retain0.4345.
+Unchanged driving-dimension acceptance now skips redundant update/solve/history;
+paired native and live clone Undo/Redo pass. Clean36 unit checks, then retained
+1pass/1failure numeric run, corrected3/3. QA09 still partial (constraints, broad
+UI and signed-out publication remain). Receipt: testing/sketch-parity-center-matrix-2026-09-10.md.

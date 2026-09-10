@@ -152,3 +152,61 @@ Items re-entry; clone has short-rectangle selection.
 Evidence all `os3d-qa09-leaders-*.png` copied/hashed with predecessors under
 center-matrix. Google still signed out; no new publication count. Final leader
 fix ready to commit; next rounding diagnosis and remaining finite QA09 constraints.
+
+## Numeric readout follow-up — in progress
+
+Leader fix27e6a4e pushed. Read-only simulator SwiftData inspection (inline blob
+prefix removed, store not modified) saved exact fixture to
+`center-matrix/os3d-qa09-rounding-saved-sketch.json`. Driving width0.4345,
+minX1.1313221349728357/maxX1.5658221349728356 => measured0.4344999999999999.
+Driving height0.313, solved residual ~1e-12. Confirms floating-point rounding
+noise, not visible geometry drift. Native same source0.869/2 displays0.4345mm;
+clone prior readouts0.435 then0.434 confirm metric precision gap as well.
+Native same-input edit occurred from all36edge re-entry selection and moved
+its small rectangle's horizontal position; do not use it as center-anchor proof.
+
+Implemented four-decimal compact MILLIMETRE labels (other metric units unchanged;
+imperial alreadyfour) and stored-value readout only when measured difference
+is <=1e-10 relative/absolute scale. Real unsatisfied dimensions remain measured.
+Tests cover exact saved coordinates, residuals on both sides of a rounding tie,
+genuine0.01mm difference and unchanged geometry. Serialexec53679 owns simulator:
+`/tmp/os3d-qa09-readout-rounding-20260910.xcresult` + `.log`. Live repeat pending.
+
+Precision/residual unit run passed clean36/36,20.072s. Updated clone reopened
+the saved five-rectangle fixture and shows0.4345mm/0.313mm. Height source
+`(0.626/2) mm` retained. Changing height to0.626, Undo0.313 and Redo0.626
+keeps width0.4345 throughout; center/bounds restored as expected. Native same
+source0.869/2 remains0.4345 after height2→0.626 and Items re-selection.
+Native selection-dependent anchor motion is explicitly excluded from sizing
+parity for this numeric sample.
+
+Clone final gallery reopen verified0.4345/0.626 and allfive rectangles;
+`os3d-qa09-rounding-final-labels.png`. Original diagnostic JSON is preserved.
+Attempted second JSON snapshot used stale app-container path after reinstall
+and failed; by the corrected read-only lookup, UI tests had reset the store.
+No final JSON snapshot is claimed. All final PNGs copied/hashed successfully.
+
+Serial numeric UI follow-up10489 now owns simulator (expression/source/history
+and circle diameter workflows), result/log:
+`/tmp/os3d-qa09-readout-rounding-ui-20260910.xcresult`. No further desktop work
+until collected. Google still signed out; local queue only.
+
+### Unchanged-accept follow-up (September10)
+
+Precision numeric UI follow-up finished 1pass/1failure, not a clean pass: circle
+diameter passed53.274s; scalar retained-expression workflow failed33.658s because
+Undo after unchanged accept retained1.5 instead of original1.5314. Native unchanged
+0.626 accept followed by Cmd-Z restored prior2mm visibly; screenshots
+`os3d-qa09-noop-native-editor.png` and `os3d-qa09-noop-native-undo.png`.
+Clone existing-dimension path always emitted an update and re-solved identical
+values. Guard now skips identical driving dimension updates before solving;
+source/lock changes remain edits. Exact geometry/history unit plus two numeric
+UI workflows running in `/tmp/os3d-qa09-unchanged-accept-20260910.xcresult`.
+
+Corrected run completed clean3/3 (93.940s): exact geometry/history unit, circle
+diameter UI, and previously failing scalar UI. Live saved line1mm was changed
+to1.5 through `1+.5`, reopened as `(1+.5) mm`, accepted unchanged; one toolbar
+Undo restored1mm and Redo1.5. Native Redo restored0.626 after prior2mm Undo.
+All no-op screenshots copied/hashed in center-matrix. This confirms history
+semantics for these samples, not all selection/constraint contexts. Prior36unit
+passes remain a separate run; initial1pass/1failure retained. Docs signedout.

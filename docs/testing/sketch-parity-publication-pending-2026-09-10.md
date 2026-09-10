@@ -178,3 +178,8 @@ down-right/up-left mapping correction, allfour clone release states, paired
 numeric/history and final reopen. Final27/27; prior incorrect interpretation
 retained/withdrawn. Numeric0.435→0.434 display follow-up remains open. No inserts
 attempted while signed out; publication466/master38 unchanged.
+
+- QA09 precision + unchanged-accept history: center-matrix rounding/noop PNGs
+  and SHA256SUMS retained. Native0.4345 and unchanged0.626→Undo2; clone stable
+  precision, saved reopen, arithmetic unchanged accept→Undo1→Redo1.5.
+  Google signed out; no new insert attempted or publication counted.

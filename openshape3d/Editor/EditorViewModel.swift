@@ -12139,11 +12139,13 @@ final class EditorViewModel {
                     alwaysShow: AppSettings.shared.alwaysShowDimensions,
                     explicitlySelected: selectedDimensionID == d.id
                         || editingDimension?.dimensionID == d.id) else { continue }
-                // Prefer the measured value so the label is a truthful readout
-                // of the solved geometry (matches the driving value when
-                // satisfied).
+                // Keep genuine geometry differences visible, but do not let a
+                // negligible solver residual move a satisfied driving dimension
+                // across a decimal rounding tie after editing another size.
                 let stored = d.kind == .angle ? d.value * 180 / .pi : d.value
-                let display = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
+                let measured = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
+                let display = abs(measured - stored) <= max(1, abs(stored)) * 1e-10
+                    ? stored : measured
                 if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
                                          kind: d.kind, refs: d.refs, value: display) {
                     labels.append(label)
@@ -12460,6 +12462,10 @@ final class EditorViewModel {
             after.value = stored
             after.formula = formula
             after.displayExpression = displayExpression
+            // Accepting an unchanged driving value dismisses the editor, but
+            // must not consume Undo or perturb geometry through another solve.
+            // Unlocking and changes to the retained source remain real edits.
+            if dimensionCommitLocked && after == before { return }
             proposed.dimensions[idx] = after
             candidateDimensionID = dimID
             setup = UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after)

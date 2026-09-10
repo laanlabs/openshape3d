@@ -16,6 +16,29 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testUnchangedExpressionAcceptPreservesGeometryAndUndoStep() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let entity = SketchEntity.circle(id: id, center: SIMD2(3, 4), radius: 2)
+        let sketch = openSketch(vm, entities: [entity])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("1+.5")
+        let geometry = try XCTUnwrap(vm.activeSketch).entities
+        let dimensions = try XCTUnwrap(vm.activeSketch).dimensions
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension).text)
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        XCTAssertEqual(vm.activeSketch?.dimensions, dimensions)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [entity])
+        XCTAssertEqual(vm.activeSketch?.dimensions.count, 0)
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
+        XCTAssertEqual(vm.activeSketch?.dimensions, dimensions)
+    }
+
     /// MainActor view-model dealloc inside an XCTest invocation crashes the
     /// simulator runtime, so retain them for the process lifetime (mirrors
     /// SelectionUXTests.retainedViewModels).
@@ -137,6 +160,34 @@ final class ConstraintApplyTests: XCTestCase {
             XCTAssertEqual(vm.activeSketch?.rectangleSizingAnchors[id], expected)
             let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(saved))
             XCTAssertEqual(decoded.rectangleSizingAnchors[id], expected)
+        }
+    }
+
+    func testDrivingReadoutIgnoresRoundingNoiseButShowsRealGeometryDifferences() throws {
+        let previousUnit = AppSettings.shared.unit
+        AppSettings.shared.unit = .millimeters
+        defer { AppSettings.shared.unit = previousUnit }
+        for value in [0.4345, 0.43445] {
+            for residual in [-1e-12, 1e-12, 0.01] {
+                let vm = try makeViewModel(), id = UUID()
+                let dimension = SketchDimension(kind: .horizontal, refs: [
+                    ConstraintRef(entityID: id, role: .endpointA),
+                    ConstraintRef(entityID: id, role: .endpointB)
+                ], value: value, displayExpression: "(0.869/2) mm")
+                let sketch = Sketch(plane: .ground, entities: [
+                    .rect(id: id, min: SIMD2(1.1313221349728357, 2.4110153731990893),
+                          max: SIMD2(1.1313221349728357 + value + residual, 2.724015373200147))
+                ], dimensions: [dimension])
+                vm.session.perform(AddSketchCommand(sketch: sketch))
+                vm.mode = .sketching(sketch.id, tool: nil)
+                vm.selectedSketchEntityIDs = [id]
+                let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == dimension.id })
+                let expected = residual == 0.01 ? value + residual : value
+                XCTAssertEqual(label.displayValue, expected, accuracy: 1e-14)
+                XCTAssertEqual(label.text, DisplayUnit.millimeters.compactLengthString(fromMM: expected))
+                XCTAssertEqual(vm.activeSketch?.entities, sketch.entities,
+                               "Readout stabilization must not modify geometry")
+            }
         }
     }
 

@@ -1,25 +1,20 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 14:13 EDT
+## Active continuation — September10 14:40 EDT
 
-HEAD7fb14cf pushed; center leader correction/docs ready to commit. No runner.
-Final corrected27/27,41.579s:
-`/tmp/os3d-qa09-center-leaders-final-20260910.xcresult`. Live allfour clone
-leader directions match controlled native; paired two-axis center sizing/history
-and gallery reopen verified. Initial compile-only failure and wrong-expectation
-27/27 retained/withdrawn in QA09receipt.
-
-Exact next commit/push leader correction; diagnose numeric display half-tie:
-clone width0.869/2 shows0.435, then height0.626/2 changes width display0.434,
-no visible width/center movement. Need exact saved/source values and native
-same-value comparison before fix. Then remaining QA09 constraints/finite cases.
-Clone saved Sketch1 five rectangles; up-left centerlocal450,290 half-size
-bounds432,278–467,303, labels0.434/0.313, short-side/centerselection. Native
-Sketch04 nine rectangles, newestup-left2×2, all36edgesselected afterreopen.
-No pendingdrawing. Both docs signedout, local center-matrix evidence copied/hashed.
-Inventory4passed/0failed/1deviceblocked/51incomplete; lastpublication466/master38.
-Immutable05be744IPA untouched. Soledesktop/buildowner; unrelatedfilespreserved.
-No merge/deviceinstall/restart/securitychanges.
+HEAD27e6a4e; precision/no-op fixes being committed now. No runner: exec18845
+completed clean3/3 in93.940s (`/tmp/os3d-qa09-unchanged-accept-20260910.xcresult`).
+Prior36unit pass, initialnumeric1pass/1failure retained. Live clone1→1.5,
+unchanged `(1+.5) mm` accept, one Undo1 and Redo1.5 passed. Native unchanged
+0.626accept Undo2 and Redo0.626 passed. Native front nine rectangles preserved;
+clone top saved-line fixture1.5 selected. Both apps no drawing tool armed.
+Exact next: verify push, continue QA09 center constraints (lockcenter then both
+sizes, partial-side constraint compatibility), paired capture/fix/test/document.
+Evidence center-matrix rounding/noop PNGs copied/hashed; original diagnosticJSON
+retained. Earlier five-rectangle clone store replaced by UI tests, finalPNGs kept.
+Google signedout466/master38, newpublication localonly. Inventory4passed/0failed/
+1deviceblocked/51incomplete. Immutable05be744IPA untouched. Unrelated identity
+files preserved. No merge/install/restart/security changes; sole desktop owner.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

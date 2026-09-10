@@ -56,7 +56,8 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
         // the input suffixes shown in the unit picker. Keep those input tokens
         // unchanged, and retain the fourth decimal used by decimal feet.
         let imperial = self == .inches || self == .feet
-        let scale = imperial ? 10000.0 : 1000.0
+        // Paired native millimetre input 0.869/2 retains 0.4345 on canvas.
+        let scale = imperial || self == .millimeters ? 10000.0 : 1000.0
         let rounded = (v * scale).rounded() / scale
         if self == .inches { return String(format: "%g", rounded) + "\"" }
         if self == .feet { return String(format: "%g", rounded) + "'" }
