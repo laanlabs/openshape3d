@@ -131,3 +131,21 @@ readouts/geometry in both apps. No runner. Final diagnostic publication verified
 274placements/all4 new hashes; prior270assets preserved in initial export and
 final repeated export /tmp/os3d-numeric-publication-final2.docx. Last click-away/
 Escape screenshot addendum still pending.
+
+## Specific diagnostic follow-up
+
+Paired clone-1 dismisses unchanged2mm;1/0 and empty retain editor with generic
+yellow warning. Native empty specifically says A value is needed but none is
+given; division and syntax messages are specific. Relevant /tmp screenshots:
+os3d-negative-clone-result, os3d-div-clone-result, os3d-empty-native-result,
+os3d-empty-clone-result. No geometry mutation. Added parser-backed diagnostic
+classification (actual evaluated zero denominator, not substring matching),
+with empty/division/syntax text. Regression exec51509 active at
+/tmp/os3d-numeric-diagnostics-20260909.xcresult. Live wording pending.
+
+Specific diagnostic run passed clean22/22 (14expression+8keypad). Live empty,
+1/0 and2+ now show the native-observed specific wording while retaining drafts;
+screenshots os3d-specific-empty/div/syntax-result inspected. Warning field
+indicator/layout and count limits remain open. Dismissal export now278placements,
+all4 new hashes once and zero prior asset loss, /tmp/os3d-numeric-dismissal-
+publication2.docx. Latest specific-message images pending publication. No runner.

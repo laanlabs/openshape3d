@@ -10,6 +10,19 @@ import XCTest
 
 final class ExpressionEvaluatorTests: XCTestCase {
 
+    func testDimensionDiagnosticsUseParsedDenominators() {
+        XCTAssertEqual(ExpressionEvaluator.validationMessage(" ", variables: [:]),
+                       "A value is needed but none is given.")
+        for expression in ["1/0", "1/(2-2)", "1/zero", "1/0 mm"] {
+            XCTAssertEqual(ExpressionEvaluator.validationMessage(expression, variables: ["zero": 0]),
+                           "Expression is invalid. Cannot divide by zero.", expression)
+        }
+        XCTAssertEqual(ExpressionEvaluator.validationMessage("2+", variables: [:]),
+                       "Expression contains a syntax error that cannot be parsed.")
+        XCTAssertNil(ExpressionEvaluator.validationMessage("1/0.5", variables: [:]))
+        XCTAssertNil(ExpressionEvaluator.validationMessage("1/zero", variables: ["zero": 2]))
+    }
+
     func testPlainNumbers() {
         XCTAssertEqual(ExpressionEvaluator.evaluate("20"), 20)
         XCTAssertEqual(ExpressionEvaluator.evaluate("25.4"), 25.4)

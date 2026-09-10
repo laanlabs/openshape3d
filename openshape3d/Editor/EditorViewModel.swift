@@ -12069,7 +12069,8 @@ final class EditorViewModel {
         // e.g. "width/2"; store the raw text as the driving formula only when it
         // references a variable/function (a plain number keeps `formula: nil`).
         guard let parsed = ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
-            editingDimension?.validationMessage = "Expression is invalid. Check the expression and try again."
+            editingDimension?.validationMessage = ExpressionEvaluator.validationMessage(
+                rawText, variables: session.variableValues())
             return
         }
         // Keep malformed expressions editable; valid out-of-range values dismiss.

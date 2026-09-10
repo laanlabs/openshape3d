@@ -2,9 +2,9 @@
 
 ## Active continuation — September 9, 23:09 EDT
 
-Refusal/lifecycle revision5a44568 pushed; field-warning/click-away follow-up now
-verified and ready for documentation commit. Immutable05be744 IPA unchanged.
-No build/test runner. Exclusive desktop ownership; unrelated identity files and
+Refusal/lifecycle revision5a44568 and field-warning/click-away d0205a5 pushed. Immutable05be744 IPA unchanged.
+Parser-diagnostic regression exec51509 completed clean22/22:
+/tmp/os3d-numeric-diagnostics-20260909.xcresult. No runner. Exclusive desktop ownership; unrelated identity files and
 memory/ preserved. Read-only paired iPad eligibility/profile match verified; no
 installation or physical-input validation.
 
@@ -16,12 +16,16 @@ invalid blank-click dismissal and Escape preservation captured. Warning exact
 parser wording/field indicator remain different. QA33/40 remain partial.
 
 Illustrated274placements/all4 final diagnostic hashes verified; master38images
-with continuation note verified. Last click-away/Escape addendum pending.
+with continuation note verified. Last click-away/Escape addendum export-verified278/all4hashes; specific
+message addendum pending.
 Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md; evidence under
 reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery.
 
-Next: finish final click-away/Escape publication, then paired negative/division
-clone checks and empty/count limits; continue system-keyboard/edge-layout matrix.
+Next: publish specific empty/division/syntax diagnostics (live passed), then
+polygon count limits and system-keyboard matrix.
+Paired clone negative/division/empty lifecycle now captured; specific generic
+warning gap confirmed. Parser-backed messages implemented/test-running. Finish
+last click-away/Escape export verification, then count/system-keyboard matrix.
 Native1924 in rotated Top Sketch02 with29.0517mm line selected, keypad closed.
 Clone6492 in Untitled2 ground sketch2mm line selected, keypad closed.
 Peekaboo see works; image route fails web-focus mutation-outcome error. Use
