@@ -104,18 +104,17 @@ final class SketchParityStepsUITests: XCTestCase {
         let (app, w) = freshSketch(tool: "Rect")
         point(w, 0.28, 0.42).press(forDuration: 0.15, thenDragTo: point(w, 0.62, 0.60))
         sleep(1)
-        // Drawing opens the value field for ONE side (bug report 5ef841c2),
-        // so the other side is the badge: both dimensions are present, one
-        // editable. `SketchAnnotationVisibilityTests` covers the selected case
-        // as pure values, without coordinates that a resize can invalidate.
-        let editing = app.buttons.matching(identifier: "DimensionLabel")
+        // Paired live rechecks established that release retains both readouts
+        // without opening the keypad. Explicitly tapping either badge edits it.
+        let readouts = app.buttons.matching(identifier: "DimensionLabel")
             .allElementsBoundByIndex.map(\.label)
-        print("PARITY rect while-editing badges=\(editing)")
+        print("PARITY rect release badges=\(readouts)")
         shot(app, "rect-1-drawn")
         let field = app.textFields.matching(identifier: "DimensionField").firstMatch
-        XCTAssertTrue(field.exists, "one side opens for typing")
-        XCTAssertEqual(editing.count, 1,
-                       "and the other shows as a badge; got \(editing)")
+        XCTAssertFalse(field.exists, "release must not auto-open the keypad")
+        XCTAssertEqual(readouts.count, 2, "both sides show as badges; got \(readouts)")
+        app.buttons["DimensionLabel"].firstMatch.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 3), "a badge opens explicitly for typing")
     }
 
     /// Is the first stroke after entering a sketch different, or was that a
@@ -141,13 +140,9 @@ final class SketchParityStepsUITests: XCTestCase {
         point(w, 0.45, 0.45).press(forDuration: 0.15, thenDragTo: point(w, 0.62, 0.45))
         sleep(1)
         shot(app, "circle-1-drawn")
-        // Drawing a circle opens its value field on lift-off, so read the field.
+        // Release retains the diameter badge without auto-opening a keypad.
         let field = app.textFields.matching(identifier: "DimensionField").firstMatch
-        if field.exists {
-            print("PARITY circle field=\(String(describing: field.value))")
-            app.buttons["KeypadCommit"].tap(); sleep(1)
-        }
-        point(w, 0.62, 0.45).tap(); sleep(1)
+        XCTAssertFalse(field.exists, "release must not auto-open the keypad")
         shot(app, "circle-2-selected")
         let labels = app.buttons.matching(identifier: "DimensionLabel")
             .allElementsBoundByIndex.map(\.label)
@@ -174,27 +169,25 @@ final class SketchParityStepsUITests: XCTestCase {
         XCTAssertEqual(glyphs, [], "8° must never be snapped flat")
     }
 
-    /// After a shape auto-opens its value pad, can another tool still be
-    /// picked? `ParityWalkthrough01` fails right here, and `tapPaletteTool`
-    /// falls back to "SketchGroup" — which does not exist inside a sketch — so
-    /// a tool that is merely covered reports as a confusing missing-button.
+    /// After shape release leaves its readouts visible, another tool remains
+    /// directly reachable without an automatic keypad covering the canvas.
     func testAnotherToolIsReachableWhileTheValuePadIsOpen() throws {
         let (app, w) = freshSketch(tool: "Rect")
         point(w, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: point(w, 0.62, 0.60))
         sleep(1)
-        XCTAssertTrue(app.buttons["KeypadDelete"].exists, "the pad auto-opened")
+        XCTAssertFalse(app.buttons["KeypadDelete"].exists, "release must not auto-open the pad")
 
         let circle = app.buttons.containing(.staticText, identifier: "Circle").firstMatch
         print("PARITY circle tool hittable=\(circle.isHittable) frame=\(circle.frame)")
-        shot(app, "pad-open-tool-switch")
+        shot(app, "readouts-visible-tool-switch")
         XCTAssertTrue(circle.isHittable,
-                      "another sketch tool must stay reachable while the pad is up")
+                      "another sketch tool must stay reachable after release")
 
         // …and tapping it must not take the app down.
         circle.tap(); sleep(2)
         shot(app, "after-tool-switch")
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].exists,
-                      "still in the sketch after switching tools with the pad open")
+                      "still in the sketch after switching tools")
         point(w, 0.48, 0.47).press(forDuration: 0.15, thenDragTo: point(w, 0.54, 0.51))
         sleep(2)
         shot(app, "after-second-shape")

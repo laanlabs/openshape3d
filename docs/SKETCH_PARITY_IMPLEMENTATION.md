@@ -1231,3 +1231,19 @@ construction/selection regression and exact-build relaunch. Native circle
 release required a 0.7-second settle before switching tools. Logged automation
 wall times are orchestration evidence, not a product-speed comparison.
 [Receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
+
+## September 9 — final regression gate triage
+
+The first full serial run exposed nine deterministic failures after 1,586 passes
+and three skips. All nine reproduced together rather than being dismissed as
+long-run state. One product issue was confirmed: arming Chamfer/Fillet retained
+the ordinary body transform gizmo over the edge-picking viewport. The tool now
+retains its source body ID while clearing ordinary selection. The remaining
+failures were stale or invalid rendered targeting in UI fixtures (face-interior
+blend taps, offscreen Bug Report attachment control and fixed-fraction Offset
+taps). All nine pass together cleanly, and the final same-working-tree full run
+passes 1,598 total: 1,595 passed, 0 failed and 3 skipped. Exact-build clone live
+smoke confirms neutral no-gizmo Blend activation and real edge acquisition;
+native whole-body activation is retained as a downstream workflow difference,
+not core-sketch parity evidence. See
+[final regression receipt](testing/sketch-parity-final-regression-2026-09-09.md).

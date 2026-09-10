@@ -3095,6 +3095,12 @@ final class EditorViewModel {
         cancelTool()
         blendSelectedEdges = []
         blendBodyID = selection.count == 1 ? selection.first : nil
+        // Blend edge picking owns the viewport now. Keeping the source body
+        // selected left its transform gizmo visible, and ViewportView gives
+        // those controls first refusal on taps. Retain the source identity in
+        // blendBodyID, but remove the ordinary selection so the newly armed
+        // tool gets an unobstructed picking surface.
+        selection.removeAll()
         blendValue = 1
         blendPreview = nil
         mode = .pickingBlendEdges(kind)

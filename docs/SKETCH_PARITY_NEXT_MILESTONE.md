@@ -534,3 +534,14 @@ settled-release pause for circles; invalid fast-switch and clone-orbit attempts
 are retained and excluded. QA-55 passes without claiming comparable automation
 wall times or physical Pencil endurance.
 [Receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
+
+## September 9 — final same-working-tree regression
+
+The final serial regression on the candidate working tree passes 1,598 total:
+1,595 passed, zero failed and three skipped. The nine deterministic failures from
+the prior full run pass together 9/9 after one product viewport-ownership fix and
+rendered-target fixture corrections. Exact-build live clone Chamfer activation and
+edge acquisition are captured; native retains a different edge-first solid-tool
+workflow and is not counted as core-sketch parity. Publication, committed revision,
+and signed device artifact inspection remain the final gate actions. Physical
+iPad/Pencil input remains unverified.

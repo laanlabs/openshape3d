@@ -62,7 +62,10 @@ final class BlendUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: dy))
         }
         let apply = app.buttons["BlendApply"]
-        for pt in [(0.5, 0.42), (0.5, 0.5), (0.55, 0.45), (0.45, 0.55)] {
+        // Start on the rendered top/front edge. A point farther inside the
+        // top face intentionally selects all four face edges; at the default
+        // 1 mm amount that preview is invalid on this 2 mm box.
+        for pt in [(0.42, 0.34), (0.37, 0.27), (0.65, 0.26), (0.59, 0.45)] {
             p(CGFloat(pt.0), CGFloat(pt.1)).tap()
             sleep(1)
             if apply.isEnabled { break }
@@ -104,7 +107,7 @@ final class BlendUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: dy))
         }
         let apply = app.buttons["BlendApply"]
-        for pt in [(0.5, 0.42), (0.5, 0.5), (0.55, 0.45), (0.45, 0.55)] {
+        for pt in [(0.42, 0.34), (0.37, 0.27), (0.65, 0.26), (0.59, 0.45)] {
             p(CGFloat(pt.0), CGFloat(pt.1)).tap()
             sleep(1)
             if apply.isEnabled { break }
@@ -145,8 +148,8 @@ final class BlendUITests: XCTestCase {
         // off, so the loop just keeps going).
         let two = app.staticTexts["2 edges selected"]
         let candidates: [(CGFloat, CGFloat)] = [
-            (0.50, 0.42), (0.62, 0.55), (0.45, 0.55),
-            (0.55, 0.33), (0.70, 0.45), (0.40, 0.45),
+            (0.42, 0.34), (0.37, 0.27), (0.65, 0.26),
+            (0.59, 0.45), (0.81, 0.31), (0.25, 0.41),
         ]
         for pt in candidates {
             p(pt.0, pt.1).tap()
@@ -189,7 +192,7 @@ final class BlendUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: dy))
         }
         // Pick one edge → the drag arrow appears on it.
-        p(0.50, 0.42).tap(); sleep(1)
+        p(0.42, 0.34).tap(); sleep(1)
         XCTAssertTrue(app.staticTexts["1 edge selected"].waitForExistence(timeout: 3))
         let field = app.textFields["BlendValueField"]
         let before = (field.value as? String) ?? ""

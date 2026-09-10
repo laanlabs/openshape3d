@@ -62,6 +62,22 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    /// Painted left circle rim, away from both the diameter annotation and the
+    /// radial control above the circle. The radial control is 30 points beyond
+    /// the top rim, so its distance from the center marker recovers the radius.
+    private func circleLeftRim(
+        _ app: XCUIApplication, window: XCUIElement, radial: XCUIElement
+    ) -> XCUICoordinate {
+        let center = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker").firstMatch
+        XCTAssertTrue(center.waitForExistence(timeout: 3))
+        let radius = max(center.frame.midY - radial.frame.midY - 30, 8)
+        return window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: center.frame.midX - radius - window.frame.minX,
+            dy: center.frame.midY - window.frame.minY
+        ))
+    }
+
     func testSketchAxisTypedMoveCancelAndUndo() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
@@ -73,10 +89,20 @@ final class DimensionUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
         }
         p(0.5, 0.6).press(forDuration: 0.15, thenDragTo: p(0.6, 0.6))
+        sleep(1)
         tapPaletteTool(app, group: "Sketch", label: "Circle")
         let label = app.buttons["DimensionLabel"].firstMatch
         XCTAssertTrue(label.waitForExistence(timeout: 3))
         let before = label.frame, value = label.label
+        let radial = app.descendants(matching: .any)
+            .matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3))
+        // The circle handle anchor is 30 points beyond its top rim. Save the
+        // painted rim coordinate before Undo clears selection and the handle.
+        let reselect = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: radial.frame.midX - window.frame.minX,
+            dy: radial.frame.midY - window.frame.minY + 30
+        ))
         let mode = app.buttons["SketchTransformMode"]
         mode.tap()
         let y = app.buttons["SketchTransform-y"]
@@ -93,11 +119,12 @@ final class DimensionUITests: XCTestCase {
         app.buttons["KeypadCommit"].tap()
         XCTAssertTrue(app.buttons["SketchTransformValue-y"].waitForExistence(timeout: 3))
         app.buttons["UndoButton"].tap()
+        sleep(1)
         XCTAssertEqual(mode.label, "Done")
         XCTAssertFalse(app.buttons["SketchTransformValue-y"].exists)
         XCTAssertFalse(y.exists)
         XCTAssertFalse(app.buttons["ConstraintRailSettings"].exists)
-        p(0.6, 0.6).tap()
+        reselect.tap()
         XCTAssertTrue(y.waitForExistence(timeout: 3), "Reselection must resume the armed transform")
         XCTAssertEqual(mode.label, "Done")
         mode.tap()
@@ -441,9 +468,14 @@ final class DimensionUITests: XCTestCase {
         let center = window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.65))
         center.press(forDuration: 0.15, thenDragTo:
             window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.60)))
+        sleep(1) // release selection must settle before disarming the draw tool
         tapPaletteTool(app, group: "Sketch", label: "Circle")
         setDimension(app, to: "1")
         let label = app.buttons["DimensionLabel"].firstMatch
+        let radialBeforeLock = app.descendants(matching: .any)
+            .matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radialBeforeLock.waitForExistence(timeout: 3))
+        let reselect = circleLeftRim(app, window: window, radial: radialBeforeLock)
         label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let field = app.textFields["DimensionField"]
         XCTAssertTrue(field.waitForExistence(timeout: 3))
@@ -460,7 +492,7 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(field.waitForNonExistence(timeout: 3), "Unlock acts without Commit")
         XCTAssertTrue(label.waitForNonExistence(timeout: 3), "Native clears selection after lock action")
         sleep(1)
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.715, dy: 0.65)).tap()
+        reselect.tap()
         XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.label, "Ø1 mm")
         let radial = app.descendants(matching: .any).matching(identifier: "SketchCircleRadiusHandle").firstMatch
@@ -484,6 +516,7 @@ final class DimensionUITests: XCTestCase {
         let center = window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.65))
         center.press(forDuration: 0.15, thenDragTo:
             window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.60)))
+        sleep(1) // release selection must settle before disarming the draw tool
         tapPaletteTool(app, group: "Sketch", label: "Circle")
         let label = app.buttons["DimensionLabel"].firstMatch
         XCTAssertTrue(label.waitForExistence(timeout: 3))
@@ -507,6 +540,13 @@ final class DimensionUITests: XCTestCase {
         XCTAssertFalse(app.textFields["DimensionField"].exists, "Dragging must not open keypad")
         XCTAssertLessThan(label.frame.midX, initial.midX - 70)
         let moved = label.frame
+        let radial = app.descendants(matching: .any)
+            .matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3))
+        // The circle was drawn with a vertical radius of 5% of the window
+        // height. Reselect its painted left rim, away from the top radial
+        // control and the moved diameter annotation.
+        let reselect = circleLeftRim(app, window: window, radial: radial)
         attach(app, "driven-circle-label-repositioned")
         app.buttons["UndoButton"].tap()
         XCTAssertEqual(label.frame.midX, initial.midX, accuracy: 3)
@@ -519,7 +559,7 @@ final class DimensionUITests: XCTestCase {
         // Painted left rim, away from the top radial-control region; live
         // top and left reselect both work, but the original immediate top tap
         // failed to acquire selection in this XCTest sequence.
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.715, dy: 0.65)).tap()
+        reselect.tap()
         attach(app, "circle-label-after-reselect-touch")
         XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.frame.midX, moved.midX, accuracy: 3)

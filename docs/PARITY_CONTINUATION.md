@@ -1,50 +1,25 @@
 # Parity continuation checkpoint
 
-September 9 ~14:20 EDT. Pushed baseline is `7863cfd` over runtime revision
-`1ea2ea5`. Intentional dirty files
-are documentation-only: this checkpoint, the milestone/implementation/
-acceptance/status ledgers, and
-`docs/testing/sketch-parity-sustained-use-2026-09-09.md`. Preserve
-untracked `IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build/Peekaboo
-worker is running; the simulator remains under this session's exclusive desktop
-ownership.
+September 9 ~22:05 EDT. Runtime baseline is `8479219`; the tested working tree
+contains the final regression corrections plus documentation. Preserve untracked
+`IDENTITY.md`, `SOUL.md`, and `USER.md`. No test/build worker is running; this
+session exclusively owns the booted simulator and native Shapr3D.
 
-QA-56 downstream smoke passes. Paired native Shapr3D and exact-build clone
-workflows carried an isolated circle profile through extrusion commit and solid
-Undo/Redo; the clone also canceled its first preview with the profile intact.
-Native used typed 100 mm and clone used a dragged 1.24 mm preview, so this is
-workflow evidence rather than dimensional equivalence. One serial
-current-revision run passed cleanly 65/65: two Sweep/Loft UI workflows plus 63
-kernel/feature-graph checks at
-`/tmp/os3d-qa56-downstream-20260909.xcresult`.
+The authoritative final xcresult passed 1,598 total: 1,595 passed, zero failed and
+three skipped at `/tmp/os3d-final-full-clean-20260909.xcresult` (5,116.835 seconds,
+serial). All nine deterministic prior failures also pass together 9/9. Exact-build
+clone live smoke shows Chamfer arming clears the body transform gizmo and accepts
+a painted edge; invalid 1 mm on the 0.79 mm body is clearly rejected. Native
+whole-body Tools > Chamfer/Fillet remains a no-op, so native edge-first solid-tool
+workflow is recorded as a known downstream difference, not a core-sketch pass.
+Receipt: `docs/testing/sketch-parity-final-regression-2026-09-09.md`; screenshots
+and hashes: `reports/.../final-gate/`.
 
-Twelve inspected paired PNGs and hashes are under
-`reports/.../downstream-smoke/`. Google Docs publication is anonymously
-export-verified: illustrated 246 media assets with all 12 new hashes, one clean
-QA-56 status block and no stray recovery text; master remains at 38 media assets
-with one dated QA-56 note. Verified DOCX exports and
-`publication-verification.json` are retained with the evidence.
-
-QA-55 sustained use also passes: paired ten-cycle rectangle/circle/line
-construction and history, dense-state gallery reopen, and clone post-test
-relaunch completed without a visible hang. The focused current-revision load
-run passed cleanly 71/71 at
-`/tmp/os3d-qa55-sustained-20260909.xcresult`. Native required a 0.7-second
-settle after circle release; invalid immediate-switch/orbit attempts are
-retained and excluded. Automation wall times are logged but are not a product
-performance comparison.
-
-The 13 QA-55 acceptance screenshots are also published and anonymously
-export-verified: illustrated 260 placements / 258 unique media assets with all
-13 placements and all 12 unique hashes; master remains at 38 media assets with
-one dated note.
-
-Current acceptance is 2 fully passed, 0 failed, 1 device-blocked and 53
-incomplete (42 partial, 11 deferred, 0 not run), totaling 56. Exact next:
-commit/push this checkpoint, then run the final same-revision regression and
-identify the installable artifact plus device A/B handoff. Candidate is not
-ready. No merge, physical-device claim, security changes or duplicate workers;
-preserve the watchdog and stale Doc tab.
+Exact next: verify diff, commit/push the tested corrections, archive the exact
+committed revision for generic iOS device, inspect signature/provisioning/platform
+and hash the artifact, update the device A/B handoff, then publish and anonymously
+export-verify the final Google Docs status/evidence. No merge, installation or
+physical Pencil result is claimed.
 
 ## Earlier checkpoint history
 

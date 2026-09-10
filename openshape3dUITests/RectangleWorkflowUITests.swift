@@ -32,6 +32,37 @@ final class RectangleWorkflowUITests: XCTestCase {
         shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
 
+    private enum AxisSide { case top, left, right }
+
+    /// Tap the painted midpoint of an axis-aligned rectangle edge. Each corner
+    /// is exposed once per incident entity, so deduplicate the point markers
+    /// before choosing the side; this stays valid after resize and history.
+    private func tapAxisEdge(_ app: XCUIApplication, side: AxisSide) {
+        let window = app.windows.firstMatch
+        let centers = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker").allElementsBoundByIndex
+            .map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+        var unique: [CGPoint] = []
+        for point in centers where !unique.contains(where: {
+            hypot($0.x - point.x, $0.y - point.y) < 3
+        }) { unique.append(point) }
+        XCTAssertTrue(unique.count == 2 || unique.count == 4,
+                      "Expected two rect bounds or four rendered line corners")
+        guard unique.count == 2 || unique.count == 4 else { return }
+        let minX = unique.map(\.x).min()!, maxX = unique.map(\.x).max()!
+        let minY = unique.map(\.y).min()!, maxY = unique.map(\.y).max()!
+        let midpoint: CGPoint
+        switch side {
+        case .top: midpoint = CGPoint(x: (minX + maxX) / 2, y: minY)
+        case .left: midpoint = CGPoint(x: minX, y: (minY + maxY) / 2)
+        case .right: midpoint = CGPoint(x: maxX, y: (minY + maxY) / 2)
+        }
+        window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: midpoint.x - window.frame.minX,
+            dy: midpoint.y - window.frame.minY
+        )).tap()
+    }
+
     func testGalleryReopenedDesignCanUndoNewRectangle() {
         let app = start()
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.55, 0.48))
@@ -221,14 +252,15 @@ final class RectangleWorkflowUITests: XCTestCase {
         let app = start()
         type(app, "diagonal")
         p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        sleep(1)
         app.buttons["Rect"].tap()
         sleep(1)
         p(app, 0.2, 0.7).tap()
         sleep(1)
-        p(app, 0.65, 0.5).tap()
+        tapAxisEdge(app, side: .right)
         sleep(1)
-        app.buttons["Lock"].tap()
-        p(app, 0.35, 0.5).tap()
+        app.buttons["ConstraintRail-fixed"].tap()
+        tapAxisEdge(app, side: .left)
         sleep(1)
         let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
@@ -241,16 +273,16 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: restored, object: nil)], timeout: 3), .completed)
         app.buttons["RedoButton"].tap()
         XCTAssertLessThan(handle.frame.midX, before - 25)
-        p(app, 0.65, 0.5).tap()
+        tapAxisEdge(app, side: .right)
         sleep(1)
         let fixedX = handle.frame.midX
         let lockedCenter = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         lockedCenter.press(forDuration: 0.3, thenDragTo: lockedCenter.withOffset(CGVector(dx: 40, dy: 0)))
         XCTAssertEqual(handle.frame.midX, fixedX, accuracy: 2)
         attach(app, "axis-side-lock-opposite-free-selected-fixed")
-        XCTAssertTrue(app.buttons["Unlock"].exists)
-        app.buttons["Unlock"].tap()
-        XCTAssertTrue(app.buttons["Lock"].exists)
+        XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Unlock")
+        app.buttons["ConstraintRail-fixed"].tap()
+        XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Lock")
         let freeCenter = handle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         freeCenter.press(forDuration: 0.3, thenDragTo: freeCenter.withOffset(CGVector(dx: 30, dy: 0)))
         XCTAssertGreaterThan(handle.frame.midX, fixedX + 20)
@@ -261,11 +293,12 @@ final class RectangleWorkflowUITests: XCTestCase {
         let app = start()
         type(app, "diagonal")
         p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.6))
+        sleep(1)
         app.buttons["Rect"].tap()
         sleep(1)
         p(app, 0.2, 0.7).tap()
         sleep(1)
-        p(app, 0.5, 0.4).tap()
+        tapAxisEdge(app, side: .top)
         sleep(1)
         let handle = app.descendants(matching: .any).matching(identifier: "SketchRectangleEdgeHandle").firstMatch
         XCTAssertTrue(handle.waitForExistence(timeout: 3))
@@ -285,7 +318,7 @@ final class RectangleWorkflowUITests: XCTestCase {
         attach(app, "axis-after-undo")
         app.buttons["RedoButton"].tap()
         XCTAssertLessThan(handle.frame.midY, before - 20)
-        p(app, 0.65, 0.5).tap()
+        tapAxisEdge(app, side: .right)
         sleep(1)
         XCTAssertGreaterThan(handle.frame.midX, app.frame.width * 0.65)
         XCTAssertGreaterThan(labels.element(boundBy: 1).frame.minX, app.frame.width * 0.65,
@@ -293,7 +326,8 @@ final class RectangleWorkflowUITests: XCTestCase {
         app.buttons["SketchTransformMode"].tap()
         XCTAssertFalse(handle.exists)
         app.buttons["SketchTransformMode"].tap()
-        XCTAssertTrue(handle.waitForExistence(timeout: 3))
+        XCTAssertTrue(handle.waitForExistence(timeout: 3),
+                      "Leaving Move/Rotate restores the selected edge handle")
         attach(app, "axis-rectangle-right-edge-handle")
     }
 
@@ -363,6 +397,7 @@ final class RectangleWorkflowUITests: XCTestCase {
         type(app, "threePoint")
         p(app, 0.35, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.4))
         p(app, 0.65, 0.4).press(forDuration: 0.15, thenDragTo: p(app, 0.65, 0.428))
+        sleep(1)
         let labels = app.buttons.matching(identifier: "DimensionLabel")
         XCTAssertEqual(labels.count, 2)
         let height = labels.element(boundBy: 1).label
@@ -372,7 +407,7 @@ final class RectangleWorkflowUITests: XCTestCase {
         sleep(1) // single-tap recognizer waits for the double-tap interval
         XCTAssertEqual(labels.count, 0, "Blank canvas must clear the previous rectangle selection")
         attach(app, "short-edge-before-midpoint-tap")
-        p(app, 0.65, 0.414).tap()
+        tapAxisEdge(app, side: .right)
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == %@", height))
             .firstMatch.waitForExistence(timeout: 3), "Middle must select the height edge, not an endpoint")
         labels.matching(NSPredicate(format: "label == %@", height)).firstMatch
