@@ -1621,3 +1621,5 @@ QA08 remainspartial. Replaced generic center-Lock emoji badge with selected-cent
 September10 follow-up: selected-free rectanglecenter halo added after pointer-away native/clonecomparison; lockedcenter remainsplain. ExistingcenterUI1/1 and exact-build live passed; hitgeometry unchanged. QA08partial/Googlequeued/IPAunchanged. See same diagonal-matrix receipt.
 
 September10: axis-rectangle supporting-edge colors corrected using cached nullspace coordinates. Left/top partial-Lock native samples and clone selected/unselected/Unlock/history/reopen verified; final36/36 clean. Native finalreopen retains locked corners; deselection capture unresolved. QA08 remains partial for other glyph visibility/publication. Same receipt and local queue,466/master38 last published.
+
+September10: axisrect sideLock midpointglyph suppressed after paired selectededge/AlwaysShowConstraints comparison; contextualUnlock/history preserved, final31/31 after staleinchfixturecorrection, livefinalreopenpassed. Native visibilitypreference restored. QA08partial/publicationblocked. Same diagonal-matrixreceipt.

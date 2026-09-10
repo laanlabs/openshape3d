@@ -11468,6 +11468,14 @@ final class EditorViewModel {
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
             for c in sketch.constraints {
+                // Native axis-rectangle side Locks read through their green
+                // corners/edges and contextual Unlock, not a midpoint badge.
+                if c.kind == .fixed, c.refs.count == 1,
+                   let edge = c.refs[0].rectangleEdge, (0..<4).contains(edge),
+                   sketch.entities.contains(where: {
+                       if case .rect = $0 { return $0.id == c.refs[0].entityID }
+                       return false
+                   }) { continue }
                 guard annotationIsVisible(refs: c.refs,
                     alwaysShow: AppSettings.shared.alwaysShowConstraints,
                     explicitlySelected: selectedConstraintID == c.id) else { continue }

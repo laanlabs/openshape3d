@@ -152,3 +152,13 @@ corners; unselectedreopen colorcapture blocked by retainedselection. Queue:
 `os3d-qa08-edges-native-final-reopen-clear.png` (selected state only).
 All exact hashes retained in diagonal-matrix/SHA256SUMS. Google signedout,
 publication counts unchanged466/master38.
+
+### Axis rectangle side-lock glyph — queued, not inserted
+
+Native selectededge hasnormalhandle/Unlock,nopadlock evenAlwaysShowConstraints.
+Clone extraemoji midpointbadge removed; final31/31 after retained30pass/1stale
+imperialfixturefail. LiveUnlock/history/reopen verified. Queue glyph-native-
+single-attempt, glyph-native-setting-after, glyph-clone-top-selected (before),
+glyph-clone-after, glyph-clone-reopen-selected, glyph-native-settings-restored
+(os3d-qa08 prefix,PNG). Native finalreopen colors nowverified in
+glyph-native-unselected. Exacthashes localSHA256SUMS, publication466/38unchanged.

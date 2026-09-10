@@ -188,6 +188,27 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testRectangleSideLockUsesContextualUnlockWithoutMidpointGlyph() throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let sketch = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(10, 6))], constraints: [
+                .init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 0)])])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 0)
+        for always in [false, true] {
+            AppSettings.shared.alwaysShowConstraints = always
+            XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
+        }
+        vm.toggleSketchSelectionLock()
+        XCTAssertTrue(vm.activeSketch?.constraints.isEmpty == true,
+                      "Hiding the badge must retain the contextual Unlock route")
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.constraints, sketch.constraints)
+    }
+
     // MARK: - Label text is unit-aware (was hardcoded "%.2f mm")
 
     func testLabelTextFollowsTheDisplayUnit() throws {
@@ -201,7 +222,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "25.4 mm")
 
         AppSettings.shared.unit = .inches
-        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "1 in",
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "1\"",
                        "25.4 mm is exactly one inch")
     }
 

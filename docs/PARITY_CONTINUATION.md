@@ -1,27 +1,24 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 13:13 EDT
+## Active continuation — September10 13:23 EDT
 
-Axis-rectangle partial-edge color correction verified, committing now after0877725.
-Finalcombined36/36,0fail/skip,7.889s:
-/tmp/os3d-qa08-edge-colors-final-20260910.xcresult. Initial35/35 also clean.
-No runner/input call remains. Clone needs relaunch after finalunit run.
-Paired left/top Lock supporting-line colors pass: threegreen, oppositeblue.
-Clone selectedorange, Unlockallblue, toolbarUndo/Redo, finalgalleryreopen pass.
-Native same color samples/history pass; afterblankdeselect Undo firstrestores
-selection, secondremovesLock. Native galleryreopen retainsLock/topgreencorners,
-but blankclicks do notclear16edge selection even afterNormaltoSketch. Keep this
-input/state limitation distinct; no geometryfailure or finalunselectedcapture.
-Native Sketch04 has4rectangles, freshupperleft14×10toplocked. Clone savedSketch1
-has2rectangles, upper1.865×1.248toplocked, lowerfreecenter/earlierwidthdimension.
-Evidence /tmp/os3d-qa08-edges-* copied/hashed in reportdiagonal-matrix;
-receipt docs/testing/sketch-parity-diagonal-matrix-2026-09-10.md.
-Next: commit/push this verifiedfix, reportparent, resume QA08 glyph visibility
-comparison. Native ExitSketch/re-enter recovered priorstate; use scoped route
-only, preserve sketches/reporttabs. No Mac/security changes/deviceinstall/merge.
-Google signedout, lastverifiedillustrated466/master38; queue local. Inventory
-4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA unchanged.
-Unrelated IDENTITY/SOUL/USER/memory untracked preserved. No duplicateworker.
+HEAD628f48d pushed (partial-edgecolors); sideLockglyph correction committingnow.
+No runner/inputcall. Finalglyph31/31clean8.192s after initial30pass/1staleinchlabel
+fixturefailure; bothxcresults retained. Native/clone selectedtopedge no padlock
+midpoint, normalhandle/contextUnlock; cloneUnlockUndoRedo/finalreopenverified.
+NativeAlwaysShowConstraints restoredOFF verified; settingspopover remainsopen.
+Native finalreopenunselectedcolors recoveredbyactualedgepickthenfarblank;
+previousretainedselectionlimitationclosed for thissample, no globalinputclaim.
+CloneSketch1 upper1.865×1.248toplocked selected, lowerfreecenterwidthdimension.
+NativeSketch04fourrectangles, upperleft14×10toplockedunselected.
+Evidenceallglyph/edges copiedhashed in reportdiagonal-matrix; receipt
+ docs/testing/sketch-parity-diagonal-matrix-2026-09-10.md, publicationqueue same date.
+Next: pushglyphcommit; continue QA09 centerrectangle remaining origin/dimension
+matrix. Read caseclosure criteria/receipts before repeating oldchecks. QA08still
+partial for broader exactUI/publication. Inventory4passed/0failed/1deviceblocked/
+51incomplete. Google signedout466/master38 lastverified; retain tabs/localqueue.
+Immutable05be744IPA unchanged. No merge/deviceinstall/Macrestart/securitychanges.
+Unrelatedidentity/memoryfilespreserved. Sole desktop/buildowner, no duplicateworker.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

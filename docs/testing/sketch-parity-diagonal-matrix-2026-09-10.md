@@ -339,3 +339,32 @@ and preservedfreeoppositeedge during single-edge selection. Finalcombinedrun
 41198 nowowns simulator; no product change afterlivecomparison.
 
 Final combined edge-color run clean36/36,0failed/skipped,7.889s: `/tmp/os3d-qa08-edge-colors-final-20260910.xcresult`. No runner remains. Product code unchanged since paired live comparison. Native finalreopen repeated blank/farblank still leaves selected16edges; savedLock/corners verified, unselectedfinalcapture notclaimed.
+
+### Side-lock glyph comparison, after628f48d push
+
+Native whole-sketch selection retained afterExit/re-enter andcmdshiftA/Escape.
+Settings remainedusable: AlwaysShowConstraints toggled fromoff toon andverified
+(glyph-native-setting-after). Clicking actualtopedge750,282 recovered single
+selection; followingfarblank1150,620 cleared it. Native finalsavedtopLock now
+confirmed unselectedthreegreen/oneblue (`glyph-native-unselected`), closing that
+limited capturegap without restart. Selectedtopedge (`glyph-native-single-attempt`)
+showsnormalhandle/contextualUnlock butNOmidpointpadlock, evenAlwaysShowConstraints.
+Clone same savedtopedge (`glyph-clone-top-selected`) shows extrablue-backedemoji
+padlock. Narrowly suppressing axisrect side.fixed glyph, retainingconstraint
+andcontextualUnlock. Focusedvisibility/constraintapply run43284 nowowns simulator;
+no post-fixliveclaim. NativeAlwaysShowConstraints currentlyON (priorOFF); restore
+aftercomparison. Google signedout; localqueue only,466/master38 unchanged.
+
+Side-glyph initialrun30passed/1failed: preexisting inchlabel testexpected `1 in`, actual `1"` from prior verifiedimperialformatter. Newsideglyph/contextUnlockUndo passed. Corrected stalefixtureonly; same31cases rerunning, initialxcresult retained.
+
+Side-glyph finalrun clean31/31,0fail/skip,8.192s at
+/tmp/os3d-qa08-side-glyph-final-20260910.xcresult. Exact-buildlive selectedtopedge
+retains normalhandle/Unlock, no midpointbadge; Unlock→blue, Undo→green/Unlock,
+Redo→blue; finalUndo restoresLock. Galleryreopen/reselect retainsLock andnoglyph.
+First rapidnavigation attempt stayedgallery, notcounted; explicitSimulatorfocus
+and inspectedItemsicon route succeeded (`glyph-clone-reopen-selected`).
+NativeAlwaysShowConstraints restoredOFF and screenshotverified
+(`glyph-native-settings-restored`); othernativepreferencesunchanged.
+No geometrychange. Allglyphcaptures copied/hashed. Publicationstillblocked,
+466/master38. QA08 remains partial: publication and broad exactUI comparison
+notclosed; moving to QA09 finite remainingcenter sizing matrix.
