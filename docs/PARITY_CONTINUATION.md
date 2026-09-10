@@ -1,24 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA-07 tighter guide boundary
+## Active continuation — September 10, QA08 diagonal leader sides
 
-Product eb9b4ab pushed. QA07 finite raw-aim recipe closed after signed/reverse
-samples and finalpairreopen. Native(-100,-4)snaps/axisglyph,(-100,-6)raw15.05;
-clone(-60,-2)snaps0.742/H,(-60,-3)raw0.742. Latestfinalsavedsketches retain8clone
-lines and22nativeedges. No runner. No furtherproductedit since35distinctpassing
-checks acrossruns; all Float/Settingsfixture failures retained in line-guidesreceipt.
-Illustrated460placements/458media, all6closurehashesonce/no loss vs454; master38
-closure/finalreopen note verified. Exports /tmp/os3d-line-guides-closure.docx and
--closure-master.docx. Local reports/.../line-guides/SHA256SUMS current.
-
-Inventory4passed/0failed/1deviceblocked/51incomplete (40partial11deferred),total56.
-QA04,QA07,QA55,QA56 passed; general snap/hover/Pencil remains separate. Native1924
-FrontSketch03 selectedall22, toolsdisarmed; clone7715 groundSketch1,8lines,
-toolsdisarmed. Both apps/reports preserved. Exactnext: QA08 remainingdiagonal
-mixedquadrants andsequentialwidth/height anchor withpaired freshisolatedrectangles,
-thenQA09centermatrix. Read latestrectangle/selected-side receipts before edits.
-No newtest/builduntilneeded, exclusive desktop maintained. Immutable05be744IPA,
-unrelatedidentity/memory, watchdog untouched. No merge/install/securitychanges.
+HEAD b59abcf pushed, product eb9b4ab. Own dirty EditorViewModel,
+ConstraintApplyTests, ledger, thischeckpoint,newdiagonal-matrixreceipt.
+Defaultleadercorrection implemented: persistedcreationcorner controlsdefaults,
+explicitselectededgeoverride/center/legacy/geometryunchanged. Clean25/25 at
+/tmp/os3d-qa08-leader-sides-20260910.xcresult. No runner.
+Livepostfix down-lefttop/left andup-rightbottom/right matchreference. Paired
+heightfirstthenwidth holdsbottom/left (native31x19→15.5x9.5,clone1.979x1.481→
+1x0.75);widthUndo/Redo passednativehotkey/clonetoolbar. Excludedmisclickand
+invalidpressroute recorded. Native1924 Sketch04two rects15x11and15.5x9.5;
+clone7715 freshUntitled2 aftertests two rects1.989x1.494and1x0.75, drawing
+disarmed/rightedgeselected. CurrentfrontappSimulator.
+Pairedgalleryreopen andselectedoppositeleaderlivepassed. Exactnext commitpush
+verifiedsource/docs, continueQA08cornercontrolcomparison. Postfixpublication
+blocked: Google signedout; t18read-only,t19signedoutbanner. Diagnosis466
+remainsverified; postfixheadingabsentfresh export. Requiresauthorizedhostlogin,
+parentnotified; preserve tabs. Continueindependentwork.
+Illustrated466diagnosis/all6hashes/noloss verified; master38lastQA07note.
+Inventory4passed/0failed/1deviceblocked/51incomplete. ImmutableIPAunchanged.
+Evidence reports/.../diagonal-matrix, receipt docs/testing/sketch-parity-
+diagonal-matrix-2026-09-10.md. No installs/merge/securitychanges/duplicateworkers.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

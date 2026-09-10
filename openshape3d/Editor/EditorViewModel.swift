@@ -11648,8 +11648,7 @@ final class EditorViewModel {
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             return ((a + b) / 2, a, b)
         case .horizontal, .vertical:
-            // Drawn along the lower (width) or right-hand (height) side of
-            // the box the two points span, where a rect's sides are.
+            // Explicit edge selection takes priority over creation-side defaults.
             guard refs.count == 2, let a = localPoint(refs[0], in: sketch),
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             let lo = SIMD2(min(a.x, b.x), min(a.y, b.y)), hi = SIMD2(max(a.x, b.x), max(a.y, b.y))
@@ -11659,6 +11658,23 @@ final class EditorViewModel {
                let entity = sketchEntity(pick.id, in: sketch),
                let edge = RectangleConstruction.axisEdge(entity, index: pick.index) {
                 return ((edge.a + edge.b) / 2, edge.a, edge.b)
+            }
+            // Diagonal creation retains its first corner independently of the
+            // normalized sizing anchor. Native places the two default leaders
+            // according to that drag direction; center/legacy rectangles keep
+            // their existing defaults below.
+            if refs[0].entityID == refs[1].entityID,
+               case .rect? = sketchEntity(refs[0].entityID, in: sketch),
+               let corner = sketch.rectangleSizingAnchors[refs[0].entityID]?.cornerUsesMax {
+                let s: SIMD2<Double>, e: SIMD2<Double>
+                if kind == .horizontal {
+                    let y = corner.x ? hi.y : lo.y
+                    s = SIMD2(lo.x, y); e = SIMD2(hi.x, y)
+                } else {
+                    let x = corner.y ? lo.x : hi.x
+                    s = SIMD2(x, lo.y); e = SIMD2(x, hi.y)
+                }
+                return ((s + e) / 2, s, e)
             }
             if kind == .horizontal {
                 let s = lo, e = SIMD2(hi.x, lo.y)

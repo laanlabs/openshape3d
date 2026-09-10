@@ -63,6 +63,43 @@ final class ConstraintApplyTests: XCTestCase {
         return nil
     }
 
+    func testDiagonalRectangleLeaderSidesSurviveReloadAndRespectSelectedEdge() throws {
+        // Observed Front-view creation directions: down-left top/left,
+        // up-right bottom/right, down-right bottom/left, up-left top/right.
+        let cases: [(RectangleSizingAnchor?, Double, Double)] = [
+            (.maxMax, 9, 2), (.minMin, 3, 12),
+            (.minMax, 3, 2), (.maxMin, 9, 12),
+            (.center, 3, 2), (nil, 3, 2)
+        ]
+        for (anchor, widthY, heightX) in cases {
+            let vm = try makeViewModel(), id = UUID()
+            let original = Sketch(plane: .ground,
+                entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(12, 9))],
+                rectangleSizingAnchors: anchor.map { [id: $0] } ?? [:])
+            let sketch = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(original))
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [id]
+            let width = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .horizontal })
+            let height = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .vertical })
+            XCTAssertEqual(width.worldStart, sketch.plane.toWorld(SIMD2(2, widthY)))
+            XCTAssertEqual(width.worldEnd, sketch.plane.toWorld(SIMD2(12, widthY)))
+            XCTAssertEqual(height.worldStart, sketch.plane.toWorld(SIMD2(heightX, 3)))
+            XCTAssertEqual(height.worldEnd, sketch.plane.toWorld(SIMD2(heightX, 9)))
+            XCTAssertEqual(width.displayValue, 10)
+            XCTAssertEqual(height.displayValue, 6)
+            for index in 0..<4 {
+                vm.selectedAxisRectangleEdge = (id, index)
+                let kind: DimensionKind = index % 2 == 0 ? .horizontal : .vertical
+                let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == kind })
+                let edge = try XCTUnwrap(RectangleConstruction.axisEdge(sketch.entities[0], index: index))
+                XCTAssertEqual(label.worldStart, sketch.plane.toWorld(edge.a))
+                XCTAssertEqual(label.worldEnd, sketch.plane.toWorld(edge.b))
+            }
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+        }
+    }
+
     func testTypedArcRotationUsesVisibleBoundsPivot() throws {
         let vm = try makeViewModel(), id = UUID()
         let arc = SketchEntity.arc(id: id, center: .zero, radius: 2,

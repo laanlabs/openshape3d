@@ -1544,3 +1544,19 @@ Thirtyfive distinct checks pass across combined34/35 plus finalSettings1/1,
 with earlier failed runs retained. Live short H/V near/outside, changedFit scale,
 AutoOFF/no relation andAutoON/H, one-step history and pairedgalleryreopen passed.
 Remaining signed/reverse variants keepQA07partial. See line-guides receipt.
+
+## September 10 — diagonal default annotation sides
+
+QA08 mixed-quadrant live checks confirm lower-left sizing for down-left sequential
+width/height edits, but two default leader sides differ visibly. Native down-left
+width is above; up-right height is right. Clone used bottom/left universally.
+Creation-direction leader selection implemented using existing persisted corner
+metadata; explicit selected edges, center/legacy defaults and sizing solver are
+unchanged. Regression running; live post-fix and publication verification pending.
+See [diagonal matrix receipt](testing/sketch-parity-diagonal-matrix-2026-09-10.md).
+
+QA08 leader correction follow-up: clean25/25, pairedchangedleaderpositions,
+height-firstsequentialdimensions, widthUndo/Redo andgalleryreopen verified.
+Clone explicitoppositeedgeleaderoverride passeslive. Diagnosis466exportverified;
+postfixpublication blockedbyGoogle signedout/read-only state. Localreceipt
+retains evidence andexactrecoveryrequirement. QA08 remains partial.
