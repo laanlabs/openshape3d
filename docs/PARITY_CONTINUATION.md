@@ -1,17 +1,19 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, expression field verified
+## Active continuation — September 10, imperial notation verified
 
-Baseline0e2f312 pushed; expression-width correction clean2/2 in one run at
-/tmp/os3d-expression-width-20260910.xcresult. Paired native source/keypad and clone
-portrait/landscape keyboard/keypad,1.016mm commit and saved reopen inspected.
-Illustrated373/all5 hashes/no predecessor loss; master38/new/prior/finalreopen note
-verified. Receipt docs/testing/sketch-parity-expression-field-width-2026-09-10.md.
-No runner. Clone6492 landscape source keypad open on saved circle1.016mm;
-native1924 source keypad0.025ft+0.5in open. Next commit verified correction and
-compare display-unit changes/source stability in both apps. Preserve identity/
-memory/stalled Doc tabs. Counts2passed/0failed/1deviceblocked/53incomplete.
-Immutable05be744 IPA unchanged; no deviceinstall/merge/restart/security changes.
+Baselineeaf6847 pushed. Compact imperial notation correction clean45/45 in one run,
+/tmp/os3d-imperial-annotation-20260910.xcresult. Native/clone cm/in/ft switch/source
+stability passed; corrected clone0.0033apostrophe/0.04quote and paired gallery
+unit/value/source reopen inspected. Illustrated380/all7 hashes/no predecessor loss;
+master38/new/prior/finalreopen note verified. No runner. Receipt:
+docs/testing/sketch-parity-display-units-2026-09-10.md. Next commit and correct
+confirmed native imperial ft/in keypad unit row versus clone hardcoded metric row.
+Native1924 Foot source editor open (after reframe circle1048,408); clone6492
+landscape Inch source editor open at590225. Settings center905148 ignored,
+offset914148 works; separate target gap retained. Preserveidentity/memory/stalledtabs.
+Counts2passed/0failed/1deviceblocked/53incomplete. Immutable05be744 IPA unchanged.
+No physical install/merge/restart/securitychanges/duplicateworkers/watchdogs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

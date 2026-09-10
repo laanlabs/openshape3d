@@ -1441,3 +1441,12 @@ Clean2/2 keyboard/keypad UI checks; paired native source switching and clone
 portrait/landscape/source commit plus saved reopen inspected. Illustrated373/all5
 hashes and master38/final reopen note verified. Theme differences retained.
 Receipt: testing/sketch-parity-expression-field-width-2026-09-10.md.
+
+### September 10: imperial compact annotation notation
+
+Paired cm/in/ft display changes preserve source and geometry. Native uses quote/
+apostrophe imperial annotations with four-decimal feet; corrected clone compact
+formatter matches sampled notation, leaving input tokens and model units unchanged.
+Clean45/45, live corrected readouts and paired gallery source/unit reopen;
+illustrated380/all7 hashes/master38 verified. Next keypad ft/in row; Settings
+icon-center delivery remains open. Receipt testing/sketch-parity-display-units-2026-09-10.md.

@@ -52,7 +52,14 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
     /// Compact length for labels/pills: trims trailing zeros ("12.7 mm").
     func compactLengthString(fromMM value: Double) -> String {
         let v = display(fromMM: value)
-        let rounded = (v * 1000).rounded() / 1000
+        // Native on-canvas imperial dimensions use quote marks rather than
+        // the input suffixes shown in the unit picker. Keep those input tokens
+        // unchanged, and retain the fourth decimal used by decimal feet.
+        let imperial = self == .inches || self == .feet
+        let scale = imperial ? 10000.0 : 1000.0
+        let rounded = (v * scale).rounded() / scale
+        if self == .inches { return String(format: "%g", rounded) + "\"" }
+        if self == .feet { return String(format: "%g", rounded) + "'" }
         return String(format: "%g %@", rounded, symbol)
     }
 

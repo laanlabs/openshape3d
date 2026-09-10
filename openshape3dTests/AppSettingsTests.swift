@@ -48,7 +48,12 @@ final class AppSettingsTests: XCTestCase {
     func testCompactLengthTrimsZeros() {
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 12.7), "12.7 mm")
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 5), "5 mm")
-        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1 in")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1\"")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 1.016), "0.04\"")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 20.32), "0.0667'")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 1.016), "0.0033'")
+        XCTAssertEqual(DisplayUnit.inches.symbol, "in", "Input suffix stays distinct from annotation")
+        XCTAssertEqual(DisplayUnit.feet.symbol, "ft")
     }
 
     // MARK: Persistence
