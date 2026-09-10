@@ -183,3 +183,8 @@ attempted while signed out; publication466/master38 unchanged.
   and SHA256SUMS retained. Native0.4345 and unchanged0.626→Undo2; clone stable
   precision, saved reopen, arithmetic unchanged accept→Undo1→Redo1.5.
   Google signed out; no new insert attempted or publication counted.
+
+- Center-only Lock width/height and keypad seedprecision: `os3d-qa09-locked-*`
+  and `os3d-qa09-seed-fix-*` PNGs/hash list in center-matrix. Native4×4→2×2,
+  clone1.9822×1.4842→1×0.75 fixedcenter/history; corrected seed1.9822.
+  Edgecolors/keyboardroute remain qualified; publicationblocked/signout.

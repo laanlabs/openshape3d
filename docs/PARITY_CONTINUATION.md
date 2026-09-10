@@ -1,20 +1,22 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 14:40 EDT
+## Active continuation — September10 14:53 EDT
 
-HEAD27e6a4e; precision/no-op fixes being committed now. No runner: exec18845
-completed clean3/3 in93.940s (`/tmp/os3d-qa09-unchanged-accept-20260910.xcresult`).
-Prior36unit pass, initialnumeric1pass/1failure retained. Live clone1→1.5,
-unchanged `(1+.5) mm` accept, one Undo1 and Redo1.5 passed. Native unchanged
-0.626accept Undo2 and Redo0.626 passed. Native front nine rectangles preserved;
-clone top saved-line fixture1.5 selected. Both apps no drawing tool armed.
-Exact next: verify push, continue QA09 center constraints (lockcenter then both
-sizes, partial-side constraint compatibility), paired capture/fix/test/document.
-Evidence center-matrix rounding/noop PNGs copied/hashed; original diagnosticJSON
-retained. Earlier five-rectangle clone store replaced by UI tests, finalPNGs kept.
-Google signedout466/master38, newpublication localonly. Inventory4passed/0failed/
-1deviceblocked/51incomplete. Immutable05be744IPA untouched. Unrelated identity
-files preserved. No merge/install/restart/security changes; sole desktop owner.
+HEADe5b0179 pushed. Fieldseedprecision fix being committed; no runner. Corrected
+unitrun94404 clean23/23,2.914s (`/tmp/os3d-qa09-field-precision-units-20260910.xcresult`).
+First4339 matchedonlyscalarUI1/1; filenameunitselector matched0units, retained.
+Liveclone newcenterrectangle1.9822×1.4842 opens1.9822, untouchedaccept samebounds
+240570–400690,center320630. Nativefour-digitfeet reference retained earlierreceipt.
+Exactnext verifycommitpush; native lockedcenter sizing history/rotationfreedom
+and constrainededgecolor comparison; then remainingQA09 partial-side constraints.
+Native9rectangles,smallcenter703351 nowlocked2×2; cornersblue. Priorclone locked
+center320630 went1.9822×1.4842→1×0.75 andheightUndoRedo passed, cornersgreen.
+Thatclonefixture replacedbyUIreset: currentline+freshrectangle,centerfree,only
+widthstored by untouchedaccept; CenterRectarmed. Do notclaim lockedfixture reopen.
+Escapeinputignoredlastliveattempt; visibleCancelRectangle/tooltoggle recovered.
+Evidencealllocked/seed-fixPNGs copied/hashed in center-matrix; Docs signedout,
+lastverified466/master38. Inventory4passed/0failed/1deviceblocked/51incomplete.
+Immutable05be744IPA unchanged. Unrelatedidentityfilespreserved; soleowner.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

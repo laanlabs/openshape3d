@@ -99,6 +99,25 @@ final class DimensionKeypadCommitTests: XCTestCase {
         return simd_distance(a, b)
     }
 
+    func testLengthSeedPrecisionMatchesLabelAndPaletteWithoutChangingMeasurement() throws {
+        for (unit, expected) in [(DisplayUnit.millimeters, "1.9822"), (.inches, "0.078"), (.feet, "0.0065")] {
+            let vm = try makeViewModel()
+            AppSettings.shared.unit = unit
+            let entity = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(1.982234, 0))
+            let sketch = Sketch(plane: .ground, entities: [entity])
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [entity.id]
+            vm.beginDimensionForSelection()
+            XCTAssertEqual(vm.editingDimension?.text, expected)
+            vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+            XCTAssertEqual(vm.editingDimension?.text, expected)
+            vm.commitDimensionEdit(expected)
+            XCTAssertEqual(vm.activeSketch?.entities, [entity])
+            XCTAssertEqual(try XCTUnwrap(vm.activeSketch?.dimensions.first).value, 1.982234, accuracy: 1e-12)
+        }
+    }
+
     func testUntouchedRoundedImperialSeedLocksExactMeasurementAndUndoes() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .feet

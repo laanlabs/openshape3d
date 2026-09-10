@@ -12009,11 +12009,13 @@ final class EditorViewModel {
     }
 
     /// Number → clean editable string (drops trailing zeros).
-    private static func dimensionFieldText(_ value: Double) -> String {
+    private static func dimensionFieldText(_ value: Double, lengthUnit: DisplayUnit? = nil) -> String {
         if abs(value - value.rounded()) < 1e-6 {
             return String(Int(value.rounded()))
         }
-        return String(format: "%g", (value * 1000).rounded() / 1000)
+        let scale = lengthUnit == .millimeters || lengthUnit == .inches || lengthUnit == .feet
+            ? 10000.0 : 1000.0
+        return String(format: "%g", (value * scale).rounded() / scale)
     }
 
     /// Dimension labels to render in the sketch overlay: existing driving
@@ -12251,7 +12253,8 @@ final class EditorViewModel {
             text: retainedExpression ?? Self.dimensionFieldText(
                 label.kind == .angle || label.isPolygonSideCount
                     ? label.displayValue
-                    : AppSettings.shared.unit.display(fromMM: label.displayValue)),
+                    : AppSettings.shared.unit.display(fromMM: label.displayValue),
+                lengthUnit: label.kind == .angle || label.isPolygonSideCount ? nil : AppSettings.shared.unit),
             measuredSeed: retainedExpression == nil && !label.isPolygonSideCount ? label.displayValue : nil,
             isPolygonSideCount: label.isPolygonSideCount
         )
@@ -12285,7 +12288,8 @@ final class EditorViewModel {
             text: Self.dimensionFieldText(
                 cand.kind == .angle
                     ? value
-                    : AppSettings.shared.unit.display(fromMM: value)),
+                    : AppSettings.shared.unit.display(fromMM: value),
+                lengthUnit: cand.kind == .angle ? nil : AppSettings.shared.unit),
             measuredSeed: value
         )
     }

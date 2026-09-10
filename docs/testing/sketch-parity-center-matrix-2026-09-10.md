@@ -210,3 +210,32 @@ Undo restored1mm and Redo1.5. Native Redo restored0.626 after prior2mm Undo.
 All no-op screenshots copied/hashed in center-matrix. This confirms history
 semantics for these samples, not all selection/constraint contexts. Prior36unit
 passes remain a separate run; initial1pass/1failure retained. Docs signedout.
+
+### Center-only Lock sizing follow-up (14:46 EDT)
+
+Native small rectangle center(703,351) locked via direct center control, then
+reselected top edge4→2, right edge4→2; center stayedfixed, corners684331–723370
+to694341–713360. Clonefresh center(320,630),1.9822×1.4842, direct Lock then
+reselected top1mm and right0.75mm; centerfixed, bounds240570–400690 to280600–361660.
+Clone height Undo restores1.4842 and Redo0.75 with width1 and centerretained.
+Escape via Peekaboo didnotdisarm; subsequent edgeclick startedpendingplacement.
+Visible CancelRectangle then Recttool toggledoff, no extraentitycommitted.
+Keyboarddelivery discrepancy retained separately. Native remained blue-cornered
+afterbothsizes whereas clonegreen; investigate degrees-of-freedom/rotation before
+colorchange. Clonefieldseed1.982/1.484 versusbadge1.9822/1.4842; precisionfollowup.
+AlllockedPNGs copied/hashed. No newtests/productchanges for this livecase yet.
+
+Fieldprecision correction: mm/in/ft now fourdecimals on both badge/palette edit
+entry; angles/otherunits unchanged. First runfield-precision passed1/1 scalarUI
+only because NumericKeypadTests is filename, nottestclass. Corrected actual
+DimensionKeypadCommitTests/NumericKeypadTextTests running in field-precision-units.
+No unitcoverage claimed from firstselector.
+
+Corrected class run clean23/23 (`field-precision-units`,2.914s), separatefrom
+scalarUI1/1. New test checks both entrypaths in mm/in/ft and exactunchanged
+geometry. Native prior feeteditor0.0656 reference in rounded-seed receipt retained;
+no newimperiallive claim. Live newclone1.9822×1.4842 center320630 now opens
+1.9822 (previous1.982); untouchedaccept retains samebounds240570–400690 and
+readouts. Currentfixture line+freshrectangle replaces earlierlockedrectangle via
+UIreset; that earlierfixture has screenshots, not a newreopenclaim. Allseed-fix
+PNGs copied/hashed. Remainingcenterconstraints/colorfreedom investigation pending.
