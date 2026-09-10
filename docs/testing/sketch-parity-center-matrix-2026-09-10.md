@@ -570,3 +570,30 @@ export verification pending. No QA-09 closure or immutable IPA change.
 Conflict publication verified: illustrated541, all five new hashes once, no
 predecessor image/text loss; master38 and dated note once, no predecessor loss.
 Exports `/tmp/os3d-qa09-conflictfix-{published,master}.docx`.
+
+
+## Corner editor selection lifecycle — September 10
+
+Opening a selected migrated corner's distance label previously selected the
+whole driving edge and exposed an edge handle. Native retains the point on
+open/Escape/refusal. Narrow selection preservation passed initial clean14/14
+`/tmp/os3d-qa09-corner-editor-20260910.xcresult`, and paired open/Escape passed.
+Fresh native successful9→8 instead cleared the corner. First attempted native
+re-edit did not open the editor, excluded; inspected double-click and typed8
+was valid. Final implementation additionally clears point only after successful
+size command, not cancellation or refusal. Native outlined badge after Escape
+and additional opposite-side saved annotation remain separate visual differences.
+
+Final clean14/14 `/tmp/os3d-qa09-corner-editor-lifecycle-20260910.xcresult`:
+all8 endpointrefs/bothsize editors retain leader endpoints/references through
+cancel, unchangedsketch; successfulsizechange ends pointselection and exactUndo
+restores geometry; refusal retains point with no modal/history pollution.
+Live finalclone2→3 clearscorner/noedgehandle; Undo/Redo2↔3 and finalgalleryreopen
+retain3×0.5/centerLock. Native valid8×4 retainscenter; earlierpairedgallery9×4
+belongs to preceding conflict batch, not a new native8×4reopen claim.
+Evidence `os3d-qa09-cornereditor-*` retained/hashed. Fiveimages +master note
+inserted once; export verification pending. QA09 remainspartial.
+
+Editor lifecycle publication verified: illustrated546/all5hashesonce andmaster38
+notewithno predecessorimage/textloss. Exports
+`/tmp/os3d-qa09-cornereditor-{published,master}.docx`.

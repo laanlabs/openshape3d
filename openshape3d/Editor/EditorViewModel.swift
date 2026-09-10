@@ -12453,11 +12453,13 @@ final class EditorViewModel {
            let drivingIndex = group.firstIndex(of: label.refs[0].entityID) {
             keepsSelectedParallelSide = selectedIndex % 2 == drivingIndex % 2
         }
-        if !keepsSelectedParallelSide &&
+        let keepsSelectedCorner = label.kind == .distance &&
+            selectedMigratedRectangleCornerEdges.map { definingIDs.isSubset(of: Set($0)) } == true
+        if !keepsSelectedParallelSide && !keepsSelectedCorner &&
             (selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs)) {
             selectedSketchEntityIDs = definingIDs
         }
-        selectedSketchPoints.removeAll()
+        if !keepsSelectedCorner { selectedSketchPoints.removeAll() }
         selectedConstraintID = nil
         selectedDimensionID = label.dimensionID
         // Locked is the default for every fresh edit: a typed dimension is
@@ -12800,6 +12802,9 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: "Dimension", commands: commands), sketchID: sketchID)
         if let id = freshLinePoint?.entityID { refreshChainAnchors(lastEntityID: id) }
+        // A successful corner-size edit ends its point selection. Cancellation
+        // and rejected values above retain the point, as in native sketching.
+        if selectedMigratedRectangleCornerEdges != nil { selectedSketchPoints.removeAll() }
         session.save()
     }
 

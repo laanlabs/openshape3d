@@ -1,19 +1,18 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, conflict feedback verified
+## Active continuation — September 10, corner editor verified
 
-HEAD6978565 pushed; dimension-conflict notice fix ready to commit. First clean
-7/7 `/tmp/os3d-qa09-corner-conflict-20260910.xcresult` and.log. No runner.
-Live corrected refusal, Unlock→same value accepted, paired Undo/Redo and gallery
-reopen passed. Native9×4/clone2×0.5, centerLock retained, cornerLock removed.
-Illustrated541/all5hashes/master38 note export-verified, no predecessor loss.
-Receipt center-matrix September10; evidence cornerlock-* and conflictfix-*.
-Exact next commit/push notice fix, then preserve corner selection on opening
-its size editor (native retains point; clone changes to edge), live/test/document.
-Native allItems36edges selected afterreopen; selectactualedge thenblank toclear.
-Clone savedSketch1openItems. Inventory4passed/0failed/1deviceblocked/51incomplete.
-No host/securitychanges, merge, deviceinstall, duplicateworkers/watchdogs.
-Immutable05be744IPA and unrelatedidentityfiles preserved.
+HEAD53433a9 pushed; cornereditor lifecycle correction ready tocommit. Initial
+14/14 plusfinalclean14/14 `/tmp/os3d-qa09-corner-editor-lifecycle-20260910.xcresult`.
+No runner. Pairedopen/Escape pointretained; validcommitclearspoint. Finalclone
+2→3/history/gallery3×0.5/centerLock verified. Nativevalid9→8centerretained;
+no new8×4nativegalleryclaim (preceding9×4gallery remainspriorreceipt).
+Published546/all5hashesonce/master38 andno predecessorimage/textloss.
+Exactnext commitpushthenmigratedlockedcorner hollowmarker/Lockglyph comparisonfix.
+NativeSketch04 8×4, noselection; cloneSketch1Items3×0.5, noselection. Native
+badgeoutlineafterEscape/extraoppositeannotationremainopen. Inventory4passed/
+0failed/1deviceblocked/51incomplete. Preserveimmutable05be744IPA, unrelatedfiles,
+reporttabs/watchdog. Soleowner; no merge/deviceinstall/hostsecuritychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

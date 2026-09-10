@@ -256,7 +256,27 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
                     let sourceDimension = try XCTUnwrap(migrated.dimensions.first { $0.id == label.dimensionID })
                     XCTAssertEqual(label.refs, sourceDimension.refs)
                     XCTAssertEqual(label.displayValue, sourceDimension.value)
+                    let selectedPoint = vm.selectedSketchPoints
+                    vm.beginDimensionEdit(label)
+                    XCTAssertEqual(vm.selectedSketchPoints, selectedPoint)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    XCTAssertNil(vm.rectangleHandleGeometry)
+                    let editingLabel = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == label.id })
+                    XCTAssertEqual(editingLabel.worldStart, label.worldStart)
+                    XCTAssertEqual(editingLabel.worldEnd, label.worldEnd)
+                    vm.cancelDimensionEdit()
+                    XCTAssertEqual(vm.selectedSketchPoints, selectedPoint)
+                    XCTAssertEqual(vm.activeSketch, migrated)
                 }
+                vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first {
+                    $0.dimensionID == source.dimensions[0].id
+                }))
+                vm.commitDimensionEdit("3 mm")
+                XCTAssertTrue(vm.selectedSketchPoints.isEmpty, "Successful sizing ends corner selection")
+                XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [3, 2])
+                vm.undo()
+                XCTAssertEqual(vm.activeSketch, migrated)
             }
         }
         vm.selectedSketchPoints = []

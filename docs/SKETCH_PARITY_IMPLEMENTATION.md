@@ -1757,3 +1757,11 @@ clone modal differed from native notice. Dimension refusal now uses the notice.
 First clean7/7 includes exact rollback/no extra history. Paired Unlock/recovery,
 Undo/Redo and gallery reopen passed. Illustrated541/all5 hashes/master38 verified.
 Corner editor selection and Lock point glyph remain open; QA-09 partial.
+
+### September 10 — corner dimension editor selection lifecycle
+
+Migratedcorner staysselected through distanceeditor open/Escape/refusal; valid
+commit clearsit, matchingpairednative. No wholeedgehandle introduced. Initial
+14/14 thenfinal14/14; livecommit/history andclonegalleryreopen passed. Published
+546/all5hashes/master38. Nativebadgeoutline/oppositereadout and lockedcornerglyph
+remainopen. Fullreceipt center-matrix September10; QA09partial.

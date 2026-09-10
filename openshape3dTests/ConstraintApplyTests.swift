@@ -264,6 +264,8 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, locked, "Refusal preserves exact geometry and saved constraints/dimensions")
         XCTAssertNil(vm.editingDimension)
         XCTAssertNil(vm.errorMessage, "Expected conflict must not require dismissing a modal alert")
+        XCTAssertEqual(vm.selectedSketchPoints.count, 1, "Refusal retains the selected corner")
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         XCTAssertEqual(vm.notice, "This constraint would conflict with existing ones.")
         vm.undo()
         XCTAssertEqual(vm.activeSketch, rotated, "Rejected size must not consume Undo; remove corner Lock")
