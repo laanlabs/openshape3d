@@ -297,6 +297,23 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertTrue(vm.usesExplicitSketchTransform, "Migrated rectangle must not show a default transform ring")
         XCTAssertEqual(direct.dimensions.map(\.id), sketch.dimensions.map(\.id))
         XCTAssertTrue(direct.constraints.contains(sketch.constraints[0]))
+        guard case let .line(edgeID, corner, _) = direct.entities[0] else { return XCTFail("Expected migrated edge") }
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchPoints = [.init(entityID: edgeID, role: .endpointA)]
+        let centerPoint = SIMD2<Double>(4, 4)
+        let delta = corner - centerPoint
+        let nextCorner = centerPoint + SIMD2(delta.x * cos(0.3) - delta.y * sin(0.3),
+                                            delta.x * sin(0.3) + delta.y * cos(0.3))
+        XCTAssertTrue(vm.beginSketchStroke(ray: ray(corner)))
+        vm.updateSketchStroke(ray: ray(nextCorner))
+        vm.endSketchStroke(ray: ray(nextCorner))
+        XCTAssertTrue(vm.usesExplicitSketchTransform, "Reselected migrated corner must not expose a default ring")
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 2, "Keep both sizes, not a stale point-to-edge zero candidate")
+        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.dimensionID == nil && $0.displayValue == 0 })
+        XCTAssertEqual(vm.activeSketch?.dimensions, direct.dimensions)
+        XCTAssertTrue(vm.activeSketch?.constraints.contains(sketch.constraints[0]) == true)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, direct)
         vm.session.undo()
         XCTAssertEqual(vm.activeSketch, sketch)
         vm.session.perform(CompositeCommand(title: "Legacy Decomposition", commands: [

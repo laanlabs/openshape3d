@@ -158,7 +158,13 @@ the previously pending paired center-Lock persistence sample. Earlier failed
 modal deliveries/capture errors are retained, not attributed to native persistence.
 Google remains signed-out; this result and new image are queued locally only.
 
-### Direct rectangle center padlock — queued, not inserted
+### Direct rectangle center padlock — recovered September 10 17:17 EDT
+
+Verified export `/tmp/os3d-qa08-backlog-padlock-published.docx`: 519 placements,
+all six hashes once, no predecessor image or text loss. Historical queued state
+below retained; no new live-test claim.
+
+### Historical direct rectangle center padlock queue
 
 September10 paired native direct action revealed two corrections: plain black padlock directly toggles scoped Lock (not generic glyph-selection/Delete); directLock finishes center selection, while Unlock retains it. Touch bypass to Metal reproduced at exact icon center and corrected through shared-bounds on-screen-control dispatch. Final clean33/33 plus paired live lifecycle, unchanged corners, one-step history and final galleryreopen passed. Retained failed attempts and superseded symmetric-selection interpretation are in diagonal-matrix receipt.
 

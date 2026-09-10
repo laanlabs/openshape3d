@@ -1,26 +1,33 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10 17:11 EDT
+## Active continuation — September 10 17:23 EDT
 
-HEAD ca4bffb pushed. Dirty editor-side preservation in EditorViewModel and
-SketchAnnotationVisibilityTests; clean first run 13/13 in
-/tmp/os3d-qa09-editor-side-preservation-20260910.xcresult. No runner active.
-Live clone selected left height editor stays left on open/Escape; 1→0.5 mm
-retains width 1.9795 and center320630. Undo/Redo verified. Native6→3 retains
-center703351; native additionally shows opposite-side3mm annotations after
-commit, Undo/Redo and reopen. This distinction remains open, not inferred as
-extra constraints yet. Paired gallery reopen native8×3 / clone1.9795×0.5 and
-clone centerLock retained. Both apps currently sketch-open; clone leftside
-selected, native allSketch04 selected. Sole desktop/build owner; no runner.
+HEAD c542ad7 pushed: selected-side editor preservation clean13/13/live/reopen,
+illustrated513/all4postfix+5diagnosis/master38 verified. Recovered directpadlock
+backlog now519/all6hashes/no text/image loss verified. No IPA changes.
 
-Diagnosis publication509/all5 hashes/no image or text loss verified. Four
-post-fix images and dated text verified at513 placements, all4hashes once and
-no predecessor loss; master38 note/text/images retained. Exact next commit/push;
-then diagnose native opposite-side annotation lifecycle and continue QA09.
-Evidence editor-* PNGs retained/hashed in center-matrix. Peekaboo scroll still
-blocked by CLI/bridge foreground argument mismatch; no zoom/app failure claim.
-Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA untouched;
-no merge/install/host changes. Preserved unrelated identity files and watchdog.
+No runner. Corrected75144 completed clean14/14 in reselected-corner-fixed-20260910.
+Red59670 retained1test/2failedassertions. Dirty VM clears priorpointselection
+onlywhen grabbing migratedrectangleendpoint; unitextends migration test.
+Live post-fix corner tap/drag no ring/zero candidate, bothsizes1.9795×0.5,
+center320630. PairedUndoRedo/finalgalleryreopen retained; native8×4center703351.
+Nativeendpoint highlight vscloneselectededgehandle remainsnextcomparison.
+Bothapps sketchopen; cloneoneedge selected, nativeallSketch04selected.
+Fivepublicationimagesinsertedonce (expected524), masterdatednoteinserted;
+exports /tmp/os3d-qa09-cornerfix-{published,master}.docx verified524/all5hashes
+andmaster38note, prior text/images retained.
+Exactnext verifyexports, documentcommitpush; compare settledpointselection.
+
+Native opposite-side annotation diagnosis: right3→4 updatesbothlabels without
+conflict; blankclick hideslabels, single-edge reselect showswidth8/height4.
+Padlocktoggle caused tip then changed lock icon; Undo restored priorstate.
+No storage inference/extra constraint claim. Postedit displaystate remainsopen.
+Multi-edge native plainclick replacesselection; stationaryShift drag didnot
+acquiretwo. Boxattempt caughtnearby14mmrectangleedge, immediatelyUndo restored
+originalgeometry; excludedfromevidence. No competingworker/hostchanges.
+Exactnext collectredtest, narrow migratedcornerselection fix if reproduced,
+focusedregression/livehistory/reopen/publication; continueQA09/backlog.
+Inventory4passed/0failed/1deviceblocked/51incomplete. Immutable05be744IPA untouched.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

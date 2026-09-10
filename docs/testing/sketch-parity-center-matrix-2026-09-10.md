@@ -451,3 +451,38 @@ hashes plus5diagnosis hashes/no predecessor loss; master38 dated note and full
 prior text/images verified. Exports `/tmp/os3d-qa09-editor-fixed-published.docx`
 and `editor-fixed-master.docx`. Native opposite-side annotation distinction
 remains open; QA09/inventory unchanged. See center-matrix September10 receipt.
+
+## Post-edit migrated corner reselection — September 10
+
+Native directcorner after numeric edits rotates about703351, retaining8×4mm.
+Clone initial directdrag unchanged; explicit endpointtap then repeat rotates
+about320630 but leaves defaultblue ring and zero point-to-edge candidate.
+Pointer-away settled screenshot confirms persistent symptom. New focused
+regression reproduces both failures (1test/2assertions):
+`/tmp/os3d-qa09-reselected-corner-red-20260910.xcresult`. Geometry/history
+assertions passed; not a solver failure. Narrow correction clears stale point
+selection when grabbing a saved migrated rectangle endpoint; other entity/point
+selection paths unchanged. Corrected annotation/migration regression pending.
+Native plain clicks replace selection; stationary shift-drag didnot acquire
+two edges. Box selection accidentally grabbed nearby14mmrectangleedge; immediate
+Undo restored originalgeometry, screenshots retained and excluded. No parity
+claim for multi-edge default controls. Opposite-side native labels disappear
+on blanktap; ordinary single-side reselection returns width/height. Editing
+right3→4 updatesbothside labels, without conflict. Lock toggle and Undo captured;
+no internal storage inference. These separate display states remain open.
+
+Corrected run `/tmp/os3d-qa09-reselected-corner-fixed-20260910.xcresult` passed
+clean14/14 (2migration/center +12annotation). Exact-build live endpoint tap then
+drag retains1.9795×0.5 and center320630, no defaultblue ring/zero candidate.
+Native8×4 cornerrotation remainscenter703351. PairedUndo/Redo andgalleryreopen
+verified; cloneItemscenterLock/twodistances retained. Native point-highlight
+versus clone selected-edge handle remains open, not exactvisualparity. Five
+diagnosis/postfix/reopen images insertedonce; export verification pending.
+Recovered earlierdirectpadlockbatch verified519/all6hashes/text+imagesretained.
+
+Migrated endpoint-drag selection cleanup: red1test/2assertions followed by
+clean14/14; paired live cornerrotation/history/finalreopen. No default ring or
+zero candidate; endpoint-vs-edge selection appearance remains open. Illustrated
+524/all5newhashes/no predecessor loss and master38 dated note/text/images
+verified in `/tmp/os3d-qa09-cornerfix-{published,master}.docx`. Receipt/evidence
+center-matrix September10. Inventory unchanged4passed/1blocked/51incomplete.

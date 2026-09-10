@@ -9573,6 +9573,14 @@ final class EditorViewModel {
             pendingEntity = nil
             return true
         }
+        if (control?.kind == .lineStart || control?.kind == .lineEnd),
+           sketch.rotatedRectangleEdges.values.contains(where: { $0.contains(entity.id) }) {
+            // A grabbed migrated corner supersedes a preceding point tap.
+            // Keeping both the point and its edge exposes the generic gizmo
+            // and a meaningless zero point-to-edge dimension after release.
+            selectedSketchPoints.removeAll()
+            selectedSketchEntityIDs = [entity.id]
+        }
         if control?.kind == .center, case .rect = entity {
             selectedSketchEntityIDs.removeAll()
             selectedAxisRectangleEdge = nil

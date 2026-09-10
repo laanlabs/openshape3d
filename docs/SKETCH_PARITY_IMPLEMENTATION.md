@@ -1724,3 +1724,10 @@ hashes plus5diagnosis hashes/no predecessor loss; master38 dated note and full
 prior text/images verified. Exports `/tmp/os3d-qa09-editor-fixed-published.docx`
 and `editor-fixed-master.docx`. Native opposite-side annotation distinction
 remains open; QA09/inventory unchanged. See center-matrix September10 receipt.
+
+Migrated endpoint-drag selection cleanup: red1test/2assertions followed by
+clean14/14; paired live cornerrotation/history/finalreopen. No default ring or
+zero candidate; endpoint-vs-edge selection appearance remains open. Illustrated
+524/all5newhashes/no predecessor loss and master38 dated note/text/images
+verified in `/tmp/os3d-qa09-cornerfix-{published,master}.docx`. Receipt/evidence
+center-matrix September10. Inventory unchanged4passed/1blocked/51incomplete.
