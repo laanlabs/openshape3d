@@ -119,3 +119,17 @@ locked center retained (`os3d-qa08-native-center-reopen-values.png`). This close
 the previously pending paired center-Lock persistence sample. Earlier failed
 modal deliveries/capture errors are retained, not attributed to native persistence.
 Google remains signed-out; this result and new image are queued locally only.
+
+### Direct rectangle center padlock — queued, not inserted
+
+September10 paired native direct action revealed two corrections: plain black padlock directly toggles scoped Lock (not generic glyph-selection/Delete); directLock finishes center selection, while Unlock retains it. Touch bypass to Metal reproduced at exact icon center and corrected through shared-bounds on-screen-control dispatch. Final clean33/33 plus paired live lifecycle, unchanged corners, one-step history and final galleryreopen passed. Retained failed attempts and superseded symmetric-selection interpretation are in diagonal-matrix receipt.
+
+Pending final paired images (all hashes in report SHA256SUMS):
+- os3d-qa08-toggle-native-unlocked.png
+- os3d-qa08-toggle-native-relocked.png
+- os3d-qa08-lifecycle-clone-unlock.png
+- os3d-qa08-lifecycle-clone-lock.png
+- os3d-qa08-lifecycle-native-final-reopen.png
+- os3d-qa08-lifecycle-clone-final-reopen.png
+
+Illustrated466/master38 remain last verified; Google signedout. No duplicate insertion or tab reset. Remaining QA08 partial-edge colors and free-versus-locked center halo require separate comparisons. IPAunchanged, physical inputunverified.

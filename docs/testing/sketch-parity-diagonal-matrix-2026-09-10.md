@@ -244,3 +244,50 @@ locked center retained (`os3d-qa08-native-center-reopen-values.png`). This close
 the previously pending paired center-Lock persistence sample. Earlier failed
 modal deliveries/capture errors are retained, not attributed to native persistence.
 Google remains signed-out; this result and new image are queued locally only.
+
+### Center padlock appearance and direct action
+
+Native center-selected screenshot shows small black unboxed padlock; clone
+emoji/blue box changed to unboxed SFlock.fill12pt with22pt hit area. Focused1/1
+passed; live new appearance and old glyph select/Delete/Undo worked in clone.
+But native comparison disproved interaction equivalence: clicking its padlock
+changed palette Unlock→Lock immediately. Subsequent Delete removed rectangle
+because center remained selected; Undo restored geometry with unlocked center.
+This is a direct Lock toggle, not generic constraint selection. Native9×12 restored;
+no source sketch lost. Captures glyph-native-clicked/deleted/restored preserve this.
+
+Now direct center control is shown for selected center both free/locked, toggles
+existing scoped Lock command, uses black icon; generic centerLock badge suppressed
+when only edge selected. Other constraint glyphs unchanged. UI test now exercises
+Lock→Unlock→Lock using control before refusal/symmetric resize/history. Run
+/tmp/os3d-qa08-center-direct-toggle-20260910.xcresult pending. No final claim yet.
+
+### Direct center padlock targeting diagnosis, 12:08 EDT
+
+Second targeted UI attempt (`center-direct-toggle2`) failed after explicit AX-center tap; after-tap capture still showed free center and the subsequent button query disappeared. No passing claim. Live clicked the visible glyph at global434,518 after gallery reopening: palette Lock→Unlock, center and all four corners unchanged (`os3d-qa08-direct-selected.png`, `os3d-qa08-direct-tapped.png`). Automatic Peekaboo host routing briefly fell back to a daemon without permissions; selecting the existing GUI bridge restored input without host/security changes. Frame diagnostic running before any speculative product hit-testing change.
+
+Frame diagnostic failed1/1: button frame(539,662.5,22,22), marker frame(547.5,631,5,5); synthesized tap(550,673.5) is its advertised center. Rendered transparent background attempt also failed1/1 and was removed. Testing explicit full-canvas GeometryReader container next; no unsupported root-cause claim. Receipts `/tmp/os3d-qa08-center-direct-frame-20260910.xcresult`, `/tmp/os3d-qa08-center-direct-surface-20260910.xcresult`.
+
+Full-canvas container and outer button contentShape attempts each failed1/1 and were removed (`center-direct-container`, `center-direct-shape` xcresults). Temporary input logging now distinguishes delivered canvas coordinates from control action; no solver changes.
+
+### Delivered touch path confirmed
+
+`center-direct-trace` failed1/1, but its temporary log is decisive: after selecting center at(550,633.5), the padlock tap arrived at Metal `gestureTapped` at(550,673.5), and the button action did not fire. This is the exact advertised icon position, not an XCTest coordinate miss. Live mouse click used the SwiftUI action successfully. Removed all transient NSLog/print tracing. Added scoped padlock hit dispatch ahead of ordinary canvas picks, sharing the same40pt offset/22pt bounds with the visible button; this follows existing gizmo control routing. Focused `center-direct-dispatch` now verifies Lock→Unlock→Lock plus refusal, sizing and history.
+
+Canvas-dispatch focused run: first Lock succeeded, immediate second label assertion failed before unlock was observed (`center-direct-dispatch`,1/1failed). Touch uses single-tap recognizer delayed by double-tap disambiguation. Test now waits for each exact required label transition (3s bound), rather than assuming immediate state; this is not yet a passing result. Local direct-input captures and trace copied to retained report with refreshed hashes.
+
+`center-direct-settled` passed1/1 (50.501s): each direct Lock/Unlock/Lock transition completed, refused movement did not add a history step, half-width edit preserved center/height, and numeric Undo/Redo restored values. Shared visibility gating now used by both drawn control and canvas dispatch. Final combined33-case run underway before live post-fix repeat; prior failures remain in audit.
+
+Remaining visual observation from retained same-state native `glyph-native-clicked`: selected center has an orange halo around its small orange core; clone currently colors only the5pt dot orange. Not included in padlock action fix or claimed matching. Partial-edge colors remain separate/inconclusive until paired isolation.
+
+### Combined pass and native settled-state correction
+
+Initial combined `center-direct-final` passed clean33/33, zero skipped/failed,166.360s. Exact-build live clone directUnlock, Undo, Redo and relock changed only the lock state; all corners stayed fixed (`toggle-clone-before/unlocked/undo/redo/relocked`). Native repeated free→Lock twice cleared center selection and hid padlock, while locked→Unlock kept it selected (`toggle-native-free/locked/locked-selected/unlocked/relocked`). Prior assumption that both operations retain selection is withdrawn. Native center remains9×12 at same coordinates; originals unaffected. Scoped direct-control lifecycle now mirrors this asymmetry; palette Lock unchanged. New combined regression underway, not counted until result. Native selected-free halo differs from selected-locked center; do not generalize a universal selection halo yet.
+
+### Final direct-padlock verification, September10 12:39 EDT
+
+Final lifecycle-adjusted regression PASSED clean33/33, zero failures/skips,173.583s: `/tmp/os3d-qa08-center-direct-lifecycle-20260910.xcresult`. Includes24 rectangle geometry,6 point states,2 constraint UI and1 extended center UI. This is a clean final run after the retained failures/diagnostics above, not an unbroken first-attempt pass. No test runner remains.
+
+Exact-build live clone: selected locked center→directUnlock retains orange selection/padlock; directLock clears selection/padlock and shows green center. All four corners remain at local(324,394),(401,394),(324,534),(401,534). One toolbarUndo restores blue/free center, Redo green/locked; gallery return/reopen/re-enter/reselect shows Unlock and the same rectangle. Images `lifecycle-clone-before/unlock/lock/undo/redo/final-reopen`. Native same-state repeated toggles show identical Lock-versus-Unlock selection lifecycle; cmd-Z/shift-cmd-Z restores blue/green center without moving middle9×12 rectangle or original shapes. Galleryreopen→Skip→Sketch04→NormaltoSketch→center reselect retains Unlock (`lifecycle-native-undo/redo/final-reopen`). Native initial post-prompt doubleclick was too early; repeated after inspected settled model state, no persistence failure.
+
+All image originals and SHA256SUMS retained in report diagonal-matrix. Google publication remains blocked by signed-out existing tabs; nothing beyond illustrated466/master38 claimed. QA08 remainspartial: partial-edge colors, state-specific center halo/other glyph visibility and publication unresolved. Physical input/device equivalence unverified; immutableIPA untouched.

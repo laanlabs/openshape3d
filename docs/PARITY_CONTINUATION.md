@@ -1,23 +1,45 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, center Lock recovered / next visual details
+## Active continuation — September 10, 12:20 EDT, center padlock
 
-HEAD35382d4 pushed. Final31/31 and broader RectangleWorkflowUI15/15 both clean,
-separate runs; all earlier failures retained. No test/Peekaboo runner active.
-Exact-build center-only Lock/resize/refusal/Unlock/history/clone reopen passed.
-Native latest9×12 centerlocked reopen now passed: fullscreen no-web-focus capture
-revealed prior test-fixture crash dialog covering trial prompt. Ignore dismissed
-only crash dialog; Skip then worked. No restart/security/account changes.
-Evidence copied/hashed in report diagonal-matrix; receipt and pendingpublication
-updated. Google stillsignedout, illustrated466/master38 lastverified only.
-Immutable05be744IPA unchanged. Inventory4passed/0failed/1deviceblocked/51incomplete.
-Exact next documentation checkpoint commit/push, then compare remaining QA08
-partial-constraint edge coloring and center/Lock glyph styling/visibility, using
-same-state native/clone. Do not generalize unproven per-edge DOF color rules.
-Native1924 FrontSketch04 middle9×12 centerlocked, right edge selected; two prior
-rectangles15×11 and15.5×9.5 intact. Simulator7715 ended broadUItests and needs
-relaunch before live; earlier centerfixture may be replaced by lastUItest project.
-Own dirty documentation only. Preserve unrelateduntracked identity/memory.
+HEAD `8f9e43c` pushed; dirty own VM, SketchConstraintOverlay, ViewportView,
+RectangleWorkflowUITests and checkpoint/receipt. Unrelated identity/memory files
+preserved. Inventory4passed/0failed/1deviceblocked/51incomplete. IPA unchanged.
+Prior center geometry31/31 + broad rectangle15/15 and paired saved recovery pass.
+New native direct center padlock click immediately toggles Lock/Unlock; clone
+old glyph selection differed. Plain black selected-center control implemented.
+Initial UI failures and ineffective surface/container/hit-shape attempts retained
+in receipt; all ineffective changes removed. Temporary trace proved exact icon
+center touch(550,673.5) reached Metal instead of button, while live mouse click
+worked. Shared40pt offset/22pt control bounds now route canvas taps before picks.
+Focused settled1/1 PASSED including Lock→Unlock→Lock, refusal, sizing, Undo/Redo:
+/tmp/os3d-qa08-center-direct-settled-20260910.xcresult (50.501s).
+Initial combined33/33 PASSED clean (166.360s):
+/tmp/os3d-qa08-center-direct-final-20260910.xcresult. Live clone Unlock, Undo,
+Redo and relock passed with fixed corners. Native repeated free→Lock twice clears
+selection/hides padlock; locked→Unlock keeps center selected. Earlier symmetric
+selection-retention assumption withdrawn. Added direct-control-only lifecycle:
+Lock clears center selection, Unlock retains; palette behavior unchanged.
+Final lifecycle-adjusted combined33/33 PASSED clean,173.583s:
+/tmp/os3d-qa08-center-direct-lifecycle-20260910.xcresult. No runner remains.
+Paired live directUnlock retains selection; directLock clears/hides; all corners
+fixed. Both one-step Undo/Redo and galleryreopen retain correct centerLock.
+Final images lifecycle-clone-final-reopen and lifecycle-native-final-reopen copied
+and hashed in report diagonal-matrix; publication queue appended, not published.
+Now committing/pushing own correction/docs; next finite QA08 issue is free-versus-
+locked center halo and partial-edge colors (do not generalize halo across states).
+Native1924 middle9×12 LOCKED/selected; clone7715 half-width rectangleLOCKED/selected.
+All temporary NSLog/print tracing removed; diagnostic logstream62086 stopped.
+Simulator7715
+will be reset by UI tests. Explicit existing GUI bridge routing avoids automatic
+fallback to unpermitted daemon:
+--bridge-socket '/Users/thelodgestudio/Library/Application Support/Peekaboo/bridge.sock'
+Use app switch then foreground global clicks; see --no-web-focus. If blocked,
+inspect full-screen for retained test-crash dialog before assuming app failure.
+Google tabs remain signed out; do not close/reload. Illustrated466/master38 last
+verified; new evidence local-only in diagonal-matrix report and pending queue.
+Next after padlock: QA08 partial-edge colors/glyph visibility, then remaining core
+acceptance. No parity/device readiness claim; no merge/install/new watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

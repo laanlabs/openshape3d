@@ -8173,6 +8173,41 @@ final class EditorViewModel {
 
     /// Rectangle centers are rigid-translation controls, not independent
     /// solver points. Keep them separate from endpoint constraint markers.
+    static let rectangleCenterLockOffset: CGFloat = 40
+    static let rectangleCenterLockHitSize: CGFloat = 22
+
+    var sketchRectangleCenterLockMarkers: [SketchPointMarker] {
+        guard mode.isSketching, mode.sketchTool == nil,
+              editingDimension == nil, !sketchTransformActive else { return [] }
+        return sketchRectangleCenterMarkers.filter(\.isSelected)
+    }
+
+    /// Shared projected bounds for direct-touch delivery through the viewport.
+    /// Mouse/accessibility delivery may instead invoke the SwiftUI button.
+    func toggleRectangleCenterLock(at point: CGPoint) -> Bool {
+        let half = Self.rectangleCenterLockHitSize / 2
+        for marker in sketchRectangleCenterLockMarkers {
+            guard let center = cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)),
+                  abs(point.x - center.x) <= half,
+                  abs(point.y - center.y - Self.rectangleCenterLockOffset) <= half else { continue }
+            toggleRectangleCenterLock()
+            return true
+        }
+        return false
+    }
+
+    /// Native direct Lock finishes the point selection; direct Unlock leaves
+    /// it selected so the now-free center is immediately available to move.
+    func toggleRectangleCenterLock() {
+        guard !sketchRectangleCenterLockMarkers.isEmpty else { return }
+        let unlocking = canUnlockSketchSelection
+        toggleSketchSelectionLock()
+        if !unlocking && canUnlockSketchSelection {
+            selectedSketchPoints = []
+            selectedConstraintID = nil
+        }
+    }
+
     var sketchRectangleCenterMarkers: [SketchPointMarker] {
         guard let sketch = activeSketch else { return [] }
         return sketch.entities.compactMap { entity in
@@ -11378,6 +11413,7 @@ final class EditorViewModel {
         let code: String
         let worldAnchor: SIMD3<Double>
         let slot: Int
+        var isRectangleCenterLock = false
     }
 
     /// Compact badge text per constraint kind.
@@ -11430,7 +11466,11 @@ final class EditorViewModel {
                 out.append(SketchConstraintGlyph(
                     id: c.id, sketchID: sketch.id, kind: c.kind,
                     code: Self.constraintCode(c.kind),
-                    worldAnchor: sketch.plane.toWorld(local), slot: slot
+                    worldAnchor: sketch.plane.toWorld(local), slot: slot,
+                    isRectangleCenterLock: c.kind == .fixed && c.refs.count == 1 &&
+                        c.refs[0].role == .center && sketch.entities.contains(where: {
+                            if case .rect = $0 { return $0.id == c.refs[0].entityID }; return false
+                        })
                 ))
             }
         }

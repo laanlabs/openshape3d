@@ -1613,3 +1613,7 @@ focus/capture routes are inconsistent. No native persistence failure claimed.
 Publication remains queued, not verified: Google signed-out, last illustrated466 /
 master38. Immutable05be744IPA unchanged. QA08 remains partial; wider selection,
 constraint icon styling/visibility and other acceptance cases remain open.
+
+### September10: direct rectangle center padlock
+
+QA08 remainspartial. Replaced generic center-Lock emoji badge with selected-center plain black direct toggle. Shared projected bounds route touch through Metal as well as SwiftUI mouse action. DirectLock finishes selection; Unlock retains it, matching two native repetitions. Final clean33/33 plus paired lifecycle, unchanged corners, Undo/Redo and galleryreopen verified. Full failed-attempt audit: `testing/sketch-parity-diagonal-matrix-2026-09-10.md`; signed-out Google publication queued in `testing/sketch-parity-publication-pending-2026-09-10.md`. Inventory4passed/0failed/1deviceblocked/51incomplete. No device readiness/IPA change.

@@ -139,7 +139,31 @@ final class RectangleWorkflowUITests: XCTestCase {
         center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 0,
                        "Center selection must not select the whole rectangle")
-        app.buttons["ConstraintRail-fixed"].tap()
+        let centerLock = app.buttons["RectangleCenterLockToggle"]
+        XCTAssertTrue(centerLock.waitForExistence(timeout: 3))
+        func expectCenterLock(_ label: String) {
+            let transition = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "label == %@", label), object: centerLock)
+            XCTAssertEqual(XCTWaiter.wait(for: [transition], timeout: 3), .completed,
+                           "Each direct padlock tap must perform one scoped toggle")
+        }
+        func reselectAfterDirectLock() {
+            let finished = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "exists == false"), object: centerLock)
+            XCTAssertEqual(XCTWaiter.wait(for: [finished], timeout: 3), .completed,
+                           "Direct Lock must finish the center selection")
+            center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(centerLock.waitForExistence(timeout: 3))
+            expectCenterLock("Unlock center")
+        }
+        expectCenterLock("Lock center")
+        centerLock.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        reselectAfterDirectLock()
+        attach(app, "rectangle-center-direct-lock-after-tap")
+        centerLock.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        expectCenterLock("Lock center")
+        centerLock.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        reselectAfterDirectLock()
         XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Unlock")
         attach(app, "rectangle-center-only-locked")
         let lockedCenter = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))

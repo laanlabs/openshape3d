@@ -20,11 +20,29 @@ struct SketchConstraintOverlay: View {
         let _ = viewModel.cameraEpoch
         // Mirrors `SketchDimensionOverlay`, including gating on content rather
         // than mode so an empty overlay never sits over the viewport.
-        let glyphs = viewModel.sketchConstraintGlyphs
-        if !glyphs.isEmpty {
+        let glyphs = viewModel.sketchConstraintGlyphs.filter { !$0.isRectangleCenterLock }
+        let centerControls = viewModel.sketchRectangleCenterLockMarkers
+        if !glyphs.isEmpty || !centerControls.isEmpty {
             ZStack(alignment: .topLeading) {
                 ForEach(glyphs) { glyph in
                     glyphView(glyph)
+                }
+                ForEach(centerControls) { marker in
+                    if let center = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
+                        Button {
+                            viewModel.toggleRectangleCenterLock()
+                        } label: {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundStyle(Color.black)
+                                .frame(width: EditorViewModel.rectangleCenterLockHitSize, height: EditorViewModel.rectangleCenterLockHitSize)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .position(x: center.x, y: center.y + EditorViewModel.rectangleCenterLockOffset)
+                        .accessibilityIdentifier("RectangleCenterLockToggle")
+                        .accessibilityLabel(viewModel.canUnlockSketchSelection ? "Unlock center" : "Lock center")
+                    }
                 }
             }
             .allowsHitTesting(true)

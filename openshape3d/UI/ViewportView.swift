@@ -155,6 +155,13 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
             cameraAnimator?.animate(to: pose, duration: 0.4)
             return
         }
+        // Touch can arrive at Metal even when a projected SwiftUI control is
+        // drawn above it. Dispatch the rectangle's scoped padlock before picks,
+        // just as gizmo handles below dispatch before ordinary geometry.
+        if viewModel.toggleRectangleCenterLock(at: point) {
+            sceneDidChange()
+            return
+        }
         // Tapping the very centre arms the pivot: the dot becomes a crosshair
         // you drag to drop the whole control somewhere else (the model stays
         // put). Tapping it again puts the dot back.
