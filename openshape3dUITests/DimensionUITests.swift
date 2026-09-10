@@ -87,6 +87,16 @@ final class DimensionUITests: XCTestCase {
         XCTAssertEqual(label.label, original)
         app.buttons["RedoButton"].tap()
         XCTAssertTrue(label.label.contains("1.5"))
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Keypad-0"].tap()
+        app.buttons["Keypad-."].tap()
+        app.buttons["Keypad-1"].tap()
+        app.buttons["Keypad-cm"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(label.label.contains("1 mm"))
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertEqual(field.value as? String, "0.1 cm")
+        attach(app, "retained-explicit-unit-source")
     }
 
     func testFreshForwardAndReverseLineSizeKeepsDrawingStart() throws {

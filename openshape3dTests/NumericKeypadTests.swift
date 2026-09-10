@@ -112,7 +112,8 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.value, 150)
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "(10+5) cm")
         vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
-        vm.commitDimensionEdit("2 mm")
+        AppSettings.shared.unit = .millimeters
+        vm.commitDimensionEdit("2")
         XCTAssertNil(vm.activeSketch?.dimensions.first?.displayExpression)
         XCTAssertFalse(try XCTUnwrap(vm.sketchDimensionLabels.first).hasExpression)
         vm.session.undo()
@@ -128,6 +129,29 @@ final class DimensionKeypadCommitTests: XCTestCase {
         let legacy = SketchDimension(kind: .distance, refs: [.init(entityID: id, role: .whole)], value: 4)
         let legacyRoundTrip = try JSONDecoder().decode(SketchDimension.self, from: JSONEncoder().encode(legacy))
         XCTAssertNil(legacyRoundTrip.displayExpression)
+    }
+
+    func testExplicitScalarUnitRetainsSourceAcrossReopenAndUnitChange() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (original, _) = lineReadyToDimension(vm)
+        vm.commitDimensionEdit("0.1 cm")
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "0.1 cm")
+        XCTAssertTrue(try XCTUnwrap(vm.sketchDimensionLabels.first).hasExpression)
+        AppSettings.shared.unit = .inches
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        XCTAssertEqual(vm.editingDimension?.text, "0.1 cm")
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1, accuracy: 1e-6)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("1 mm")
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "1 mm")
+        AppSettings.shared.unit = .millimeters
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("2")
+        XCTAssertNil(vm.activeSketch?.dimensions.first?.displayExpression)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "1 mm")
     }
 
     func testPolygonCountEditsPreserveGeometryReferencesAndHistory() throws {

@@ -12193,8 +12193,11 @@ final class EditorViewModel {
         let previousExpression = edit.dimensionID.flatMap { id in
             sketch.dimensions.first(where: { $0.id == id })?.displayExpression
         }
-        let displayExpression = formula == nil && Double(trimmedBody) == nil
-            ? (previousExpression == rawText ? rawText : "(\(trimmedBody)) \(expressionUnit)") : nil
+        let isArithmetic = Double(trimmedBody) == nil
+        let retainedScalar = isArithmetic ? "(\(trimmedBody)) \(expressionUnit)"
+            : "\(trimmedBody) \(expressionUnit)"
+        let displayExpression = formula == nil && (isArithmetic || typedUnitSymbol != nil)
+            ? (previousExpression == rawText ? rawText : retainedScalar) : nil
 
         var proposed = sketch
         var setup: DocumentCommand

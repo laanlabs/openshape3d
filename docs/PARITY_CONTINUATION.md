@@ -1,21 +1,20 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10, keyboard preference verified
+## Active continuation — September10, explicit-unit source verified
 
-Base7a5c618. Keyboard-preference implementation/docs ready to commit/push.
-Final /tmp/os3d-keyboard-preference-commit-route-20260910.xcresult clean11/11.
-No runner active. Earlier10pass/1failure twice: seedappend fixed, syntheticEscape
-route discrepancy retained. Live Peekaboo Escape works after typed2 and preserves
-1.5 geometry. Native/clone keyboard-only reopen and123/keypad reopen passed.
-Preference scoped to editor session, not app-launch lifetime. Receipt:
-docs/testing/sketch-parity-keyboard-preference-2026-09-10.md.
-Illustrated320/all4newhashes/no predecessor loss, master38/newnote verified.
-Exact next: commit/push, then paired explicit-unit expression/numeric editing
-and remaining QA33/40 layouts. Native1924 10mm numeric keypad open; clone6492
-requires launch after tests. No pending publication. Sole desktop/build owner.
+Base3130e1c; explicit-unit source implementation/docs ready to commit/push.
+Clean16/16 /tmp/os3d-explicit-unit-source-20260910.xcresult; no runner active.
+Paired unit source/bare replacement/UndoRedo andgalleryreopen passed. Native20mm
+source retained; clone0.1cm source/1mm geometry retained. Receipt:
+docs/testing/sketch-parity-explicit-unit-source-2026-09-10.md.
+Illustrated328/all4hashes/no predecessor loss, master38 note verified.
+Nextcommit/push, then paired type-mismatch/mixed-unit expression checks under
+QA32/33; do not infer desktopinput failures from inactivewindows. Native1924
+20mm numeric editor open; clone6492 0.1cm editor open. Sole desktop/buildowner.
 Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744IPA unchanged.
-No physical install/merge/restart/security changes. Preserve unrelatedidentity,
-memory/originalstalledtabs; no duplicate workers/watchdogs.
+No physicalinstall/merge/restart/securitychanges; preserve unrelatedidentity/memory
+and originalstalledtabs, no duplicateworkers/watchdogs. Unit-display switching
+remains automated-only; keyboard syntheticEscape discrepancy retained.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

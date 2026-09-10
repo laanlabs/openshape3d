@@ -1354,3 +1354,11 @@ Escape/reopen and123switch-back pass. Final explicit-commit lifecycle11/11 follo
 a corrected seed-append failure and a retained synthetic-XCTest-Escape discrepancy
 (live Escape passes). No cross-launch preference or physical-input claim.
 See [keyboard preference receipt](testing/sketch-parity-keyboard-preference-2026-09-10.md).
+
+## September10 — explicit-unit scalar source
+
+Native2cm→20mm and explicit20mm preserve enteredunittext withf(x); clone converted
+correctly but discarded it. Retention now includes explicit-unit numbers, while
+bare numbers clear source. Clean16/16; paired source/bare-value/history and both
+galleryreopens retain native20mm/clone0.1cm. Display-unit switching remains
+automated-only. [Receipt](testing/sketch-parity-explicit-unit-source-2026-09-10.md).
