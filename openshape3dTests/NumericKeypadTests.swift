@@ -154,6 +154,30 @@ final class DimensionKeypadCommitTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.displayExpression, "1 mm")
     }
 
+    func testAngleUnitCannotResizeLengthAndAllowsImmediateRecovery() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .millimeters
+        let (original, _) = lineReadyToDimension(vm)
+        vm.commitDimensionEdit("1.2")
+        let before = try XCTUnwrap(vm.activeSketch)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        for draft in ["1 deg", "10+5 deg", "= 2 deg"] {
+            vm.commitDimensionEdit(draft)
+            XCTAssertEqual(vm.editingDimension?.validationMessage,
+                           "Cannot use angle in a length type parameter.")
+            XCTAssertEqual(vm.activeSketch?.entities, before.entities)
+            XCTAssertEqual(vm.activeSketch?.dimensions, before.dimensions)
+        }
+        vm.commitDimensionEdit("2 mm")
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 2, accuracy: 1e-6)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, before.entities)
+        XCTAssertEqual(vm.activeSketch?.dimensions, before.dimensions)
+        vm.session.redo()
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 2, accuracy: 1e-6)
+    }
+
     func testMixedLengthSourceConversionRecoveryAndHistory() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .inches

@@ -12114,6 +12114,13 @@ final class EditorViewModel {
                 rawText, variables: session.variableValues())
             return
         }
+        // An angle is not a length. The scalar evaluator deliberately ignores
+        // suffixes, so reject this before dismissal or any geometry/history edit.
+        if !edit.isPolygonSideCount, edit.kind != .angle,
+           NumericKeypad.trailingUnit(in: rawText) == "deg" {
+            editingDimension?.validationMessage = "Cannot use angle in a length type parameter."
+            return
+        }
         // Keep malformed expressions editable; valid out-of-range values dismiss.
         // Paired native 1/0 and 2+ retain the keypad, unlike zero/negative sizes.
         editingDimension = nil

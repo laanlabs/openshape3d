@@ -1371,3 +1371,12 @@ f(x), and avoid variable-formula/double-conversion paths. Clean27/27 parser/keyp
 checks; paired commit/source/UndoRedo and clone gallery reopen pass. No arbitrary
 dimensional algebra or native gallery repeat claim. Illustrated332 verified with
 allfour hashes/no predecessor loss. Receipt: testing/sketch-parity-mixed-unit-2026-09-10.md.
+
+## September 10 — angle units cannot resize lengths (QA33 partial)
+
+Native rejects10deg in length field; clone previously silently converted1deg to1mm.
+Length commit now refuses degree suffix before dismissing/mutating, preserving
+draft with matching diagnostic. Clean28/28 and paired rejection/valid recovery
+verified. Clone SelectAll delivery anomaly excluded; explicit deletion succeeds.
+Receipt testing/sketch-parity-unit-type-2026-09-10.md. Publication pendingexport.
+Reciprocal length-in-angle input remains next; no physicalinputclaim.
