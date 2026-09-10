@@ -355,3 +355,21 @@ Migration committed/pushed03338a4. Master dated note export verified once;
 changed, so name equality was not used as loss evidence). Original full text
 retained. Fresh report tabs t20/t21; old stalled t11 preserved. Remaining default
 ring/glyph density next; earlier backlog still queued. No runner at checkpoint.
+
+Default-ring follow-up: clean3/3 in rotation-explicit-controls result. Live fresh
+centerlocked rectangle1.9795×1.4814 rotates about320630, retains bothleaders
+and no automatic blue ring. Explicit Move/Rotate shows whitecontrols; Done
+hides them. Undo restoresaxisrectangle; Redo restoresrotation withsingleedge
+selected (notfullgroup). Galleryreopen/Items retainLock andbothdimensions.
+New ring-* screenshots retained/hashed. Native ring-reference andsingleedge
+glyph comparison show no default ring. AlwaysShowConstraints toggledON and
+verified: native still doesnotshow rectangle internalparallel/perpendicular/
+coincidentbadges; setting restoredOFF. Clone generatedrelations createclutter.
+This is a separate confirmed presentation gap; no constraintdeletion authorized
+or intended. Ringpublication3images insertedonce, exportverificationpending.
+RecoveredQA08leaderbatch verified478placements/all6newhashes/noimageloss;
+textdiff reports only755insertedcharacters, no deleted/replacedpriorcontent.
+
+Ring publication final export481placements: all3newimages, prior478image
+placements and full prior text retained. Initialexport480missedlastimage while
+saving; no reinsert. Master38note verifiedonce, no image/text loss.

@@ -2,9 +2,12 @@
 
 ## Active continuation — September 10 15:55 EDT
 
-HEAD03338a4 pushed; safe center-rectangle rotation migration tested/live-verified. Final related run clean74/74
+HEAD1769624 pushed; safe center-rectangle rotation migration tested/live-verified. Final related run clean74/74
 at `/tmp/os3d-qa09-rotation-final-20260910.xcresult` and .log (71unit+3UI).
-No runner remains. Prior red numeric/initial UI-selection failures retained.
+Completed exec58259 clean3/3: focused default-ring correction + rotation/Copy workflows,
+`/tmp/os3d-qa09-rotation-explicit-controls-20260910.xcresult` and .log.
+Dirty EditorViewModel + two tests make migrated whole-group transform explicit.
+Prior red numeric/initial UI-selection failures retained.
 Paired native rotation and direction-preserving resize4×2; clone2×1.6288 with
 center fixed. Clone Unlock/translation and separate Undo restoration passed.
 Both final gallery reopen states verified; exact cloneJSON and screenshot hashes
@@ -17,7 +20,13 @@ Publication recovered in fresh authorized tabs: illustrated472placements/470medi
 all6newhashes once, original full text/images retained. Old stalledtab preserved.
 Master38-image note export verified, original text/media hashes retained; earlier
 signedout backlog queued locally.
-Exactnext continue default ring/
+Live ring-free corner rotation, explicit controls and Undo/Redo geometry passed.
+Gallery reopen/Items Lock and both distances verified; no test runner.
+Ring publication481placements/all3hashes; master38 dated note verified. Earlier diagonal backlog
+export verified478 placements, all6hashes once, no prior image loss and all prior
+text retained as ordered subsequence (inserted addendum interrupts substring).
+Exactnext finish saved selection/control check, document/publish ring follow-up, then
+continue default ring/
 constraint-glyph clutter after corner rotation, remaining QA09 reference/selection
 acceptance and prior publication backlog. No full QA09 closure. Inventory4passed,
 0failed,1deviceblocked,51incomplete. Immutable05be744IPA unchanged. Unrelated

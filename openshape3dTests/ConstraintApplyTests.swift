@@ -294,6 +294,7 @@ final class ConstraintApplyTests: XCTestCase {
         vm.endSketchStroke(ray: ray(SIMD2(4 + sqrt(5), 4)))
         let direct = try XCTUnwrap(vm.activeSketch)
         XCTAssertEqual(direct.entities.count, 4)
+        XCTAssertTrue(vm.usesExplicitSketchTransform, "Migrated rectangle must not show a default transform ring")
         XCTAssertEqual(direct.dimensions.map(\.id), sketch.dimensions.map(\.id))
         XCTAssertTrue(direct.constraints.contains(sketch.constraints[0]))
         vm.session.undo()

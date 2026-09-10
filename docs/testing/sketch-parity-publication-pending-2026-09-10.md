@@ -9,6 +9,15 @@ stalled tab preserved. Earlier sections below remain queued, not automatically
 published by this recovery. Master continuation note03338a4 verified once, all38image hashes and original
 text retained.
 
+## 16:10 recovered diagonal-leader batch
+
+The six images listed under Leader correction are now published exactly once.
+Export `/tmp/os3d-qa08-backlog-leaders-published.docx`:478 placements, no loss
+against472; each new PNG hash once. Dated recovered heading once; all119169
+prior text characters retained in order (new text was inserted inside prior text,
+so whole-string substring comparison is not applicable). Other queue batches
+below remain pending.
+
 ## Historical sign-out blocker
 
 Google Docs signed out during the QA-08 post-fix update. Preserve existing tabs.

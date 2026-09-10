@@ -95,6 +95,7 @@ final class RectangleWorkflowUITests: XCTestCase {
         let rotatedLevels = Set(app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
             .allElementsBoundByIndex.map { Int($0.frame.midY.rounded()) })
         XCTAssertGreaterThan(rotatedLevels.count, 2, "Corner drag must actually rotate the rectangle")
+        XCTAssertTrue(app.buttons["SketchTransformMode"].exists, "Move/Rotate must remain explicitly accessible")
         attach(app, "center-locked-rectangle-rotated-sizes")
         let otherSize = labels.element(boundBy: 1).label
         labels.element(boundBy: 0).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()

@@ -8520,6 +8520,10 @@ final class EditorViewModel {
     /// gizmo. Keep direct body/endpoint dragging; Move/Rotate or Copy opts in.
     var usesExplicitSketchTransform: Bool {
         if hasContextualSketchHandle { return true }
+        if selectedSketchPoints.isEmpty, let sketch = activeSketch,
+           sketch.rotatedRectangleEdges.values.contains(where: { Set($0) == selectedSketchEntityIDs }) {
+            return true
+        }
         guard selectedSketchEntityIDs.count == 1, selectedSketchPoints.isEmpty,
               let entity = selectedSketchEntities.first else { return false }
         if case .line = entity { return true }
