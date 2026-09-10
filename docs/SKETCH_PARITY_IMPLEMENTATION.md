@@ -1749,3 +1749,11 @@ clone retained them. Narrow history preparation cleanup passes first clean14/14
 and live Undo/Redo, reselect and gallery reopen. Geometry and saved dimensions
 unchanged. Illustrated536/master38 export verified; QA-09 remains partial.
 Receipt: `testing/sketch-parity-center-matrix-2026-09-10.md`.
+
+### September 10 — nonblocking dimension constraint refusal
+
+Paired center+corner Lock refuses conflicting width without geometry changes;
+clone modal differed from native notice. Dimension refusal now uses the notice.
+First clean7/7 includes exact rollback/no extra history. Paired Unlock/recovery,
+Undo/Redo and gallery reopen passed. Illustrated541/all5 hashes/master38 verified.
+Corner editor selection and Lock point glyph remain open; QA-09 partial.

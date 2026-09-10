@@ -239,6 +239,38 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testMigratedCenterAndCornerLockRejectsSizeWithoutModalOrHistory() throws {
+        let vm = try makeViewModel(), id = UUID()
+        var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])
+        sketch.rectangleSizingAnchors[id] = .center
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+        sketch.dimensions = [.init(kind: .horizontal, refs: refs, value: 4),
+                             .init(kind: .vertical, refs: refs, value: 2)]
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.sketchTransformActive = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.rotation, text: "35"))
+        vm.sketchTransformActive = false
+        let rotated = try XCTUnwrap(vm.activeSketch)
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchPoints = [.init(entityID: rotated.entities[0].id, role: .endpointA)]
+        vm.applyConstraint(.fixed)
+        let locked = try XCTUnwrap(vm.activeSketch)
+        XCTAssertGreaterThan(locked.constraints.count, rotated.constraints.count)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == sketch.dimensions[0].id }))
+        vm.commitDimensionEdit("5 mm")
+        XCTAssertEqual(vm.activeSketch, locked, "Refusal preserves exact geometry and saved constraints/dimensions")
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertNil(vm.errorMessage, "Expected conflict must not require dismissing a modal alert")
+        XCTAssertEqual(vm.notice, "This constraint would conflict with existing ones.")
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, rotated, "Rejected size must not consume Undo; remove corner Lock")
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, locked)
+    }
+
     func testCenterRectangleRotationMigratesIntentInOneUndoStep() throws {
         let vm = try makeViewModel(), id = UUID()
         var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])

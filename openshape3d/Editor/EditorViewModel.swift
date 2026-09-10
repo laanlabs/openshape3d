@@ -12710,15 +12710,11 @@ final class EditorViewModel {
 
         // Over-constraint guard (spec §2.2): the solver refuses a dimension on
         // an already fully-solved region / one that conflicts with existing
-        // dimensions. Don't apply — never corrupt the sketch. Stage 3 names
-        // the partners of the clash.
+        // dimensions. Refuse without applying or recording a history step.
         if SketchSolverBridge.residualNorm(proposed) > Self.overConstraintTolerance {
-            let partners = SketchSolverBridge.conflictPartners(
-                in: proposed,
-                excludingDimensions: [candidateDimensionID],
-                tolerance: Self.overConstraintTolerance)
-            errorMessage = Self.conflictRefusalMessage(
-                adding: "That value", partners: partners, in: proposed)
+            // A rejected size is an expected sketch interaction, not a modal
+            // application error. Native dismisses the editor and shows a notice.
+            showNotice("This constraint would conflict with existing ones.")
             return
         }
 

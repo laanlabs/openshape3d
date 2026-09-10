@@ -1,21 +1,19 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, corner history live verification
+## Active continuation — September 10, conflict feedback verified
 
-HEAD `724758e` pushed. Dirty history-selection fix in EditorViewModel and
-ConstraintApplyTests passed first clean 14/14:
-`/tmp/os3d-qa09-corner-history-20260910.xcresult` and `.log`.
-No runner active. Live corrected clone corner rotation, Undo/Redo selection
-clearing, reselect and gallery reopen passed; dimensions 1.9795 × 0.5 mm and
-center Lock retained. Paired native Undo/Redo clears selection, 8 × 4 mm retained.
-Evidence `center-matrix/os3d-qa09-historyfix-*` and `pointhistory-*` copied/hashed.
-Six images and dated master note export-verified: illustrated 536/master 38,
-all six hashes once, no prior image/text loss. Exact next: commit/push narrow
-fix and receipts, then remaining QA-09 constraint/visual
-criteria and publication backlog. Simulator is open in saved Sketch1 with Items.
-Inventory 4 passed / 0 failed / 1 device-blocked / 51 incomplete. Sole owner;
-no merge, device install, host/security changes or duplicate watchdog. Preserve
-immutable 05be744 IPA and unrelated identity files.
+HEAD6978565 pushed; dimension-conflict notice fix ready to commit. First clean
+7/7 `/tmp/os3d-qa09-corner-conflict-20260910.xcresult` and.log. No runner.
+Live corrected refusal, Unlock→same value accepted, paired Undo/Redo and gallery
+reopen passed. Native9×4/clone2×0.5, centerLock retained, cornerLock removed.
+Illustrated541/all5hashes/master38 note export-verified, no predecessor loss.
+Receipt center-matrix September10; evidence cornerlock-* and conflictfix-*.
+Exact next commit/push notice fix, then preserve corner selection on opening
+its size editor (native retains point; clone changes to edge), live/test/document.
+Native allItems36edges selected afterreopen; selectactualedge thenblank toclear.
+Clone savedSketch1openItems. Inventory4passed/0failed/1deviceblocked/51incomplete.
+No host/securitychanges, merge, deviceinstall, duplicateworkers/watchdogs.
+Immutable05be744IPA and unrelatedidentityfiles preserved.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

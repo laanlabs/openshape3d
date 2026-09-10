@@ -540,3 +540,33 @@ Publication verified: `/tmp/os3d-qa09-historyfix-published.docx` contains 536
 placements, all six new hashes exactly once, no predecessor image/text loss.
 `/tmp/os3d-qa09-historyfix-master.docx` retains 38 placements and the dated note
 exactly once, no predecessor image/text loss.
+
+
+## Center + corner Lock conflict feedback — September 10
+
+Native rotated rectangle, already dimensioned8×4 and center-locked: selecting
+lower-left point then Lock turns all edges green. Width8→9 is rejected with
+“This constraint would conflict with existing ones.” notice; editor dismisses
+and8×4 survives. Clone corresponding1.9795×0.5 also goes green and refuses
+width2, but previously displayed blocking Something Went Wrong alert. Both
+preserved geometry. Captures `os3d-qa09-cornerlock-*` retained locally/hashed.
+
+Dimension conflict now uses the existing nonblocking notice surface with native
+wording; solver guard and history commands unchanged. First clean **7/7**:
+`/tmp/os3d-qa09-corner-conflict-20260910.xcresult` and `.log`, one new migrated
+rectangle conflict/rollback/history test plus six constraint-polish checks.
+Exact unchanged sketch, dismissed editor, absent modal, notice and no extra Undo
+step are asserted. Live updated clone confirms notice instead of alert.
+
+Paired corner Unlock allows the same previously refused values. Native9×4 and
+clone2×0.5 survive Undo/Redo and gallery reopen, with center Lock retained and
+corner Lock removed. Native all-Items selection at final reopen shows both
+saved sizes; its extra opposite-side annotation remains open. Clone point-to-edge
+selection change on editor opening and corner Lock icon/filled point appearance
+are separately recorded visual gaps, not part of this notice fix.
+Evidence `os3d-qa09-conflictfix-*` retained/hashed. Five images inserted once;
+export verification pending. No QA-09 closure or immutable IPA change.
+
+Conflict publication verified: illustrated541, all five new hashes once, no
+predecessor image/text loss; master38 and dated note once, no predecessor loss.
+Exports `/tmp/os3d-qa09-conflictfix-{published,master}.docx`.
