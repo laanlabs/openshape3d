@@ -203,6 +203,9 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.session.perform(AddSketchCommand(sketch: migrated))
         vm.mode = .sketching(migrated.id, tool: nil)
         AppSettings.shared.alwaysShowDimensions = false
+        let unrelatedMarkers = vm.sketchPointMarkers.filter { $0.id.hasPrefix(unrelated.uuidString) }
+        XCTAssertEqual(unrelatedMarkers.count, 2)
+        XCTAssertTrue(unrelatedMarkers.allSatisfy { !$0.isRectangleCorner }, "Ordinary line marker styles stay unchanged")
         for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
             vm.selectedSketchEntityIDs = [edge]
             XCTAssertEqual(vm.sketchDimensionLabels.count, 2, "Every side must show exactly the two saved sizes")

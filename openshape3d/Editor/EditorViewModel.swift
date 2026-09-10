@@ -8159,6 +8159,16 @@ final class EditorViewModel {
     /// sketching or no active sketch). Reuses `SketchSolverBridge.pointStates`
     /// (a full solve + null-space eigen decomposition), memoized per document
     /// revision; the overlay reprojects each cached marker on camera moves.
+    private func migratedRectangleEdgeIDs(in sketch: Sketch) -> Set<UUID> {
+        let lineIDs = Set(sketch.entities.compactMap { entity -> UUID? in
+            if case .line = entity { return entity.id }
+            return nil
+        })
+        return Set(sketch.rotatedRectangleEdges.values.filter {
+            $0.count == 4 && Set($0).count == 4 && Set($0).isSubset(of: lineIDs)
+        }.flatMap { $0 })
+    }
+
     var sketchPointMarkers: [SketchPointMarker] {
         let cc = session.changeCount
         guard let sketch = activeSketch else {
@@ -8170,6 +8180,7 @@ final class EditorViewModel {
         }
         let analysis = SketchSolverBridge.pointStateAnalysis(sketch)
         let states = analysis.points
+        let migratedEdges = migratedRectangleEdgeIDs(in: sketch)
         var out: [SketchPointMarker] = []
         out.reserveCapacity(states.count)
         for (key, state) in states {
@@ -8180,7 +8191,8 @@ final class EditorViewModel {
             out.append(SketchPointMarker(
                 id: "\(key.entityID):\(key.role.rawValue)",
                 world: SIMD3<Float>(Float(w.x), Float(w.y), Float(w.z)),
-                state: state, isRectangleCorner: analysis.rectangleCorners[key.entityID] != nil
+                state: state, isRectangleCorner: analysis.rectangleCorners[key.entityID] != nil ||
+                    (migratedEdges.contains(key.entityID) && (key.role == .endpointA || key.role == .endpointB))
             ))
         }
         for case let .rect(id, lo, hi) in sketch.entities {
@@ -11601,7 +11613,16 @@ final class EditorViewModel {
         var out: [SketchConstraintGlyph] = []
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
+            let migratedEdges = migratedRectangleEdgeIDs(in: sketch)
             for c in sketch.constraints {
+                // Native migrated rectangle corner Locks read through hollow
+                // green corners and contextual Unlock, not an overlaid badge.
+                // Explicit Items selection/conflict diagnosis remain accessible.
+                if c.kind == .fixed, c.refs.count == 1,
+                   migratedEdges.contains(c.refs[0].entityID),
+                   c.refs[0].role == .endpointA || c.refs[0].role == .endpointB,
+                   selectedConstraintID != c.id,
+                   !sketchConflictAttribution.constraintIDs.contains(c.id) { continue }
                 // Rotation preserves the primitive's structural rules in the
                 // solver, without exposing a new cluster of implicit badges.
                 // Items selection and conflict diagnosis still expose a rule.

@@ -1,18 +1,17 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, corner editor verified
+## Active continuation — September 10, migrated corner markers verified
 
-HEAD53433a9 pushed; cornereditor lifecycle correction ready tocommit. Initial
-14/14 plusfinalclean14/14 `/tmp/os3d-qa09-corner-editor-lifecycle-20260910.xcresult`.
-No runner. Pairedopen/Escape pointretained; validcommitclearspoint. Finalclone
-2→3/history/gallery3×0.5/centerLock verified. Nativevalid9→8centerretained;
-no new8×4nativegalleryclaim (preceding9×4gallery remainspriorreceipt).
-Published546/all5hashesonce/master38 andno predecessorimage/textloss.
-Exactnext commitpushthenmigratedlockedcorner hollowmarker/Lockglyph comparisonfix.
-NativeSketch04 8×4, noselection; cloneSketch1Items3×0.5, noselection. Native
-badgeoutlineafterEscape/extraoppositeannotationremainopen. Inventory4passed/
-0failed/1deviceblocked/51incomplete. Preserveimmutable05be744IPA, unrelatedfiles,
-reporttabs/watchdog. Soleowner; no merge/deviceinstall/hostsecuritychanges.
+HEAD36b5121 pushed; hollowmigratedcorner/defaultLockbadgefix ready tocommit.
+Firstclean14/14 `/tmp/os3d-qa09-corner-markers-20260910.xcresult` and.log; no runner.
+PairedfreshLock/Unlock/UndoRedo, finalgallerynative8×4/clone3×0.5 passed;
+centerLock retained/cornerunlocked. Published551/all5hashes/master38note, no loss.
+Evidencecornerglyph-* andcenter-matrixreceipt. Exactnext commitpushthencompare
+selecteddimensionoutlineafterEscape (nativeblueoutline+whitebackground, clone
+plaintext), nextnativeoppositesidereadout. NativeallItems36 selectedSketch04;
+cloneSketch1Itemsopen. Inventory4passed/0failed/1deviceblocked/51incomplete.
+Soleowner; preserveIPA/unrelatedfiles/reporttabs/watchdog. No merge/deviceinstall/
+hostsecuritychanges. No testprocessactive.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

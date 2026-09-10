@@ -597,3 +597,23 @@ inserted once; export verification pending. QA09 remainspartial.
 Editor lifecycle publication verified: illustrated546/all5hashesonce andmaster38
 notewithno predecessorimage/textloss. Exports
 `/tmp/os3d-qa09-cornereditor-{published,master}.docx`.
+
+
+## Migrated corner Lock presentation — September 10
+
+Freshnative center+cornerLock8×4 showsgreenhollowcorners, selectedorangeendpoint,
+contextualUnlock, nooverlaidendpointLockbadge. Currentclone3×0.5 showedfilled
+genericmarkers andbadge. Savedvalidfourline groups nowmarkendpoints asrectangle
+corners; defaultendpointLockbadgehidden, explicitItems/conflictinspectionkept.
+Ordinarylinemarkerstyle unchanged. Firstclean14/14:
+`/tmp/os3d-qa09-corner-markers-20260910.xcresult` and.log. Testsincludeall8endpoint
+refs/nonfree/hollow, contextualUnlock, explicitglyphinspection andunrelatedline
+markers; annotation/conflict/historycoverage retained.
+Liveupdatedclone hollowgreencorners/nooverlaidbadgepassed. PairedUnlock returns
+bluehollow; Undo restoresgreen, Redo blue, withoutgeometrychanges andclearing
+selectiononhistory asnative. Evidence `os3d-qa09-cornerglyph-*` retained. Final
+reopen andpublicationverification pending; noQA09closure.
+
+Finalpairedgalleryreopen retainednative8×4/clone3×0.5, centerLock/unlockedcorner.
+Publication export-verified551/all5newhashesonce, master38datednote, no prior
+image/textloss: `/tmp/os3d-qa09-cornerglyph-{published,master}.docx`.

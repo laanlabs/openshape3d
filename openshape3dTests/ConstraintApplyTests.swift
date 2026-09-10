@@ -259,6 +259,15 @@ final class ConstraintApplyTests: XCTestCase {
         vm.applyConstraint(.fixed)
         let locked = try XCTUnwrap(vm.activeSketch)
         XCTAssertGreaterThan(locked.constraints.count, rotated.constraints.count)
+        let cornerLock = try XCTUnwrap(locked.constraints.first { !rotated.constraints.contains($0) })
+        XCTAssertTrue(vm.canUnlockSketchSelection)
+        XCTAssertFalse(vm.sketchConstraintGlyphs.contains { $0.id == cornerLock.id })
+        let cornerMarkers = vm.sketchPointMarkers.filter { $0.isRectangleCorner }
+        XCTAssertEqual(cornerMarkers.count, 8, "Both endpoint references on all four migrated sides stay hollow")
+        XCTAssertTrue(cornerMarkers.allSatisfy { $0.state != .free })
+        vm.selectedConstraintID = cornerLock.id
+        XCTAssertTrue(vm.sketchConstraintGlyphs.contains { $0.id == cornerLock.id }, "Explicit constraint inspection stays available")
+        vm.selectedConstraintID = nil
         vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == sketch.dimensions[0].id }))
         vm.commitDimensionEdit("5 mm")
         XCTAssertEqual(vm.activeSketch, locked, "Refusal preserves exact geometry and saved constraints/dimensions")

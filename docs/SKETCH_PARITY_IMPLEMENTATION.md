@@ -1765,3 +1765,11 @@ commit clearsit, matchingpairednative. No wholeedgehandle introduced. Initial
 14/14 thenfinal14/14; livecommit/history andclonegalleryreopen passed. Published
 546/all5hashes/master38. Nativebadgeoutline/oppositereadout and lockedcornerglyph
 remainopen. Fullreceipt center-matrix September10; QA09partial.
+
+### September 10 — migrated locked-corner marker parity
+
+Validfourline savedrectangle endpoints nowretain hollowcornerstyle; default
+endpointLockglyph no longer coverspoint. Explicitinspection/conflict remains.
+Firstclean14/14 andpairedliveLock/Unlock/history/reopen. Published551/all5hashes
+/master38. Unrelatedlinemarkersunchanged; selecteddimensionoutline/opposite
+annotationremainopen. QA09partial; receiptcenter-matrixSeptember10.
