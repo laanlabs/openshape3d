@@ -3,6 +3,32 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testFreshLineDimensionStartPreferenceAndSavedEndLockFallback() throws {
+        for direction in [SIMD2<Double>(40, 0), SIMD2(-40, 0), SIMD2(0, 40), SIMD2(0, -40)] {
+            for lockEnd in [false, true] {
+                let id = UUID(), start = SIMD2<Double>(7, 9), end = SIMD2<Double>(7, 9) + direction
+                var sketch = Sketch(plane: .ground, entities: [.line(id: id, a: start, b: end)])
+                sketch.constraints = [.init(kind: direction.y == 0 ? .horizontal : .vertical,
+                    refs: [.init(entityID: id, role: .whole)])]
+                if lockEnd { sketch.constraints.append(.init(kind: .fixed, refs: [.init(entityID: id, role: .endpointB)])) }
+                let originalConstraints = sketch.constraints
+                let dimension = SketchDimension(kind: .distance,
+                    refs: [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)], value: 20)
+                sketch.dimensions = [dimension]
+                let outcome = SketchSolverBridge.solveDimensionEdit(sketch, dimension: dimension,
+                    preservingPoint: .init(entityID: id, role: .endpointA))
+                XCTAssertTrue(outcome.converged)
+                XCTAssertLessThan(outcome.structuralResidual, 1e-5)
+                guard case let .line(resultID, a, b) = outcome.entities[0] else { return XCTFail() }
+                XCTAssertEqual(resultID, id)
+                XCTAssertLessThan(simd_distance(lockEnd ? b : a, lockEnd ? end : start), 1e-5)
+                XCTAssertEqual(simd_distance(a, b), 20, accuracy: 1e-5)
+                XCTAssertLessThan(simd_distance(b - a, direction / 2), 1e-5)
+                XCTAssertEqual(sketch.constraints, originalConstraints, "Preference must not persist a Lock")
+            }
+        }
+    }
+
     func testAxisSideLocksPersistAndAllowOnlyOppositeEdgeResize() throws {
         let id = UUID(), rectangle = SketchEntity.rect(id: id, min: SIMD2(2, 3), max: SIMD2(12, 9))
         let legacy = Data("{\"entityID\":\"\(id.uuidString)\",\"role\":\"whole\"}".utf8)

@@ -62,6 +62,39 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testFreshForwardAndReverseLineSizeKeepsDrawingStart() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        for (startX, endX, y) in [(0.35, 0.55, 0.40), (0.55, 0.35, 0.65)] {
+            window.coordinate(withNormalizedOffset: CGVector(dx: startX, dy: y))
+                .press(forDuration: 0.15, thenDragTo:
+                    window.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: y)))
+            let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+            XCTAssertTrue(label.waitForExistence(timeout: 3))
+            let before = label.frame
+            let value = label.label
+            label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            app.buttons["Keypad-÷"].tap()
+            app.buttons["Keypad-2"].tap()
+            app.buttons["KeypadCommit"].tap()
+            sleep(1)
+            // A fixed start moves the dimension midpoint toward that start.
+            // Symmetric shrinking (the observed bug) leaves it unchanged.
+            if startX < endX { XCTAssertLessThan(label.frame.midX, before.midX - 10) }
+            else { XCTAssertGreaterThan(label.frame.midX, before.midX + 10) }
+            XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+            attach(app, "fresh-line-start-anchor")
+            app.buttons["Undo"].tap()
+            XCTAssertEqual(label.label, value)
+            XCTAssertEqual(label.frame.midX, before.midX, accuracy: 3)
+            app.buttons["Redo"].tap()
+        }
+    }
+
     func testSystemKeyboardReplacesSeedAndPreservesDraftAcrossKeypadToggle() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

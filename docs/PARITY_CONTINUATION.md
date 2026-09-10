@@ -1,29 +1,26 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10, 00:11 EDT
+## Active continuation — September10, 00:37 EDT
 
-HEADbda21f7 pushed. Dirty keyboard-route correction in SketchDimensionOverlay,
-new DimensionUITests regression, receipt/ledger/checkpoint. Initial red append
-failure and first-fix invalidReturn focus failure retained; final clean11/11 at
-/tmp/os3d-system-keyboard-focus-20260910.xcresult. No runner. Exclusive owner.
-
-Paired live keyboard first-value replacement,123 toggle preserves draft, invalid
-Return immediate correction, commit andUndo verified. Native2+->2+1 then3/Undo20;
-clone1+->1+0.5 then1.5/Undo2. Native f(x) arithmetic marker and input-mode persistence
-remain distinct; sampled nativeleft vs clonecenter line sizing needs controlled
-fresh/reselected direction comparison before solverchange.
-Illustrated298 placements/all6 final hashes/no predecessor loss verified at
-/tmp/os3d-keyboard-final-publication.docx. Master38 dated addendum once, prior polygon note retained, export-verified
-at /tmp/os3d-keyboard-master.docx.
-Next commit/push keyboard correction, then paired controlled
-line-length anchor checks (fresh forward/reverse, reselected, constraints).
-Receipt docs/testing/sketch-parity-system-keyboard-2026-09-09.md.
-Evidence reports/openshape3d-core-sketch-milestone-2026-09-08/system-keyboard/.
-Native1924 Sketch02 normalTop line20mm afterUndo, no field. Clone6492 Untitled2
-ground line2mm afterUndo, Line armed. Use global foreground and type --foreground.
-Counts2passed/0failed/1device-blocked/53incomplete(42partial11deferred). Preserved
-05be744 IPA excludes these later corrections; no install/physical validation.
-Preserve identity files/memory and old stalled report tabs. No restart/merge.
+HEAD02e0cd2 pushed; fresh-line anchor correction ready to commit; masterexport verified.
+Dirty EditorViewModel,SketchSolverBridge,RectangleConstructionTests,DimensionUITests,
+ledger/checkpoint/newreceipt. No runner. Initial31/33 then corrected clean33/33:
+/tmp/os3d-fresh-line-anchor-final-20260910.xcresult, exec75430exit0.
+Live clone freshforward/reverse2→1 holds drawingstart, UndoRedo and galleryreopen
+passed; nativefirstsizes holdstart but reselected reverse20→10 holdsleft instead.
+Correction ONLY fresh standalone H/V-constrained first numeric size, savedconstraint
+fallback/no persistedLock. Freeangles/reselection/connected sizing remainopen.
+Clone resizedendpoint continuation persists; native attemptinconclusive, notpairedpass.
+Illustrated306 placements/all4finalhashes/no predecessorloss verified at
+/tmp/os3d-anchor-final-publication.docx. Master38/newdatedheading once/priornote and media retained; export verified
+at /tmp/os3d-anchor-master.docx.
+Next commit/push scopedfix, then controlled vertical/reselected/freeangle
+line sizing and native continuation comparison. Receipt
+ docs/testing/sketch-parity-line-sizing-anchor-2026-09-10.md.
+Native1924 reopenedSketch02Top reverse10 selected; clone6492 reopenedUntitled2
+reverse1 selected pluspersistedvertical2. No activeeditor. Only thissessiondesktopowner.
+Counts2passed/0failed/1device-blocked/53incomplete. Immutable05be744IPA unchanged.
+No deviceinstall/merge/restart. Preserve unrelatedidentityfiles/memory/stalledtabs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

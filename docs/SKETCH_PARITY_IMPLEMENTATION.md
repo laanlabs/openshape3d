@@ -1311,3 +1311,25 @@ final6images inserted once, export pending. ImmutableIPA unchanged.
 Keyboard final publication verified298placements/all6hashes/no predecessorloss;
 master38datednote and predecessor retained. No full-row closure; controlled
 line-anchor comparison follows.
+
+
+## September10 — fresh line length anchor
+
+Paired forward/reverse creation: native first numeric length holds the drawing
+start, clone center-shrinks. Native reselection changes reverse-line anchor to
+left; no blanket rule inferred. Creation-only standalone H/V-constrained first
+size preference implemented, savedconstraint fallback/no persistedLock. Freeangle,
+reselection and connected-line sizing remain open. Initial33checks31pass/2failed
+cases retained (wrong keypadoperatorID; free-sloped direction), corrected UI
+forward/reverse/history passes; combined result/live post-fix pending.
+[Receipt](testing/sketch-parity-line-sizing-anchor-2026-09-10.md).
+Illustrated302 placements/new4hashes once/no predecessorloss verified; master38
+unchanged. Immutable05be744IPA excludes this change; no acceptance-row closure.
+
+Final corrected combined33/33 clean. Exact-build live forward/reverse startanchor,
+Undo/Redo and paired savedlength reopen passed. Clone continuation persisted;
+native attempted joinedsegment inconclusive and not counted. Illustrated306/all4
+finalhashes/no predecessorloss verified. Masterdated note appended, exportpending.
+
+Master38 placements/newdatedheading once/prior keyboard note and media retained;
+export verified /tmp/os3d-anchor-master.docx.

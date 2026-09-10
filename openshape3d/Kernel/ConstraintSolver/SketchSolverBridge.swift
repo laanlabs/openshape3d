@@ -202,7 +202,16 @@ nonisolated enum SketchSolverBridge {
     /// Legacy rectangles have no intent metadata and retain the existing solve.
     static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
                                    tolerance: Double = 1e-5,
-                                   preservingLineID: UUID? = nil) -> Outcome {
+                                   preservingLineID: UUID? = nil,
+                                   preservingPoint: ConstraintRef? = nil) -> Outcome {
+        // Fresh standalone line sizing retains the drawing start. This is only
+        // a transient preference: a saved endpoint lock can override it.
+        if let point = preservingPoint {
+            var anchoredSketch = sketch
+            anchoredSketch.constraints.append(SketchConstraint(kind: .fixed, refs: [point]))
+            let anchored = solveOutcome(anchoredSketch, movingEntity: nil, dragTarget: nil)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
         // Three-point sizing can prefer an adjacent side, matching the
         // paired native baseline/height workflows. This is transient intent, never
         // a persisted Lock; explicit relationships still take precedence.

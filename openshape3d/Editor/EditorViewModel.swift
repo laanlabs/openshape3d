@@ -9518,6 +9518,8 @@ final class EditorViewModel {
     private var sketchStrokeStartRaw: SIMD2<Double>?
 
     private var chainAnchor: SIMD2<Double>?
+    /// Creation-only sizing intent; Escape/tool changes clear it with the chain.
+    private var freshLineSizingID: UUID?
     /// First point of the chain — a stroke closing onto it ends the chain.
     private var chainStart: SIMD2<Double>?
     /// The chain's first segment, so `chainStart` can be re-read from the
@@ -9588,6 +9590,7 @@ final class EditorViewModel {
     }
 
     private func clearChain() {
+        freshLineSizingID = nil
         chainAnchor = nil
         chainStart = nil
         chainStartEntityID = nil
@@ -10349,6 +10352,7 @@ final class EditorViewModel {
         // Keep the completed segment's measured length visible without
         // opening the keypad or ending line chaining (live Shapr3D comparison).
         if case .line = entity {
+            freshLineSizingID = entity.id
             selectedSketchEntityIDs = [entity.id]
             selectedSketchPoints.removeAll()
         }
@@ -12225,9 +12229,28 @@ final class EditorViewModel {
         } else {
             preferredFarEdge = nil
         }
+        // Only the first size of a freshly drawn, standalone line has live
+        // evidence for a start-point preference. Reselection differs in native;
+        // connected sketches and their existing rectangle intent remain untouched.
+        let freshLinePoint: ConstraintRef?
+        if edit.kind == .distance, edit.dimensionID == nil, mode.sketchTool == .line,
+           editedIDs.count == 1, let id = editedIDs.first, id == freshLineSizingID,
+           preferredFarEdge == nil,
+           case .line? = sketch.entities.first(where: { $0.id == id }),
+           sketch.constraints.contains(where: {
+               ($0.kind == .horizontal || $0.kind == .vertical) &&
+               $0.refs.contains(where: { $0.entityID == id })
+           }),
+           !sketch.constraints.contains(where: { constraint in
+               constraint.refs.contains(where: { $0.entityID == id }) &&
+               constraint.refs.contains(where: { $0.entityID != id })
+           }),
+           !sketch.dimensions.contains(where: { $0.refs.contains(where: { $0.entityID == id }) }) {
+            freshLinePoint = .init(entityID: id, role: .endpointA)
+        } else { freshLinePoint = nil }
         var solvedEntities = SketchSolverBridge.solveDimensionEdit(
             proposed, dimension: candidate, tolerance: Self.overConstraintTolerance,
-            preservingLineID: preferredFarEdge).entities
+            preservingLineID: preferredFarEdge, preservingPoint: freshLinePoint).entities
         // The lock key (Shapr3D's "locked dimension"). Locked — the default —
         // records the value as a driving dimension. Unlocked, the value still
         // drives the solve that runs above, so the geometry lands exactly where
@@ -12270,6 +12293,7 @@ final class EditorViewModel {
         session.performWithSketchRebuild(commands.count == 1
             ? commands[0]
             : CompositeCommand(title: "Dimension", commands: commands), sketchID: sketchID)
+        if let id = freshLinePoint?.entityID { refreshChainAnchors(lastEntityID: id) }
         session.save()
     }
 
