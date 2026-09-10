@@ -29,6 +29,14 @@ struct SketchPointStateOverlay: View {
                 ForEach(viewModel.sketchPointMarkers) { marker in
                     markerView(marker)
                 }
+                ForEach(viewModel.sketchRectangleCenterMarkers) { marker in
+                    if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
+                        Circle().fill(Self.free)
+                            .frame(width: 5, height: 5)
+                            .position(x: pt.x, y: pt.y)
+                            .accessibilityIdentifier("RectangleCenterControl")
+                    }
+                }
             }
             // Informational only — must never steal taps from the canvas/gizmo.
             .allowsHitTesting(false)

@@ -1560,3 +1560,16 @@ height-firstsequentialdimensions, widthUndo/Redo andgalleryreopen verified.
 Clone explicitoppositeedgeleaderoverride passeslive. Diagnosis466exportverified;
 postfixpublication blockedbyGoogle signedout/read-only state. Localreceipt
 retains evidence andexactrecoveryrequirement. QA08 remains partial.
+
+## September 10 — rectangle center translation control
+
+Confirmed native center drag translates a rectangle while clone center drag
+orbited the camera. Added a visible center dot, center acquisition, and rigid
+translation projected against saved constraints. Temporary size equations do
+not become saved dimensions; explicit Move/Rotate remains available. A refused
+drag displays the existing constraint notice and adds no numerical-noise Undo.
+Final clean 25/25 plus live free/driven movement, history, locked refusal,
+Unlock and paired gallery recovery passed. Center-point selection/Lock scope
+and two missing corner markers remain open. Publication blocked by Google
+sign-out; evidence retained locally. See diagonal-matrix and publication-pending
+receipts dated September 10. Immutable candidate IPA unchanged.

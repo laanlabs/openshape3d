@@ -103,6 +103,49 @@ final class RectangleWorkflowUITests: XCTestCase {
         attach(app, "gallery-redo-restored-profile")
     }
 
+    func testRectangleCenterDragTranslatesWithoutOrbitAndRestoresHistory() throws {
+        let app = start()
+        type(app, "diagonal")
+        p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.60, 0.52))
+        app.buttons["Rect"].tap()
+        let center = app.descendants(matching: .any)["RectangleCenterControl"].firstMatch
+        XCTAssertTrue(center.waitForExistence(timeout: 3))
+        func bounds() throws -> CGRect {
+            let points = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+                .allElementsBoundByIndex.map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+            XCTAssertEqual(points.count, 2)
+            let first = try XCTUnwrap(points.first), last = try XCTUnwrap(points.last)
+            return CGRect(x: min(first.x, last.x), y: min(first.y, last.y),
+                          width: abs(first.x-last.x), height: abs(first.y-last.y))
+        }
+        let before = try bounds()
+        let start = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        start.press(forDuration: 0.15, thenDragTo: start.withOffset(CGVector(dx: 60, dy: 35)))
+        let after = try bounds()
+        XCTAssertEqual(after.width, before.width, accuracy: 2)
+        XCTAssertEqual(after.height, before.height, accuracy: 2)
+        XCTAssertEqual(after.minX-before.minX, 60, accuracy: 5)
+        XCTAssertEqual(after.minY-before.minY, 35, accuracy: 5)
+        attach(app, "rectangle-center-translated-no-orbit")
+        app.buttons["Undo"].tap()
+        let undone = try bounds()
+        XCTAssertEqual(undone.minX, before.minX, accuracy: 2)
+        XCTAssertEqual(undone.minY, before.minY, accuracy: 2)
+        app.buttons["Redo"].tap()
+        let redone = try bounds()
+        XCTAssertEqual(redone.minX, after.minX, accuracy: 2)
+        XCTAssertEqual(redone.minY, after.minY, accuracy: 2)
+        app.buttons["ConstraintRail-fixed"].tap()
+        let lockedCenter = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        lockedCenter.press(forDuration: 0.15,
+            thenDragTo: lockedCenter.withOffset(CGVector(dx: 60, dy: 35)))
+        XCTAssertTrue(app.staticTexts["Locked or constrained sketch parts can't be moved."].waitForExistence(timeout: 3))
+        XCTAssertEqual(try bounds().minX, after.minX, accuracy: 2)
+        app.buttons["Undo"].tap()
+        XCTAssertEqual(app.buttons["ConstraintRail-fixed"].label, "Lock",
+                       "Undo after a refused drag must remove the lock, not a no-op movement")
+    }
+
     func testReverseDiagonalWidthEditKeepsProfileAtLeftSide() throws {
         let app = start()
         type(app, "diagonal")

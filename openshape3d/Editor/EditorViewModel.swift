@@ -8161,6 +8161,17 @@ final class EditorViewModel {
         return out
     }
 
+    /// Rectangle centers are rigid-translation controls, not independent
+    /// solver points. Keep them separate from endpoint constraint markers.
+    var sketchRectangleCenterMarkers: [SketchPointMarker] {
+        guard let sketch = activeSketch else { return [] }
+        return sketch.entities.compactMap { entity in
+            guard case let .rect(id, lo, hi) = entity else { return nil }
+            return SketchPointMarker(id: "\(id):rectangleCenter",
+                world: SIMD3<Float>(sketch.plane.toWorld((lo + hi) / 2)), state: .free)
+        }
+    }
+
     // MARK: - Sketch element selection + drag-editing
 
     /// Selected entities of the active sketch (accent highlight; palette
@@ -8212,6 +8223,7 @@ final class EditorViewModel {
         /// path (plan §C1) as the fixed baseline every frame solves from — and
         /// as the command's undo `before`.
         var baseline: [SketchEntity]
+        var showedBlockedNotice = false
         var pushed = false
         /// Structural DOF from the first solved tick; the constraint system
         /// does not change while dragging, so later ticks pass it back and
@@ -8404,6 +8416,7 @@ final class EditorViewModel {
         guard selectedSketchEntityIDs.count == 1, selectedSketchPoints.isEmpty,
               let entity = selectedSketchEntities.first else { return false }
         if case .line = entity { return true }
+        if case .rect = entity { return true }
         return false
     }
 
@@ -8963,6 +8976,18 @@ final class EditorViewModel {
         // Tapping geometry clears any constraint/dimension glyph selection.
         selectedConstraintID = nil
         selectedDimensionID = nil
+        if let control = SketchHitTester.nearestControlPoint(
+            to: raw, in: sketch.entities, tolerance: controlPointTolerance),
+           control.kind == .center, case .rect = control.entity {
+            selectedSketchPoints.removeAll()
+            if selectedSketchEntityIDs == [control.entity.id], selectedAxisRectangleEdge == nil {
+                selectedSketchEntityIDs.removeAll()
+            } else {
+                selectedSketchEntityIDs = [control.entity.id]
+                selectedAxisRectangleEdge = nil
+            }
+            return true
+        }
         if let pt = SketchHitTester.nearestPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance,
             preservingLineInterior: true
@@ -9385,6 +9410,32 @@ final class EditorViewModel {
 
     private func updateSketchEntityDrag(raw: SIMD2<Double>) {
         guard var drag = sketchEntityDrag, let sketch = activeSketch else { return }
+
+        if drag.control == .center, case let .rect(id, lo, hi) = drag.before {
+            var baseline = sketch
+            baseline.entities = drag.baseline
+            let others = Sketch(plane: sketch.plane,
+                entities: drag.baseline.filter { $0.id != id })
+            let center = (lo + hi) / 2
+            let target = SnapEngine.snap(center + raw - drag.grabPoint, in: others,
+                options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
+            let solved = SketchSolverBridge.solveAxisRectangleTranslation(
+                baseline, id: id, delta: target - center)
+            if (solved == nil || solved == drag.baseline),
+               simd_distance(target, center) > 2 * worldPerPoint, !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchEntityDrag = drag
+            }
+            guard let solved else { return }
+            guard solved != drag.baseline || drag.pushed else { return }
+            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
+                before: drag.baseline, after: solved)
+            if drag.pushed { session.amend(command) }
+            else { session.perform(command); drag.pushed = true }
+            sketchEntityDrag = drag
+            return
+        }
 
         // Solve-on-edit (plan §C1): when the sketch carries constraints or
         // dimensions, route a control-point drag through the solver so

@@ -94,7 +94,7 @@ Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-
 
 ### QA-08 — Diagonal rectangle
 
-All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — reverse-width/down-right-height corrected and live verified; all quadrants regression-tested, full live matrix pending. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md.
+All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — mixed-quadrant sequential sizing, default leader sides, center translation/history and paired saved recovery now live verified September 10. Leader and final center groups each passed clean25/25. Remaining: two corner markers, center-point selection/Lock scope and residual acceptance details. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md and testing/sketch-parity-diagonal-matrix-2026-09-10.md. Post-fix Google publication blocked by sign-out.
 
 ### QA-09 — Center rectangle
 

@@ -1,27 +1,26 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA08 diagonal leader sides
+## Active continuation — September 10, center correction verified
 
-HEAD b59abcf pushed, product eb9b4ab. Own dirty EditorViewModel,
-ConstraintApplyTests, ledger, thischeckpoint,newdiagonal-matrixreceipt.
-Defaultleadercorrection implemented: persistedcreationcorner controlsdefaults,
-explicitselectededgeoverride/center/legacy/geometryunchanged. Clean25/25 at
-/tmp/os3d-qa08-leader-sides-20260910.xcresult. No runner.
-Livepostfix down-lefttop/left andup-rightbottom/right matchreference. Paired
-heightfirstthenwidth holdsbottom/left (native31x19→15.5x9.5,clone1.979x1.481→
-1x0.75);widthUndo/Redo passednativehotkey/clonetoolbar. Excludedmisclickand
-invalidpressroute recorded. Native1924 Sketch04two rects15x11and15.5x9.5;
-clone7715 freshUntitled2 aftertests two rects1.989x1.494and1x0.75, drawing
-disarmed/rightedgeselected. CurrentfrontappSimulator.
-Pairedgalleryreopen andselectedoppositeleaderlivepassed. Exactnext commitpush
-verifiedsource/docs, continueQA08cornercontrolcomparison. Postfixpublication
-blocked: Google signedout; t18read-only,t19signedoutbanner. Diagnosis466
-remainsverified; postfixheadingabsentfresh export. Requiresauthorizedhostlogin,
-parentnotified; preserve tabs. Continueindependentwork.
-Illustrated466diagnosis/all6hashes/noloss verified; master38lastQA07note.
-Inventory4passed/0failed/1deviceblocked/51incomplete. ImmutableIPAunchanged.
-Evidence reports/.../diagonal-matrix, receipt docs/testing/sketch-parity-
-diagonal-matrix-2026-09-10.md. No installs/merge/securitychanges/duplicateworkers.
+Leaderfix84ca2aa pushed. Centercontrolfix being committed: final25/25 clean at
+/tmp/os3d-qa08-center-final-20260910.xcresult. Live free/driven center translation,
+Undo/Redo, locked refusal notice, Unlock and paired gallery recovery verified.
+No runner; exclusive desktop remains here. Native1924 FrontSketch04 selected
+(two rects15x11 andmoved15.5x9.5, both unlocked); clone7715 savedUntitled
+single1.913x1.736 free rectangle, centerselected/wholeentity readouts.
+
+Exactnext finishcommitpush, compare missing2corner markers andcenter-point
+selection/Lock scope. Clonecenter currentlywholeentityselection, nativepoint
+selection/localLock. Do notgeneralizeLockscopes. CandidateIPA05be744 unchanged.
+Googleblocked: t18read-only,t19signedout;466diagnosisplacementsverified,
+postfixtextabsentexport. NeedsauthorizedhostGooglelogin,parentnotified; preserve
+tabs/no secrets. Pendingpublicationreceipt lists exact queuedleaderimages and
+centerresults. Inventory4passed/0failed/1deviceblocked/51incomplete.
+
+Evidence reports/.../diagonal-matrix/SHA256SUMS; receipt docs/testing/sketch-
+parity-diagonal-matrix-2026-09-10.md. Old UItestfixture reopenedlocked after
+immediateterminationfollowingUndo; not a provennewbug. LiveUnlock/move/gallery
+saved correctly. Keep asunresolvedfixturetiming/persistence observation.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

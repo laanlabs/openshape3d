@@ -3,6 +3,36 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testRectangleCenterTranslationPreservesSizeAndSavedConnections() throws {
+        let id = UUID(), lineID = UUID()
+        let lo = SIMD2<Double>(2, 3), hi = SIMD2<Double>(12, 9), delta = SIMD2<Double>(4, -2)
+        let rectangle = SketchEntity.rect(id: id, min: lo, max: hi)
+        for driven in [false, true] {
+            var sketch = Sketch(plane: .ground, entities: [rectangle])
+            if driven { sketch.dimensions = [sizeDimension(id, .horizontal, 10), sizeDimension(id, .vertical, 6)] }
+            let moved = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleTranslation(sketch, id: id, delta: delta))
+            guard case let .rect(_, a, b) = moved[0] else { return XCTFail() }
+            XCTAssertLessThan(simd_distance(a, lo + delta), 1e-5)
+            XCTAssertLessThan(simd_distance(b, hi + delta), 1e-5)
+            sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .endpointA)])]
+            let pinned = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleTranslation(sketch, id: id, delta: delta))
+            XCTAssertEqual(pinned, sketch.entities, "Refused translation must not create numerical history noise")
+            guard case let .rect(_, p, q) = pinned[0] else { return XCTFail() }
+            XCTAssertLessThan(simd_distance(p, lo), 1e-5)
+            XCTAssertLessThan(simd_distance(q, hi), 1e-5)
+        }
+        var connected = Sketch(plane: .ground, entities: [rectangle,
+            .line(id: lineID, a: lo, b: SIMD2(-4, 3))])
+        connected.constraints = [.init(kind: .coincident, refs: [
+            .init(entityID: id, role: .endpointA), .init(entityID: lineID, role: .endpointA)])]
+        let moved = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleTranslation(connected, id: id, delta: delta))
+        guard case let .rect(_, a, b) = moved[0], case let .line(_, start, _) = moved[1] else { return XCTFail() }
+        XCTAssertLessThan(simd_distance(start, a), 1e-5)
+        XCTAssertLessThan(simd_distance(b - a, hi - lo), 1e-5)
+        XCTAssertEqual(connected.constraints.count, 1, "temporary size equations must not be persisted")
+        XCTAssertTrue(connected.dimensions.isEmpty)
+    }
+
     func testFreshLineDimensionStartPreferenceAndSavedEndLockFallback() throws {
         for direction in [SIMD2<Double>(40, 0), SIMD2(-40, 0), SIMD2(0, 40), SIMD2(0, -40)] {
             for lockEnd in [false, true] {

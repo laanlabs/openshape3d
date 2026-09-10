@@ -70,3 +70,64 @@ anothertab. Fresh /tmp/os3d-qa08-postfix-publication-check.docx stays466 and
 postfixheadingabsent. No newimagesinserted; allpostfixevidence local. Restoring
 authorized Googlelogin viahost-owned signin resolves; never requestsecrets.
 Parentnotified. Sourcefix cancommit; publicationpendingnotclaimedcomplete.
+
+## Next confirmed control gap
+
+84ca2aa leaderfix pushed. Native clearedselection andclicked lowerrectangle
+center global758670: centerselects, drag40right20down translatesentirerect
+withoutsizechange (localbounds572746538644→612786558664). Undoissued;
+restorationnotyetrecaptured. Clonecenter341719 clickselectsnothing,drag40/20
+orbitscamera instead. Centercontrolmissing; alsoonlytwooppositecornermarkers
+vsnativefourhollowcornersandcenterdot. Native/clone centerselected/centerdrag
+captures retained locally. No productcenterfix yet. Trace: SketchHitTester
+rectcontrolPoints has4corners/no center; modelPoints has2solvercorners;
+pointmarkers onlymodelPoints. Existingdirectapplying center excludesrect.
+Centertranslationmustpreservesizeandrespectsavedlocks/relations, not bypasssolver.
+Currentclonecameraorbited; restoreTop beforefurtherpairedchecks. Googleblocked.
+
+Centerkernel initial23/23 passed. Visiblecenterdot/controlPoints center, rigid
+translationroute andwholeentitytap selectionimplemented; isolatedrectusesexplicit
+Move/Rotate ratherthandefaultring. NewUIcenterdrag/historytest underway with
+23geometryandselectededgeUI. NonexistentSketchHitTesterTestsfilterrequested
+accidentally; nocoverageclaimed. Extra2cornermarkers andnativecenter-specific
+selection/Locksemantics remainopen; nolivepostfixclaimyet.
+
+CenterUI run25/25 clean. Live freecenter249403373513bounds→289443393533
+local (40right20down), noorbit. Thenwidth1/height0.75saved; centerdrag40/20
+keeps1x0.75,toolbarUndo/Redorestorepositions. ClonewholeLockrefusescenterdrag.
+NativecenterLock on15.5x9.5 similarlyrefuses with 'Locked point can’t be moved.'
+TheseLockscopesdiffer, so no generalizedcenterLockparityclaim. Clonewas silent;
+existingconstraintnotice added, numeric-noop normalized intranslationkernel,
+UIassertion added thatUndoafterrefusal removesLock ratherthanphantommovement.
+Finalserialexec34992 owns simulator:/tmp/os3d-qa08-center-final-20260910.xcresult.
+Latestnativecenterlocked; clonewholelocked beforetestreset. Livefinalnotice,
+reopen,currentfinalpublicationattemptpending. Googleloginstillblocked.
+
+## Center-drag correction: final verified checkpoint
+
+Final `/tmp/os3d-qa08-center-final-20260910.xcresult` passed 25/25 in one clean
+run (23 geometry + two UI workflows), including refused-drag notice and Undo
+removing Lock rather than a no-op movement. No failed center runs; the earlier
+23/23 kernel and 25/25 UI runs are separate preliminary checks.
+
+Final live clone: locked center drag shows the existing constrained-movement
+notice and leaves geometry unchanged. Unlock then center drag moves the entire
+rectangle 40 screen pixels right and 20 down, retaining 1.913 × 1.736 mm. Gallery
+reopen retains that position, unlocked state, center dot and dimensions. The
+preceding driven 1 × 0.75 mm sample also passed movement and Undo/Redo live.
+Native center-only Unlock likewise restores translation; gallery reopen retains
+15.5 × 9.5 mm and the other 15 × 11 mm rectangle. Native view fits on reentry,
+so saved-position assessment uses the relative geometry, not identical pixels.
+
+The UI-test fixture reopened locked after the test ended with Undo. Immediate
+termination/autosave timing is not a new proven persistence failure; the live
+Unlock → move → gallery path saved correctly. Retain this observation for the
+history/persistence matrix rather than claiming universal coverage.
+
+Remaining differences: clone center tap selects the whole rectangle and shows
+both dimensions, whereas native selects a center point with its local Lock
+control. Native center-only Lock scope is not implemented by this change.
+Clone still lacks two corner markers. No full QA-08 closure claim.
+
+Google publication remains blocked by sign-out; final evidence is local with
+SHA256SUMS and the pending-publication receipt. No IPA modification or install.

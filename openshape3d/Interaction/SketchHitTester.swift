@@ -178,6 +178,7 @@ nonisolated enum SketchHitTester {
                 (.rectCorner(1), SIMD2(hi.x, lo.y)),
                 (.rectCorner(2), hi),
                 (.rectCorner(3), SIMD2(lo.x, hi.y)),
+                (.center, (lo + hi) / 2),
             ]
         case let .circle(_, center, radius):
             return [(.center, center), (.radius, center + SIMD2(radius, 0))]
@@ -289,6 +290,8 @@ nonisolated enum SketchHitTester {
             return .line(id: id, a: p, b: b)
         case let (.line(id, a, _), .lineEnd):
             return .line(id: id, a: a, b: p)
+        case let (.rect(_, lo, hi), .center):
+            return translated(entity, by: p - (lo + hi) / 2)
         case let (.rect(id, lo, hi), .rectCorner(index)):
             let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
             let opposite = corners[(index + 2) % 4]

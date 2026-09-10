@@ -163,6 +163,35 @@ nonisolated enum SketchSolverBridge {
         return writeBack(oriented, sys: sys, vars: projected.variables)
     }
 
+    /// A rectangle center drag is rigid translation, including for an
+    /// undimensioned rectangle. Temporary size equations never enter history;
+    /// existing locks and connections remain part of the projected system.
+    static func solveAxisRectangleTranslation(_ sketch: Sketch, id: UUID,
+                                               delta: SIMD2<Double>) -> [SketchEntity]? {
+        guard case let .rect(_, lo, hi)? = sketch.entities.first(where: { $0.id == id }),
+              delta.x.isFinite, delta.y.isFinite else { return nil }
+        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+              let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { return nil }
+        var rigid = sys.structural
+        for axis in 0..<2 {
+            rigid.append(AxisDistanceConstraint(pA: a, pB: b, axis: axis,
+                sign: 1, distance: hi[axis] - lo[axis]))
+        }
+        var pulls = rigid
+        pulls.append(FixedPointConstraint(p: a, target: lo + delta))
+        pulls.append(FixedPointConstraint(p: b, target: hi + delta))
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed, constraints: rigid)
+        let residual = rigid.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        if zip(projected.variables, sys.initial).allSatisfy({ abs($0 - $1) < 1e-8 }) {
+            return sketch.entities // Refused movement must not add a numerical-noise undo step.
+        }
+        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+    }
+
     /// A free axis-aligned edge resizes against the opposite side. A saved
     /// dimension on that axis instead preserves size and translates the shape.
     /// Solve from the original sketch so explicit locks/relationships still win.
