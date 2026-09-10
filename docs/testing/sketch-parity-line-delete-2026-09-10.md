@@ -57,3 +57,19 @@ hashes exactly once, no predecessor loss versus417/421. Master38 media, new
 dated note once and final paired gallery-reopen wording once. Exports:
 /tmp/os3d-line-delete-final.docx and /tmp/os3d-line-delete-master.docx.
 QA06 remains partial; counts unchanged3/0/1/52. Immutable IPA unchanged.
+
+## Released-state Return/double-click follow-up (68e97b3)
+
+Native fresh20.8168mm and clone fresh2mm horizontal drag: Return leaves Line armed
+and committed geometry unchanged. Double-clicking the released endpoint also
+leaves tool/readout/geometry unchanged in both samples. These observations do
+not prove pending completion, since neither app had a visible pending segment.
+Native initial named-item entry retained whole-sketch selection; the first drag
+was ignored and is excluded. Escape/blank deselection then valid fresh drag was
+inspected before Return. Evidence: return-valid-release/after and double-native-
+after; clone return-clone-release/after and double-clone-after, under /tmp/os3d-qa06-.
+No product change or additional test needed for this read-only sample. New
+follow-up screenshots are local-only; last verified published image count425.
+Controlled native pending preview remains an input-route limitation, not an app
+failure or a reason to change Return semantics speculatively. Continue independent
+QA07 near-horizontal tolerance/zoom acceptance.

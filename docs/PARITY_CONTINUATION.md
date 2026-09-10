@@ -1,27 +1,25 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA-06 Delete verified
+## Active continuation — September 10, QA-06 checkpoint pushed
 
-Baseline c186931 pushed; verified Line Delete correction ready to commit.
-Dirty own files: CommandShortcutsView.swift, EditorViewModel.swift,
-LineDeleteInputTests.swift, ledger/matrix, receipt and this checkpoint.
-Unrelated identity/memory preserved. No runner; sole desktop owner this session.
-Corrected focused run clean3/3, exec3732 exit0, after initial compile-only fixture
-failure (.length→.distance). /tmp/os3d-line-delete-corrected-20260910.xcresult.
-Native fresh drag→Delete disarms Line and preserves geometry; clone now matches
-actual key, one-step Undo/Redo, Line→Arc preservation and paired gallery reopen.
-No new history step. Native pending hover attempts remain inconclusive; not a pass.
-Illustrated425, all8 diagnosis/correction hashes once, no predecessor loss;
-master38 dated note and final paired reopen wording verified. Exports
-/tmp/os3d-line-delete-final.docx and /tmp/os3d-line-delete-master.docx.
-Receipt testing/sketch-parity-line-delete-2026-09-10.md; local reports/.../line-delete.
-Native1924 oblique modeling, Sketch03 has old80mm plus two17.2694mm lines;
-other items remain hidden. Clone6492 portrait reopened model, one2mm ground line.
-Exact next: commit/push verified Delete correction; then QA06 Return and
-canvas double-click completion, capture before/after and preserve segments.
-Do not infer cancellation from missing native hover previews. QA06 stays partial.
-Inventory3passed/0failed/1deviceblocked/52incomplete; QA04 closed c186931.
-IPA05be744 unchanged; no install/merge/restart/security changes/duplicate workers.
+HEAD68e97b3 pushed: Line Delete shortcut, guarded against numeric editing.
+Corrected clean3/3 after compile-only fixture failure; paired actual Delete,
+one-step Undo/Redo, Line→Arc and gallery reopen verified. No runner active.
+Illustrated425/all8 hashes/no predecessor loss; master38 dated final reopen note
+verified. ImmutableIPA05be744 unchanged. Receipt line-delete-2026-09-10.md.
+Following release-state Return and endpoint double-click leave Line/geometry
+unchanged in both native20.8168mm and clone2mm samples. No visible pending segment;
+these are not evidence of pending completion. Follow-up captures local only.
+Native named-item selected-sketch initial drag ignored, excluded; valid deselected
+repeat captured. Native pending hover acquisition remains inconclusive through
+supported click/synth/hover routes, not product failure. No speculative fix.
+Current native1924 Front sketch, Linearmed, old80mm/two17.2694/new20.8168mm lines.
+Clone6492 Topground sketch, Linearmed, two2mm lines. Sole desktop owner this session.
+Exact next: preserve follow-up checkpoint, continue independent QA07 near-horizontal
+raw aim/tolerance at two zooms, inspect native/clone snap settings first. Return
+pending and physical double-tap remain open. Inventory3passed/0failed/1deviceblocked/
+52incomplete. Unrelated identity/memory preserved; no install/merge/restart/security
+changes/duplicate workers or watchdogs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
