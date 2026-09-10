@@ -150,6 +150,18 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(label.waitForExistence(timeout: 3))
         let before = label.frame
         app.buttons["SettingsButton"].tap()
+        app.segmentedControls["SettingsUnitPicker"].buttons["ft"].tap()
+        app.buttons["SettingsDone"].tap()
+        let measuredFeet = label.label
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
+        attach(app, "untouched-rounded-foot-seed")
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertEqual(label.label, measuredFeet, "Untouched rounded seed must not resize the line")
+        XCTAssertEqual(label.frame.midX, before.midX, accuracy: 1)
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.label, measuredFeet)
+        app.buttons["SettingsButton"].tap()
         app.segmentedControls["SettingsUnitPicker"].buttons["in"].tap()
         app.buttons["SettingsDone"].tap()
         let original = label.label

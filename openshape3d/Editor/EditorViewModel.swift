@@ -11493,6 +11493,9 @@ final class EditorViewModel {
         var kind: DimensionKind
         var refs: [ConstraintRef]
         var text: String
+        // Exact measured mm (degrees for angles), separate from rounded UI text.
+        // Retained expressions are evaluated instead and never use this seed.
+        var measuredSeed: Double? = nil
         var validationMessage: String? = nil
         var isPolygonSideCount = false
     }
@@ -11504,11 +11507,13 @@ final class EditorViewModel {
     // observable writes on the TextField binding/render path (which previously
     // caused a render loop). Session identity prevents stale drafts being used
     // for a different badge or a reopened editor.
-    @ObservationIgnored private var dimensionDraft: (sessionID: UUID, text: String)?
+    @ObservationIgnored private var dimensionDraft: (sessionID: UUID, text: String, changed: Bool)?
 
     func updateDimensionDraft(_ text: String, sessionID: UUID) {
-        guard editingDimension?.sessionID == sessionID else { return }
-        dimensionDraft = (sessionID, text)
+        guard let edit = editingDimension, edit.sessionID == sessionID else { return }
+        let changed = text != edit.text ||
+            (dimensionDraft?.sessionID == sessionID && dimensionDraft?.changed == true)
+        dimensionDraft = (sessionID, text, changed)
         if editingDimension?.validationMessage != nil {
             editingDimension?.validationMessage = nil
         }
@@ -12025,6 +12030,7 @@ final class EditorViewModel {
                 label.kind == .angle || label.isPolygonSideCount
                     ? label.displayValue
                     : AppSettings.shared.unit.display(fromMM: label.displayValue)),
+            measuredSeed: retainedExpression == nil && !label.isPolygonSideCount ? label.displayValue : nil,
             isPolygonSideCount: label.isPolygonSideCount
         )
     }
@@ -12057,7 +12063,8 @@ final class EditorViewModel {
             text: Self.dimensionFieldText(
                 cand.kind == .angle
                     ? value
-                    : AppSettings.shared.unit.display(fromMM: value))
+                    : AppSettings.shared.unit.display(fromMM: value)),
+            measuredSeed: value
         )
     }
 
@@ -12111,7 +12118,13 @@ final class EditorViewModel {
         // references a variable/function (a plain number keeps `formula: nil`).
         let additiveMM = edit.kind != .angle && !edit.isPolygonSideCount
             ? ExpressionEvaluator.additiveLengthMM(rawText) : nil
-        guard let parsed = additiveMM ?? ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
+        let untouchedSeed = rawText == edit.text &&
+            !(dimensionDraft?.sessionID == edit.sessionID && dimensionDraft?.changed == true)
+            ? edit.measuredSeed : nil
+        let seededDisplay = untouchedSeed.map {
+            edit.kind == .angle ? $0 : AppSettings.shared.unit.display(fromMM: $0)
+        }
+        guard let parsed = seededDisplay ?? additiveMM ?? ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
             editingDimension?.validationMessage = ExpressionEvaluator.validationMessage(
                 rawText, variables: session.variableValues())
             return
@@ -12192,7 +12205,9 @@ final class EditorViewModel {
         // inches. `deg` is not a length and only makes sense on an angle.
         let typedUnit = Self.lengthUnit(forSuffix: typedUnitSymbol)
         let parsedMM: Double
-        if additiveMM != nil || edit.kind == .angle || formula != nil {
+        if let untouchedSeed {
+            parsedMM = untouchedSeed
+        } else if additiveMM != nil || edit.kind == .angle || formula != nil {
             parsedMM = parsed
         } else if let typedUnit {
             parsedMM = typedUnit.mm(fromDisplay: parsed)

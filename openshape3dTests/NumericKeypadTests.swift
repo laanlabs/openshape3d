@@ -99,6 +99,56 @@ final class DimensionKeypadCommitTests: XCTestCase {
         return simd_distance(a, b)
     }
 
+    func testUntouchedRoundedImperialSeedLocksExactMeasurementAndUndoes() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .feet
+        let (original, id) = lineReadyToDimension(vm)
+        let seed = try XCTUnwrap(vm.editingDimension?.text)
+        XCTAssertNotEqual(try XCTUnwrap(Double(seed)) * 304.8, 40)
+        vm.commitDimensionEdit(seed)
+        XCTAssertEqual(try XCTUnwrap(vm.activeSketch?.dimensions.first).value, 40, accuracy: 1e-9)
+        XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+        XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty)
+        vm.session.redo()
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 40, accuracy: 1e-9)
+        // An actually edited draft returning to the rounded text must use that
+        // entered value, rather than silently restoring the old measurement.
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        let edit = try XCTUnwrap(vm.editingDimension)
+        vm.updateDimensionDraft("1", sessionID: edit.sessionID)
+        vm.updateDimensionDraft(edit.text, sessionID: edit.sessionID)
+        vm.commitDimensionEdit(edit.text)
+        XCTAssertEqual(try XCTUnwrap(length(vm, original.id)),
+                       try XCTUnwrap(Double(edit.text)) * 304.8, accuracy: 1e-6)
+    }
+
+    func testUntouchedTinyLengthAndRoundedArcSweepPreserveGeometry() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .feet
+        let line = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(0.01, 0))
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(3, 4), radius: 2,
+                                  startAngle: 0, endAngle: 0.7123456789)
+        let sketch = Sketch(plane: .ground, entities: [line, arc])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [line.id]
+        vm.beginDimensionForSelection()
+        XCTAssertEqual(vm.editingDimension?.text, "0")
+        vm.commitDimensionEdit("0")
+        XCTAssertEqual(try XCTUnwrap(vm.activeSketch?.dimensions.first).value, 0.01, accuracy: 1e-12)
+        XCTAssertEqual(vm.activeSketch?.entities, sketch.entities)
+        vm.selectedSketchEntityIDs = [arc.id]
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .angle }))
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(try XCTUnwrap(vm.activeSketch?.dimensions.last).value, 0.7123456789, accuracy: 1e-12)
+        XCTAssertEqual(vm.activeSketch?.entities, sketch.entities)
+    }
+
     func testScalarExpressionRetainsUnitsReopensAndClearsWithPlainValue() throws {
         let vm = try makeViewModel()
         AppSettings.shared.unit = .centimeters

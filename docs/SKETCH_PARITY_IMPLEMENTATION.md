@@ -1458,3 +1458,14 @@ keys retained otherwise; full token recognition unchanged. Clean22/22 combined
 UI/keypad tests, pairedft-key commits/UndoRedo and clone savedsource/reopen.
 Illustrated384/all4 hashes/master38 verified. Untouched rounded-seed no-op next;
 Settings target gap retained. Receipt testing/sketch-parity-imperial-keypad-2026-09-10.md.
+
+### September 10: exact untouched dimension seed
+
+[Rounded-seed receipt](testing/sketch-parity-rounded-seed-2026-09-10.md).
+Native preserves measured20mm when accepting roundedFoot text; clone drifted.
+Exact mm/degrees now retained separately from rounded field text; edited drafts/
+expressions still evaluate normally. Red1 then corrected21 and final combined23/23.
+Live clone2mm preserved through untouched0.007ft acceptance, lockUndoRedo and
+gallery reopen. Native untouched-commit history remains distinct/unconfirmed;
+no blanket history-equivalence claim. Illustrated391/all7/no loss;master38 verified.
+Settings icon-center input and same-theme comparison next; acceptance unchanged.
