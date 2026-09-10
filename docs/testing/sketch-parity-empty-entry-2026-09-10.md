@@ -104,3 +104,41 @@ once, no predecessor media loss versus403. Master38media/newheadingonce, prior
 fieldnote retained and finalpairedreopen wording verified. Exports
 `/tmp/os3d-empty-items-publication.docx` and `/tmp/os3d-empty-items-master.docx`.
 No runner. Ready to commit the scoped correction, not full QA-04 closure.
+
+## Final finite acceptance checks on 0c8c268
+
+Native Top ambiguity resolved: hide both coplanar Sketch 01 and Sketch 02 via
+Items Show/Hide. Top Sketch then creates empty Sketch 04, rather than re-entering
+an existing sketch. Exit removes it; first Escape disarms Line, second exits.
+Both hidden sketches and Body 01 remain hidden; Front Sketch 03 stays visible.
+Images `os3d-qa04-top2-empty`, `-exit`, `-esc1`, `-esc2`.
+
+Current clone Top entry, Exit and two Escapes preserve hidden Sketch 1/MyPart
+and visible Sketch 2/3. `os3d-qa04-top2-clone-empty`, `-exit`, `-before-esc`,
+`-esc1`, `-esc2`. Current clone Front repeat also passes Exit and two Escapes:
+`os3d-qa04-front2-empty`, `-exit`, `-before-esc`, `-esc1`, `-esc2`.
+No extra empty item at any completed exit; no geometry was added in these checks.
+Final clone gallery reopen retains the same three sketches, two visible lines,
+and hidden original sketch/body: `os3d-qa04-closure-clone-saved.png`. Native
+final reopen is being settled after Limited Version Skip before final closure.
+
+These complete the planned Top/Front/Right Exit/Escape samples and visible/hidden
+reference preservation; prior first-line history verifies the corrected Items
+transition. This is the finite QA-04 recipe, not all sketch-input or device parity.
+No additional product edits since 0c8c268; relevant runs remain initial clean
+6/6 and revised clean 5/5, not one combined final run.
+
+Final native reopen inspected: Sketch 03 visible; both Top sketches and Body 01
+hidden; no Sketch 04 empty row. `os3d-qa04-closure-native-saved.png`.
+Six closure images inserted once in illustrated report, master closure note
+appended once; exports requested. No further product changes or tests needed
+for these read-only acceptance repeats on the same tested build.
+
+## QA-04 closure
+
+Export gate verified: illustrated417 placements, all six closure hashes exactly
+once and no predecessor loss versus411; master38 media, new/prior headings once
+and final reopen wording retained. `/tmp/os3d-empty-entry-closure.docx` and
+`/tmp/os3d-empty-entry-closure-master.docx`. QA-04 finite recipe now passed.
+Inventory3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
+Remaining broad visual/input/device gates are unchanged.

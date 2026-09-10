@@ -1,23 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, provisional Items verified
+## Active continuation — September 10, QA-04 closed
 
-BaseHEADd5cb119; scopedItemsfix readyforcommit. DirtyEditorViewModel,
-ItemsPanelView,SketchIdentityTests,checkpoint,ledger,matrix,newemptyentryreceipt.
-Initialcombined6/6 thenrefined5/5identity, bothclean. Finalcurrent-buildlive
-emptyRight/firstline/Undo/Redo rowlifecycle passes; nativefirstlinecomparison
-matched. Underlyinghistoryidentityretained. PairedRightemptyExit/twoEscapes,
-hidden-sketch/bodypreservation andbothgalleryreopensverified. No runner.
-Publication411/all8hashes/no predecessorloss; master38/newnote/reopenverified.
-Receipt testing/sketch-parity-empty-entry-2026-09-10.md.
-Native1924 modelingoblique, Sketch03newlinevisible, Sketch02/Body01hidden,
-Sketch01visible. Clone6492 portraitDark modelingoblique Itemsopen; MyPart/
-Sketch1hidden, Sketch2Frontline/Sketch3Rightlinevisible.
-Exact next: commit/push scopedfix; finishQA04 isolatednativeTop emptyentry
-(existingTopSketch command auto-reenters existing row), current-buildFront/Top
-Exit/Escape/hiddenvariants. Broader56caseacceptance still2passed/0failed/
-1deviceblocked/53incomplete. IPA05be744 unchanged; no install/merge/restart/
-securitychanges/duplicateworkers. Preserveidentity/memory/stalledDocs.
+HEAD0c8c268 pushed. Documentation-only QA04closure readyforcommit; unrelated
+identity/memory untouched. Paired Top/Front/Right empty Exit/twoEscapes,
+visibility, Itemsfirstgeometry/history andfinalgalleryreopen verified.
+Initial6/6 + refined5/5, separatecleanruns. Publication417/all6closurehashes/
+no predecessorloss; master38/newnote/reopen verified. No runner.
+Counts3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
+Native1924 modelingoblique, Sketch03Frontlinevisible; TopSketch02/01 and
+Body01hidden. Clone6492 portraitDarkmodelingoblique Itemsopen; MyPart/Sketch1
+hidden, Sketch2Frontline/Sketch3Rightlinevisible.
+Exact next: commit/push QA04closure docs, then paired QA06 remaining
+Backspace/Delete, double-click and tool-switch cancellation with committedline
+preserved and no ghostsegment. Inspectcurrentinputstate beforeactions.
+Receipt testing/sketch-parity-empty-entry-2026-09-10.md. IPA05be744 unchanged.
+No install/merge/restart/securitychanges/duplicateworkers; preserve stalledDocs.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

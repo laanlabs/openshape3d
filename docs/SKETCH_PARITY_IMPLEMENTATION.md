@@ -1504,3 +1504,13 @@ final first-line history, paired Right empty Exit/Escape, hidden-sketch integrit
 and both gallery reopens verified. Full QA-04 remains partial for isolated Top
 and remaining exact-build variants.
 [Receipt](testing/sketch-parity-empty-entry-2026-09-10.md).
+
+## September 10 — Empty-entry acceptance closed
+
+QA-04 Top/Front/Right empty entry, Exit/two-stage Escape, existing visible/hidden
+item preservation, first-line Items/history and final gallery reopen verified
+in native and tested clone. Scoped product fix0c8c268; initial6/6 plus revised
+5/5. Illustrated417/all6closurehashes/no predecessorloss and master38 verified.
+Inventory3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
+Continue QA-06 remaining Backspace/double-click/tool-switch cancellation routes;
+no device-ready/full-parity claim. Receipt testing/sketch-parity-empty-entry-2026-09-10.md.

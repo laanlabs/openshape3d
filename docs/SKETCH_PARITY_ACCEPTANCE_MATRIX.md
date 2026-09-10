@@ -8,7 +8,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-01 | Plane selection | Core — partial, not passed | Origin Front/Right/Top grid availability paired; offset/face/miss matrix open. |
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
-| QA-04 | Empty entry | Core — partial, not passed | Front/Right empty Exit/Escape and hidden-sketch preservation sampled; provisional Items/first-line history corrected. Top isolated/current-build variants remain open. |
+| QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Backspace/double-tap/tool-switch matrix open. |
 | QA-07 | Line raw aim | Core — partial, not passed | Acquisition-off/Auto-off slight slope sampled paired; all-angle matrix open. |
@@ -78,7 +78,7 @@ Sketch menu, selected face, existing item, keyboard hover/Space. Issues: SK-07. 
 
 ### QA-04 — Empty entry
 
-Start then cancel; no persistent empty sketch or unintended visibility change. Issues: SK-08; ED-10. Result: NOT RUN. Evidence/owner: pending.
+Start then cancel; no persistent empty sketch or unintended visibility change. Issues: SK-08; ED-10. Original result: NOT RUN. September10 result: PASSED for the finite Top/Front/Right Exit/Escape and visibility/reopen recipe; see [empty-entry receipt](testing/sketch-parity-empty-entry-2026-09-10.md). Physical input is not implied.
 
 ### QA-05 — Line chain
 
@@ -667,3 +667,10 @@ pairedblockUndo/Redo and finalreopen pass. Earlierduplicate-only liveUndo remain
 inconclusive. Partialoverlap/duplicatecurves/pointtouch/tinytolerance open.
 Illustrated165 imageplacements/164uniqueassets (reusedidenticalimage), all5
 evidencehashes and master38finalnote exportverified. [Receipt](testing/sketch-parity-duplicate-boundary-2026-09-09.md).
+
+## September 10 acceptance inventory update
+
+QA-04 finite recipe is passed after paired final repeats and publication.
+**3 passed / 0 failed / 1 device-blocked / 52 incomplete** (41 partial, 11
+explicitly deferred), total56. Historical partial evidence remains above/in
+receipts. No full UI parity or updated device candidate claim.
