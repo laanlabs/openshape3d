@@ -667,3 +667,23 @@ All four clean clone single-side selections now show3readouts. Paired final
 reopen retains native8×4/clone2×0.5 and native/clone triple presentations.
 Publication verified561/all6hashesonce andmaster38 note, no predecessorimage
 or textloss: `/tmp/os3d-qa09-adjacent-{published,master}.docx`.
+
+
+## Selected-side commit/history lifecycle — September 10
+
+Fresh native left-side8 editor→9 clears edge/handle selection but keeps both
+parallel9readouts; cmdUndo shows8pair, Redo9pair, still unselected. Currentclone
+preceding alias3→2 retainededge/handle throughtoolbarhistory. Diagnosisnative
+`os3d-qa09-sidehistory-*`, clone`adjacent-width2/undo/redo`, retained/hashed.
+Narrow successfulmigratedsidecommit clearsentityselection; explicitlyselected
+saved size with no geometry selection displays bothparallel sides using same
+refs. Cancel/refusal remain unchanged. Focused14case runexec4028 active;
+`/tmp/os3d-qa09-side-history-20260910.xcresult`. No livepostfix claim yet.
+
+Firstclean14/14 completed, no runner. Updatedclone2→3 clearsedge/handle and
+retainsparallelreadouts; toolbarUndo2/Redo3 sameunselectedstate asnative8↔9.
+Finalpairedgallery native9×4/clone3×0.5 retained. NativeallItemsfinalcapture is
+persistence, notsingleedgeevidence. Illustrated567/all6hashesonce/master38
+andfinalreopennote verified; nopredecessorloss. Exports
+`/tmp/os3d-qa09-sidehistory-{published,master}.docx`. OlderQA09publication
+backlog remains; no acceptanceclosureclaimed.

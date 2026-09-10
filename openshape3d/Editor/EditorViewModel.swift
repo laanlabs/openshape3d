@@ -12379,6 +12379,24 @@ final class EditorViewModel {
                 if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
                                          kind: d.kind, refs: d.refs, value: display) {
                     labels.append(label)
+                    // A committed selected size remains as two parallel
+                    // readouts after native drops its edge/handle selection.
+                    if sketch.id == activeSketch?.id, selectedDimensionID == d.id,
+                       selectedSketchEntityIDs.isEmpty, selectedSketchPoints.isEmpty,
+                       d.kind == .distance, d.refs.count == 2,
+                       d.refs[0].entityID == d.refs[1].entityID,
+                       Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                       let group = sketch.rotatedRectangleEdges.values.first(where: { ids in
+                           ids.count == 4 && Set(ids).count == 4 && ids.contains(d.refs[0].entityID) &&
+                           ids.allSatisfy { if case .line? = sketchEntity($0, in: sketch) { return true }; return false }
+                       }), let index = group.firstIndex(of: d.refs[0].entityID) {
+                        let oppositeID = group[(index + 2) % 4]
+                        if let opposite = makeLabel(id: d.id.uuidString + "-side-" + oppositeID.uuidString,
+                            in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                            value: display, presentationEdgeID: oppositeID) {
+                            labels.append(opposite)
+                        }
+                    }
                     // One selected side exposes both adjacent sides. The extra
                     // readout is another presentation of the same driving size,
                     // not another dimension or a new solver reference.
@@ -12848,6 +12866,7 @@ final class EditorViewModel {
         // A successful corner-size edit ends its point selection. Cancellation
         // and rejected values above retain the point, as in native sketching.
         if selectedMigratedRectangleCornerEdges != nil { selectedSketchPoints.removeAll() }
+        if selectedMigratedRectangleEdges != nil { selectedSketchEntityIDs.removeAll() }
         session.save()
     }
 

@@ -248,7 +248,20 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
             vm.commitDimensionEdit("1")
             XCTAssertEqual(vm.activeSketch?.dimensions.count, 2)
             XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [4, 1])
-            vm.session.undo()
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.rectangleHandleGeometry)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == height.dimensionID && $0.displayValue == 1 })
+            let edited = vm.activeSketch
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, migrated)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == height.dimensionID && $0.displayValue == 2 })
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, edited)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            vm.undo()
             XCTAssertEqual(vm.activeSketch, migrated)
         }
         vm.selectedDimensionID = nil

@@ -1,20 +1,18 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, three-readout correction verified
+## Active continuation — September 10, selected-side lifecycle verified
 
-HEAD36dc551 pushed; adjacent-readout product/test/docs changes ready to commit.
-Clean14/14 `/tmp/os3d-qa09-adjacent-readouts-20260910.xcresult`; exec76091 done,
-no runner. Live all4 clone selected sides show3readouts matching native4samples;
-both aliases open, width3→2/Undo3/Redo2 passed. Paired finalgallerynative8×4,
-clone2×0.5 retained. Illustrated561/all6hashes/master38note exportverified,
-no predecessorloss. Receipt center-matrix2026-09-10; screenshotsadjacent-*.
-Direct edge-to-edge adds selection, so blankthen settledtap isolates singleedge;
-initial ring not generalized as defect. Exact next commit/push then fresh paired
-single-edge commit/history lifecycle: clone keeps selected edge/handle, native
-prior samples clear it. Reproduce controlled same state before changing code.
-Nativefront1924 selectedleft/global786420; clone7715 selectedright407675,
-2×0.5center392660. PreserveIPA05be744/unrelatedfiles/tabs/watchdog; soleowner.
-Inventory4passed/0failed/1deviceblocked/51incomplete. No readiness/merge/install.
+HEADde64aa6 pushed; sidecommit/history correction readytocommit. Firstclean14/14
+`/tmp/os3d-qa09-side-history-20260910.xcresult`, exec4028done; norunner. Live
+native8→9/Undo8/Redo9 andclone2→3/Undo2/Redo3 bothclear edge/handle andkeep
+parallelreadouts. Finalpairedgallery native9×4/clone3×0.5 retained. Illustrated
+567/all6hashes/master38/finalreopennote verified, no predecessorloss.
+Exactnextcommit/push, thenreconcile QA09olderpublicationbacklog/finiteclosure
+criteria. Receiptcenter-matrix2026-09-10; sidehistory-*screenshotsretained/hashed.
+Native1924frontallItemsselection; clone7715rightedgeselectedafterreopen.
+No blanketselection/deviceparity. Inventory4passed/0failed/1deviceblocked/
+51incomplete. PreserveIPA05be744/unrelatedfiles/tabs/watchdog; soleowner.
+No merge/install/hostrestart/securitychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

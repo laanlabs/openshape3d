@@ -1789,3 +1789,11 @@ four native side samples. Extra label shares saved dimension/solver refs; editor
 preserves original edge selection. Corner remains two. Clean14/14, live aliases,
 width edit/history and paired reopen; illustrated561/master38 verified. QA09
 partial: selected-edge commit/history lifecycle remains separately open.
+
+
+## Migrated side-size commit/history selection — September 10
+
+Successful size commit clears selected migrated edge/handle and retains both
+parallel presentations of selected saved size through Undo/Redo. Cancel/refusal
+retainselection. Clean14/14, pairedcommit/history and finalgalleryreopen;
+illustrated567/master38 with all6hashes and no predecessorloss verified.
