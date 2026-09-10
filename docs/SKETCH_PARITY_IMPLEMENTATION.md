@@ -1524,3 +1524,12 @@ while Line is active and no dimension editor owns the key. Clean corrected 3/3
 failure. Actual key, one-step Undo/Redo, Line→Arc and paired saved reopen verified.
 Pending native hover, Return and double-click routes remain open; QA-06 partial.
 [Receipt](testing/sketch-parity-line-delete-2026-09-10.md).
+
+## September 10 — independent directional acquisition
+
+SK-05/QA-07 partial correction: persisted Sketch Guide Lines now controls line
+near-axis acquisition independently of Auto-Constrain. Guide-off/Auto-on retains
+raw shallow aim; guide-on/Auto-off snaps without saved H/V. Paired live cases,
+history and gallery reopen verified; combined35/35 regression passed. Other
+directional relations and second-scale matrix remain open. Illustrated434 and
+master38 dated note export-verified. See [receipt](testing/sketch-parity-line-guides-2026-09-10.md).

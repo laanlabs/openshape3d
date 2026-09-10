@@ -78,7 +78,9 @@ final class AppSettingsTests: XCTestCase {
         let first = AppSettings(defaults: defaults)
         XCTAssertEqual(first.snapOptions, SnapOptions())
         XCTAssertTrue(first.showSnapHints)
+        XCTAssertTrue(first.snapToSketchGuidelines)
         first.snapToGrid = false
+        first.snapToSketchGuidelines = false
         first.snapToSketchGuidepoints = false
         first.snapToFaceGuidepoints = false
         first.showSnapHints = false
@@ -86,6 +88,7 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(next.snapOptions, SnapOptions(grid: false, sketchGuidepoints: false,
                                                     faceGuidepoints: false))
         XCTAssertFalse(next.showSnapHints)
+        XCTAssertFalse(next.snapToSketchGuidelines)
         next.snapToGrid = true
         XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
     }

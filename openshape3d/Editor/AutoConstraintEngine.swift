@@ -89,6 +89,35 @@ nonisolated enum AutoConstraintEngine {
 
     // MARK: - Entry point
 
+    /// Directional acquisition and persistent relations are separate choices.
+    /// Native Guide Lines can flatten a near-axis line with Auto-constraining
+    /// off; disabling Guide Lines preserves raw aim even when Auto is on.
+    static func inferLineInput(
+        anchor: SIMD2<Double>, current: SIMD2<Double>, existing: [SketchEntity],
+        settings: AutoConstraintSettings, guideLines: Bool
+    ) -> Result {
+        var acquisition = settings
+        if !settings.enabled {
+            acquisition.pointSnap = false
+            acquisition.parallelPerpendicular = false
+            acquisition.tangent = false
+            acquisition.equal = false
+        }
+        let delta = current - anchor
+        let exactlyAxisAligned = abs(delta.x) < 1e-9 || abs(delta.y) < 1e-9
+        acquisition.horizontalVertical = guideLines ||
+            (settings.enabled && settings.horizontalVertical && exactlyAxisAligned)
+        acquisition.enabled = settings.enabled || guideLines
+        var result = infer(tool: .line, anchor: anchor, current: current,
+                           existing: existing, settings: acquisition)
+        if !settings.enabled {
+            result.constraints = []
+        } else if !settings.horizontalVertical {
+            result.constraints.removeAll { $0.kind == .horizontal || $0.kind == .vertical }
+        }
+        return result
+    }
+
     static func infer(
         tool: SketchTool,
         anchor: SIMD2<Double>,

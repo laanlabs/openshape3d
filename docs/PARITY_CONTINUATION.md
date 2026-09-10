@@ -1,25 +1,30 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA-06 checkpoint pushed
+## Active continuation — September 10, QA-07 directional correction verified
 
-HEAD68e97b3 pushed: Line Delete shortcut, guarded against numeric editing.
-Corrected clean3/3 after compile-only fixture failure; paired actual Delete,
-one-step Undo/Redo, Line→Arc and gallery reopen verified. No runner active.
-Illustrated425/all8 hashes/no predecessor loss; master38 dated final reopen note
-verified. ImmutableIPA05be744 unchanged. Receipt line-delete-2026-09-10.md.
-Following release-state Return and endpoint double-click leave Line/geometry
-unchanged in both native20.8168mm and clone2mm samples. No visible pending segment;
-these are not evidence of pending completion. Follow-up captures local only.
-Native named-item selected-sketch initial drag ignored, excluded; valid deselected
-repeat captured. Native pending hover acquisition remains inconclusive through
-supported click/synth/hover routes, not product failure. No speculative fix.
-Current native1924 Front sketch, Linearmed, old80mm/two17.2694/new20.8168mm lines.
-Clone6492 Topground sketch, Linearmed, two2mm lines. Sole desktop owner this session.
-Exact next: preserve follow-up checkpoint, continue independent QA07 near-horizontal
-raw aim/tolerance at two zooms, inspect native/clone snap settings first. Return
-pending and physical double-tap remain open. Inventory3passed/0failed/1deviceblocked/
-52incomplete. Unrelated identity/memory preserved; no install/merge/restart/security
-changes/duplicate workers or watchdogs.
+Baseline e832350 pushed; directional correction ready for commit. Own changes
+AppSettings, SnappingSettingsSection, AutoConstraintEngine, EditorViewModel,
+AppSettingsTests, LineGuideAcquisitionTests, LineGuideWorkflowTests, ledger,
+matrix, receipt/checkpoint. Unrelated identity/memory untouched. No runner.
+Final combined35/35 clean at /tmp/os3d-line-guides-final-20260910.xcresult.
+Initial33+2 also clean. Paired off/on raw aim and on/off guide-only snap verified,
+UndoRedo and gallery reopen both apps. Finalbinary on/on now snaps/addsH2.103mm,
+matching native prior sample. Cleanup hover test is automated-only.
+Illustrated434 placements/432media/all5 corrected hashes/no predecessor loss;
+master38 dated note verified. Export paths /tmp/os3d-line-guides-final.docx and
+/tmp/os3d-line-guides-master.docx. On/on follow-up image currently local-only.
+Native1924 model-mode Front after reopen; GuideLineson/Autooff. Clone6492 Top
+Linearmed, one2.103mm horizontal H-constrained line, guideson/autoon and all
+point/grid acquisitionoff. Finalbinary launched25964. App switch fixed explicit
+coordinate-click focus rejection; no input failure inferred as product defect.
+Exact next: commit/push verified correction, continue QA07 second-scale/raw-angle
+checks using supported zoom route. Scroll CLI returned foreground-required error
+(no foreground flag), not app failure. Switch thumb drags are reliable; inspect
+settings after every change. No runner/duplicate desktop worker.
+Receipt testing/sketch-parity-line-guides-2026-09-10.md; local line-guides hashes.
+QA06 released Return/doubleclick no-op sampled; pending hover remains unresolved.
+Inventory3passed/0failed/1deviceblocked/52incomplete; IPA05be744 unchanged.
+No install/merge/restart/security changes/duplicate watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

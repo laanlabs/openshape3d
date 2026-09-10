@@ -120,6 +120,7 @@ final class AppSettings {
         static let alwaysShowDimensions = "os3d.alwaysShowDimensions"
         static let alwaysShowConstraints = "os3d.alwaysShowConstraints"
         static let snapToGrid = "os3d.snapToGrid"
+        static let snapToSketchGuidelines = "os3d.snapToSketchGuidelines"
         static let snapToSketchGuidepoints = "os3d.snapToSketchGuidepoints"
         static let snapToFaceGuidepoints = "os3d.snapToFaceGuidepoints"
         static let showSnapHints = "os3d.showSnapHints"
@@ -163,6 +164,9 @@ final class AppSettings {
     var snapToGrid: Bool {
         didSet { defaults.set(snapToGrid, forKey: Key.snapToGrid) }
     }
+    var snapToSketchGuidelines: Bool {
+        didSet { defaults.set(snapToSketchGuidelines, forKey: Key.snapToSketchGuidelines) }
+    }
     var snapToSketchGuidepoints: Bool {
         didSet { defaults.set(snapToSketchGuidepoints, forKey: Key.snapToSketchGuidepoints) }
     }
@@ -189,6 +193,7 @@ final class AppSettings {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         snapToGrid = defaults.object(forKey: Key.snapToGrid) as? Bool ?? true
+        snapToSketchGuidelines = defaults.object(forKey: Key.snapToSketchGuidelines) as? Bool ?? true
         snapToSketchGuidepoints = defaults.object(forKey: Key.snapToSketchGuidepoints) as? Bool ?? true
         snapToFaceGuidepoints = defaults.object(forKey: Key.snapToFaceGuidepoints) as? Bool ?? true
         showSnapHints = defaults.object(forKey: Key.showSnapHints) as? Bool ?? true

@@ -7,6 +7,8 @@ struct SnappingSettingsSection: View {
         Section {
             Toggle("Grid", isOn: $settings.snapToGrid)
                 .accessibilityIdentifier("SnapToGridToggle")
+            Toggle("Sketch Guide Lines", isOn: $settings.snapToSketchGuidelines)
+                .accessibilityIdentifier("SnapToSketchGuidelinesToggle")
             Toggle("Sketch Guidepoints", isOn: $settings.snapToSketchGuidepoints)
                 .accessibilityIdentifier("SnapToSketchGuidepointsToggle")
             Toggle("Face Guidepoints", isOn: $settings.snapToFaceGuidepoints)

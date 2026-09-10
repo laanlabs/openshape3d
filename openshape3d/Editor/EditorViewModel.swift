@@ -8075,6 +8075,18 @@ final class EditorViewModel {
         return settings
     }
 
+    private func inferSketchInput(tool: SketchTool, anchor: SIMD2<Double>,
+                                  current: SIMD2<Double>, existing: [SketchEntity],
+                                  settings: AutoConstraintSettings) -> AutoConstraintEngine.Result {
+        if tool == .line {
+            return AutoConstraintEngine.inferLineInput(anchor: anchor, current: current,
+                existing: existing, settings: settings,
+                guideLines: AppSettings.shared.snapToSketchGuidelines)
+        }
+        return AutoConstraintEngine.infer(tool: tool, anchor: anchor, current: current,
+                                         existing: existing, settings: settings)
+    }
+
     /// Presents the auto-constrain settings panel (sheet).
     var showConstraintSettings = false
 
@@ -9695,6 +9707,14 @@ final class EditorViewModel {
             end = start
             willClose = true
         }
+        if !willClose {
+            let result = inferSketchInput(tool: .line, anchor: anchor, current: end,
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings)
+            end = result.snappedPoint
+            activeGuides = result.guides
+        } else {
+            activeGuides = []
+        }
         let entity = SketchEntity.line(id: linePreviewID, a: anchor, b: end)
         let changed = pendingEntity != entity || lineWillClose != willClose
                 || !lineHoverPreviewActive
@@ -9721,6 +9741,7 @@ final class EditorViewModel {
         sketchStrokeStart = nil
         sketchStrokeCurrent = nil
         activeSnap = nil
+        activeGuides = []
         return true
     }
 
@@ -10225,8 +10246,8 @@ final class EditorViewModel {
         // collect the guides to render, and stash the constraints to emit if
         // the stroke commits. `existing` = committed entities (the in-progress
         // entity is `pendingEntity`, not yet in the sketch).
-        if autoConstrainSettings.enabled, !(tool == .rect && rectangleType != .diagonal), let sketch = activeSketch {
-            let result = AutoConstraintEngine.infer(
+        if (autoConstrainSettings.enabled || (tool == .line && AppSettings.shared.snapToSketchGuidelines)), !(tool == .rect && rectangleType != .diagonal), let sketch = activeSketch {
+            let result = inferSketchInput(
                 tool: tool, anchor: start, current: current,
                 existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
@@ -10296,8 +10317,8 @@ final class EditorViewModel {
         var end = sketchPoint(from: ray) ?? start
         // Re-run inference at the release point so the committed geometry and
         // the emitted constraints stay consistent with the on-screen preview.
-        if autoConstrainSettings.enabled, !(tool == .rect && rectangleType != .diagonal) {
-            let result = AutoConstraintEngine.infer(
+        if (autoConstrainSettings.enabled || (tool == .line && AppSettings.shared.snapToSketchGuidelines)), !(tool == .rect && rectangleType != .diagonal) {
+            let result = inferSketchInput(
                 tool: tool, anchor: start, current: end,
                 existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
@@ -10429,8 +10450,8 @@ final class EditorViewModel {
         closing: Bool, sketchID: SketchID, in sketch: Sketch
     ) {
         var end = rawEnd
-        if !closing, autoConstrainSettings.enabled {
-            let result = AutoConstraintEngine.infer(
+        if !closing, autoConstrainSettings.enabled || AppSettings.shared.snapToSketchGuidelines {
+            let result = inferSketchInput(
                 tool: .line, anchor: anchor, current: end,
                 existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
