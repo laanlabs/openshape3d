@@ -1,17 +1,19 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, migrated corner markers verified
+## Active continuation — September 10, selected size outline verified
 
-HEAD36b5121 pushed; hollowmigratedcorner/defaultLockbadgefix ready tocommit.
-Firstclean14/14 `/tmp/os3d-qa09-corner-markers-20260910.xcresult` and.log; no runner.
-PairedfreshLock/Unlock/UndoRedo, finalgallerynative8×4/clone3×0.5 passed;
-centerLock retained/cornerunlocked. Published551/all5hashes/master38note, no loss.
-Evidencecornerglyph-* andcenter-matrixreceipt. Exactnext commitpushthencompare
-selecteddimensionoutlineafterEscape (nativeblueoutline+whitebackground, clone
-plaintext), nextnativeoppositesidereadout. NativeallItems36 selectedSketch04;
-cloneSketch1Itemsopen. Inventory4passed/0failed/1deviceblocked/51incomplete.
-Soleowner; preserveIPA/unrelatedfiles/reporttabs/watchdog. No merge/deviceinstall/
-hostsecuritychanges. No testprocessactive.
+HEAD82e3522 pushed; selected corner-size outline ready to commit. First clean
+14/14 `/tmp/os3d-qa09-selected-badge-20260910.xcresult` and.log; no runner.
+Paired editor/Escape selected outline and blank/reselection plain text verified.
+Initial stale label coordinate/early launch clicks and immediate reselection
+no-op retained; inspected exact label330598/settled corner290728 succeeded.
+Published555/all4hashes/master38note, no prior image/text loss. No geometry edit:
+native8×4/clone3×0.5 retains prior paired gallery state. Both corner selected.
+Exact next commit/push, then diagnose native opposite-side readout using explicit
+saved-lock/readout distinction; do not infer duplicate saved constraints from
+visible numbers alone. Remaining historical publication backlog. Inventory
+4 passed / 0 failed / 1 device-blocked / 51 incomplete. Preserve immutableIPA,
+unrelatedfiles/reporttabs/watchdog. Soleowner; no merge/deviceinstall/hostchanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

@@ -262,10 +262,26 @@ struct SketchDimensionOverlay: View {
                             .frame(width: diameter.targetSize.width, height: diameter.targetSize.height)
                             .contentShape(Rectangle())
                     } else if let linear {
+                        let selectedCornerSize = label.isRectangleSize && label.dimensionID != nil &&
+                            viewModel.selectedDimensionID == label.dimensionID &&
+                            viewModel.selectedMigratedRectangleCornerMarker != nil
                         Text(label.text)
                             .font(.system(size: 16))
                             .monospacedDigit()
                             .foregroundStyle(conflicting ? Color.red : Color.black)
+                            .padding(.horizontal, selectedCornerSize ? 3 : 0)
+                            .padding(.vertical, selectedCornerSize ? 1 : 0)
+                            .background {
+                                if selectedCornerSize {
+                                    RoundedRectangle(cornerRadius: 2).fill(Color.white)
+                                }
+                            }
+                            .overlay {
+                                if selectedCornerSize {
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(conflicting ? Color.red : Color.blue, lineWidth: 2)
+                                }
+                            }
                             .rotationEffect(.radians(linear.rotation))
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())

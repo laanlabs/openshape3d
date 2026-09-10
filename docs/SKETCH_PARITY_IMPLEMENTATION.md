@@ -1773,3 +1773,10 @@ endpointLockglyph no longer coverspoint. Explicitinspection/conflict remains.
 Firstclean14/14 andpairedliveLock/Unlock/history/reopen. Published551/all5hashes
 /master38. Unrelatedlinemarkersunchanged; selecteddimensionoutline/opposite
 annotationremainopen. QA09partial; receiptcenter-matrixSeptember10.
+
+### September 10 — selected corner-size outline
+
+Selected saved rectangle size gets native white/blue outline after Escape while
+its corner remains selected; reselection returns plain text. First clean14/14
+and paired live states verified; no geometry edits. Published555/all4hashes and
+master38. Native extra opposite-side annotation remains under diagnosis.

@@ -617,3 +617,26 @@ reopen andpublicationverification pending; noQA09closure.
 Finalpairedgalleryreopen retainednative8×4/clone3×0.5, centerLock/unlockedcorner.
 Publication export-verified551/all5newhashesonce, master38datednote, no prior
 image/textloss: `/tmp/os3d-qa09-cornerglyph-{published,master}.docx`.
+
+
+## Selected corner-size outline — September 10
+
+Native editor Escape leaves the selected size white/blue outlined, while the
+clone's earlier inspected `cornereditor-dismiss` remained plain. Styling now
+applies only to an explicitly selected saved size while its migrated corner is
+selected; plain and successful-commit states remain unchanged. First clean14/14
+`/tmp/os3d-qa09-selected-badge-20260910.xcresult` and `.log` compiles the view and
+runs existing annotation/history/conflict tests. No mirrored style-only test.
+
+Paired editor/Escape shows the selected outline; blank then corner reselection
+returns both to plain text. First clone launch sequence arrived before gallery
+settled and was not evidence. An old label coordinate missed; exact center at
+330,598 opened successfully. Immediate corner reselection did not select; a
+settled second tap did. These attempts are retained, not an input parity claim.
+No geometry edits: native8×4/clone3×0.5 unchanged from prior paired final gallery.
+Evidence `os3d-qa09-badge-*` retained/hashed, four selected/reselected screenshots
+inserted once. Export verification pending. Extra native opposite-side annotation
+and historical publication backlog remain; QA-09 partial.
+
+Publication verified: illustrated555/all4hashesonce andmaster38datednote, no
+predecessor image/text loss. Exports `/tmp/os3d-qa09-badge-{published,master}.docx`.
