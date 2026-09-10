@@ -113,10 +113,10 @@ final class RectangleWorkflowUITests: XCTestCase {
         func bounds() throws -> CGRect {
             let points = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
                 .allElementsBoundByIndex.map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
-            XCTAssertEqual(points.count, 2)
-            let first = try XCTUnwrap(points.first), last = try XCTUnwrap(points.last)
-            return CGRect(x: min(first.x, last.x), y: min(first.y, last.y),
-                          width: abs(first.x-last.x), height: abs(first.y-last.y))
+            XCTAssertEqual(points.count, 4, "All four rectangle corners must be visible")
+            let minX = try XCTUnwrap(points.map(\.x).min()), maxX = try XCTUnwrap(points.map(\.x).max())
+            let minY = try XCTUnwrap(points.map(\.y).min()), maxY = try XCTUnwrap(points.map(\.y).max())
+            return CGRect(x: minX, y: minY, width: maxX-minX, height: maxY-minY)
         }
         let before = try bounds()
         let start = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))

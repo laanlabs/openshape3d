@@ -1573,3 +1573,26 @@ Unlock and paired gallery recovery passed. Center-point selection/Lock scope
 and two missing corner markers remain open. Publication blocked by Google
 sign-out; evidence retained locally. See diagonal-matrix and publication-pending
 receipts dated September 10. Immutable candidate IPA unchanged.
+
+### Rectangle corner correction verified (September 10)
+
+Final regression clean **30/30**, zero skipped/failed, at
+`/tmp/os3d-qa08-corner-final-20260910.xcresult`: six point-state tests,
+23 rectangle geometry tests, one center drag/history UI workflow. Prior31/31
+included one additional UI workflow before final styling; do not combine counts.
+Only indentation changed after the final build.
+
+Exact-build live clone shows four light hollow corners; left-edge Lock produces
+two green left corners and two blue right corners, matching the native sampled
+point-state convention. Whole Lock shows all four green hollow. Clone toolbar
+Undo returns all corners blue; Redo restores partial green without geometry
+movement. Gallery reopen retains partial Lock and marker states. Native latest
+hotkey Undo sample reselected the edge but did not visibly clear Lock; therefore
+that particular native history repeat is inconclusive, not a paired history pass.
+Native partially constrained edge colors still differ from clone and remain open.
+Center-point selection/Lock scope remains open; QA08 remains partial.
+
+Final captures: `native-corners-left-locked`, `final-partial`, `final-undo`,
+`final-redo`, `final-reopen-state` under the os3d-qa08 prefix in diagonal-matrix.
+All copied and hashed locally. Google signed-out blocker persists; no new
+publication claim beyond illustrated466/master38. Immutable05be744IPA untouched.

@@ -131,3 +131,58 @@ Clone still lacks two corner markers. No full QA-08 closure claim.
 
 Google publication remains blocked by sign-out; final evidence is local with
 SHA256SUMS and the pending-publication receipt. No IPA modification or install.
+
+## Four-corner marker correction under test
+
+Centerdragfix3c6a8b6 pushed. Confirmed nativefourhollowcorners+center vsclone
+twocorners+newcenter. Addedmissingoff-diagonalcornermarkers. Sharedsolver
+analysisclassifieseachcornerusingitsownX/Yvariables; partialsideLockpins
+correcttwo corners, pinnedmin+width determineslower-rightbutnotuppercorners.
+No solvervariables added, nohit-targetchanges; existingfourcornerdragtargets
+retained. CenterUItestnowassertsall4markersandbounds/history. Serialexec1285
+/tmp/os3d-qa08-corner-markers-20260910.xcresult/log running. Livepostfixpending.
+
+Cornerregressionclean31/31 (6pointstate+23rectangle+2UI). Liveall4corners
+pluscenter appear; leftsideLock correctlychangesonlyleft2cornerstosquares.
+InitialLockclickimmediatelyafterselectiondidnotapply; settledrepeatdid, captured
+in corners-left-lock-valid. Existinghollowpointfill inheritsdarkchrome and
+appearsblackagainstlightcanvas, unlike nativewhiteinterior. Fillnowfixedwhite
+(90%opacity), no size/stroke/hit change; buildexec1649 at
+/tmp/os3d-qa08-point-fill-build-20260910.log. Needinstall/relaunchonlyclone
+simulatorapp, inspectfreecorners andpartiallock; retain31/31 aspre-fillregression
+pluspostfillbuild/live (do notclaimsame-final-tree31run). Googleblocked.
+
+### Final corner-style comparison (September 10)
+
+Post-fill build succeeded; live `fill-free` and `fill-reopen` confirm light
+interiors and preserved saved partial Lock. Fresh native 18×12 rectangle after
+settled tool arming shows four hollow corners. Locking its left edge makes left
+corners green hollow while right corners remain blue hollow (`native-corners-left-locked`).
+Clone square locked corners therefore remain a confirmed visual gap; corrected
+rectangle-only hollow state styling is under final regression. Existing line/arc
+point glyphs are not generalized from this sample. Initial immediate arm/draw
+produced a pending point, was discarded and excluded; settled repeat succeeded.
+Publication remains blocked; screenshots and hashes retained locally.
+
+### Rectangle corner correction verified (September 10)
+
+Final regression clean **30/30**, zero skipped/failed, at
+`/tmp/os3d-qa08-corner-final-20260910.xcresult`: six point-state tests,
+23 rectangle geometry tests, one center drag/history UI workflow. Prior31/31
+included one additional UI workflow before final styling; do not combine counts.
+Only indentation changed after the final build.
+
+Exact-build live clone shows four light hollow corners; left-edge Lock produces
+two green left corners and two blue right corners, matching the native sampled
+point-state convention. Whole Lock shows all four green hollow. Clone toolbar
+Undo returns all corners blue; Redo restores partial green without geometry
+movement. Gallery reopen retains partial Lock and marker states. Native latest
+hotkey Undo sample reselected the edge but did not visibly clear Lock; therefore
+that particular native history repeat is inconclusive, not a paired history pass.
+Native partially constrained edge colors still differ from clone and remain open.
+Center-point selection/Lock scope remains open; QA08 remains partial.
+
+Final captures: `native-corners-left-locked`, `final-partial`, `final-undo`,
+`final-redo`, `final-reopen-state` under the os3d-qa08 prefix in diagonal-matrix.
+All copied and hashed locally. Google signed-out blocker persists; no new
+publication claim beyond illustrated466/master38. Immutable05be744IPA untouched.

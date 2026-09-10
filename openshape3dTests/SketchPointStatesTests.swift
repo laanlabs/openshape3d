@@ -15,6 +15,25 @@ import simd
 
 final class SketchPointStatesTests: XCTestCase {
 
+    func testAxisRectangleCornersUseTheirOwnCoordinateDeterminacy() throws {
+        let id = UUID()
+        var sketch = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(2, 3), max: SIMD2(12, 9))])
+        XCTAssertEqual(SketchSolverBridge.pointStateAnalysis(sketch).rectangleCorners[id],
+                       [.free, .free, .free, .free])
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 3)])]
+        XCTAssertEqual(SketchSolverBridge.pointStateAnalysis(sketch).rectangleCorners[id],
+                       [.locked, .free, .free, .locked], "Left-side Lock pins both left corners only")
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .endpointA)])]
+        sketch.dimensions = [.init(kind: .horizontal, refs: [
+            .init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)], value: 10)]
+        XCTAssertEqual(SketchSolverBridge.pointStateAnalysis(sketch).rectangleCorners[id],
+                       [.locked, .constrained, .free, .free], "Width determines the lower-right but not upper corners")
+        sketch.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole)])]
+        XCTAssertEqual(SketchSolverBridge.pointStateAnalysis(sketch).rectangleCorners[id],
+                       [.locked, .locked, .locked, .locked])
+    }
+
     private func key(_ id: UUID, _ role: PointRole) -> SketchPointKey {
         SketchPointKey(entityID: id, role: role)
     }

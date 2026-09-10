@@ -1,26 +1,21 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, center correction verified
+## Active continuation — September 10, rectangle corners verified
 
-Leaderfix84ca2aa pushed. Centercontrolfix being committed: final25/25 clean at
-/tmp/os3d-qa08-center-final-20260910.xcresult. Live free/driven center translation,
-Undo/Redo, locked refusal notice, Unlock and paired gallery recovery verified.
-No runner; exclusive desktop remains here. Native1924 FrontSketch04 selected
-(two rects15x11 andmoved15.5x9.5, both unlocked); clone7715 savedUntitled
-single1.913x1.736 free rectangle, centerselected/wholeentity readouts.
-
-Exactnext finishcommitpush, compare missing2corner markers andcenter-point
-selection/Lock scope. Clonecenter currentlywholeentityselection, nativepoint
-selection/localLock. Do notgeneralizeLockscopes. CandidateIPA05be744 unchanged.
-Googleblocked: t18read-only,t19signedout;466diagnosisplacementsverified,
-postfixtextabsentexport. NeedsauthorizedhostGooglelogin,parentnotified; preserve
-tabs/no secrets. Pendingpublicationreceipt lists exact queuedleaderimages and
-centerresults. Inventory4passed/0failed/1deviceblocked/51incomplete.
-
-Evidence reports/.../diagonal-matrix/SHA256SUMS; receipt docs/testing/sketch-
-parity-diagonal-matrix-2026-09-10.md. Old UItestfixture reopenedlocked after
-immediateterminationfollowingUndo; not a provennewbug. LiveUnlock/move/gallery
-saved correctly. Keep asunresolvedfixturetiming/persistence observation.
+Base HEAD3c6a8b6 pushed; corner correction ready for commit. Final30/30 clean
+at `/tmp/os3d-qa08-corner-final-20260910.xcresult`. No runner active. Live exact
+build partial Lock colors/hollow shape, whole Lock, Undo/Redo and gallery reopen
+passed in clone. Native partial Lock point convention matched; native latest
+Undo only reselected edge, did not visibly clear Lock, so this repeat inconclusive.
+Screenshot receipts and SHA256SUMS in report diagonal-matrix; publication queued
+in docs/testing/sketch-parity-publication-pending-2026-09-10.md. Google signed-out
+blocker persists, illustrated466/master38 verified only. ImmutableIPA untouched.
+Next commit/push marker correction, then native center-only Lock + dimension
+resize comparison to establish scope before implementing center selection.
+Native1924 FrontSketch04 contains middle18×12 left-locked rectangle selected;
+clone7715 sketch open, Items panel open,1.913×1.736 left-side-locked rectangle.
+Dirty product/test files and docs belong to this correction; preserve unrelated
+untracked identity/memory. Inventory4passed/0failed/1deviceblocked/51incomplete.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

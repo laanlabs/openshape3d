@@ -1045,12 +1045,22 @@ nonisolated enum SketchPointState: Sendable, Equatable {
 
 nonisolated extension SketchSolverBridge {
 
+    struct PointStateAnalysis {
+        var points: [SketchPointKey: SketchPointState]
+        /// Axis rectangle corners ordered min, bottom-right, max, top-left.
+        var rectangleCorners: [UUID: [SketchPointState]]
+    }
+
     /// Per-point determinacy for every point of every entity in `sketch`, keyed
     /// by (entityID, role). Reuses the SAME build → solve → null-space path as
     /// `entityStates`, but reports at (entity, role) granularity instead of one
     /// bool per entity. Coincident (welded) points share solver variables and
     /// therefore report identical states — desired for showing connected joints.
     static func pointStates(_ sketch: Sketch) -> [SketchPointKey: SketchPointState] {
+        pointStateAnalysis(sketch).points
+    }
+
+    static func pointStateAnalysis(_ sketch: Sketch) -> PointStateAnalysis {
         var out: [SketchPointKey: SketchPointState] = [:]
 
         // Which points an explicit `.fixed` (Lock) constraint pins. A `.whole`
@@ -1090,7 +1100,7 @@ nonisolated extension SketchSolverBridge {
                     out[key] = explicitlyLocked(slot.entityID, slot.role) ? .locked : .constrained
                 }
             }
-            return out
+            return PointStateAnalysis(points: out, rectangleCorners: [:])
         }
 
         let solved = ConstraintSolver.solve(
@@ -1131,6 +1141,18 @@ nonisolated extension SketchSolverBridge {
                 }
             }
         }
-        return out
+        var corners: [UUID: [SketchPointState]] = [:]
+        for case let .rect(id, _, _) in sketch.entities {
+            guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+                  let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { continue }
+            // The off-diagonal corners combine coordinates from two solver
+            // points. Classify those coordinates, not the endpoints as wholes.
+            corners[id] = [[2*a, 2*a+1], [2*b, 2*a+1], [2*b, 2*b+1], [2*a, 2*b+1]].map { vars in
+                if vars.allSatisfy({ sys.fixed.contains($0) }) { return .locked }
+                if vars.allSatisfy({ $0 < determined.count && determined[$0] }) { return .constrained }
+                return .free
+            }
+        }
+        return PointStateAnalysis(points: out, rectangleCorners: corners)
     }
 }

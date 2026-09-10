@@ -8120,6 +8120,7 @@ final class EditorViewModel {
         var id: String
         var world: SIMD3<Float>
         var state: SketchPointState
+        var isRectangleCorner = false
     }
 
     /// Memoized `sketchPointMarkers`, keyed on the document revision and active
@@ -8143,7 +8144,8 @@ final class EditorViewModel {
         if let cache = pointMarkerCache, cache.changeCount == cc, cache.sketchID == sketch.id {
             return cache.markers
         }
-        let states = SketchSolverBridge.pointStates(sketch)
+        let analysis = SketchSolverBridge.pointStateAnalysis(sketch)
+        let states = analysis.points
         var out: [SketchPointMarker] = []
         out.reserveCapacity(states.count)
         for (key, state) in states {
@@ -8154,8 +8156,15 @@ final class EditorViewModel {
             out.append(SketchPointMarker(
                 id: "\(key.entityID):\(key.role.rawValue)",
                 world: SIMD3<Float>(Float(w.x), Float(w.y), Float(w.z)),
-                state: state
+                state: state, isRectangleCorner: analysis.rectangleCorners[key.entityID] != nil
             ))
+        }
+        for case let .rect(id, lo, hi) in sketch.entities {
+            guard let corners = analysis.rectangleCorners[id], corners.count == 4 else { continue }
+            for (index, local) in [(1, SIMD2(hi.x, lo.y)), (3, SIMD2(lo.x, hi.y))] {
+                out.append(SketchPointMarker(id: "\(id):corner\(index)",
+                    world: SIMD3<Float>(sketch.plane.toWorld(local)), state: corners[index], isRectangleCorner: true))
+            }
         }
         pointMarkerCache = (cc, sketch.id, out)
         return out
