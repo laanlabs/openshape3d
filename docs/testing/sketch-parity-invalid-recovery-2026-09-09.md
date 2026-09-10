@@ -149,3 +149,60 @@ screenshots os3d-specific-empty/div/syntax-result inspected. Warning field
 indicator/layout and count limits remain open. Dismissal export now278placements,
 all4 new hashes once and zero prior asset loss, /tmp/os3d-numeric-dismissal-
 publication2.docx. Latest specific-message images pending publication. No runner.
+
+## Selected polygon count continuation — September 9, 23:30 EDT
+
+Native completed pentagon exposes an on-canvas 5 sides readout. Explicit 2
+preserves the pentagon; inspected 3.5 draft commits a triangle at unchanged R15.
+65, 100 and 101 also commit. High-count immediate screenshots are unsettled:
+999 appeared only on a later frame. Do not infer rejection or a native upper
+limit from these early frames. Native high-count limit remains unverified.
+
+Clone completed hexagon only exposes radius; bottom Sides field changes the next
+construction default, not selected geometry. Clicking 3 appended to 6 (63) while
+the existing polygon remained six-sided. Paired screenshots /tmp/os3d-count-
+native-release/editor/two-result/frac-draft/frac-result and clone-release/editor/
+three-result retained.
+
+Selected-polygon side-count control now implemented separately from geometric
+dimensions. Count edits preserve ID/center/radius/rotation, use one sketch-rebuild
+history operation, truncate positive fractions, and do not alter future defaults.
+Polygon radius uses the actual first-vertex direction and plain radius leader.
+Defensive supported count ceiling10000 is NOT a native-parity claim; exact upper
+limit remains open. Serial keypad regression running at
+/tmp/os3d-polygon-count-20260909.xcresult (exec13460); live correction pending.
+
+Initial polygon run8pass/1fail: test used scientific notation1e100, unsupported
+by expression parser, so malformed retention correctly contradicted dismissal
+assertion. Fixture now uses plain10001. No product change for this failure.
+Corrected full keypad rerun exec99811 at /tmp/os3d-polygon-count-final-20260909.xcresult.
+
+Corrected keypad run clean9/9. Live reopened Untitled3 selected polygon now has
+6 sides plus plain radius leader. Explicit2 refused unchanged,3.5->3 preserved
+R1/center/right vertex, toolbarUndo6 andRedo3 captured. Count-anchor on triangle
+initially used circumscribed bound; adjusted to actual odd-polygon opposite edge.
+Serial9unit+polygon/profile UI+circle-dimension UI now running exec6528 at
+/tmp/os3d-polygon-count-ui-20260909.xcresult. No parallel desktop interaction.
+Default transform ring remains a possible mismatch: native evidence was Polygon
+armed, clone was reselected with tool disarmed; compare same state before changing
+that behavior. Polygon warning wording differs; native upper bound remains open.
+Specific diagnostic publication export verified281placements/all3 hashes once
+and no predecessor loss, /tmp/os3d-specific-publication.docx.
+
+Expanded final run passed clean11/11:9keypad unit+polygon/profile UI+circle
+dimension UI. Final live fresh Polygon-armed clone has no transform ring, matching
+native armed state; refined triangle count sits adjacent to actual opposite edge.
+Both retained geometry on gallery reopen: clone3sides/R1; native triangle
+3edges/perimeter77.9423mm (consistent with R15). Native after reopen offers edge
+selection, not restored side-count/radius construction readouts in this sample;
+clone retains count-edit identity. Reopened editing flow is NOT identical.
+Native actual settled256 count also inspected, confirming earlier captures were
+delayed; no high-count limit claim.
+Illustrated diagnosis285placements/all4newhashes/no priorloss verified at
+/tmp/os3d-count-publication.docx. Final triangle/reopen3image addendum pending.
+No runner. No physical device validation/artifact replacement.
+
+Final publication verified: illustrated288placements/all3finalhashes once, no
+predecessor loss (/tmp/os3d-count-final-publication.docx). Master38images, dated
+Numeric and polygon continuation checkpoint heading once and predecessor note
+retained (/tmp/os3d-count-master.docx). QA15/33 remain partial as described.

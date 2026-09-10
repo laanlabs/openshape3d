@@ -1277,3 +1277,21 @@ feedback cleared on edit. Explicit submit retains invalid drafts; click-away
 discards them with a transient warning. Latest combined9/9 and paired live
 click-away/Escape passed. Illustrated274/master38 verified; last dismissal
 addendum pending. Specific parser wording/indicator and full QA33/40 remain open.
+
+## September9 — selected polygon count continuation
+
+Native on-canvas side count edits existing topology; clone only had future-default
+Sides field. Separate count annotation/editor now implemented, preserving
+center/radius/rotation/entity identity and using atomic dependent sketch rebuild.
+Polygon radius leader uses first-vertex direction/plain annotation. Live2 refusal,
+3.5->3 andUndo6/Redo3 passed; odd-polygon count position refined and expanded UI
+run pending. Corrected keypad9/9 after one fixture failure; no overlapping sums.
+Exact native upper limit/system keyboard and same-state control visual audit
+remain open. [Receipt](testing/sketch-parity-invalid-recovery-2026-09-09.md).
+Specific diagnostics publication281/all3hashes/no loss verified; polygon inserts
+await export verification. Immutable05be744 IPA unchanged.
+
+Final count follow-up: clean11/11, refined opposite-edge label live verified,
+paired geometry reopen preserved; native reopens as selected edges whereas clone
+retains polygon count/radius edit identity. Illustrated288/all3finalhashes/no loss
+and master38dated-note export verified. Next system-keyboard matrix.

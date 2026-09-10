@@ -19,7 +19,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
 | QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
-| QA-15 | Polygon | Core - partial, not passed | Pentagon release/radius keypad and profile sampled paired (polygon-release receipt); broader side-count/constraint matrix open. |
+| QA-15 | Polygon | Core - partial, not passed | Release/radius/profile plus Sept9 selected-count2 refusal,3.5→3,Undo/Redo and geometry reopen sampled; reopened edit identity and broader count/constraint matrix open. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
 | QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
@@ -37,7 +37,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-30 | Rectangle sequence | Core — partial, not passed | Center and three-point two-axis edits paired; keyboard/edge matrix open. |
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
-| QA-33 | Invalid numeric input | Core — partial live pass | Paired zero refusal/recovery; malformed drafts retained with yellow diagnostic and valid recovery (Sept9). Negative/divide-by-zero native checked; full paired forms/count limits remain open. |
+| QA-33 | Invalid numeric input | Core — partial live pass | Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; upper limits/system keyboard remain open. |
 | QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc refusal, axis driven translation and persisted side-Lock paired; broader value-lock matrix open. |
 | QA-35 | Constraint rail | Core — partial, not passed | Contextual Unlock expanded rail, retained other locks, Undo/Redo and reopen sampled; compact/full rail matrix open. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
@@ -203,7 +203,7 @@ mm/cm/m/inches; explicit suffix; display-unit change; imperial forms. Issues: DM
 
 ### QA-33 — Invalid numeric input
 
-Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/refusal/recovery and malformed retention corrected; clean9/9 focused checks. Native negative/divide-by-zero captured. Remaining paired forms, empty input and count limits are open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md.
+Empty, malformed, zero/negative size, division by zero, out-of-range count. Issues: DM-10/12. Result: PARTIAL. September9 paired zero/negative, empty/division/syntax retention, valid recovery, click-away/Escape and Undo captured. Parser/keypad clean22/22 at8eb45f9. Selected-polygon count2 refusal and3.5->3 recovery/history live; corrected9/9 after a fixture failure, expanded final11/11. Native high-count frames lagged; exact upper limit and system-keyboard matrix remain open. Evidence: testing/sketch-parity-invalid-recovery-2026-09-09.md.
 
 ### QA-34 — Locked/unlocked value
 

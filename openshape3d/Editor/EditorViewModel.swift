@@ -11470,6 +11470,7 @@ final class EditorViewModel {
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
         var worldDiameterLabelAnchor: SIMD3<Double>? = nil
+        var isPolygonSideCount = false
         var isStandaloneLineLength = false
         var isRectangleSize = false
         var worldRectangleCenter: SIMD3<Double>? = nil
@@ -11488,6 +11489,7 @@ final class EditorViewModel {
         var refs: [ConstraintRef]
         var text: String
         var validationMessage: String? = nil
+        var isPolygonSideCount = false
     }
     var editingDimension: DimensionEdit?
 
@@ -11616,6 +11618,10 @@ final class EditorViewModel {
                   let r = Self.entityRadius(e),
                   let c = localPoint(ConstraintRef(entityID: ref.entityID, role: .center), in: sketch)
             else { return nil }
+            if kind == .radius, case let .polygon(_, _, _, _, angle) = e {
+                let end = c + SIMD2(cos(angle), sin(angle)) * r
+                return ((c + end) / 2, c, end)
+            }
             if kind == .radius, case let .arc(_, _, _, angle, _) = e {
                 let end = c + SIMD2(cos(angle), sin(angle)) * r
                 return ((c + end) / 2, c, end)
@@ -11870,8 +11876,11 @@ final class EditorViewModel {
                 label.worldRectangleCenter = sketch.plane.toWorld((lo + hi) / 2)
             }
             if kind == .radius, let ref = refs.first,
-               case .arc? = sketchEntity(ref.entityID, in: sketch) {
-                label.isArcRadius = true
+               let entity = sketchEntity(ref.entityID, in: sketch) {
+                switch entity {
+                case .arc, .polygon: label.isArcRadius = true
+                default: break
+                }
             }
             if kind == .angle, refs.count == 1,
                case let .arc(_, center, radius, start, end)? =
@@ -11947,6 +11956,22 @@ final class EditorViewModel {
                                 refs: Self.lineLengthRefs(edges[1]))
             }
         }
+        // Side count is a construction property, not a driving radius dimension.
+        // Keep it available even when the polygon already has a saved radius.
+        if selectedSketchEntityIDs.count == 1, !sketchTransformActive,
+           let id = selectedSketchEntityIDs.first,
+           case let .polygon(_, center, radius, sides, rotation)? = sketchEntity(id, in: sketch) {
+            let extent = sides.isMultiple(of: 2) ? radius : radius * cos(.pi / Double(sides))
+            let opposite = center - SIMD2(cos(rotation), sin(rotation)) * extent
+            var count = SketchDimensionLabel(
+                id: "polygon-count-\(id)", sketchID: sketch.id, dimensionID: nil,
+                kind: .radius, refs: [ConstraintRef(entityID: id, role: .whole)],
+                displayValue: Double(sides), text: "\(sides) sides",
+                worldAnchor: sketch.plane.toWorld(opposite),
+                worldStart: sketch.plane.toWorld(center), worldEnd: sketch.plane.toWorld(opposite))
+            count.isPolygonSideCount = true
+            labels.append(count)
+        }
         return labels
     }
 
@@ -11982,9 +12007,10 @@ final class EditorViewModel {
             // Seed in the display unit so what you edit matches what you read.
             // Angles are unitless. `commitDimensionEdit` converts back.
             text: Self.dimensionFieldText(
-                label.kind == .angle
+                label.kind == .angle || label.isPolygonSideCount
                     ? label.displayValue
-                    : AppSettings.shared.unit.display(fromMM: label.displayValue))
+                    : AppSettings.shared.unit.display(fromMM: label.displayValue)),
+            isPolygonSideCount: label.isPolygonSideCount
         )
     }
 
@@ -12023,7 +12049,7 @@ final class EditorViewModel {
     /// The native lock key acts on the current size, not an uncommitted draft.
     func canToggleDimensionLock(_ text: String) -> Bool {
         guard let edit = editingDimension else { return false }
-        return text == edit.text
+        return !edit.isPolygonSideCount && text == edit.text
     }
 
     func toggleDimensionLock(_ text: String) {
@@ -12076,6 +12102,28 @@ final class EditorViewModel {
         // Keep malformed expressions editable; valid out-of-range values dismiss.
         // Paired native 1/0 and 2+ retain the keypad, unlike zero/negative sizes.
         editingDimension = nil
+        if edit.isPolygonSideCount {
+            // Truncate positive fractional counts, matching the sampled native
+            // 3.5 -> 3 edit. Bound before Int conversion/allocation.
+            guard parsed.isFinite, parsed >= 3, parsed < 10_001 else {
+                showNotice("Polygon side count must be between 3 and 10000.")
+                return
+            }
+            guard let id = edit.refs.first?.entityID,
+                  let before = sketchEntity(id, in: sketch),
+                  case let .polygon(_, center, radius, sides, rotation) = before else { return }
+            let count = Int(parsed)
+            guard count != sides else { return }
+            let after = SketchEntity.polygon(id: id, center: center, radius: radius,
+                                            sides: count, rotation: rotation)
+            // Existing solver references address the center/radius, neither of
+            // which changes. Keep dependent profile rebuild in the same undo.
+            session.performWithSketchRebuild(CompositeCommand(title: "Polygon Sides", commands: [
+                UpdateSketchEntityCommand(sketchID: sketchID, before: before, after: after)
+            ]), sketchID: sketchID)
+            session.save()
+            return
+        }
         // A trailing unit is letters, so `identifiers(in:)` reads "20 cm" as the
         // variable `cm` — which made it a "formula", skipped the unit
         // conversion below, and stored nonsense in `formula`. Strip the unit

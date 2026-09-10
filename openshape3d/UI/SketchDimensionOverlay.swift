@@ -199,7 +199,7 @@ struct SketchDimensionOverlay: View {
                 }
                 .fill(Color.primary)
                 .allowsHitTesting(false)
-            } else {
+            } else if !label.isPolygonSideCount {
                 Path { path in
                     path.move(to: start)
                     path.addLine(to: end)
@@ -223,7 +223,15 @@ struct SketchDimensionOverlay: View {
                 Button {
                     viewModel.beginDimensionEdit(label)
                 } label: {
-                    if let arc {
+                    if label.isPolygonSideCount {
+                        Text(label.text)
+                            .font(.system(size: 16))
+                            .monospacedDigit()
+                            .foregroundStyle(Color.primary)
+                            .rotationEffect(.radians(atan2(end.y - start.y, end.x - start.x) - .pi / 2))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    } else if let arc {
                         Text(label.displayValue.formatted(.number.precision(.fractionLength(0...2))) + "°")
                             .font(.system(size: 16))
                             .monospacedDigit()
@@ -282,11 +290,19 @@ struct SketchDimensionOverlay: View {
                 .buttonStyle(.plain)
                 .highPriorityGesture(diameterDrag(label, anchor: diameter?.anchor ?? anchor),
                     including: diameter != nil ? .all : .none)
-                .position(arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
+                .position(label.isPolygonSideCount
+                    ? polygonCountAnchor(start: start, end: end, in: size)
+                    : arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
             }
         }
+    }
+
+    private func polygonCountAnchor(start: CGPoint, end: CGPoint, in size: CGSize) -> CGPoint {
+        let length = max(1, hypot(end.x - start.x, end.y - start.y))
+        return CGPoint(x: min(max(96, end.x + (end.x - start.x) / length * 24), size.width - 96),
+                       y: min(max(140, end.y + (end.y - start.y) / length * 24), size.height - 140))
     }
 
     /// The sampled native radius leader leaves the arc's start endpoint and

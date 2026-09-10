@@ -93,6 +93,56 @@ final class DimensionKeypadCommitTests: XCTestCase {
         return simd_distance(a, b)
     }
 
+    func testPolygonCountEditsPreserveGeometryReferencesAndHistory() throws {
+        let vm = try makeViewModel()
+        AppSettings.shared.unit = .inches
+        let id = UUID()
+        let original = SketchEntity.polygon(id: id, center: SIMD2(7, -3), radius: 15,
+                                           sides: 5, rotation: 0.4)
+        let sketch = Sketch(plane: .ground, entities: [original])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        func openCount() throws {
+            vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first { $0.isPolygonSideCount }))
+        }
+        try openCount()
+        XCTAssertEqual(vm.editingDimension?.text, "5", "Count must not convert with display units")
+        XCTAssertFalse(vm.canToggleDimensionLock("5"))
+        vm.commitDimensionEdit("2")
+        XCTAssertEqual(vm.activeSketch?.entities, [original])
+        try openCount()
+        vm.commitDimensionEdit("1/0")
+        XCTAssertNotNil(vm.editingDimension?.validationMessage)
+        vm.commitDimensionEdit("3.5")
+        let triangle = SketchEntity.polygon(id: id, center: SIMD2(7, -3), radius: 15,
+                                           sides: 3, rotation: 0.4)
+        XCTAssertEqual(vm.activeSketch?.entities, [triangle])
+        XCTAssertEqual(vm.activeSketch?.dimensions.count, 0, "Count is not a radius dimension")
+        XCTAssertEqual(vm.polygonSides, 6, "Editing an existing polygon must not change future defaults")
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [original])
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch?.entities, [triangle])
+        vm.selectedSketchEntityIDs = [id]
+        try openCount()
+        vm.commitDimensionEdit("65")
+        guard case let .polygon(resultID, center, radius, sides, rotation)? = vm.activeSketch?.entities.first else {
+            return XCTFail("Expected polygon")
+        }
+        XCTAssertEqual(resultID, id)
+        XCTAssertEqual(center, SIMD2(7, -3))
+        XCTAssertEqual(radius, 15)
+        XCTAssertEqual(sides, 65)
+        XCTAssertEqual(rotation, 0.4)
+        try openCount()
+        vm.commitDimensionEdit("10001")
+        XCTAssertEqual(vm.activeSketch?.entities.first?.id, id)
+        XCTAssertNil(vm.editingDimension)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, [triangle], "Invalid counts add no history")
+    }
+
     // MARK: Unit keys
 
     /// The evaluator DROPS a trailing unit before parsing, so without explicit

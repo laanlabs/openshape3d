@@ -1,36 +1,35 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 9, 23:09 EDT
+## Active continuation — September 9, 23:45 EDT
 
-Refusal/lifecycle revision5a44568 and field-warning/click-away d0205a5 pushed. Immutable05be744 IPA unchanged.
-Parser-diagnostic regression exec51509 completed clean22/22:
-/tmp/os3d-numeric-diagnostics-20260909.xcresult. No runner. Exclusive desktop ownership; unrelated identity files and
-memory/ preserved. Read-only paired iPad eligibility/profile match verified; no
-installation or physical-input validation.
+HEAD8eb45f9 pushed; selected polygon count/radius-leader correction and documents
+are ready for checkpoint commit; final publication export verified.
+Initial polygon8/1 failure was a fixture scientific-notation expectation; corrected
+9/9, then expanded final clean11/11 at /tmp/os3d-polygon-count-ui-20260909.xcresult.
+No test/build runner. This session exclusively owns desktop/build. Preserved
+unrelated identity files/memory. Immutable05be744 IPA unchanged; no device install.
 
-Latest combined run /tmp/os3d-numeric-invalid-away-20260909.xcresult clean9/9
-(8keypad unit + strengthened click-away/tool-switch UI). Earlier incremental
-runs each clean8/8 or9/9; do not sum overlapping tests. Live native/clone zero
-refusal, valid recovery/Undo, malformed retention, yellow warning/clear-on-edit,
-invalid blank-click dismissal and Escape preservation captured. Warning exact
-parser wording/field indicator remain different. QA33/40 remain partial.
+Live count2 refuses unchanged,3.5->3 preserves center/radius,Undo6/Redo3. Final
+triangle label follows actual opposite edge. Fresh Polygon-armed clone has no
+ring, matching native armed state. Reselected/disarmed ring not compared yet.
+Paired gallery reopen retains geometry: clone3/R1, native3edges/perimeter77.9423
+consistent withR15; native construction count/radius readouts do not return in
+this sample, so reopened editing is not identical. Native256 and999 settle late;
+no high-count boundary conclusion. Defensive clone ceiling10000 is a known
+implementation limit, not native-observed.
 
-Illustrated274placements/all4 final diagnostic hashes verified; master38images
-with continuation note verified. Last click-away/Escape addendum export-verified278/all4hashes; specific
-message addendum pending.
-Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md; evidence under
-reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery.
-
-Next: publish specific empty/division/syntax diagnostics (live passed), then
-polygon count limits and system-keyboard matrix.
-Paired clone negative/division/empty lifecycle now captured; specific generic
-warning gap confirmed. Parser-backed messages implemented/test-running. Finish
-last click-away/Escape export verification, then count/system-keyboard matrix.
-Native1924 in rotated Top Sketch02 with29.0517mm line selected, keypad closed.
-Clone6492 in Untitled2 ground sketch2mm line selected, keypad closed.
-Peekaboo see works; image route fails web-focus mutation-outcome error. Use
-foreground GLOBAL clicks after app switch; select correct simulator via exposed
-title190,55 (5147 is old overlapping simulator). Never duplicate workers.
+Illustrated288 placements/all3 final hashes/no predecessor loss verified at
+/tmp/os3d-count-final-publication.docx. Master38 images/new dated heading once
+and prior note retained at /tmp/os3d-count-master.docx.
+Receipt docs/testing/sketch-parity-invalid-recovery-2026-09-09.md; local
+reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/.
+Next commit/push correction, then paired system-keyboard
+entry/recovery/dismissal matrix. Remaining upper count boundary/reselected-control
+comparison and broader42partial11deferred acceptance. Counts2passed/0failed/
+1device-blocked/53incomplete; not completed parity.
+Native1924 reopened Sketch02, normalTop, selected triangle3edges. Clone6492
+Untitled2 reopened triangle3/R1 selected; old5147 must not be used.
+Peekaboo see healthy; use foreground global coords after correct window focus.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
