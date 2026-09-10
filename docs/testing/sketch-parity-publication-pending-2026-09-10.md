@@ -1,5 +1,23 @@
 # Pending report publication — September 10, 2026
 
+## Center release, leaders, precision and sizing recovered
+
+Release582/all5hashes, leaders590/all8hashes and precision598/all8hashes now
+export-verified with predecessor image/text retention. Master38 recovery notes
+verified. Exports `/tmp/os3d-qa09-backlog-{release,leaders,precision}-published.docx`
+and leaders/precision-master.docx. Historicalfixture/rounding/color caveats
+preserved. Center release/leader/precision/noop/center-Lock queued results below
+now have representative illustrated evidence; full attempts remain local.
+Rotation/migration recovery was already published472 onward, not reinserted.
+
+## Historical intermediate release/leader publication state
+
+Release export `/tmp/os3d-qa09-backlog-release-published.docx` verified582,
+all5hashesonce/no predecessorloss from577. Initial581 delayedlastimage resolved
+byexportonly. Eight leader/quadrant/halfsize images then insertedonce; export
+`/tmp/os3d-qa09-backlog-leaders-published.docx` andmaster export inprogress,
+verificationpending. Historicalprecision caveat preserved; no newtestclaim.
+
 ## 18:59 partial-edge and side-glyph evidence recovered
 
 Seven representative before/after/native/reopen images verified at577placements,

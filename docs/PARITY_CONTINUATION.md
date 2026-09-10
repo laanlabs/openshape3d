@@ -1,19 +1,22 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, earlier evidence recovery
+## Active continuation — September 10, consolidated rectangle gate
 
-HEADa24ef1b pushed: sidecommit/history clean14/14 and pairedlive/reopen,
-illustrated567/master38 verified. No runner; soleowner. Native9×4frontallItems,
-clone3×0.5selectedrightedge afterreopen. Now recovering earlier publication
-backlog: halo3missing images inserted, fourthalreadyexisted. Export570/all4
-hashesonce/master38note/no predecessorloss verified; initial569 delayedimage
-resolved byexportonly, no duplicateinsert. Pendingqueue file updated.
-Partial-edge/glyph7representativeimages nowverified577/all7hashes/master38,
-no predecessorloss; oldnativeunselectedcapture closes allItemsvisibility caveat.
-Exactnext QA09 release/leaders/precision/centerLock backlog: inspecthash
-presence against577 beforeinserting; thenfiniteQA08/09closurecriteria. No new
-live/testclaim fromrecoveredimages. Inventory4passed/0failed/1deviceblocked/
-51incomplete. PreserveIPA05be744/unrelatedfiles/tabs/watchdog. No merge/install.
+HEADffe2e59 pushed; publication/checkpoint docs dirty. No newproductchanges.
+Final reportrecovery: release582/all5, leaders590/all8, precision598/all8 hashes,
+master38notes andno predecessorloss verified. Historicalresults distinctlydated;
+fullaudit/failures retained. Prior a24ef1b sidecommit/history14/14+pairedlive.
+Serialexec64632 owns simulator: `/tmp/os3d-qa0809-consolidated-20260910.log`
+and.xcresult. Runs RectangleConstruction, AnnotationVisibility, DimensionKeypad,
+NumericKeypadText and full RectangleWorkflowUI. Exactnextcollect actualresult,
+retainfailures; closureaudit nowat testing/sketch-parity-rectangle-closure-audit-2026-09-10.md.
+Exactlive next axisprimitive selectedside→numericcommit→UndoRedo→blank/reselect:
+oldpairedreceipt saysnativeclears/cloneretains; recentfix migratedonly.
+Do notgeneralizeorclosecasesbeforefreshcomparison/fix. Thenreport/commit/push. Do notclaimcoverage from
+publicationalone. Latestnative9×4frontallItems, pretestclone3×0.5saved; UItests
+willreplaceclonefixture. IPA05be744 untouched. Inventory4passed/0failed/
+1deviceblocked/51incomplete untilclosurecriteria substantiated. Soleowner,
+no duplicatewatchdog/worker, merge/install/hostrestart/securitychanges.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
