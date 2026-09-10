@@ -61,4 +61,43 @@ final class LineChainUITests: XCTestCase {
         XCTAssertFalse(undo.isEnabled,
                        "A tapped-and-closed square is exactly four chained line segments")
     }
+    func testGuideOnlyDrawingAfterSettingsDismissal() {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundLineSketch(app, window)
+        app.buttons["ConstraintRailSettings"].tap()
+        func setSwitch(_ id: String, on: Bool) {
+            let control = app.switches[id].firstMatch
+            for _ in 0..<5 where !control.isHittable { app.swipeUp() }
+            XCTAssertTrue(control.isHittable, id)
+            if (control.value as? String == "1") != on {
+                control.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            }
+            XCTAssertEqual(control.value as? String, on ? "1" : "0", id)
+        }
+        setSwitch("SnapToGridToggle", on: false)
+        setSwitch("SnapToSketchGuidelinesToggle", on: true)
+        setSwitch("SnapToSketchGuidepointsToggle", on: false)
+        setSwitch("SnapToFaceGuidepointsToggle", on: false)
+        setSwitch("AutoConstrainToggle", on: false)
+        app.buttons["ConstraintSettingsDone"].tap()
+        XCTAssertFalse(app.buttons["ConstraintSettingsDone"].exists)
+        let a = window.coordinate(withNormalizedOffset: CGVector(dx: 0.36, dy: 0.43))
+        let b = window.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.432))
+        a.press(forDuration: 0.2, thenDragTo: b)
+        let undo = app.buttons["UndoButton"]
+        XCTAssertTrue(undo.isEnabled, "Guide-only drag must create a real undoable segment")
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format:
+            "identifier == 'ConstraintGlyph' AND label == 'H'")).firstMatch.exists)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "guide-only-after-settings"; shot.lifetime = .keepAlways; add(shot)
+        undo.tap()
+        XCTAssertFalse(undo.isEnabled, "One drag must create exactly one history entry")
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(undo.isEnabled)
+    }
+
 }

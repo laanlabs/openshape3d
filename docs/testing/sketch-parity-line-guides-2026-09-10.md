@@ -73,3 +73,62 @@ Current exact-build on/on follow-up underway; secondscale remains open.
 Final exact-build GuideLinesON/AutoON inspected settings then170px×2px drag
 snapped horizontal2.103mm withH, matching native prior on/on. Screenshot
 os3d-qa07-final-on-on.png is local-only follow-up. No further product changes.
+
+## Follow-up angle matrix (after983e3f7)
+
+Native explicit target/synthOnly scroll returned success via local runtime, and
+--no-remote scroll also returned success, but inspected geometry did not zoom.
+Do not attribute a zoom to those commands. After View>Front/re-entry, however,
+200px now spans26.6825mm versus earlier20.8168mm, establishing a changed scale.
+Guide-on/Auto-off200×10 (2.86degrees) remained sloped26.7158mm;200×-2
+(0.57degrees) snapped horizontal26.6825mm withoutglyph. Local follow-up images
+os3d-qa07-native-above.png and-native-below-second.png. Clone secondscale pending.
+
+Clone Option-drag reported success but showed no pinch; subsequent canvas drags
+(upper/lower, local/bridge, fresh Line selection) produced no geometry while
+toolbar clicks worked. Gallery reopen fit the saved line much larger, but plane
+canvas clicks remained ignored. Standalone press option was rejected as unknown
+key. No app failure/root cause asserted. Saved line retained; app-only relaunch
+used for recovery, not Mac/simulator restart. No pending geometry discarded.
+
+Settings-dismissal UI diagnostic passed1/1 at
+/tmp/os3d-line-guide-settings-ui-20260910.xcresult: guide-only drag createsone
+history entry, noH, Undo removes andRedo restores. Subsequent fresh Untitled2
+live canvas still showed no response to taps/drags, though plane selection and
+toolbar work. Explicit Simulator I/O>Input>Send Pointer to Device didnot visibly
+restore drawing. Rootcause unproven; no host permission change requested.
+Independent drag-path integration matrix now running withthe UI diagnostic,
+exec37600 /tmp/os3d-line-guide-drag-followup-20260910.xcresult. Geometry scales
+0.01/1.0 are automated model scales, not live zoom evidence.
+
+Drag integration + Settings UI follow-up completed clean3/3 at
+/tmp/os3d-line-guide-drag-followup-20260910.xcresult (no skipped/failures).
+No runner remains. Parent subsequently authorized restarting only affected
+Simulator/app/input bridge. Scoped shutdown/boot of os3d-unit UUID6490492B
+started; Shapr3D/report tabs/other simulators and immutableIPA untouched.
+
+## Recovery and changed-scale verification
+
+Scoped os3d-unit shutdown/boot finished successfully; new Simulator window7715
+at72,30,683x940, app33148. Fresh live170x9 drag now visibly creates sloped
+2.112mm. Guide-on/Auto-on170x-2 snaps2.103mm/H; inspected AutoOFF then settled
+170x-2 repeats snaps2.1mm/noH (first immediate-dismissal drag excluded). Gallery
+reopen retains3lines; Items icon re-enters original plane at saved scale. Fit
+control(global381148) changes scale;170x9 staysraw1.164mm and170x-2 snaps
+1.161mm/noH. Native changed scale26.6825mm/200px both above/below already captured.
+Illustrated440placements/438media/all6newhashesonce/no loss vs434 andmaster38
+recovery note verified via /tmp/os3d-line-guides-recovery.docx and-recovery-master.docx.
+No new product code; initial35 plus focused1 plus expanded3 are separate cleanruns.
+
+## Tighter boundary diagnosis — not closed
+
+Native GuideLinesON/AutoOFF:200x4 snaps26.6825,200x6 staysraw26.6945.
+100x4 also snaps13.3412 (2.29degrees), but100x5 staysraw13.3579. Vertical4x100
+snapsvertical. Longer300x6 staysraw, but endpoint also acquired another guide
+(~15pxshorter), so do not use its length as clean inference evidence.
+Clone200x4 staysraw1.364mm, and short60x2 staysraw0.411mm. At~0.596imagepx per
+iPadpoint this is~100x3.35logicalpoints, whereas native100x4pointssnaps. Native
+AutoON100x4 snaps and addsaxisglyph13.3412. This supports screen-space acquisition
+near4points, independent of existing angular saved-inference setting; requires
+focused implementation/verification. Do not merely increase1degree default.
+Boundary images currently local-only, not included in440publication.

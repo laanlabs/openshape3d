@@ -90,7 +90,7 @@ Enter, Escape once/twice, Backspace, double-tap, tool switch. Issues: SK-09. Res
 
 ### QA-07 — Line raw aim
 
-Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-06; DM-14. Result: NOT RUN. Evidence/owner: pending.
+Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-06; DM-14. Result: PARTIAL — independent guide acquisition corrected; paired raw/guide-only/on-on cases and history/reopen verified,35/35. Native and clone second-scale above/below sampled; tighter short-line boundary exposes screen-space versus angular acquisition gap. Evidence: testing/sketch-parity-line-guides-2026-09-10.md.
 
 ### QA-08 — Diagonal rectangle
 

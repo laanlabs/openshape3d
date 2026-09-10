@@ -83,4 +83,58 @@ final class LineGuideWorkflowTests: XCTestCase {
             }
         }
     }
+    func testDragPreviewCommitAtBothSidesOfGuideThreshold() throws {
+        let settings = AppSettings.shared
+        let old = (settings.snapToGrid, settings.snapToSketchGuidepoints,
+                   settings.snapToFaceGuidepoints, settings.snapToSketchGuidelines)
+        defer {
+            settings.snapToGrid = old.0
+            settings.snapToSketchGuidepoints = old.1
+            settings.snapToFaceGuidepoints = old.2
+            settings.snapToSketchGuidelines = old.3
+        }
+        settings.snapToGrid = false
+        settings.snapToSketchGuidepoints = false
+        settings.snapToFaceGuidepoints = false
+        for guides in [false, true] {
+            settings.snapToSketchGuidelines = guides
+            for auto in [false, true] {
+                for scale in [0.01, 1.0] {
+                    for rise in [-5.0, -1.0, 1.0, 5.0] {
+                        let vm = try makeViewModel()
+                        startLine(vm)
+                        vm.autoConstrainSettings.enabled = auto
+                        let a = SIMD2<Double>(10, 10) * scale
+                        let b = a + SIMD2<Double>(100, rise) * scale
+                        let plane = vm.activeSketch!.plane
+                        func ray(_ p: SIMD2<Double>) -> Ray {
+                            Ray(origin: SIMD3<Float>(plane.toWorld(p) + plane.normal * 10),
+                                direction: SIMD3<Float>(-plane.normal))
+                        }
+                        XCTAssertTrue(vm.beginSketchStroke(ray: ray(a)))
+                        vm.updateSketchStroke(ray: ray(b))
+                        let preview = try XCTUnwrap(vm.pendingEntity)
+                        guard case let .line(_, pa, pb) = preview else { return XCTFail() }
+                        let snaps = guides && abs(rise) == 1
+                        XCTAssertEqual(pa.y, a.y, accuracy: 1e-5)
+                        XCTAssertEqual(pb.y, snaps ? a.y : b.y, accuracy: 1e-5)
+                        vm.endSketchStroke(ray: ray(b))
+                        let sketch = try XCTUnwrap(vm.activeSketch)
+                        XCTAssertEqual(sketch.entities.count, 1)
+                        guard case let .line(_, ca, cb) = sketch.entities[0] else { return XCTFail() }
+                        XCTAssertEqual(ca.y, pa.y, accuracy: 1e-5)
+                        XCTAssertEqual(cb.y, pb.y, accuracy: 1e-5)
+                        XCTAssertEqual(sketch.constraints.filter { $0.kind == .horizontal }.count,
+                                       snaps && auto ? 1 : 0)
+                        XCTAssertTrue(vm.activeGuides.isEmpty)
+                        vm.undo()
+                        XCTAssertTrue(vm.activeSketch!.entities.isEmpty)
+                        vm.redo()
+                        XCTAssertEqual(vm.activeSketch!.entities, sketch.entities)
+                    }
+                }
+            }
+        }
+    }
+
 }

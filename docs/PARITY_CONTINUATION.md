@@ -1,30 +1,27 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, QA-07 directional correction verified
+## Active continuation — September 10, QA-07 tighter guide boundary
 
-Baseline e832350 pushed; directional correction ready for commit. Own changes
-AppSettings, SnappingSettingsSection, AutoConstraintEngine, EditorViewModel,
-AppSettingsTests, LineGuideAcquisitionTests, LineGuideWorkflowTests, ledger,
-matrix, receipt/checkpoint. Unrelated identity/memory untouched. No runner.
-Final combined35/35 clean at /tmp/os3d-line-guides-final-20260910.xcresult.
-Initial33+2 also clean. Paired off/on raw aim and on/off guide-only snap verified,
-UndoRedo and gallery reopen both apps. Finalbinary on/on now snaps/addsH2.103mm,
-matching native prior sample. Cleanup hover test is automated-only.
-Illustrated434 placements/432media/all5 corrected hashes/no predecessor loss;
-master38 dated note verified. Export paths /tmp/os3d-line-guides-final.docx and
-/tmp/os3d-line-guides-master.docx. On/on follow-up image currently local-only.
-Native1924 model-mode Front after reopen; GuideLineson/Autooff. Clone6492 Top
-Linearmed, one2.103mm horizontal H-constrained line, guideson/autoon and all
-point/grid acquisitionoff. Finalbinary launched25964. App switch fixed explicit
-coordinate-click focus rejection; no input failure inferred as product defect.
-Exact next: commit/push verified correction, continue QA07 second-scale/raw-angle
-checks using supported zoom route. Scroll CLI returned foreground-required error
-(no foreground flag), not app failure. Switch thumb drags are reliable; inspect
-settings after every change. No runner/duplicate desktop worker.
-Receipt testing/sketch-parity-line-guides-2026-09-10.md; local line-guides hashes.
-QA06 released Return/doubleclick no-op sampled; pending hover remains unresolved.
-Inventory3passed/0failed/1deviceblocked/52incomplete; IPA05be744 unchanged.
-No install/merge/restart/security changes/duplicate watchdog.
+HEAD983e3f7 pushed; follow-up tests/docs ready for checkpoint commit. Product
+unchanged. Clean35/35 then SettingsUI1/1 and expanded drag/UI3/3 separate runs.
+No runner. Scoped os3d-unit reboot authorized by parent restored live canvas;
+only affected device rebooted. Shapr3D/reports/other sims/IPA preserved.
+Native and clone changed-scale above/below samples passed. Illustrated440/438
+media/all6hashes/no loss; master38 recovery note exportverified.
+Tighter boundary confirms next gap: native100x4 and200x4 snap,100x5 and200x6
+remainraw;4x100snapsvertical. AutoON100x4 also savesaxisglyph. Clone60x2
+(~100x3.35UIKitpoints) and200x4 stayraw due1degree rule. Native supports screen
+space~4point acquisition, not simply largerangle. Crowdedlong300x6 sample also
+acquired otherguideendpoint, so length notclean. Next implement narrowly scoped
+screen-space H/V acquisition, persistent relation follows acquiredguide with
+AutoON, preserve other saved/grid/point behavior; focused tests + pairedrepeat.
+Native1924 FrontLinearmed GuideON/AutoON, manytestlines; clone7715 at72,30
+TopLinearmed GuideON/AutoOFF with7lines onsecondscale, lastshort0.411mm.
+Boundary captures local-only. Receipt testing/sketch-parity-line-guides-2026-09-10.md.
+Own follow-updirty LineGuideWorkflowTests,LineChainUITests,matrix,receipt/checkpoint;
+unrelated identity/memory untouched. Inventory3passed/0failed/1deviceblocked/
+52incomplete; immutableIPA05be744 unchanged. No merge/deviceinstall/Macrestart/
+securitychanges/duplicateworker/watchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 
