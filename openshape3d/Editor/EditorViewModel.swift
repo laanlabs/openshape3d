@@ -11777,6 +11777,7 @@ final class EditorViewModel {
         case "mm": .millimeters
         case "cm": .centimeters
         case "m": .meters
+        case "in": .inches
         default: nil
         }
     }

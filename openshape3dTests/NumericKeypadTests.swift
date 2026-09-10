@@ -19,6 +19,8 @@ final class NumericKeypadTextTests: XCTestCase {
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 m"), "m")
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "20 cm"), "cm")
         XCTAssertEqual(NumericKeypad.trailingUnit(in: "45 deg"), "deg")
+        XCTAssertEqual(NumericKeypad.trailingUnit(in: "0.05 in"), "in")
+        XCTAssertNil(NumericKeypad.trailingUnit(in: "pin"))
         XCTAssertNil(NumericKeypad.trailingUnit(in: "20"))
         XCTAssertNil(NumericKeypad.trailingUnit(in: "25.4/2"))
     }
@@ -27,6 +29,7 @@ final class NumericKeypadTextTests: XCTestCase {
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "mm"), .millimeters)
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "cm"), .centimeters)
         XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "m"), .meters)
+        XCTAssertEqual(EditorViewModel.lengthUnit(forSuffix: "in"), .inches)
         // deg is an angle, not a length — it must not scale a distance.
         XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: "deg"))
         XCTAssertNil(EditorViewModel.lengthUnit(forSuffix: nil))
@@ -291,6 +294,27 @@ final class DimensionKeypadCommitTests: XCTestCase {
         vm.commitDimensionEdit("20 cm")
         XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 200, accuracy: 1e-6,
                        "20 cm is 200 mm, whatever the document is displaying")
+    }
+
+    func testExplicitInchesConvertAndRetainSourceWithoutVariableFormula() throws {
+        for displayUnit in [DisplayUnit.millimeters, .centimeters] {
+            let vm = try makeViewModel()
+            AppSettings.shared.unit = displayUnit
+            let (original, id) = lineReadyToDimension(vm)
+            vm.commitDimensionEdit("0.05 in")
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.27, accuracy: 1e-6)
+            let dimension = try XCTUnwrap(vm.activeSketch?.dimensions.first)
+            XCTAssertNil(dimension.formula)
+            XCTAssertEqual(dimension.displayExpression, "0.05 in")
+            vm.selectedSketchEntityIDs = [id]
+            vm.beginDimensionForSelection()
+            XCTAssertEqual(vm.editingDimension?.text, "0.05 in")
+            vm.session.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, original.entities)
+            XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
+            vm.session.redo()
+            XCTAssertEqual(try XCTUnwrap(length(vm, original.id)), 1.27, accuracy: 1e-6)
+        }
     }
 
     func testWithoutASuffixTheDisplayUnitStillApplies() throws {

@@ -1408,3 +1408,11 @@ badges differed from native plain text; removed material and aligned font with
 completed dimensions. Three serial builds passed and final pending45degree live
 repeat passed. No new automated-test or physical-iPad claim; broader placement and
 scale differences remain. Receipt: testing/sketch-parity-annotation-contrast-2026-09-10.md.
+
+## September 10 — explicit inch conversion (QA31 partial)
+
+Native1in→25.4mm; clone0.05in silently became0.05mm. Keyboard-only suffix mapping
+now converts to1.27mm and retains source rather than a spurious variableformula.
+Clean33/33, live corrected conversion, paired source/history and clonegallery
+reopen verified. Feet/quote/mixedimperial remain open. Illustrated357/all4 hashes
+and master38 verified. Receipt testing/sketch-parity-imperial-unit-2026-09-10.md.

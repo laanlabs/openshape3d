@@ -1,23 +1,20 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, annotation contrast verified
+## Active continuation — September 10, explicit inches verified
 
-Baseline `1d28849`; contrast changes ready to commit. Three serial builds passed;
-no runner remains. Exact final simulator app installed/relaunched; saved completed
-rectangle/circle/line/arc retained. Selected arc and isolated line plus paired
-circle/rectangle release use black ink on the fixed light canvas. Pending arc now
-plain black 16pt text rather than dark small badges; final 45-degree live repeat
-inspected. Presentation-only: no new automated-test claim. Different native and
-simulator scales/placements remain explicit, not complete visual equivalence.
-Receipt docs/testing/sketch-parity-annotation-contrast-2026-09-10.md.
-Illustrated353/all6 hashes once/no predecessor loss and master38 new/prior notes
-export-verified. First stale347 export retained; retry without duplicate inserts.
-Next commit/push scoped product/docs, then continue remaining numeric cases from
-QA33/40 criteria. Native1924 and clone6492 each have pending45degree arc; cancel
-before numeric work. No runner. Sole desktop owner remains this session.
-Unrelated identity/memory files and stalled tabs preserved. Immutable05be744 IPA
-unchanged. Counts2passed/0failed/1deviceblocked/53incomplete. No physical install,
-merge, restart/security changes, duplicate workers or watchdogs.
+HEAD ef27d62; inch fix ready to commit. Dirty NumericKeypad.swift,
+EditorViewModel.swift, NumericKeypadTests.swift plus scoped docs/acceptance matrix.
+Clean33/33 /tmp/os3d-imperial-unit-20260910.xcresult, no runner. Live corrected
+0.05in→1.27mm, centerfixed, source/f(x), cloneUndoRedo andgalleryreopen pass.
+Native1in→25.4mm/source andCmdZ/CmdShiftZ pass; first arrow clicks were viewrotation,
+excluded. Receipt docs/testing/sketch-parity-imperial-unit-2026-09-10.md.
+Illustrated357/all4hashes/no predecessor loss; master38 new/priornotes verified.
+Next commit/push, then native quote notation versus clone (same circles, safe sizes)
+and other remaining unit/keyboard criteria. Native1924field1in open on25.4mmcircle;
+clone6492keypad0.05in open on1.27mmcircle. No runner. Preserve unrelated identity/
+memory and stalledtabs. Immutable05be744IPA unchanged; no physicalinstall/merge/
+restart/securitychanges/duplicateworkers. Counts2passed/0failed/1deviceblocked/
+53incomplete. Upperpolygonbound andfeet/mixedimperial remain open.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

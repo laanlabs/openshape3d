@@ -233,6 +233,14 @@ Under/fully defined, lock point versus entity, refusal and attribution. Issues: 
 
 Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12; DM-12. Result: PARTIAL (historical NOT RUN superseded). Prior tool/blank/Escape coverage in ledger. Sept10 same-dimension keyboard/keypad preference, seed replacement and live Escape captured paired; explicit-commit lifecycle11/11. Synthetic XCTest Escape discrepancy retained. Full rotation/pan/compact/device-input matrix remains open. Evidence: testing/sketch-parity-keyboard-preference-2026-09-10.md.
 
+September10 supplement: `1d28849` fixes software-keyboard occlusion with clean2/2
+UI tests asserting field/commit above actual keyboard. Live portrait invalid draft,
+landscape recovery/commit and saved-source reopen verified. Native Mac keyboard-only
+field remains visible; no native-iPad equivalence claim. `ef27d62` corrects dark-UI
+annotation contrast and pending material/font; three builds and live paired style
+checks, not new automated tests. Illustrated353/master38 verified. Pan/compact and
+physical routes remain open, so QA40 is not closed.
+
 ### QA-41 — Trim primitives
 
 Line/circle/arc/rect/polygon, boundary versus whole deletion. Issues: ED-03/04. Result: NOT RUN. Evidence/owner: pending.

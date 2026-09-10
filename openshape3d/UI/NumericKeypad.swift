@@ -226,8 +226,14 @@ struct NumericKeypad: View {
     static func trailingUnit(in text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         // Longest first so "mm" is never mistaken for a trailing "m".
-        return units.sorted { $0.count > $1.count }
-            .first { trimmed.hasSuffix($0) }
+        // Keyboard-only unit tokens need not add buttons to the compact pad.
+        return (units + ["in"]).sorted { $0.count > $1.count }
+            .first { token in
+                guard trimmed.hasSuffix(token) else { return false }
+                let body = trimmed.dropLast(token.count)
+                // Do not mistake a variable such as `pin` for an inch suffix.
+                return body.last.map { !$0.isLetter && $0 != "_" } ?? false
+            }
     }
 }
 
