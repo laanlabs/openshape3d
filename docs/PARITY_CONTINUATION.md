@@ -885,3 +885,18 @@ finite desktop recipe; broader constraint/transform/device cases remain open.
 Inventory advances to 14/0/1/41. No runner owns the simulator. Exact next action:
 commit/push this bounded closure, then continue the next finite incomplete case.
 Immutable IPA unchanged.
+
+## September 11 13:57 — QA-35 finite closure ready
+
+Current pushed HEAD is `18be00f`. The QA-35 initial combined run passed both rail
+UI workflows but found three saved-annotation fixtures inheriting persisted
+Always Show state. Those fixtures now save/set/restore the prerequisite. The
+corrected one-owner run is clean 30/30 at
+`/tmp/os3d-qa35-constraint-rail-corrected-20260911.xcresult`: 28 model cases and
+2 portrait/landscape rail workflows.
+
+Retained paired contextual Lock/Unlock, history and reopen evidence closes the
+finite rail recipe; constraint solve/conflict breadth remains QA-36/39. Inventory
+advances to 15/0/1/40. No runner owns the simulator. Exact next action: commit
+and push the fixture/closure docs, then start QA-36's finite constraint-type
+matrix. Immutable IPA unchanged.

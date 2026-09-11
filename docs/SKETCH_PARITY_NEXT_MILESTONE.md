@@ -705,3 +705,13 @@ and verifies draft rejection plus coherent history. Two stale UI-fixture failure
 caused by intentional selection cleanup are retained; no product source changed.
 QA-34 passes only for its finite desktop recipe. Inventory advances to
 14 passed / 0 failed / 1 device-blocked / 41 incomplete.
+
+## September 11 — QA-35 finite closure
+
+The adaptive availability matrix and portrait/landscape rail workflows pass a
+clean one-owner 30/30 current-tree gate. Retained paired contextual Lock/Unlock,
+other-lock preservation, history and reopen evidence supplies the live rail
+comparison. Three annotation-dependent test fixtures now explicitly control
+their saved visibility prerequisite; no product source changed. QA-35 passes for
+its finite desktop rail recipe, while solve/conflict semantics remain QA-36/39.
+Inventory advances to 15/0/1/40.

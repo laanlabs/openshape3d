@@ -17,6 +17,9 @@ import simd
 final class ConstraintApplyTests: XCTestCase {
 
     func testUnchangedExpressionAcceptPreservesGeometryAndUndoStep() throws {
+        let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
+        AppSettings.shared.alwaysShowDimensions = true
+        defer { AppSettings.shared.alwaysShowDimensions = priorAlwaysShow }
         let vm = try makeViewModel(), id = UUID()
         let entity = SketchEntity.circle(id: id, center: SIMD2(3, 4), radius: 2)
         let sketch = openSketch(vm, entities: [entity])
@@ -468,6 +471,9 @@ final class ConstraintApplyTests: XCTestCase {
     }
 
     func testDiameterLabelPlacementTransientThenSavedUndoableWithoutGeometryChange() throws {
+        let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
+        AppSettings.shared.alwaysShowDimensions = true
+        defer { AppSettings.shared.alwaysShowDimensions = priorAlwaysShow }
         let vm = try makeViewModel(), id = UUID()
         let entity = SketchEntity.circle(id: id, center: SIMD2(3, 4), radius: 2)
         let sketch = openSketch(vm, entities: [entity])
@@ -514,6 +520,9 @@ final class ConstraintApplyTests: XCTestCase {
     }
 
     func testCircularTransformHidesTemporaryReadoutsButKeepsDrivenDimensions() throws {
+        let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
+        AppSettings.shared.alwaysShowDimensions = true
+        defer { AppSettings.shared.alwaysShowDimensions = priorAlwaysShow }
         for isArc in [false, true] {
             let vm = try makeViewModel(), id = UUID()
             let entity: SketchEntity = isArc

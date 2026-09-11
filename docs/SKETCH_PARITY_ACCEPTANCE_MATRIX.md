@@ -39,7 +39,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; upper limits/system keyboard remain open. |
 | QA-34 | Locked/unlocked value | Core — PASSED (September 11 finite recipe) | Locked versus one-time commit, rejected draft, direct Unlock, free resize, exact history and saved reopen are paired/current-tree verified. Final one-owner gate clean 29/29. Broader constraints/transforms/device remain separate cases. |
-| QA-35 | Constraint rail | Core — partial, not passed | Contextual Unlock expanded rail, retained other locks, Undo/Redo and reopen sampled; compact/full rail matrix open. |
+| QA-35 | Constraint rail | Core — PASSED (September 11 finite recipe) | Model availability matrix plus portrait/landscape disabled guidance, settings access, enabled application and glyph pass clean 30/30; retained paired contextual Lock/Unlock/history/reopen evidence reconciled. Constraint semantics remain QA-36/39. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
@@ -291,7 +291,12 @@ See [locked-value closure](testing/sketch-parity-locked-value-closure-2026-09-11
 
 ### QA-35 — Constraint rail
 
-Enablement for each selected combination; settings access; discoverability. Issues: SK-01/02. Result: NOT RUN. Evidence/owner: pending.
+Enablement for each selected combination; settings access; discoverability.
+Issues: SK-01/02. Result: **PASSED** for the finite desktop rail recipe on
+September 11. The model availability matrix and portrait/landscape rail workflows
+pass clean 30/30, supplemented by retained paired contextual Lock/Unlock,
+history and reopen evidence. Constraint correctness remains QA-36/39. See
+[constraint rail closure](testing/sketch-parity-constraint-rail-closure-2026-09-11.md).
 
 ### QA-36 — Constraint types
 
