@@ -22,7 +22,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-15 | Polygon | Core — PASSED (September 11 finite recipe) | Paired 5→65 count edit, exact radius, center/orientation retention, two-step Undo/Redo, profile availability and saved reopen verified. Corrected final current-tree regression 13/13; illustrated772/master38 export-verified. Native side-count badge is creation-only; physical input remains QA-52. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
-| QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
+| QA-18 | Drawing on points | Core — PASSED (September 11 finite recipe) | Paired endpoint, line midpoint, existing-circle center, rectangle corner and top-face corner placement; history and clone reopen verified. Constraint-glyph input routing fixed at b19c041; final current-tree gate 13/13; illustrated786/master38 verified. Persistent linking and physical input remain separate lanes. |
 | QA-19 | Snap categories | Core — partial, not passed | Raw acquisition-off and Grid-only paired; guidepoint combinations open. |
 | QA-20 | Snap zoom | Core — partial | Screen-relative acquisition corrected; native near/far reference + two clone scales, clean37/37. Full zoom/grid matrix open. |
 | QA-21 | Snap feedback | Core — partial, not passed | Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved. |
@@ -165,7 +165,13 @@ Placement, font/height, cancel, profile and reopen; compare editing affordance. 
 
 ### QA-18 — Drawing on points
 
-New shapes at endpoints/midpoints/centers/face corners. Issues: SK-04. Result: NOT RUN. Evidence/owner: pending.
+New shapes at endpoints/midpoints/centers/face corners. Issues: SK-04. Result:
+PASSED for the finite placement recipe. Paired endpoint, line-midpoint,
+existing-circle-center, rectangle-corner, and top-face-corner initiation plus
+geometry-specific Undo/Redo are verified; the clone gallery retains the
+face-corner result. Final regression 13/13. Persistent point relationships,
+hover, topology editing, and physical Pencil/touch are separate cases. See
+[drawing-on-points audit](testing/sketch-parity-drawing-on-points-2026-09-11.md).
 
 ### QA-19 — Snap categories
 
