@@ -800,3 +800,14 @@ desktop identity recipe. Overlapping coplanar fill hit precedence remains under
 selection/profile topology, and projection/device input remain separate.
 Inventory advances to **17 passed / 0 failed / 1 device-blocked /
 38 incomplete**.
+
+## September 11 — QA-49 finite profile-topology closure
+
+The detailed hole/touching/tiny-gap/duplicate/construction-crossing recipe is
+reconciled with retained paired profile/history/reopen evidence and a clean
+one-owner **46/46** current-tree profile/construction/entity/UI gate. The run
+distinguishes a weldable micron line/arc endpoint from a real 50 µm opening and
+includes two real profile-to-extrude workflows. QA-49 passes only this finite
+desktop recipe; exhaustive curved-curve intersection splitting and physical
+input remain separate. Inventory advances to **18 passed / 0 failed /
+1 device-blocked / 37 incomplete**.

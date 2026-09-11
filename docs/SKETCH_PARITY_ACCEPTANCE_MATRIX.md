@@ -53,7 +53,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — passed | Finite independent/new, named continuation, consumed-source edit/rebuild, hidden visibility, history and reopen recipe closed September 11; clean 9/9 current-tree gate. |
-| QA-49 | Profile topology | Core — partial, not passed | Paired visible-gap closure, nested holes, shared/point-touch boundaries, duplicate/partial-overlap and straight bow-tie regions/history/reopen verified through 3ca4c2d. Curved intersections and tiny thresholds unverified; not complete topology coverage. |
+| QA-49 | Profile topology | Core — passed | Finite hole/touching/tiny-gap/duplicate/construction-crossing recipe closed September 11 from retained paired evidence and a clean 46/46 current-tree gate. Exhaustive curved intersections remain outside this bounded pass. |
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Pentagon, nested-hole bore, duplicate-boundary block and bow-tie triangle extrusion/history/reopen paired. Consumed source bore rebuild paired; Sweep/Loft smoke remains open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
@@ -407,7 +407,7 @@ Create independent, continue existing, edit named item, hidden consumed sketch. 
 
 ### QA-49 — Profile topology
 
-Hole, touching loops, tiny gap, duplicate edge, construction crossing. Issues: ED-09. Result: NOT RUN. Evidence/owner: pending.
+Hole, touching loops, tiny gap, duplicate edge, construction crossing. Issues: ED-09. Result: **PASS (finite desktop recipe)**. Retained paired evidence covers gap closure, nested holes, shared/point-touch, duplicate/partial-overlap/crossed straight boundaries, construction exclusion, history and reopen. Current-tree profile/construction/entity/UI gate passed clean 46/46. Exhaustive curved-curve splitting remains outside this bounded pass. Evidence: `testing/sketch-parity-profile-topology-closure-2026-09-11.md` and linked September 9 topology receipts.
 
 ### QA-50 — Sketch-to-solid
 

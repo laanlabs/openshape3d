@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:41
+
+HEAD `c039366` is pushed. QA-49's final one-owner profile/construction/entity/UI
+gate passed clean **46/46**, zero failures/skips, at
+`/tmp/os3d-qa49-topology-final-20260911.xcresult`. Retained paired evidence
+closes the finite nested-hole, touching-loop, tiny-gap, duplicate-boundary and
+construction-crossing recipe, including history and reopen. No product source
+changed and no duplicate report publication is claimed.
+
+QA-49 passes only its finite desktop recipe; exhaustive curved-curve splitting,
+overlapping coplanar hit precedence and physical input remain separate. Inventory
+becomes **18 passed / 0 failed / 1 device-blocked / 37 incomplete**. No runner
+owns the simulator. Dirty files are bounded QA-49 closure documentation. Exact
+next action: inspect, commit/push, then audit QA-50 sketch-to-solid against its
+exact extrude/hole/consumed/rebuild/Undo recipe. Immutable `05be744` IPA and
+unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 15:36
 
 HEAD `ce361cb` is pushed. QA-48's final one-owner identity/profile/rebuild/UI
