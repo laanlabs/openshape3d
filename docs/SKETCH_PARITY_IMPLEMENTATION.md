@@ -2041,3 +2041,15 @@ reopen. A current-tree serial closure run passed clean 5/5 at
 this finite recipe; hover remains QA-21, physical input QA-52, and QA-05's fresh
 native chain remains input-delivery blocked. Inventory advances to 13/0/1/42.
 See testing/sketch-parity-line-delete-2026-09-10.md.
+
+## September 11 — QA-23 finite selection-state closure
+
+Retained paired evidence covers exact endpoint versus short-edge midpoint,
+outline/profile selection, and blank deselection. Exact-build clone profile and
+outline selection, selected-outline Delete, one-step Undo, and gallery reopen
+were repeated live. The current-tree selection/hit-priority baseline is clean
+19/19. The illustrated append did not persist and anonymous export remains at
+786 media, so QA-23 is closure-ready but not promoted; inventory remains
+13/0/1/42. Additive selection, hover,
+comprehensive dimension selection, and physical input remain separate lanes.
+See testing/sketch-parity-selection-state-closure-2026-09-11.md.

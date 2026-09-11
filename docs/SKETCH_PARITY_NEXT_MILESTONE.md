@@ -655,3 +655,13 @@ tool switching, history, and gallery reopen. The exact current tree passed a
 clean serial 5/5 closure run. QA-06 advances the inventory to 13 passed / 0
 failed / 1 device-blocked / 42 incomplete. Hover, physical input, QA-05's fresh
 native chain, and QA-19's native threshold pair remain separate open gates.
+
+## September 11 — QA-23 finite selection-state closure
+
+Endpoint versus short-edge midpoint, outline/profile selection, blank
+deselection, selected-target Delete, one-step Undo, and saved reopen are paired
+or exact-build verified. The current-tree regression passed clean 19/19. QA-23
+is closure-ready, but the illustrated append did not persist and export remains
+at 786 media. Inventory therefore stays 13 passed / 0 failed / 1 device-blocked /
+42 incomplete. QA-24 additive selection is the next finite
+selection case; hover and physical input remain QA-21/QA-52.

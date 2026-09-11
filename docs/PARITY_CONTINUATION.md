@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current execution — September 11 13:10
+## Current execution — September 11 13:45
 
 HEAD `f524b13` is pushed. QA-06 is reconciled as passed for its finite desktop
 recipe from retained paired Escape/Delete/Return/double-click/tool-switch,
@@ -13,13 +13,24 @@ media retained (`/tmp/os3d-qa06-master-closure.docx`, SHA-256
 `2f4b3d0c7ef9d507e459f5052042157ce31bd4f669a24640730a463d135cab00`). No
 duplicate image insertion was required for this reconciliation.
 
-Inventory is 13 passed / 0 failed / 1 device-blocked / 42 incomplete. QA-05
+QA-23 selection-state finite acceptance is also reconciled on the exact current
+tree. Retained paired evidence covers exact endpoint versus short-edge midpoint,
+outline/profile selection, and blank deselection. Exact-build clone profile and
+outline selection, selected-outline Delete, one-step Undo, and gallery reopen
+passed live. The clean selection baseline passed 19/19 at
+`/tmp/os3d-qa23-selection-baseline-20260911.xcresult`. Local current-build
+captures/hashes are under `reports/.../selection-qa23/`. Browser keystrokes did
+not establish a Docs caret; anonymous export remains at 786 media with zero
+QA-23 headings. No duplicate insertion occurred, so publication remains pending.
+
+Inventory remains 13 passed / 0 failed / 1 device-blocked / 42 incomplete. QA-05
 remains partial because fresh native chain clicks are desktop-input blocked;
 QA-19's final native threshold pair is independently blocked. Pointer hover and
 physical input remain QA-21 and QA-52. Current dirty files are documentation for
-this QA-06 reconciliation only. Exact next: commit/push the documentation
-checkpoint, then select and execute the next finite
-core acceptance case. Unrelated identity/memory files and immutable `05be744`
+the QA-23 closure-ready audit. Exact next: commit/push the safe functional
+checkpoint, execute QA-24 additive-selection acceptance, and retry QA-23
+publication through a verified caret route without duplicate evidence.
+Unrelated identity/memory files and immutable `05be744`
 IPA remain untouched; no device installation or parity claim.
 ## Active continuation — September10 pending three-point numeric input
 

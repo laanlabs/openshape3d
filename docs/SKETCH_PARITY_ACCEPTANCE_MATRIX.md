@@ -27,7 +27,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-20 | Snap zoom | Core — partial | Screen-relative acquisition corrected; native near/far reference + two clone scales, clean37/37. Full zoom/grid matrix open. |
 | QA-21 | Snap feedback | Core — partial, not passed | Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved. |
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
-| QA-23 | Selection state | Core — partial, not passed | Point/edge, blank deselect and connected rectangle samples; other entity/tool states open. |
+| QA-23 | Selection state | Core — closure-ready, publication pending | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated append did not save, so the case is not yet promoted. |
 | QA-24 | Multi-selection | Core — partial, not passed | Connected rectangle double-click paired; mouse/touch additive difference recorded. |
 | QA-25 | Annotation off-state | Core — partial, not passed | Completed horizontal line and rectangle badges paired; full selection matrix open. |
 | QA-26 | Annotation on-state | Core - partial, not passed | Orange selection, offset line/rectangle leaders, full circle diameter and curved arc annotation sampled paired; glyph/control and selected-side layout matrix open. |
@@ -193,6 +193,14 @@ Endpoint versus midpoint versus center versus edge, overlapping candidates. Issu
 Off-plane point guides versus actual coincidence; avoid false constraints. Issues: SK-05. Result: NOT RUN. Evidence/owner: pending.
 
 ### QA-23 — Selection state
+
+**September 11 checkpoint:** behavior passes for the finite endpoint/midpoint/
+outline/profile and blank-deselect recipe. The selected target matches the next action; current-
+tree outline Delete removes only that sketch, one Undo restores it, and gallery
+reopen retains the profile. Current-tree regression is clean 19/19. The
+illustrated append did not persist and anonymous export remains at 786 media,
+so QA-23 stays partial until publication is verified. See
+[selection-state closure audit](testing/sketch-parity-selection-state-closure-2026-09-11.md).
 
 Point/edge/fill/sketch/body; tool armed versus inactive; blank deselect. Issues: ED-07. Result: NOT RUN. Evidence/owner: pending.
 
