@@ -593,3 +593,15 @@ cancellation. Immutable05be744IPA unchanged.
 ### September10 QA10 finite recipe closure
 
 Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, including reverse slopes and settled native firstpoint hover/Escape. Product5014cef pushed; final36/36 and illustrated700/master38 closure note verified. Full audit in testing/sketch-parity-three-point-closure-audit-2026-09-10.md. Inventory7passed/0failed/1deviceblocked/48incomplete; nextQA11concentric initiation. General keyboard/layout/import/device gates remain. Immutable05be744IPA unchanged.
+
+## September11 QA11 finite closure
+
+Selected/unselectedcenterinitiation, savedconnection/clearlinkcontrol, paired
+movement/history/reopen nowverified. Clean35/35 plusseparatefinal6/6; illustrated
+724/all9hashes/no715loss. Finalclone1.4852/.8645; native16.0041/9.3357. Draft
+.8708 unverifiedvaluewithdrawn/corrected. Nativepopoverblockedhistory excluded;
+cleanrepeatpassed. Inventory8/0/1/47 (36partial11deferred). Audit
+testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
+Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
+Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
+Masterclosureinsertedonce/exportverificationpending; IPAunchanged.

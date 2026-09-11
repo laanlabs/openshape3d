@@ -68,10 +68,20 @@ struct SketchConstraintOverlay: View {
             let offset = CGFloat(glyph.slot) * 22
             // Do not put a clickable constraint badge over the transform's
             // center drag target. Native keeps these glyphs beside its axes.
-            let position = glyphPosition(anchor: anchor, offset: offset, sketchID: glyph.sketchID)
+            let position = glyph.isCircleCenterConnection
+                ? CGPoint(x: anchor.x - 32, y: anchor.y + 40 + offset)
+                : glyphPosition(anchor: anchor, offset: offset, sketchID: glyph.sketchID)
             Button {
                 viewModel.selectConstraint(glyph.id, in: glyph.sketchID)
             } label: {
+                if glyph.isCircleCenterConnection {
+                    Image(systemName: "link")
+                        .font(.system(size: 12))
+                        .foregroundStyle(conflicting ? Color.red : Color.black)
+                        .frame(width: 22, height: 22)
+                        .background(selected ? Color.blue.opacity(0.2) : Color.clear)
+                        .contentShape(Rectangle())
+                } else {
                 Text(glyph.code)
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(selected ? Color.white : tint)
@@ -85,11 +95,13 @@ struct SketchConstraintOverlay: View {
                         RoundedRectangle(cornerRadius: 5)
                             .stroke(tint, lineWidth: conflicting ? 2 : 1)
                     )
+                }
             }
             .buttonStyle(.plain)
             .position(position)
             .accessibilityIdentifier(
                 conflicting ? "ConstraintGlyphConflict" : "ConstraintGlyph")
+            .accessibilityLabel(glyph.isCircleCenterConnection ? "Connected circle centers" : glyph.code)
         }
     }
 

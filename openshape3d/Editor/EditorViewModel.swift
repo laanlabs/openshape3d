@@ -11014,13 +11014,26 @@ final class EditorViewModel {
     private func inferredConstraintCommands(
         for entity: SketchEntity, sketchID: SketchID, in sketch: Sketch
     ) -> [DocumentCommand] {
-        guard !pendingInferredConstraints.isEmpty else { return [] }
+        var candidates = pendingInferredConstraints
+        // The circle's anchor is a real solver center, unlike its dragged rim.
+        // Preserve an acquired existing circle center as part of the Draw step.
+        // Require actual positional coincidence; never attract a nearby center.
+        if effectiveAutoConstrainSettings.enabled, effectiveAutoConstrainSettings.pointSnap,
+           case let .circle(_, center, _) = entity,
+           let target = sketch.entities.first(where: {
+               guard case let .circle(_, existingCenter, _) = $0 else { return false }
+               return simd_distance(center, existingCenter) <= 1e-6
+           }) {
+            candidates.append(.init(kind: .coincident, selfRole: .center,
+                targetEntityID: target.id, targetRole: .center))
+        }
+        guard !candidates.isEmpty else { return [] }
         // Proposed sketch = committed sketch + the new entity; candidates are
         // added one at a time so each is validated against the accumulated set.
         var proposed = sketch
         proposed.entities.append(entity)
         var accepted: [SketchConstraint] = []
-        for inferred in pendingInferredConstraints {
+        for inferred in candidates {
             let refs = inferredRefs(inferred, newEntityID: entity.id)
             guard !refs.isEmpty else { continue }
             let constraint = SketchConstraint(kind: inferred.kind, refs: refs)
@@ -11682,6 +11695,7 @@ final class EditorViewModel {
         let worldAnchor: SIMD3<Double>
         let slot: Int
         var isRectangleCenterLock = false
+        var isCircleCenterConnection = false
     }
 
     /// Compact badge text per constraint kind.
@@ -11765,7 +11779,14 @@ final class EditorViewModel {
                             default: return false
                             }
                         }) || (c.kind == .fixed && c.refs.count == 1 && c.refs[0].role == .center &&
-                               RectangleConstruction.centerDiagonalReferences(c.refs[0].entityID, in: sketch) != nil)
+                               RectangleConstruction.centerDiagonalReferences(c.refs[0].entityID, in: sketch) != nil),
+                    isCircleCenterConnection: c.kind == .coincident && c.refs.count == 2 &&
+                        c.refs.allSatisfy { ref in
+                            ref.role == .center && sketch.entities.contains {
+                                if case .circle = $0 { return $0.id == ref.entityID }
+                                return false
+                            }
+                        }
                 ))
             }
         }

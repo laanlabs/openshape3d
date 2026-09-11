@@ -393,3 +393,53 @@ matchedGuidepoints/Auto-Constrain QA11 relationship and finalpairedreopen.
 Acceptanceunchanged7/0/1/48; no IPA/devicechanges.
 
 Final master export verified38, checkpointheadingonce, no priorimages/text loss.
+
+## September11 00:21 — concentric relationship correction running
+
+HEADca4663e pushed; priorcenterfixpublished711/master38verified. CloneGuidepoints
+toggleclicks failed; supported shortswitchdrag visiblyenabled it. AutoConstrainON
+and persisted pointSnaptrue verified. NewouterØ1.2419 fromoldinnercenter430650
+then drag400610 movedonlynewcircle, innerstayed. NativeAutoConstrainON captured;
+connectedpair movesboth (priorreference). Confirmed missingcreationrelationship:
+nonlineinference deliberatelypositionalonly; circleANCHOR iswell-definedcenter.
+DirtyEditorViewModel addscoincidentcenteronlyforexactacquiredexistingcirclecenter
+(distance<=1e-6), gatedAutoConstrain+pointSnap+Guidepoints, acceptedbyexisting
+conflictguard andsameDrawcommand. AddedatomiccreationUndoRedo, both-circlemove,
+offGuidepoints regressions; selectedtargettest nowrestoresits settings. Serial
+exec67561 /tmp/os3d-qa11-center-connection-20260911.xcresult owns simulator; no
+desktopinteractionsuntilcomplete. Exactnext collectresult, relevantUI/live
+connectedcenter/history/reopen, publish/committhenQA11closure. Nativeconstraint
+popupopen,Circlearmed,connectedpaircenter650380; cloneUItestreset/relaunchafter.
+No IPA/devicechanges; inventory7/0/1/48.
+
+67561 completedclean32/32. Same32+3circleUI now serial /tmp/os3d-qa11-connection-final-20260911.xcresult; no livepostfix yet.
+
+Connection diagnosis publication714 verified: all3newhashesonce, no711placementloss andpriororderedtextpreserved. Final35test run still active exec84740; no livepostfix claim.
+
+## September11 00:28 — center connection glyph blocker under regression
+
+Connection final84740 completedclean35/35. Liveupdatedclone createsrealcenter
+connection, but glyphpaintedoncenter interceptsdrag; no livemovementpass. Native
+connectionglyph sitsbelowcenterbesideLock. AddedisCircleCenterConnectionmetadata,
+plainblacklink glyph below-left32pt/down40pt (slotfanned), center/Lock unchanged.
+NewUI explicitlyenablesGuidepoints/AutoConstrain/pointSnap, createspair, asserts
+glyphnotintersectingcenter, bothcentersmove+UndoRedo. Focusedexec15825 at
+/tmp/os3d-qa11-connection-glyph-20260911.xcresult nowowns simulator (5units+newUI).
+No runner overlap. Exactnext collectresult, liveboth-centerMove/history/reopen,
+finalpublish/commit. HEADca4663e; connection+glyph+testsdirty. Prior714diagnosis
+verified; newestglyphobstructionPNGlocalonly. Nativepopupopen,pairedcircles
+center650380; cloneUIresetfixture/relaunchafter. Acceptanceunchanged,IPAunchanged.
+
+## September11 QA11 finite closure
+
+Selected/unselectedcenterinitiation, savedconnection/clearlinkcontrol, paired
+movement/history/reopen nowverified. Clean35/35 plusseparatefinal6/6; illustrated
+724/all9hashes/no715loss. Finalclone1.4852/.8645; native16.0041/9.3357. Draft
+.8708 unverifiedvaluewithdrawn/corrected. Nativepopoverblockedhistory excluded;
+cleanrepeatpassed. Inventory8/0/1/47 (36partial11deferred). Audit
+testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
+Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
+Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
+Masterclosureinsertedonce/exportverificationpending; IPAunchanged.
+
+QA11 masterclosureexportverified38, headingonce,no priorimage/textloss.

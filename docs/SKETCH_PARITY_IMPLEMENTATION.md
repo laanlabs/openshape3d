@@ -1911,3 +1911,15 @@ Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, 
 Native freshcirclecenter is selected/Lockable and dragsgeometry; unselectedcenter startsconcentric. Clone freshcenter insteadhollow anddiameterhitarea stole drag. Scopedrelease/centercontrol/hitexclusion draft passesinitial10/10 andlivemove; lifecyclefollowup8/2 caughtoverbroadreadoutcleanup, same10rerunpending. Detailedconcentric-matrixreceipt preservesoldsamplepass andnewdiagnosis. Publication705 verified; notclosed.
 
 QA11 follow-up September11: narrowed lifecycle clean10/10; selected equal-center target correction clean11/11. Live release/move/Undo/Lock/reopen verified; illustrated711/all6hashes. Matched snapping relationships remain open. See concentric receipt.
+
+## September11 QA11 finite closure
+
+Selected/unselectedcenterinitiation, savedconnection/clearlinkcontrol, paired
+movement/history/reopen nowverified. Clean35/35 plusseparatefinal6/6; illustrated
+724/all9hashes/no715loss. Finalclone1.4852/.8645; native16.0041/9.3357. Draft
+.8708 unverifiedvaluewithdrawn/corrected. Nativepopoverblockedhistory excluded;
+cleanrepeatpassed. Inventory8/0/1/47 (36partial11deferred). Audit
+testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
+Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
+Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
+Masterclosureinsertedonce/exportverificationpending; IPAunchanged.

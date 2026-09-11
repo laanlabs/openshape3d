@@ -402,6 +402,67 @@ final class DimensionUITests: XCTestCase {
         attach(app, "fresh-circle-center-history")
     }
 
+    func testConnectedCircleGlyphDoesNotInterceptCenterDrag() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        app.buttons["ConstraintRailSettings"].tap()
+        let form = app.collectionViews.firstMatch
+        XCTAssertTrue(form.waitForExistence(timeout: 5))
+        for id in ["SnapToSketchGuidepointsToggle", "AutoConstrainToggle", "AutoConstrainPointSnapToggle"] {
+            let control = app.switches[id].firstMatch
+            for _ in 0..<8 where !(control.exists && control.isHittable
+                && form.frame.insetBy(dx: 0, dy: 20).contains(control.frame)) { form.swipeUp() }
+            XCTAssertTrue(control.isHittable)
+            if control.value as? String != "1" {
+                control.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            }
+            XCTAssertEqual(control.value as? String, "1")
+        }
+        app.buttons["ConstraintSettingsDone"].tap()
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        start.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.56, dy: 0.4)))
+        let centers = app.descendants(matching: .any).matching(identifier: "CircleCenterControl")
+        let first = centers.firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 3))
+        let before = first.frame
+        let grab = first.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.2, thenDragTo: grab.withOffset(CGVector(dx: 60, dy: 0)))
+        app.buttons["UndoButton"].tap()
+        startSketchTool(app, "Circle")
+        start.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.4)))
+        XCTAssertEqual(centers.count, 2)
+        let glyph = app.buttons.matching(NSPredicate(format: "label == %@", "Connected circle centers")).firstMatch
+        XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+        XCTAssertFalse(glyph.frame.intersects(before.insetBy(dx: -8, dy: -8)))
+        let label = app.buttons["DimensionLabel"].firstMatch
+        let diameter = label.label
+        let centerPoint = window.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: before.midX, dy: before.midY))
+        centerPoint.press(forDuration: 0.2, thenDragTo: centerPoint.withOffset(CGVector(dx: 60, dy: 30)))
+        for center in centers.allElementsBoundByIndex {
+            XCTAssertGreaterThan(center.frame.midX, before.midX + 45)
+            XCTAssertGreaterThan(center.frame.midY, before.midY + 20)
+        }
+        XCTAssertEqual(label.label, diameter)
+        attach(app, "connected-circle-center-drag-clear-of-glyph")
+        app.buttons["UndoButton"].tap()
+        for center in centers.allElementsBoundByIndex {
+            XCTAssertEqual(center.frame.midX, before.midX, accuracy: 3)
+            XCTAssertEqual(center.frame.midY, before.midY, accuracy: 3)
+        }
+        app.buttons["RedoButton"].tap()
+        XCTAssertEqual(centers.count, 2)
+        for center in centers.allElementsBoundByIndex {
+            XCTAssertGreaterThan(center.frame.midX, before.midX + 45)
+        }
+    }
+
     func testCircleExplicitCenterMoveRemainsClearOfDiameterButton() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
