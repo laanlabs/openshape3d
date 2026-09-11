@@ -292,11 +292,11 @@ Acceptance: The specified anchor remains in place unless an existing constraint 
 
 ### DM-09 · Disconnect action is absent
 
-**Partial — four-line edge verified; remaining connections open** · P1
+**Partial — breadth implemented/tested; fresh paired cases open** · P1
 
 Evidence: [Disconnect receipt](testing/sketch-parity-disconnect-2026-09-08.md): native and clone detached edge movement, Undo/Redo and gallery-reopened disconnection captured. Corrected clean34/34 after initial compile-only failure. Point-only/proximity/reconnection/import/trim covered automatically. Persisted endpoint exclusions prevent silent proximity rejoining; dimensions/other relations retained.
 
-Next: Paired midpoint, primitive-rectangle and non-line connection checks. Single-line default ring and Copy proximity coupling corrected (see [line-control receipt](testing/sketch-parity-line-selection-controls-2026-09-08.md)); explicit white axes versus blue ring remains. Publication recovered in separate existing-Doc tabs (master38/illustrated78 verified before latest line additions); old unsynced tabs preserved.
+September 11 automation adds Midpoint, explicit circle-center Coincident and primitive-rectangle diagonal-corner Disconnect without decomposing geometry. Dimensions, unrelated Equal Length, history, serialized exclusion markers, merge and Trim integrity pass a clean 58/58 gate. Next: paired live repetition of those three new connection forms. Single-line default ring and Copy proximity coupling are corrected (see [line-control receipt](testing/sketch-parity-line-selection-controls-2026-09-08.md)); explicit white axes versus blue ring remains.
 
 Acceptance: The chosen connection breaks without deleting geometry, other constraints survive, and undo restores the connection.
 

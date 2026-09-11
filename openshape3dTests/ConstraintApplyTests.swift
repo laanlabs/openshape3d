@@ -883,6 +883,97 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(document.sketches[0], detached)
     }
 
+    func testDisconnectCoversMidpointNonLineAndPrimitiveConnectionsWithoutDataLoss() throws {
+        // Midpoint is a connection relationship, but Equal Length is not.
+        let midpointVM = try makeViewModel()
+        let target = line(SIMD2(0, 0), SIMD2(10, 0))
+        let source = line(SIMD2(5, 0), SIMD2(5, 4))
+        let midpoint = SketchConstraint(kind: .midpoint, refs: [
+            .init(entityID: source.id, role: .endpointA),
+            .init(entityID: target.id, role: .whole),
+        ])
+        let unrelated = SketchConstraint(kind: .equalLength, refs: [
+            .init(entityID: source.id, role: .whole),
+            .init(entityID: target.id, role: .whole),
+        ])
+        let midpointSketch = Sketch(plane: .ground, entities: [target, source],
+            constraints: [midpoint, unrelated])
+        midpointVM.session.perform(AddSketchCommand(sketch: midpointSketch))
+        midpointVM.mode = .sketching(midpointSketch.id, tool: nil)
+        midpointVM.selectedSketchPoints = [.init(entityID: source.id, role: .endpointA)]
+        XCTAssertTrue(midpointVM.canDisconnectSketchSelection)
+        midpointVM.disconnectSketchSelection()
+        let midpointDetached = try XCTUnwrap(midpointVM.activeSketch)
+        XCTAssertEqual(midpointDetached.entities, midpointSketch.entities)
+        XCTAssertFalse(midpointDetached.constraints.contains(midpoint))
+        XCTAssertTrue(midpointDetached.constraints.contains(unrelated))
+        midpointVM.undo()
+        XCTAssertEqual(midpointVM.activeSketch, midpointSketch)
+        midpointVM.redo()
+        XCTAssertEqual(midpointVM.activeSketch, midpointDetached)
+
+        // Non-line centers can be explicitly coincident without being subject
+        // to the solver's endpoint-proximity welding.
+        let centerVM = try makeViewModel()
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, 0), radius: 3)
+        let endpoint = line(SIMD2(0, 0), SIMD2(4, 0))
+        let joined = SketchConstraint(kind: .coincident, refs: [
+            .init(entityID: circle.id, role: .center),
+            .init(entityID: endpoint.id, role: .endpointA),
+        ])
+        let radius = SketchDimension(kind: .radius,
+            refs: [.init(entityID: circle.id, role: .whole)], value: 3)
+        let centerSketch = Sketch(plane: .ground, entities: [circle, endpoint],
+            constraints: [joined], dimensions: [radius])
+        centerVM.session.perform(AddSketchCommand(sketch: centerSketch))
+        centerVM.mode = .sketching(centerSketch.id, tool: nil)
+        centerVM.selectedSketchPoints = [.init(entityID: circle.id, role: .center)]
+        XCTAssertTrue(centerVM.canDisconnectSketchSelection)
+        centerVM.disconnectSketchSelection()
+        let centerDetached = try XCTUnwrap(centerVM.activeSketch)
+        XCTAssertEqual(centerDetached.entities, centerSketch.entities)
+        XCTAssertTrue(centerDetached.constraints.isEmpty)
+        XCTAssertEqual(centerDetached.dimensions, [radius])
+        XCTAssertTrue(centerDetached.disconnectedEndpoints.isEmpty,
+                      "Non-proximity center connections need no exclusion marker")
+        centerVM.undo()
+        XCTAssertEqual(centerVM.activeSketch, centerSketch)
+
+        // A primitive rectangle stays one entity. Disconnecting an addressable
+        // diagonal corner removes only its external joint and preserves sizing.
+        let rectVM = try makeViewModel()
+        let rect = SketchEntity.rect(id: UUID(), min: SIMD2(0, 0), max: SIMD2(8, 6))
+        let neighbour = line(SIMD2(0, 0), SIMD2(-3, -2))
+        let rectJoint = SketchConstraint(kind: .coincident, refs: [
+            .init(entityID: rect.id, role: .endpointA),
+            .init(entityID: neighbour.id, role: .endpointA),
+        ])
+        let width = SketchDimension(kind: .horizontal, refs: [
+            .init(entityID: rect.id, role: .endpointA),
+            .init(entityID: rect.id, role: .endpointB),
+        ], value: 8)
+        let rectSketch = Sketch(plane: .ground, entities: [rect, neighbour],
+            constraints: [rectJoint], dimensions: [width])
+        rectVM.session.perform(AddSketchCommand(sketch: rectSketch))
+        rectVM.mode = .sketching(rectSketch.id, tool: nil)
+        rectVM.selectedSketchPoints = [.init(entityID: rect.id, role: .endpointA)]
+        XCTAssertTrue(rectVM.canDisconnectSketchSelection)
+        rectVM.disconnectSketchSelection()
+        let rectDetached = try XCTUnwrap(rectVM.activeSketch)
+        XCTAssertEqual(rectDetached.entities, rectSketch.entities)
+        XCTAssertTrue(rectDetached.constraints.isEmpty)
+        XCTAssertEqual(rectDetached.dimensions, [width])
+        XCTAssertEqual(rectDetached.disconnectedEndpoints,
+                       [.init(entityID: rect.id, role: .endpointA)])
+        let reopened = try JSONDecoder().decode(Sketch.self,
+            from: JSONEncoder().encode(rectDetached))
+        XCTAssertEqual(reopened, rectDetached)
+        rectVM.undo()
+        XCTAssertEqual(rectVM.activeSketch, rectSketch)
+        rectVM.redo()
+        XCTAssertEqual(rectVM.activeSketch, rectDetached)
+    }
+
     // MARK: - Adaptive enable/disable rules
 
     /// Spec §3.2 lists Parallel as taking "2+ lines". Three selected lines must

@@ -11512,29 +11512,41 @@ final class EditorViewModel {
         }
     }
 
-    /// Initial Disconnect scope: selected ordinary lines or their endpoints.
-    /// A primitive rectangle has no independent edge identity; do not silently
-    /// decompose it and lose its dimensions here.
+    /// Points explicitly addressable by the constraint model. Primitive
+    /// rectangles expose only their two stored diagonal corners here; this
+    /// deliberately does not decompose them into edges or lose dimensions.
     private var disconnectOperands: [ConstraintRef] {
         guard mode.isSketching, mode.sketchTool == nil, let sketch = activeSketch else { return [] }
-        let lines = sketch.entities.filter { if case .line = $0 { return true }; return false }
         if !selectedSketchPoints.isEmpty {
             return selectedSketchPoints.compactMap { point in
-                guard lines.contains(where: { $0.id == point.entityID }),
-                      point.role == .endpointA || point.role == .endpointB else { return nil }
+                guard let entity = sketch.entities.first(where: { $0.id == point.entityID }),
+                      SketchHitTester.modelPoints(of: entity).contains(where: { $0.role == point.role })
+                else { return nil }
                 return ConstraintRef(entityID: point.entityID, role: point.role)
             }
         }
-        return lines.filter { selectedSketchEntityIDs.contains($0.id) }.flatMap {
-            [ConstraintRef(entityID: $0.id, role: .endpointA), .init(entityID: $0.id, role: .endpointB)]
+        return sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }.flatMap { entity in
+            SketchHitTester.modelPoints(of: entity).map {
+                ConstraintRef(entityID: entity.id, role: $0.role)
+            }
         }
     }
 
     private func disconnects(_ constraint: SketchConstraint, operands: [ConstraintRef]) -> Bool {
-        guard constraint.kind == .coincident else { return false }
+        guard constraint.kind == .coincident || constraint.kind == .midpoint else { return false }
         return constraint.refs.contains { ref in
             operands.contains(ref) || (ref.role == .whole && selectedSketchPoints.isEmpty &&
                                       operands.contains(where: { $0.entityID == ref.entityID }))
+        }
+    }
+
+    private func isImplicitConnectionEndpoint(_ ref: ConstraintRef, in sketch: Sketch) -> Bool {
+        guard ref.role == .endpointA || ref.role == .endpointB,
+              let entity = sketch.entities.first(where: { $0.id == ref.entityID }) else { return false }
+        switch entity {
+        case .line, .rect: return true
+        case let .spline(_, points, closed): return !closed && points.count >= 2
+        default: return false
         }
     }
 
@@ -11542,11 +11554,12 @@ final class EditorViewModel {
         guard let sketch = activeSketch else { return false }
         let operands = disconnectOperands
         if sketch.constraints.contains(where: { disconnects($0, operands: operands) }) { return true }
-        for ref in operands where !sketch.disconnectedEndpoints.contains(ref) {
+        for ref in operands where isImplicitConnectionEndpoint(ref, in: sketch)
+            && !sketch.disconnectedEndpoints.contains(ref) {
             guard let p = localPoint(ref, in: sketch) else { continue }
             for entity in sketch.entities where entity.id != ref.entityID {
-                guard case let .line(_, a, b) = entity else { continue }
-                for (role, q) in [(PointRole.endpointA, a), (.endpointB, b)] {
+                for (role, q) in SketchHitTester.modelPoints(of: entity)
+                    where role == .endpointA || role == .endpointB {
                     let other = ConstraintRef(entityID: entity.id, role: role)
                     if !sketch.disconnectedEndpoints.contains(other), simd_distance(p, q) < 1e-6 { return true }
                 }
@@ -11559,7 +11572,8 @@ final class EditorViewModel {
         guard canDisconnectSketchSelection, let sketch = activeSketch else { return }
         let operands = disconnectOperands
         var endpoints = sketch.disconnectedEndpoints
-        for ref in operands where !endpoints.contains(ref) { endpoints.append(ref) }
+        for ref in operands where isImplicitConnectionEndpoint(ref, in: sketch)
+            && !endpoints.contains(ref) { endpoints.append(ref) }
         session.perform(DisconnectSketchEndpointsCommand(sketchID: sketch.id,
             beforeConstraints: sketch.constraints,
             afterConstraints: sketch.constraints.filter { !disconnects($0, operands: operands) },

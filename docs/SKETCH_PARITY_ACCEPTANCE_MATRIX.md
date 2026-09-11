@@ -309,11 +309,11 @@ live sweep remains input-blocked. See
 
 ### QA-37 — Selection anchor
 
-First/Last, reverse order, existing locks override, repeated solve stability. Issues: DM-08. Result: NOT RUN. Evidence/owner: pending.
+First/Last, reverse order, existing locks override, repeated solve stability. Issues: DM-08. Result: **PARTIAL** — preference, ordered selection, transient anchoring, history, persistence and portrait/landscape settings pass a clean 44/44 gate. Fresh paired gestures remain live-input blocked. See [selection-anchor checkpoint](testing/sketch-parity-selection-anchor-checkpoint-2026-09-11.md).
 
 ### QA-38 — Disconnect
 
-Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: PARTIAL. Four-line edge Disconnect/move/history/reopen paired and corrected clean34/34 (disconnect receipt). Primitive rectangles/midpoints/non-line cases remain open.
+Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: **PARTIAL**. Four-line edge Disconnect/move/history/reopen is paired. Midpoint, explicit circle-center connection and primitive-rectangle diagonal-corner semantics now preserve geometry/dimensions/unrelated constraints and history in a clean 58/58 gate; those new cases still need paired live evidence. See [Disconnect receipt](testing/sketch-parity-disconnect-2026-09-08.md).
 
 ### QA-39 — Conflict and point states
 

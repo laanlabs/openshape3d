@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 14:40
+
+HEAD `8ffd4fe` is pushed. QA-37 is implemented/tested but remains partial for
+fresh paired selection-order gestures; its final one-owner gate is clean 44/44.
+QA-38 now supports Midpoint, explicit non-line point and primitive-rectangle
+diagonal-corner Disconnect without decomposing geometry. The new targeted matrix
+passed 1/1, and the final one-owner Disconnect/merge/Trim/rectangle gate passed
+clean **58/58** at `/tmp/os3d-qa38-disconnect-final-20260911.xcresult`.
+
+No test runner owns the simulator. QA-38's historical four-line edge is paired,
+but the three new connection forms are automated-only because supported live
+canvas input remains blocked; no publication or pass promotion is claimed.
+Inventory stays **15 passed / 0 failed / 1 device-blocked / 40 incomplete**.
+Current dirty files are the bounded QA-38 product/test/docs checkpoint. Exact
+next action: inspect, commit and push it, then start QA-39 conflict and point-state
+acceptance. Immutable `05be744` IPA and unrelated identity/memory files remain
+untouched.
+
 ## Current execution — September 11 14:32
 
 Current pushed baseline is `ffc3867`; QA-37 product/tests/docs are dirty pending

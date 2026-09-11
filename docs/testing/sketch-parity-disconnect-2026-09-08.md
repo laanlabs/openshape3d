@@ -61,3 +61,28 @@ proximity detachment, explicit reconnection, legacy decode, import, trim/delete;
 these extra cases are automated-only, not paired live.
 
 Both Docs still blocked; no new publication claimed. No runner remains active.
+
+## September 11 — connection breadth checkpoint
+
+Current baseline `8ffd4fe`. Disconnect now accepts every point role explicitly
+addressable by the constraint model, while only endpoint-like line, open-spline
+and primitive-rectangle points receive proximity-weld exclusion markers.
+Midpoint relationships and explicit Coincident relationships are removable;
+Equal Length and other unrelated constraints are retained. Primitive rectangles
+remain one entity: only their two stored diagonal corners are addressable, so no
+edge decomposition or dimension loss is introduced.
+
+The targeted new matrix passed 1/1 at
+`/tmp/os3d-qa38-disconnect-targeted-20260911.xcresult`. The final one-owner gate
+passed clean **58/58**, zero failures/skips, at
+`/tmp/os3d-qa38-disconnect-final-20260911.xcresult`: 31
+`ConstraintApplyTests`, 17 `ProjectMergeTests`, 8 `TrimTests`, and 2 selected
+rectangle Disconnect/normal-handle UI workflows. It verifies unchanged geometry,
+dimensions and unrelated constraints; exact Undo/Redo; JSON reopen; imported-ID
+remapping; and Trim/Delete integrity.
+
+The September 11 midpoint, non-line-center and primitive-rectangle cases are
+automated-only. Supported live canvas input remains blocked, so no new paired
+screenshot or Google Docs publication is claimed. QA-38 remains partial and the
+inventory remains **15 passed / 0 failed / 1 device-blocked / 40 incomplete**.
+Immutable `05be744` IPA unchanged.

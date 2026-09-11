@@ -724,3 +724,14 @@ existing adaptive rail and inference tests. The final one-owner gate passes clea
 Paired live coverage remains incomplete for Equal Length, Equal Radius,
 Symmetric and a fresh exact-build all-type sweep, so QA-36 remains partial and
 inventory stays 15/0/1/40.
+
+## September 11 — QA-37/38 independent checkpoints
+
+QA-37 adds the documented First Selected / Last Selected anchor preference,
+ordered selection and saved-constraint priority. Its final settings/model/UI gate
+passes clean 44/44, but fresh paired gestures remain input-blocked. QA-38 extends
+Disconnect to Midpoint, explicit non-line point connections and primitive
+rectangle diagonal corners without geometry/dimension loss; its final
+Disconnect/merge/Trim/UI gate passes clean 58/58. Those new forms are also
+automated-only. Both cases remain partial and inventory stays 15 passed / 0
+failed / 1 device-blocked / 40 incomplete.
