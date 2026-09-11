@@ -1,5 +1,25 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:57
+
+HEAD `3530d16` is pushed. QA-51's final one-owner archive/persistence/UI gate
+passed clean **47/47**, zero failures/skips, at
+`/tmp/os3d-qa51-persistence-final-20260911.xcresult`. Retained paired evidence
+closes the finite geometry, constraints, variables, pattern links, annotation
+state, units, history and gallery-reopen recipe. The gallery UI workflow's two
+60-second animation-idle waits are retained as timing evidence, not failures or
+performance claims. No product source changed and no duplicate report
+publication is claimed.
+
+QA-51 passes only its finite desktop recipe; advanced feature-link breadth and
+physical-device lifecycle remain separate. Inventory becomes **20 passed /
+0 failed / 1 device-blocked / 35 incomplete**. No runner owns the simulator.
+Dirty files are bounded QA-51 closure documentation. Exact next action: inspect,
+commit/push, then audit QA-53 layout against portrait/landscape, panels, edge
+placement, text-size and handedness without repeating its already paired radial
+and keypad samples. Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
 ## Current execution — September 11 15:45
 
 HEAD `3ceb192` is pushed. QA-50's final one-owner exact-extrude/hole/source-

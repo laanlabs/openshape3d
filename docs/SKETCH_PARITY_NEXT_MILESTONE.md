@@ -821,3 +821,16 @@ QA-50 passes only its finite exact-extrude/hole/consumed/rebuild/Undo recipe;
 advanced Sweep/Loft breadth remains separate and cold-launch state stays QA-51.
 Inventory advances to **19 passed / 0 failed / 1 device-blocked /
 36 incomplete**.
+
+## September 11 — QA-51 finite save/reopen closure
+
+Retained paired numeric, radial, rectangle, arc, polygon, profile, coplanar and
+consumed-source reopen evidence is reconciled with a clean one-owner **47/47**
+current-tree archive/persistence/UI gate. Cold gallery duplicate/open, archive
+reference remapping, constraints/dimensions, variables, linked patterns,
+annotation state, settings and display units all pass. Two 60-second gallery
+animation-idle waits completed successfully and are retained as timing evidence,
+not a performance comparison. QA-51 passes only this finite desktop recipe;
+advanced feature-link breadth and physical-device lifecycle remain separate.
+Inventory advances to **20 passed / 0 failed / 1 device-blocked /
+35 incomplete**.

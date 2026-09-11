@@ -55,7 +55,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-48 | Coplanar sketch identity | Core — passed | Finite independent/new, named continuation, consumed-source edit/rebuild, hidden visibility, history and reopen recipe closed September 11; clean 9/9 current-tree gate. |
 | QA-49 | Profile topology | Core — passed | Finite hole/touching/tiny-gap/duplicate/construction-crossing recipe closed September 11 from retained paired evidence and a clean 46/46 current-tree gate. Exhaustive curved intersections remain outside this bounded pass. |
 | QA-50 | Sketch-to-solid | Core — passed | Finite exact extrusion/hole/consumed visibility/source rebuild/history recipe closed September 11 from retained paired evidence and a clean 15/15 current-tree gate. Advanced Sweep/Loft breadth remains separate. |
-| QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
+| QA-51 | Save/reopen | Core — passed | Finite geometry/constraint/variable/pattern/annotation/unit persistence recipe closed September 11 from retained paired reopen evidence and a clean 47/47 current-tree archive/UI gate. Physical-device lifecycle remains QA-52. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
@@ -415,7 +415,7 @@ Exact extrude, correct hole, consumed sketch visibility, edit/rebuild, undo. Iss
 
 ### QA-51 — Save/reopen
 
-Geometry, constraints, variable references, pattern links, label state and units. Issues: ED-10. Result: NOT RUN. Evidence/owner: pending.
+Geometry, constraints, variable references, pattern links, label state and units. Issues: ED-10. Result: **PASS (finite desktop recipe)**. Retained paired reopen evidence covers core sketch geometry, numeric state, history and consumed-source workflows. A clean current-tree 47/47 archive/UI gate covers cold gallery duplicate/open, reference remapping, constraint/dimension serialization, variables, linked patterns, annotation state, settings and units. Advanced-feature/device lifecycle breadth remains separate. Evidence: `testing/sketch-parity-save-reopen-closure-2026-09-11.md` and linked retained reopen receipts.
 
 ### QA-52 — Touch and Pencil
 
