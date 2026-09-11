@@ -788,3 +788,15 @@ source independence and exact two-step history. One stale label-position proxy
 and one floating-roundoff fixture failure are retained and corrected without a
 product-source change. Fresh paired mixed-selection and compact-layout checks
 remain input-blocked, so QA-45 stays partial and inventory remains 16/0/1/39.
+
+## September 11 — QA-48 finite coplanar-identity closure
+
+Retained paired independent/new, explicit named continuation, consumed-source
+edit/rebuild, visibility, history and gallery-reopen evidence is reconciled with
+a clean one-owner **9/9** current-tree identity/profile/rebuild/UI gate. The
+first broader attempt is retained but excluded after a cloned-runner denial and
+an unrelated Items context-menu animation stall. QA-48 passes only its finite
+desktop identity recipe. Overlapping coplanar fill hit precedence remains under
+selection/profile topology, and projection/device input remain separate.
+Inventory advances to **17 passed / 0 failed / 1 device-blocked /
+38 incomplete**.

@@ -1,5 +1,25 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:36
+
+HEAD `ce361cb` is pushed. QA-48's final one-owner identity/profile/rebuild/UI
+gate passed clean **9/9**, zero failures/skips, at
+`/tmp/os3d-qa48-identity-final-20260911.xcresult`. Retained paired evidence
+closes independent coplanar creation, explicit named continuation, named
+consumed-source bore rebuild, hidden visibility, Undo/Redo and gallery reopen.
+No product source changed and no duplicate report publication is claimed.
+
+The first broader gate was interrupted after Xcode denied a temporary cloned
+runner and the unrelated Items rename/delete workflow stalled at a context-menu
+animation; its completed 8/8 units are retained but not counted as a clean run.
+QA-48 passes its finite identity recipe. Overlapping fill hit precedence remains
+a QA-23/49 selection variant. Inventory becomes **17 passed / 0 failed /
+1 device-blocked / 38 incomplete**. No runner owns the simulator. Dirty files
+are bounded QA-48 closure documentation only. Exact next action: inspect,
+commit/push, then audit QA-49 profile topology without repeating its already
+paired gap/nested/duplicate/partial-overlap/bow-tie cases. Immutable `05be744`
+IPA and unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 15:24
 
 HEAD `28af98c` is pushed. QA-45's final one-owner exact-value/direct-drag/mixed

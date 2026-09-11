@@ -52,7 +52,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-45 | Move/rotate/copy | Core — partial, not passed | Extensive paired exact-value/local-frame/Copy/Escape/history evidence plus clean 50/50 current-tree direct line/circle/rectangle and mixed line+circle Copy matrix. Fresh paired mixed-selection and compact-layout checks remain open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
-| QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed named entry/bore rebuild/history/reopen sampled; overlapping selection variants open. |
+| QA-48 | Coplanar sketch identity | Core — passed | Finite independent/new, named continuation, consumed-source edit/rebuild, hidden visibility, history and reopen recipe closed September 11; clean 9/9 current-tree gate. |
 | QA-49 | Profile topology | Core — partial, not passed | Paired visible-gap closure, nested holes, shared/point-touch boundaries, duplicate/partial-overlap and straight bow-tie regions/history/reopen verified through 3ca4c2d. Curved intersections and tiny thresholds unverified; not complete topology coverage. |
 | QA-50 | Sketch-to-solid | Core — partial, not passed | Pentagon, nested-hole bore, duplicate-boundary block and bow-tie triangle extrusion/history/reopen paired. Consumed source bore rebuild paired; Sweep/Loft smoke remains open. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
@@ -403,7 +403,7 @@ Edge/face/sketch selection, linked/unlinked, source change, cancel. Issues: ED-0
 
 ### QA-48 — Coplanar sketch identity
 
-Create independent, continue existing, edit named item, hidden consumed sketch. Issues: ED-06/10. Result: NOT RUN. Evidence/owner: pending.
+Create independent, continue existing, edit named item, hidden consumed sketch. Issues: ED-06/10. Result: **PASS (finite desktop recipe)**. Retained paired native/clone evidence covers independent creation, explicit named continuation, hidden/visible identity, consumed-source bore rebuild, Undo/Redo and gallery reopen. Current-tree identity/profile/rebuild/UI gate passed clean 9/9. Overlapping fill hit precedence stays under selection/profile topology rather than identity. Evidence: `testing/sketch-parity-coplanar-identity-closure-2026-09-11.md` plus the September 9 identity and consumed-source receipts.
 
 ### QA-49 — Profile topology
 
