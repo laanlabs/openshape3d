@@ -1858,3 +1858,14 @@ September10 followup: committed three-point Undo now disarms Rectangle, with
 Redo retaining disarmed state; pending cancellation stays separate. Clean4/4
 and paired live geometry/tool-state evidence. Illustrated642/master38 verified.
 Release-center selection remains open; see current three-point matrix receipt.
+
+### September10 — fresh three-point rectangle center controls
+
+Persist ordered four-line identity without center-sizing intent/automaticLock.
+Release nowselectscenter,showsdirectpadlock/twosizes andhidesimplicitglyphcluster.
+DirectLock affectscenteronly,clearsselection; Unlockretainsfreehalo. Paired
+translation/history andsavedcentercontrol verified. Historyclearscenterselection;
+center-rectangleparallelannotationaliases donotapplytothreepointgroups.
+Initial32/33caughtrealoverlock, corrected33/33, existing3/3, history5/5, final6/6
+separateruns. Illustrated653/all7hashes/master38 verified; legacygroupless
+rectanglesandremainingcompletiondirections remainopen inQA10. See currentreceipt.

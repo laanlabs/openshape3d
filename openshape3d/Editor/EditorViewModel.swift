@@ -4985,6 +4985,16 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        if selectedSketchPoints.count == 1,
+           let point = selectedSketchPoints.first, point.role == .center,
+           let sketch = activeSketch, sketch.rotatedRectangleEdges[point.entityID] != nil,
+           sketch.rectangleSizingAnchors[point.entityID] == nil {
+            selectedSketchPoints.removeAll()
+            selectedSketchEntityIDs.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
+        }
         // Direct migrated-corner history clears the endpoint/readouts in
         // native, just as explicit transform history clears its selection.
         if selectedMigratedRectangleCornerEdges != nil {
@@ -7975,17 +7985,22 @@ final class EditorViewModel {
                                                     heightPoint: end, ids: rectangleIDs)
         guard edges.count == 4 else { return }
         let constraints = RectangleConstruction.constraints(for: edges)
-        var commands: [DocumentCommand] = edges.map { AddSketchEntityCommand(sketchID: sketchID, entity: $0) }
-        commands += constraints.map { AddSketchConstraintCommand(sketchID: sketchID, constraint: $0) }
+        guard let before = activeSketch, before.id == sketchID else { return }
+        var after = before
+        after.entities += edges
+        after.constraints += constraints
+        // Persist the ordered rectangle identity without center-sizing intent.
+        // Its center is a control, not a new geometric entity or default Lock.
+        after.rotatedRectangleEdges[edges[0].id] = edges.map(\.id)
         if let dimension = rectangleBaselineDimension {
-            commands.append(AddSketchDimensionCommand(sketchID: sketchID, dimension: dimension))
+            after.dimensions.append(dimension)
         }
-        session.perform(CompositeCommand(title: "Draw Rectangle", commands: commands))
+        session.perform(ReplaceSketchGeometryCommand(title: "Draw Rectangle", before: before, after: after))
         clearRectanglePlacement()
         // Keep the whole completed rectangle selected, exposing its two
         // adjacent lengths without automatically opening a keypad.
         selectedSketchEntityIDs = Set(edges.map(\.id))
-        selectedSketchPoints.removeAll()
+        selectedSketchPoints = [.init(entityID: edges[0].id, role: .center)]
         session.save()
     }
 
@@ -8226,7 +8241,7 @@ final class EditorViewModel {
     static let rectangleCenterLockHitSize: CGFloat = 22
 
     var sketchRectangleCenterLockMarkers: [SketchPointMarker] {
-        let releasedCenter = mode.sketchTool == .rect && rectangleType == .center
+        let releasedCenter = mode.sketchTool == .rect && (rectangleType == .center || rectangleType == .threePoint)
             && !hasPendingRectangle && pendingEntity == nil
         guard mode.isSketching, mode.sketchTool == nil || releasedCenter,
               editingDimension == nil, !sketchTransformActive else { return [] }
@@ -8251,6 +8266,9 @@ final class EditorViewModel {
     /// it selected so the now-free center is immediately available to move.
     func toggleRectangleCenterLock() {
         guard !sketchRectangleCenterLockMarkers.isEmpty else { return }
+        // Release may retain the rectangle's edges to show its two sizes.
+        // The direct padlock acts on the selected center, not those edges.
+        selectedSketchEntityIDs.removeAll()
         let unlocking = canUnlockSketchSelection
         toggleSketchSelectionLock()
         if !unlocking && canUnlockSketchSelection {
@@ -8283,7 +8301,7 @@ final class EditorViewModel {
     }
 
     private func migratedRectangleCenter(at raw: SIMD2<Double>, in sketch: Sketch) -> (UUID, SIMD2<Double>)? {
-        sketch.rectangleSizingAnchors.keys.compactMap { id -> (UUID, SIMD2<Double>)? in
+        sketch.rotatedRectangleEdges.keys.compactMap { id -> (UUID, SIMD2<Double>)? in
             guard RectangleConstruction.centerDiagonalReferences(id, in: sketch) != nil,
                   let center = localPoint(.init(entityID: id, role: .center), in: sketch),
                   simd_distance(center, raw) <= controlPointTolerance else { return nil }
@@ -12113,7 +12131,10 @@ final class EditorViewModel {
     }
 
     private var selectedRectangleDimensionEdges: [UUID]? {
-        guard selectedSketchPoints.isEmpty else { return nil }
+        let releasedCenter = mode.sketchTool == .rect && rectangleType == .threePoint &&
+            selectedSketchPoints.count == 1 && selectedSketchPoints.first?.role == .center &&
+            selectedSketchEntityIDs.contains(selectedSketchPoints.first!.entityID)
+        guard selectedSketchPoints.isEmpty || releasedCenter else { return nil }
         guard let sketch = activeSketch,
               let first = selectedSketchEntities.first,
               let loop = RectangleConstruction.dimensionEdges(containing: first.id, in: sketch),
@@ -12464,7 +12485,8 @@ final class EditorViewModel {
                        let group = sketch.rotatedRectangleEdges.values.first(where: { ids in
                            ids.count == 4 && Set(ids).count == 4 && ids.contains(d.refs[0].entityID) &&
                            ids.allSatisfy { if case .line? = sketchEntity($0, in: sketch) { return true }; return false }
-                       }), let index = group.firstIndex(of: d.refs[0].entityID) {
+                       }), let groupID = group.first, sketch.rectangleSizingAnchors[groupID] != nil,
+                       let index = group.firstIndex(of: d.refs[0].entityID) {
                         let oppositeID = group[(index + 2) % 4]
                         if let opposite = makeLabel(id: d.id.uuidString + "-side-" + oppositeID.uuidString,
                             in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
@@ -12479,6 +12501,7 @@ final class EditorViewModel {
                        d.refs.count == 2, d.refs[0].entityID == d.refs[1].entityID,
                        Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
                        let group = selectedMigratedRectangleEdges,
+                       let groupID = group.first, sketch.rectangleSizingAnchors[groupID] != nil,
                        let selectedID = selectedSketchEntityIDs.first,
                        let selectedIndex = group.firstIndex(of: selectedID),
                        let drivingIndex = group.firstIndex(of: d.refs[0].entityID),

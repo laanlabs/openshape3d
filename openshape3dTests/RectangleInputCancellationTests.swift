@@ -55,6 +55,55 @@ final class RectangleInputCancellationTests: XCTestCase {
             XCTAssertEqual(vm.session.undoStack.undoCommands.count, depth)
         }
     }
+    func testThreePointCenterControlLocksOnlyCenterAndPersistsGroupIdentity() throws {
+        let vm = try makeViewModel()
+        vm.setRectangleType(.threePoint)
+        tap(vm, SIMD2(14, 11)); tap(vm, SIMD2(10, 10)); tap(vm, SIMD2(10, 14))
+        let beforeLock = try XCTUnwrap(vm.activeSketch)
+        let center = try XCTUnwrap(vm.sketchRectangleCenterLockMarkers.first)
+        XCTAssertTrue(center.isSelected)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+        XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty, "Structural rules must not cover the released shape")
+        XCTAssertTrue(beforeLock.rectangleSizingAnchors.isEmpty, "Control identity must not impose center sizing")
+        XCTAssertEqual(beforeLock.rotatedRectangleEdges.count, 1)
+        let id = try XCTUnwrap(beforeLock.rotatedRectangleEdges.keys.first)
+        vm.toggleRectangleCenterLock()
+        let locked = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(locked.entities, beforeLock.entities)
+        XCTAssertEqual(locked.constraints.filter { $0.kind == .fixed }.map(\.refs),
+                       [[.init(entityID: id, role: .center)]])
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(locked))
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(id, in: reopened))
+        vm.deselectSketchTool()
+        vm.selectedSketchPoints = [.init(entityID: id, role: .center)]
+        vm.toggleRectangleCenterLock()
+        XCTAssertEqual(vm.activeSketch?.entities, beforeLock.entities)
+        XCTAssertFalse(vm.activeSketch!.constraints.contains { $0.kind == .fixed })
+        XCTAssertEqual(vm.selectedSketchPoints, [.init(entityID: id, role: .center)])
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, locked)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch?.entities, beforeLock.entities)
+        vm.selectedSketchPoints = [.init(entityID: id, role: .center)]
+        let plane = beforeLock.plane
+        let origin = center.world + SIMD3<Float>(plane.normal * 10)
+        let direction = SIMD3<Float>(-plane.normal)
+        XCTAssertTrue(vm.beginSketchStroke(ray: Ray(origin: origin, direction: direction)))
+        let movedRay = Ray(origin: origin + SIMD3<Float>(3, 0, 2), direction: direction)
+        vm.updateSketchStroke(ray: movedRay)
+        vm.endSketchStroke(ray: movedRay)
+        let moved = try XCTUnwrap(vm.activeSketch)
+        XCTAssertNotEqual(moved.entities, beforeLock.entities)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, beforeLock.entities)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        XCTAssertTrue(vm.sketchRectangleCenterLockMarkers.isEmpty)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, moved)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+    }
+
     func testTypedPendingBaselineDefersDocumentAndDimensionUntilRectangleCompletion() throws {
         let vm = try makeViewModel()
         vm.setRectangleType(.threePoint)
@@ -90,6 +139,13 @@ final class RectangleInputCancellationTests: XCTestCase {
         vm.redo()
         XCTAssertEqual(vm.activeSketch, completed)
         XCTAssertNil(vm.mode.sketchTool, "Redo must not rearm rectangle construction")
+        vm.selectedSketchEntityIDs = [completed.entities[1].id]
+        let dimensionID = try XCTUnwrap(completed.dimensions.first?.id)
+        XCTAssertEqual(vm.sketchDimensionLabels.filter { $0.dimensionID == dimensionID }.count, 1,
+                       "Three-point identity must not inherit two-sided center-rectangle aliases")
+        vm.selectedSketchEntityIDs = []
+        vm.selectedDimensionID = dimensionID
+        XCTAssertEqual(vm.sketchDimensionLabels.filter { $0.dimensionID == dimensionID }.count, 1)
 
         // A later draft/cancel must not leak its dimension into a fresh rectangle.
         vm.startSketch(tool: .rect)

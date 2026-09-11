@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEAD84ca852 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEADc154574 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -32,8 +32,29 @@ Exec63275 completed clean4/4. Same-build live2.0523×0.9664 rectangle Undo
 removes geometry and disarms Rectangle; Redo restores geometry without rearming.
 Paired native15×7 Undo/Redo reference captured. No runner. Illustrated642/new2
 hashes once/master38 verified; no predecessor image/text loss.
-Exactnext commit/push history lifecycle correction, then native three-point
-center release/Lock comparison and safe center-control identity implementation.
+Initial36940 ended32/33: center Lock also locked3wholeedges from release
+selection. Directpadlock now clears entityselection first, targetscenteronly.
+Corrected90180 clean33/33; existing center followup85567 clean3/3. Live fresh
+three-point release now shows centerhalo/padlock, no implicit glyphcluster;
+directLock clearsselection/centergreen; Escape disarms, reselectcenter then
+Unlock retainsfreehalo. Clonecenter491,358→451,338 moves(-40,-20)rigidly;
+UndoRedo restoresgeometry. Nativecenter727,263→787,263 (+60,0) similarlymoves,
+but UndoRedo clearscenterselection vsclonekeepshalo. Scopedhistorycleanup added
+only groupcenter withno sizinganchor. Newunit exactmove/UndoRedo/selection.
+24376 clean5/5. Final live fixturecenter370,573→410,533 translation(+40,-40),
+UndoRedo bothrestoregeometryandclearselection. Galleryreopen center410,533
+selectable withpadlock; savedwidth2.3659,height1. Revealedtwo-sidedheightaliases
+inheritedfrommigratedcenter path; restrict two alias branches to group with
+rectangleSizingAnchors metadata (notfreshthreepoint group). Otherselectededge
+presentation/visibility remains. New assertions one savedsizealias onadjacent
+selection andretaineddimensionstate.
+71931 clean6/6. Live savedwidth2.3659/height1 nowoneheightlabel; editoropens1,
+fullyvisible. Paired savedcentercontrols retained. Publication653/all7hashesonce/
+master38 verified, no predecessorimages/text loss. No runner. NativeFront44edges
+withmovedcenterselected772,262; clone savedfixturewidthselected,editorcancelled.
+Exactnext commit/push freshcentercontrol correction, thenrecoverlegacy3ptgroups
+safely (no center-sizing intent), remainingQA10directions/stageacceptance.
+No fullparity/deviceclaim; IPAunchanged.
 Receipt docs/testing/sketch-parity-three-point-matrix-2026-09-10.md; allPNGcopied/
 hashedreports/.../three-point-matrix. Master/illustratededitable; nohostblocker.
 Soleowner; preserveunrelatedidentity/memory, reporttabs/nativefixtures; no merge/

@@ -112,3 +112,45 @@ history-redo-fixed PNGs captured; native-typed-undo/redo is paired reference.
 Publication verified642/new2hashes once/master38, no predecessor image or
 ordered text loss (/tmp/os3d-qa10-history-published.docx and history-master.docx). Release center remains
 open. No other drawing tools or whole-app history semantics generalized.
+
+### Three-point center-control gap
+
+Native saved15×7 center direct Lock clears selection/turns center green; reselect
+and direct Unlock restores selected free halo. Clone center click no target.
+Paired center PNGs retained. Fresh construction now stores ordered group identity
+without center sizing intent, selects center on release, hides implicit glyphs.
+Current exec36940 tests group Lock/Unlock/history plus construction and3UI.
+No post-fix live claim. Legacy loops without group metadata still need recovery.
+
+Initial center-control36940 result32/33: center Lock included3wholeedges
+from release selection; unit assertion correctly failed. Direct padlock now
+clears entity selection before deriving Lock refs. Same33 rerunning90180.
+
+Center diagnosis export646/all4newhashes exactlyonce, no642predecessorimage
+loss and all prior text characters ordered. Master remains38 at history note.
+All current publication exports also copied into local evidence directory.
+
+Corrected90180 clean33/33 (27construction,3pending/centerunits,3UI). Shared
+center padlock path followup85567 runs2existing center/migration unit tests and
+centerrelease UI. Final live controls pending; initial failure retained.
+
+Existing85567 clean3/3. Live fresh release/directLock/reselect/Unlock pass;
+clone center moves(-40,-20) rigidly and UndoRedo restoresgeometry. Native
+center move(+60,0) and UndoRedo pass; native clearsselectedhalo afterhistory
+while clone retained it. Scoped no-sizing-anchor groupcenter history cleanup
+added; exact center-drag/history unit assertions included. Run24376 active.
+All current center PNGs copied/hashed; final publication pending.
+
+24376 clean5/5. Final live movement(+40,-40), UndoRedo nowclearselection and
+restoregeometry. Galleryreopen centercontrol retained; width2.3659,height1.
+Savedwidthselection revealedheight alias on bothparallel sides, inheritedfrom
+migratedcenter presentation. Scopedextraaliases to sizing-metadata groups;
+newunit assertsonealias onadjacent/retaineddimension. Sixcasesrun71931 active.
+
+Final71931 clean6/6, includingexistingcenterrotationUI. Live reopened3pt
+width2.3659/height1 nowshowsoneheightlabel; heighteditoropensvalue1 withfully
+visiblekeypad. Native movedcentercontrol also survivesgalleryreopen.
+Publication653/all7newhashes once, no646predecessorimageloss andorderedprior
+text preserved. Master38/newnoteonce/noloss. Exports center-final-published
+andcenter-final-master copiedlocal. Freshgroupcontrol verified; legacyloops
+withoutgroupidentity remainunsupported, QA10partial. No wholeapp/deviceclaim.

@@ -19,7 +19,7 @@ nonisolated enum RectangleConstruction {
     /// Its center remains the midpoint of opposite vertices, not that edge's
     /// midpoint. Persisted edge identity survives later attached geometry.
     static func centerDiagonalReferences(_ id: UUID, in sketch: Sketch) -> (ConstraintRef, ConstraintRef)? {
-        guard let anchor = sketch.rectangleSizingAnchors[id], anchor.cornerUsesMax == nil,
+        guard sketch.rectangleSizingAnchors[id]?.cornerUsesMax == nil,
               let edges = sketch.rotatedRectangleEdges[id], edges.count == 4, edges.first == id,
               Set(edges).count == 4, edges.allSatisfy({ edge in
                   sketch.entities.contains { if case .line = $0 { return $0.id == edge }; return false }
