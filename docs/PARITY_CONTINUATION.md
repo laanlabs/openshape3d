@@ -836,3 +836,20 @@ arc regression is running serially at
 simulator. Exact next action: collect that result, reconcile the finite QA-13
 closure without broadening its claim, publish only if new documentation needs a
 dated note, then continue the next finite core case. Immutable IPA unchanged.
+
+## September 11 13:31 — QA-26/27 automated checkpoints complete
+
+Current pushed baseline is `89bb2f0`. Task changes implement adaptive
+Absolute/Horizontal/Vertical dimensions for a selected sloped line, add QA-26
+Always Show on-state coverage, and add deterministic model/UI workflows plus
+the two new checkpoint receipts. Final QA-27 serial gate passed clean 18/18 at
+`/tmp/os3d-qa27-dimension-final2-20260911.xcresult`; QA-26's focused baseline is
+clean 16/16. Two combined-run QA-27 assertion failures are retained as fixture
+corrections: Undo exposes the selected line's absolute undriven candidate.
+
+No runner owns the simulator. Fresh paired live comparison and Google Docs
+publication remain blocked because foreground Peekaboo events resolve to the
+Simulator window but do not mutate the app after scoped bridge/simulator
+recovery. Inventory remains 13/0/1/42. Exact next action: inspect and commit the
+safe task diff, then continue the next independent finite acceptance case while
+retaining QA-24/25/26/27 live/publication gates. Immutable IPA unchanged.

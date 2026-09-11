@@ -223,13 +223,22 @@ Acceptance: Off does not flood the active sketch with unrelated locked values; o
 
 ### DM-03 · Absolute/horizontal/vertical distance choice is missing
 
-**Queued — implementation needed** · P1
+**Implemented; clean 18/18 current-tree regression, live comparison pending** · P1
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
 Next: Add a distance-type chooser and preserve the chosen kind through editing/save/undo.
 
 Acceptance: The same reference points can show the three distinct intended measurements; choosing a type changes the driving constraint rather than only the displayed text.
+
+September 11 checkpoint: a sloped single line now exposes Absolute,
+Horizontal and Vertical Dimension actions, while axis-aligned lines retain the
+unambiguous direct action. A 3-4-5 model recipe verifies all three stored kinds,
+Undo/Redo and JSON persistence; the UI verifies menu choice, replacement,
+commit and history. Final serial result is clean 18/18. Fresh paired live
+capture and illustrated publication remain blocked by simulator input delivery,
+so DM-03/QA-27 is not promoted. See
+[adaptive-dimensions checkpoint](testing/sketch-parity-adaptive-dimensions-checkpoint-2026-09-11.md).
 
 ### DM-04 · Circle radius versus diameter preference is missing
 

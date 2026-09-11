@@ -62,6 +62,56 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testSlopedLineDimensionActionOffersAbsoluteHorizontalAndVertical() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.42))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.58, dy: 0.62)))
+        sleep(1)
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+
+        tapPaletteTool(app, group: "Constrain", id: "DimensionButton")
+        for (kind, title) in [("distance", "Absolute"),
+                              ("horizontal", "Horizontal"),
+                              ("vertical", "Vertical")] {
+            XCTAssertTrue(app.buttons["DimensionKind-\(kind)"].waitForExistence(timeout: 3),
+                          "A sloped line should offer \(title) distance")
+        }
+        attach(app, "sloped-line-adaptive-dimension-menu")
+        app.buttons["DimensionKind-horizontal"].tap()
+        let field = app.textFields["DimensionField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        let measuredHorizontal = try XCTUnwrap(field.value as? String)
+        XCTAssertNotEqual(measuredHorizontal, "",
+                          "Choosing Horizontal opens its measured projection")
+        attach(app, "sloped-line-horizontal-dimension-editor")
+
+        app.buttons["Keypad-1"].tap()
+        XCTAssertEqual(field.value as? String, "1",
+                       "A newly selected adaptive dimension starts a fresh replacement session")
+        app.buttons["KeypadCommit"].tap()
+        let label = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertTrue(label.label.contains("1 mm"))
+        attach(app, "sloped-line-horizontal-dimension-committed")
+
+        app.buttons["UndoButton"].tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertFalse(label.label.contains("1 mm"),
+                       "Undo removes the horizontal driver and restores an undriven measurement")
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertTrue(label.label.contains("1 mm"),
+                      "Redo restores the chosen horizontal dimension")
+        attach(app, "sloped-line-horizontal-dimension-redo")
+    }
+
     func testScalarArithmeticReopensAsExpressionAndUndoRestoresPriorValue() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -144,6 +144,51 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
                        "disjoint same-sketch selection must not expose the intervening entity")
     }
 
+    func testSlopedLineOffersAbsoluteHorizontalAndVerticalDimensions() throws {
+        AppSettings.shared.unit = .millimeters
+        for (kind, expected) in [(DimensionKind.distance, 50.0),
+                                 (.horizontal, 30.0),
+                                 (.vertical, 40.0)] {
+            let vm = try makeViewModel()
+            let id = UUID()
+            let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+            let sketch = Sketch(plane: .ground, entities: [line])
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [id]
+
+            XCTAssertEqual(vm.dimensionKindChoices, [.distance, .horizontal, .vertical])
+            vm.beginDimensionForSelection(kind: kind)
+            XCTAssertEqual(vm.editingDimension?.kind, kind)
+            XCTAssertEqual(vm.editingDimension?.text, String(Int(expected)))
+            vm.commitDimensionEdit(String(Int(expected)))
+
+            let saved = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(saved.entities, [line])
+            XCTAssertEqual(saved.dimensions.count, 1)
+            XCTAssertEqual(saved.dimensions[0].kind, kind)
+            XCTAssertEqual(saved.dimensions[0].value, expected, accuracy: 1e-9)
+
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, [line])
+            XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, saved)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(saved)), saved)
+        }
+
+        let vm = try makeViewModel()
+        let id = UUID()
+        let horizontal = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(50, 0))
+        let sketch = Sketch(plane: .ground, entities: [horizontal])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertEqual(vm.dimensionKindChoices, [.distance],
+                       "axis-aligned lines do not offer duplicate measurements")
+    }
+
     // MARK: - Radius vs diameter (the app used to disagree with itself)
 
     /// A circle read Ø while you dragged it out (`LiveDimensionKit`) but its
@@ -202,6 +247,36 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.mode = .sketching(hidden.id, tool: nil)
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
                        [shown.id, hidden.id])
+    }
+
+    func testAlwaysShowToggleCoversActiveOtherHiddenAndReentry() throws {
+        let vm = try makeViewModel()
+        let active = dimensionedLine(length: 10)
+        let other = dimensionedLine(length: 20)
+        let hidden = dimensionedLine(length: 30, hidden: true)
+        for sketch in [active, other, hidden] {
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+        }
+
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(active.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id, other.id])
+
+        vm.mode = .idle
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id, other.id],
+                       "leaving the sketch keeps visible-sketch annotations when Always Show is on")
+
+        AppSettings.shared.alwaysShowDimensions = false
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        vm.selectedSketchEntityIDs = [other.entities[0].id]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [other.id])
+
+        vm.selectedSketchEntityIDs.removeAll()
+        vm.mode = .sketching(hidden.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = true
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
+                       [active.id, other.id, hidden.id],
+                       "re-entering a hidden sketch includes that active sketch without exposing it otherwise")
     }
 
     // MARK: - Constraint glyphs mirror dimensions

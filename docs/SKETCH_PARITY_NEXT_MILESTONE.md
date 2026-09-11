@@ -675,3 +675,14 @@ but fresh paired live capture and illustrated publication remain blocked by
 simulator input delivery. The inventory stays 13 passed / 0 failed /
 1 device-blocked / 42 incomplete. Continue QA-26 independently while retaining
 these live/publication gates; do not relabel automated evidence as paired proof.
+
+## September 11 — QA-26/27 independent checkpoints
+
+QA-26 now has a clean 16/16 automated active/other/hidden, exit/re-entry and
+toggle matrix. QA-27 implements the missing sloped-line Absolute/Horizontal/
+Vertical Dimension chooser and passes a final clean 18/18 model/UI gate,
+including commit, Undo/Redo and serialization. Earlier selector and history
+presentation assertion failures are retained as fixture corrections. Both cases
+remain partial because fresh paired live interaction and illustrated publication
+are blocked by simulator input delivery. Inventory remains 13 passed / 0 failed /
+1 device-blocked / 42 incomplete; immutable IPA unchanged.

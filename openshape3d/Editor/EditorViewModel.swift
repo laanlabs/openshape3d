@@ -12435,6 +12435,26 @@ final class EditorViewModel {
     /// True when the palette Dimension action can act on the selection.
     var canDimensionSelection: Bool { dimensionCandidate != nil }
 
+    /// The dimension kinds offered by the adaptive Dimension action. A sloped
+    /// line has three useful measurements in Shapr3D: its true length plus its
+    /// horizontal and vertical projections. Axis-aligned lines keep the single
+    /// unambiguous length action rather than showing duplicate values.
+    var dimensionKindChoices: [DimensionKind] {
+        guard let candidate = dimensionCandidate else { return [] }
+        guard candidate.kind == .distance,
+              selectedSketchPoints.isEmpty,
+              selectedLineEntities.count == 1,
+              selectedSketchEntityIDs.count == 1,
+              case let .line(_, a, b) = selectedLineEntities[0] else {
+            return [candidate.kind]
+        }
+        let delta = b - a
+        guard abs(delta.x) > 1e-9, abs(delta.y) > 1e-9 else {
+            return [candidate.kind]
+        }
+        return [.distance, .horizontal, .vertical]
+    }
+
     /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has
     /// no length meaning, so it maps to nil and the value is left alone.
     nonisolated static func lengthUnit(forSuffix suffix: String?) -> DisplayUnit? {
@@ -12882,12 +12902,14 @@ final class EditorViewModel {
 
     /// Palette Dimension action uses the stored label when this size is already
     /// driven; otherwise it opens the new selection candidate.
-    func beginDimensionForSelection() {
+    func beginDimensionForSelection(kind requestedKind: DimensionKind? = nil) {
         guard let cand = dimensionCandidate, let sketch = activeSketch,
-              let value = measuredValue(kind: cand.kind, refs: cand.refs, in: sketch) else { return }
+              requestedKind.map({ dimensionKindChoices.contains($0) }) ?? true else { return }
+        let kind = requestedKind ?? cand.kind
+        guard let value = measuredValue(kind: kind, refs: cand.refs, in: sketch) else { return }
         let refs = Set(cand.refs.map { "\($0.entityID)-\($0.role.rawValue)" })
         if let storedLabel = sketchDimensionLabels.first(where: {
-            $0.dimensionID != nil && $0.kind == cand.kind &&
+            $0.dimensionID != nil && $0.kind == kind &&
             Set($0.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refs
         }) {
             beginDimensionEdit(storedLabel)
@@ -12900,16 +12922,16 @@ final class EditorViewModel {
         editingDimension = DimensionEdit(
             labelID: "candidate",
             dimensionID: nil,
-            kind: cand.kind,
+            kind: kind,
             refs: cand.refs,
             // `measuredValue` already returns degrees for `.angle`; lengths are
             // millimetres and must be shown in the display unit, exactly as
             // `beginDimensionEdit` does — the two paths open the same field.
             text: Self.dimensionFieldText(
-                cand.kind == .angle
+                kind == .angle
                     ? value
                     : AppSettings.shared.unit.display(fromMM: value),
-                lengthUnit: cand.kind == .angle ? nil : AppSettings.shared.unit),
+                lengthUnit: kind == .angle ? nil : AppSettings.shared.unit),
             measuredSeed: value
         )
     }
