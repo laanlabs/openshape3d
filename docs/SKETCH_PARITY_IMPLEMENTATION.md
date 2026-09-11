@@ -223,7 +223,7 @@ Acceptance: Off does not flood the active sketch with unrelated locked values; o
 
 ### DM-03 · Absolute/horizontal/vertical distance choice is missing
 
-**Implemented; clean 18/18 current-tree regression, live comparison pending** · P1
+**Finite QA-27 recipe verified; final54/54 plus paired exact-size/history/reopen** · P1
 
 Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
 
@@ -246,6 +246,13 @@ history and clone reopen verified; illustrated813/master38 publication verified.
 Immediate choice deselection subsequently passed2/2 and live verification
 with817-image follow-up publication. Exact live30/40/50 and driven variants remain open;
 QA27 stays partial. Display choice and driving-dimension editing are distinct.
+
+September11 final: `3016ac6` extends the badge to one plain numeric driver,
+replacing kind/value atomically while preserving ID/references/geometry. Paired
+native/clone exactH30/V40/Absolute50, Undo/Redo and gallery reopen verified.
+Final combined54/54 (zero fail/skip). Illustrated827/master38 exports verified,
+all ten new hashes once and no predecessor loss. Finite QA27 passed; formulas
+and multiple matching drivers remain excluded pending specific evidence.
 
 ### DM-04 · Circle radius versus diameter preference is missing
 

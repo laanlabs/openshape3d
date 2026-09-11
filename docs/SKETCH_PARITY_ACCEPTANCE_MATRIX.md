@@ -31,7 +31,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
 | QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
 | QA-26 | Annotation on-state | Core — partial, live/publication blocked | Clean 16/16 automation covers active/other/hidden sketches, exit/re-entry and toggle persistence. Fresh paired walkthrough and publication remain blocked by simulator input delivery. |
-| QA-27 | Dimension type | Core — partial | Label badge display switch and prior toolbar editing implemented; final53/53, paired menu/projection/history and clone reopen verified; illustrated813/master38 publication verified. Immediate selection cleanup additionally passed2/2 plus live verification and817-image publication; exact live30/40/50 and driven variants remain open. |
+| QA-27 | Dimension type | Core — passed | Exact paired H30/V40/Absolute50, plain numeric driver replacement, on-label menu, Undo/Redo and gallery reopen verified on3016ac6. Final54/54; illustrated827/master38 export verified with predecessor preservation. Variable-linked/multiple-driver variants remain separate and unverified. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
 | QA-30 | Rectangle sequence | Core — PASSED (September 11 finite recipe) | Retained paired two-axis sizing plus a clean exact-tree 4/4 width→height numeric/system-keyboard, edge-clearance and history gate. Illustrated publication is verified at 800 unique placements; physical input remains QA-52. |
@@ -241,11 +241,14 @@ simulator input delivery. See
 ### QA-27 — Dimension type
 
 Sloped 3-4-5 line: horizontal 30, vertical 40, absolute 50. Issues: DM-03.
-Result: **PARTIAL** — prior toolbar editing and the new undriven label badge pass
-the final53/53 gate. Paired menu/projections/history and clone reopen are verified;
-illustrated813/master38 publication is verified. The exact live30/40/50 recipe,
-driven variants remain open. Immediate choice cleanup passed a separate2/2
-and changed live check; follow-up publication verified at817 images. See
+Result: **PASS** for the finite exact-size recipe on `3016ac6`. Native and
+changed clone show H30/V40/Absolute50 on unchanged geometry, including the
+plain numeric driving state. Label-menu type changes preserve one driver in
+place and clear selection without a keypad. Paired Undo/Redo and gallery reopen
+are verified; final combined regression54/54, zero failures/skips. Illustrated
+export827 unique media (ten new hashes once, no817 predecessor loss); master38
+with one closure note and no media loss. Formula-linked/multiple-driver
+variants remain separately unverified, not included in this pass. See
 [adaptive dimensions checkpoint](testing/sketch-parity-adaptive-dimensions-checkpoint-2026-09-11.md).
 
 ### QA-28 — Dimension selection matrix
@@ -839,3 +842,11 @@ media and one QA-15 note.
 Inventory is **10 passed / 0 failed / 1 device-blocked / 45 incomplete** (34
 partial, 11 explicitly deferred), total 56. Updated device installation and
 physical Pencil/touch remain unverified; immutable 05be744 IPA is unchanged.
+
+### September 11 QA-27 finite closure
+
+Exact sloped-line H30/V40/Absolute50, numeric driver type conversion, paired
+history and saved reopen close QA27 on3016ac6 with final54/54 and verified
+827-image illustrated/38-media master publication. Inventory: **23 passed /
+0 failed / 1 device-blocked / 32 incomplete**, total56. No device installation
+or formula-linked/multiple-driver parity is claimed.

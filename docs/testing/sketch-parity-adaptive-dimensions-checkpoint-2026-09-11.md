@@ -134,3 +134,30 @@ No geometry movement or new driver; variable-linked/multiple-driver references
 remain excluded pending evidence. Focused3-case run is active at
 `/tmp/os3d-qa27-driven-focused-20260911.xcresult`; no result or changed-build
 live proof claimed yet. Publication of this new exact/driven evidence pending.
+
+## Final exact recipe closure — September 11, 2026
+
+Implementation revision `3016ac6`, pushed. Corrected focused3/3 followed by one
+clean combined **54/54**, zero failures/skips, at
+`/tmp/os3d-qa27-driven-final-20260911.xcresult` (summary/log retained in durable
+QA27/exact-recipe). No runner remains. Earlier failure/partial receipts above
+are historical and not combined into this final result.
+
+Native and changed clone both display Horizontal30, Vertical40, Absolute50mm
+on the same exact sloped line. The driver badge remains available after numeric
+sizing; choosing a type changes the one plain numeric driver in place without
+moving geometry or opening a keypad. Undo/Redo restore the expected previous
+kind; native preceding choice wasV40 and cloneH30, with both Redos returning
+Absolute50. Both gallery reopen routes retain Absolute50; clone Items shows one
+Distance50mm driver. Native reopening required dismissing the ordinary upgrade
+modal, then Sketch06/Normal to Sketch/Zoom to; no purchase or data reset.
+
+Published ten exact-size PNGs. `exact-recipe/closure-publication-manifest.json`
+lists immutable source paths/hashes. `closure-illustrated-verification.json`:
+827 unique media, all ten new hashes exactly once, zero817 predecessor loss,
+closure heading once. `closure-master-verification.json`:38 media, zero loss,
+closure heading once. Both after.docx exports retained in that directory.
+
+Finite QA27 PASS. Inventory23/0/1/32. Variable-linked/multiple-driver variants
+remain outside this single plain numeric driver recipe. Physical iPad and
+immutable05be744 unchanged. Next: QA26 paired annotation on-state walkthrough.

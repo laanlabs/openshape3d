@@ -1,5 +1,47 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 QA27 closure verified
+
+HEAD3016ac6 source/tests pushed; documentation closure staged next. No runner.
+Final54/54 zero fail/skip. Paired exactH30/V40/Absolute50, numeric driver badge,
+Undo/Redo and both gallery reopen verified. Illustrated827 unique images, ten
+source hashes once, no817 predecessor loss; master38, one note, no media loss.
+Durable QA27/exact-recipe contains manifests/exports/verification and PNG/JSON.
+QA27 finite PASS, inventory23/0/1/32; variable/multiple-driver variants separate.
+Native parked Sketch06 reopened50 selected. Clone parked reopened50 selected.
+Next commit/push closure docs then QA26 paired annotation on-state walkthrough:
+active/other/hidden sketches, exit/re-entry and toggle persistence. Latest54/54
+already includes its automated matrix; no duplicate runner needed.
+Unrelated IDENTITY/SOUL/USER/memory preserved. Immutable05be744/device unchanged.
+
+
+## Current execution — September 11 19:38 live exact closure gate
+
+HEAD3016ac6 pushed. Combined54/54 completed, zero failure/skip; no runner.
+Changed clone exact H30/V40/Absolute50, driven badge, UndoH30/RedoAbsolute50
+and gallery reopen with one Distance50 driver all live-verified. Native exact
+H30/V40/Absolute50 and driven UndoV40 verified; native Redo command currently
+in flight, then reselect line and inspect. Native window1293x743; line endpoints
+(560,711)→(1032,83), reselect(850,326). Clone parked reopened50 selected.
+Next finish native Redo/reopen, publish exact closure images, verify817-image
+predecessor preservation and master38, then promote only finite QA27 recipe.
+Variable-linked/multiple-driver variants remain separate unverified cases.
+Durable QA27/exact-recipe holds source receipts; new publication pending.
+Inventory still22/0/1/33 until closure; device/immutable05be744 unchanged.
+
+## Current execution — QA27 driven focused passed
+
+HEAD3016ac6 WIP pushed. Focused3/3 zero failure/skip verified in
+/tmp/os3d-qa27-driven-focused-20260911.xcresult (summary copied durable).
+Combined annotation/layout/Trim/import + two UI workflows active at
+/tmp/os3d-qa27-driven-final-20260911.xcresult and .log. This is sole simulator
+owner; do not interact with desktop or start a duplicate runner until terminal.
+Next collect exact combined result, launch updated app without reset, perform
+clone exactH30/V40/Absolute50 numeric-driver badge/history/reopen. Fit View
+toolbar action available (EditorView.swift); native Item>Zoom to works. Native
+parked at exactAbsolute50 after unchanged-type switches. Publish new exact/driven
+evidence only after inspection. QA27 partial, inventory22/0/1/33; device unchanged.
+
 ## Current execution — September 11 driven badge WIP
 
 HEAD27e0810 pushed. Native exact H30/V40/Absolute50 verified; numeric-driven badge
