@@ -2011,3 +2011,19 @@ Circle point-routing workflows. Illustrated publication is verified at 786
 media with all seven closure hashes once and no loss from 779; master remains
 38 media. Inventory is 11/0/1/44. This does not claim persistent midpoint
 linking, topology editing, hover, or physical Pencil/touch parity.
+
+## September 11 — QA-13 finite arc closure reconciliation
+
+The original SK-10/QA-13 recipe is now closed without absorbing separate hover
+or device lanes. Existing paired evidence covers endpoint/default-side input,
+third-point shaping, Return, shared-endpoint chaining, two-stage cancellation,
+direct minor/semicircle/major categories, and inferred line-to-arc tangency.
+The current-tree UI gate additionally proves persisted Radius/Diameter-aware
+90→360 conversion with Undo restoring the 90-degree arc and Redo restoring the
+selected full circle. The final serial regression passed 63/63. The preceding
+62/63 run and targeted fixture failures are retained; they were caused by a
+stale Diameter-only expectation, draw-tool state, and coordinates that no
+longer lay on the edited arc—not product failures. Inventory advances to
+12 passed / 0 failed / 1 device-blocked / 43 incomplete. Pointer hover remains
+QA-21, physical Pencil/touch QA-52, and QA-19's native threshold pair remains
+blocked by desktop input delivery. See the September 11 arc closure audit.

@@ -62,3 +62,19 @@ off and 3D Guide Points off/on, then the same calibrated gesture in the clone.
 If both pairs distinguish raw versus acquired placement and the report is
 published without duplicate images, QA-19 can close. Physical Pencil input
 remains QA-52 and is not inferred from Simulator evidence.
+
+### September 11 input-delivery retry
+
+The native retry correctly restored Circle through Shapr3D's More menu, with
+Grid, Auto-constraining, and 3D Guide Points off. The first attempts did not
+reach the canvas because a transient macOS Automation-permission dialog from a
+diagnostic `System Events` query was frontmost. Its notification process was
+dismissed without granting or changing the permission; Shapr3D then became the
+reported frontmost application again. Despite that recovery, Peekaboo click,
+drag, and swipe routes still produced no canvas mutation at either the intended
+near-corner point or an obvious face-interior diagnostic point. Toolbar actions
+continued to work through accessibility.
+
+This is retained as a native input-delivery blocker, not an application failure
+and not snap-category evidence. No synthetic placement is counted. QA-19 stays
+partial while independent finite acceptance work continues.

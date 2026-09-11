@@ -17,7 +17,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-10 | Three-point rectangle | Core — passed | Original rotated-baseline/perpendicular-height/each-stage-cancel recipe closed at5014cef with paired forward/reverse slopes, pending numeric/leaders, center/legacy controls, history/reopen. Final36/36; illustrated700/master38 closure note verified. Detailed three-point closure audit retains failures and input/import/device qualifications. |
 | QA-11 | Concentric circles | Core — PASSED (September11 finite recipe) | Selected/unselected center distinction, gated saved center relationship, clear controls, paired history/reopen verified. Clean35/35 plus separate6/6; illustrated724. See concentric-closure-audit-2026-09-11.md. |
 | QA-12 | Circle dimensions | Core — PASSED (September11 finite recipe) | Persisted Radius/Diameter preference, equivalent geometry, compact/unclipped leaders, reverse creation direction, armed/disarmed numeric edits, direct Unlock, Circle Escape, history and gallery reopen are paired live. Final current-tree closure 22/22; illustrated764/master38 export-verified. Physical Pencil/touch remains under QA-52. |
-| QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
+| QA-13 | Arc construction | Core — PASSED (September 11 finite recipe) | Prescribed endpoints/side, direct minor/semicircle/major construction, third-point/Return/chaining, two-stage cancellation, tangent transition and history are paired live. Final current-tree gate 63/63; persisted R/Ø-aware 90→360 conversion and Undo/Redo are covered. Hover remains QA-21 and physical input QA-52. See arc-closure-audit-2026-09-11.md. |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core — PASSED (September 11 finite recipe) | Paired 5→65 count edit, exact radius, center/orientation retention, two-step Undo/Redo, profile availability and saved reopen verified. Corrected final current-tree regression 13/13; illustrated772/master38 export-verified. Native side-count badge is creation-only; physical input remains QA-52. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
@@ -125,15 +125,18 @@ R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. 
 ### QA-13 — Arc construction
 
 Prescribed endpoints/side, major/minor, tangent transition, cancel. Issues:
-SK-10. Result: PARTIAL — endpoint/default side, third-point commit, chained
-shared endpoint, Return completion, cancellation, tangent transition and direct
-minor/semicircle/major boundaries are paired. Native sampled 90/180/220 degrees;
-the differently scaled clone sampled 81.91/176.03/214.93 degrees and restored
-the major profile through Undo/Redo. Clone hover is automated-only and physical
-Pencil/touch remains unverified. Evidence: [boundary receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md),
-[Return receipt](testing/sketch-parity-arc-return-2026-09-09.md),
-[third-point/chaining receipt](testing/sketch-parity-arc-third-point-chaining-2026-09-09.md)
-and linked earlier arc receipts.
+SK-10. **September 11 finite-recipe result: PASSED.** Endpoint/default side,
+third-point commit, shared-endpoint chaining, Return completion, two-stage
+cancellation, tangent transition and direct minor/semicircle/major boundaries
+are paired live. Native sampled 90/180/220 degrees; the differently scaled
+clone sampled 81.91/176.03/214.93 degrees and restored the major profile through
+Undo/Redo. The current-tree numeric workflow additionally verifies R/Ø-aware
+90→360 conversion, Undo back to the 90-degree arc and Redo to the selected full
+circle. Final exact-tree regression passed cleanly 63/63 in one serial run.
+Pointer hover belongs QA-21 and physical Pencil/touch QA-52; neither remains a
+QA-13 closure condition. See the
+[arc closure audit](testing/sketch-parity-arc-closure-audit-2026-09-11.md) and
+its linked paired receipts.
 
 ### QA-14 — Ellipse dimensions
 

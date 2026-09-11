@@ -1,29 +1,31 @@
 # Parity continuation checkpoint
 
-## Current execution — September 11 09:18
+## Current execution — September 11 11:28
 
-QA-18 is live- and regression-complete on pushed product commit `b19c041`; the
-closure documentation is the only task-related dirty work. No build or UI-test
-runner is active, and this session remains the sole desktop, simulator, and
-build owner. Untracked identity/memory files are unrelated and must not be
-staged.
+QA-13's finite recipe is regression-complete on pushed baseline `9ae0f20` plus
+reviewable test/documentation changes. No runner is active. The final exact-tree
+serial gate passed cleanly 63/63 at
+`/tmp/os3d-qa13-final-combined-20260911.xcresult`: 60 construction/constraint
+checks and three arc UI workflows. The corrected targeted full-turn workflow
+passed first at `/tmp/os3d-qa13-fullturn-final-pass-20260911.xcresult`.
 
-Paired endpoint, existing-circle-center, rectangle-corner, line-midpoint, and
-top-face-corner initiation now pass. The confirmed midpoint failure was input
-routing through a visible H badge; ordinary constraint glyphs remain visible
-but no longer intercept an armed drawing tool. Native and clone face-corner
-Undo remove only the circle, Redo restores it, and clone gallery reopen retains
-the same top-face-corner circle. The final serial current-tree gate passed
-cleanly 13/13 at
-`/tmp/os3d-qa18-point-placement-final2-20260911.xcresult`.
+Existing export-verified paired evidence covers endpoints/default side,
+third-point/Return/chaining, two-stage cancellation, tangent transition and
+direct minor/semicircle/major categories. The current-tree fixture additionally
+proves R/Ø-aware 90→360 conversion, Undo to the 90-degree arc, and Redo to the
+selected full circle. Initial 62/63 and targeted fixture failures are preserved
+in the closure audit; no product-source change was needed. QA-13 is passed only
+for its finite recipe. Hover remains QA-21 and physical input QA-52.
 
-Publication is export-verified: illustrated 786 media, all seven closure hashes
-exactly once, and no loss from the 779-image predecessor; master remains 38
-media with the dated closure/inventory note. Inventory is 11 passed / 0 failed /
-1 device-blocked / 44 incomplete. Exact next: commit/push this closure
-checkpoint, then start the next finite incomplete core case. Updated device
-installation and physical Pencil/touch remain unverified; the immutable
-`05be744` IPA is unchanged. Historical running claims below are superseded.
+Inventory is 12 passed / 0 failed / 1 device-blocked / 43 incomplete. The
+master closure note is export-verified exactly once with all 38 predecessor
+media hashes retained; the illustrated report remains at its verified
+786-image baseline. QA-19 remains partial and locally documented:
+its final native 3D-face threshold pair is blocked by native canvas input
+delivery, not classified as app failure. Exact next: commit/push the safe QA-13
+closure changes, then continue the next finite core case while preserving
+QA-19's blocker. Unrelated identity/memory files and
+the immutable `05be744` IPA remain untouched.
 
 ## Active continuation — September10 pending three-point numeric input
 
@@ -787,3 +789,26 @@ inventory stays 11 passed / 0 failed / 1 device-blocked / 44 incomplete. No test
 runner is active after the clean run. Exact next action: commit/push the verified
 control correction, complete the paired near-threshold repeat, publish, then
 advance the finite matrix. Immutable IPA unchanged.
+
+## September 11 10:22 — QA-19 native threshold input blocked; QA-13 gate running
+
+`9ae0f20` is pushed and the task tree is clean apart from unrelated untracked
+identity/memory files. The final snap-category regression remains one clean
+21/21 run. A native retry exposed and safely dismissed a transient macOS
+Automation prompt without granting permission or changing security settings.
+Shapr3D is frontmost and Circle is armed, but supported Peekaboo click, drag,
+and swipe routes still do not mutate the canvas, including at an obvious
+face-interior diagnostic point. Toolbar accessibility actions do work. The
+missing Grid-off/3D-Guide-Points off/on near-threshold pair is therefore blocked
+by native canvas input delivery, not classified as an app or parity failure.
+QA-19 remains partial and its local evidence remains unpublished.
+
+The next independent finite closure is QA-13. Its original endpoint/side,
+minor/semicircle/major, tangent transition, Return, chaining, cancellation and
+history recipe already has paired live and export-verified evidence. Pointer
+hover remains QA-21 and physical input remains QA-52. A current-tree 63-case
+arc regression is running serially at
+`/tmp/os3d-qa13-current-tree2-20260911.xcresult`; it exclusively owns the
+simulator. Exact next action: collect that result, reconcile the finite QA-13
+closure without broadening its claim, publish only if new documentation needs a
+dated note, then continue the next finite core case. Immutable IPA unchanged.

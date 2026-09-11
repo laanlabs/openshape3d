@@ -629,3 +629,16 @@ all seven closure hashes exactly once and no predecessor loss; master remains
 38 media with the dated closure note. Inventory advances to 11 passed / 0
 failed / 1 device-blocked / 44 incomplete. Persistent midpoint relationships,
 hover, topology editing, and physical Pencil/touch remain separate gates.
+
+## September 11 — QA-13 finite closure reconciliation
+
+The already published endpoint/side, third-point, Return, chaining,
+cancellation, tangent and direct minor/semicircle/major evidence satisfies the
+original finite arc recipe. A new current-tree 63/63 serial gate also verifies
+R/Ø-aware 90→360 conversion and exact Undo/Redo restoration. Hover remains
+QA-21 and physical input remains QA-52 rather than blocking QA-13. Inventory is
+12 passed / 0 failed / 1 device-blocked / 43 incomplete. The illustrated report
+remains at its verified 786-image baseline. The master closure note is
+export-verified exactly once with all 38 predecessor media hashes retained.
+QA-19 remains independently partial because native canvas
+input delivery blocks its final controlled 3D threshold pair.

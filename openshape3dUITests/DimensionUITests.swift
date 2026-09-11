@@ -749,22 +749,63 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(angle.label.contains("90"))
         XCTAssertEqual(radius.label, beforeRadius)
         angle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        let fullTurnField = app.textFields["DimensionField"]
+        XCTAssertTrue(fullTurnField.waitForExistence(timeout: 3))
         for digit in ["3", "6", "0"] { app.buttons["Keypad-\(digit)"].tap() }
+        XCTAssertEqual(fullTurnField.value as? String, "360",
+                       "A reopened sweep field must replace its seed on the first digit")
+        attach(app, "arc-full-turn-before-commit")
         app.buttons["KeypadCommit"].tap()
         sleep(1)
-        let diameter = labels.matching(NSPredicate(format: "label BEGINSWITH %@", "Ø")).firstMatch
-        XCTAssertTrue(diameter.exists)
-        XCTAssertFalse(angle.exists)
+        let convertedLabels = app.descendants(matching: .any)
+            .matching(identifier: "DimensionLabel").allElementsBoundByIndex.map(\.label)
+        XCTAssertTrue(convertedLabels.contains(where: { $0.hasPrefix("Ø") || $0.hasPrefix("R") }),
+                      "A full turn keeps one radial label in the configured R/Ø convention")
+        XCTAssertFalse(convertedLabels.contains(where: { $0.contains("°") }))
         attach(app, "full-turn-converted-circle")
         app.buttons["UndoButton"].tap()
         sleep(1)
-        XCTAssertTrue(angle.label.contains("90"))
-        XCTAssertEqual(radius.label, beforeRadius)
+        // Sketch history intentionally clears selection. Reselect the restored
+        // arc before reading its current labels; cached XCUIElement instances
+        // can otherwise report the pre-history value.
+        // History may restore either the armed or disarmed draw-tool state.
+        // Normalize deterministically: selecting Line makes it active, then a
+        // second tap toggles it off before the geometry-selection tap.
+        XCTAssertTrue(app.buttons["Line"].firstMatch.waitForExistence(timeout: 3))
+        app.buttons["Line"].firstMatch.tap()
+        app.buttons["Line"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Drag to orbit — pick a tool to draw"]
+            .waitForExistence(timeout: 3), "Geometry selection requires every draw tool to be disarmed")
+        // The 90° edit moves the rendered arc away from the construction-time
+        // third point. Select its visible upper-right quadrant instead.
+        p(0.65, 0.405).tap()
+        sleep(1)
+        let restoredLabels = app.descendants(matching: .any)
+            .matching(identifier: "DimensionLabel").allElementsBoundByIndex.map(\.label)
+        XCTAssertTrue(restoredLabels.contains(where: { $0.contains("90") && $0.contains("°") }),
+                      "Undo should restore the immediate 90° arc state, got \(restoredLabels)")
+        XCTAssertTrue(restoredLabels.contains(beforeRadius),
+                      "Undo should restore the prior radial value, got \(restoredLabels)")
         app.buttons["RedoButton"].tap()
         sleep(1)
-        XCTAssertTrue(diameter.exists)
-        XCTAssertFalse(angle.exists)
+        // History can preserve a draw tool independently of geometry. Normalize
+        // again, then select the converted circle on its unobstructed left rim.
+        if !app.staticTexts["Drag to orbit — pick a tool to draw"].exists {
+            app.buttons["Line"].firstMatch.tap()
+            app.buttons["Line"].firstMatch.tap()
+        }
+        XCTAssertTrue(app.staticTexts["Drag to orbit — pick a tool to draw"]
+            .waitForExistence(timeout: 3))
+        attach(app, "full-turn-redone-before-reselect")
+        var redoneLabels = app.descendants(matching: .any).allElementsBoundByIndex.map(\.label)
+        if !redoneLabels.contains(where: { $0.hasPrefix("Ø") || $0.hasPrefix("R") }) {
+            p(0.215, 0.55).tap()
+            sleep(1)
+            redoneLabels = app.descendants(matching: .any).allElementsBoundByIndex.map(\.label)
+        }
+        XCTAssertTrue(redoneLabels.contains(where: { $0.hasPrefix("Ø") || $0.hasPrefix("R") }),
+                      "Redo should restore the full circle's radial label, got \(redoneLabels)")
+        XCTAssertFalse(redoneLabels.contains(where: { $0.contains("°") }))
     }
 
     // MARK: - Line length dimension
