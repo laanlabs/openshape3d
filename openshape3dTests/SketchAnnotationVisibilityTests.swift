@@ -23,6 +23,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
     private var savedUnit: DisplayUnit!
     private var savedDimensions: Bool!
     private var savedConstraints: Bool!
+    private var savedCircularAnnotations: CircularAnnotations!
 
     override func setUp() {
         super.setUp()
@@ -31,12 +32,14 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         savedUnit = AppSettings.shared.unit
         savedDimensions = AppSettings.shared.alwaysShowDimensions
         savedConstraints = AppSettings.shared.alwaysShowConstraints
+        savedCircularAnnotations = AppSettings.shared.circularAnnotations
     }
 
     override func tearDown() {
         AppSettings.shared.unit = savedUnit
         AppSettings.shared.alwaysShowDimensions = savedDimensions
         AppSettings.shared.alwaysShowConstraints = savedConstraints
+        AppSettings.shared.circularAnnotations = savedCircularAnnotations
         super.tearDown()
     }
 
@@ -108,6 +111,39 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "active sketch still requires a selection")
     }
 
+    func testOffStateShowsOnlyDimensionsOwnedBySeveralDisjointSelections() throws {
+        let vm = try makeViewModel()
+        let ids = [UUID(), UUID(), UUID()]
+        let lengths = [10.0, 20.0, 30.0]
+        let entities = zip(ids, lengths).enumerated().map { index, item in
+            let (id, length) = item
+            let y = Double(index) * 10
+            return SketchEntity.line(id: id, a: SIMD2(0, y), b: SIMD2(length, y))
+        }
+        let dimensions = zip(ids, lengths).map { id, length in
+            SketchDimension(kind: .distance,
+                refs: [ConstraintRef(entityID: id, role: .endpointA),
+                       ConstraintRef(entityID: id, role: .endpointB)],
+                value: length)
+        }
+        let sketch = Sketch(plane: .ground, entities: entities, dimensions: dimensions)
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "nothing selected")
+
+        vm.selectedSketchEntityIDs = [ids[0], ids[1]]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap { $0.dimensionID == nil ? nil : $0.text }),
+                       ["10 mm", "20 mm"],
+                       "several selected entities expose only their own dimensions")
+
+        vm.selectedSketchEntityIDs = [ids[0], ids[2]]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap { $0.dimensionID == nil ? nil : $0.text }),
+                       ["10 mm", "30 mm"],
+                       "disjoint same-sketch selection must not expose the intervening entity")
+    }
+
     // MARK: - Radius vs diameter (the app used to disagree with itself)
 
     /// A circle read Ø while you dragged it out (`LiveDimensionKit`) but its
@@ -121,6 +157,8 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
 
         for (kind, expected) in [(DimensionKind.diameter, "Ø40 mm"),
                                  (DimensionKind.radius, "R20 mm")] {
+            AppSettings.shared.circularAnnotations = kind == .radius
+                ? .alwaysRadius : .radiusAndDiameter
             let sketch = Sketch(plane: .ground, entities: [circle],
                                 dimensions: [SketchDimension(kind: kind, refs: ref,
                                                              value: kind == .diameter ? 40 : 20)])

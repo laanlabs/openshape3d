@@ -28,8 +28,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-21 | Snap feedback | Core — partial, not passed | Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved. |
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
 | QA-23 | Selection state | Core — closure-ready, publication pending | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated append did not save, so the case is not yet promoted. |
-| QA-24 | Multi-selection | Core — partial, not passed | Connected rectangle double-click paired; mouse/touch additive difference recorded. |
-| QA-25 | Annotation off-state | Core — partial, not passed | Completed horizontal line and rectangle badges paired; full selection matrix open. |
+| QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
+| QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
 | QA-26 | Annotation on-state | Core - partial, not passed | Orange selection, offset line/rectangle leaders, full circle diameter and curved arc annotation sampled paired; glyph/control and selected-side layout matrix open. |
 | QA-27 | Dimension type | Core — partial, not passed | Line/rectangle/circle radius-diameter and arc sweep samples; full type matrix open. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
@@ -206,9 +206,23 @@ Point/edge/fill/sketch/body; tool armed versus inactive; blank deselect. Issues:
 
 ### QA-24 — Multi-selection
 
+September 11 checkpoint: clean 19/19 current-tree baseline covers additive model
+routing, window/crossing selection, filters, three-body atomic Delete/Undo, and
+Select Through. The test seed did not persist for independent live inspection,
+and native Shift/additive input is still unverified, so the case remains partial.
+See [multi-selection checkpoint](testing/sketch-parity-multiselection-checkpoint-2026-09-11.md).
+
 Shift/additive, connected double-tap, overlapping geometry, item selection. Issues: ED-07. Result: NOT RUN. Evidence/owner: pending.
 
 ### QA-25 — Annotation off-state
+
+September 11 checkpoint: final clean 23/23 current-tree gate covers no selection,
+one entity, several entities and disjoint same-sketch saved dimensions. The
+initial radius/diameter fixture-state failure and the synthetic 0-degree
+selection candidate are retained and correctly separated from QA-25. Fresh
+paired screenshots remain blocked because resolved foreground clicks do not
+reach the simulator canvas even after scoped Peekaboo and simulator restarts;
+publication is therefore also pending. See [annotation off-state checkpoint](testing/sketch-parity-annotation-off-state-checkpoint-2026-09-11.md).
 
 Nothing selected, one entity, several entities, disjoint same-sketch geometry. Issues: DM-01/02. Result: NOT RUN. Evidence/owner: pending.
 

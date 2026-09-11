@@ -32,6 +32,25 @@ checkpoint, execute QA-24 additive-selection acceptance, and retry QA-23
 publication through a verified caret route without duplicate evidence.
 Unrelated identity/memory files and immutable `05be744`
 IPA remain untouched; no device installation or parity claim.
+
+QA-24 current-tree selection baseline subsequently passed clean 19/19, including
+the two real UI workflows for three-body marquee/Delete/Undo and Select Through.
+The seeded project did not persist into an ordinary relaunch, and native Shift/
+additive input remains unverified; QA-24 stays partial and counts do not change.
+Exact next independent case is QA-25 annotation off-state while publication/input
+gaps remain tracked. See testing/sketch-parity-multiselection-checkpoint-2026-09-11.md.
+
+QA-25 current-tree annotation gate subsequently passed clean 23/23 after two
+retained fixture corrections: saved circular preference leaked into the first
+run, and a synthetic 0-degree selection candidate was initially counted as a
+saved annotation. None/one/several/disjoint saved-dimension ownership now has
+explicit coverage. Fresh live comparison remains blocked: Peekaboo resolves
+foreground clicks to the Simulator window but the app receives neither its
+Sketch control nor canvas input. Restarting only Peekaboo and then only the
+affected simulator preserved all data but did not restore delivery. QA-25 stays
+partial; exact next independent work is QA-26 on-state persistence/visibility
+regression while the input/publication blocker remains. See
+testing/sketch-parity-annotation-off-state-checkpoint-2026-09-11.md.
 ## Active continuation — September10 pending three-point numeric input
 
 HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/

@@ -665,3 +665,13 @@ is closure-ready, but the illustrated append did not persist and export remains
 at 786 media. Inventory therefore stays 13 passed / 0 failed / 1 device-blocked /
 42 incomplete. QA-24 additive selection is the next finite
 selection case; hover and physical input remain QA-21/QA-52.
+
+## September 11 — QA-24/25 checkpoint
+
+QA-24 automation is clean 19/19 but remains partial pending native Shift/additive
+and an independent live seeded-state repeat. QA-25's final annotation off-state
+gate is clean 23/23 across none/one/several/disjoint saved-dimension ownership,
+but fresh paired live capture and illustrated publication remain blocked by
+simulator input delivery. The inventory stays 13 passed / 0 failed /
+1 device-blocked / 42 incomplete. Continue QA-26 independently while retaining
+these live/publication gates; do not relabel automated evidence as paired proof.

@@ -2053,3 +2053,19 @@ were repeated live. The current-tree selection/hit-priority baseline is clean
 13/0/1/42. Additive selection, hover,
 comprehensive dimension selection, and physical input remain separate lanes.
 See testing/sketch-parity-selection-state-closure-2026-09-11.md.
+
+## September 11 — QA-24/25 selection and annotation checkpoints
+
+QA-24 has a clean 19/19 current-tree automation baseline for additive selection,
+window/crossing marquee, filters, three-body atomic Delete/Undo, and Select
+Through. Native Shift/additive and an independent live seeded-state repeat are
+still open, so the case is not promoted.
+
+QA-25's final current-tree gate passes clean 23/23 for saved annotation ownership
+with Always Show Dimensions off: none, one, several, and disjoint same-sketch
+selection. The initial saved-preference fixture failure and an expected synthetic
+0-degree selection candidate are retained separately. Fresh paired live capture
+remains blocked because resolved Peekaboo foreground events do not reach the
+Simulator canvas after scoped Peekaboo and simulator restarts. Publication is
+also pending. Inventory remains 13/0/1/42. See the QA-24 and QA-25 September 11
+checkpoints under `docs/testing/`.
