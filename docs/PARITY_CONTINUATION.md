@@ -868,3 +868,20 @@ No runner owns the simulator. QA-30 remains partial pending fresh exact-build
 paired live repetition and publication; inventory stays 13/0/1/42. Exact next
 action: checkpoint the test/docs, then continue the next finite core case that
 does not depend on blocked live canvas input. Immutable IPA unchanged.
+
+## September 11 13:50 — QA-34 finite closure ready
+
+Current pushed HEAD is `526e015`. The only product-tree change since that commit
+is a corrected UI fixture: successful circle numeric commit intentionally clears
+selection, so the test now records a safe rim target, requires cleanup, and
+reselects before exercising Unlock. The first combined run passed radial model
+checks but retained the stale fixture failure; the first correction also assumed
+a generic center marker absent in this state. Final one-owner serial gate is
+clean 29/29 at `/tmp/os3d-qa34-locked-values-final-20260911.xcresult`.
+
+Retained paired evidence supplies driven refusal, direct Unlock, free resize,
+Undo/Redo and saved reopen. QA-34 is therefore closed only for its original
+finite desktop recipe; broader constraint/transform/device cases remain open.
+Inventory advances to 14/0/1/41. No runner owns the simulator. Exact next action:
+commit/push this bounded closure, then continue the next finite incomplete case.
+Immutable IPA unchanged.

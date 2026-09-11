@@ -38,7 +38,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; upper limits/system keyboard remain open. |
-| QA-34 | Locked/unlocked value | Core - partial, not passed | Driven circle/arc refusal, axis driven translation and persisted side-Lock paired; broader value-lock matrix open. |
+| QA-34 | Locked/unlocked value | Core — PASSED (September 11 finite recipe) | Locked versus one-time commit, rejected draft, direct Unlock, free resize, exact history and saved reopen are paired/current-tree verified. Final one-owner gate clean 29/29. Broader constraints/transforms/device remain separate cases. |
 | QA-35 | Constraint rail | Core — partial, not passed | Contextual Unlock expanded rail, retained other locks, Undo/Redo and reopen sampled; compact/full rail matrix open. |
 | QA-36 | Constraint types | Core — partial, not passed | H/V plus point Lock constrained drag and inference samples; other relations open. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
@@ -282,7 +282,12 @@ Empty, malformed, zero/negative size, division by zero, out-of-range count. Issu
 
 ### QA-34 — Locked/unlocked value
 
-Driving versus one-time size edit; geometry drag after unlock; undo. Issues: DM-14. Result: NOT RUN. Evidence/owner: pending.
+Driving versus one-time size edit; geometry drag after unlock; undo. Issues:
+DM-14. Result: **PASSED** for the finite desktop recipe on September 11.
+Retained paired driven-refusal, direct Unlock, free-resize, history and saved
+reopen evidence is backed by a clean 29/29 current-tree serial gate. Broader
+constraint combinations, transforms and physical input remain separate cases.
+See [locked-value closure](testing/sketch-parity-locked-value-closure-2026-09-11.md).
 
 ### QA-35 — Constraint rail
 

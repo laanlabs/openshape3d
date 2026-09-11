@@ -995,12 +995,24 @@ final class DimensionUITests: XCTestCase {
             window.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.60)))
         sleep(1) // release selection must settle before disarming the draw tool
         tapPaletteTool(app, group: "Sketch", label: "Circle")
+        let radialBeforeCommit = app.descendants(matching: .any)
+            .matching(identifier: "SketchCircleRadiusHandle").firstMatch
+        XCTAssertTrue(radialBeforeCommit.waitForExistence(timeout: 3))
+        let centerPoint = CGPoint(x: window.frame.minX + window.frame.width * 0.78,
+                                  y: window.frame.minY + window.frame.height * 0.65)
+        let radius = max(centerPoint.y - radialBeforeCommit.frame.midY - 30, 8)
+        let reselect = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: centerPoint.x - radius - window.frame.minX,
+            dy: centerPoint.y - window.frame.minY
+        ))
         setDimension(app, to: "1")
         let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertFalse(radialBeforeCommit.exists,
+                       "Successful numeric commit clears the circle selection")
+        reselect.tap()
         let radialBeforeLock = app.descendants(matching: .any)
             .matching(identifier: "SketchCircleRadiusHandle").firstMatch
         XCTAssertTrue(radialBeforeLock.waitForExistence(timeout: 3))
-        let reselect = circleLeftRim(app, window: window, radial: radialBeforeLock)
         label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let field = app.textFields["DimensionField"]
         XCTAssertTrue(field.waitForExistence(timeout: 3))

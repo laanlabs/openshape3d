@@ -695,3 +695,13 @@ system keyboard, adjacent-control retention, edge reachability and Undo/Redo.
 The earlier selector-only failure and a parallel-clone run are retained but not
 counted as the final gate. Fresh exact-build paired repeat and publication remain
 blocked by simulator input delivery, so inventory remains 13/0/1/42.
+
+## September 11 — QA-34 finite closure
+
+Retained paired driven-refusal, direct Unlock, free-resize, history and saved
+reopen evidence now has a clean one-owner 29/29 current-tree gate. The gate
+distinguishes a stored driving dimension from an exact one-time unlocked resize
+and verifies draft rejection plus coherent history. Two stale UI-fixture failures
+caused by intentional selection cleanup are retained; no product source changed.
+QA-34 passes only for its finite desktop recipe. Inventory advances to
+14 passed / 0 failed / 1 device-blocked / 41 incomplete.
