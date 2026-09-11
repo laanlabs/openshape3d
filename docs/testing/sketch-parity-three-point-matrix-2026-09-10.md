@@ -193,3 +193,29 @@ Use isolated native-forward-baseline image for color comparison, not later
 overlapping draft. Illustrated660/all7newhashesonce/no653predecessor loss and
 ordered text retained; master38/noteonce/noloss. Exports forward-published and
 forward-master copiedlocal. Leader spacing and legacy live recovery remainopen.
+
+Legacy live fixture route recovered: temporary diagnostic92817 passed setup
+assertions, inserted one UUID-remapped archive via production ProjectArchive
+API into a separate gallery project; original retained. Harness moved out of
+test target into evidence/LegacyLiveFixtureDiagnostics.swift.txt immediately.
+This is automated fixture setup, NOT successful system-picker acceptance.
+Live gallery open recovered center; directLock clearsselection/greenpoint,
+Unlock retainsfreehalo; center370,572→410,532 moves(+40,-40) rigidly. UndoRedo
+restoregeometry andclearcenterselection. Galleryreopen center/padlock retained;
+clearedselection thenwidthtap shows2.3659×1. First additivecenter+edge tap showed
+0.5center-edge measurement/ring, not valid width-only evidence; retained.
+Native saved15×7 center directLock/reselect/Unlock freshlyrepeated andcaptured;
+earlier paired center move/history/reopen reference retained. Saved clone row2
+4lines/7constraints/dimension1/groupidentity/no sizinganchor confirmedread-only.
+Precommit guard audit added rejection for unconstrainted T-junction at an edge
+interior; original corner-connectivity search alone missed that ambiguity.
+New fixture included; final99241 combined regression running. Live controls
+passed before this conservative rejection-only guard; final recheck pending.
+
+Final99241 clean54/54. Updatedbuild gallery reopened legacyfixture center
+control correctly. Illustrated667/all7newhashesonce/no660predecessorloss/old
+textordered; master38/noteonce/noloss. Exports legacy-published/legacy-master
+copiedlocal. Recovery verified for strict isolated original-signature loop;
+no general rectangle inference or sizing intent migration. System picker remains
+unverified, separate from now-verified gallery load. RemainingQA10 completion
+directions and pending leader spacing remain open. No runner, IPAunchanged.

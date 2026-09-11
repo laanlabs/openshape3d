@@ -15,6 +15,55 @@ nonisolated enum RectangleType: String, CaseIterable, Sendable {
 /// Pure construction math. Rotated rectangles use four ordinary constrained
 /// lines, so existing dimensions, trim, projection, persistence and profiles work.
 nonisolated enum RectangleConstruction {
+    /// Restore control identity in older files, never sizing intent or geometry.
+    /// Require the complete directed construction signature and an isolated loop.
+    static func recoverLegacyGroups(in sketch: inout Sketch) {
+        var visited = Set(sketch.rotatedRectangleEdges.values.flatMap { $0 })
+        for entity in sketch.entities where !visited.contains(entity.id) {
+            guard let ids = dimensionEdges(containing: entity.id, in: sketch.entities) else { continue }
+            guard Set(ids).isDisjoint(with: visited) else { continue }
+            visited.formUnion(ids)
+            let members = Set(ids)
+            guard ids.allSatisfy({ sketch.rectangleSizingAnchors[$0] == nil }),
+                  !sketch.patternLinks.contains(where: {
+                      !members.isDisjoint(with: $0.seedIDs)
+                      || !members.isDisjoint(with: $0.allInstanceIDs)
+                  }),
+                  !sketch.disconnectedEndpoints.contains(where: { members.contains($0.entityID) }),
+                  !sketch.constraints.contains(where: { relation in
+                      relation.refs.contains { members.contains($0.entityID) }
+                      && relation.refs.contains { !members.contains($0.entityID) }
+                  }),
+                  !sketch.dimensions.contains(where: { dimension in
+                      dimension.refs.contains { members.contains($0.entityID) }
+                      && dimension.refs.contains { !members.contains($0.entityID) }
+                  }) else { continue }
+            let edges = ids.compactMap { id in sketch.entities.first { $0.id == id } }
+            // Endpoint connectivity above catches corner branches. Also decline
+            // a T-junction at an edge interior, even without a saved relation.
+            let hasInteriorBranch = sketch.entities.contains { other in
+                guard !members.contains(other.id), case let .line(_, p, q) = other else { return false }
+                return edges.contains { edge in
+                    guard case let .line(_, a, b) = edge else { return false }
+                    let delta = b - a, lengthSquared = simd_length_squared(delta)
+                    guard lengthSquared > 1e-12 else { return false }
+                    return [p, q].contains { point in
+                        let t = simd_dot(point - a, delta) / lengthSquared
+                        return t >= 0 && t <= 1 && simd_distance(point, a + t * delta) < 1e-5
+                    }
+                }
+            }
+            guard !hasInteriorBranch else { continue }
+            let signature = constraints(for: edges)
+            guard signature.count == 7, signature.allSatisfy({ expected in
+                sketch.constraints.contains { actual in
+                    actual.kind == expected.kind && actual.refs == expected.refs
+                }
+            }) else { continue }
+            sketch.rotatedRectangleEdges[ids[0]] = ids
+        }
+    }
+
     /// The old primitive ID belongs to the first edge after safe preparation.
     /// Its center remains the midpoint of opposite vertices, not that edge's
     /// midpoint. Persisted edge identity survives later attached geometry.

@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEAD377bf34 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEAD326807f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -168,3 +168,37 @@ blocked as above. Exact-build orange pending baseline and paired Escape preserva
 publication660/all7hashes/master38 verified, no prior images/text lost. No runner.
 Exact next commit/push color correction, continue leader-spacing/remainingQA10
 rechecks; keep legacy recovery unverified until supported import succeeds. No other workers.
+
+## Legacy fixture loader — latest execution
+
+Temporary openshape3dTests/LegacyLiveFixtureDiagnostics.swift is diagnostic only,
+NOT for commit or broad test runs. Serial92817 owns simulator, uses normal
+ProjectArchive.remappingAllUUIDs/insert + SwiftData context to create ONE separate
+QA10 Legacy Live Fixture project from retained archive bytes. Original project
+not changed. This bypasses system file picker only for fixture setup, not live
+import acceptance. Exact next collect result, move temporary Swift harness into
+local evidence (remove from test target), relaunch/open gallery fixture and test
+legacy center Lock/movement/history/reopen live versus native. No runner overlap.
+
+## Latest actual execution — legacy final guard
+
+Temporary92817 fixture loader completed and moved out of test target into evidence.
+Live recovered legacy center Lock/Unlock/move(+40,-40)/UndoRedo/reopen2.3659×1
+passed; fresh nativeLock/Unlockreference captured. Native now15×7centerselected
+772,262; clone legacyfixturewidthselected. Precommit audit added interior T-
+junction exclusion andfixture; final serial99241 now owns simulator, result
+/tmp/os3d-qa10-legacy-branch-final-20260910.xcresult. Exactnext collect result,
+final gallery recheck, publish legacy recovery (previous import-blocked note must
+be superseded, not removed), commit/push and continue QA10. No unrelatedchanges.
+
+## Latest verified — September10 22:45 EDT
+
+99241 clean54/54; no runner. Finalbuild legacygallerycenter recheckpassed.
+Illustrated667/all7hashes/master38 verified; prior660images/textpreserved.
+Temporary fixtureharness is OUTSIDE testtarget, retained evidence .swift.txt.
+Native saved15×7centerselected772,262; clone QA10 Legacy Live Fixture saved
+centerselected410,532, dimensions2.3659×1 (oneunitheightdriving). Original
+Untitled retained separately. Exactnext commit/push legacy recovery, then compare
+pending baseline leader spacing at controlled views/remainingQA10directions.
+Systempicker stillunverified; fixture API setup is explicitly notpickerpass.
+No readiness claim, immutableIPA unchanged.

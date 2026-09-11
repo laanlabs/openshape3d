@@ -1877,3 +1877,14 @@ and committed geometry retain their colors. Clean4/4 and paired live draft
 cancellation/completion evidence, illustrated660/master38 export-verified.
 Legacy group recovery is dirty/tested51/51 but live controlled import blocked;
 not counted as live parity. QA10 remains partial; inventory6/0/1/49 unchanged.
+
+## September 10 conservative legacy three-point identity recovery
+
+Decode restores ordered control identity only for isolated four-line rectangles
+with the full directed original seven-constraint signature. Existing groups and
+sizing intent are preserved; disconnected/incomplete/branched/external/pattern
+ambiguities decline recovery. No geometry/dimension mutation. Clean54/54 after
+retained compile-only fixture error and41/51 earlier passes. Controlled legacy
+archive fixture (production importer via temporary diagnostic, not file-picker
+acceptance) passed live center Lock/Unlock/move/history/reopen; native reference
+repeated. Illustrated667/master38 verified. QA10 still partial.

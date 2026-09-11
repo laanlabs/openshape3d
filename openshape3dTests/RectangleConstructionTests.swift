@@ -3,6 +3,50 @@ import simd
 @testable import openshape3d
 
 final class RectangleConstructionTests: XCTestCase {
+    func testLegacyThreePointDecodeRecoversOnlyIdentityAndIsIdempotent() throws {
+        let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+                                                      heightPoint: SIMD2(3, 6), ids: (0..<4).map { _ in UUID() })
+        var original = Sketch(plane: .ground, entities: edges,
+                              constraints: RectangleConstruction.constraints(for: edges))
+        original.dimensions = [.init(kind: .distance,
+            refs: [.init(entityID: edges[0].id, role: .whole)], value: sqrt(17))]
+        var legacyJSON = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(original)) as? [String: Any])
+        legacyJSON.removeValue(forKey: "rotatedRectangleEdges")
+        legacyJSON.removeValue(forKey: "rectangleSizingAnchors")
+        let decoded = try JSONDecoder().decode(Sketch.self, from: JSONSerialization.data(withJSONObject: legacyJSON))
+        XCTAssertEqual(decoded.entities, original.entities)
+        XCTAssertEqual(decoded.constraints, original.constraints)
+        XCTAssertEqual(decoded.dimensions, original.dimensions)
+        XCTAssertEqual(decoded.id, original.id)
+        XCTAssertTrue(decoded.rectangleSizingAnchors.isEmpty)
+        XCTAssertEqual(decoded.rotatedRectangleEdges, [edges[0].id: edges.map(\.id)])
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(edges[0].id, in: decoded))
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(decoded)), decoded)
+    }
+
+    func testLegacyGroupRecoveryDeclinesIncompleteDisconnectedAndBranchedLoops() throws {
+        let edges = RectangleConstruction.threePoint(a: SIMD2(1, 2), b: SIMD2(5, 3),
+                                                      heightPoint: SIMD2(3, 6), ids: (0..<4).map { _ in UUID() })
+        let original = Sketch(plane: .ground, entities: edges,
+                              constraints: RectangleConstruction.constraints(for: edges))
+        for variant in 0..<5 {
+            var sketch = original
+            switch variant {
+            case 0: sketch.constraints.removeLast()
+            case 1: sketch.disconnectedEndpoints = [.init(entityID: edges[0].id, role: .endpointA)]
+            case 2: sketch.entities.append(.line(id: UUID(), a: SIMD2(1, 2), b: SIMD2(-2, -3)))
+            case 3: sketch.entities.append(.line(id: UUID(), a: SIMD2(3, 2.5), b: SIMD2(3, -3)))
+            default:
+                let external = UUID()
+                sketch.entities.append(.line(id: external, a: SIMD2(20, 20), b: SIMD2(22, 20)))
+                sketch.constraints.append(.init(kind: .parallel, refs: [
+                    .init(entityID: edges[0].id, role: .whole), .init(entityID: external, role: .whole)]))
+            }
+            let decoded = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sketch))
+            XCTAssertEqual(decoded, sketch, "Unsafe recovery variant \(variant)")
+        }
+    }
+
     func testPreparedCenterRotationRetainsSizesAndCenterLock() throws {
         let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
         var sketch = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(2, 3), max: SIMD2(6, 5))])

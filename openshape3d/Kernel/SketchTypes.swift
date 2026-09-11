@@ -311,6 +311,7 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
         disconnectedEndpoints = try container.decodeIfPresent(
             [ConstraintRef].self, forKey: .disconnectedEndpoints) ?? []
+        RectangleConstruction.recoverLegacyGroups(in: &self)
     }
 }
 
