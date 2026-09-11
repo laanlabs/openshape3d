@@ -900,3 +900,18 @@ finite rail recipe; constraint solve/conflict breadth remains QA-36/39. Inventor
 advances to 15/0/1/40. No runner owns the simulator. Exact next action: commit
 and push the fixture/closure docs, then start QA-36's finite constraint-type
 matrix. Immutable IPA unchanged.
+
+## September 11 14:01 — QA-36 automated matrix complete
+
+Current pushed HEAD is `5d31097`. A new 11-relation application matrix directly
+verifies enablement, stored relation, structural residual, Undo/Redo and JSON
+round-trip. The first attempt was compile-only due an unqualified nested selection
+type; corrected target passed. Final one-owner gate is clean 64/64 at
+`/tmp/os3d-qa36-constraint-types-final-20260911.xcresult` across application,
+inference, persistence and portrait/landscape rail suites.
+
+QA-36 remains partial because paired Equal Length/Equal Radius/Symmetric and a
+fresh all-type live sweep are still open and simulator input delivery is blocked.
+Inventory remains 15/0/1/40. No runner owns the simulator. All task changes are
+the test and checkpoint docs; exact next action is commit/push, then continue
+QA-37 selection-anchor coverage independently. Immutable IPA unchanged.

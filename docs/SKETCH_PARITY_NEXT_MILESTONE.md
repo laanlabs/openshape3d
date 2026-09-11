@@ -715,3 +715,12 @@ comparison. Three annotation-dependent test fixtures now explicitly control
 their saved visibility prerequisite; no product source changed. QA-35 passes for
 its finite desktop rail recipe, while solve/conflict semantics remain QA-36/39.
 Inventory advances to 15/0/1/40.
+
+## September 11 — QA-36 constraint-type checkpoint
+
+A direct 11-relation application/history/serialization matrix supplements the
+existing adaptive rail and inference tests. The final one-owner gate passes clean
+64/64. The initial compile-only nested-type qualification failure is retained.
+Paired live coverage remains incomplete for Equal Length, Equal Radius,
+Symmetric and a fresh exact-build all-type sweep, so QA-36 remains partial and
+inventory stays 15/0/1/40.

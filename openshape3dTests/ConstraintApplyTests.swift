@@ -952,6 +952,77 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertTrue(vm.canApplyConstraint(.vertical))
     }
 
+    func testFiniteConstraintTypeMatrixAppliesAndRestoresHistory() throws {
+        struct Recipe {
+            let kind: SketchConstraintKind
+            let entities: [SketchEntity]
+            let selectedIDs: [UUID]
+            let points: [EditorViewModel.SketchPointSelection]
+        }
+        func l(_ a: SIMD2<Double>, _ b: SIMD2<Double>) -> SketchEntity {
+            .line(id: UUID(), a: a, b: b)
+        }
+        func c(_ center: SIMD2<Double>, _ radius: Double) -> SketchEntity {
+            .circle(id: UUID(), center: center, radius: radius)
+        }
+
+        let horizontal = l(.zero, SIMD2(10, 1))
+        let vertical = l(.zero, SIMD2(1, 10))
+        let parallelA = l(.zero, SIMD2(10, 0))
+        let parallelB = l(SIMD2(0, 4), SIMD2(9, 5))
+        let perpendicularA = l(.zero, SIMD2(10, 0))
+        let perpendicularB = l(SIMD2(4, 2), SIMD2(5, 9))
+        let coincidentA = l(.zero, SIMD2(4, 0))
+        let coincidentB = l(SIMD2(5, 1), SIMD2(8, 1))
+        let midpointSource = l(SIMD2(4, 3), SIMD2(4, 5))
+        let midpointTarget = l(.zero, SIMD2(10, 0))
+        let tangentLine = l(SIMD2(-5, 2), SIMD2(5, 2))
+        let tangentCircle = c(.zero, 2)
+        let concentricA = c(.zero, 2), concentricB = c(SIMD2(1, 1), 3)
+        let equalLineA = l(.zero, SIMD2(10, 0)), equalLineB = l(SIMD2(0, 4), SIMD2(6, 4))
+        let equalCircleA = c(.zero, 2), equalCircleB = c(SIMD2(8, 0), 3)
+        let symmetricA = l(SIMD2(-2, 1), SIMD2(-2, 3))
+        let symmetricB = l(SIMD2(2, 1), SIMD2(2, 3))
+        let symmetricAxis = l(SIMD2(0, -5), SIMD2(0, 5))
+
+        let recipes: [Recipe] = [
+            .init(kind: .horizontal, entities: [horizontal], selectedIDs: [horizontal.id], points: []),
+            .init(kind: .vertical, entities: [vertical], selectedIDs: [vertical.id], points: []),
+            .init(kind: .parallel, entities: [parallelA, parallelB], selectedIDs: [parallelA.id, parallelB.id], points: []),
+            .init(kind: .perpendicular, entities: [perpendicularA, perpendicularB], selectedIDs: [perpendicularA.id, perpendicularB.id], points: []),
+            .init(kind: .coincident, entities: [coincidentA, coincidentB], selectedIDs: [], points: [
+                .init(entityID: coincidentA.id, role: .endpointB), .init(entityID: coincidentB.id, role: .endpointA)]),
+            .init(kind: .midpoint, entities: [midpointSource, midpointTarget], selectedIDs: [midpointTarget.id], points: [
+                .init(entityID: midpointSource.id, role: .endpointA)]),
+            .init(kind: .tangent, entities: [tangentLine, tangentCircle], selectedIDs: [tangentLine.id, tangentCircle.id], points: []),
+            .init(kind: .concentric, entities: [concentricA, concentricB], selectedIDs: [concentricA.id, concentricB.id], points: []),
+            .init(kind: .equalLength, entities: [equalLineA, equalLineB], selectedIDs: [equalLineA.id, equalLineB.id], points: []),
+            .init(kind: .equalRadius, entities: [equalCircleA, equalCircleB], selectedIDs: [equalCircleA.id, equalCircleB.id], points: []),
+            .init(kind: .symmetric, entities: [symmetricA, symmetricB, symmetricAxis], selectedIDs: [symmetricAxis.id], points: [
+                .init(entityID: symmetricA.id, role: .endpointA), .init(entityID: symmetricB.id, role: .endpointA)]),
+        ]
+
+        for recipe in recipes {
+            let vm = try makeViewModel()
+            let original = openSketch(vm, entities: recipe.entities)
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectedSketchEntityIDs = Set(recipe.selectedIDs)
+            vm.selectedSketchPoints = Set(recipe.points)
+            XCTAssertTrue(vm.canApplyConstraint(recipe.kind), "\(recipe.kind) should enable")
+            vm.applyConstraint(recipe.kind)
+            let constrained = try XCTUnwrap(vm.activeSketch)
+            XCTAssertTrue(constrained.constraints.contains { $0.kind == recipe.kind })
+            XCTAssertLessThanOrEqual(SketchSolverBridge.residualNorm(constrained),
+                                     EditorViewModel.overConstraintTolerance)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, original, "Undo restores \(recipe.kind)")
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, constrained, "Redo restores \(recipe.kind)")
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(constrained)), constrained)
+        }
+    }
+
     // MARK: - Point-role hit testing
 
     func testNearestPointReturnsRole() {
