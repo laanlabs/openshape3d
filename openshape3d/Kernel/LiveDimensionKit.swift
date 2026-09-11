@@ -87,7 +87,7 @@ nonisolated enum LiveDimensionKit {
     /// diameter is drawn along the drag direction, the way Shapr3D swings it
     /// with your finger; without the hint it falls back to horizontal.
     static func dimensions(
-        for entity: SketchEntity, towards: SIMD2<Double>? = nil
+        for entity: SketchEntity, towards: SIMD2<Double>? = nil, circleUsesRadius: Bool = false
     ) -> [Dimension] {
         switch entity {
         case let .line(_, a, b):
@@ -119,9 +119,11 @@ nonisolated enum LiveDimensionKit {
         case let .circle(_, center, radius):
             guard radius > minimumSpan else { return [] }
             let axis = direction(from: center, towards: towards)
-            return [Dimension(id: "diameter", kind: .diameter, value: radius * 2,
-                              start: center - axis * radius, end: center + axis * radius,
-                              offset: .zero)]
+            return [Dimension(id: circleUsesRadius ? "radius" : "diameter",
+                              kind: circleUsesRadius ? .radius : .diameter,
+                              value: radius * (circleUsesRadius ? 1 : 2),
+                              start: circleUsesRadius ? center : center - axis * radius,
+                              end: center + axis * radius, offset: .zero)]
 
         case let .polygon(_, center, radius, sides, rotation):
             guard radius > minimumSpan, sides >= 3 else { return [] }

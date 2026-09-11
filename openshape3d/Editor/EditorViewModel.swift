@@ -8106,7 +8106,8 @@ final class EditorViewModel {
             ?? Array(rectanglePreview.prefix(2))
         let unit = AppSettings.shared.unit
         return entities.enumerated().flatMap { index, entity in
-            LiveDimensionKit.dimensions(for: entity, towards: sketchStrokeCurrent).map { d in
+            LiveDimensionKit.dimensions(for: entity, towards: sketchStrokeCurrent,
+                circleUsesRadius: AppSettings.shared.circularAnnotations == .alwaysRadius).map { d in
                 let pendingBaseline = rectangleType == .threePoint
                     && rectangleBaseline != nil && rectanglePreview.count == 1
                 return LiveDimensionLabel(
@@ -12277,7 +12278,8 @@ final class EditorViewModel {
         if selectedSketchEntityIDs.isEmpty, selectedSketchPoints.isEmpty,
            let id = retainedCircleCenterReadoutID, let sketch = activeSketch,
            case .circle? = sketchEntity(id, in: sketch) {
-            return (.diameter, [.init(entityID: id, role: .whole)])
+            return (AppSettings.shared.circularAnnotations == .alwaysRadius ? .radius : .diameter,
+                    [.init(entityID: id, role: .whole)])
         }
         if let edges = selectedRectangleDimensionEdges {
             return (.distance, Self.lineLengthRefs(edges[0]))
@@ -12318,7 +12320,7 @@ final class EditorViewModel {
             let entity = radii[0]
             let isFullCircle: Bool
             if case .circle = entity { isFullCircle = true } else { isFullCircle = false }
-            return (isFullCircle ? .diameter : .radius,
+            return (isFullCircle && AppSettings.shared.circularAnnotations != .alwaysRadius ? .diameter : .radius,
                     [ConstraintRef(entityID: entity.id, role: .whole)])
         }
         // Single rectangle → width (its height is offered as a second label;
@@ -12404,6 +12406,16 @@ final class EditorViewModel {
         func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
                        refs: [ConstraintRef], value: Double, presentationEdgeID: UUID? = nil,
                        axisPresentationEdge: Int? = nil) -> SketchDimensionLabel? {
+            var kind = kind
+            var value = value
+            if (kind == .radius || kind == .diameter), refs.count == 1,
+               case .circle? = sketchEntity(refs[0].entityID, in: sketch) {
+                let displayed: DimensionKind = AppSettings.shared.circularAnnotations == .alwaysRadius ? .radius : .diameter
+                if kind != displayed {
+                    value *= displayed == .radius ? 0.5 : 2
+                    kind = displayed
+                }
+            }
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
             if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
                Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
@@ -12512,7 +12524,7 @@ final class EditorViewModel {
             if kind == .radius, let ref = refs.first,
                let entity = sketchEntity(ref.entityID, in: sketch) {
                 switch entity {
-                case .arc, .polygon: label.isArcRadius = true
+                case .arc, .polygon, .circle: label.isArcRadius = true
                 default: break
                 }
             }
@@ -12642,7 +12654,8 @@ final class EditorViewModel {
                }) { return }
             let refSet = Set(refs.map { "\($0.entityID)-\($0.role.rawValue)" })
             let existing = sketch.dimensions.contains { d in
-                d.kind == kind &&
+                (d.kind == kind || ((d.kind == .radius || d.kind == .diameter)
+                    && (kind == .radius || kind == .diameter))) &&
                 Set(d.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refSet
             }
             if !existing, let value = measuredValue(kind: kind, refs: refs, in: sketch),
@@ -12743,7 +12756,7 @@ final class EditorViewModel {
         // recording them.
         dimensionCommitLocked = true
         let retainedExpression = label.dimensionID.flatMap { id in
-            activeSketch?.dimensions.first(where: { $0.id == id })?.displayExpression
+            activeSketch?.dimensions.first(where: { $0.id == id && $0.kind == label.kind })?.displayExpression
         }
         editingDimension = DimensionEdit(
             labelID: label.id,
@@ -12981,6 +12994,14 @@ final class EditorViewModel {
            let idx = proposed.dimensions.firstIndex(where: { $0.id == dimID }) {
             let before = proposed.dimensions[idx]
             var after = before
+            if before.kind != edit.kind,
+               (before.kind == .radius || before.kind == .diameter),
+               (edit.kind == .radius || edit.kind == .diameter) {
+                // Accepting a converted seed must not rewrite saved source or
+                // history. Real edits adopt the displayed quantity and keep ID.
+                if dimensionCommitLocked && untouchedSeed != nil { return }
+                after.kind = edit.kind
+            }
             after.value = stored
             after.formula = formula
             after.displayExpression = displayExpression

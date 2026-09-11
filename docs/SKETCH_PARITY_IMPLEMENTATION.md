@@ -1923,3 +1923,15 @@ testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
 Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
 Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
 Masterclosureinsertedonce/exportverificationpending; IPAunchanged.
+
+## September 11 — Circular annotation preference and radius clearance
+
+DM-04/QA-12: persisted Always Radius / Radius and Diameter preference now
+converts circle labels/edit seeds without resizing or duplicating driving
+dimensions. Real edits retain dimension identity; unchanged converted seed
+preserves saved expression/history. Live nativeR5↔Ø10 and cloneR1↔Ø2,
+center preservation, Undo/Redo and gallery reopen verified. Radius leader
+now reserves side-control/text space after liveR1.5 rail obstruction. Final
+relevant21/21 clean, earlier persisted-preference fixture failure retained.
+QA12 remains partial for numeric-circle selection cleanup and remaining
+creation-mode checks. Receipt: testing/sketch-parity-circle-annotation-modes-2026-09-11.md.

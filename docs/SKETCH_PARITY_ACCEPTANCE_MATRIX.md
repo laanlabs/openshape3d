@@ -116,11 +116,11 @@ Rotated baseline, perpendicular height, cancel at each stage. Issues: SK-03. Res
 
 **September11 closure:** PASSED for the original finite recipe. [Closure audit](testing/sketch-parity-concentric-closure-audit-2026-09-11.md) reconciles selection/input, connected movement, history/reopen and report724. Earlier partial notes below remain historical.
 
-New circle starts at an unselected existing center without edit interception; a freshly selected center remains a move control. Issues: SK-04. Result: PARTIAL. September10/11 paired release and unselected-center creation captured; center-history cleanup final10/10 and live disarm passed. Selected coincident-center target correction is under regression; matched snapping settings, Lock/readout and final reopen/publication remain. Evidence: testing/sketch-parity-concentric-matrix-2026-09-10.md. Sole owner: dedicated parity session.
+New circle starts at an unselected existing center without edit interception; a freshly selected center remains a move control. Issues: SK-04. Result: PASSED for the finite desktop/simulator recipe at78c7c7c. Selected-center movement, explicit Lock, matched Guidepoints/Auto-Constrain center connection, unobstructed connection glyph, both-circle history and paired saved reopen verified. Clean35/35 plus separate6/6 follow-up; illustrated724/master38 closure verified. See testing/sketch-parity-concentric-closure-audit-2026-09-11.md. Physical input remains unverified. Sole owner: dedicated parity session.
 
 ### QA-12 — Circle dimensions
 
-R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. Result: NOT RUN. Evidence/owner: pending.
+R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. Result: PARTIAL. Native Always Radius preference, R5→Ø10 conversion and clone R1→R1.5 numeric resize are live captured. New persisted preference and converted existing-dimension editing passed20/20; live rail clipping required a follow-up layout correction. Enlarged value test passed; consolidated circle/arc/unit regression running, paired final history/reopen pending. Evidence: testing/sketch-parity-circle-annotation-modes-2026-09-11.md. Owner: dedicated parity session.
 
 ### QA-13 — Arc construction
 

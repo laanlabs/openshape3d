@@ -29,6 +29,17 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section("Sketch Annotations") {
+                    Picker("Circular Annotations", selection: $settings.circularAnnotations) {
+                        ForEach(CircularAnnotations.allCases, id: \.self) { mode in
+                            Text(mode.title).tag(mode)
+                        }
+                    }
+                    .accessibilityIdentifier("SettingsCircularAnnotations")
+                    Text("Choose radius or diameter readouts for circles without resizing them.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+
                 SnappingSettingsSection(settings: settings)
 
                 Section("Appearance") {

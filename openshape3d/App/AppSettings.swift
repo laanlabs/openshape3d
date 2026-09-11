@@ -86,6 +86,13 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
     }
 }
 
+nonisolated enum CircularAnnotations: String, CaseIterable, Codable, Sendable {
+    case radiusAndDiameter, alwaysRadius
+    var title: String {
+        self == .alwaysRadius ? "Always Radius" : "Radius and Diameter"
+    }
+}
+
 // MARK: - Theme
 
 nonisolated enum AppTheme: String, CaseIterable, Codable, Sendable {
@@ -114,6 +121,7 @@ final class AppSettings {
 
     private enum Key {
         static let unit = "os3d.displayUnit"
+        static let circularAnnotations = "os3d.circularAnnotations"
         static let theme = "os3d.theme"
         static let paletteOnRight = "os3d.paletteOnRight"
         static let antiAliasing = "os3d.antiAliasing"
@@ -127,6 +135,9 @@ final class AppSettings {
         static let showSnapHints = "os3d.showSnapHints"
     }
 
+    var circularAnnotations: CircularAnnotations {
+        didSet { defaults.set(circularAnnotations.rawValue, forKey: Key.circularAnnotations) }
+    }
     var unit: DisplayUnit {
         didSet { defaults.set(unit.rawValue, forKey: Key.unit) }
     }
@@ -193,6 +204,8 @@ final class AppSettings {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        circularAnnotations = defaults.string(forKey: Key.circularAnnotations)
+            .flatMap(CircularAnnotations.init) ?? .radiusAndDiameter
         snapToGrid = defaults.object(forKey: Key.snapToGrid) as? Bool ?? true
         snapToSketchGuidelines = defaults.object(forKey: Key.snapToSketchGuidelines) as? Bool ?? true
         snapToSketchGuidepoints = defaults.object(forKey: Key.snapToSketchGuidepoints) as? Bool ?? true

@@ -139,7 +139,7 @@ struct SketchDimensionOverlay: View {
                 ? SketchLinearDimensionLayout.make(start: start, end: end,
                     leaderOffset: label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
-            let radial = label.isArcRadius ? radiusLeader(start, end, in: size) : nil
+            let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, in: size) : nil
             let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
                 manualAnchor: diameterDragPreviews[label.id] ?? label.worldDiameterLabelAnchor.flatMap(project), in: size) : nil
             if let arc {
@@ -342,15 +342,23 @@ struct SketchDimensionOverlay: View {
     /// The sampled native radius leader leaves the arc's start endpoint and
     /// continues outward. Shorten the extension near the viewport edge so its
     /// explicit dimension control remains reachable.
-    private func radiusLeader(_ center: CGPoint, _ tip: CGPoint, in size: CGSize)
+    private func radiusLeader(_ center: CGPoint, _ tip: CGPoint, text: String, in size: CGSize)
         -> (tail: CGPoint, anchor: CGPoint, rotation: Double)? {
         let dx = tip.x - center.x, dy = tip.y - center.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
         let ux = dx / length, uy = dy / length
         var extensionLength: CGFloat = 220
-        let bounds = CGRect(x: 96, y: 140,
-                            width: max(1, size.width - 192),
+        let rail: CGFloat = viewModel.mode.isSketching && !viewModel.sketchTransformActive ? 184 : 16
+        let left: CGFloat = AppSettings.shared.paletteOnRight ? rail : 96
+        let right: CGFloat = AppSettings.shared.paletteOnRight ? 96 : rail
+        let textWidth = (text as NSString).size(withAttributes: [
+            .font: UIFont.monospacedDigitSystemFont(ofSize: 16, weight: .regular)
+        ]).width
+        // Reserve the rotated value's half-width, not just the leader endpoint.
+        let horizontalInset = max(22, abs(ux) * textWidth / 2 + abs(uy) * 12)
+        let bounds = CGRect(x: left + horizontalInset, y: 140,
+                            width: max(1, size.width - left - right - 2 * horizontalInset),
                             height: max(1, size.height - 210))
         if ux > 0.001 { extensionLength = min(extensionLength, (bounds.maxX - tip.x) / ux) }
         if ux < -0.001 { extensionLength = min(extensionLength, (bounds.minX - tip.x) / ux) }

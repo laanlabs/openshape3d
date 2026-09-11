@@ -149,6 +149,69 @@ final class CircleCenterInputTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.entities.count, 2)
         XCTAssertFalse(vm.activeSketch!.constraints.contains { $0.kind == .coincident })
     }
+    func testCircularAnnotationSwitchAndEditPreserveGeometryIdentityAndHistory() throws {
+        let vm = try model()
+        let oldMode = AppSettings.shared.circularAnnotations
+        let oldUnit = AppSettings.shared.unit
+        defer {
+            AppSettings.shared.circularAnnotations = oldMode
+            AppSettings.shared.unit = oldUnit
+        }
+        AppSettings.shared.unit = .millimeters
+        AppSettings.shared.circularAnnotations = .radiusAndDiameter
+        drag(vm, SIMD2(10, 10), SIMD2(13, 10))
+        let id = try XCTUnwrap(vm.activeSketch?.entities.first?.id)
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("10 mm")
+        let diameterSketch = try XCTUnwrap(vm.activeSketch)
+        let dimensionID = try XCTUnwrap(diameterSketch.dimensions.first?.id)
+        XCTAssertEqual(diameterSketch.dimensions.count, 1)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedSketchPoints = []
+        AppSettings.shared.circularAnnotations = .alwaysRadius
+        XCTAssertEqual(vm.activeSketch, diameterSketch, "Preference must not mutate the document")
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+        let radius = try XCTUnwrap(vm.sketchDimensionLabels.first)
+        XCTAssertEqual(radius.kind, .radius)
+        XCTAssertEqual(radius.displayValue, 5, accuracy: 1e-6)
+        XCTAssertTrue(radius.isArcRadius)
+        vm.beginDimensionForSelection()
+        XCTAssertEqual(vm.editingDimension?.dimensionID, dimensionID)
+        vm.commitDimensionEdit(try XCTUnwrap(vm.editingDimension?.text))
+        XCTAssertEqual(vm.activeSketch, diameterSketch, "Untouched converted seed retains original source")
+        vm.beginDimensionForSelection()
+        vm.commitDimensionEdit("6")
+        let radiusSketch = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(radiusSketch.dimensions.count, 1)
+        XCTAssertEqual(radiusSketch.dimensions[0].id, dimensionID)
+        XCTAssertEqual(radiusSketch.dimensions[0].kind, .radius)
+        guard case let .circle(_, center, r) = radiusSketch.entities[0] else { return XCTFail() }
+        XCTAssertEqual(center, SIMD2(10, 10))
+        XCTAssertEqual(r, 6, accuracy: 1e-6)
+        AppSettings.shared.circularAnnotations = .radiusAndDiameter
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+        XCTAssertEqual(vm.sketchDimensionLabels[0].kind, .diameter)
+        XCTAssertEqual(vm.sketchDimensionLabels[0].displayValue, 12, accuracy: 1e-6)
+        XCTAssertEqual(vm.activeSketch, radiusSketch)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, diameterSketch)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, radiusSketch)
+    }
+
+    func testCircleLiveRadiusAndDiameterHaveEquivalentGeometry() {
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(2, 3), radius: 10)
+        let d = LiveDimensionKit.dimensions(for: circle)[0]
+        let r = LiveDimensionKit.dimensions(for: circle, circleUsesRadius: true)[0]
+        XCTAssertEqual(d.value, 20)
+        XCTAssertEqual(r.value, 10)
+        XCTAssertEqual(r.kind, .radius)
+        XCTAssertEqual(d.kind, .diameter)
+        XCTAssertEqual(r.start, SIMD2(2, 3))
+        XCTAssertEqual(r.end, d.end)
+    }
+
     func testCircleCenterLockChangesOnlyCenterConstraintAndUndoRestoresGeometry() throws {
         let vm = try model()
         drag(vm, SIMD2(10, 10), SIMD2(13, 10))

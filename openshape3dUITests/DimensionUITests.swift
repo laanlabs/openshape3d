@@ -463,6 +463,56 @@ final class DimensionUITests: XCTestCase {
         }
     }
 
+    func testCircularAnnotationPreferenceConvertsExistingCircleEditor() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        func choose(_ mode: String) {
+            app.buttons["SettingsButton"].tap()
+            let picker = app.buttons["SettingsCircularAnnotations"].firstMatch
+            for _ in 0..<4 where !picker.isHittable { app.swipeUp() }
+            XCTAssertTrue(picker.waitForExistence(timeout: 3))
+            picker.tap()
+            let option = app.buttons[mode].firstMatch
+            XCTAssertTrue(option.waitForExistence(timeout: 3))
+            option.tap()
+            app.buttons["SettingsDone"].tap()
+        }
+        choose("Radius and Diameter")
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        start.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.56, dy: 0.4)))
+        let center = app.descendants(matching: .any)["CircleCenterControl"].firstMatch
+        XCTAssertTrue(center.waitForExistence(timeout: 3))
+        let before = center.frame
+        choose("Always Radius")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertTrue(label.label.hasPrefix("R"))
+        XCTAssertEqual(center.frame.midX, before.midX, accuracy: 2)
+        XCTAssertEqual(center.frame.midY, before.midY, accuracy: 2)
+        setDimension(app, to: "1.5")
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 1)
+        XCTAssertTrue(label.label.hasPrefix("R1.5 "))
+        let rail = app.buttons["ConstraintRail-horizontal"].firstMatch
+        XCTAssertTrue(rail.exists)
+        XCTAssertLessThan(label.frame.maxX, rail.frame.minX,
+                          "Radius value must remain clear of the constraint rail after enlargement")
+        choose("Radius and Diameter")
+        XCTAssertEqual(app.buttons.matching(identifier: "DimensionLabel").count, 1)
+        XCTAssertTrue(label.label.hasPrefix("Ø3 "))
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        XCTAssertEqual(field.value as? String, "3")
+        XCTAssertEqual(center.frame.midX, before.midX, accuracy: 2)
+        XCTAssertEqual(center.frame.midY, before.midY, accuracy: 2)
+        attach(app, "circle-radius-one-point-five-to-diameter-three-editor")
+    }
+
     func testCircleExplicitCenterMoveRemainsClearOfDiameterButton() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
@@ -722,6 +772,12 @@ final class DimensionUITests: XCTestCase {
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
         app.launch()
+        app.buttons["SettingsButton"].tap()
+        let annotationPicker = app.buttons["SettingsCircularAnnotations"].firstMatch
+        XCTAssertTrue(annotationPicker.waitForExistence(timeout: 3))
+        annotationPicker.tap()
+        app.buttons["Radius and Diameter"].firstMatch.tap()
+        app.buttons["SettingsDone"].tap()
         let window = app.windows.firstMatch
         startGroundSketch(app, window: window, tool: "Circle")
 

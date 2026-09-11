@@ -12,6 +12,19 @@ import XCTest
 
 final class AppSettingsTests: XCTestCase {
 
+    @MainActor
+    func testCircularAnnotationPreferencePersistsWithCompatibleDefault() throws {
+        let suite = "CircularAnnotationsTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertEqual(settings.circularAnnotations, .radiusAndDiameter)
+        settings.circularAnnotations = .alwaysRadius
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .alwaysRadius)
+        settings.circularAnnotations = .radiusAndDiameter
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .radiusAndDiameter)
+    }
+
     // MARK: DisplayUnit conversion
 
     func testConversionFactors() {
