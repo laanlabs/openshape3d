@@ -1,5 +1,29 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 14:32
+
+Current pushed baseline is `ffc3867`; QA-37 product/tests/docs are dirty pending
+checkpoint. OpenShape3D now persists First Selected / Last Selected anchored
+sketch-entity behavior, tracks ordered entity selection, and applies a transient
+whole-entity solve anchor without storing a Lock. Existing saved constraints win
+if the preference is incompatible.
+
+After retained compile-only and fixture failures, the final one-owner gate passed
+clean **44/44**, zero failures/skips, at
+`/tmp/os3d-qa37-anchor-final3-20260911.xcresult`: 12 settings, 30 constraint
+application, and 2 portrait/landscape rail workflows. The final UI fixture
+preserves the established Grid-off Parallel check and reaches both anchor choices
+through the actual Form scroll container. No runner owns the simulator.
+
+QA-37 remains partial because fresh paired native/clone selection-order gestures
+and screenshot publication are blocked by supported live canvas input delivery.
+Official Shapr3D documentation confirms the semantics, but default-choice live
+parity is not claimed. Inventory remains **15 passed / 0 failed /
+1 device-blocked / 40 incomplete**. Exact next action: inspect, commit and push
+this safe checkpoint, then continue the next finite acceptance case independent
+of live canvas input while retaining the QA-37 paired-evidence boundary. The
+immutable `05be744` IPA and unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 13:45
 
 HEAD `f524b13` is pushed. QA-06 is reconciled as passed for its finite desktop

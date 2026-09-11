@@ -282,11 +282,11 @@ Acceptance: Each value unambiguously identifies what it measures; angular geomet
 
 ### DM-08 · Anchored Sketch Entity selection-order setting is absent
 
-**Queued — implementation needed** · P1
+**Partial — implemented and clean 44/44; fresh paired gestures open** · P1
 
-Evidence: CODE-CONFIRMED GAP — reference from live UI or official documentation
+Evidence: [selection-anchor checkpoint](testing/sketch-parity-selection-anchor-checkpoint-2026-09-11.md). The persisted First Selected / Last Selected setting, ordered entity selection, transient solve anchor, reversed-order behavior, Undo/Redo, and saved-constraint priority pass model, settings, and portrait/landscape UI coverage. Official Shapr3D documentation supplies the reference semantics.
 
-Next: Track ordered selection in addition to membership; pass anchor preference into solving/drag intent.
+Next: Repeat both selection orders in native and the exact clone build once supported live canvas input is restored; capture the kept/moved entities and publish paired evidence without duplicates.
 
 Acceptance: The specified anchor remains in place unless an existing constraint requires otherwise; reversing order has the expected result; undo restores all positions.
 

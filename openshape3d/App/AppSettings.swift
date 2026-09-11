@@ -93,6 +93,20 @@ nonisolated enum CircularAnnotations: String, CaseIterable, Codable, Sendable {
     }
 }
 
+/// Which selected sketch entity stays in place when a new relationship is
+/// solved. This is a solve-time preference, not a persisted geometry Lock;
+/// existing sketch constraints retain priority.
+nonisolated enum AnchoredSketchEntity: String, CaseIterable, Codable, Sendable {
+    case firstSelected, lastSelected
+
+    var title: String {
+        switch self {
+        case .firstSelected: "First Selected"
+        case .lastSelected: "Last Selected"
+        }
+    }
+}
+
 // MARK: - Theme
 
 nonisolated enum AppTheme: String, CaseIterable, Codable, Sendable {
@@ -128,6 +142,7 @@ final class AppSettings {
         static let singleKeyAction = "os3d.singleKeyAction"
         static let alwaysShowDimensions = "os3d.alwaysShowDimensions"
         static let alwaysShowConstraints = "os3d.alwaysShowConstraints"
+        static let anchoredSketchEntity = "os3d.anchoredSketchEntity"
         static let snapToGrid = "os3d.snapToGrid"
         static let snapToSketchGuidelines = "os3d.snapToSketchGuidelines"
         static let snapToSketchGuidepoints = "os3d.snapToSketchGuidepoints"
@@ -171,6 +186,9 @@ final class AppSettings {
     /// The same, for constraint glyphs.
     var alwaysShowConstraints: Bool {
         didSet { defaults.set(alwaysShowConstraints, forKey: Key.alwaysShowConstraints) }
+    }
+    var anchoredSketchEntity: AnchoredSketchEntity {
+        didSet { defaults.set(anchoredSketchEntity.rawValue, forKey: Key.anchoredSketchEntity) }
     }
 
     var snapToGrid: Bool {
@@ -231,6 +249,8 @@ final class AppSettings {
         // default either. Off still shows annotations referring to selected geometry.
         alwaysShowConstraints =
             defaults.object(forKey: Key.alwaysShowConstraints) as? Bool ?? false
+        anchoredSketchEntity = defaults.string(forKey: Key.anchoredSketchEntity)
+            .flatMap(AnchoredSketchEntity.init) ?? .firstSelected
     }
 
     // Under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, this class is

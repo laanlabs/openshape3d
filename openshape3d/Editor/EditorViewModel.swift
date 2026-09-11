@@ -8404,8 +8404,13 @@ final class EditorViewModel {
     /// Selected entities of the active sketch (accent highlight; palette
     /// Delete removes them).
     var retainedCircleCenterReadoutID: UUID?
+    /// Membership remains a Set for fast rendering checks, while this sidecar
+    /// preserves the tap order required by the First/Last anchored-entity
+    /// constraint preference.
+    private(set) var selectedSketchEntityOrder: [UUID] = []
     var selectedSketchEntityIDs: Set<UUID> = [] {
         didSet {
+            reconcileSketchSelectionOrder(added: selectedSketchEntityIDs.subtracting(oldValue))
             retainedCircleCenterReadoutID = nil
             if oldValue != selectedSketchEntityIDs {
                 retainedSketchTransform = nil
@@ -8428,7 +8433,31 @@ final class EditorViewModel {
     /// `selectedSketchEntityIDs` so a mixed selection (e.g. a point + a line
     /// for Midpoint) is expressible.
     var selectedSketchPoints: Set<SketchPointSelection> = [] {
-        didSet { retainedCircleCenterReadoutID = nil }
+        didSet {
+            reconcileSketchSelectionOrder(added: Set(selectedSketchPoints.subtracting(oldValue).map(\.entityID)))
+            retainedCircleCenterReadoutID = nil
+        }
+    }
+
+    private func reconcileSketchSelectionOrder(added: Set<UUID>) {
+        let live = selectedSketchEntityIDs.union(selectedSketchPoints.map(\.entityID))
+        selectedSketchEntityOrder.removeAll { !live.contains($0) }
+        let documentOrder = activeSketch?.entities.map(\.id) ?? []
+        let additions = added.filter { live.contains($0) && !selectedSketchEntityOrder.contains($0) }
+            .sorted {
+                (documentOrder.firstIndex(of: $0) ?? .max) <
+                (documentOrder.firstIndex(of: $1) ?? .max)
+            }
+        selectedSketchEntityOrder.append(contentsOf: additions)
+    }
+
+    /// Deterministic seam for multi-select routes and acceptance tests. Normal
+    /// canvas taps still build the same order incrementally via the observers.
+    func selectSketchEntitiesInOrder(_ ids: [UUID]) {
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedSketchEntityOrder = []
+        for id in ids { selectedSketchEntityIDs.insert(id) }
     }
 
     /// The constraint glyph currently selected (tap-select in the overlay or the
@@ -11385,7 +11414,14 @@ final class EditorViewModel {
     /// tangent.
     private var selectedSketchEntities: [SketchEntity] {
         guard let sketch = activeSketch else { return [] }
-        return sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
+        let byID = Dictionary(uniqueKeysWithValues: sketch.entities.map { ($0.id, $0) })
+        let ordered = selectedSketchEntityOrder.compactMap { id in
+            selectedSketchEntityIDs.contains(id) ? byID[id] : nil
+        }
+        let known = Set(ordered.map(\.id))
+        return ordered + sketch.entities.filter {
+            selectedSketchEntityIDs.contains($0.id) && !known.contains($0.id)
+        }
     }
 
     private var selectedLineEntities: [SketchEntity] {
@@ -11599,9 +11635,30 @@ final class EditorViewModel {
             return
         }
 
-        let (solvedEntities, _) = SketchSolverBridge.solve(
-            proposed, movingEntity: nil, dragTarget: nil
-        )
+        let orderedOperands = selectedSketchEntityOrder.filter { id in
+            selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains { $0.entityID == id }
+        }
+        let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
+            ? orderedOperands.first : orderedOperands.last
+        var solvedEntities: [SketchEntity]
+        if kind != .fixed, let preferredAnchor {
+            var anchored = proposed
+            anchored.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: preferredAnchor, role: .whole)]))
+            let outcome = SketchSolverBridge.solveOutcome(
+                anchored, movingEntity: nil, dragTarget: nil)
+            if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
+                solvedEntities = outcome.entities
+            } else {
+                // A saved relationship is stronger than this transient
+                // preference. Retry without the temporary anchor.
+                solvedEntities = SketchSolverBridge.solve(
+                    proposed, movingEntity: nil, dragTarget: nil).0
+            }
+        } else {
+            solvedEntities = SketchSolverBridge.solve(
+                proposed, movingEntity: nil, dragTarget: nil).0
+        }
 
         var commands: [DocumentCommand] = newConstraints.map {
             AddSketchConstraintCommand(sketchID: sketchID, constraint: $0)

@@ -472,8 +472,13 @@ final class ConstraintApplyTests: XCTestCase {
 
     func testDiameterLabelPlacementTransientThenSavedUndoableWithoutGeometryChange() throws {
         let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
+        let priorCircular = AppSettings.shared.circularAnnotations
         AppSettings.shared.alwaysShowDimensions = true
-        defer { AppSettings.shared.alwaysShowDimensions = priorAlwaysShow }
+        AppSettings.shared.circularAnnotations = .radiusAndDiameter
+        defer {
+            AppSettings.shared.alwaysShowDimensions = priorAlwaysShow
+            AppSettings.shared.circularAnnotations = priorCircular
+        }
         let vm = try makeViewModel(), id = UUID()
         let entity = SketchEntity.circle(id: id, center: SIMD2(3, 4), radius: 2)
         let sketch = openSketch(vm, entities: [entity])
@@ -521,8 +526,13 @@ final class ConstraintApplyTests: XCTestCase {
 
     func testCircularTransformHidesTemporaryReadoutsButKeepsDrivenDimensions() throws {
         let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
+        let priorCircular = AppSettings.shared.circularAnnotations
         AppSettings.shared.alwaysShowDimensions = true
-        defer { AppSettings.shared.alwaysShowDimensions = priorAlwaysShow }
+        AppSettings.shared.circularAnnotations = .radiusAndDiameter
+        defer {
+            AppSettings.shared.alwaysShowDimensions = priorAlwaysShow
+            AppSettings.shared.circularAnnotations = priorCircular
+        }
         for isArc in [false, true] {
             let vm = try makeViewModel(), id = UUID()
             let entity: SketchEntity = isArc
@@ -1021,6 +1031,75 @@ final class ConstraintApplyTests: XCTestCase {
             XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
                 from: JSONEncoder().encode(constrained)), constrained)
         }
+    }
+
+    func testAnchoredSketchEntityPreferenceUsesSelectionOrderAndExistingLocksWin() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+
+        func verify(
+            preference: AnchoredSketchEntity,
+            order: [Int],
+            anchoredIndex: Int,
+            file: StaticString = #filePath, sourceLine: UInt = #line
+        ) throws {
+            let vm = try makeViewModel()
+            let entities = [
+                line(SIMD2(0, 0), SIMD2(10, 0)),
+                line(SIMD2(0, 4), SIMD2(8, 6)),
+            ]
+            let original = openSketch(vm, entities: entities)
+            vm.mode = .sketching(original.id, tool: nil)
+            AppSettings.shared.anchoredSketchEntity = preference
+            vm.selectSketchEntitiesInOrder(order.map { entities[$0].id })
+            XCTAssertEqual(vm.selectedSketchEntityOrder, order.map { entities[$0].id },
+                           file: file, line: sourceLine)
+            vm.applyConstraint(.parallel)
+            let constrained = try XCTUnwrap(vm.activeSketch, file: file, line: sourceLine)
+            XCTAssertEqual(constrained.entities[anchoredIndex], entities[anchoredIndex],
+                           "Preferred entity must remain exactly in place", file: file, line: sourceLine)
+            XCTAssertNotEqual(constrained.entities[1 - anchoredIndex], entities[1 - anchoredIndex],
+                              "The other entity should satisfy the relationship", file: file, line: sourceLine)
+            XCTAssertLessThanOrEqual(SketchSolverBridge.residualNorm(constrained),
+                                     EditorViewModel.overConstraintTolerance, file: file, line: sourceLine)
+            let repeated = SketchSolverBridge.solve(
+                constrained, movingEntity: nil, dragTarget: nil).0
+            XCTAssertEqual(repeated, constrained.entities,
+                           "A settled anchored solve must be stable", file: file, line: sourceLine)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, original, file: file, line: sourceLine)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, constrained, file: file, line: sourceLine)
+        }
+
+        try verify(preference: .firstSelected, order: [0, 1], anchoredIndex: 0)
+        try verify(preference: .firstSelected, order: [1, 0], anchoredIndex: 1)
+        try verify(preference: .lastSelected, order: [0, 1], anchoredIndex: 1)
+        try verify(preference: .lastSelected, order: [1, 0], anchoredIndex: 0)
+
+        // Existing relationships outrank the preference: the selected-first
+        // line cannot also stay fixed when the selected-last line is already
+        // explicitly locked at a different angle.
+        let vm = try makeViewModel()
+        let preferred = line(SIMD2(0, 0), SIMD2(10, 0))
+        let locked = line(SIMD2(0, 4), SIMD2(8, 6))
+        let original = Sketch(plane: .ground, entities: [preferred, locked],
+            constraints: [.init(kind: .fixed,
+                refs: [.init(entityID: locked.id, role: .whole)])])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        AppSettings.shared.anchoredSketchEntity = .firstSelected
+        vm.selectSketchEntitiesInOrder([preferred.id, locked.id])
+        vm.applyConstraint(.parallel)
+        let constrained = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(constrained.entities[1], locked, "Saved Lock must override the transient anchor")
+        XCTAssertNotEqual(constrained.entities[0], preferred)
+        XCTAssertLessThanOrEqual(SketchSolverBridge.residualNorm(constrained),
+                                 EditorViewModel.overConstraintTolerance)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, constrained)
     }
 
     // MARK: - Point-role hit testing

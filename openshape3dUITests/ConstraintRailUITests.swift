@@ -32,21 +32,32 @@ final class ConstraintRailUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Select two or more lines"].exists)
         app.buttons["ConstraintRailSettings"].tap()
         XCTAssertTrue(app.switches["AlwaysShowDimensionsToggle"].firstMatch.waitForExistence(timeout: 3))
+        let settingsForm = app.collectionViews.firstMatch
+        XCTAssertTrue(settingsForm.exists)
         let grid = app.switches["SnapToGridToggle"].firstMatch
+        for _ in 0..<2 where !grid.isHittable {
+            settingsForm.swipeUp()
+        }
         let gridWasOn = grid.value as? String == "1"
         if gridWasOn {
             grid.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
             expectation(for: NSPredicate(format: "value == '0'"), evaluatedWith: grid)
             waitForExpectations(timeout: 3)
         }
+        let anchorPicker = app.segmentedControls["AnchoredSketchEntityPicker"].firstMatch
+        for _ in 0..<4 where !anchorPicker.exists || !anchorPicker.isHittable {
+            settingsForm.swipeUp()
+        }
+        XCTAssertTrue(anchorPicker.waitForExistence(timeout: 3))
+        XCTAssertTrue(anchorPicker.buttons["First Selected"].exists)
+        XCTAssertTrue(anchorPicker.buttons["Last Selected"].exists)
+        anchorPicker.buttons["Last Selected"].tap()
+        XCTAssertTrue(anchorPicker.buttons["Last Selected"].isSelected)
+        anchorPicker.buttons["First Selected"].tap()
+        XCTAssertTrue(anchorPicker.buttons["First Selected"].isSelected)
         app.buttons["ConstraintSettingsDone"].tap()
         p(0.32, 0.42).press(forDuration: 0.15, thenDragTo: p(0.58, 0.42))
         p(0.32, 0.60).press(forDuration: 0.15, thenDragTo: p(0.58, 0.64))
-        if gridWasOn {
-            app.buttons["ConstraintRailSettings"].tap()
-            grid.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-            app.buttons["ConstraintSettingsDone"].tap()
-        }
         app.buttons["Line"].firstMatch.tap() // disarm to select/edit geometry
         // The last drawn segment is already selected; select only the first
         // to form the pair, rather than toggling the second off again.

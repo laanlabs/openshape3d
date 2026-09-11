@@ -123,6 +123,16 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(second.antiAliasing, 2)
     }
 
+    func testAnchoredSketchEntityPreferencePersistsWithFirstSelectedDefault() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.anchoredSketchEntity, .firstSelected)
+        first.anchoredSketchEntity = .lastSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .lastSelected)
+        first.anchoredSketchEntity = .firstSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .firstSelected)
+    }
+
     func testLaunchSampleCountRejectsInvalidStoredValues() {
         let defaults = freshDefaults()
         defaults.set(3, forKey: "os3d.antiAliasing")
