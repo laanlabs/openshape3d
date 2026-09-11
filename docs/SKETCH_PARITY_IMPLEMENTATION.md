@@ -1935,3 +1935,9 @@ now reserves side-control/text space after liveR1.5 rail obstruction. Final
 relevant21/21 clean, earlier persisted-preference fixture failure retained.
 QA12 remains partial for numeric-circle selection cleanup and remaining
 creation-mode checks. Receipt: testing/sketch-parity-circle-annotation-modes-2026-09-11.md.
+
+QA12 follow-up: disarmed-circle successful numeric commits and numeric
+Undo/Redo now clear selected rim/readout, matching paired nativeR5→R4 and
+cloneØ3→Ø2. Free radial/explicittransform excluded. Final11/11 clean after
+retained selection-fixture failures; paired savedR4/Ø2 recovery verified.
+Armedcreation/numeric matrix remains open; see samecircle-annotationreceipt.

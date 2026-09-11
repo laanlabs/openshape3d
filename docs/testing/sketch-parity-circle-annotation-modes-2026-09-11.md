@@ -76,3 +76,67 @@ Postfix screenshots local circle-annotation-modes directory, publication next.
 HEAD78c7c7c/dirtyQA12, immutableIPAunchanged, inventory8/0/1/47.
 
 Postfix illustrated export verified735 placements, all6newhashes+1/no729loss, priororderedtextpreserved andheadingonce. Master38 firstexport retains priorcontent butnewheadingnotyetpresent; insertedonce, retryexportwithoutduplicate.
+
+## September11 01:17 — circle numeric lifecycle correction under test
+
+Preference/clearance944ae3e committed and pushconfirmed. Final21/21 and paired
+saved values publishedillustrated735/all6hashes verified; master38 newnote
+firstexportmissing, retrywithoutduplicate. New dirtyEditorViewModel,
+CircleCenterInputTests, DimensionUITests implement narrowly disarmed-circle
+successfulnumericcommit cleanup and preUndo/Redo cleanup only when stack
+command adds/updates selectedcircle drivingdimension (recursescomposites).
+Free radialdrag/history andexplicittransform excluded. Unitchecks exact
+original/edited sketches andonehistoryentry; UI preservesnumericvalueassertions
+and explicitlyreselects after expectedselectionclear. Serialexec13296 owns
+simulator `/tmp/os3d-qa12-circle-numeric-lifecycle-20260911.xcresult`
+(CircleCenterInputTests+3circleUI includingexplicitMove). No livepostfixclaim.
+NativeR5selectedcenter706420, clonewillUIreset/relaunch. Exactnextcollect
+result, diagnose failureswithoutbroadcleanup, pairednumericcommit/history
+postfix+reopen; masterexportretry, publish/commit thenremainingQA12creation.
+Inventory8/0/1/47, IPAunchanged.
+
+Master retry export now verified38/headingonce/no prior media or ordered text loss; no duplicate insertion. Preference publication complete735/master38. Lifecycle13296 still running.
+
+13296 numeric-circleUI deselection assertion passed, then radius-info assertion
+failed after center (not rim) reselection; no geometryfailureclaim. Needfailure
+screenshotinspection and validrimfixture. ExplicitMove/history exclusion passed.
+PreferenceUI/units stillrunning; no repeateddesktopwork.
+
+13296 complete10pass/1fail. New exact geometry/history unit and explicitMove
+exclusion passed; numericUI info assertion aftercenterreselectionfailed.
+No automaticfailureattachments were saved (exportmanifestempty). Addedexplicit
+after-reselectiondiagnosticattachment, singlecaseexec15233 nowowns simulator
+`/tmp/os3d-qa12-circle-selection-diagnostic-20260911.xcresult`. No assertion
+weakened orgeometryclaim. Nextinspectcapture, correctactualfixture/product as
+evidencewarrants, finalrelevant/liverecheck. Master38 andillustrated735verified.
+
+15233 reproducedinfofailure; explicitcapture shows largeØ10circle with only
+centerselected, noriminfo. Geometryvisiblyenlarged; no productsizefailure.
+Fixture now computes lowerdiagonal rim from originalmeasuredØ andpixelradius,
+retainsØ10/Ø8 andR5/R4assertions andnewselectioncleanupassertions. Same11
+cases rerun serialexec28441 `/tmp/os3d-qa12-circle-numeric-final-20260911.xcresult`.
+No new productchange since13296. Diagnosticcapture copiedlocally; publication
+notyetupdatedforthisfixture. Next collect/run livecommit/history/reopen.
+
+28441 diameterUI nowpassed with originalØ10/Ø8/R5/R4assertions and rimreselection; unitsalso passed. Other2UI stillactive; nofinalcombinedclaimyet.
+
+## Numeric-circle lifecycle verified live — September11 01:34
+
+28441 finalclean11/11 (8circleunits+3UI), after retained10pass/1fail and
+single1faildiagnostic. SameØ10/Ø8/R5/R4assertions preserved; lower-rim
+reselection fixes fixture, no geometry/testthreshold weakening.
+Paired freshdisarmednumeric: nativeR5→R4 andcloneØ3→Ø2 both clearselected
+rim/readout/handle oncommit; reselect/Undo restoresprevioussize andclears;
+reselect/Redo reapplies andclears. Finalgalleryreopen retainsnativeR4 with
+AlwaysRadius andcloneØ2 withRadiusandDiameter. Centers unchanged within each
+viewport; differentnative/clone scales explicitlyretained. No runner.
+Productcleanup excludesarmedCirclecreation, freeradiusdrag andexplicitMove;
+history onlyreacts to selectedcircle Add/Update drivingdimension commands,
+recursingcomposites. Rawgeometry/Undo stack logic unchanged.
+Nextpublishpaired8images/masterverify, commit/pushlifecycle then remaining
+QA12freshAlwaysRadiuscreation/armednumeric/cancellation matrix. QA12partial,
+inventory8/0/1/47. NativeR4selectedcenter706420; cloneØ2selected414444.
+
+Lifecycleillustratedexport verified743/all8newhashes+1/no735loss, headingonce andpriororderedtextpreserved. Masterfollowupinsertedonce; exportverificationcurrenttool. No runner; commit/pushnext.
+
+Masterfollowupverified38/headingonce/no predecessor media ororderedtextloss. Lifecyclepublicationcomplete743/master38.

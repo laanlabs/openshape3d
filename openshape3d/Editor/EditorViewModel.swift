@@ -4979,15 +4979,52 @@ final class EditorViewModel {
             selectedConstraintID = nil
             editingDimension = nil
         }
+        clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
     }
 
     func redo() {
+        clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
+    }
+
+    /// The paired disarmed-circle numeric workflow clears its rim/readout on
+    /// commit and history. Do not apply this to free radial drags or transforms.
+    private func clearCircleNumericSelection(for command: DocumentCommand?) {
+        guard mode.isSketching, mode.sketchTool == nil, !sketchTransformActive,
+              let sketch = activeSketch, let command else { return }
+        func affectsSelectedCircle(_ command: DocumentCommand) -> Bool {
+            if let group = command as? CompositeCommand {
+                return group.commands.contains(where: affectsSelectedCircle)
+            }
+            let dimension: SketchDimension
+            let sketchID: SketchID
+            if let add = command as? AddSketchDimensionCommand {
+                dimension = add.dimension; sketchID = add.sketchID
+            } else if let update = command as? UpdateSketchDimensionCommand {
+                dimension = update.after; sketchID = update.sketchID
+            } else { return false }
+            guard sketchID == sketch.id, dimension.refs.count == 1,
+                  dimension.kind == .radius || dimension.kind == .diameter,
+                  let id = dimension.refs.first?.entityID,
+                  selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains(where: { $0.entityID == id }),
+                  case .circle? = sketchEntity(id, in: sketch) else { return false }
+            return true
+        }
+        if affectsSelectedCircle(command) { clearCircleNumericSelection() }
+    }
+
+    private func clearCircleNumericSelection() {
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        retainedCircleCenterReadoutID = nil
+        editingDimension = nil
     }
 
     /// MUST run BEFORE any history mutation (undo/redo/rollback). An armed
@@ -13119,6 +13156,12 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: "Dimension", commands: commands), sketchID: sketchID)
         if let id = freshLinePoint?.entityID { refreshChainAnchors(lastEntityID: id) }
+        if mode.sketchTool == nil, !sketchTransformActive,
+           edit.refs.count == 1, edit.kind == .radius || edit.kind == .diameter,
+           let id = edit.refs.first?.entityID,
+           case .circle? = sketchEntity(id, in: sketch) {
+            clearCircleNumericSelection()
+        }
         // A successful corner-size edit ends its point selection. Cancellation
         // and rejected values above retain the point, as in native sketching.
         if selectedMigratedRectangleCornerEdges != nil { selectedSketchPoints.removeAll() }

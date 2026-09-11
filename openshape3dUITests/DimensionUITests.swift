@@ -800,6 +800,14 @@ final class DimensionUITests: XCTestCase {
         XCTAssertLessThan(radial.frame.midY, circleRimY - 5,
                           "Radial handle must sit above the circle rim, clear of diameter text")
         let originalDiameter = app.buttons["DimensionLabel"].firstMatch.label
+        let originalValue = try XCTUnwrap(Double(originalDiameter.dropFirst().split(separator: " ")[0]))
+        func reselectRim(diameter: Double) {
+            // Preserve Ø10/Ø8 numeric coverage; their side rims are outside the
+            // canvas. The lower diagonal rim remains visible below the rail.
+            let offset = window.frame.width * 0.13 * diameter / originalValue / sqrt(2.0)
+            p(0.50, 0.50).withOffset(CGVector(dx: offset, dy: offset)).tap()
+            sleep(1)
+        }
         let grab = radial.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -40)))
         sleep(1)
@@ -817,6 +825,10 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["UndoButton"].firstMatch.isEnabled,
                       "Drawing a circle should push an undoable step")
 
+        XCTAssertFalse(app.buttons["DimensionLabel"].firstMatch.exists,
+                       "Successful disarmed-circle numeric edit clears selection")
+        reselectRim(diameter: 10)
+        attach(app, "numeric-circle-after-rim-reselection")
         // Ø10 drives the radius to 5, which is what the info bar reports.
         XCTAssertTrue(app.staticTexts["5.00 mm"].waitForExistence(timeout: 3),
                       "Ø10 should drive the circle to radius 5")
@@ -828,9 +840,14 @@ final class DimensionUITests: XCTestCase {
                       "Palette entry must reopen the stored diameter, not an invisible candidate")
         XCTAssertEqual(app.textFields["DimensionField"].firstMatch.value as? String, "10")
         setDimension(app, to: "8")
+        XCTAssertFalse(app.buttons["DimensionLabel"].firstMatch.exists)
+        reselectRim(diameter: 8)
         XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, "Ø8 mm")
         XCTAssertTrue(app.staticTexts["4.00 mm"].waitForExistence(timeout: 3))
         app.buttons["UndoButton"].tap()
+        XCTAssertFalse(app.buttons["DimensionLabel"].firstMatch.exists,
+                       "Numeric history clears reselected circle controls")
+        reselectRim(diameter: 10)
         XCTAssertEqual(app.buttons["DimensionLabel"].firstMatch.label, "Ø10 mm")
         attach(app, "circle-palette-existing-dimension-reedit-history")
     }
