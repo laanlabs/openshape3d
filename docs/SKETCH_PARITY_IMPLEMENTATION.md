@@ -1897,3 +1897,7 @@ rectangle100applicationpoint spacing/outervalue24points. Prior toward-geometry
 interpretation withdrawn. Clean5/5 andlive two lengths/typed1.5/Return/completion/
 history/galleryreopen verified. Illustrated677/master38 verified. No exact
 macOS/physical-iPad pixelsignoff; directlabelactivation remainsuntested.
+
+### September 10 — pending three-point direction/precision correction
+
+Released baseline now uses four-decimal compact precision and positions its value above the readable leader in either horizontal direction. Prior universal outside interpretation withdrawn; fixed screen-space spacing retained. Clean final5/5, paired completion/history/reopen; clone synthetic keyboard delivery did not act, toolbar verified. Illustrated687/all4finalhashes/master38 verified. QA10 remains partial. See three-point-matrix receipt.

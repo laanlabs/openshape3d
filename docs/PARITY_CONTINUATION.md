@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEADddffe34 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -222,3 +222,63 @@ completion1.5×0.3719/UndoRedo/reopen passedlive. Illustrated677/all6hashes plus
 clone savedUntitled2rects, width1.5selected at441,380, tooloff. Exactnext commit/
 push leaderlayout, then paired DIRECT pending-label tap activation, reverse
 directions/remainingQA10acceptance. App13792; no otherdesktopowner.
+
+## Latest actual — direct pending-label click
+
+HEADaa2677f pushed. Native pendingvalueclick commits thirdpoint (23.4062×
+10.0143), notkeypad; Undo restores48edges. Cloneclick commits2.4891×0.9265,
+Undo restoresoriginal2rectangles. No productchange needed. Bothnowtooloff.
+Allscreens copied/hashedlocal, directpublicationpending; lastverified677/master38.
+Exactnext reverse-baseline/opposite-height comparison, remainingQA10closure.
+No runner. Soleowner, originalIPAunchanged.
+
+## Latest running — September10 23:03 EDT
+
+HEADaa2677f pushed. Pending precision correction dirty in EditorViewModel: use
+existingcompactdimensionformatter forreleasedthreepointbaseline only (observed
+2.49pending vs2.4891committed, nativefourdecimals). Serial58085 owns simulator,
+/tmp/os3d-qa10-pending-precision-20260910.xcresult. Exactnext collect result,
+reversebaseline/oppositeheight live withprecision, publishdirectclick+precision
+evidence thencommit/push. Directclickpairedpass localonly; latestDoc677/master38.
+No new workers/devicechanges; immutableIPAuntouched.
+
+## Latest running — September10 23:10 EDT
+
+58085 clean4/4. Precisionlive2.4891 passes. Reversecomparison confirmednative
+valueaboveleader evenwhenleaderbelowgeometry; clonealwaysouterrulewrong for
+reverse. Prior ALWAYSoutsidegeneralization withdrawn (forwardcasevalid).
+SketchLiveDimensionOverlay now uses readabletextnormal, fixedspacingretained.
+Serial87523 owns simulator: /tmp/os3d-qa10-reverse-value-side-20260910.xcresult.
+DirtyEditorViewModelprecision+Overlaydirection+docs. Native3Points pending
+800,600→600,600 (23.4062),48edges; clone UItestresetfixture. Invalidnative
+Center/Rcycle attempt cancelled, no geometryadded. Exactnext collectresult,
+reverse/forward live sideandprecision, completion/cancel, publishcorrection,
+commit/push. Directpublication681 exportdownloaded butnotverified yet; last
+verified677/master38. No otherworkers/devicechanges.
+
+## September 10 23:20 — reverse value-side correction verified
+
+Final combined reverse-value-side run passed clean 5/5 (3 cancellation units +
+2 rectangle UI workflows), after the separate precision run passed 4/4.
+Live updated clone puts 2.4891 mm above the lower leader on a right-to-left
+baseline. Native recheck confirms this side; forward clone retains above-leader
+placement and four decimals (2.4726 mm in that separate snapped sample).
+The earlier universal outside-of-geometry interpretation is withdrawn: only
+the forward sample supported it. The corrected rule follows readable text.
+Both apps complete the reverse baseline with both dimensions and center control,
+without opening a keypad (native 23.4062×6 mm; clone 2.4891×0.622 mm at its scale).
+Native keyboard Undo/Redo and clone toolbar Undo/Redo remove/restore this rectangle
+and clear selection. Clone synthesized cmd-Z/shift-cmd-Z did not act in this
+attempt; those two screenshots are NOT history passes. No history logic changed.
+A subsequent forward draft cancels without removing the committed rectangle.
+Clone gallery reopen retains its 2.4891 mm baseline. Native reverse reopen remains
+next, alongside remaining QA10 directional acceptance.
+Illustrated direct-click681 and reverse-diagnosis683 exports verified: all six
+new hashes once, no prior placement loss, previous text order preserved.
+No test runner remains. Immutable IPA unchanged; QA10 remains partial.
+
+Exact next: publish final four images, native reopen, commit/push two product files and docs, continue remaining QA10 directions. HEAD aa2677f; no runner.
+
+## Latest verified — September 10 23:24 EDT
+
+87523 clean5/5; live reverse/forward label and precision passed. Native reverse gallery reopen23.4062×6 and clone2.4891 baseline retained. Clone toolbar UndoRedo passed; synthetic cmdZ did not act (not a pass). Illustrated687/all4finalhashes/no prior loss and master38 verified; final reopen text addendum inserted once, export verification next. HEADaa2677f; two product files plus ledger/matrix/receipt/checkpoint dirty. No runner. Native Front Sketch04 now52edges, reverse baseline selected750,554; clone savedUntitled two rectangles, baseline selected480,320. Next commit/push then controlled angled baseline/opposite-height QA10. ImmutableIPA unchanged.

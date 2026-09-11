@@ -134,9 +134,12 @@ struct SketchLiveDimensionOverlay: View {
             let nx = dx / length, ny = dy / length
             start = CGPoint(x: a.x + nx * 100, y: a.y + ny * 100)
             end = CGPoint(x: b.x + nx * 100, y: b.y + ny * 100)
-            // The selected value is OUTSIDE the leader, away from geometry.
-            anchor = CGPoint(x: (start.x + end.x) / 2 + nx * 24,
-                             y: (start.y + end.y) / 2 + ny * 24)
+            // Native places the value above its readable text baseline.
+            // Reversing construction moves the leader to the other side of
+            // the geometry, but must not flip the value below that leader.
+            let angle = readableAngle(from: start, to: end)
+            anchor = CGPoint(x: (start.x + end.x) / 2 + CGFloat(sin(angle)) * 24,
+                             y: (start.y + end.y) / 2 - CGFloat(cos(angle)) * 24)
         }
         return (start, end, a, b, anchor)
     }

@@ -241,3 +241,54 @@ reference70desktop pixels forbothlengths retained, notphysicaliPad equivalence.
 Diagnosis671/all4hashes and final677/all6hashesonce, no priorimages/orderedtext
 loss; master38/noteonce verified. All exports/PNGs copied/hashedlocal.
 Next direct pending-label activation and remainingdirections; QA10partial.
+
+### Direct pending-value click is a placement route, not a button
+
+Native pending23.4062 label699,514 click completes23.4062×10.0143; no keypad.
+Undo restores48edges. Clone pending2.49 label480,246 click completes2.4891×
+0.9265; no keypad. OneUndo removesnewrectangle, originaltwo retained. This
+route matches; do not make outlined pendingvalue tappable based on appearance.
+Keyboardentry remains separatelyverified. Direct comparison PNGs retained;
+publication pending. Next remaining reverse-baseline/opposite-height matrix.
+
+Pending precision: captured clone baseline2.49 vscompleted2.4891 while native
+pending23.4062 retainsfourdecimals. Releasedpendingbaseline nowusesexisting
+compactLengthString (sameascommitteddimensions), not generic2decimalstroke
+formatter. Other in-flightreadouts unchanged. Serial58085 3units+tapcancelUI
+active; live reverse-direction/precision followup pending.
+
+Precision58085 clean4/4; live reversedclone2.4891 nowmatchescommittedprecision.
+Native R firstcycledCenter; zeroheightattemptcancelled, subsequentstalenavhit
+Arc (no drawing), thenR Center→Diagonal→3Points inspected; excludedinvalid
+subtypeattempt. Validnative800,600→600,600 reads23.4062; leaderbelowbaseline
+butvalue ABOVEleader/towardsgeometry. Forwardnativevaluealsoaboveleader/away
+fromgeometry. Thus prior ALWAYSoutside interpretation is too broad andwithdrawn;
+correct rule follows readabletext direction. Clone580,320→380,320 samepending
+statehasvaluebelowleader, confirmedgap. Changed textnormal to readableangle
+(sinθ,-cosθ), preservingfixed100pointleader. Serial87523 3units+2UI runs;
+no postfixliveclaim. Native pendingbaseline remains;48committededges.
+
+## September 10 23:20 — reverse value-side correction verified
+
+Final combined reverse-value-side run passed clean 5/5 (3 cancellation units +
+2 rectangle UI workflows), after the separate precision run passed 4/4.
+Live updated clone puts 2.4891 mm above the lower leader on a right-to-left
+baseline. Native recheck confirms this side; forward clone retains above-leader
+placement and four decimals (2.4726 mm in that separate snapped sample).
+The earlier universal outside-of-geometry interpretation is withdrawn: only
+the forward sample supported it. The corrected rule follows readable text.
+Both apps complete the reverse baseline with both dimensions and center control,
+without opening a keypad (native 23.4062×6 mm; clone 2.4891×0.622 mm at its scale).
+Native keyboard Undo/Redo and clone toolbar Undo/Redo remove/restore this rectangle
+and clear selection. Clone synthesized cmd-Z/shift-cmd-Z did not act in this
+attempt; those two screenshots are NOT history passes. No history logic changed.
+A subsequent forward draft cancels without removing the committed rectangle.
+Clone gallery reopen retains its 2.4891 mm baseline. Native reverse reopen remains
+next, alongside remaining QA10 directional acceptance.
+Illustrated direct-click681 and reverse-diagnosis683 exports verified: all six
+new hashes once, no prior placement loss, previous text order preserved.
+No test runner remains. Immutable IPA unchanged; QA10 remains partial.
+
+## Latest verified — September 10 23:24 EDT
+
+87523 clean5/5; live reverse/forward label and precision passed. Native reverse gallery reopen23.4062×6 and clone2.4891 baseline retained. Clone toolbar UndoRedo passed; synthetic cmdZ did not act (not a pass). Illustrated687/all4finalhashes/no prior loss and master38 verified; final reopen text addendum inserted once, export verification next. HEADaa2677f; two product files plus ledger/matrix/receipt/checkpoint dirty. No runner. Native Front Sketch04 now52edges, reverse baseline selected750,554; clone savedUntitled two rectangles, baseline selected480,320. Next commit/push then controlled angled baseline/opposite-height QA10. ImmutableIPA unchanged.

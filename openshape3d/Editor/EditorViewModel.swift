@@ -8096,9 +8096,12 @@ final class EditorViewModel {
         let unit = AppSettings.shared.unit
         return entities.enumerated().flatMap { index, entity in
             LiveDimensionKit.dimensions(for: entity, towards: sketchStrokeCurrent).map { d in
-                LiveDimensionLabel(
+                let pendingBaseline = rectangleType == .threePoint
+                    && rectangleBaseline != nil && rectanglePreview.count == 1
+                return LiveDimensionLabel(
                     id: rectanglePreview.isEmpty ? d.id : "rectangle-\(index)-\(d.id)",
-                    text: LiveDimensionKit.label(d, unit: unit),
+                    text: pendingBaseline ? unit.compactLengthString(fromMM: d.value)
+                        : LiveDimensionKit.label(d, unit: unit),
                     worldLineStart: sketch.plane.toWorld(d.lineStart),
                     worldLineEnd: sketch.plane.toWorld(d.lineEnd),
                     worldWitnessStart: sketch.plane.toWorld(d.start),
@@ -8107,8 +8110,7 @@ final class EditorViewModel {
                     drawsEdgeTicks: d.kind.drawsEdgeTicks,
                     hasWitnessLines: simd_length(d.offset) > 1e-9,
                     isArcRadius: d.kind == .radius && d.arcCenter != nil,
-                    isPendingRectangleBaseline: rectangleType == .threePoint
-                        && rectangleBaseline != nil && rectanglePreview.count == 1,
+                    isPendingRectangleBaseline: pendingBaseline,
                     worldArcCenter: d.arcCenter.map(sketch.plane.toWorld),
                     worldArcPoints: d.arcPoints.map(sketch.plane.toWorld))
             }
