@@ -463,6 +463,24 @@ struct UpdateSketchEntitiesCommand: DocumentCommand {
     }
 }
 
+/// A display-only change with its own history identity; no geometry solve.
+struct SetLineDimensionKindCommand: DocumentCommand {
+    let title = "Distance Type"
+    let sketchID: SketchID
+    let entityID: UUID
+    let before: DimensionKind?
+    let after: DimensionKind?
+
+    func apply(to document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].lineDimensionKinds[entityID] = after
+    }
+    func revert(in document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].lineDimensionKinds[entityID] = before
+    }
+}
+
 /// Atomic topology/reference migration together with the initiating gesture.
 /// Both snapshots retain the same sketch identity; Undo restores the primitive
 /// and its original references rather than leaving a separate decomposition.
@@ -691,7 +709,8 @@ struct TrimCommand: DocumentCommand {
     func apply(to document: inout DesignDocument) {
         guard let sketchIndex = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         if let afterDisconnected { document.sketches[sketchIndex].disconnectedEndpoints = afterDisconnected }
-        if let kind = document.sketches[sketchIndex].lineDimensionKinds.removeValue(forKey: removed.id) {
+        if beforeLineDimensionKinds != nil,
+           let kind = document.sketches[sketchIndex].lineDimensionKinds.removeValue(forKey: removed.id) {
             for fragment in fragments {
                 if case .line = fragment { document.sketches[sketchIndex].lineDimensionKinds[fragment.id] = kind }
             }

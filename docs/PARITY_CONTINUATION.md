@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 18:35
+
+WIP21c27ea pushed. Follow-up source/test changes fix only Distance Type history
+selection and legacy Trim metadata handling; import remap assertion added.
+First focused run2/3 is retained. Corrected focused run4/4 passed with unchanged
+UI history assertion. The combined gate is now active at
+/tmp/os3d-qa27-badge-final-20260911.xcresult and .log, sole simulator owner.
+Collect its terminal summary before any desktop interaction. Then launch exact
+changed app, repeat label-menu H/V, Undo/Redo and gallery reopen live; native
+paired reference/history/reopen already durable in QA27 manifest below. Publish
+only inspected distinct images and verify both report exports before closure.
+No new live proof or combined result yet. Inventory22/0/1/33; QA27 partial.
+Next action after checkpoint/push: collect this exact runner, do not duplicate.
+Immutable05be744/device untouched; unrelated identity/memory files excluded.
+
 ## Current execution — September 11 18:29
 
 Baseline8748e29 pushed. QA27 paired live diagnosis now confirms native type switch

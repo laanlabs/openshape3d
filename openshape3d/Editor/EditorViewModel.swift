@@ -4992,6 +4992,7 @@ final class EditorViewModel {
             clearCircleNumericSelection()
         }
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
+        clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
@@ -4999,9 +5000,20 @@ final class EditorViewModel {
 
     func redo() {
         clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
+        clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
+    }
+
+    private func clearLineDimensionSelection(for command: DocumentCommand?) {
+        guard let change = command as? SetLineDimensionKindCommand,
+              change.sketchID == activeSketch?.id else { return }
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        editingDimension = nil
     }
 
     /// The paired disarmed-circle numeric workflow clears its rim/readout on
@@ -12544,9 +12556,8 @@ final class EditorViewModel {
               let before = activeSketch, before.id == label.sketchID,
               let id = label.refs.first?.entityID,
               (before.lineDimensionKinds[id] ?? .distance) != kind else { return }
-        var after = before
-        after.lineDimensionKinds[id] = kind == .distance ? nil : kind
-        session.perform(ReplaceSketchGeometryCommand(title: "Distance Type", before: before, after: after))
+        session.perform(SetLineDimensionKindCommand(sketchID: before.id, entityID: id,
+            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind))
     }
 
     /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has

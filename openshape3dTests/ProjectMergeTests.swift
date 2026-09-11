@@ -191,6 +191,18 @@ final class ProjectMergeTests: XCTestCase {
                        "a constraint pointing at the OLD id would be dead on arrival")
     }
 
+    func testInsertedLineDistanceTypeUsesNewEntityIdentity() throws {
+        let id = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.line(id: id, a: .zero, b: SIMD2(30, 40))],
+            lineDimensionKinds: [id: .vertical])]
+        let inserted = try XCTUnwrap(ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches.first)
+        let newID = try XCTUnwrap(inserted.entities.first?.id)
+        XCTAssertNotEqual(newID, id)
+        XCTAssertEqual(inserted.lineDimensionKinds, [newID: .vertical])
+    }
+
     func testInsertedRotatedRectangleRetainsRemappedCenterIdentity() throws {
         let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
         var original = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 2))])

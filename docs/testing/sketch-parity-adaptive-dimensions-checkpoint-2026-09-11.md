@@ -72,3 +72,19 @@ Durable inspected PNG/JSON pairs and hashes:
 `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/adaptive-dimensions/qa27-live-2026-09-11/manifest.json`.
 New diagnosis evidence is queued for Google Docs; no insertion claimed. Inventory
 remains22/0/1/33; QA27 partial. Immutable05be744 and physical iPad unchanged.
+
+### 18:35 focused correction
+
+WIP `21c27ea` was pushed during the first run. That run ended 2/3: both model
+checks passed, UI changed H/V without a keypad but failed after Undo/reselection.
+Inspection showed Undo retained selection, unlike native, so reselect toggled
+it off. A dedicated SetLineDimensionKindCommand now scopes native-style history
+selection cleanup; the UI assertion is unchanged. The geometry-only legacy Trim
+initializer no longer mutates presentation metadata it cannot restore. Import
+remapping has an explicit independent-identity assertion.
+
+Corrected focused run: clean4/4, zero failed/skipped, at
+`/tmp/os3d-qa27-badge-focused2-20260911.xcresult`; summary JSON alongside it.
+The complete annotation/layout/Trim/import and old/new dimension UI gate is
+running at `/tmp/os3d-qa27-badge-final-20260911.xcresult` (matching `.log`).
+No combined pass or changed-build live proof is claimed yet.

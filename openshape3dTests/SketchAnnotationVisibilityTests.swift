@@ -223,10 +223,13 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         for expected in states.dropLast().reversed() {
             vm.undo()
             XCTAssertEqual(vm.activeSketch, expected)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                          "Native projection history clears the line selection")
         }
         for expected in states.dropFirst() {
             vm.redo()
             XCTAssertEqual(vm.activeSketch, expected)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         }
         vm.selectedSketchEntityIDs = [id]
         let absolute = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
