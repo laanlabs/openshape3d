@@ -34,7 +34,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-27 | Dimension type | Core — partial, live/publication blocked | Sloped-line Absolute/Horizontal/Vertical chooser implemented; clean 18/18 model/UI gate covers stored kind, commit, history and JSON round-trip. Fresh paired menu walkthrough and publication remain blocked. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
-| QA-30 | Rectangle sequence | Core — partial, exact-build live blocked | Retained paired two-axis sizing plus clean serial 4/4 current-tree width→height numeric/system-keyboard, edge reachability and history gate. Fresh exact-build paired repeat/publication remain blocked. |
+| QA-30 | Rectangle sequence | Core — PASSED (September 11 finite recipe) | Retained paired two-axis sizing plus a clean exact-tree 4/4 width→height numeric/system-keyboard, edge-clearance and history gate. Illustrated publication is verified at 800 unique placements; physical input remains QA-52. |
 | QA-31 | Unit conversion | Explicitly deferred | Comprehensive unit formats; remains in full audit, not passed. |
 | QA-32 | Expression evaluation | Explicitly deferred | Comprehensive variables/expression semantics; remains in full audit, not passed. |
 | QA-33 | Invalid numeric input | Core — partial live pass | Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; upper limits/system keyboard remain open. |
@@ -257,10 +257,14 @@ Dense values, overlaps, manual reposition if supported, camera zoom. Issues: DM-
 ### QA-30 — Rectangle sequence
 
 Width then height via keyboard and touch, both at screen edge. Issues: DM-11.
-Result: **PARTIAL** — retained paired two-axis sizing is supplemented by a clean
-serial 4/4 current-tree keypad/system-keyboard, edge and history gate. Fresh
-exact-build paired repeat and publication remain blocked by simulator input
-delivery. See [rectangle sequence checkpoint](testing/sketch-parity-rectangle-sequence-checkpoint-2026-09-11.md).
+Result: **PASSED** for the finite desktop recipe on September 11. Retained paired
+two-axis sizing is supplemented by one clean exact-tree 4/4 gate covering width
+then height through numeric and system keyboards, near-screen-edge reachability,
+adjacent-control retention, first-digit replacement, commit and Undo/Redo.
+Anonymous export verifies 800 unique illustrated placements, exactly four new
+closure assets and no predecessor loss. Physical touch/Pencil remains QA-52;
+dense labels, manual reposition and camera zoom remain QA-29. See
+[rectangle sequence closure](testing/sketch-parity-rectangle-sequence-checkpoint-2026-09-11.md).
 
 ### QA-31 — Unit conversion
 

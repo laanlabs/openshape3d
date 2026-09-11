@@ -697,6 +697,18 @@ The earlier selector-only failure and a parallel-clone run are retained but not
 counted as the final gate. Fresh exact-build paired repeat and publication remain
 blocked by simulator input delivery, so inventory remains 13/0/1/42.
 
+## September 11 — QA-30 finite closure
+
+Retained paired width→height sizing is reconciled with a clean exact-tree 4/4
+serial gate for numeric keypad, system keyboard, adjacent-control retention,
+near-edge clearance, first-digit replacement, commit and Undo/Redo. Current-build
+captures were inspected. Anonymous exports verify one QA-30 closure, 800 unique
+illustrated placements, exactly four new assets, no loss from the prior 796, and
+one master-roadmap note with its original 38 media. QA-30 passes for this finite
+desktop recipe. Inventory advances to 22 passed / 0 failed / 1 device-blocked /
+33 incomplete. QA-29 dense/manual/zoom layout and QA-52 physical input remain
+separate; immutable IPA unchanged.
+
 ## September 11 — QA-34 finite closure
 
 Retained paired driven-refusal, direct Unlock, free-resize, history and saved

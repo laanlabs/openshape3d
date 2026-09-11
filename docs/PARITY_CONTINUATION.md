@@ -1,5 +1,25 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 17:13
+
+HEAD `681811e` is pushed. QA-30 now passes for the finite width→height desktop
+recipe. One clean exact-tree serial run passed 4/4, zero failures/skips, at
+`/tmp/os3d-qa30-sequence-final-20260911.xcresult`; retained paired native/clone
+sizing evidence and inspected current-build edge/keyboard captures supply the
+live comparison.
+
+Publication is anonymously export-verified: the illustrated report contains one
+QA-30 closure, 800 unique image placements, exactly four new exported assets and
+zero loss from the prior 796. The master roadmap retains 38 media and has one
+dated QA-30 note. Inventory is **22 passed / 0 failed / 1 device-blocked /
+33 incomplete**.
+
+No runner owns the simulator. Dirty files are bounded QA-30 closure documentation;
+unrelated identity/memory files remain untracked. Exact next action: commit/push
+this closure, then continue the next finite core acceptance case. QA-29 remains
+partial for dense/manual/zoom layout, and physical input remains QA-52. Immutable
+`05be744` IPA is untouched.
+
 ## Current execution — September 11 17:00
 
 HEAD `e190b60` is pushed. QA-23's finite endpoint/midpoint, outline/profile,
