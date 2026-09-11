@@ -1997,3 +1997,17 @@ retained as a fixture failure because it assumed diameter labels while the
 saved Always Radius preference correctly produced radius labels. QA-18 remains
 partial until face-corner initiation is paired; this checkpoint does not infer
 a persistent midpoint relationship or change the 10/0/1/45 inventory.
+
+## September 11 — QA-18 drawing-on-points closure
+
+The same corrected build was exercised on a newly extruded top face in both
+apps. Circle initiation at the corresponding face vertex succeeds; Undo removes
+only the circle, Redo restores it, and the clone gallery reopens with the circle
+still centered on that face corner. Together with the already paired endpoint,
+existing-circle-center, rectangle-corner, and line-midpoint cases, this closes
+the finite QA-18 placement recipe. A single final serial run passed 13/13:
+`FaceSnapTests`, the sketch-on-face downstream workflow, and the two armed-
+Circle point-routing workflows. Illustrated publication is verified at 786
+media with all seven closure hashes once and no loss from 779; master remains
+38 media. Inventory is 11/0/1/44. This does not claim persistent midpoint
+linking, topology editing, hover, or physical Pencil/touch parity.

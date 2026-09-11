@@ -1,31 +1,29 @@
 # Parity continuation checkpoint
 
-## Current execution — September 11 08:16
+## Current execution — September 11 09:18
 
-QA-15 closure commit `6f40072` is pushed. No build or UI-test runner is active;
-this session remains the sole
-desktop, simulator, and build owner. The final corrected current-tree polygon
-regression passed cleanly 13/13 at
-`/tmp/os3d-qa15-closure-final13-20260911.xcresult`. Three preceding clean 12/12
-runs omitted the intended boundary method because their selectors named the
-source file or wrong declared XCTest class; all are retained and excluded from
-the boundary-coverage claim.
+QA-18 is live- and regression-complete on pushed product commit `b19c041`; the
+closure documentation is the only task-related dirty work. No build or UI-test
+runner is active, and this session remains the sole desktop, simulator, and
+build owner. Untracked identity/memory files are unrelated and must not be
+staged.
 
-Paired live closure: native and clone both retained center, radius, and first-
-vertex orientation through 5→65 count editing and exact radius edits. Two Undo
-steps restored radius then the pentagon; two Redos restored 65 sides then the
-edited radius. Clone gallery reopen retained 65/R0.5; native reopened the saved
-65-edge/R300 result. Native's count badge is creation-only, so reopened count
-editing is not imposed. Illustrated publication is export-verified at 772 media
-placements: all eight new hashes occur exactly once and no prior hash was lost.
-The master remains at 38 media with exactly one QA-15 note. Inventory is 10
-passed / 0 failed / 1 device-blocked / 45 incomplete.
+Paired endpoint, existing-circle-center, rectangle-corner, line-midpoint, and
+top-face-corner initiation now pass. The confirmed midpoint failure was input
+routing through a visible H badge; ordinary constraint glyphs remain visible
+but no longer intercept an armed drawing tool. Native and clone face-corner
+Undo remove only the circle, Redo restores it, and clone gallery reopen retains
+the same top-face-corner circle. The final serial current-tree gate passed
+cleanly 13/13 at
+`/tmp/os3d-qa18-point-placement-final2-20260911.xcresult`.
 
-The task tree is clean apart from unrelated untracked identity/memory files,
-which must not be staged. Exact next: begin the next finite incomplete core case
-without touching the immutable 05be744 IPA. Updated device installation and
-physical Pencil/touch remain unverified. Historical running claims below are
-superseded.
+Publication is export-verified: illustrated 786 media, all seven closure hashes
+exactly once, and no loss from the 779-image predecessor; master remains 38
+media with the dated closure/inventory note. Inventory is 11 passed / 0 failed /
+1 device-blocked / 44 incomplete. Exact next: commit/push this closure
+checkpoint, then start the next finite incomplete core case. Updated device
+installation and physical Pencil/touch remain unverified; the immutable
+`05be744` IPA is unchanged. Historical running claims below are superseded.
 
 ## Active continuation — September10 pending three-point numeric input
 
@@ -753,3 +751,16 @@ Publication is now export-verified: illustrated 779 placements, all seven new
 hashes exactly once, no loss from the 772-image predecessor; master remains 38
 media with one midpoint note. Commit/push remains the immediate next action,
 then paired face-corner placement. No runner is active.
+
+## September 11 09:18 — QA-18 finite recipe closed
+
+Pushed product commit `b19c041` supplies the constraint-glyph input-routing
+correction. Paired top-face-corner Circle release and geometry-specific
+Undo/Redo now supplement the previously verified endpoint, circle-center,
+rectangle-corner, and line-midpoint cases; clone gallery reopen retains the
+face-corner circle. Final current-tree regression is one clean 13/13 serial run.
+Illustrated publication is verified at 786 media with all seven new hashes once
+and no predecessor loss; master remains 38 media with a dated closure note.
+Inventory advances to 11/0/1/44. No runner is active; next action is the next
+finite incomplete core case. The immutable IPA and physical device remain
+untouched.

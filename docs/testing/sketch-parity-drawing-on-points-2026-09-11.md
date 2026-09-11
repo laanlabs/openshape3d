@@ -2,10 +2,11 @@
 
 ## Scope and current verdict
 
-QA-18 remains partial. Endpoint, existing-circle-center, rectangle-corner, and
-line-midpoint initiation have paired live evidence. Face-corner initiation is
-still untested in the current finite recipe, so this receipt does not close the
-case or change the 56-case acceptance inventory.
+QA-18 passes its finite recipe. Endpoint, existing-circle-center,
+rectangle-corner, line-midpoint, and top-face-corner initiation all have paired
+live evidence. History preserves the source geometry and the corrected clone
+retains the face-corner result after gallery reopen. The 56-case inventory is
+now 11 passed / 0 failed / 1 device-blocked / 44 incomplete.
 
 ## Confirmed midpoint discrepancy and correction
 
@@ -26,6 +27,19 @@ This comparison proves point placement and input routing. It does not infer a
 persistent midpoint constraint: that relationship is not imposed without a
 separate paired movement comparison.
 
+## Face-corner placement and history
+
+- A fresh closed rectangle was extruded in each app, its top face was selected,
+  and a Circle was started at the corresponding face vertex.
+- Native Shapr3D and OpenShape3D both released a circle centered on that face
+  corner. In both apps Undo removed only the new circle and left the body/face
+  intact; Redo restored the circle at the same corner.
+- OpenShape3D gallery reopen retained the body, face sketch, and corner-centered
+  circle. The perspective reopen image projects the circle around the top-face
+  vertex; it is not an offset construction plane.
+- This closes point placement only. Face editing, topology changes, hover, and
+  physical Pencil/touch remain covered by their own acceptance lanes.
+
 ## Regression history
 
 - `/tmp/os3d-qa18-midpoint-20260911.xcresult`: 0/2. Both workflows reached the
@@ -35,6 +49,10 @@ separate paired movement comparison.
 - `/tmp/os3d-qa18-midpoint-radial-aware-20260911.xcresult`: clean 2/2 with no
   failures or skips. It covers Circle creation at a rectangle corner and at a
   horizontal-line midpoint through the visible constraint badge.
+- `/tmp/os3d-qa18-point-placement-final2-20260911.xcresult`: clean 13/13 in one
+  serial current-tree run with no failures or skips: ten `FaceSnapTests`, the
+  sketch-on-face downstream UI workflow, and the two armed-Circle corner/
+  midpoint workflows.
 
 ## Evidence
 
@@ -42,8 +60,9 @@ Local paired PNGs and exact hashes are stored under:
 
 `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/drawing-on-points/`
 
-The illustrated Google Doc export contains 779 image placements, all seven new
-published hashes exactly once, and no loss from the 772-image QA-15 export. The
-master export retains 38 media and contains one QA-18 midpoint note. Verified
-exports and SHA256 lists are stored beside the PNGs. The immutable `05be744`
-IPA was not modified or installed.
+The midpoint checkpoint illustrated export contains 779 image placements. The
+closure export contains 786: all seven face-corner hashes occur exactly once,
+and none of the 779 predecessor hashes were lost. The master export retains 38
+media and contains the dated QA-18 closure/inventory note. Verified exports and
+SHA256 lists are stored under the `drawing-on-points/face-corner` directory.
+The immutable `05be744` IPA was not modified or installed.

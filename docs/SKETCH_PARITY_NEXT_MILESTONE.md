@@ -617,3 +617,15 @@ despite the retained Always Radius preference and is recorded separately.
 Endpoint, center, rectangle-corner, and midpoint initiation now have paired
 coverage. Face-corner initiation remains open, so QA-18 remains partial and the
 inventory remains 10 passed / 0 failed / 1 device-blocked / 45 incomplete.
+
+## September 11 — QA-18 finite closure
+
+Top-face-corner initiation now has paired release and Undo/Redo evidence; the
+clone also retains the corner-centered circle after gallery reopen. Combined
+with the prior endpoint, existing-circle-center, rectangle-corner, and midpoint
+evidence, the finite QA-18 recipe passes. The current-tree serial regression is
+clean 13/13. Illustrated publication is export-verified at 786 placements with
+all seven closure hashes exactly once and no predecessor loss; master remains
+38 media with the dated closure note. Inventory advances to 11 passed / 0
+failed / 1 device-blocked / 44 incomplete. Persistent midpoint relationships,
+hover, topology editing, and physical Pencil/touch remain separate gates.
