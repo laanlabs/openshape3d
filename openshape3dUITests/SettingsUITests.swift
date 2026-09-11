@@ -44,27 +44,35 @@ final class SettingsUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
         app.buttons["SettingsButton"].tap()
-        let identifiers = ["SnapToGridToggle", "SnapToSketchGuidepointsToggle",
+        let identifiers = ["SnapToGridToggle", "SnapToSketchGuidelinesToggle",
+                           "SnapToSketchGuidepointsToggle",
                            "SnapToFaceGuidepointsToggle", "ShowSnapHintsToggle"]
         func reveal(_ identifier: String) -> XCUIElement {
-            let toggle = app.switches[identifier].firstMatch
-            for _ in 0..<5 {
+            for _ in 0..<10 {
+                let toggle = app.switches[identifier].firstMatch
                 if toggle.exists && toggle.isHittable { return toggle }
-                app.swipeUp()
+                app.swipeUp(velocity: .slow)
                 sleep(1)
             }
-            return toggle
+            return app.switches[identifier].firstMatch
         }
         func expectValue(_ value: String, on toggle: XCUIElement) {
             let changed = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "value == %@", value), object: toggle)
             XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed)
         }
+        func activate(_ toggle: XCUIElement, identifier: String) {
+            if identifier == "ShowSnapHintsToggle" {
+                toggle.tap()
+            } else {
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.90, dy: 0.5)).tap()
+            }
+        }
         for identifier in identifiers {
             let toggle = reveal(identifier)
             XCTAssertTrue(toggle.exists)
             if toggle.value as? String == "1" {
-                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+                activate(toggle, identifier: identifier)
             }
             expectValue("0", on: toggle)
         }
@@ -76,7 +84,7 @@ final class SettingsUITests: XCTestCase {
         for identifier in identifiers {
             let toggle = reveal(identifier)
             XCTAssertEqual(toggle.value as? String, "0", "Explicit off must survive relaunch")
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap() // restore default
+            activate(toggle, identifier: identifier) // restore default
             let shot = XCTAttachment(screenshot: app.screenshot())
             shot.name = "restoring-\(identifier)"; shot.lifetime = .keepAlways; add(shot)
             expectValue("1", on: toggle)

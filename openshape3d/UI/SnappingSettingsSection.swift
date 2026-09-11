@@ -13,8 +13,14 @@ struct SnappingSettingsSection: View {
                 .accessibilityIdentifier("SnapToSketchGuidepointsToggle")
             Toggle("Face Guidepoints", isOn: $settings.snapToFaceGuidepoints)
                 .accessibilityIdentifier("SnapToFaceGuidepointsToggle")
-            Toggle("Snapping Hints", isOn: $settings.showSnapHints)
-                .accessibilityIdentifier("ShowSnapHintsToggle")
+            HStack {
+                Text("Snapping Hints")
+                Spacer()
+                Toggle("", isOn: $settings.showSnapHints)
+                    .labelsHidden()
+                    .accessibilityLabel("Snapping Hints")
+                    .accessibilityIdentifier("ShowSnapHintsToggle")
+            }
         } header: {
             Text("Snapping")
         } footer: {

@@ -764,3 +764,26 @@ and no predecessor loss; master remains 38 media with a dated closure note.
 Inventory advances to 11/0/1/44. No runner is active; next action is the next
 finite incomplete core case. The immutable IPA and physical device remain
 untouched.
+
+## September 11 10:08 — QA-19 category control correction verified; paired threshold remains
+
+Current pushed baseline entering this work was `5d266aa`. Dirty task files are
+`SnappingSettingsSection.swift`, `SettingsUITests.swift`, this receipt, and this
+checkpoint; unrelated identity/memory files remain excluded. Snapping Hints was
+the only nonresponsive settings row across the expanded five-category workflow.
+It now exposes a real trailing switch without changing the visible order. The
+initial 20/21 and all interaction-diagnostic failures are retained. Corrected
+targeted result is 1/1; final combined result is one clean 21/21 at
+`/tmp/os3d-qa19-category-matrix-final-20260911.xcresult`.
+
+Exact-build live Hints-off and Face-Guidepoints-off controls passed. With Grid
+and Face Guidepoints both off, a top-face Circle placement remained visibly raw.
+The repeated on/off near-threshold gesture was outside the screen-space radius
+after Simulator coordinate quantization and is not claimed as comparative snap
+evidence. Native currently remains available for the required controlled 3D
+Guide Points off/on repeat. Local evidence/hashes are in the `snap-categories`
+report directory; Google Docs publication is pending. QA-19 remains partial;
+inventory stays 11 passed / 0 failed / 1 device-blocked / 44 incomplete. No test
+runner is active after the clean run. Exact next action: commit/push the verified
+control correction, complete the paired near-threshold repeat, publish, then
+advance the finite matrix. Immutable IPA unchanged.
