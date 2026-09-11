@@ -941,9 +941,13 @@ final class EditorViewModel {
            let sketch = session.document.sketches.first(where: { $0.id == activeID }) {
             let pendings = [pendingEntity, pendingArcEntity].compactMap { $0 } + rectanglePreview
             if !pendings.isEmpty {
+                // A released three-point baseline is the active construction
+                // edge (native orange), not a new blue stroke or committed edge.
+                let releasedRectangleBaseline = rectangleType == .threePoint
+                    && rectangleBaseline != nil && rectanglePreview.count == 1
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.segments(for: pendings, on: sketch.plane),
-                    color: pendingColor
+                    color: releasedRectangleBaseline ? SIMD4<Float>(1.0, 0.60, 0.0, 1) : pendingColor
                 ))
             }
             // Offset Edge (spec §1.9): the picked source entities read as

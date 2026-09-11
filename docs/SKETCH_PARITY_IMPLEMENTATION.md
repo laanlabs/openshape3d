@@ -1869,3 +1869,11 @@ center-rectangleparallelannotationaliases donotapplytothreepointgroups.
 Initial32/33caughtrealoverlock, corrected33/33, existing3/3, history5/5, final6/6
 separateruns. Illustrated653/all7hashes/master38 verified; legacygroupless
 rectanglesandremainingcompletiondirections remainopen inQA10. See currentreceipt.
+
+## September 10 pending three-point baseline color
+
+Released pending baseline now uses native orange; other construction previews
+and committed geometry retain their colors. Clean4/4 and paired live draft
+cancellation/completion evidence, illustrated660/master38 export-verified.
+Legacy group recovery is dirty/tested51/51 but live controlled import blocked;
+not counted as live parity. QA10 remains partial; inventory6/0/1/49 unchanged.

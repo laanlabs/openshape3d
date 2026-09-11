@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEADc154574 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEAD377bf34 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -52,8 +52,19 @@ selection andretaineddimensionstate.
 fullyvisible. Paired savedcentercontrols retained. Publication653/all7hashesonce/
 master38 verified, no predecessorimages/text loss. No runner. NativeFront44edges
 withmovedcenterselected772,262; clone savedfixturewidthselected,editorcancelled.
-Exactnext commit/push freshcentercontrol correction, thenrecoverlegacy3ptgroups
-safely (no center-sizing intent), remainingQA10directions/stageacceptance.
+Fresh center correction committed/pushed377bf34. Legacy recovery now dirty in
+RectangleConstruction, SketchTypes and RectangleConstructionTests. Decode requires
+isolated four-line loop and all seven original directed relations; no geometry,
+dimension or sizing-intent changes. Initial41618 compile-only failure: fixtures
+omitted edge IDs, no tests ran. Corrected57656 clean41/41; final28378 clean51/51 (includes pattern/decode tests).
+Legacy run completed. Final result /tmp/os3d-qa10-legacy-final-20260910.xcresult. Earlier result
+/tmp/os3d-qa10-legacy-identity-corrected-20260910.xcresult.
+Controlled legacy archive copied to app Documents, original JSON retained; live
+Import picker Recents reports Content Unavailable and On My iPad empty. No old
+file loaded, no live recovery claim. Pickers dismissed, existing Untitled reopened
+in model view. Exact next continue remaining QA10 completion directions; retain
+legacy recovery as implemented/tested but live/publication pending. Supported
+archive route needs recovery before marking that case verified.
 No fullparity/deviceclaim; IPAunchanged.
 Receipt docs/testing/sketch-parity-three-point-matrix-2026-09-10.md; allPNGcopied/
 hashedreports/.../three-point-matrix. Master/illustratededitable; nohostblocker.
@@ -145,3 +156,15 @@ selection/editing, persistence/finalsinglerevisionregression, publicationbacklog
 installabledeviceartifact/checklist. Notcandidate-ready. No merge/deviceinstall
 assumptions/restart/logout/securitychanges/secrets/duplicateworkers. Preserve
 30minutewatchdog.
+
+## Latest actual execution — September10 22:23 EDT
+
+Serial57843 completed clean4/4: /tmp/os3d-qa10-pending-color-20260910.xcresult.
+Pending baseline orange correction in EditorViewModel, based on fresh forward
+paired screenshots; completion two dimensions/center/no keypad passes at unequal
+scales. Native now12rectangles/48edges, last17.9023×8 at lowerleft selectedcenter;
+clone test resets fixture. Legacy decode recovery dirty, clean51/51 but live import
+blocked as above. Exact-build orange pending baseline and paired Escape preservation verified;
+publication660/all7hashes/master38 verified, no prior images/text lost. No runner.
+Exact next commit/push color correction, continue leader-spacing/remainingQA10
+rechecks; keep legacy recovery unverified until supported import succeeds. No other workers.

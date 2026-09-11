@@ -154,3 +154,42 @@ Publication653/all7newhashes once, no646predecessorimageloss andorderedprior
 text preserved. Master38/newnoteonce/noloss. Exports center-final-published
 andcenter-final-master copiedlocal. Freshgroupcontrol verified; legacyloops
 withoutgroupidentity remainunsupported, QA10partial. No wholeapp/deviceclaim.
+
+### Legacy group recovery continuation
+
+Fresh controls pushed377bf34. Confirmed legacy loops still lack center targets.
+Conservative decode recovery implemented for an isolated four-line loop with all
+seven original directed construction constraints, declining disconnected, branched
+or externally related groups; no geometry/dimension/sizing-intent changes.
+Initial41618 failed compilation because two new fixtures omitted edge IDs; zero
+tests ran. Corrected57656 runs rectangle construction plus existing sketch decode
+coverage. Live recovery and publication pending.
+
+Corrected57656 clean41/41. Final28378 clean51/51 after absent-key/driving-
+dimension retention coverage and excluding pattern-linked groups. No runner.
+Controlled QA10-Legacy.os3d (SHA256 f1fda73fdf673c1ea2d4c8a08f50ef3fa5f94e9848ada924d5843f393fe1fbb1)
+retains original four lines/seven constraints/dimension and omits group metadata;
+original JSON retained. First archive-copy attempt failed because app container
+changed after tests; resolved new path read-only and copied separate archive.
+Live Import > Recents: Content Unavailable; On My iPad: Empty. No legacy file
+loaded, no live migration claim. Picker dismissed; existing design reopened.
+
+### Forward baseline/opposite-side completion
+
+Native3Points baseline600,740→750,710 reads17.9023mm; third730,780 commits
+17.9023×8 with two readouts/selectedcenter/no keypad. Clone380,380→540,350
+then520,420 completes2.0254×0.8126 with matching completion controls; different
+zoom/model scales. Pending native baseline orange vscloneblue confirmed; native
+leader farther from edge, scale comparison retained. Narrow orange released-
+baseline correction now under serial57843 (3pendingunits + tap/cancelUI), no
+post-fix live claim. Both forward PNG pairs copied/hashed local. Native now12
+rectangles/48edges; clone pre-test2rectangles (tests may reset controlled fixture).
+
+Pending-color57843 clean4/4. Exact-build live baseline380,380→540,350 is
+orange; Escape removes draft/readout without changing prior rectangle, tool
+remains armed. Native same baseline repeated on existing last rectangle then
+Escape removes pending preview/readout and preserves all48edges, toolarmed.
+Use isolated native-forward-baseline image for color comparison, not later
+overlapping draft. Illustrated660/all7newhashesonce/no653predecessor loss and
+ordered text retained; master38/noteonce/noloss. Exports forward-published and
+forward-master copiedlocal. Leader spacing and legacy live recovery remainopen.
