@@ -80,6 +80,10 @@ struct CommandShortcutsView: View {
                 Button { viewModel.cancelRectangleInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .circle {
+                Button { viewModel.cancelCircleInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
             } else if viewModel.mode.sketchTool == .arc {
                 Button { viewModel.cancelArcInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)

@@ -16,7 +16,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-09 | Center rectangle | Core — passed | Finite both-axis-order/center-preservation recipe plus four release directions, center Lock/migration, selected-side/corner lifecycle, history/reopen closed at e9343a7. Relevant29/30+corrected1/1 latest follow-up retained; illustrated624/master38 verified. No universal UI/device claim. |
 | QA-10 | Three-point rectangle | Core — passed | Original rotated-baseline/perpendicular-height/each-stage-cancel recipe closed at5014cef with paired forward/reverse slopes, pending numeric/leaders, center/legacy controls, history/reopen. Final36/36; illustrated700/master38 closure note verified. Detailed three-point closure audit retains failures and input/import/device qualifications. |
 | QA-11 | Concentric circles | Core — PASSED (September11 finite recipe) | Selected/unselected center distinction, gated saved center relationship, clear controls, paired history/reopen verified. Clean35/35 plus separate6/6; illustrated724. See concentric-closure-audit-2026-09-11.md. |
-| QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
+| QA-12 | Circle dimensions | Core — PASSED (September11 finite recipe) | Persisted Radius/Diameter preference, equivalent geometry, compact/unclipped leaders, reverse creation direction, armed/disarmed numeric edits, direct Unlock, Circle Escape, history and gallery reopen are paired live. Final current-tree closure 22/22; illustrated764/master38 export-verified. Physical Pencil/touch remains under QA-52. |
 | QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
 | QA-15 | Polygon | Core - partial, not passed | Release/radius/profile plus Sept9 selected-count2 refusal,3.5→3,Undo/Redo and geometry reopen sampled; reopened edit identity and broader count/constraint matrix open. |
@@ -689,3 +689,19 @@ receipts. No full UI parity or updated device candidate claim.
 ### September10 QA10 closure inventory
 
 Seven passed (QA04/07/08/09/10/55/56), zero failed, one device-blocked (QA52),48 incomplete (37partial11deferred), total56. QA11 sampled result still needs finite closure review.
+
+### September 11 QA12 finite closure
+
+QA11 and QA12 are now finite-recipe passes. Radius and Diameter preference covers
+creation, conversion, numeric editing, reverse release direction, compact
+selected-state presentation, direct Unlock, Circle Escape, Undo/Redo and gallery
+reopen in paired native/clone live checks. The exact QA12 closure tree passed one
+clean 22/22 combined regression. The earlier 11-model-pass/1-XCTest-keyboard-
+delivery failure is retained and was not relabeled as an automated UI pass; the
+same build's Escape product route passed through Peekaboo. Illustrated
+publication contains 764 placements with all six closure hashes exactly once and
+no predecessor loss; the master retains 38 media and one closure note.
+
+Inventory is **9 passed / 0 failed / 1 device-blocked / 46 incomplete** (35
+partial, 11 explicitly deferred), total 56. Updated device installation and
+physical Pencil/touch remain unverified; immutable 05be744 IPA is unchanged.

@@ -1,5 +1,32 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 07:35
+
+HEAD `08fe2f6` pushed; QA-12 closure changes are dirty and ready to checkpoint.
+No build or UI-test runner is active; this session remains the sole desktop,
+simulator and build owner. The final current-tree QA-12 regression passed cleanly
+22/22 at `/tmp/os3d-qa12-closure-final-20260911.xcresult`. The earlier
+Circle-Escape run remains preserved as 11 model passes / 1 XCTest keyboard-
+delivery failure; the same exact build passed the product route live through
+Peekaboo and the failing injected key is not counted as UI evidence.
+
+Paired live closure: native and clone both preserve a reverse-release radius
+leader through numeric sizing and Escape, disarm Circle without deleting the
+completed circle, and retain the sized circle after history/gallery reopen.
+Clone Undo restored R0.2473 and Redo/gallery reopen restored R0.3 with the saved
+leftward construction direction. Illustrated publication is export-verified at
+764 media placements: all six closure hashes occur exactly once and no prior
+hash was lost. The master remains at 38 media with exactly one QA-12 closure
+note. Inventory is 9 passed / 0 failed / 1 device-blocked / 46 incomplete.
+
+Dirty task files: SketchTypes, Commands, EditorViewModel, CommandShortcutsView,
+SketchDimensionOverlay, CircleCenterInputTests, acceptance/implementation/
+continuation documentation and the QA-12 receipt. Untracked identity/memory files
+remain unrelated and must not be staged. Exact next: commit/push this checkpoint,
+then continue the next finite incomplete acceptance case. The immutable 05be744
+IPA is unchanged; updated device installation and physical Pencil/touch remain
+unverified. Historical running claims below are superseded.
+
 ## Active continuation — September10 pending three-point numeric input
 
 HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
@@ -670,3 +697,33 @@ newhashes+1, no747predecessorimage loss, allorderedprior text preserved. Master
 No runner active. NativeFrontfreshR3selectedafterreopen; cloneTopR.3selected
 afterreopen. Exactnext commit/push compact radius/badge/Unlock/history correction,
 then paired reverse creation and armed cancellation; QA12 remains partial.
+
+## September 11 02:16 — reverse radius direction under regression
+
+08fe2f6 pushed; priorcontrols publication756/master38 verified. New paired
+reverse20pxdrag: native930740→910740 releasesR2.8482 withleftleader, clone
+530740→510740 releasesR.2473 withrightleader. NativeR3numericcommit, Escape,
+rimreselection andgalleryreopen retainleftcompactleader. Escape disarmsbut
+keepsselectedbadge; thatseparateclonecancellationstate remainsuncompared.
+Dirtypresentationmetadata circleRadiusDirections onSketch recordsAlwaysRadius
+creationunitdirection inAddSketchEntityCommand; Undo removesit,Redoreadds;
+legacydecode defaults empty. Label usesstoredunitdirection/currentradius;
+drivinglabelretainscompactformafterdisarm. No solverreferencesorconstraints.
+Newunit reverse/vertical/diagonal sizing,history,decode/legacycoverage. Serial
+exec84663 owns simulator result`/tmp/os3d-qa12-radius-direction-20260911.xcresult`.
+Exactnext collect, fixfailures, live reversepostfix/edit/history/reopen, finish
+armedcancellationcomparison, publish/commit. NativeFront60edges/allselected
+aftergalleryreopen, reverseR3near929714; clonetestresetexpected. NoIPAchange.
+Inventory8/0/1/47. Newdiagnosisimages copied locally, notpublishedyet.
+
+## September 11 02:24 — direction passes, Circle Escape confirmed missing
+
+61407 passedclean11/11. Updatedlive leftwardR.2473release andR.3numericcommit
+retainleftleader. TwoPeekabooEscapeattempts leaveCirclearmed. Sourceinspection
+confirmsCircle has no cancelActionregistration, whileLine/Rect/Arcdo. Native
+Escape disarmsretainingselectedR3badge. AddedcancelCircleInputnohistorymethod,
+CirclecancelAction andselectedradiusbadgeoutsidearmedmode (stillnoTransform).
+Newunit exactselection/geometry/history; UI usesrealEscapeandrequirestool-off
+promptbeforeUnlock. Serial95518 owns simulator
+`/tmp/os3d-qa12-circle-escape-20260911.xcresult`. Exactnextcollect/liveEscape,
+reversehistory/reopen/publication. Prior directioninitial10/11retained. NoIPAchange.

@@ -168,10 +168,14 @@ struct AddSketchEntityCommand: DocumentCommand {
     let sketchID: SketchID
     let entity: SketchEntity
     var rectangleSizingAnchor: RectangleSizingAnchor? = nil
+    var circleRadiusDirection: SIMD2<Double>? = nil
 
     func apply(to document: inout DesignDocument) {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.append(entity)
+            if let circleRadiusDirection {
+                document.sketches[index].circleRadiusDirections[entity.id] = circleRadiusDirection
+            }
             if let rectangleSizingAnchor {
                 document.sketches[index].rectangleSizingAnchors[entity.id] = rectangleSizingAnchor
             }
@@ -182,6 +186,7 @@ struct AddSketchEntityCommand: DocumentCommand {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.removeAll { $0.id == entity.id }
             document.sketches[index].rectangleSizingAnchors.removeValue(forKey: entity.id)
+            document.sketches[index].circleRadiusDirections.removeValue(forKey: entity.id)
         }
     }
 }

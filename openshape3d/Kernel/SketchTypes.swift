@@ -253,6 +253,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     /// weld again. Explicit Coincident still reconnects them. Legacy sketches
     /// retain proximity welding through the empty decode default.
     var disconnectedEndpoints: [ConstraintRef]
+    /// Radius-construction annotation direction; presentation only, never solved.
+    var circleRadiusDirections: [UUID: SIMD2<Double>]
 
     init(
         id: SketchID = SketchID(),
@@ -266,7 +268,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         patternLinks: [SketchPatternLink] = [],
         rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:],
         rotatedRectangleEdges: [UUID: [UUID]] = [:],
-        disconnectedEndpoints: [ConstraintRef] = []
+        disconnectedEndpoints: [ConstraintRef] = [],
+        circleRadiusDirections: [UUID: SIMD2<Double>] = [:]
     ) {
         self.id = id
         self.name = name
@@ -280,12 +283,13 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.rotatedRectangleEdges = rotatedRectangleEdges
         self.rectangleSizingAnchors = rectangleSizingAnchors
         self.disconnectedEndpoints = disconnectedEndpoints
+        self.circleRadiusDirections = circleRadiusDirections
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
         case constraints, dimensions, patternLinks, rectangleSizingAnchors
-        case disconnectedEndpoints, rotatedRectangleEdges
+        case disconnectedEndpoints, rotatedRectangleEdges, circleRadiusDirections
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -311,6 +315,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
         disconnectedEndpoints = try container.decodeIfPresent(
             [ConstraintRef].self, forKey: .disconnectedEndpoints) ?? []
+        circleRadiusDirections = try container.decodeIfPresent(
+            [UUID: SIMD2<Double>].self, forKey: .circleRadiusDirections) ?? [:]
         RectangleConstruction.recoverLegacyGroups(in: &self)
     }
 }

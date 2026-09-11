@@ -139,7 +139,7 @@ struct SketchDimensionOverlay: View {
                 ? SketchLinearDimensionLayout.make(start: start, end: end,
                     leaderOffset: label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
-            let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, compact: label.isCircleRadius && viewModel.mode.sketchTool == .circle && (label.dimensionID != nil || viewModel.selectedCircleCenterID == label.refs.first?.entityID), in: size) : nil
+            let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, compact: label.isCircleRadius && ((label.dimensionID != nil && (label.hasCircleRadiusDirection || viewModel.mode.sketchTool == .circle)) || (viewModel.mode.sketchTool == .circle && viewModel.selectedCircleCenterID == label.refs.first?.entityID)), in: size) : nil
             let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
                 manualAnchor: diameterDragPreviews[label.id] ?? label.worldDiameterLabelAnchor.flatMap(project), in: size) : nil
             if let arc {
@@ -221,7 +221,8 @@ struct SketchDimensionOverlay: View {
                 // badge gives way to the field, which `body` positions.
                 EmptyView()
             } else if let radial, label.isCircleRadius,
-                      viewModel.mode.sketchTool == .circle,
+                      !viewModel.sketchTransformActive,
+                      (viewModel.mode.sketchTool == .circle || label.hasCircleRadiusDirection),
                       let dimensionID = label.dimensionID,
                       viewModel.selectedDimensionID == dimensionID {
                 HStack(spacing: 0) {

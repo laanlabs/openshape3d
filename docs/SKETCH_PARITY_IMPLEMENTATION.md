@@ -1948,3 +1948,17 @@ clears selection/disarms Circle. Final12/12 controls plus10/10 history clean;
 prior11/12 fixture failure retained. Paired nativeR3/cloneR.3 gallery reopen
 verified. Illustrated756/all9hashes/master38 verified. Reverse creation/cancel
 remain; no QA12 closure yet. See circle-annotation-modes receipt.
+
+QA12 closure September11: Always Radius creation now persists its release
+direction as presentation-only sketch metadata, so reverse/vertical/diagonal
+leaders retain their creation side through sizing, history, decoding and gallery
+reopen. Circle Escape has the same no-history cancellation route as the other
+sketch tools: it clears pending input and disarms Circle while retaining the
+completed geometry and selected radius badge. Legacy sketches decode with no
+direction metadata and keep prior behavior. Paired native/clone reverse release,
+R3/R0.3 sizing, Escape, Undo/Redo and reopen passed live. Final relevant current-
+tree regression passed cleanly 22/22. The earlier XCTest Escape injection failure
+is retained as an input-delivery limitation, not counted as UI evidence; exact-
+build Peekaboo verification passed. Illustrated764/all six closure hashes and
+master38/one note export-verified. QA12 is closed; inventory9/0/1/46. Physical
+Pencil/touch and updated device installation remain separate gates.

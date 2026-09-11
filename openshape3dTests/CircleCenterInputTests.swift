@@ -30,6 +30,56 @@ final class CircleCenterInputTests: XCTestCase {
         vm.updateSketchStroke(ray: ray(vm, b))
         vm.endSketchStroke(ray: ray(vm, b))
     }
+    func testRadiusConstructionDirectionSurvivesSizingHistoryAndDecode() throws {
+        let prior = AppSettings.shared.circularAnnotations
+        defer { AppSettings.shared.circularAnnotations = prior }
+        AppSettings.shared.circularAnnotations = .alwaysRadius
+        for direction in [SIMD2<Double>(-1, 0), SIMD2(0, 1), SIMD2(0, -1), SIMD2(0.6, 0.8)] {
+            let vm = try model()
+            drag(vm, SIMD2(10, 10), SIMD2(10, 10) + direction * 3)
+            let fresh = try XCTUnwrap(vm.activeSketch)
+            let id = try XCTUnwrap(fresh.entities.first?.id)
+            XCTAssertEqual(try XCTUnwrap(fresh.circleRadiusDirections[id]).x, direction.x, accuracy: 1e-6)
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first)
+            let delta = label.worldEnd - label.worldStart
+            let expected = fresh.plane.toWorld(SIMD2(10, 10) + direction * 3) - fresh.plane.toWorld(SIMD2(10, 10))
+            XCTAssertLessThan(simd_length(delta - expected), 1e-5)
+            vm.beginDimensionEdit(label)
+            vm.commitDimensionEdit("2")
+            let sized = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(sized.circleRadiusDirections, fresh.circleRadiusDirections)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(sized)), sized)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, fresh)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, sized)
+            var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(sized)) as? [String: Any])
+            legacy.removeValue(forKey: "circleRadiusDirections")
+            let decoded = try JSONDecoder().decode(Sketch.self, from: JSONSerialization.data(withJSONObject: legacy))
+            XCTAssertTrue(decoded.circleRadiusDirections.isEmpty)
+            XCTAssertEqual(decoded.entities, sized.entities)
+        }
+    }
+
+    func testCircleEscapeRetainsCommittedRadiusSelectionWithoutHistory() throws {
+        let prior = AppSettings.shared.circularAnnotations
+        defer { AppSettings.shared.circularAnnotations = prior }
+        AppSettings.shared.circularAnnotations = .alwaysRadius
+        let vm = try model()
+        drag(vm, SIMD2(10, 10), SIMD2(7, 10))
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("2")
+        let before = try XCTUnwrap(vm.activeSketch)
+        let selected = vm.selectedDimensionID
+        let historyCount = vm.session.undoStack.undoCommands.count
+        vm.cancelCircleInput()
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertEqual(vm.activeSketch, before)
+        XCTAssertEqual(vm.selectedDimensionID, selected)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, historyCount)
+    }
+
     func testArmedRadiusCommitSelectsDimensionAndUnlockPreservesGeometry() throws {
         let prior = AppSettings.shared.circularAnnotations
         defer { AppSettings.shared.circularAnnotations = prior }

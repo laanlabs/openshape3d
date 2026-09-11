@@ -10009,6 +10009,19 @@ final class EditorViewModel {
         mode = .sketching(id, tool: nil)
     }
 
+    /// Native Circle Escape disarms while retaining the completed size selection.
+    /// Dimension-field cancellation owns Escape first; no document history here.
+    func cancelCircleInput() {
+        guard mode.sketchTool == .circle, editingDimension == nil else { return }
+        pendingEntity = nil
+        sketchStrokeStart = nil
+        sketchStrokeCurrent = nil
+        activeGuides = []
+        activeSnap = nil
+        pendingInferredConstraints = []
+        deselectSketchTool()
+    }
+
     /// Hardware Return accepts the default/current third-point shape without
     /// requiring a canvas tap. Native Shapr3D keeps Arc armed and chains from
     /// the accepted endpoint, so this is the same commit path as a third tap.
@@ -10814,8 +10827,15 @@ final class EditorViewModel {
                 ? rectangleEnd.map { .centered(from: first, to: $0) } ?? .center
                 : .diagonal(first: first, min: lo)
         }
+        var radiusDirection: SIMD2<Double>?
+        if AppSettings.shared.circularAnnotations == .alwaysRadius,
+           case let .circle(_, center, _) = entity, let end = rectangleEnd,
+           simd_length(end - center) > 1e-9 {
+            radiusDirection = simd_normalize(end - center)
+        }
         let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity,
-                                             rectangleSizingAnchor: sizingAnchor)
+                                             rectangleSizingAnchor: sizingAnchor,
+                                             circleRadiusDirection: radiusDirection)
         let constraintCommands = inferredConstraintCommands(
             for: entity, sketchID: sketchID, in: sketch
         )
@@ -12021,6 +12041,7 @@ final class EditorViewModel {
         var worldRectangleCenter: SIMD3<Double>? = nil
         var isArcRadius = false
         var isCircleRadius = false
+        var hasCircleRadiusDirection = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
     }
@@ -12467,6 +12488,14 @@ final class EditorViewModel {
                 }
             }
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+            if kind == .radius, let id = refs.first?.entityID,
+               case let .circle(_, center, radius)? = sketchEntity(id, in: sketch),
+               let direction = sketch.circleRadiusDirections[id],
+               direction.x.isFinite, direction.y.isFinite, simd_length(direction) > 1e-9 {
+                g.start = center
+                g.end = center + simd_normalize(direction) * radius
+                g.anchor = (g.start + g.end) / 2
+            }
             if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
                Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
                let group = selectedMigratedRectangleEdges ?? selectedMigratedRectangleCornerEdges,
@@ -12578,6 +12607,7 @@ final class EditorViewModel {
                 case .circle:
                     label.isArcRadius = true
                     label.isCircleRadius = true
+                    label.hasCircleRadiusDirection = sketch.circleRadiusDirections[ref.entityID] != nil
                 default: break
                 }
             }

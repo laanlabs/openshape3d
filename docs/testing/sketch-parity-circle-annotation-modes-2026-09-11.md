@@ -222,3 +222,73 @@ newhashes+1, no747predecessorimage loss, allorderedprior text preserved. Master
 No runner active. NativeFrontfreshR3selectedafterreopen; cloneTopR.3selected
 afterreopen. Exactnext commit/push compact radius/badge/Unlock/history correction,
 then paired reverse creation and armed cancellation; QA12 remains partial.
+
+## September 11 02:16 — reverse radius direction under regression
+
+08fe2f6 pushed; priorcontrols publication756/master38 verified. New paired
+reverse20pxdrag: native930740→910740 releasesR2.8482 withleftleader, clone
+530740→510740 releasesR.2473 withrightleader. NativeR3numericcommit, Escape,
+rimreselection andgalleryreopen retainleftcompactleader. Escape disarmsbut
+keepsselectedbadge; thatseparateclonecancellationstate remainsuncompared.
+Dirtypresentationmetadata circleRadiusDirections onSketch recordsAlwaysRadius
+creationunitdirection inAddSketchEntityCommand; Undo removesit,Redoreadds;
+legacydecode defaults empty. Label usesstoredunitdirection/currentradius;
+drivinglabelretainscompactformafterdisarm. No solverreferencesorconstraints.
+Newunit reverse/vertical/diagonal sizing,history,decode/legacycoverage. Serial
+exec84663 owns simulator result`/tmp/os3d-qa12-radius-direction-20260911.xcresult`.
+Exactnext collect, fixfailures, live reversepostfix/edit/history/reopen, finish
+armedcancellationcomparison, publish/commit. NativeFront60edges/allselected
+aftergalleryreopen, reverseR3near929714; clonetestresetexpected. NoIPAchange.
+Inventory8/0/1/47. Newdiagnosisimages copied locally, notpublishedyet.
+
+Direction initial84663:10pass/1fail. Float-ray fixture expected0.6±1e-9, actual0.600000101725. Corrected tolerance1e-6; world endpoint1e-5, exact geometry/history/decode unchanged. Same11rerunning61407. Diagnosis759/all3hashes/no756loss/orderedtext verified.
+
+## September 11 02:24 — direction passes, Circle Escape confirmed missing
+
+61407 passedclean11/11. Updatedlive leftwardR.2473release andR.3numericcommit
+retainleftleader. TwoPeekabooEscapeattempts leaveCirclearmed. Sourceinspection
+confirmsCircle has no cancelActionregistration, whileLine/Rect/Arcdo. Native
+Escape disarmsretainingselectedR3badge. AddedcancelCircleInputnohistorymethod,
+CirclecancelAction andselectedradiusbadgeoutsidearmedmode (stillnoTransform).
+Newunit exactselection/geometry/history; UI usesrealEscapeandrequirestool-off
+promptbeforeUnlock. Serial95518 owns simulator
+`/tmp/os3d-qa12-circle-escape-20260911.xcresult`. Exactnextcollect/liveEscape,
+reversehistory/reopen/publication. Prior directioninitial10/11retained. NoIPAchange.
+
+The first Circle-Escape run passed all 11 model checks but failed its single UI
+workflow because XCTest's `typeKey(Escape)` did not reach the newly registered
+cancel action after keypad commit. This is preserved at
+`/tmp/os3d-qa12-circle-escape-20260911.xcresult` as 11 passed / 1 failed.
+The same exact build was relaunched and exercised through the supported
+Peekaboo bridge: Circle armed, leftward circle drawn, numeric R0.3 committed,
+then Escape. The status changed to "Drag to orbit — pick a tool to draw", the
+Circle palette state disarmed, the selected R0.3 badge remained, and geometry
+did not move. Native showed the same selected-badge/disarmed state. Therefore
+the product route is live-proven; XCTest keyboard injection is explicitly not
+counted as a UI pass. The deterministic model test retains exact mode,
+selection, geometry, and no-history assertions. The existing control UI test
+continues to cover the badge and Unlock without the unreliable injected key.
+
+## September 11 07:35 — QA-12 finite closure
+
+The product route passed live on the exact updated build. A leftward clone circle
+released at R0.2473 with a left-facing leader; numeric R0.3 retained that
+direction. Escape disarmed Circle while preserving the selected badge and circle.
+Undo plus rim reselection restored R0.2473; Redo plus reselection restored R0.3;
+gallery reopen retained R0.3 and the left-facing compact leader. Native matched
+the reverse-release, numeric-commit, selected-badge Escape and saved-reopen
+lifecycle at R3. The dense native history sample was not used to infer a value;
+the previously established native history behavior remains separately evidenced.
+
+Final combined regression `/tmp/os3d-qa12-closure-final-20260911.xcresult`
+passed cleanly 22/22: `CircleCenterInputTests`, `AppSettingsTests` and the two
+relevant Dimension UI workflows. No runner remains. The earlier 11-pass/1-fail
+XCTest Escape-injection result is preserved and not counted as a UI pass.
+
+Anonymous DOCX export verified the illustrated report at 764 media placements.
+Each of the six closure PNG hashes occurs exactly once; no hash from the 759-
+placement pre-insert export was lost; the closure heading occurs once. The master
+retains 38 media, loses no predecessor hash, and contains exactly one QA-12
+closure/inventory note. QA-12 is therefore passed as its finite recipe. Inventory:
+9 passed / 0 failed / 1 device-blocked / 46 incomplete. This is not physical-
+device parity; the immutable 05be744 IPA is unchanged.
