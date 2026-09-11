@@ -55,4 +55,47 @@ final class RectangleInputCancellationTests: XCTestCase {
             XCTAssertEqual(vm.session.undoStack.undoCommands.count, depth)
         }
     }
+    func testTypedPendingBaselineDefersDocumentAndDimensionUntilRectangleCompletion() throws {
+        let vm = try makeViewModel()
+        vm.setRectangleType(.threePoint)
+        tap(vm, SIMD2(14, 11))
+        tap(vm, SIMD2(10, 10))
+        let before = try XCTUnwrap(vm.activeSketch)
+        let depth = vm.session.undoStack.undoCommands.count
+        XCTAssertTrue(vm.canTypeRectangleBaseline)
+        vm.beginRectangleBaselineEdit(firstCharacter: "2")
+        XCTAssertNotNil(vm.pendingRectangleEditorAnchor)
+        vm.commitDimensionEdit("1/0")
+        XCTAssertNotNil(vm.editingDimension?.validationMessage)
+        XCTAssertEqual(vm.activeSketch, before)
+        vm.commitDimensionEdit("2 cm")
+        XCTAssertNil(vm.editingDimension)
+        XCTAssertEqual(vm.activeSketch, before)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, depth)
+        let pending = try XCTUnwrap(vm.liveDimensionLabels.first)
+        XCTAssertEqual(simd_distance(pending.worldWitnessStart, pending.worldWitnessEnd), 20, accuracy: 1e-8)
+        XCTAssertEqual(pending.worldWitnessStart, before.plane.toWorld(SIMD2(14, 11)))
+        tap(vm, SIMD2(10, 14))
+        let completed = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(completed.entities.count, 4)
+        XCTAssertEqual(completed.dimensions.count, 1)
+        XCTAssertEqual(completed.dimensions.first?.value, 20)
+        XCTAssertEqual(completed.dimensions.first?.displayExpression, "2 cm")
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, depth + 1)
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(completed))
+        XCTAssertEqual(reopened, completed)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, before)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, completed)
+
+        // A later draft/cancel must not leak its dimension into a fresh rectangle.
+        tap(vm, SIMD2(30, 30)); tap(vm, SIMD2(34, 31))
+        vm.beginRectangleBaselineEdit(firstCharacter: "3")
+        vm.commitDimensionEdit("3")
+        vm.cancelRectangleInput()
+        tap(vm, SIMD2(30, 30)); tap(vm, SIMD2(34, 31)); tap(vm, SIMD2(32, 34))
+        XCTAssertEqual(vm.activeSketch?.dimensions.count, 1)
+    }
+
 }

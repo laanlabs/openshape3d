@@ -52,9 +52,9 @@ struct SketchDimensionOverlay: View {
                 // Drawing a second shape therefore swapped the field's contents
                 // underneath a live editing session and took the app down with
                 // it. One field, one identity, outside the loop.
-                if let editing = labels.first(where: {
+                if let worldAnchor = viewModel.pendingRectangleEditorAnchor ?? labels.first(where: {
                     $0.id == viewModel.editingDimension?.labelID
-                }), let anchor = project(editing.worldAnchor) {
+                })?.worldAnchor, let anchor = project(worldAnchor) {
                     DimensionField(viewModel: viewModel)
                         .id(viewModel.editingDimension?.sessionID)
                         .onGeometryChange(for: CGSize.self) { $0.size } action: { editorSize = $0 }
@@ -67,7 +67,7 @@ struct SketchDimensionOverlay: View {
                 diameterDragStarts.removeAll()
                 diameterDragPreviews.removeAll()
             }
-            .allowsHitTesting(!labels.isEmpty)
+            .allowsHitTesting(!labels.isEmpty || viewModel.editingDimension != nil)
             // The Metal viewport is full-bleed; a SwiftUI overlay is safe-area
             // inset by default, which would draw every projected point ~85pt
             // below the geometry it annotates.
@@ -481,6 +481,9 @@ private struct DimensionField: View {
         get { viewModel.dimensionUsesSystemKeyboard }
         nonmutating set { viewModel.dimensionUsesSystemKeyboard = newValue }
     }
+    private var acceptsHardwareInput: Bool {
+        usingSystemKeyboard || viewModel.editingDimension?.hardwareInitiated == true
+    }
     @FocusState private var focused: Bool
 
     /// The text lives on `editingDimension`, not in `@State`. The overlay
@@ -511,7 +514,8 @@ private struct DimensionField: View {
         content
             .onAppear {
                 text = viewModel.editingDimension?.text ?? ""
-                if usingSystemKeyboard { focused = true }
+                initialValueSelected = viewModel.editingDimension?.hardwareInitiated != true
+                if acceptsHardwareInput { focused = true }
             }
             .onChange(of: text) { _, value in
                 // Seeding a reopened keyboard editor is not a user keystroke.
@@ -598,8 +602,8 @@ private struct DimensionField: View {
                 // While the pad is the input method the field is a READOUT: it
                 // must not take taps (that would raise the system keyboard the
                 // pad exists to replace) and it must not join the focus system.
-                .allowsHitTesting(usingSystemKeyboard)
-                .focusable(usingSystemKeyboard)
+                .allowsHitTesting(acceptsHardwareInput)
+                .focusable(acceptsHardwareInput)
                 .submitLabel(.done)
                 .onSubmit {
                     let sessionID = viewModel.editingDimension?.sessionID
@@ -609,7 +613,7 @@ private struct DimensionField: View {
                         // stays editable without an extra tap, as in native.
                         focused = false
                         DispatchQueue.main.async {
-                            if usingSystemKeyboard,
+                            if acceptsHardwareInput,
                                viewModel.editingDimension?.sessionID == sessionID {
                                 focused = true
                             }

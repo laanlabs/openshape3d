@@ -1,31 +1,39 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10 QA10 pending baseline readout
+## Active continuation — September10 pending three-point numeric input
 
-HEAD593f25c pushed; producte9343a7. QA08/09 finite closures published/verified
-illustrated624/master38, notes once/no predecessorloss. Inventory6passed/0failed/
-1deviceblocked/49incomplete(38partial,11deferred). No IPA modifications.
-Dirty product EditorViewModel.LiveDimensionLabel adds pendingbaselineflag;
-SketchLiveDimensionOverlay adds white/blueoutline and18pointoffsettowardsgeometry
-for releasedthreepointbaseline only. Native17.2047label offsetfromleader; clone
-2.05label struckthrough leader confirmed. Pendinglabel editinteraction, blue/orange
-baselinecolor/leader spacing remain open, not generalized as parity.
-Initial readoutexec6564 completed clean3/3; Escapeexec63056 completed clean29/29, no runner:
-/tmp/os3d-qa10-rectangle-escape-20260910.log/.xcresult; new cancellation stages,
-construction units and tapcancelUI. MissingRectangleEscape registration confirmed;
-added guarded pendingclear then idletool-disarm action and shortcut. Native second
-Escape disarms tool. Initial delivery-only suspicion superseded by codeevidence. Livepostfix completed: outlinedvalueclearofleader, firstEscape clearsbaseline
-whilearmed, second disarms, committedrotatedrectangleunchanged. Native1924 baselinecancelled/Rectanglethreepoint armed; clone
-resetbytests. NativeEscape removedpendingbaseline andkepttoolarmed; clone press/
-hotkeyEscape leftpendingbaseline. Concrete shortcut omission now corrected under test.
-Illustrated diagnosis626/all2hashes/no624loss verified; master38 unchanged.
-Postfixpublication631/all5newhashes/no626loss andmaster38note verified.
-Exactnext commit/push; then
-oppositeheight completion/direction and pendingnumeric interaction. Preserve
-failedattempts. No runner; cloneRectangle disarmed, nativeRectangle disarmed. Evidence /reports/.../three-point-matrix
-withSHA256SUMS; docs/testing/sketch-parity-three-point-matrix-2026-09-10.md.
-No concurrentdesktop; preserveunrelatedidentity/memory, tabs/native sketches.
-No merge/install/restart/securitychanges/duplicatewatchdog.
+HEAD64992d1 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
+separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
+Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
+opensnumericfield,5Return→pending15 anchoredatfirst800,240,third680,270 commits
+15×7rect. Clonevalid2tap580,340→420,300 reads2.05; bare1noeffect. Earliernative
+clickcompletedrect(undone),Rchangedtype/centercreationundone,bare1onfirstpoint
+resetview—allinvalidnumericattemptsretained. Native now11rects(last15×7), armed.
+Dirty implementation: pendingbaselinekeyboardnumber/dot registration, existing
+DimensionField withhardwarefocus+keypad; commitupdatespendingbaselineonly, records
+optionaldrivingdimension atomicallywhenrectanglecompletes; cancellationdropsdraft.
+FilesEditorViewModel,CommandShortcutsView,SketchDimensionOverlay,EditorView,
+RectangleInputCancellationTests plusdocs. No concurrentdesktop.
+Initialexec68901 finishedclean23/23. Livepending1.5entry/Return/thirdpointworks;
+confirmedliveoverlaypaintsoverkeypad. Movedliveoverlaybelowdimensioneditor.
+Exec33921 completed clean3/3 (pendingunit2+height/historyUI). No runner active.
+Final build live: keypad fully covers pending label/leader; 1.5 Return preserves
+first endpoint; third point completes1.5×0.9664. One toolbarUndo removes rectangle;
+Redo restores. Gallery reopen width1.5/height0.9664 inspected. Native oneUndo
+removes15×7,Redo restores, galleryreopen15width/7selected-edge measurement verified.
+Native Undo disarms Rectangle; clone stays armed: retained separate lifecycle gap.
+Newassertionsinvalidrecovery,explicitunits/source,firstanchor,noearlyhistory,
+atomiccompletionUndoRedo/reload,cancelleddimensionnoleak. Initiallivefunctionalpass; finaloverlaypostfixpending.
+Final publication640/allfive hashes (completion duplicated)/master38 verified;
+all predecessor images and ordered text retained. No runner. Native reopened
+Front44edges with selected7mm side; clone saved1.5×0.9664 selectedheight.
+Exactnext commit/push pending input fix, then compare/fix release selection and
+Rectangle Undo tool-disarming lifecycle. ContinueQA10oppositedirection/stagecancel/remainingvisualgaps.
+Receipt docs/testing/sketch-parity-three-point-matrix-2026-09-10.md; allPNGcopied/
+hashedreports/.../three-point-matrix. Master/illustratededitable; nohostblocker.
+Soleowner; preserveunrelatedidentity/memory, reporttabs/nativefixtures; no merge/
+install/restart/securitychanges/duplicatewatchdog. Immutable05be744IPA unchanged.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

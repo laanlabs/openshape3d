@@ -1839,3 +1839,17 @@ Added guarded unfinished-clear then idle-disarm lifecycle, with dimension editor
 priority preserved. Paired live pending cancellation/disarm retains committed
 geometry. Clean29/29 and separate3/3 readout run; [receipt](testing/sketch-parity-three-point-matrix-2026-09-10.md).
 Pending numeric interaction and broader QA10 direction/visual criteria remain open.
+
+### September 10 — pending three-point baseline keyboard sizing
+
+Valid native two-tap baseline accepts bare digit entry before the third point.
+Clone now opens the existing numeric field with hardware focus; Return sizes
+the pending baseline around the first point, with geometry and optional driving
+dimension committed together only on completion. Cancellation drops the draft.
+Moved live measurements below the opaque editor after live overlap diagnosis.
+Clean23/23 plus final3/3. Paired one-step geometry Undo/Redo and gallery reopen
+retain native15×7 and clone1.5×0.9664. QA-10 remains partial: release selection
+and native Undo disarming versus clone tool retention remain open. Receipt:
+[three-point matrix](testing/sketch-parity-three-point-matrix-2026-09-10.md).
+Illustrated640 placements (five final hashes present; completion duplicated),
+master38 dated note, predecessor image counts and ordered text preserved.

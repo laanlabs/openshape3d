@@ -51,6 +51,14 @@ struct CommandShortcutsView: View {
 
     var body: some View {
         ZStack {
+            if viewModel.canTypeRectangleBaseline {
+                ForEach(Array("0123456789."), id: \.self) { character in
+                    Button { viewModel.beginRectangleBaselineEdit(firstCharacter: String(character)) }
+                        label: { EmptyView() }
+                        .keyboardShortcut(KeyEquivalent(character), modifiers: [])
+                        .accessibilityHidden(true)
+                }
+            }
             if viewModel.mode.sketchTool == .arc, viewModel.pendingArc != nil,
                viewModel.editingDimension == nil {
                 Button { viewModel.finishArcInput() } label: { EmptyView() }

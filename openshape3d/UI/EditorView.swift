@@ -954,6 +954,10 @@ struct EditorView: View {
                 SketchPointStateOverlay(viewModel: viewModel)
             }
             .overlay {
+                // Pending measurements remain below opaque numeric editors.
+                SketchLiveDimensionOverlay(viewModel: viewModel)
+            }
+            .overlay {
                 // Sketch dimension annotations + inline editors (plan §C2).
                 SketchDimensionOverlay(viewModel: viewModel)
             }
@@ -967,12 +971,6 @@ struct EditorView: View {
                 SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
-            }
-            .overlay {
-                // Live width/height/Ø readout for the stroke in flight (§1.1).
-                // Above the persisted-dimension layer but non-interactive, so
-                // it never steals a tap from a real dimension label.
-                SketchLiveDimensionOverlay(viewModel: viewModel)
             }
             .overlay {
                 // Non-interactive projected overlays, grouped in one ZStack to

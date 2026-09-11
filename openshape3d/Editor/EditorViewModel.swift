@@ -7912,6 +7912,7 @@ final class EditorViewModel {
     private var rectangleBaseline: (a: SIMD2<Double>, b: SIMD2<Double>)?
     private var rectangleIDs = (0..<4).map { _ in UUID() }
     private var rectanglePreview: [SketchEntity] = []
+    private var rectangleBaselineDimension: SketchDimension?
     var hasPendingRectangle: Bool { rectangleAnchor != nil || rectangleBaseline != nil }
     var rectangleInstruction: String {
         if rectangleType == .threePoint {
@@ -7929,6 +7930,7 @@ final class EditorViewModel {
     func clearRectanglePlacement() {
         rectangleAnchor = nil
         rectangleBaseline = nil
+        rectangleBaselineDimension = nil
         rectanglePreview = []
         rectangleIDs = (0..<4).map { _ in UUID() }
         if mode.sketchTool == .rect {
@@ -7969,6 +7971,9 @@ final class EditorViewModel {
         let constraints = RectangleConstruction.constraints(for: edges)
         var commands: [DocumentCommand] = edges.map { AddSketchEntityCommand(sketchID: sketchID, entity: $0) }
         commands += constraints.map { AddSketchConstraintCommand(sketchID: sketchID, constraint: $0) }
+        if let dimension = rectangleBaselineDimension {
+            commands.append(AddSketchDimensionCommand(sketchID: sketchID, dimension: dimension))
+        }
         session.perform(CompositeCommand(title: "Draw Rectangle", commands: commands))
         clearRectanglePlacement()
         // Keep the whole completed rectangle selected, exposing its two
@@ -11872,6 +11877,8 @@ final class EditorViewModel {
         var validationMessage: String? = nil
         var isPolygonSideCount = false
         var axisRectangleEdge: Int? = nil
+        var isPendingRectangleBaseline = false
+        var hardwareInitiated = false
     }
     // Input-mode preference survives individual dimension edit sessions.
     var dimensionUsesSystemKeyboard = false
@@ -12554,6 +12561,28 @@ final class EditorViewModel {
         return labels
     }
 
+    var canTypeRectangleBaseline: Bool {
+        mode.sketchTool == .rect && rectangleType == .threePoint &&
+        rectangleBaseline != nil && rectanglePreview.count == 1 && editingDimension == nil
+    }
+
+    var pendingRectangleEditorAnchor: SIMD3<Double>? {
+        guard editingDimension?.isPendingRectangleBaseline == true else { return nil }
+        return liveDimensionLabels.first?.worldLabel
+    }
+
+    func beginRectangleBaselineEdit(firstCharacter: String) {
+        guard canTypeRectangleBaseline else { return }
+        dimensionCommitLocked = true
+        editingDimension = DimensionEdit(labelID: "pending-rectangle-baseline",
+            dimensionID: nil, kind: .distance,
+            refs: [.init(entityID: rectangleIDs[0], role: .endpointA),
+                   .init(entityID: rectangleIDs[0], role: .endpointB)],
+            text: firstCharacter, isPendingRectangleBaseline: true, hardwareInitiated: true)
+        // The first typed character is already a draft, not a measured seed.
+        // Subsequent hardware keys append rather than selecting/replacing it.
+    }
+
     /// Open the inline numeric field for a label (tap on a dimension label).
     /// A label belonging to another sketch is a readout until that sketch is
     /// open — `commitDimensionEdit` and the solver both require it to be
@@ -12805,6 +12834,21 @@ final class EditorViewModel {
             : "\(trimmedBody) \(expressionUnit)"
         let displayExpression = formula == nil && (isArithmetic || typedUnitSymbol != nil)
             ? (previousExpression == rawText ? rawText : retainedScalar) : nil
+
+        if edit.isPendingRectangleBaseline {
+            guard mode.sketchTool == .rect, let base = rectangleBaseline,
+                  stored.isFinite, stored > 0 else { return }
+            let direction = base.b - base.a
+            let length = simd_length(direction)
+            guard length > 1e-9 else { return }
+            let end = base.a + direction / length * stored
+            rectangleBaseline = (base.a, end)
+            rectanglePreview = [.line(id: rectangleIDs[0], a: base.a, b: end)]
+            rectangleBaselineDimension = dimensionCommitLocked
+                ? SketchDimension(kind: .distance, refs: edit.refs, value: stored,
+                                  formula: formula, displayExpression: displayExpression) : nil
+            return
+        }
 
         var proposed = sketch
         var setup: DocumentCommand
