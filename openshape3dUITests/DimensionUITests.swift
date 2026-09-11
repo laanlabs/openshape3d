@@ -140,6 +140,8 @@ final class DimensionUITests: XCTestCase {
         attach(app, "line-distance-type-label-menu")
         app.buttons["LineDistanceType-horizontal"].tap()
         XCTAssertFalse(app.textFields["DimensionField"].exists)
+        XCTAssertTrue(value.waitForNonExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.465, dy: 0.52)).tap()
         XCTAssertTrue(value.waitForExistence(timeout: 3))
         let horizontal = value.label
         XCTAssertNotEqual(horizontal, absolute)
@@ -147,6 +149,9 @@ final class DimensionUITests: XCTestCase {
         badge.tap()
         app.buttons["LineDistanceType-vertical"].tap()
         XCTAssertFalse(app.textFields["DimensionField"].exists)
+        XCTAssertTrue(value.waitForNonExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.465, dy: 0.52)).tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 3))
         XCTAssertNotEqual(value.label, horizontal)
         attach(app, "line-vertical-readout-no-keypad")
         app.buttons["UndoButton"].tap()

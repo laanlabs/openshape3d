@@ -12556,8 +12556,10 @@ final class EditorViewModel {
               let before = activeSketch, before.id == label.sketchID,
               let id = label.refs.first?.entityID,
               (before.lineDimensionKinds[id] ?? .distance) != kind else { return }
-        session.perform(SetLineDimensionKindCommand(sketchID: before.id, entityID: id,
-            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind))
+        let command = SetLineDimensionKindCommand(sketchID: before.id, entityID: id,
+            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind)
+        session.perform(command)
+        clearLineDimensionSelection(for: command)
     }
 
     /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has

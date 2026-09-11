@@ -1,5 +1,18 @@
 # Parity continuation checkpoint
 
+## Current execution — QA27 immediate-choice follow-up
+
+HEAD7f502db pushed with verified53/53/live/publication checkpoint. Source/test
+follow-up is dirty: EditorViewModel chooses display kind then clears selection
+through the same scoped helper used by history; model/UI assert deselection
+and deliberate reselection. Focused2-case gate passed2/2:
+/tmp/os3d-qa27-choice-clear-20260911.xcresult and .log. No runner remains. Live
+H1.7593→V2.0361 clears selection; reselect restoresV with unchanged endpoints.
+Publication verified: illustrated817 unique media, four source hashes once,
+zero813 predecessor loss; master38 media, one follow-up note, zero loss. Next
+commit/push, then exact live30/40/50 recipe; no runner active. Exact live30/40/50 and driven variants
+remain open; inventory22/0/1/33. Device/immutable05be744 unchanged.
+
 ## Current execution — September 11 QA27 publication verified
 
 HEAD bbbfd2b pushed. Final combined gate53/53 completed with zero fail/skip; no

@@ -31,7 +31,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
 | QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
 | QA-26 | Annotation on-state | Core — partial, live/publication blocked | Clean 16/16 automation covers active/other/hidden sketches, exit/re-entry and toggle persistence. Fresh paired walkthrough and publication remain blocked by simulator input delivery. |
-| QA-27 | Dimension type | Core — partial | Label badge display switch and prior toolbar editing implemented; final53/53, paired menu/projection/history and clone reopen verified; illustrated813/master38 publication verified. Immediate selection cleanup, exact live30/40/50 and driven variants remain open. |
+| QA-27 | Dimension type | Core — partial | Label badge display switch and prior toolbar editing implemented; final53/53, paired menu/projection/history and clone reopen verified; illustrated813/master38 publication verified. Immediate selection cleanup additionally passed2/2 plus live verification and817-image publication; exact live30/40/50 and driven variants remain open. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
 | QA-30 | Rectangle sequence | Core — PASSED (September 11 finite recipe) | Retained paired two-axis sizing plus a clean exact-tree 4/4 width→height numeric/system-keyboard, edge-clearance and history gate. Illustrated publication is verified at 800 unique placements; physical input remains QA-52. |
@@ -241,9 +241,11 @@ simulator input delivery. See
 ### QA-27 — Dimension type
 
 Sloped 3-4-5 line: horizontal 30, vertical 40, absolute 50. Issues: DM-03.
-Result: **PARTIAL** — all three adaptive actions, stored kind, commit,
-Undo/Redo and serialization pass a clean 18/18 current-tree gate. Fresh paired
-live capture and publication remain blocked. See
+Result: **PARTIAL** — prior toolbar editing and the new undriven label badge pass
+the final53/53 gate. Paired menu/projections/history and clone reopen are verified;
+illustrated813/master38 publication is verified. The exact live30/40/50 recipe,
+driven variants remain open. Immediate choice cleanup passed a separate2/2
+and changed live check; follow-up publication verified at817 images. See
 [adaptive dimensions checkpoint](testing/sketch-parity-adaptive-dimensions-checkpoint-2026-09-11.md).
 
 ### QA-28 — Dimension selection matrix

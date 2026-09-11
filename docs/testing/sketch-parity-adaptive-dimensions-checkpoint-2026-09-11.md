@@ -105,3 +105,17 @@ Before/after exports and publication verification JSON are in the durable
 QA27 directory above. No duplicate evidence insertion. QA27 remains partial,
 inventory22/0/1/33. Immediate type-choice deselection still differs from native;
 driven switching and exact live30/40/50 remain unverified. Device unchanged.
+
+### Immediate-choice cleanup follow-up
+
+After `7f502db`, the scoped helper also clears selection on the display choice
+itself, matching native. Focused model/UI2/2 passed at
+`/tmp/os3d-qa27-choice-clear-20260911.xcresult` (zero failures/skips); this is
+separate from the earlier53/53, not a new combined pass. Changed-build live
+Horizontal1.7593→Vertical2.0361mm clears highlight/readout without keypad or
+endpoint changes; deliberate reselection restores Vertical. Inspected PNG/JSON
+receipts and `choice-cleanup-manifest.json` are in the same durable directory.
+Four-image publication verified: illustrated817 unique media, all four new
+source hashes once, zero813 predecessor loss; master38 media, one follow-up
+note and zero media loss. Exact live30/40/50 and driven
+variants still open; QA27 partial and inventory22/0/1/33 unchanged.

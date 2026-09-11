@@ -208,6 +208,9 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
             XCTAssertEqual(after.entities, sketch.entities)
             XCTAssertEqual(after.constraints, sketch.constraints)
             XCTAssertTrue(after.dimensions.isEmpty, "Presentation must not create a driving constraint")
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                          "Native type choice clears selection before reselecting the readout")
+            vm.selectedSketchEntityIDs = [id]
             let projected = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
             XCTAssertEqual(projected.kind, kind)
             XCTAssertEqual(projected.displayValue, value, accuracy: 1e-9)
