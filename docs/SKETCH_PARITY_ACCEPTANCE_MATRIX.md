@@ -57,7 +57,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-50 | Sketch-to-solid | Core — passed | Finite exact extrusion/hole/consumed visibility/source rebuild/history recipe closed September 11 from retained paired evidence and a clean 15/15 current-tree gate. Advanced Sweep/Loft breadth remains separate. |
 | QA-51 | Save/reopen | Core — passed | Finite geometry/constraint/variable/pattern/annotation/unit persistence recipe closed September 11 from retained paired reopen evidence and a clean 47/47 current-tree archive/UI gate. Physical-device lifecycle remains QA-52. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
-| QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
+| QA-53 | Layout | Core — partial, not passed | Clean current-tree 51/51 covers portrait/landscape, toolbar handedness, panels, accessibility text, edge editors, rail and compact bar. Retained paired label/keypad/radial samples remain valid, but fresh handedness/large-text/panel comparison is capture-blocked and automated-only. |
 | QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
 | QA-55 | Sustained use | Core — passed | Ten paired rectangle/circle/line cycles, history, dense-state reopen and clone post-test relaunch passed without a hang; clean 71/71 focused load regression. Automation wall time is not a product benchmark (sustained-use receipt). |
 | QA-56 | Downstream smoke | Core — passed | Paired circle-profile extrusion/cancel/history workflow and clean current-revision 65/65 Sweep/Loft/kernel regression; advanced feature parity and device input are not claimed (downstream-smoke receipt). |
@@ -423,7 +423,7 @@ Palm, finger navigation during drawing, Pencil handles, no ghost strokes. Issues
 
 ### QA-53 — Layout
 
-Portrait/landscape, left-handed, Items/History open, large text, screen edges. Issues: SK-14. Result: NOT RUN. Evidence/owner: pending.
+Portrait/landscape, left-handed, Items/History open, large text, screen edges. Issues: SK-14. Result: **PARTIAL**. A clean current-tree 51/51 gate covers both orientations, left/right toolbar and constraint-rail placement, Items/History panels, accessibility-extra-extra-extra-large text, lower keyboard and side-rail editor clearance, diameter target reachability, and compact landscape controls. Retained paired label/keypad/radial evidence covers previously compared states; fresh handedness, large-text, and panel permutations remain automated-only because both Peekaboo window capture and direct window capture are blocked. Evidence: `testing/sketch-parity-layout-checkpoint-2026-09-11.md`.
 
 ### QA-54 — Keyboard
 

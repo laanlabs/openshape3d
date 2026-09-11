@@ -15,6 +15,11 @@ final class DimensionUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
+        // A preceding landscape workflow can leave SpringBoard's interface
+        // transition in flight even though the requested device orientation
+        // has changed. Launching into that transition gives XCTest stale
+        // portrait window bounds with landscape control frames.
+        sleep(2)
     }
 
     private func startGroundSketch(
@@ -1068,11 +1073,35 @@ final class DimensionUITests: XCTestCase {
                           "The complete diameter touch target must clear side controls")
         attach(app, "near-rail-circle-outside-diameter")
         let before = label.label
+        let beforeMillimeters = Double(before.filter { $0.isNumber || $0 == "." }) ?? 1
+        let originalRadiusPoints = window.frame.height * 0.05
+        func circleRim(radiusPoints: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+                dx: window.frame.width * 0.78 - radiusPoints,
+                dy: window.frame.height * 0.65
+            ))
+        }
+        let originalRim = circleRim(radiusPoints: originalRadiusPoints)
+        let committedRim = circleRim(
+            radiusPoints: originalRadiusPoints / CGFloat(beforeMillimeters)
+        )
         setDimension(app, to: "1")
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3),
+                      "Successful numeric commit clears the circle selection")
+        committedRim.tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.label, "Ø1 mm")
         app.buttons["UndoButton"].tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3),
+                      "Circle history clears the stale selection")
+        originalRim.tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.label, before)
         app.buttons["RedoButton"].tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3),
+                      "Circle history clears the stale selection")
+        committedRim.tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.label, "Ø1 mm")
         let initial = label.frame
         let grab = label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
@@ -1082,17 +1111,21 @@ final class DimensionUITests: XCTestCase {
         XCTAssertFalse(app.textFields["DimensionField"].exists, "Dragging must not open keypad")
         XCTAssertLessThan(label.frame.midX, initial.midX - 70)
         let moved = label.frame
-        let radial = app.descendants(matching: .any)
-            .matching(identifier: "SketchCircleRadiusHandle").firstMatch
-        XCTAssertTrue(radial.waitForExistence(timeout: 3))
-        // The circle was drawn with a vertical radius of 5% of the window
-        // height. Reselect its painted left rim, away from the top radial
-        // control and the moved diameter annotation.
-        let reselect = circleLeftRim(app, window: window, radial: radial)
+        // Reselect the measured committed left rim, away from both the top
+        // radial control and the moved diameter annotation. Do not depend on
+        // a center marker: selected circles intentionally omit that marker in
+        // this presentation state.
+        let reselect = committedRim
         attach(app, "driven-circle-label-repositioned")
         app.buttons["UndoButton"].tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3))
+        reselect.tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.frame.midX, initial.midX, accuracy: 3)
         app.buttons["RedoButton"].tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3))
+        reselect.tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
         XCTAssertEqual(label.frame.midX, moved.midX, accuracy: 3)
         window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.75)).tap()
         XCTAssertTrue(label.waitForNonExistence(timeout: 3))

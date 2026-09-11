@@ -834,3 +834,14 @@ not a performance comparison. QA-51 passes only this finite desktop recipe;
 advanced feature-link breadth and physical-device lifecycle remain separate.
 Inventory advances to **20 passed / 0 failed / 1 device-blocked /
 35 incomplete**.
+
+
+## September 11 — QA-53 layout checkpoint
+
+A clean one-owner **51/51** current-tree layout gate covers portrait/landscape,
+toolbar handedness, Items/History panels, accessibility text, constraint rail,
+edge editors, near-rail diameter targets and the compact landscape bar. Retained
+paired label/keypad/radial samples remain valid. Fresh handedness, large-text and
+panel permutations are automated-only because supported window capture fails, so
+QA-53 stays partial and inventory remains **20 passed / 0 failed /
+1 device-blocked / 35 incomplete**.

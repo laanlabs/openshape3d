@@ -1,5 +1,26 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 16:30
+
+HEAD `470d1f4` is pushed. QA-53's final one-owner current-tree layout gate passed
+clean **51/51**, zero failures/skips, at
+`/tmp/os3d-qa53-layout-final4-20260911.xcresult`. The gate covers both
+orientations, left/right toolbar placement, open panels, accessibility text,
+constraint rail, lower keyboard, near-rail diameter targets and compact
+landscape controls. No product source changed. Retained fixture failures and
+corrections are recorded in the QA-53 receipt.
+
+Peekaboo app/window discovery works again, but window capture for Simulator and
+Shapr3D fails with `Web-focus detection returned without its required mutation
+outcome`; direct window capture also returns no image. Fresh handedness,
+large-text and panel permutations remain automated-only, so QA-53 stays partial.
+Inventory remains **20 passed / 0 failed / 1 device-blocked / 35 incomplete**.
+Dirty files are bounded QA-53 tests/documentation; unrelated identity/memory
+files remain untracked. No runner owns the simulator. Exact next action: inspect,
+commit/push this checkpoint, then run QA-54's finite keyboard focus/hotkey/Escape/
+history audit without repeating its already paired line/dimension routes.
+Immutable `05be744` IPA is untouched.
+
 ## Current execution — September 11 15:57
 
 HEAD `3530d16` is pushed. QA-51's final one-owner archive/persistence/UI gate
