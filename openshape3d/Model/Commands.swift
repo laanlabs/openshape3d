@@ -463,21 +463,31 @@ struct UpdateSketchEntitiesCommand: DocumentCommand {
     }
 }
 
-/// A display-only change with its own history identity; no geometry solve.
+/// A distance-type change with its own history identity; no geometry movement.
 struct SetLineDimensionKindCommand: DocumentCommand {
     let title = "Distance Type"
     let sketchID: SketchID
     let entityID: UUID
     let before: DimensionKind?
     let after: DimensionKind?
+    var beforeDimension: SketchDimension? = nil
+    var afterDimension: SketchDimension? = nil
 
     func apply(to document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         document.sketches[index].lineDimensionKinds[entityID] = after
+        if let dimension = afterDimension,
+           let dimensionIndex = document.sketches[index].dimensions.firstIndex(where: { $0.id == dimension.id }) {
+            document.sketches[index].dimensions[dimensionIndex] = dimension
+        }
     }
     func revert(in document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         document.sketches[index].lineDimensionKinds[entityID] = before
+        if let dimension = beforeDimension,
+           let dimensionIndex = document.sketches[index].dimensions.firstIndex(where: { $0.id == dimension.id }) {
+            document.sketches[index].dimensions[dimensionIndex] = dimension
+        }
     }
 }
 

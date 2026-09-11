@@ -119,3 +119,18 @@ Four-image publication verified: illustrated817 unique media, all four new
 source hashes once, zero813 predecessor loss; master38 media, one follow-up
 note and zero media loss. Exact live30/40/50 and driven
 variants still open; QA27 partial and inventory22/0/1/33 unchanged.
+
+## Exact recipe and driven-state WIP
+
+On native, numeric Vertical40 followed by Horizontal30 and Item→Zoom to
+produces the exact same line with H30/V40/Absolute50 readouts. Native still
+exposes the badge after numeric sizing (lock icon visible). Clone numericV40
+commits but removes the badge, confirming the remaining numeric-driven gap.
+PNG/JSON/actions are retained in the durable QA27 directory/exact-recipe.
+
+WIP preserves the one numeric driver's ID/references and changes kind/value to
+the current measured projection in place, atomically with presentation metadata.
+No geometry movement or new driver; variable-linked/multiple-driver references
+remain excluded pending evidence. Focused3-case run is active at
+`/tmp/os3d-qa27-driven-focused-20260911.xcresult`; no result or changed-build
+live proof claimed yet. Publication of this new exact/driven evidence pending.

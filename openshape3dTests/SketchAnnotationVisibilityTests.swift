@@ -241,6 +241,51 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, states[2])
     }
 
+    func testDrivenLineDistanceTypeReplacesOneDriverAndPreservesGeometryHistory() throws {
+        AppSettings.shared.unit = .millimeters
+        let vm = try makeViewModel()
+        let id = UUID()
+        let refs = [ConstraintRef(entityID: id, role: .endpointA),
+                    ConstraintRef(entityID: id, role: .endpointB)]
+        let driver = SketchDimension(kind: .distance, refs: refs, value: 50)
+        let original = Sketch(plane: .ground,
+            entities: [.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))], dimensions: [driver])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        var states = [original]
+        for (kind, value) in [(DimensionKind.horizontal, 30.0), (.vertical, 40.0), (.distance, 50.0)] {
+            vm.selectedSketchEntityIDs = [id]
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == driver.id })
+            XCTAssertTrue(vm.canChooseLineDimensionKind(label))
+            vm.chooseLineDimensionKind(kind, label: label)
+            let after = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(after.entities, original.entities)
+            XCTAssertEqual(after.constraints, original.constraints)
+            XCTAssertEqual(after.dimensions.count, 1)
+            XCTAssertEqual(after.dimensions[0].id, driver.id)
+            XCTAssertEqual(after.dimensions[0].refs, refs)
+            XCTAssertEqual(after.dimensions[0].kind, kind)
+            XCTAssertEqual(after.dimensions[0].value, value, accuracy: 1e-9)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.editingDimension)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(after)), after)
+            states.append(after)
+        }
+        for state in states.dropLast().reversed() { vm.undo(); XCTAssertEqual(vm.activeSketch, state) }
+        for state in states.dropFirst() { vm.redo(); XCTAssertEqual(vm.activeSketch, state) }
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionForSelection(kind: .distance)
+        vm.commitDimensionEdit("100")
+        let edited = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(edited.dimensions.count, 1)
+        XCTAssertEqual(edited.dimensions[0].id, driver.id)
+        XCTAssertEqual(edited.dimensions[0].value, 100, accuracy: 1e-9)
+        guard case let .line(_, a, b) = edited.entities[0] else { return XCTFail("Expected line") }
+        XCTAssertEqual(simd_length(b - a), 100, accuracy: 1e-7)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, states.last)
+    }
+
     func testLineDistanceTypeSurvivesTrimDeleteUndoAndLegacyDecode() throws {
         let id = UUID(), fragmentID = UUID()
         let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))

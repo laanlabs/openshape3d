@@ -12541,23 +12541,37 @@ final class EditorViewModel {
         return [.distance, .horizontal, .vertical]
     }
 
-    /// The native label badge changes presentation without opening a keypad or
-    /// creating a driver. Keep this first lane limited to undriven standalone lines.
+    /// The native badge preserves geometry and, for a plain numeric driver,
+    /// replaces its type/value in place rather than adding another driver.
     func canChooseLineDimensionKind(_ label: SketchDimensionLabel) -> Bool {
-        guard label.dimensionID == nil, label.isStandaloneLineLength,
+        guard label.isStandaloneLineLength,
               editingDimension == nil, !sketchTransformActive,
-              let candidate = dimensionCandidate else { return false }
-        guard activeSketch?.dimensions.contains(where: { $0.refs == label.refs }) != true else { return false }
+              let sketch = activeSketch, let candidate = dimensionCandidate else { return false }
+        let dimensions = sketch.dimensions.filter {
+            $0.refs.count == label.refs.count && $0.refs.allSatisfy(label.refs.contains)
+        }
+        if let id = label.dimensionID {
+            guard dimensions.count == 1, dimensions[0].id == id,
+                  dimensions[0].formula == nil else { return false }
+        } else if !dimensions.isEmpty { return false }
         return label.refs == candidate.refs && dimensionKindChoices.count == 3
     }
 
     func chooseLineDimensionKind(_ kind: DimensionKind, label: SketchDimensionLabel) {
         guard canChooseLineDimensionKind(label), dimensionKindChoices.contains(kind),
               let before = activeSketch, before.id == label.sketchID,
-              let id = label.refs.first?.entityID,
-              (before.lineDimensionKinds[id] ?? .distance) != kind else { return }
+              let id = label.refs.first?.entityID, label.kind != kind,
+              let value = measuredValue(kind: kind, refs: label.refs, in: before) else { return }
+        let oldDimension = label.dimensionID.flatMap { dimensionID in
+            before.dimensions.first { $0.id == dimensionID }
+        }
+        var newDimension = oldDimension
+        newDimension?.kind = kind
+        newDimension?.value = value
+        newDimension?.displayExpression = nil
         let command = SetLineDimensionKindCommand(sketchID: before.id, entityID: id,
-            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind)
+            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind,
+            beforeDimension: oldDimension, afterDimension: newDimension)
         session.perform(command)
         clearLineDimensionSelection(for: command)
     }

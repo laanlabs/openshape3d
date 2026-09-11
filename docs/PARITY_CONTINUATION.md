@@ -1,5 +1,32 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 driven badge WIP
+
+HEAD27e0810 pushed. Native exact H30/V40/Absolute50 verified; numeric-driven badge
+remains available. Clone commitV40 has no badge: paired confirmed gap. Source
+WIP extends SetLineDimensionKindCommand to replace one plain numeric driver in
+place plus display metadata; preserves ID/refs/endpoints. Formula-linked and
+multiple-driver references excluded pending evidence. Model test covers exact
+30/40/50, JSON/history and subsequent100mm solver edit; UI adds post-commitbadge.
+Focused3-case gate active at /tmp/os3d-qa27-driven-focused-20260911.xcresult and
+.log, sole simulator owner. No desktop until terminal. Collect, audit failure or
+broaden relevant regression, then changed live exact recipe/history/reopen and
+publication. Native/clone diagnosis screenshots durable in QA27/exact-recipe.
+Inventory22/0/1/33; QA27 partial. Device/immutable05be744 unchanged.
+
+## Current execution — September 11 19:14 exact recipe
+
+HEAD27e0810 pushed; task tree clean before this checkpoint. Selection cleanup
+focused2/2 and live passed, illustrated817/master38 verified; prior53/53 remains
+separate. No test runner. Native Sketch06 now exact H30/V40/Absolute50, verified
+on unchanged endpoints through type switching after numeric sizing. Item > Zoom
+to works to fit the selected sketch. Native parked on Absolute50, unselected.
+Durable native PNG/JSON/actions in QA27 directory/exact-recipe/manifest.json.
+Next: compare clone badge after numeric driving commit, then implement only the
+confirmed driven-switch behavior and run geometry/history regression/live pair.
+Native H/V/absolute exact proof now exists; clone exact recipe still pending.
+Inventory22/0/1/33, QA27 partial; immutable05be744/device untouched.
+
 ## Current execution — QA27 immediate-choice follow-up
 
 HEAD7f502db pushed with verified53/53/live/publication checkpoint. Source/test

@@ -158,6 +158,19 @@ final class DimensionUITests: XCTestCase {
         window.coordinate(withNormalizedOffset: CGVector(dx: 0.465, dy: 0.52)).tap()
         XCTAssertTrue(value.waitForExistence(timeout: 3))
         XCTAssertEqual(value.label, horizontal)
+        value.tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-1"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(badge.waitForExistence(timeout: 3),
+                      "A numeric driving dimension must retain its type badge")
+        badge.tap()
+        app.buttons["LineDistanceType-vertical"].tap()
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.465, dy: 0.52)).tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 3))
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        attach(app, "driven-line-type-switch-preserves-label-menu")
     }
 
     func testScalarArithmeticReopensAsExpressionAndUndoRestoresPriorValue() throws {
