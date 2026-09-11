@@ -2087,3 +2087,11 @@ remains blocked because resolved Peekaboo foreground events do not reach the
 Simulator canvas after scoped Peekaboo and simulator restarts. Publication is
 also pending. Inventory remains 13/0/1/42. See the QA-24 and QA-25 September 11
 checkpoints under `docs/testing/`.
+
+## September 11 — QA-33 upper-count diagnosis reconciled
+
+Completed exact-tree19/19 gate verified without rerun. Native10001 remains an
+unresolved busy operation, not an accepted count or verified refusal; clone10000
+ceiling is defensive. Illustrated803 media (+3/no predecessor loss) and master38
+with one dated note are export-verified. QA33 remains partial, inventory22/0/1/33.
+See [invalid-input receipt](testing/sketch-parity-invalid-recovery-2026-09-09.md).

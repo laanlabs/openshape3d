@@ -206,3 +206,47 @@ Final publication verified: illustrated288placements/all3finalhashes once, no
 predecessor loss (/tmp/os3d-count-final-publication.docx). Master38images, dated
 Numeric and polygon continuation checkpoint heading once and predecessor note
 retained (/tmp/os3d-count-master.docx). QA15/33 remain partial as described.
+
+## September 11 — native upper-count boundary probe
+
+A fresh native pentagon on Sketch 05 exposed the real `5 sides` editor after the
+Polygon tool was disarmed. Submitting `10001` did **not** immediately refuse the
+value: Shapr3D entered a modal busy overlay and held approximately 100% CPU while
+the original five-sided geometry remained visible underneath. A foreground
+Escape was delivered and did not cancel the computation; the overlay remained
+after an additional settled observation. This is not classified as an accepted
+count, a completed mutation, or a Shapr3D product failure.
+
+The original and busy-state screenshots plus SHA-256 inventory are retained in
+`reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/qa33-upper-bound-2026-09-11/`.
+Only the affected Shapr3D application was normally quit and relaunched. It
+recovered to Recents with the project card intact; Simulator and Google Docs
+were untouched. The disposable probe may not have persisted, which is desirable
+but not used as evidence.
+
+This comparison proves that OpenShape3D's immediate `10001` refusal at its
+defensive `10000` ceiling is not established native parity. QA-33 remains partial
+until a bounded, completed native out-of-range rule can be observed without
+locking the reference workflow. The paired lower-bound/refusal, malformed-input,
+recovery and history evidence remains valid. Immutable `05be744` IPA unchanged.
+
+## September 11 17:58 — completed gate and publication reconciled
+
+HEAD `6768bae`; no xcodebuild, XCTest or Peekaboo runner active at reconciliation.
+The pending gate had already completed: `os3d-qa33-invalid-final2-20260911.xcresult`
+in `/tmp` reports **19 passed / 0 failed / 0 skipped** on the owned simulator.
+Its predecessor passed 17/17 but omitted two methods because selectors named the
+wrong class; this is retained as an invocation error, not a product failure.
+No tests were repeated during reconciliation and no product source changed.
+
+Illustrated publication is verified at **803 unique media**, exactly three new
+assets and zero loss from the 800-asset QA-30 predecessor. The master roadmap
+now contains one dated QA-33 upper-count boundary checkpoint, retains all 38
+media and preserves prior text ignoring whitespace. Both before/after exports
+and `publication-verification.json` are retained under the absolute evidence
+root `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/qa33-upper-bound-2026-09-11/`.
+
+QA-33 stays partial. Inventory remains **22 passed / 0 failed / 1 device-blocked /
+33 incomplete**. Do not repeat the unresolved native 10001 stress probe. Next
+independent finite comparison: QA-27 Absolute/Horizontal/Vertical menu and
+geometry/history, using the implemented chooser and retained 18/18 gate.
