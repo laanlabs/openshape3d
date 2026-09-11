@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 16:40
+
+HEAD `80dfdc9` is pushed. QA-54's final one-owner current-tree command/keyboard
+gate passed clean **84/84**, zero failures/skips, at
+`/tmp/os3d-qa54-keyboard-final-20260911.xcresult`. Persisted Single Key Action,
+command routing/search UI, numeric focus/recovery, keypad switching, Return,
+Escape scopes and history pass. Retained paired keyboard evidence remains valid.
+No product source changed.
+
+Fresh native Single Key Action switching and physical-key delivery are not
+proven, so QA-54 stays partial; physical input remains QA-52. Inventory remains
+**20 passed / 0 failed / 1 device-blocked / 35 incomplete**. Dirty files are
+bounded QA-54 tests/documentation plus the QA-53 Markdown whitespace cleanup;
+unrelated identity/memory files remain untracked. No runner owns the simulator.
+Exact next action: inspect, commit/push, then recover QA-23's already prepared
+selection publication and verify predecessor preservation before promotion.
+Immutable `05be744` IPA is untouched.
+
 ## Current execution — September 11 16:30
 
 HEAD `470d1f4` is pushed. QA-53's final one-owner current-tree layout gate passed

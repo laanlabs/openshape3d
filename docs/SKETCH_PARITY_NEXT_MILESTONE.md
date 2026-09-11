@@ -845,3 +845,13 @@ paired label/keypad/radial samples remain valid. Fresh handedness, large-text an
 panel permutations are automated-only because supported window capture fails, so
 QA-53 stays partial and inventory remains **20 passed / 0 failed /
 1 device-blocked / 35 incomplete**.
+
+
+## September 11 — QA-54 keyboard checkpoint
+
+A clean one-owner **84/84** current-tree gate covers persisted Single Key Action,
+command routing/search, numeric focus/recovery, keypad switching, Return,
+tool-specific Escape scopes and history. Retained paired native/clone keyboard
+evidence remains valid. Fresh native preference switching and physical hardware-
+key delivery remain unproven, so QA-54 stays partial and inventory remains
+**20 passed / 0 failed / 1 device-blocked / 35 incomplete**.

@@ -58,7 +58,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-51 | Save/reopen | Core — passed | Finite geometry/constraint/variable/pattern/annotation/unit persistence recipe closed September 11 from retained paired reopen evidence and a clean 47/47 current-tree archive/UI gate. Physical-device lifecycle remains QA-52. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core — partial, not passed | Clean current-tree 51/51 covers portrait/landscape, toolbar handedness, panels, accessibility text, edge editors, rail and compact bar. Retained paired label/keypad/radial samples remain valid, but fresh handedness/large-text/panel comparison is capture-blocked and automated-only. |
-| QA-54 | Keyboard | Core — partial, not passed | de2756c live creation/dimension Undo/Redo paired; clone toolbar/CmdZ work after autosave. Line Escape corrected and paired; other focus states open. |
+| QA-54 | Keyboard | Core — partial, not passed | Clean current-tree 84/84 covers Single Key Action persistence, command routing/search UI, numeric focus/recovery, Return, Escape scopes and history. Retained paired keyboard evidence remains valid; fresh native preference switching and physical-key delivery remain unproven. |
 | QA-55 | Sustained use | Core — passed | Ten paired rectangle/circle/line cycles, history, dense-state reopen and clone post-test relaunch passed without a hang; clean 71/71 focused load regression. Automation wall time is not a product benchmark (sustained-use receipt). |
 | QA-56 | Downstream smoke | Core — passed | Paired circle-profile extrusion/cancel/history workflow and clean current-revision 65/65 Sweep/Loft/kernel regression; advanced feature parity and device input are not claimed (downstream-smoke receipt). |
 
@@ -427,7 +427,7 @@ Portrait/landscape, left-handed, Items/History open, large text, screen edges. I
 
 ### QA-54 — Keyboard
 
-Hotkey versus search preference, focus in number field, Escape scope, undo/redo. Issues: SK-09/12; DM-12. Result: NOT RUN. Evidence/owner: pending.
+Hotkey versus search preference, focus in number field, Escape scope, undo/redo. Issues: SK-09/12; DM-12. Result: **PARTIAL**. A clean current-tree 84/84 gate covers persisted Single Key Action, command catalog/dispatch/search, number-field seed and invalid-expression focus recovery, keypad switching, click-away/tool-switch commit, Return completion, tool-specific Escape scopes and history. Retained paired native/clone keyboard workflows remain valid. Fresh native preference switching and physical hardware-key delivery remain unproven; the latter belongs QA-52. Evidence: `testing/sketch-parity-keyboard-checkpoint-2026-09-11.md`.
 
 ### QA-55 — Sustained use
 

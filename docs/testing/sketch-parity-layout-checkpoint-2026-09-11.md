@@ -12,7 +12,7 @@ A clean one-owner current-tree gate passed **51/51**, zero failures/skips:
   rail reachability, lower system-keyboard clearance, a near-rail diameter
   target, and the compact landscape extrusion bar.
 
-Result: `/tmp/os3d-qa53-layout-final4-20260911.xcresult`  
+Result: `/tmp/os3d-qa53-layout-final4-20260911.xcresult`
 Log: `/tmp/os3d-qa53-layout-final4-20260911.log`
 
 ## Retained failures and corrections

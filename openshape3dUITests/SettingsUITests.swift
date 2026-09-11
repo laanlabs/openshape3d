@@ -155,6 +155,41 @@ final class SettingsUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testSingleKeyActionPreferencePersistsAcrossLaunch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+
+        func openSingleKeyPicker(_ target: XCUIApplication) -> XCUIElement {
+            target.buttons["SettingsButton"].tap()
+            XCTAssertTrue(target.buttons["SettingsDone"].waitForExistence(timeout: 3))
+            let form = target.collectionViews.firstMatch
+            let picker = target.segmentedControls["SettingsSingleKeyAction"].firstMatch
+            for _ in 0..<10 where !picker.exists || !picker.isHittable { form.swipeUp() }
+            XCTAssertTrue(picker.waitForExistence(timeout: 3))
+            return picker
+        }
+
+        var picker = openSingleKeyPicker(app)
+        picker.buttons["Command Search"].tap()
+        XCTAssertTrue(picker.buttons["Command Search"].isSelected)
+        app.buttons["SettingsDone"].tap()
+        app.terminate()
+
+        let reopened = XCUIApplication()
+        reopened.launchEnvironment["OS3D_FRESH"] = "1"
+        reopened.launch()
+        XCTAssertTrue(reopened.buttons["CommandSearchButton"].waitForExistence(timeout: 10))
+        picker = openSingleKeyPicker(reopened)
+        XCTAssertTrue(picker.buttons["Command Search"].isSelected,
+                      "Hardware-key routing preference survives relaunch")
+        picker.buttons["Hotkeys"].tap()
+        XCTAssertTrue(picker.buttons["Hotkeys"].isSelected)
+        reopened.buttons["SettingsDone"].tap()
+    }
+
     func testSnappingControlsPersistAcrossLaunch() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
