@@ -350,11 +350,12 @@ Acceptance: Every enabled option has valid references and a truthful preview; un
 
 ### DM-14 · Constraint drag, lock and conflict behavior need end-to-end validation
 
-**Queued — verify first** · P1
+**Finite core recipe verified; broader relation matrix remains** · P1
 
-Evidence: VERIFY — candidate discrepancy, not reproduced
+Evidence: paired live conflict/Lock/history evidence plus clean 69/69 QA-39 gate
 
-Next: Validate refusal/rollback, selected conflict attribution, point versus whole-entity locks and drag-created relations.
+Next: Complete QA-36's fresh all-relation live sweep and remaining physical-input
+coverage; retain QA-39's verified refusal/rollback and point/entity Lock boundary.
 
 Acceptance: No unexpected geometry jump or broken existing constraint; conflict identifies relevant controls; undo leaves one coherent prior state.
 

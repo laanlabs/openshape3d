@@ -735,3 +735,15 @@ rectangle diagonal corners without geometry/dimension loss; its final
 Disconnect/merge/Trim/UI gate passes clean 58/58. Those new forms are also
 automated-only. Both cases remain partial and inventory stays 15 passed / 0
 failed / 1 device-blocked / 40 incomplete.
+
+## September 11 — QA-39 finite closure
+
+Retained paired under/fully-defined visuals, point versus entity Lock, rejected
+conflict with unchanged geometry, direct Unlock, Undo/Redo and saved reopen are
+reconciled with a clean one-owner **69/69** current-tree gate. The gate covers
+point determinacy, definition cache, saved-constraint priority, refusal/rollback
+and specific conflict attribution. No new publication is claimed because the
+paired conflict sequence was already export-verified. QA-39 passes only for its
+finite desktop recipe; QA-36's incomplete all-relation live sweep and QA-52
+physical input remain separate. Inventory advances to **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**.

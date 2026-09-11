@@ -1,5 +1,21 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 14:48
+
+HEAD `5ea6b8a` is pushed. QA-39's one-owner serial gate passed clean **69/69**,
+zero failures/skips, at
+`/tmp/os3d-qa39-conflict-states-20260911.xcresult`. Retained paired evidence
+covers under/fully-defined appearance, point versus entity Lock, a conflicting
+dimension refusal with unchanged geometry, direct Unlock, Undo/Redo and gallery
+reopen. Existing publication verification is reused; no new screenshot claim.
+
+QA-39 is closure-ready for its finite desktop recipe. Inventory becomes
+**16 passed / 0 failed / 1 device-blocked / 39 incomplete**. No runner owns the
+simulator. Current dirty files are the bounded QA-39 documentation closure only.
+Exact next action: inspect, commit and push the closure, then start QA-40 keypad
+transition acceptance without retrying the known blocked live-canvas route.
+Immutable `05be744` IPA and unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 14:40
 
 HEAD `8ffd4fe` is pushed. QA-37 is implemented/tested but remains partial for

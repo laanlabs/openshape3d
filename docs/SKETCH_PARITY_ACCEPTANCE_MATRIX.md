@@ -43,7 +43,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-36 | Constraint types | Core — partial, live matrix incomplete | Clean 64/64 current-tree gate directly applies and restores all 11 relation families, with inference/persistence/rail coverage. Retained paired H/V, Lock, Parallel, tangent and concentric evidence exists; Equal/Symmetry and fresh all-type live sweep remain open. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
-| QA-39 | Conflict and point states | Core — partial, not passed | False constrained-drag conflict corrected; other conflict/DOF combinations open. |
+| QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation and dimension Escape paired; explicit-transform keypad-first Escape and subsequent tool exit live verified (4d6e64e). Full system-keyboard matrix open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
@@ -317,7 +317,13 @@ Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: 
 
 ### QA-39 — Conflict and point states
 
-Under/fully defined, lock point versus entity, refusal and attribution. Issues: DM-14. Result: NOT RUN. Evidence/owner: pending.
+Under/fully defined, lock point versus entity, refusal and attribution. Issues:
+DM-14. Result: **PASSED** for the finite desktop recipe on September 11.
+Retained paired point/entity Lock, conflict refusal with unchanged geometry,
+Unlock, history and reopen evidence is backed by a clean 69/69 current-tree
+serial gate covering state classification, rollback and specific attribution.
+The incomplete all-relation live sweep remains QA-36; physical input remains
+QA-52. See [conflict and point states closure](testing/sketch-parity-conflict-point-states-closure-2026-09-11.md).
 
 ### QA-40 — Keypad transitions
 
