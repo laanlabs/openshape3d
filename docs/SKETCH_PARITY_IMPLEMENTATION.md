@@ -1982,3 +1982,18 @@ boundary method because their selectors named the source file/wrong declared
 class; they remain recorded, not promoted. Illustrated772/master38 publication
 is export-verified. QA-15 is closed only for its finite recipe; constraints,
 hover, and physical Pencil/touch remain separate acceptance lanes.
+
+## September 11 — QA-18 midpoint input-routing checkpoint
+
+Native Shapr3D and OpenShape3D now both start a Circle at an existing
+horizontal-line midpoint, retain the source line, and preserve the resulting
+geometry through Undo/Redo. The corrected clone also retains the profile after
+gallery reopen. The confirmed clone failure was presentation hit routing: the
+visible H constraint glyph intercepted a stroke while Circle was armed.
+Ordinary constraint glyphs now remain visible but do not hit-test while a
+drawing tool owns the canvas; dedicated center Lock controls remain separately
+interactive. The corrected focused run is clean 2/2. Its preceding 0/2 run is
+retained as a fixture failure because it assumed diameter labels while the
+saved Always Radius preference correctly produced radius labels. QA-18 remains
+partial until face-corner initiation is paired; this checkpoint does not infer
+a persistent midpoint relationship or change the 10/0/1/45 inventory.

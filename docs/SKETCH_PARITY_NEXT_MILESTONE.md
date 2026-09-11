@@ -605,3 +605,15 @@ testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
 Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
 Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
 Masterclosureinsertedonce/exportverificationpending; IPAunchanged.
+
+## September 11 — QA-18 midpoint checkpoint
+
+Paired line-midpoint Circle initiation, geometry-specific Undo/Redo, and clone
+gallery reopen pass on the corrected build. A visible line-constraint glyph
+had intercepted armed drawing strokes; ordinary constraint badges now defer to
+the active drawing tool without changing center Lock controls. The final
+focused run is clean 2/2; the initial 0/2 fixture run assumed diameter labels
+despite the retained Always Radius preference and is recorded separately.
+Endpoint, center, rectangle-corner, and midpoint initiation now have paired
+coverage. Face-corner initiation remains open, so QA-18 remains partial and the
+inventory remains 10 passed / 0 failed / 1 device-blocked / 45 incomplete.

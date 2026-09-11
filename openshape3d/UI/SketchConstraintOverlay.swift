@@ -98,6 +98,11 @@ struct SketchConstraintOverlay: View {
                 }
             }
             .buttonStyle(.plain)
+            // A drawing tool owns the canvas stroke. Constraint badges remain
+            // visible as feedback, but must not swallow a new shape that starts
+            // exactly on their anchor (notably Circle on a line midpoint's H/V
+            // badge). Center Lock controls above remain separately interactive.
+            .allowsHitTesting(viewModel.mode.sketchTool == nil)
             .position(position)
             .accessibilityIdentifier(
                 conflicting ? "ConstraintGlyphConflict" : "ConstraintGlyph")

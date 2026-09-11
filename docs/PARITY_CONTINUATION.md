@@ -727,3 +727,29 @@ Newunit exactselection/geometry/history; UI usesrealEscapeandrequirestool-off
 promptbeforeUnlock. Serial95518 owns simulator
 `/tmp/os3d-qa12-circle-escape-20260911.xcresult`. Exactnextcollect/liveEscape,
 reversehistory/reopen/publication. Prior directioninitial10/11retained. NoIPAchange.
+
+## September 11 08:41 — QA-18 midpoint routing verified; face corner next
+
+Current HEAD `898128c` is pushed. Dirty task changes are the
+`SketchConstraintOverlay` ordinary-glyph hit-test correction, the midpoint UI
+workflow, its radial-label-aware rectangle-corner fixture, and this receipt/
+checkpoint. Untracked identity and memory files are unrelated and remain
+excluded. No runner owns the simulator.
+
+The initial `/tmp/os3d-qa18-midpoint-20260911.xcresult` failed 0/2 only because
+both fixtures assumed diameter labels while the saved Always Radius preference
+correctly produced radius labels; it is retained and not classified as a
+product failure. The corrected
+`/tmp/os3d-qa18-midpoint-radial-aware-20260911.xcresult` is clean 2/2.
+Exact-build live clone Circle-through-H-midpoint, Undo removing only the
+circle, Redo, and gallery reopen pass. Native release and menu Undo/Redo show
+the same geometry lifecycle. Eight exact-hash PNGs are stored in the local
+`drawing-on-points` report. Publication and commit/push are next, followed by
+the paired face-corner recipe. QA-18 remains partial; inventory stays
+10 passed / 0 failed / 1 device-blocked / 45 incomplete. The immutable IPA is
+unchanged.
+
+Publication is now export-verified: illustrated 779 placements, all seven new
+hashes exactly once, no loss from the 772-image predecessor; master remains 38
+media with one midpoint note. Commit/push remains the immediate next action,
+then paired face-corner placement. No runner is active.

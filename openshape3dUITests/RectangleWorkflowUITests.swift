@@ -648,14 +648,33 @@ final class RectangleWorkflowUITests: XCTestCase {
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.60, 0.60))
         startSketchTool(app, "Circle")
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.44, 0.35))
-        let diameter = app.buttons.matching(NSPredicate(format:
-            "identifier == 'DimensionLabel' AND label BEGINSWITH 'Ø'")).firstMatch
-        XCTAssertTrue(diameter.waitForExistence(timeout: 3),
+        let radial = app.buttons.matching(NSPredicate(format:
+            "identifier == 'DimensionLabel' AND (label BEGINSWITH 'Ø' OR label BEGINSWITH 'R')")).firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3),
                       "The circle draw must not become a rectangle control-point edit")
         XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
-        diameter.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        radial.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
         app.buttons["KeypadCommit"].tap()
         attach(app, "circle-at-rectangle-corner")
+    }
+
+    func testArmedCircleDrawsAtHorizontalLineMidpointThroughConstraintBadge() {
+        let app = start()
+        app.buttons["Rect"].tap()
+        startSketchTool(app, "Line")
+        p(app, 0.30, 0.55).press(forDuration: 0.15, thenDragTo: p(app, 0.60, 0.55))
+        let horizontal = app.buttons.matching(identifier: "ConstraintGlyph")
+            .matching(NSPredicate(format: "label == 'H'")).firstMatch
+        XCTAssertTrue(horizontal.waitForExistence(timeout: 3))
+        app.buttons["Line"].tap()
+        startSketchTool(app, "Circle")
+        p(app, 0.45, 0.55).press(forDuration: 0.15, thenDragTo: p(app, 0.45, 0.47))
+        let radial = app.buttons.matching(NSPredicate(format:
+            "identifier == 'DimensionLabel' AND (label BEGINSWITH 'Ø' OR label BEGINSWITH 'R')")).firstMatch
+        XCTAssertTrue(radial.waitForExistence(timeout: 3),
+                      "The visible line-constraint badge must not intercept an armed Circle stroke")
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        attach(app, "circle-at-line-midpoint-through-constraint-badge")
     }
 }
