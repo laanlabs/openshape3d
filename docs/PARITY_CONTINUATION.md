@@ -1,32 +1,30 @@
 # Parity continuation checkpoint
 
-## Current execution — September 11 11:28
+## Current execution — September 11 12:28
 
-QA-13's finite recipe is regression-complete on pushed baseline `9ae0f20` plus
-reviewable test/documentation changes. No runner is active. The final exact-tree
-serial gate passed cleanly 63/63 at
-`/tmp/os3d-qa13-final-combined-20260911.xcresult`: 60 construction/constraint
-checks and three arc UI workflows. The corrected targeted full-turn workflow
-passed first at `/tmp/os3d-qa13-fullturn-final-pass-20260911.xcresult`.
+QA-05 Return/resume behavior is implemented and exact-build clone verification
+is complete on dirty baseline `89ffd35`. No runner is active. The final serial
+LineChain suite passed clean 3/3 at
+`/tmp/os3d-qa05-linechain-clean-combined-v2-20260911.xcresult`; the corrected
+focused workflow passed 1/1 at
+`/tmp/os3d-qa05-final-focused-v2-20260911.xcresult`. Earlier diagnostic failures
+and the one compile-only fixture correction remain preserved under
+`/tmp/os3d-qa05-return-*.xcresult` and are described in the receipt.
 
-Existing export-verified paired evidence covers endpoints/default side,
-third-point/Return/chaining, two-stage cancellation, tangent transition and
-direct minor/semicircle/major categories. The current-tree fixture additionally
-proves R/Ø-aware 90→360 conversion, Undo to the 90-degree arc, and Redo to the
-selected full circle. Initial 62/63 and targeted fixture failures are preserved
-in the closure audit; no product-source change was needed. QA-13 is passed only
-for its finite recipe. Hover remains QA-21 and physical input QA-52.
+Exact-build live clone A→B→C, Return, B resume, D→E→B intentional close,
+closing-edge Undo/Redo, gallery thumbnail, and reopen all passed. Evidence plus
+hash inventory is under `reports/.../line-chain-qa05/`. Native Shapr3D was
+freshly entered with Line armed and its Return/Escape/Delete prompt captured,
+but supported canvas clicks still produce no native mutation. QA-05 stays
+partial; this is a native desktop input-delivery blocker, not an app failure.
+Inventory remains 12 passed / 0 failed / 1 device-blocked / 43 incomplete.
 
-Inventory is 12 passed / 0 failed / 1 device-blocked / 43 incomplete. The
-master closure note is export-verified exactly once with all 38 predecessor
-media hashes retained; the illustrated report remains at its verified
-786-image baseline. QA-19 remains partial and locally documented:
-its final native 3D-face threshold pair is blocked by native canvas input
-delivery, not classified as app failure. Exact next: commit/push the safe QA-13
-closure changes, then continue the next finite core case while preserving
-QA-19's blocker. Unrelated identity/memory files and
-the immutable `05be744` IPA remain untouched.
-
+Dirty task files are EditorViewModel.swift, CommandShortcutsView.swift,
+LineChainUITests.swift, acceptance/milestone/implementation/checkpoint docs, and
+the new QA-05 receipt. Exact next: commit/push this safe partial checkpoint,
+then continue an independent finite acceptance case while retaining native QA-05
+and QA-19 input blockers. Unrelated identity/memory files and immutable
+`05be744` IPA remain untouched; no device installation or parity claim.
 ## Active continuation — September10 pending three-point numeric input
 
 HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/

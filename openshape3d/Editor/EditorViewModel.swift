@@ -9991,6 +9991,14 @@ final class EditorViewModel {
         deselectSketchTool()
     }
 
+    /// Return finishes the current open polyline without placing another
+    /// segment. Native keeps Line armed, so the next empty or endpoint tap can
+    /// start a new chain while the committed geometry and history remain.
+    func finishLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        clearChain()
+    }
+
     /// Escape abandons an unfinished three-point arc without committing it.
     /// Native also drops the Arc tool in this state; a following Escape may
     /// therefore leave sketch mode instead of reviving the discarded preview.
@@ -10872,8 +10880,21 @@ final class EditorViewModel {
         let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
 
         guard tapChainActive, let anchor = chainAnchor, let start = chainStart else {
-            // Not chaining: a tap on geometry selects it (dimension/constraint
-            // pick); an empty tap starts a fresh chain at that point.
+            // Not chaining: an endpoint resumes from that exact point, matching
+            // native Line after Return. The entity body still selects for
+            // dimensions/constraints; an empty tap starts a free chain.
+            if let point = SketchHitTester.nearestPoint(
+                to: raw, in: sketch.entities, tolerance: controlPointTolerance,
+                preservingLineInterior: true
+            ), point.role == .endpointA || point.role == .endpointB {
+                selectedSketchEntityIDs.removeAll()
+                selectedSketchPoints.removeAll()
+                chainStart = point.point
+                chainAnchor = point.point
+                chainStartEntityID = nil
+                tapChainActive = true
+                return
+            }
             if selectSketchGeometryTap(at: raw, in: sketch) { return }
             chainStart = target
             chainAnchor = target

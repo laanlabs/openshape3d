@@ -9,7 +9,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
-| QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
+| QA-05 | Line chain | Core — partial, not passed | Return/resume/intentional-close product path passes clean 3/3 and exact-build clone history/reopen; full fresh native chain remains desktop-input blocked. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
 | QA-07 | Line raw aim | Core — passed | Finite near-horizontal above/below recipe across native/clone scales, signed/reverse and H/V supplements, independent Guide/Auto, history and final reopen verified at eb9b4ab. 35 distinct checks across runs; general snap/hover/device remains separate. |
 | QA-08 | Diagonal rectangle | Core — passed | Finite four-quadrant, both sizing-order/lower-left anchor, selected-side/readout, history and saved-reopen recipe closed September10 at e9343a7. Relevant retained regression runs and paired evidence reconciled; illustrated624/master38 verified. Broader input/layout/device cases remain separate. |
@@ -82,7 +82,7 @@ Start then cancel; no persistent empty sketch or unintended visibility change. I
 
 ### QA-05 — Line chain
 
-Tap A-B-C; end open; resume from B; close intentionally. Issues: SK-09. Result: NOT RUN. Evidence/owner: pending.
+Tap A-B-C; end open; resume from B; close intentionally. Issues: SK-09. Result: **PARTIAL** — Return now finishes only the transient chain, endpoint resume and intentional close pass a clean 3/3 current-tree suite, and exact-build clone Undo/Redo/gallery reopen passed live. Fresh native canvas clicks remain blocked by desktop input delivery, so the complete recipe is not promoted. See [September 11 line-chain checkpoint](testing/sketch-parity-line-chain-2026-09-11.md).
 
 ### QA-06 — Line cancel
 

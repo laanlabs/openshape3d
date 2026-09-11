@@ -65,6 +65,12 @@ struct CommandShortcutsView: View {
                     .keyboardShortcut(.defaultAction)
                     .accessibilityHidden(true)
             }
+            if viewModel.mode.sketchTool == .line,
+               viewModel.editingDimension == nil {
+                Button { viewModel.finishLineInput() } label: { EmptyView() }
+                    .keyboardShortcut(.defaultAction)
+                    .accessibilityHidden(true)
+            }
             if viewModel.editingDimension != nil {
                 Button { viewModel.cancelDimensionEdit() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
