@@ -1103,6 +1103,7 @@ struct EditorView: View {
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
                 } else if viewModel.mode.isSketching, viewModel.mode.sketchTool == nil,
+                          viewModel.editingDimension == nil,
                           (!viewModel.selectedSketchEntityIDs.isEmpty || viewModel.sketchTransformActive) {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.

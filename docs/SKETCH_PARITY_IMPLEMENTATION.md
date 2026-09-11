@@ -1819,3 +1819,13 @@ corrected in final59/59. Paired latest Undo/Redo and gallery reopen passed.
 Illustrated616/master38 verified. Legacy unknown sides retain defaults; no
 invented metadata or solver equations. Bottom keypad/transform-chip overlap
 remains the next confirmed UI gap. See rectangle closure audit.
+
+## September10 — Axis editor clearance and reselection
+
+Dimension editing hides unrelated sketch Move/Rotate/Copy controls so they do not
+cover the keypad. Axis-edge toggle checks actual entity selection, not retained
+annotation-side metadata; after a successful size commit, same-edge reselection
+works again. Live bottom-width entry, same-edge handle, Undo/Redo and paired
+saved reopen verified. Regression29/30 plus corrected center-rotation1/1; retained
+fixture failures and evidence in [rectangle closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md).
+Illustrated624/master38 export verified; no new IPA/device claim.

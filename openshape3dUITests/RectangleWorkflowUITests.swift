@@ -80,6 +80,20 @@ final class RectangleWorkflowUITests: XCTestCase {
             labels.element(boundBy: index).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
             app.buttons["KeypadCommit"].tap()
+            // Successful dimension creation clears side selection. Reselect
+            // explicitly before opening the other size, as in the live recipe.
+            attach(app, "center-size-\(index)-after-commit")
+            sleep(1) // settle editor dismissal before a new geometry hit
+            tapAxisEdge(app, side: .top)
+            attach(app, "center-size-\(index)-after-reselect")
+            XCTAssertEqual(labels.count, 2)
+        }
+        func selectVisibleCorner() {
+            let markers = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+            guard let topmost = markers.allElementsBoundByIndex.min(by: { $0.frame.midY < $1.frame.midY }) else {
+                XCTFail("Missing rotated corner marker"); return
+            }
+            topmost.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         let expected = labels.allElementsBoundByIndex.map(\.label).sorted()
         let points = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
@@ -102,11 +116,15 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["KeypadCommit"].waitForExistence(timeout: 3))
         app.buttons["Keypad-1"].tap()
         app.buttons["KeypadCommit"].tap()
+        // Commit/history clear the corner, so inspect both sizes only after
+        // selecting a visible corner again (retained parallel labels are one size).
+        selectVisibleCorner()
         XCTAssertEqual(labels.count, 2)
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == %@", otherSize)).firstMatch.exists)
         XCTAssertTrue(labels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.exists)
         attach(app, "rotated-rectangle-resized-preserves-other-size")
         app.buttons["UndoButton"].tap()
+        selectVisibleCorner()
         XCTAssertEqual(labels.allElementsBoundByIndex.map(\.label).sorted(), expected)
     }
 
@@ -495,6 +513,23 @@ final class RectangleWorkflowUITests: XCTestCase {
         XCTAssertTrue(handle.waitForExistence(timeout: 3),
                       "Leaving Move/Rotate restores the selected edge handle")
         attach(app, "axis-rectangle-right-edge-handle")
+        // A bottom dimension editor can occupy the same area as the unrelated
+        // Move/Rotate and Copy chips; they must not paint over its keypad.
+        guard let bottomLabel = labels.allElementsBoundByIndex.max(by: { $0.frame.midY < $1.frame.midY }) else {
+            XCTFail("Missing bottom width readout"); return
+        }
+        bottomLabel.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["SketchTransformMode"].exists)
+        XCTAssertFalse(app.buttons["SketchCopyBadge"].exists)
+        XCTAssertTrue(app.buttons["KeypadCommit"].isHittable)
+        attach(app, "axis-bottom-keypad-without-transform-chips")
+        app.buttons["Keypad-1"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        tapAxisEdge(app, side: .right)
+        XCTAssertTrue(app.buttons["SketchTransformMode"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["SketchCopyBadge"].exists)
     }
 
     func testDisconnectRemovesRectangleHandleAndUndoRestoresConnection() {

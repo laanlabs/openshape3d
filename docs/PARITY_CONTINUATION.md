@@ -1,26 +1,23 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, saved-side checkpoint
+## Active continuation — September10, keypad/reselection live verified
 
-BaseHEAD0067ea4 pushed. Adjacent axis placement + saved annotation-side metadata/
-aliases now verified and ready to commit with tests/docs. Final combined59/59
-clean after initial41/41, saved-side59/59, storage1/1 and a LIVE stale-Undo-alias
-finding. Final live native Undo8→9 one bottom/Redo9→8 both; cloneUndo2→1 one
-bottom/Redo1→2 both. Paired gallery reopen native8×4 andclone2×1.5 retains sides.
-Illustrated616/all8newhashes/master38 dated note verified, no predecessor loss.
-Exports `/tmp/os3d-qa0809-saved-sides-{published,master}.docx`. No test runner.
-Native1924 remains all-Items Front sketch, fresh lower-right8×4; older15.5×7.
-Clone7715 remains reopened left-selected2×1.5, bothwidthreadouts. All finalPNG
-copies/hashes in center-matrix. Receipt testing/sketch-parity-rectangle-closure-audit-2026-09-10.md.
-Exact next commit/push this checkpoint, then fix confirmed bottom keypad overlap:
-Move/Rotate chip paints over lower-right keypad (`sides-final-first-editor`).
-Hide unrelated sketch transform chips while dimension editor is active, verify
-cancel restoration/commit and paired live repeat, documentpublish. Then finish
-finite QA08/09 closure audit. Do not blanket-close from this batch.
-Legacy missing side metadata retains defaults until later edits; no fabricated
-historical reconstruction. Inventory4passed/0failed/1deviceblocked/51incomplete.
-ImmutableIPA05be744 untouched; sole desktop/build owner, unrelated identity/
-memory preserved. No duplicate workers/watchdog/merge/install/hostrestart/security.
+HEAD36c5adb pushed. Dirty product: EditorView hides sketch transform chips during
+size editor; EditorViewModel same-edge toggle requires actual entity selection.
+RectangleWorkflowUI now checks keypad/chip lifecycle and explicitly reselects
+after settled commit/history in center rotation. Prior29/30 and targeted failure
+retained; final diagnostic1/1 passes actual rotation/both sizes/Undo. No runner.
+Live clone bottomwidth1.4818→1, same-edge handle restoration, Undo/Redo and final
+gallery reopen1×0.9858 passed; native7×4 reopened/isolated top/readouts intact.
+Early Escape attempts left Rectangle armed; tool-button disarm used, no false
+cancellation pass. Screenshots copied/hashed in center-matrix `os3d-reselection-*`.
+Illustrated624/all6newhashes/no618predecessorloss, master38 datedfinalreopennote
+export-verified at /tmp/os3d-qa0809-keypad-reselection-{published,master}.docx.
+Exact next commit/push current fixes/docs; finiteQA08/09 closure review then next
+core acceptance. Inventory4passed/0failed/1deviceblocked/51incomplete unchanged.
+Native1924 fresh7×4 topselected; clone7715 fresh1×0.9858 bottomselected plusrotated
+priorfixture. Sole desktop/build owner, no runner. Immutable05be744IPA untouched;
+unrelated identity/memory preserved. No merge/install/restart/security changes.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

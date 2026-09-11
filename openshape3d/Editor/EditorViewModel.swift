@@ -9178,7 +9178,8 @@ final class EditorViewModel {
             if case .rect = hit.entity,
                let index = RectangleConstruction.nearestAxisEdge(hit.entity, to: raw) {
                 selectedSketchPoints.remove(SketchPointSelection(entityID: hit.entity.id, role: .center))
-                if selectedAxisRectangleEdge?.id == hit.entity.id,
+                if selectedSketchEntityIDs.contains(hit.entity.id),
+                   selectedAxisRectangleEdge?.id == hit.entity.id,
                    selectedAxisRectangleEdge?.index == index {
                     selectedSketchEntityIDs.remove(hit.entity.id)
                 } else {

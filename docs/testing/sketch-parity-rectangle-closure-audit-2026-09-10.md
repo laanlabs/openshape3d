@@ -1,9 +1,10 @@
 # QA-08 / QA-09 finite closure audit — September 10
 
-Baseline `ffe2e59` (product `a24ef1b`); current publication 598 illustrated
-placements / master 38, verified anonymously with predecessor retention.
-This audit does not promote either case or erase broader visual/input gates.
+Latest committed product `36c5adb`; current keypad/reselection correction is
+regression-tested and live-compared, awaiting commit. Illustrated624/master38
+publication verified. No runner active. Prior failure chronology below retained.
 Current inventory: 4 passed, 0 failed, 1 device-blocked, 51 incomplete.
+Finite QA08/09 closure review follows this checkpoint.
 
 ## Evidence reconciliation
 
@@ -196,3 +197,64 @@ area in `sides-final-first-editor`; native editor has no such chip. Upper
 commit was reachable but overlap is not a parity pass. Hide unrelated sketch
 transform chips while a dimension editor is active; test restoration on cancel.
 QA08/09 remain partial; inventory unchanged.
+
+### Keypad chip test exposed a real same-edge selection defect
+
+Focused73536 finished1pass/1fail. New assertions confirm chips absent and commit
+reachable. Final same-edge reselect assertion failed at RectangleWorkflowUITests
+line513. AX/log shows tap at actual rendered right midpoint(496,665.5), not
+a wrong inferred badge. Source toggle compared retained annotation-side metadata
+without requiring entity selection; successful commit had cleared entity but
+preserved that metadata, so every same-edge tap removed an already absent ID.
+Live clone rightheight1.5→1 then same-right taps (including settled repeat)
+remained unselected. Native topwidth8→7 then settled same-top tap restored
+selection/handle. Native immediate postcommit click also failed; only settled
+repeat counted. Initial clone gallery click before launch settled failed to
+open, so those subsequent gallery clicks are excluded, not app failures.
+
+Toggle now requires selectedSketchEntityIDs.contains(id) before deselecting.
+No speculative timing/test-target change. Serial28423 fullRectangleWorkflowUI
++SketchAnnotationVisibility at `/tmp/os3d-qa0809-keypad-reselection-final-20260910.log`
+/.xcresult owns simulator. Live postfix/cancel restoration/reopen/publication
+pending. New same-edge screenshots copied/hashed. Native fresh lower-right7×4;
+clone UItest fixture will replace prior1.5175×1.
+
+During full28423 run, prior failing axis handle/keypad/reselection test now
+passes40.515s; axis partial Lock also passes. CenterLockedRectangleRotation
+fixture fails before rotation: it commits first dimension then indexes second
+label without reselection, although the now-verified successful commit clears
+edge selection. Preserve failure; after suite completes update fixture to
+reselect at explicit lifecycle boundaries, keeping actual rotated levels and
+both-size/Undo assertions. No product change based on this stale assumption.
+Diagnosis publication exported618 with both new same-edge hashes once and
+no616 predecessor image/text loss; master remains616-era38 note.
+
+Full28423 terminal29passed/1failed (30total,542.008s wall interval). Only stale
+center-rotation fixture failed as above. Updated it to reselect top after each
+initial commit, then a visible corner after resized commit/history before
+asserting both different sizes. Actual rotated levels, explicit Move/Rotate,
+changed1mm/unchanged other-size and Undo restoration assertions retained.
+Targeted39572 center-rotation-reselection run active; no product changes for
+this fixture update. Same-edge toggle/chip fix passed full run.
+
+Diagnostic77858 completed clean1/1 (41.321s); before/after captures exported to /tmp/os3d-qa0809-center-rotation-diagnostic-attachments. Explicit reselection after settled editor dismissal retains actual rotation, both-size editing and Undo assertions. Prior29/30 and targeted failure retained, not rewritten as clean combined. No further product change. No runner active; live chip/reselection comparison resumed.
+
+### Keypad/reselection final live and publication checkpoint
+
+Live fresh diagonal width1.4818→1 mm: bottom keypad has no Move/Rotate/Copy
+chips covering commit; actual numeric commit succeeded. Settled same-bottom-edge
+tap restores edge/normal handle/chips. Undo restores1.4818; Redo1. Gallery reopen
+retains1×0.9858 and same-edge selection works. Native reference7×4: editor clear
+of manipulation controls; final gallery reopen and isolated top selection retain
+both values. Native dimensions/useful controls differ in scale and platform.
+Early clone Escape attempts left Rectangle armed; visible tool toggle successfully
+disarmed it. These unsuccessful keyboard attempts are not cancellation evidence.
+
+Evidence prefix `os3d-reselection-` in center-matrix, all copied/hashed. Illustrative
+six: keypad-fixed, same-edge-fixed, undo, redo, reopen-values, native-editor-final.
+Anonymous `/tmp/os3d-qa0809-keypad-reselection-published.docx` verifies624 placements,
+all six hashes exactly once, no618 predecessor loss and ordered text retained.
+Master `/tmp/os3d-qa0809-keypad-reselection-master.docx` has38 images and one dated
+checkpoint with final paired gallery-reopen note. No overlapping runner; current
+result is29/30 plus corrected focused1/1, not a clean combined run. ImmutableIPA
+untouched. Next finite QA08/09 closure review, not candidate-ready claim.
