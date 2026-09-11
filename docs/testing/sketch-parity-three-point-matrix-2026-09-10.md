@@ -219,3 +219,25 @@ copiedlocal. Recovery verified for strict isolated original-signature loop;
 no general rectangle inference or sizing intent migration. System picker remains
 unverified, separate from now-verified gallery load. RemainingQA10 completion
 directions and pending leader spacing remain open. No runner, IPAunchanged.
+
+### Pending leader spacing and side correction
+
+Native100px baseline600,600→700,600 (11.7031mm) and200px600,600→800,600
+(23.4062mm) keep70px witness distance, value~16px OUTSIDE leader. Eachpending
+draft cancelled;48committededges unchanged. Clone100px380,380→480,380
+(1.24mm) has14px witness distance/valuecrowdsbaseline;200px→580,380 (2.49mm)
+has28pxdistance andvalue towardsgeometry. Prior toward-geometry placement
+interpretation is withdrawn. Fixed100viewpoint offset matches completed clone
+rectangle leaders; value24points outside. This targets consistent application
+layout, not exact native-macOS versus physical-iPad point equivalence.
+Serial81246 pending3units+2UI owns simulator; no live postfix claim.
+
+81246 clean5/5. Exactbuild live100/200px pendingbaseline spacing constant
+(~60screensimulatorpixels from100applicationpoints), outerlabelnocrowding.
+Bare1 opensfullkeypad; .5Return→1.5 firstendpointfixed/layoutretained. Third
+500,410 completes1.5×0.3719, oneUndo removesnewrectangle/disarms, Redo restores.
+Galleryreopen width1.5 retained; no extraheightdrivingconstraint claimed. Native
+reference70desktop pixels forbothlengths retained, notphysicaliPad equivalence.
+Diagnosis671/all4hashes and final677/all6hashesonce, no priorimages/orderedtext
+loss; master38/noteonce verified. All exports/PNGs copied/hashedlocal.
+Next direct pending-label activation and remainingdirections; QA10partial.

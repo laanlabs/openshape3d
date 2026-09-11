@@ -1888,3 +1888,12 @@ retained compile-only fixture error and41/51 earlier passes. Controlled legacy
 archive fixture (production importer via temporary diagnostic, not file-picker
 acceptance) passed live center Lock/Unlock/move/history/reopen; native reference
 repeated. Illustrated667/master38 verified. QA10 still partial.
+
+## September 10 pending three-point leader layout
+
+Paired100/200pixel native baselines retain fixedleader spacing andselectedvalue
+outsideleader. Clone proportionaloffset/insidevalue corrected to completed-
+rectangle100applicationpoint spacing/outervalue24points. Prior toward-geometry
+interpretation withdrawn. Clean5/5 andlive two lengths/typed1.5/Return/completion/
+history/galleryreopen verified. Illustrated677/master38 verified. No exact
+macOS/physical-iPad pixelsignoff; directlabelactivation remainsuntested.

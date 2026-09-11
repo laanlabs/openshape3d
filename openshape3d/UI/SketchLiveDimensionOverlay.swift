@@ -71,12 +71,11 @@ struct SketchLiveDimensionOverlay: View {
             .stroke(Color.black.opacity(0.85), lineWidth: 1)
             arrowHead(at: tip, pointingFrom: radial.tail)
             liveText(label.text, rotation: radial.rotation, at: radial.anchor)
-        } else if let lineStart = project(label.worldLineStart),
-           let lineEnd = project(label.worldLineEnd),
-           let witnessStart = project(label.worldWitnessStart),
-           let witnessEnd = project(label.worldWitnessEnd),
-           let anchor = project(label.worldLabel),
-           hypot(lineEnd.x - lineStart.x, lineEnd.y - lineStart.y) > 1 {
+        } else if let geometry = linearGeometry(label),
+                  hypot(geometry.lineEnd.x - geometry.lineStart.x,
+                        geometry.lineEnd.y - geometry.lineStart.y) > 1 {
+            let lineStart = geometry.lineStart, lineEnd = geometry.lineEnd
+            let witnessStart = geometry.witnessStart, witnessEnd = geometry.witnessEnd
 
             // Witness lines: thin leaders from the geometry out to the
             // dimension line. Skipped entirely for a dimension drawn straight
@@ -111,19 +110,35 @@ struct SketchLiveDimensionOverlay: View {
             arrowHead(at: lineStart, pointingFrom: lineEnd)
             arrowHead(at: lineEnd, pointingFrom: lineStart)
 
-            // The released three-point baseline remains a pending construction
-            // measurement. Keep its outlined value off the leader, towards the
-            // measured geometry, rather than striking through the number.
-            let dx = witnessStart.x - lineStart.x
-            let dy = witnessStart.y - lineStart.y
-            let offsetLength = hypot(dx, dy)
-            let textAnchor = label.isPendingRectangleBaseline && offsetLength > 1
-                ? CGPoint(x: anchor.x + dx / offsetLength * 18,
-                          y: anchor.y + dy / offsetLength * 18) : anchor
             liveText(label.text,
-                     rotation: readableAngle(from: lineStart, to: lineEnd), at: textAnchor,
+                     rotation: readableAngle(from: lineStart, to: lineEnd), at: geometry.anchor,
                      outlined: label.isPendingRectangleBaseline)
         }
+    }
+
+    private func linearGeometry(_ label: EditorViewModel.LiveDimensionLabel)
+        -> (lineStart: CGPoint, lineEnd: CGPoint, witnessStart: CGPoint,
+            witnessEnd: CGPoint, anchor: CGPoint)? {
+        guard var start = project(label.worldLineStart),
+              var end = project(label.worldLineEnd),
+              let a = project(label.worldWitnessStart),
+              let b = project(label.worldWitnessEnd),
+              var anchor = project(label.worldLabel) else { return nil }
+        if label.isPendingRectangleBaseline {
+            // Native keeps this distance fixed as baseline length changes.
+            // Match completed rectangle leaders (100 view points), not the
+            // generic in-flight measurement's length-proportional world offset.
+            let dx = start.x - a.x, dy = start.y - a.y
+            let length = hypot(dx, dy)
+            guard length > 0.001 else { return nil }
+            let nx = dx / length, ny = dy / length
+            start = CGPoint(x: a.x + nx * 100, y: a.y + ny * 100)
+            end = CGPoint(x: b.x + nx * 100, y: b.y + ny * 100)
+            // The selected value is OUTSIDE the leader, away from geometry.
+            anchor = CGPoint(x: (start.x + end.x) / 2 + nx * 24,
+                             y: (start.y + end.y) / 2 + ny * 24)
+        }
+        return (start, end, a, b, anchor)
     }
 
     private func liveText(_ text: String, rotation: Double, at anchor: CGPoint,

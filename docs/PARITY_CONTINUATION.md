@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEAD326807f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEADddffe34 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -202,3 +202,23 @@ Untitled retained separately. Exactnext commit/push legacy recovery, then compar
 pending baseline leader spacing at controlled views/remainingQA10directions.
 Systempicker stillunverified; fixture API setup is explicitly notpickerpass.
 No readiness claim, immutableIPA unchanged.
+
+## Latest actual running — pending leader correction
+
+HEADddffe34 pushed; sole dirty product SketchLiveDimensionOverlay.swift. Native
+100/200px pending baselines keep70pxleaderdistance/valueoutside. Clone14/28px
+length-proportionaldistance/valueinside confirmed. Previous toward-geometry
+claim withdrawn. Fixed100viewpointdistance likecompletedrectangle and24point
+outervalue now serial81246, /tmp/os3d-qa10-pending-leader-20260910.xcresult.
+Exactnext collectresult, live100/200px andtypedentry/cancel/reopenverification,
+publish correction andcontinue QA10. Native pendingdraft cancelled,48edges;
+clone UItestowns/resetfixture. No competing workers. IPAunchanged.
+
+## Latest verified — September10 23:00 EDT
+
+81246 completedclean5/5; no runner. Leader short/long/typed1.5 keypad/Return/
+completion1.5×0.3719/UndoRedo/reopen passedlive. Illustrated677/all6hashes plus
+671diagnosis4/master38 verified. Native Rectanglearmed/no pending,48edges;
+clone savedUntitled2rects, width1.5selected at441,380, tooloff. Exactnext commit/
+push leaderlayout, then paired DIRECT pending-label tap activation, reverse
+directions/remainingQA10acceptance. App13792; no otherdesktopowner.
