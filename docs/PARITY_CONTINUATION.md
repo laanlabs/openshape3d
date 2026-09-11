@@ -282,3 +282,33 @@ Exact next: publish final four images, native reopen, commit/push two product fi
 ## Latest verified — September 10 23:24 EDT
 
 87523 clean5/5; live reverse/forward label and precision passed. Native reverse gallery reopen23.4062×6 and clone2.4891 baseline retained. Clone toolbar UndoRedo passed; synthetic cmdZ did not act (not a pass). Illustrated687/all4finalhashes/no prior loss and master38 verified; final reopen text addendum inserted once, export verification next. HEADaa2677f; two product files plus ledger/matrix/receipt/checkpoint dirty. No runner. Native Front Sketch04 now52edges, reverse baseline selected750,554; clone savedUntitled two rectangles, baseline selected480,320. Next commit/push then controlled angled baseline/opposite-height QA10. ImmutableIPA unchanged.
+
+## Latest actual — September10 23:26 EDT
+
+5014cef pushed; reopen note export verified687/master38. No runner. Angled forward baseline native900740→1050710, third1030780 completes20.4084×9; clone380750→530720, third510790 completes1.8895×0.7957. Labels/readouts/center/noauto-keypad matched. Initial clone reset-to-Diagonal gesture undone, excluded. Both current tools3Points armed with new rectangle selected. Next history then reverseangled pending/completion/cancellation. Acceptanceunchanged; IPAunchanged.
+
+## September 10 — angled direction matrix supplement
+
+At5014cef, native900740→1050710/third1030780 completed20.4084×9; clone
+380750→530720/third510790 completed1.8895×0.7957. Reverse baselines
+1050710→900740/third920670 and530720→380750/third400680 respectively
+completed20.4084×9 and1.8895×0.797 on the opposite side. Both pending
+leader/value directions and completed dual sizes/center control match the
+sampled workflow; no auto-keypad. Separate grid acquisition means screen
+gestures are not asserted to produce identical normalized dimensions.
+Native forward rectangle undone before reverse; clone forward rectangle
+undone before reverse. Clone initially reset to Diagonal after gallery reopen;
+that incorrect-subtype rectangle was undone and excluded. Native R cycled
+Center before explicit restoration to3Points; no geometry drawn in wrong mode.
+Clone firstpoint380830/Escape removes draft point, keeps committed geometry
+and Rectangle armed. Native600780 click showed no firstpoint state; Escape
+therefore inconclusive for that stage, not a parity pass. Historical released
+baseline two-stage Escape remains verified separately.
+Serial85267 now owns simulator: /tmp/os3d-qa10-direction-final-20260910.xcresult,
+RectangleConstruction + RectangleInputCancellation + four3pointUI workflows.
+Exact next collect result, supported native firstpoint/cancel diagnosis,
+publication export and finiteQA10 closure reconciliation. No candidate claim.
+
+## Latest verified — September10 23:37 EDT
+
+QA10 finite recipe closed at5014cef; final36/36, illustrated700/all5finalhashes+8angled/master38/closure note verified. Inventory7/0/1/48 (37partial11deferred). No runner. Native FrontSketch04 has14rectangles/56edges, selectedlastreverseangled20.4084×9; firstpoint draft cancelled and Rectangle disarmed. Simulator UItests resetfixture; app requiresrelaunch. Exactnext commit/pushclosure docs then paired QA11concentric center initiation plus history/reopen/current regression. Preserve old QA11 sampledpass evidence; do not repeat fixedQA10. Unrelatedidentityfiles/IPA untouched.

@@ -589,3 +589,7 @@ live checks and verified624/master38 publication. Inventory6passed/0failed/
 finite allquadrant/anchor/bothsizeorder criteria are met; broader exactUI/device
 gates remain. NextQA10 opposite baseline/slopes, sizes/reselection and eachstage
 cancellation. Immutable05be744IPA unchanged.
+
+### September10 QA10 finite recipe closure
+
+Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, including reverse slopes and settled native firstpoint hover/Escape. Product5014cef pushed; final36/36 and illustrated700/master38 closure note verified. Full audit in testing/sketch-parity-three-point-closure-audit-2026-09-10.md. Inventory7passed/0failed/1deviceblocked/48incomplete; nextQA11concentric initiation. General keyboard/layout/import/device gates remain. Immutable05be744IPA unchanged.

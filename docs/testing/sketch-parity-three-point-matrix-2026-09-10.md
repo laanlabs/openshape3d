@@ -292,3 +292,40 @@ No test runner remains. Immutable IPA unchanged; QA10 remains partial.
 ## Latest verified — September 10 23:24 EDT
 
 87523 clean5/5; live reverse/forward label and precision passed. Native reverse gallery reopen23.4062×6 and clone2.4891 baseline retained. Clone toolbar UndoRedo passed; synthetic cmdZ did not act (not a pass). Illustrated687/all4finalhashes/no prior loss and master38 verified; final reopen text addendum inserted once, export verification next. HEADaa2677f; two product files plus ledger/matrix/receipt/checkpoint dirty. No runner. Native Front Sketch04 now52edges, reverse baseline selected750,554; clone savedUntitled two rectangles, baseline selected480,320. Next commit/push then controlled angled baseline/opposite-height QA10. ImmutableIPA unchanged.
+
+## September 10 — angled direction matrix supplement
+
+At5014cef, native900740→1050710/third1030780 completed20.4084×9; clone
+380750→530720/third510790 completed1.8895×0.7957. Reverse baselines
+1050710→900740/third920670 and530720→380750/third400680 respectively
+completed20.4084×9 and1.8895×0.797 on the opposite side. Both pending
+leader/value directions and completed dual sizes/center control match the
+sampled workflow; no auto-keypad. Separate grid acquisition means screen
+gestures are not asserted to produce identical normalized dimensions.
+Native forward rectangle undone before reverse; clone forward rectangle
+undone before reverse. Clone initially reset to Diagonal after gallery reopen;
+that incorrect-subtype rectangle was undone and excluded. Native R cycled
+Center before explicit restoration to3Points; no geometry drawn in wrong mode.
+Clone firstpoint380830/Escape removes draft point, keeps committed geometry
+and Rectangle armed. Native600780 click showed no firstpoint state; Escape
+therefore inconclusive for that stage, not a parity pass. Historical released
+baseline two-stage Escape remains verified separately.
+Serial85267 now owns simulator: /tmp/os3d-qa10-direction-final-20260910.xcresult,
+RectangleConstruction + RectangleInputCancellation + four3pointUI workflows.
+Exact next collect result, supported native firstpoint/cancel diagnosis,
+publication export and finiteQA10 closure reconciliation. No candidate claim.
+
+## First-point cancellation recovered; final consolidated result
+
+Serial85267 completed clean36/36:29 construction,3 pending/cancel units,
+4 three-point UI workflows. No failures/skips; no runner. Native click1100735
+initially showed no new marker. Supported move1050700 then settled capture
+revealed an uncommitted baseline preview from that first point,8.3239mm.
+No second click/release-baseline action occurred. Escape removed preview;
+Rectangle remained armed, committed rectangles intact. Second Escape disarmed.
+Thus the earlier click-only capture was inconclusive, not a failed click;
+settled hover evidence now verifies native first-point cancellation, paired
+with clone firstpoint/Escape screenshots. Move tool took11.3s; premature see
+returned1 with screenshot, excluded in favor of settled successful capture.
+Illustrated695/all8angledhashes/no687loss/orderedtext and heading verified.
+Firstpoint supplement publication next, then finiteQA10 closure reconciliation.

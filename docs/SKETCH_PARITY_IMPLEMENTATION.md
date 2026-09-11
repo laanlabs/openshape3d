@@ -1901,3 +1901,7 @@ macOS/physical-iPad pixelsignoff; directlabelactivation remainsuntested.
 ### September 10 — pending three-point direction/precision correction
 
 Released baseline now uses four-decimal compact precision and positions its value above the readable leader in either horizontal direction. Prior universal outside interpretation withdrawn; fixed screen-space spacing retained. Clean final5/5, paired completion/history/reopen; clone synthetic keyboard delivery did not act, toolbar verified. Illustrated687/all4finalhashes/master38 verified. QA10 remains partial. See three-point-matrix receipt.
+
+### September10 QA10 finite recipe closure
+
+Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, including reverse slopes and settled native firstpoint hover/Escape. Product5014cef pushed; final36/36 and illustrated700/master38 closure note verified. Full audit in testing/sketch-parity-three-point-closure-audit-2026-09-10.md. Inventory7passed/0failed/1deviceblocked/48incomplete; nextQA11concentric initiation. General keyboard/layout/import/device gates remain. Immutable05be744IPA unchanged.
