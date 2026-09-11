@@ -49,7 +49,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Paired rectangle boundary/profile handoff plus clean 60/60 current-tree affected/surviving reference, profile invalidation and exact Undo gate. Fresh paired driven-reference/history gesture remains blocked. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
-| QA-45 | Move/rotate/copy | Core - partial, not passed | White exact-axis/rotation controls, retained re-edit/local frame, circle frame-only history, armed reselection and Escape paired; direct-drag/compact/mixed-selection matrix remains open. |
+| QA-45 | Move/rotate/copy | Core — partial, not passed | Extensive paired exact-value/local-frame/Copy/Escape/history evidence plus clean 50/50 current-tree direct line/circle/rectangle and mixed line+circle Copy matrix. Fresh paired mixed-selection and compact-layout checks remain open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — partial live pass | New coplanar versus named continuation corrected; independent visibility and paired reopen verified. Consumed named entry/bore rebuild/history/reopen sampled; overlapping selection variants open. |
@@ -379,7 +379,19 @@ Single/Chain, nested loop, sign flip, zero/invalid offset, cancel. Issues: ED-11
 
 ### QA-45 — Move/rotate/copy
 
-Exact values, constrained entities, mixed selections, copy on/off, cancel. Issues: ED-08. Result: NOT RUN. Evidence/owner: pending.
+Exact values, constrained entities, mixed selections, copy on/off, cancel.
+Issues: ED-08. Result: PARTIAL. Retained paired evidence covers exact typed axes
+and rotation, local-frame re-edit, free and constrained circle/arc behavior,
+Copy, Escape, history, accepted-operation reopen and line controls. The current
+tree passes a clean serial 50/50 solver/UI gate, now including direct line,
+circle and rectangle movement plus a mixed line+circle Copy-off/Copy-on identity
+and two-step history matrix. The initial 48/49 baseline failure used free-label
+placement as a geometry proxy; a corrected center-control assertion passed 1/1.
+The mixed fixture's first 0/1 run found only 8e-11 solver roundoff; exact identity
+and history assertions were retained while computed coordinates use 1e-8. No
+product source changed. Fresh paired mixed-selection gestures and compact-layout
+comparison remain open, so automation is not promoted to live parity. Evidence:
+[Move/rotate/copy checkpoint](testing/sketch-parity-move-rotate-copy-checkpoint-2026-09-11.md).
 
 ### QA-46 — Pattern
 

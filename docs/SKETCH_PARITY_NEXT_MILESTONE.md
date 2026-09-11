@@ -778,3 +778,13 @@ restores the exact closed sketch on Undo. One initial legacy-whole-ref fixture
 failure is retained and corrected to the production endpoint representation; no
 product source changed. Fresh paired driven-reference/history gestures remain
 input-blocked, so QA-43 stays partial and inventory remains 16/0/1/39.
+
+## September 11 — QA-45 Move/rotate/copy checkpoint
+
+Retained paired exact-value, pivot/frame, constrained refusal, Copy, Escape,
+history and reopen evidence is reconciled with a clean one-owner **50/50**
+current-tree solver/UI gate. New coverage exercises mixed line+circle Copy off/on,
+source independence and exact two-step history. One stale label-position proxy
+and one floating-roundoff fixture failure are retained and corrected without a
+product-source change. Fresh paired mixed-selection and compact-layout checks
+remain input-blocked, so QA-45 stays partial and inventory remains 16/0/1/39.

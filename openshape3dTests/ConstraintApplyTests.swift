@@ -637,6 +637,67 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch?.entities, moved)
     }
 
+    func testMixedLineAndCircleTransformCopyOffAndOnRemainIndependentThroughHistory() throws {
+        let vm = try makeViewModel()
+        let line = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(8, 2), radius: 1.5)
+        let sketch = openSketch(vm, entities: [line, circle])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [line.id, circle.id]
+        vm.sketchTransformActive = true
+        func assertGeometry(_ actual: [SketchEntity], _ expected: [SketchEntity],
+                            file: StaticString = #filePath, line sourceLine: UInt = #line) {
+            XCTAssertEqual(actual.count, expected.count, file: file, line: sourceLine)
+            for (lhs, rhs) in zip(actual, expected) {
+                XCTAssertEqual(lhs.id, rhs.id, file: file, line: sourceLine)
+                XCTAssertEqual(EditorViewModel.entityCenter(lhs).x,
+                               EditorViewModel.entityCenter(rhs).x,
+                               accuracy: 1e-8, file: file, line: sourceLine)
+                XCTAssertEqual(EditorViewModel.entityCenter(lhs).y,
+                               EditorViewModel.entityCenter(rhs).y,
+                               accuracy: 1e-8, file: file, line: sourceLine)
+            }
+        }
+
+        XCTAssertTrue(vm.commitSketchTransformControl(.x, text: "3 mm"))
+        let moved = SketchTransform.translate(entities: [line, circle], by: SIMD2(3, 0))
+        assertGeometry(try XCTUnwrap(vm.activeSketch).entities, moved)
+        XCTAssertEqual(vm.activeSketch?.entities.count, 2, "Copy off moves the selected sources")
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch)
+        vm.session.redo()
+        assertGeometry(try XCTUnwrap(vm.activeSketch).entities, moved)
+        vm.session.undo()
+
+        vm.selectedSketchEntityIDs = [line.id, circle.id]
+        vm.sketchTransformActive = true
+        vm.sketchCopyOnDrag = true
+        XCTAssertTrue(vm.commitSketchTransformControl(.y, text: "2 mm"))
+        let copiedAndMoved = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(copiedAndMoved.entities.count, 4)
+        XCTAssertEqual(Array(copiedAndMoved.entities.prefix(2)), [line, circle],
+                       "Copy on must leave both mixed-selection sources in place")
+        XCTAssertEqual(Set(copiedAndMoved.entities.suffix(2).map(\.id)), vm.selectedSketchEntityIDs)
+        let translatedCopies = SketchTransform.translate(
+            entities: Array(copiedAndMoved.entities.suffix(2)), by: SIMD2(0, -2))
+        for (actual, expected) in zip(
+            translatedCopies.map { EditorViewModel.entityCenter($0) },
+            [EditorViewModel.entityCenter(line), EditorViewModel.entityCenter(circle)]
+        ) {
+            XCTAssertEqual(actual.x, expected.x, accuracy: 1e-8)
+            XCTAssertEqual(actual.y, expected.y, accuracy: 1e-8)
+        }
+
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities.count, 4,
+                       "First Undo restores the new copy to its creation position")
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch, sketch, "Second Undo removes the mixed copy atomically")
+        vm.session.redo()
+        vm.session.redo()
+        XCTAssertEqual(vm.activeSketch, copiedAndMoved)
+    }
+
     func testUnlockSelectedRectangleSidePreservesOtherLocksAndHistory() throws {
         let vm = try makeViewModel(), id = UUID()
         let sketch = openSketch(vm, entities: [.rect(id: id, min: .zero, max: SIMD2(10, 6))])

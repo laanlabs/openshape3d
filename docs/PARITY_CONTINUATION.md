@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:24
+
+HEAD `28af98c` is pushed. QA-45's final one-owner exact-value/direct-drag/mixed
+selection/Copy/history gate passed clean **50/50**, zero failures/skips, at
+`/tmp/os3d-qa45-transform-final-20260911.xcresult`. The baseline passed 48/49;
+its one failure used a free dimension label as a position proxy. Painted-center
+geometry assertions passed targeted 1/1. A new mixed line+circle Copy case passed
+after a retained first-run 8e-11 solver-roundoff mismatch; exact identity and
+history assertions remain unchanged. No product source changed.
+
+QA-45 remains partial because fresh paired mixed-selection and compact-layout
+checks are supported-input blocked. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+two bounded transform fixtures and QA-45 docs. Exact next action: inspect,
+commit/push, then audit QA-48 coplanar sketch identity (QA-46/47 are explicitly
+deferred). Immutable `05be744` IPA and unrelated identity/memory files remain
+untouched.
+
 ## Current execution — September 11 15:06
 
 HEAD `f352d9a` is pushed. QA-43's targeted endpoint-reference lifecycle fixture

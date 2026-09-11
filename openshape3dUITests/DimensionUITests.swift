@@ -368,7 +368,10 @@ final class DimensionUITests: XCTestCase {
         tapPaletteTool(app, group: "Sketch", label: "Circle")
         let label = app.buttons["DimensionLabel"].firstMatch
         XCTAssertTrue(label.waitForExistence(timeout: 3))
-        let before = label.frame, value = label.label
+        let value = label.label
+        let center = app.descendants(matching: .any)["CircleCenterControl"].firstMatch
+        XCTAssertTrue(center.waitForExistence(timeout: 3))
+        let beforeCenter = center.frame
         let radial = app.descendants(matching: .any)
             .matching(identifier: "SketchCircleRadiusHandle").firstMatch
         XCTAssertTrue(radial.waitForExistence(timeout: 3))
@@ -387,7 +390,8 @@ final class DimensionUITests: XCTestCase {
         app.buttons["Keypad-1"].tap()
         app.buttons["SketchTransformCancel"].tap()
         mode.tap()
-        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+        XCTAssertEqual(center.frame.midX, beforeCenter.midX, accuracy: 3)
+        XCTAssertEqual(center.frame.midY, beforeCenter.midY, accuracy: 3)
         mode.tap()
         y.tap()
         app.buttons["Keypad-1"].tap()
@@ -404,17 +408,18 @@ final class DimensionUITests: XCTestCase {
         XCTAssertEqual(mode.label, "Done")
         mode.tap()
         XCTAssertTrue(app.buttons["ConstraintRailSettings"].waitForExistence(timeout: 3))
-        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+        XCTAssertEqual(center.frame.midX, beforeCenter.midX, accuracy: 3)
+        XCTAssertEqual(center.frame.midY, beforeCenter.midY, accuracy: 3)
         app.buttons["RedoButton"].tap()
         XCTAssertEqual(mode.label, "Move/Rotate")
         XCTAssertEqual(label.label, value)
-        XCTAssertEqual(label.frame.midX, before.midX, accuracy: 3)
-        XCTAssertLessThan(label.frame.midY, before.midY - 20)
+        XCTAssertEqual(center.frame.midX, beforeCenter.midX, accuracy: 3)
+        XCTAssertLessThan(center.frame.midY, beforeCenter.midY - 20)
         attach(app, "sketch-typed-y-move-diameter-preserved")
         app.buttons["UndoButton"].tap()
-        XCTAssertEqual(label.frame.midY, before.midY, accuracy: 3)
+        XCTAssertEqual(center.frame.midY, beforeCenter.midY, accuracy: 3)
         app.buttons["RedoButton"].tap()
-        XCTAssertLessThan(label.frame.midY, before.midY - 20)
+        XCTAssertLessThan(center.frame.midY, beforeCenter.midY - 20)
     }
 
     func testFreshCircleCenterDragMovesGeometryNotDiameterAnnotation() throws {
