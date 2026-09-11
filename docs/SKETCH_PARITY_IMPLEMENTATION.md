@@ -1941,3 +1941,10 @@ Undo/Redo now clear selected rim/readout, matching paired nativeR5→R4 and
 cloneØ3→Ø2. Free radial/explicittransform excluded. Final11/11 clean after
 retained selection-fixture failures; paired savedR4/Ø2 recovery verified.
 Armedcreation/numeric matrix remains open; see samecircle-annotationreceipt.
+
+QA12 armed follow-up: compact fresh radius leader, selected numeric radius badge
+and direct dimension Unlock now paired live. Unlock preserves size; its Undo/Redo
+clears selection/disarms Circle. Final12/12 controls plus10/10 history clean;
+prior11/12 fixture failure retained. Paired nativeR3/cloneR.3 gallery reopen
+verified. Illustrated756/all9hashes/master38 verified. Reverse creation/cancel
+remain; no QA12 closure yet. See circle-annotation-modes receipt.

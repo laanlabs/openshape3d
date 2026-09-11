@@ -120,7 +120,7 @@ New circle starts at an unselected existing center without edit interception; a 
 
 ### QA-12 — Circle dimensions
 
-R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. Result: PARTIAL. Preference/rail correction944ae3e passed21/21 and pairedR↔Ø edits/history/reopen. Follow-up disarmed numeric selection cleanup passed11/11 after documented center-versus-rim fixture failures; fresh paired commit/Undo/Redo and final nativeR4/cloneØ2 reopen match. Illustrated743/master38 verified. Fresh Always Radius creation and armed numeric/cancellation remain. Evidence: testing/sketch-parity-circle-annotation-modes-2026-09-11.md. Owner: dedicated parity session.
+R versus diameter, creation/edit/reopen, no factor-of-two error. Issues: DM-04. Result: PARTIAL. Preference/rail correction944ae3e passed21/21 and pairedR↔Ø edits/history/reopen. Follow-up disarmed numeric selection cleanup passed11/11 after documented center-versus-rim fixture failures; fresh paired commit/Undo/Redo and final nativeR4/cloneØ2 reopen match. Illustrated743/master38 verified. Fresh Always Radius compact leader, armed numeric badge/direct Unlock and Unlock history now paired, clean12/12+10/10; nativeR3/cloneR0.3 final reopen and756/master38 publication verified. Reverse creation and armed cancellation remain. Evidence: testing/sketch-parity-circle-annotation-modes-2026-09-11.md. Owner: dedicated parity session.
 
 ### QA-13 — Arc construction
 

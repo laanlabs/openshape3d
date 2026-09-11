@@ -463,6 +463,46 @@ final class DimensionUITests: XCTestCase {
         }
     }
 
+    func testFreshAlwaysRadiusReadoutStaysOverConstructionRadius() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        app.buttons["SettingsButton"].tap()
+        app.buttons["SettingsCircularAnnotations"].firstMatch.tap()
+        app.buttons["Always Radius"].firstMatch.tap()
+        app.buttons["SettingsDone"].tap()
+        let center = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+        center.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.58, dy: 0.55)))
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertTrue(label.label.hasPrefix("R"))
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        XCTAssertEqual(label.frame.midX, window.frame.minX + window.frame.width * 0.54, accuracy: 8)
+        XCTAssertEqual(label.frame.midY, window.frame.minY + window.frame.height * 0.55 - 20, accuracy: 8)
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        attach(app, "fresh-radius-compact-leader-editor")
+        setDimension(app, to: "0.5")
+        let unlock = app.buttons["CircleRadiusDimensionUnlock"]
+        XCTAssertTrue(unlock.waitForExistence(timeout: 3))
+        XCTAssertEqual(label.label, "R0.5 mm")
+        XCTAssertTrue(app.descendants(matching: .any)["CircleCenterControl"].firstMatch.exists,
+                      "Unselected center point remains visible")
+        XCTAssertFalse(app.buttons["CircleCenterLockToggle"].firstMatch.exists,
+                       "The selected-center lock control must disappear")
+        let selectedPosition = label.frame.midX
+        unlock.tap()
+        XCTAssertFalse(unlock.exists)
+        XCTAssertEqual(label.label, "R0.5 mm", "Unlock must not resize the circle")
+        XCTAssertGreaterThan(label.frame.midX, selectedPosition + 20,
+                             "Unconstrained retained radius resumes its outward leader")
+        attach(app, "fresh-radius-direct-unlock-retains-size")
+    }
+
     func testCircularAnnotationPreferenceConvertsExistingCircleEditor() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

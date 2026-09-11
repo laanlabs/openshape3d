@@ -139,7 +139,7 @@ struct SketchDimensionOverlay: View {
                 ? SketchLinearDimensionLayout.make(start: start, end: end,
                     leaderOffset: label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
-            let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, in: size) : nil
+            let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, compact: label.isCircleRadius && viewModel.mode.sketchTool == .circle && (label.dimensionID != nil || viewModel.selectedCircleCenterID == label.refs.first?.entityID), in: size) : nil
             let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
                 manualAnchor: diameterDragPreviews[label.id] ?? label.worldDiameterLabelAnchor.flatMap(project), in: size) : nil
             if let arc {
@@ -167,7 +167,7 @@ struct SketchDimensionOverlay: View {
                 .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
                 Path { path in
-                    addArrow(to: &path, tip: end, toward: radial.tail)
+                    addArrow(to: &path, tip: end, toward: radial.tail == end ? start : radial.tail)
                 }
                 .fill(Color.black)
                 .allowsHitTesting(false)
@@ -213,18 +213,53 @@ struct SketchDimensionOverlay: View {
                 .allowsHitTesting(false)
             }
 
+            let conflicting = label.dimensionID.map {
+                viewModel.sketchConflictAttribution.dimensionIDs.contains($0)
+            } ?? false
             if viewModel.editingDimension?.labelID == label.id {
                 // Being edited: the leader line above still draws, but the
                 // badge gives way to the field, which `body` positions.
                 EmptyView()
+            } else if let radial, label.isCircleRadius,
+                      viewModel.mode.sketchTool == .circle,
+                      let dimensionID = label.dimensionID,
+                      viewModel.selectedDimensionID == dimensionID {
+                HStack(spacing: 0) {
+                    Button { viewModel.beginDimensionEdit(label) } label: {
+                        Text(label.text)
+                            .font(.system(size: 16)).monospacedDigit()
+                            .foregroundStyle(conflicting ? Color.red : Color.black)
+                            .padding(.horizontal, 3).padding(.vertical, 1)
+                            .background(Color.white, in: RoundedRectangle(cornerRadius: 2))
+                            .overlay(RoundedRectangle(cornerRadius: 2).stroke(conflicting ? Color.red : Color.blue, lineWidth: 2))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier(conflicting ? "DimensionLabelConflict" : "DimensionLabel")
+                    Button { viewModel.deleteDimension(dimensionID) } label: {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 13)).foregroundStyle(Color.black)
+                            .frame(width: 44, height: 44).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Unlock radius")
+                    .accessibilityIdentifier("CircleRadiusDimensionUnlock")
+                }
+                .overlay(alignment: .leading) {
+                    if label.hasExpression {
+                        Text("f(x)").font(.system(size: 13).italic())
+                            .foregroundStyle(Color.gray).offset(x: -25)
+                            .accessibilityHidden(true)
+                    }
+                }
+                .rotationEffect(.radians(radial.rotation))
+                .position(radial.anchor)
             } else {
                 // Stage-2 conflict attribution: a dimension the solver could
                 // not satisfy paints red — dueling lengths are the archetypal
                 // sketch conflict, and the value badge is where the user
                 // looks first.
-                let conflicting = label.dimensionID.map {
-                    viewModel.sketchConflictAttribution.dimensionIDs.contains($0)
-                } ?? false
                 Button {
                     viewModel.beginDimensionEdit(label)
                 } label: {
@@ -342,12 +377,21 @@ struct SketchDimensionOverlay: View {
     /// The sampled native radius leader leaves the arc's start endpoint and
     /// continues outward. Shorten the extension near the viewport edge so its
     /// explicit dimension control remains reachable.
-    private func radiusLeader(_ center: CGPoint, _ tip: CGPoint, text: String, in size: CGSize)
+    private func radiusLeader(_ center: CGPoint, _ tip: CGPoint, text: String, compact: Bool, in size: CGSize)
         -> (tail: CGPoint, anchor: CGPoint, rotation: Double)? {
         let dx = tip.x - center.x, dy = tip.y - center.y
         let length = hypot(dx, dy)
         guard length > 1 else { return nil }
         let ux = dx / length, uy = dy / length
+        if compact {
+            // Native Circle construction keeps the value over center-to-rim,
+            // including after a numeric commit while Circle remains armed.
+            var angle = atan2(Double(dy), Double(dx))
+            if angle > .pi / 2 { angle -= .pi }
+            else if angle < -.pi / 2 { angle += .pi }
+            return (tip, CGPoint(x: (center.x + tip.x) / 2 + CGFloat(sin(angle)) * 20,
+                                 y: (center.y + tip.y) / 2 - CGFloat(cos(angle)) * 20), angle)
+        }
         var extensionLength: CGFloat = 220
         let rail: CGFloat = viewModel.mode.isSketching && !viewModel.sketchTransformActive ? 184 : 16
         let left: CGFloat = AppSettings.shared.paletteOnRight ? rail : 96

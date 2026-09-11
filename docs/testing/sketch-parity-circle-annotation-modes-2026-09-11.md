@@ -140,3 +140,85 @@ inventory8/0/1/47. NativeR4selectedcenter706420; cloneØ2selected414444.
 Lifecycleillustratedexport verified743/all8newhashes+1/no735loss, headingonce andpriororderedtextpreserved. Masterfollowupinsertedonce; exportverificationcurrenttool. No runner; commit/pushnext.
 
 Masterfollowupverified38/headingonce/no predecessor media ororderedtextloss. Lifecyclepublicationcomplete743/master38.
+
+## September11 01:43 — fresh radius construction leader under test
+
+Lifecycle5436e46 pushed; final11/11 andpairednumericcommit/history/reopen
+verified, illustrated743/master38/all8hashes verified. No IPAchange.
+ContinuingQA12AlwaysRadiuscreation: native20pxradiusfreshcircle center630720
+releasedR2.7185 withcompactcenter-to-rimleader/valueovermidpoint, centerhalo/
+Lock andCirclearmed. Clone20pxradiuscenter420700 releasesR.2475 withlong
+extension. NativearmededitR3 retainsCircle/valuewhitebluebadge anddimension
+lock butdropscenterhalo/centerLock. ClonevalidkeypadR.3commit dropscenter
+halo too, butlongplainradiuslabel persists. No newgeometryfailure.
+DirtyisCircleRadiuslabelmetadata andcompactCircle-armedradiuslayout keep
+center-to-rimtail/insidearrow/valueabove midpoint; disarmedcircle/arc keep
+rail-awareextension. NewfreshAlwaysRadiusUI assertsactualmidpointplacement
+andexpliciteditor, existingpreferenceUI+arcEditor+circleunitsincluded.
+Serialexec48328 nowowns simulator:
+`/tmp/os3d-qa12-compact-radius-20260911.xcresult`. Exactnext collectresult,
+livefreshreadout/editor/armedcommit, then selectedbadge+dimensionLock
+discrepancy/cancellation/reversecreation. NativefreshR3center630720Circle
+armed; priorpaircenter706420 innerR4. ClonefreshR.3center420700Circlearmed,
+priorcirclecenter414444Ø2. Reportnewdiagnosislocalonly. Inventory8/0/1/47.
+
+## September11 01:53 — armed radius badge and direct unlock under test
+
+Compact48328 passedclean11/11. Diagnosis747/all4hashes/no743loss verified.
+LiveupdatedfreshcircleR.2475 compactleader andexplicitkeypadwork; armedR.3
+commitretainscompactreadout. NativeR3selectedbadgeLock clicked directly
+(global664704): removesradiusconstraintwithoutresizing, restoresplainR3
+outwardleaderwhileCirclearmed. This narrowscompactrule to freshselected
+center ordrivingradius, notallarmedcirclelabels.
+Dirtycirclelabelmetadata/UIcompactrule refined; successfularmedradiuscommit
+setsselectedDimensionID. SelectedradiusHStack showswhite/bluebadge+separate
+44ptUnlockbutton callingexistingdeleteDimension; sourcef(x)markerretained.
+UnlockclearsselectedID andcandidate resumesoutwardleader. Unitasserts
+geometryandUndoRedo; freshUIassertsreadoutposition, editor, postcommitcenter
+clear, directUnlock/valuepreservation/outwardlabel. Serialexec18215 owns
+simulator `/tmp/os3d-qa12-armed-radius-controls-20260911.xcresult` (9units+3UI).
+Exactnextcollect, livepostfixarmedcommit/Unlock/history/cancel/reopen,
+publish/commitcompact+controls, thenremainingreverse/freecreationQA12.
+HEAD5436e46pushed; dirtyEditorViewModel,SketchDimensionOverlay,
+CircleCenterInputTests,DimensionUITests,receipt/checkpoint. NoIPAchange.
+NativeR3nowunlockedcenter630720,Circlearmed; cloneUIwillresetfixture.
+PriorNativeR4center706420 preserved. Inventory8/0/1/47.
+
+18215 completed11pass/1fail: test incorrectlyexpected CircleCenterControl
+(informational5ptmarker) absent. Nativebluecenterpointremains; liveclonealso
+retainsit, selectedcenterunitNilpassed. CorrectedUI requiresmarkerexists
+andCircleCenterLockToggleabsent; geometryassertions unchanged. Selectedbadge
+also nowpreservesexistingconflict-red styling/accessibilityidentifier. Same12
+cases serialexec27851 `/tmp/os3d-qa12-armed-radius-final-20260911.xcresult`
+nowowns simulator. No livefinalcontrolsclaimyet; first11/12retained.
+
+## September 11 02:06 — armed radius live control and history follow-up
+
+27851 completed clean12/12, no failures/skips. Exact-build live fresh R0.2475
+compact leader opens editor; R0.3 commit shows selected white/blue badge and
+dimension Unlock, without selected-center Lock. Direct Unlock retains geometry
+and R0.3, restoring the plain outward leader, matching native R3 sample.
+Native direct-Unlock Undo and Redo clear selection and disarm Circle. Clone
+Undo restored compact radius but retained Circle/selection: confirmed separate
+lifecycle gap. Narrow RemoveSketchDimensionCommand radius/selected-circle
+Undo cleanup implemented; geometry and cleared/disarmed unit assertions added.
+Serial exec94018 owns simulator, result
+`/tmp/os3d-qa12-radius-unlock-history-20260911.xcresult`. No live postfix claim.
+Latest7 screenshots copied to circle-annotation-modes local report. Publication
+remains747/master38; new final controls/history evidence not inserted yet.
+HEAD5436e46; current compact/badge/Unlock/history work uncommitted. Inventory
+8passed/0failed/1deviceblocked/47incomplete. IPA unchanged. Exact next collect
+94018, live corrected Unlock Undo/Redo and saved reopen, publish verified images,
+commit/push then remaining QA12 cancellation/reverse creation.
+
+## September 11 02:10 — armed radius controls verified
+
+94018 completed clean10/10. Final live R0.3 Unlock Undo/Redo both clear readout
+and disarm Circle while preserving geometry, matching native R3 reference.
+Gallery reopen retains nativeR3/cloneR0.3. Illustrated export
+`/tmp/os3d-qa12-armed-controls-final.docx` verified756 placements, allnine
+newhashes+1, no747predecessorimage loss, allorderedprior text preserved. Master
+`/tmp/os3d-qa12-armed-controls-master.docx`38media/headingonce verified.
+No runner active. NativeFrontfreshR3selectedafterreopen; cloneTopR.3selected
+afterreopen. Exactnext commit/push compact radius/badge/Unlock/history correction,
+then paired reverse creation and armed cancellation; QA12 remains partial.

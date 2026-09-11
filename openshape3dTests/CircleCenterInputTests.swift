@@ -30,6 +30,35 @@ final class CircleCenterInputTests: XCTestCase {
         vm.updateSketchStroke(ray: ray(vm, b))
         vm.endSketchStroke(ray: ray(vm, b))
     }
+    func testArmedRadiusCommitSelectsDimensionAndUnlockPreservesGeometry() throws {
+        let prior = AppSettings.shared.circularAnnotations
+        defer { AppSettings.shared.circularAnnotations = prior }
+        AppSettings.shared.circularAnnotations = .alwaysRadius
+        let vm = try model()
+        drag(vm, SIMD2(10, 10), SIMD2(13, 10))
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("2")
+        let driven = try XCTUnwrap(vm.activeSketch)
+        let dimension = try XCTUnwrap(driven.dimensions.first)
+        XCTAssertEqual(vm.mode.sketchTool, .circle)
+        XCTAssertEqual(vm.selectedDimensionID, dimension.id)
+        XCTAssertNil(vm.selectedCircleCenterID)
+        vm.deleteDimension(dimension.id)
+        XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty)
+        XCTAssertEqual(vm.activeSketch?.entities, driven.entities)
+        XCTAssertEqual(vm.mode.sketchTool, .circle)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, driven)
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        vm.redo()
+        XCTAssertNil(vm.mode.sketchTool)
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        XCTAssertTrue(try XCTUnwrap(vm.activeSketch).dimensions.isEmpty)
+        XCTAssertEqual(vm.activeSketch?.entities, driven.entities)
+    }
+
     func testDisarmedCircleNumericCommitAndHistoryClearSelectionWithoutExtraSteps() throws {
         let prior = AppSettings.shared.circularAnnotations
         defer { AppSettings.shared.circularAnnotations = prior }

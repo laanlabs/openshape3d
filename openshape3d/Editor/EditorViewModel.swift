@@ -4979,6 +4979,18 @@ final class EditorViewModel {
             selectedConstraintID = nil
             editingDimension = nil
         }
+        // Direct radius Unlock while Circle is armed clears/disarms on native
+        // Undo. Keep this scoped to that command, not radial drag/transform history.
+        if mode.sketchTool == .circle, !sketchTransformActive,
+           let removal = session.undoStack.undoCommands.last as? RemoveSketchDimensionCommand,
+           removal.sketchID == activeSketch?.id, removal.dimension.kind == .radius,
+           removal.dimension.refs.count == 1,
+           let id = removal.dimension.refs.first?.entityID,
+           selectedSketchEntityIDs.contains(id), let sketch = activeSketch,
+           case .circle? = sketchEntity(id, in: sketch) {
+            deselectSketchTool()
+            clearCircleNumericSelection()
+        }
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
@@ -12008,6 +12020,7 @@ final class EditorViewModel {
         var axisRectangleEdge: Int? = nil
         var worldRectangleCenter: SIMD3<Double>? = nil
         var isArcRadius = false
+        var isCircleRadius = false
         var worldArcCenter: SIMD3<Double>? = nil
         var worldArcPoints: [SIMD3<Double>] = []
     }
@@ -12561,7 +12574,10 @@ final class EditorViewModel {
             if kind == .radius, let ref = refs.first,
                let entity = sketchEntity(ref.entityID, in: sketch) {
                 switch entity {
-                case .arc, .polygon, .circle: label.isArcRadius = true
+                case .arc, .polygon: label.isArcRadius = true
+                case .circle:
+                    label.isArcRadius = true
+                    label.isCircleRadius = true
                 default: break
                 }
             }
@@ -13156,6 +13172,11 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: "Dimension", commands: commands), sketchID: sketchID)
         if let id = freshLinePoint?.entityID { refreshChainAnchors(lastEntityID: id) }
+        if mode.sketchTool == .circle, edit.kind == .radius,
+           edit.refs.count == 1, let id = edit.refs.first?.entityID,
+           case .circle? = sketchEntity(id, in: sketch) {
+            selectedDimensionID = dimensionCommitLocked ? candidateDimensionID : nil
+        }
         if mode.sketchTool == nil, !sketchTransformActive,
            edit.refs.count == 1, edit.kind == .radius || edit.kind == .diameter,
            let id = edit.refs.first?.entityID,
