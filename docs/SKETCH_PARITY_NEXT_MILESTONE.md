@@ -767,3 +767,14 @@ workflow pass clean **37/37**. Retained paired evidence covers line, circle and 
 rectangle boundary. Fresh paired arc/rectangle/polygon gestures remain blocked,
 so QA-41 stays partial and inventory remains 16/0/1/39. QA-43 owns the broader
 driven-reference/downstream-profile recipe.
+
+## September 11 — QA-43 Trim reference checkpoint
+
+Retained paired rectangle-boundary evidence is reconciled with a clean one-owner
+**60/60** current-tree Trim/reference/profile/import/UI gate. The new lifecycle
+case drops only a dimension whose endpoint was trimmed away, preserves unrelated
+dimensions/constraints/construction geometry, invalidates the opened profile and
+restores the exact closed sketch on Undo. One initial legacy-whole-ref fixture
+failure is retained and corrected to the production endpoint representation; no
+product source changed. Fresh paired driven-reference/history gestures remain
+input-blocked, so QA-43 stays partial and inventory remains 16/0/1/39.

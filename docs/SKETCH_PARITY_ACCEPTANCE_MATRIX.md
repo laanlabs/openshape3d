@@ -47,7 +47,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired line/circle and rectangle-edge samples; clean 37/37 line/circle/arc/rect/polygon, whole/boundary/history gate. Fresh paired arc/rect/polygon gestures remain blocked. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
-| QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
+| QA-43 | Trim references | Core — partial, not passed | Paired rectangle boundary/profile handoff plus clean 60/60 current-tree affected/surviving reference, profile invalidation and exact Undo gate. Fresh paired driven-reference/history gesture remains blocked. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
 | QA-45 | Move/rotate/copy | Core - partial, not passed | White exact-axis/rotation controls, retained re-edit/local frame, circle frame-only history, armed reselection and Escape paired; direct-drag/compact/mixed-selection matrix remains open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
@@ -359,7 +359,19 @@ Ellipse bounded span; spline capability separately; preserve shape. Issues: ED-0
 
 ### QA-43 — Trim references
 
-Dimensioned/constrained geometry, downstream profile, full undo restoration. Issues: ED-04. Result: NOT RUN. Evidence/owner: pending.
+Dimensioned/constrained geometry, downstream profile, full undo restoration.
+Issues: ED-04. Result: PARTIAL. Retained paired evidence shows a rectangle
+boundary removed, its open U profile no longer selectable for extrusion, an
+unaffected closed profile still usable, and a surviving side readout retained.
+The current tree passes a clean serial 60/60 Trim/reference/profile/import/UI
+gate. A production endpoint-based driving dimension on the removed span is
+dropped; an unrelated dimension, constraint and construction line survive; the
+profile opens; Undo restores the exact sketch, closed profile and valid refs.
+The initial focused fixture incorrectly used a documented legacy whole-line ref
+and failed 0/1 before correction; no product source changed. Fresh paired
+driven-reference and full history gestures remain supported-input blocked, so
+automation is not promoted to live parity. Evidence:
+[Trim references checkpoint](testing/sketch-parity-trim-references-checkpoint-2026-09-11.md).
 
 ### QA-44 — Offset
 

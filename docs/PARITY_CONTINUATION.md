@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:06
+
+HEAD `f352d9a` is pushed. QA-43's targeted endpoint-reference lifecycle fixture
+passes 1/1, and the full one-owner Trim/reference/profile/import/UI gate passes
+clean **60/60**, zero failures/skips, at
+`/tmp/os3d-qa43-trim-references-final-20260911.xcresult`. One initial 0/1 fixture
+failure is retained: it used a legacy whole-line ref that correctly transfers to
+one surviving fragment; the corrected production endpoint dimension drops when
+its far endpoint is trimmed. No product source changed.
+
+QA-43 remains partial because fresh paired driven-reference/history gestures are
+supported-input blocked. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the bounded lifecycle test and QA-43 checkpoint docs. Exact next action: inspect,
+commit and push safely, then start QA-45 Move/rotate/copy acceptance (QA-44 is
+explicitly deferred). Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
 ## Current execution — September 11 15:00
 
 HEAD `c4b74c6` is pushed. QA-41's one-owner primitive Trim gate passed clean
