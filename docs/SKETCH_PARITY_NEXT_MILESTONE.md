@@ -686,3 +686,12 @@ presentation assertion failures are retained as fixture corrections. Both cases
 remain partial because fresh paired live interaction and illustrated publication
 are blocked by simulator input delivery. Inventory remains 13 passed / 0 failed /
 1 device-blocked / 42 incomplete; immutable IPA unchanged.
+
+## September 11 — QA-30 numeric sequence checkpoint
+
+An edge-positioned width→height workflow now supplements retained paired sizing
+evidence. The final one-owner serial gate passes clean 4/4 across numeric keypad,
+system keyboard, adjacent-control retention, edge reachability and Undo/Redo.
+The earlier selector-only failure and a parallel-clone run are retained but not
+counted as the final gate. Fresh exact-build paired repeat and publication remain
+blocked by simulator input delivery, so inventory remains 13/0/1/42.

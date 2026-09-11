@@ -343,6 +343,45 @@ final class RectangleWorkflowUITests: XCTestCase {
         attach(app, "height-commit-preserves-width-and-center")
     }
 
+    func testEdgeRectangleAcceptsWidthThenHeightAcrossKeypadModes() throws {
+        let app = start()
+        type(app, "center")
+        p(app, 0.68, 0.70).press(forDuration: 0.15, thenDragTo: p(app, 0.78, 0.78))
+        var labels = app.buttons.matching(identifier: "DimensionLabel").allElementsBoundByIndex
+        XCTAssertEqual(labels.count, 2)
+        let width = try XCTUnwrap(labels.min { $0.frame.midX < $1.frame.midX })
+        width.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        app.buttons["Keypad-2"].tap()
+        XCTAssertEqual(field.value as? String, "2")
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == 'DimensionLabel' AND label == '2 mm'")).firstMatch.waitForExistence(timeout: 3))
+
+        labels = app.buttons.matching(identifier: "DimensionLabel").allElementsBoundByIndex
+        XCTAssertEqual(labels.count, 2,
+                       "Committing width keeps the adjacent height control discoverable")
+        let height = try XCTUnwrap(labels.max { $0.frame.midX < $1.frame.midX })
+        height.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        app.buttons["DimensionSystemKeyboard"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        field.typeText("1")
+        XCTAssertEqual(field.value as? String, "1")
+        app.buttons["DimensionCommit"].tap()
+
+        let finalLabels = app.buttons.matching(identifier: "DimensionLabel")
+        XCTAssertTrue(finalLabels.matching(NSPredicate(format: "label == '2 mm'")).firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(finalLabels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.exists)
+        attach(app, "edge-rectangle-width-keypad-height-keyboard")
+
+        app.buttons["UndoButton"].tap()
+        XCTAssertFalse(finalLabels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.exists)
+        XCTAssertTrue(finalLabels.matching(NSPredicate(format: "label == '2 mm'")).firstMatch.exists)
+        app.buttons["RedoButton"].tap()
+        XCTAssertTrue(finalLabels.matching(NSPredicate(format: "label == '1 mm'")).firstMatch.waitForExistence(timeout: 3))
+    }
+
     func testCenterRectangleExtendsAcrossItsStartingPoint() {
         let app = start()
         type(app, "center")

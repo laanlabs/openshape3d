@@ -312,13 +312,21 @@ Acceptance: Supported explicit units convert once and correctly; unsupported str
 
 ### DM-11 · Rectangle width-to-height numeric flow needs keyboard and touch A/B
 
-**Queued — verify first** · P1
+**Current-tree sequence passes clean 4/4; fresh live repeat pending** · P1
 
 Evidence: VERIFY — candidate discrepancy, not reproduced
 
 Next: Implement explicit next-field behavior, visible width/height focus and correct anchor preservation.
 
 Acceptance: 40 by 25 can be entered without closing and rediscovering a second control; geometry and persisted driving dimensions both match.
+
+September 11 checkpoint: an edge-positioned rectangle accepts width through the
+numeric keypad, retains the adjacent height control, accepts height through the
+system keyboard, and restores each step through Undo/Redo. The related serial
+gate passes clean 4/4. Retained paired sizing evidence exists, but fresh
+exact-build live/publication remains input-delivery blocked; QA-30 is not
+promoted. See
+[rectangle sequence checkpoint](testing/sketch-parity-rectangle-sequence-checkpoint-2026-09-11.md).
 
 ### DM-12 · Value-card footprint and close/commit semantics need a full transition audit
 

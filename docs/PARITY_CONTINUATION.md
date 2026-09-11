@@ -853,3 +853,18 @@ Simulator window but do not mutate the app after scoped bridge/simulator
 recovery. Inventory remains 13/0/1/42. Exact next action: inspect and commit the
 safe task diff, then continue the next independent finite acceptance case while
 retaining QA-24/25/26/27 live/publication gates. Immutable IPA unchanged.
+
+## September 11 13:43 — QA-30 serial sequence checkpoint
+
+Current pushed HEAD is `6dca210`. The only task change is a new edge-positioned
+rectangle UI workflow plus QA-30 documentation. Its initial target failed only
+because square touch frames do not identify dimension orientation; the corrected
+target passed. A four-workflow run then passed but used parallel simulator clones,
+so it was not counted as the final gate. The one-owner rerun with parallel testing
+disabled passed clean 4/4 at
+`/tmp/os3d-qa30-sequence-serial-20260911.xcresult`.
+
+No runner owns the simulator. QA-30 remains partial pending fresh exact-build
+paired live repetition and publication; inventory stays 13/0/1/42. Exact next
+action: checkpoint the test/docs, then continue the next finite core case that
+does not depend on blocked live canvas input. Immutable IPA unchanged.
