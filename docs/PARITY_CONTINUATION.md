@@ -2,8 +2,8 @@
 
 ## Current execution — September 11 08:16
 
-HEAD `f89c119` is pushed; QA-15 closure documentation is dirty and ready to
-checkpoint. No build or UI-test runner is active; this session remains the sole
+QA-15 closure commit `6f40072` is pushed. No build or UI-test runner is active;
+this session remains the sole
 desktop, simulator, and build owner. The final corrected current-tree polygon
 regression passed cleanly 13/13 at
 `/tmp/os3d-qa15-closure-final13-20260911.xcresult`. Three preceding clean 12/12
@@ -21,12 +21,11 @@ placements: all eight new hashes occur exactly once and no prior hash was lost.
 The master remains at 38 media with exactly one QA-15 note. Inventory is 10
 passed / 0 failed / 1 device-blocked / 45 incomplete.
 
-Dirty task files: acceptance/implementation/continuation documentation and the
-new QA-15 closure audit only. Untracked identity/memory files remain unrelated
-and must not be staged. Exact next: commit/push this documentation checkpoint,
-then begin the next finite incomplete core case without touching the immutable
-05be744 IPA. Updated device installation and physical Pencil/touch remain
-unverified. Historical running claims below are superseded.
+The task tree is clean apart from unrelated untracked identity/memory files,
+which must not be staged. Exact next: begin the next finite incomplete core case
+without touching the immutable 05be744 IPA. Updated device installation and
+physical Pencil/touch remain unverified. Historical running claims below are
+superseded.
 
 ## Active continuation — September10 pending three-point numeric input
 
