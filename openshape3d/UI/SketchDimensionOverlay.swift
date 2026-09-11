@@ -137,7 +137,7 @@ struct SketchDimensionOverlay: View {
             let arc = arcLeader(label)
             let linear = (label.isStandaloneLineLength || label.isRectangleSize)
                 ? SketchLinearDimensionLayout.make(start: start, end: end,
-                    leaderOffset: label.isRectangleSize ? 100 : 60,
+                    leaderOffset: label.isProjectedLineLength ? 0 : label.isRectangleSize ? 100 : 60,
                     awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
             let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, compact: label.isCircleRadius && ((label.dimensionID != nil && (label.hasCircleRadiusDirection || viewModel.mode.sketchTool == .circle)) || (viewModel.mode.sketchTool == .circle && viewModel.selectedCircleCenterID == label.refs.first?.entityID)), in: size) : nil
             let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
@@ -191,10 +191,10 @@ struct SketchDimensionOverlay: View {
                 .allowsHitTesting(false)
             } else if let linear {
                 Path { path in
-                    path.move(to: start)
+                    path.move(to: label.worldLineStart.flatMap(project) ?? start)
                     path.addLine(to: linear.start)
                     path.addLine(to: linear.end)
-                    path.addLine(to: end)
+                    path.addLine(to: label.worldLineEnd.flatMap(project) ?? end)
                 }
                 .stroke(Color.black, lineWidth: 1)
                 .allowsHitTesting(false)
@@ -365,6 +365,30 @@ struct SketchDimensionOverlay: View {
                     : arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
+                if let linear, viewModel.canChooseLineDimensionKind(label) {
+                    let textWidth = (label.text as NSString).size(
+                        withAttributes: [.font: UIFont.monospacedDigitSystemFont(ofSize: 16, weight: .regular)]).width
+                    Menu {
+                        ForEach(viewModel.dimensionKindChoices, id: \.rawValue) { kind in
+                            Button {
+                                viewModel.chooseLineDimensionKind(kind, label: label)
+                            } label: {
+                                Label(kind == .distance ? "Absolute" : kind == .horizontal ? "Horizontal" : "Vertical",
+                                      systemImage: kind == label.kind ? "checkmark" : "")
+                            }
+                            .accessibilityIdentifier("LineDistanceType-" + kind.rawValue)
+                        }
+                    } label: {
+                        Image(systemName: label.kind == .vertical ? "arrow.up.and.down" :
+                                label.kind == .horizontal ? "arrow.left.and.right" : "arrow.up.right.and.arrow.down.left")
+                            .font(.system(size: 13)).foregroundStyle(Color.black)
+                            .frame(width: 44, height: 44).contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("Distance Type")
+                    .accessibilityIdentifier("LineDistanceTypeBadge")
+                    .position(x: linear.anchor.x - cos(linear.rotation) * (textWidth / 2 + 24),
+                              y: linear.anchor.y - sin(linear.rotation) * (textWidth / 2 + 24))
+                }
             }
         }
     }

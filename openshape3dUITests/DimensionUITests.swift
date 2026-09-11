@@ -117,6 +117,44 @@ final class DimensionUITests: XCTestCase {
         attach(app, "sloped-line-horizontal-dimension-redo")
     }
 
+    func testLineDistanceTypeBadgeChangesReadoutWithoutOpeningKeypad() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.42))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.58, dy: 0.62)))
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+        let value = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(value.waitForExistence(timeout: 3))
+        let absolute = value.label
+        let badge = app.buttons["LineDistanceTypeBadge"]
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        badge.tap()
+        for kind in ["distance", "horizontal", "vertical"] {
+            XCTAssertTrue(app.buttons["LineDistanceType-" + kind].waitForExistence(timeout: 3))
+        }
+        attach(app, "line-distance-type-label-menu")
+        app.buttons["LineDistanceType-horizontal"].tap()
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        XCTAssertTrue(value.waitForExistence(timeout: 3))
+        let horizontal = value.label
+        XCTAssertNotEqual(horizontal, absolute)
+        attach(app, "line-horizontal-readout-no-keypad")
+        badge.tap()
+        app.buttons["LineDistanceType-vertical"].tap()
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        XCTAssertNotEqual(value.label, horizontal)
+        attach(app, "line-vertical-readout-no-keypad")
+        app.buttons["UndoButton"].tap()
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.465, dy: 0.52)).tap()
+        XCTAssertTrue(value.waitForExistence(timeout: 3))
+        XCTAssertEqual(value.label, horizontal)
+    }
+
     func testScalarArithmeticReopensAsExpressionAndUndoRestoresPriorValue() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -12128,6 +12128,9 @@ final class EditorViewModel {
         var isPolygonSideCount = false
         var hasExpression = false
         var isStandaloneLineLength = false
+        var isProjectedLineLength = false
+        var worldLineStart: SIMD3<Double>? = nil
+        var worldLineEnd: SIMD3<Double>? = nil
         var isRectangleSize = false
         var axisRectangleEdge: Int? = nil
         var worldRectangleCenter: SIMD3<Double>? = nil
@@ -12526,6 +12529,26 @@ final class EditorViewModel {
         return [.distance, .horizontal, .vertical]
     }
 
+    /// The native label badge changes presentation without opening a keypad or
+    /// creating a driver. Keep this first lane limited to undriven standalone lines.
+    func canChooseLineDimensionKind(_ label: SketchDimensionLabel) -> Bool {
+        guard label.dimensionID == nil, label.isStandaloneLineLength,
+              editingDimension == nil, !sketchTransformActive,
+              let candidate = dimensionCandidate else { return false }
+        guard activeSketch?.dimensions.contains(where: { $0.refs == label.refs }) != true else { return false }
+        return label.refs == candidate.refs && dimensionKindChoices.count == 3
+    }
+
+    func chooseLineDimensionKind(_ kind: DimensionKind, label: SketchDimensionLabel) {
+        guard canChooseLineDimensionKind(label), dimensionKindChoices.contains(kind),
+              let before = activeSketch, before.id == label.sketchID,
+              let id = label.refs.first?.entityID,
+              (before.lineDimensionKinds[id] ?? .distance) != kind else { return }
+        var after = before
+        after.lineDimensionKinds[id] = kind == .distance ? nil : kind
+        session.perform(ReplaceSketchGeometryCommand(title: "Distance Type", before: before, after: after))
+    }
+
     /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has
     /// no length meaning, so it maps to nil and the value is left alone.
     nonisolated static func lengthUnit(forSuffix suffix: String?) -> DisplayUnit? {
@@ -12600,6 +12623,18 @@ final class EditorViewModel {
                 }
             }
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+            var projectedLine: (SIMD2<Double>, SIMD2<Double>)?
+            if (kind == .horizontal || kind == .vertical), refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+               case let .line(_, a, b)? = sketchEntity(refs[0].entityID, in: sketch),
+               RectangleConstruction.dimensionEdges(containing: refs[0].entityID, in: sketch) == nil {
+                let mid = (a + b) / 2
+                g = kind == .horizontal
+                    ? (mid, SIMD2(a.x, mid.y), SIMD2(b.x, mid.y))
+                    : (mid, SIMD2(mid.x, a.y), SIMD2(mid.x, b.y))
+                projectedLine = (a, b)
+            }
             if kind == .radius, let id = refs.first?.entityID,
                case let .circle(_, center, radius)? = sketchEntity(id, in: sketch),
                let direction = sketch.circleRadiusDirections[id],
@@ -12681,6 +12716,12 @@ final class EditorViewModel {
                 worldEnd: sketch.plane.toWorld(g.end)
             )
             label.axisRectangleEdge = axisEdgeIndex
+            if let (a, b) = projectedLine {
+                label.isStandaloneLineLength = true
+                label.isProjectedLineLength = true
+                label.worldLineStart = sketch.plane.toWorld(a)
+                label.worldLineEnd = sketch.plane.toWorld(b)
+            }
             if let dimensionID, let dimension = sketch.dimensions.first(where: { $0.id == dimensionID }) {
                 label.hasExpression = dimension.formula != nil || dimension.displayExpression != nil
             }
@@ -12860,7 +12901,13 @@ final class EditorViewModel {
             }
         }
         if let cand = dimensionCandidate {
-            appendCandidate(id: "candidate", kind: cand.kind, refs: cand.refs)
+            let displayKind: DimensionKind
+            if dimensionKindChoices.count == 3, let id = cand.refs.first?.entityID,
+               let preferred = sketch.lineDimensionKinds[id],
+               dimensionKindChoices.contains(preferred) {
+                displayKind = preferred
+            } else { displayKind = cand.kind }
+            appendCandidate(id: "candidate", kind: displayKind, refs: cand.refs)
             // A selected rectangle offers both its width (the palette's
             // candidate) and its height, each an editable label on its side.
             if cand.kind == .radius, cand.refs.count == 1,

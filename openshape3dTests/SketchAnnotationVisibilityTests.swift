@@ -189,6 +189,75 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
                        "axis-aligned lines do not offer duplicate measurements")
     }
 
+    func testLineDistanceTypeIsUndoablePresentationWithoutDriverOrGeometryChange() throws {
+        AppSettings.shared.unit = .millimeters
+        let vm = try makeViewModel()
+        let id = UUID()
+        let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+        let sketch = Sketch(plane: .ground, entities: [line])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        var states = [sketch]
+        for (kind, value) in [(DimensionKind.horizontal, 30.0), (.vertical, 40.0), (.distance, 50.0)] {
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+            XCTAssertTrue(vm.canChooseLineDimensionKind(label))
+            vm.chooseLineDimensionKind(kind, label: label)
+            XCTAssertNil(vm.editingDimension, "Choosing a readout must not open a keypad")
+            let after = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(after.entities, sketch.entities)
+            XCTAssertEqual(after.constraints, sketch.constraints)
+            XCTAssertTrue(after.dimensions.isEmpty, "Presentation must not create a driving constraint")
+            let projected = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+            XCTAssertEqual(projected.kind, kind)
+            XCTAssertEqual(projected.displayValue, value, accuracy: 1e-9)
+            if kind != .distance {
+                XCTAssertTrue(projected.isProjectedLineLength)
+                XCTAssertEqual(projected.worldAnchor, sketch.plane.toWorld(SIMD2(15, 20)))
+                XCTAssertEqual(projected.worldLineStart, sketch.plane.toWorld(SIMD2(0, 0)))
+                XCTAssertEqual(projected.worldLineEnd, sketch.plane.toWorld(SIMD2(30, 40)))
+            }
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(after)), after)
+            states.append(after)
+        }
+        for expected in states.dropLast().reversed() {
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, expected)
+        }
+        for expected in states.dropFirst() {
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, expected)
+        }
+        vm.selectedSketchEntityIDs = [id]
+        let absolute = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+        vm.chooseLineDimensionKind(.distance, label: absolute) // no-op: no extra history
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, states[2])
+    }
+
+    func testLineDistanceTypeSurvivesTrimDeleteUndoAndLegacyDecode() throws {
+        let id = UUID(), fragmentID = UUID()
+        let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+        let sketch = Sketch(plane: .ground, entities: [line], lineDimensionKinds: [id: .vertical])
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        let fragment = SketchEntity.line(id: fragmentID, a: SIMD2(15, 20), b: SIMD2(30, 40))
+        let trim = TrimCommand(sketch: sketch, index: 0, removed: line, fragments: [fragment])
+        trim.apply(to: &document)
+        XCTAssertEqual(document.sketches[0].lineDimensionKinds, [fragmentID: .vertical])
+        trim.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+        let delete = RemoveSketchEntitiesCommand(ids: [id], sketch: sketch)
+        delete.apply(to: &document)
+        XCTAssertTrue(document.sketches[0].lineDimensionKinds.isEmpty)
+        delete.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(sketch)) as? [String: Any])
+        legacy.removeValue(forKey: "lineDimensionKinds")
+        XCTAssertTrue(try JSONDecoder().decode(Sketch.self,
+            from: JSONSerialization.data(withJSONObject: legacy)).lineDimensionKinds.isEmpty)
+    }
+
     // MARK: - Radius vs diameter (the app used to disagree with itself)
 
     /// A circle read Ø while you dragged it out (`LiveDimensionKit`) but its

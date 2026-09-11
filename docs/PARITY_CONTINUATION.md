@@ -1,5 +1,47 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 18:29
+
+Baseline8748e29 pushed. QA27 paired live diagnosis now confirms native type switch
+is display-only, undoable, and survives gallery reopen; clone toolbar opens a
+keypad instead. Details/durable hashes in the QA27 adaptive-dimensions receipt.
+WIP source/tests are implemented, not yet verified: Sketch metadata/merge/commands,
+EditorViewModel, SketchDimensionOverlay, annotation model tests, Dimension UI test.
+The focused3-case xcodebuild run at /tmp/os3d-qa27-badge-focused-20260911.xcresult
+(and .log) is active, sole simulator owner; native parked in reopened Sketch06.
+No desktop interactions until terminal result. Next: collect exact result, fix
+confirmed failures, broaden relevant regression, then paired changed-build live
+history/reopen and publish diagnosis/fix evidence. Pending audit: geometry-only
+legacy Trim initializer must not mutate uncaptured presentation metadata.
+Checkpoint these task changes as WIP, exclude unrelated identity/memory and large
+artifacts. Inventory22/0/1/33; QA27 partial. QA33 remains partial and its verified
+publication is already pushed. IPA05be744 and physical device untouched.
+
+## Current execution — September 11 18:19
+
+HEAD `8748e29` pushed: QA-33 19/19 and both publication exports verified.
+Inventory22/0/1/33 unchanged. No xcodebuild/XCTest runner. This session owns the
+live Peekaboo workflow; native is parked in Sketch06 with its sloped line selected.
+
+QA-27 native distance badge is now live-observed: select line, hover the value,
+then click the small leading badge. Menu has Absolute/Horizontal/Vertical.
+Switching the same line yielded35462.0578/21277.236/28369.6453mm without moving
+its endpoints. This large-scale sample is NOT the exact30/40/50mm recipe and
+history/reopen are unverified. Five native PNG/JSON pairs and a hash manifest
+are durable under workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
+adaptive-dimensions/qa27-live-2026-09-11. Publication pending; QA27 stays partial.
+
+Simulator is frontmost on owned AC2FD923-1661-435F-BF47-3E9DF30D1A16. Existing
+app launched without reset; created separate Untitled2. Next action: inspect
+Sketch palette click, select plane, draw sloped line and compare chooser live.
+Pinned PEEKABOO_BRIDGE_SOCKET to Library/Application Support/Peekaboo/bridge.sock
+is required for every command; app switch --to Simulator --verify resolved focus.
+Use foreground coordinate clicks and inspect captures. Default local fallback
+and scroll delivery failed; do not count those attempts. No product code changed.
+
+QA33 native10001 outcome remains unresolved; do not repeat stress probe. Remaining
+queue and immutable05be744/device boundaries below remain unchanged.
+
 ## Current execution — September 11 17:58
 
 HEAD `6768bae`; QA-30 closure is already pushed. QA-33 final2 gate is complete

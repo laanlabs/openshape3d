@@ -40,3 +40,35 @@ the adaptive-dimension requirement, but no new native sloped-line menu capture
 is claimed here. QA-27 remains partial; inventory stays 13 passed / 0 failed /
 1 device-blocked / 42 incomplete. The immutable `05be744` IPA is unchanged.
 
+
+## September 11 18:29 — paired badge diagnosis and WIP correction
+
+Baseline `8748e29`. Native input/capture recovered with the existing GUI bridge.
+Select a standalone line, hover its value, then click the small leading Distance
+Type badge: Absolute/Horizontal/Vertical appear. The same line showed
+35462.0578/21277.236/28369.6453 mm with unchanged endpoints. Undo of Vertical
+restored Horizontal after reselection; Redo restored Vertical. Gallery reopen
+and Items→Sketch06 retained Vertical. This is a large-scale live sample, not
+an exact 30/40/50 mm sample.
+
+Clone pre-fix: separate Untitled2, front sketch, 3.0974 mm sloped line. Its
+Constrain→Dimension menu exposes all three choices, but Horizontal immediately
+opens a keypad (1.859 seed); Escape returns the readout to Absolute. This is a
+confirmed display-switch/access gap, not a missing projection calculation.
+
+WIP correction adds a label-adjacent chooser for an undriven standalone line,
+undoable serialized presentation metadata, and projected CAD leaders; it does
+not create drivers or open a keypad. Toolbar editing remains available. Scope
+does not claim driven-dimension switching or native selection-cleanup parity.
+Metadata is remapped on import and handled by contextual trim/delete commands.
+
+Focused three-case model/UI gate is running serially at
+`/tmp/os3d-qa27-badge-focused-20260911.xcresult` (matching `.log`). No pass claimed
+for this source tree yet. Prior18/18 covers the prior toolbar implementation only.
+New tests cover no driver/geometry mutation, history, JSON/legacy decode,
+trim/delete restoration, and the actual label menu. New source is not live-verified.
+
+Durable inspected PNG/JSON pairs and hashes:
+`/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/adaptive-dimensions/qa27-live-2026-09-11/manifest.json`.
+New diagnosis evidence is queued for Google Docs; no insertion claimed. Inventory
+remains22/0/1/33; QA27 partial. Immutable05be744 and physical iPad unchanged.

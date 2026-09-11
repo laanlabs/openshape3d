@@ -154,7 +154,9 @@ nonisolated enum ProjectMergeKit {
                     sketch.rectangleSizingAnchors.map { (newEntity($0.key), $0.value) }),
                 rotatedRectangleEdges: Dictionary(uniqueKeysWithValues:
                     sketch.rotatedRectangleEdges.map { (newEntity($0.key), $0.value.map(newEntity)) }),
-                disconnectedEndpoints: sketch.disconnectedEndpoints.map(remap))
+                disconnectedEndpoints: sketch.disconnectedEndpoints.map(remap),
+                lineDimensionKinds: Dictionary(uniqueKeysWithValues:
+                    sketch.lineDimensionKinds.map { (newEntity($0.key), $0.value) }))
         }
 
         func remap(_ ref: ConstraintRef) -> ConstraintRef {

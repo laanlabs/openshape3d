@@ -255,6 +255,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     var disconnectedEndpoints: [ConstraintRef]
     /// Radius-construction annotation direction; presentation only, never solved.
     var circleRadiusDirections: [UUID: SIMD2<Double>]
+    /// Undriven line readout projection. Presentation only; never a solver input.
+    var lineDimensionKinds: [UUID: DimensionKind]
 
     init(
         id: SketchID = SketchID(),
@@ -269,7 +271,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:],
         rotatedRectangleEdges: [UUID: [UUID]] = [:],
         disconnectedEndpoints: [ConstraintRef] = [],
-        circleRadiusDirections: [UUID: SIMD2<Double>] = [:]
+        circleRadiusDirections: [UUID: SIMD2<Double>] = [:],
+        lineDimensionKinds: [UUID: DimensionKind] = [:]
     ) {
         self.id = id
         self.name = name
@@ -284,12 +287,14 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.rectangleSizingAnchors = rectangleSizingAnchors
         self.disconnectedEndpoints = disconnectedEndpoints
         self.circleRadiusDirections = circleRadiusDirections
+        self.lineDimensionKinds = lineDimensionKinds
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
         case constraints, dimensions, patternLinks, rectangleSizingAnchors
         case disconnectedEndpoints, rotatedRectangleEdges, circleRadiusDirections
+        case lineDimensionKinds
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -317,6 +322,8 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             [ConstraintRef].self, forKey: .disconnectedEndpoints) ?? []
         circleRadiusDirections = try container.decodeIfPresent(
             [UUID: SIMD2<Double>].self, forKey: .circleRadiusDirections) ?? [:]
+        lineDimensionKinds = try container.decodeIfPresent(
+            [UUID: DimensionKind].self, forKey: .lineDimensionKinds) ?? [:]
         RectangleConstruction.recoverLegacyGroups(in: &self)
     }
 }
