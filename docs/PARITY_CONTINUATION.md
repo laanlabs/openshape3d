@@ -1,5 +1,19 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 QA27 publication verified
+
+HEAD bbbfd2b pushed. Final combined gate53/53 completed with zero fail/skip; no
+xcodebuild/XCTest runner. Changed-build paired menu/projections/history and clone
+gallery reopen verified (Vertical2.4771mm). Illustrated813 unique images, all ten
+source hashes once, zero803 predecessor loss; master38 media and one dated note.
+Durable exports/verification under adaptive-dimensions/qa27-live-2026-09-11.
+QA27 remains partial; inventory22/0/1/33. Native clears immediate type-choice
+selection while clone retains it; exact live30/40/50 and driven variants remain.
+Next: checkpoint this documentation, then scoped immediate-selection cleanup,
+focused regression and changed live repeat. Desktop parked in clone reopened
+Untitled2; native reopened Sketch06. No duplicate test runner. Immutable05be744
+and physical device unchanged; unrelated identity/memory excluded.
+
 ## Current execution — September 11 18:35
 
 WIP21c27ea pushed. Follow-up source/test changes fix only Distance Type history

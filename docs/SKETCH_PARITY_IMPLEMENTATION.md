@@ -240,6 +240,12 @@ capture and illustrated publication remain blocked by simulator input delivery,
 so DM-03/QA-27 is not promoted. See
 [adaptive-dimensions checkpoint](testing/sketch-parity-adaptive-dimensions-checkpoint-2026-09-11.md).
 
+September 11 later checkpoint: `bbbfd2b` adds the native-observed label-adjacent
+display-only badge for undriven lines. Final53/53 and paired menu/projections,
+history and clone reopen verified; illustrated813/master38 publication verified.
+Immediate choice deselection, exact live30/40/50 and driven variants remain open;
+QA27 stays partial. Display choice and driving-dimension editing are distinct.
+
 ### DM-04 · Circle radius versus diameter preference is missing
 
 **Queued — implementation needed** · P1

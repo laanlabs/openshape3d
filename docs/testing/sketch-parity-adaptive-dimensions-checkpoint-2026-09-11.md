@@ -88,3 +88,20 @@ Corrected focused run: clean4/4, zero failed/skipped, at
 The complete annotation/layout/Trim/import and old/new dimension UI gate is
 running at `/tmp/os3d-qa27-badge-final-20260911.xcresult` (matching `.log`).
 No combined pass or changed-build live proof is claimed yet.
+
+## Verified changed-build and publication checkpoint
+
+Revision `bbbfd2b`: final combined gate clean **53/53**, zero failures/skips, at
+`/tmp/os3d-qa27-badge-final-20260911.xcresult`; terminal summary retained locally.
+Changed-build live label menu switches Absolute3.0974 / Horizontal1.859 /
+Vertical2.4771mm without keypad or endpoint movement. Undo/Redo clear selection
+and restore expected projection after reselection. Gallery reopen retains
+Vertical2.4771mm. Native reference menu, projections, history and saved reopen
+are also inspected; different scales are explicit, not exact30/40/50 live proof.
+
+Illustrated export:813 unique media, ten new source hashes exactly once, zero
+loss from803 predecessor. Master:38 media, one dated QA27 note, zero media loss.
+Before/after exports and publication verification JSON are in the durable
+QA27 directory above. No duplicate evidence insertion. QA27 remains partial,
+inventory22/0/1/33. Immediate type-choice deselection still differs from native;
+driven switching and exact live30/40/50 remain unverified. Device unchanged.
