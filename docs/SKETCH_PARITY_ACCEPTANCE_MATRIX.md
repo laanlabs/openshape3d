@@ -30,8 +30,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-23 | Selection state | Core — closure-ready, publication pending | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated append did not save, so the case is not yet promoted. |
 | QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
 | QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
-| QA-26 | Annotation on-state | Core - partial, not passed | Orange selection, offset line/rectangle leaders, full circle diameter and curved arc annotation sampled paired; glyph/control and selected-side layout matrix open. |
-| QA-27 | Dimension type | Core — partial, not passed | Line/rectangle/circle radius-diameter and arc sweep samples; full type matrix open. |
+| QA-26 | Annotation on-state | Core — partial, live/publication blocked | Clean 16/16 automation covers active/other/hidden sketches, exit/re-entry and toggle persistence. Fresh paired walkthrough and publication remain blocked by simulator input delivery. |
+| QA-27 | Dimension type | Core — partial, live/publication blocked | Sloped-line Absolute/Horizontal/Vertical chooser implemented; clean 18/18 model/UI gate covers stored kind, commit, history and JSON round-trip. Fresh paired menu walkthrough and publication remain blocked. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
 | QA-30 | Rectangle sequence | Core — partial, not passed | Center and three-point two-axis edits paired; keyboard/edge matrix open. |
@@ -228,11 +228,19 @@ Nothing selected, one entity, several entities, disjoint same-sketch geometry. I
 
 ### QA-26 — Annotation on-state
 
-Active/other/hidden sketches; exit and re-entry; toggle persistence. Issues: DM-01/02. Result: NOT RUN. Evidence/owner: pending.
+Active/other/hidden sketches; exit and re-entry; toggle persistence. Issues:
+DM-01/02. Result: **PARTIAL** — the deterministic matrix passes clean 16/16,
+but fresh paired live capture and illustrated publication are blocked by
+simulator input delivery. See
+[annotation on-state checkpoint](testing/sketch-parity-annotation-on-state-checkpoint-2026-09-11.md).
 
 ### QA-27 — Dimension type
 
-Sloped 3-4-5 line: horizontal 30, vertical 40, absolute 50. Issues: DM-03. Result: NOT RUN. Evidence/owner: pending.
+Sloped 3-4-5 line: horizontal 30, vertical 40, absolute 50. Issues: DM-03.
+Result: **PARTIAL** — all three adaptive actions, stored kind, commit,
+Undo/Redo and serialization pass a clean 18/18 current-tree gate. Fresh paired
+live capture and publication remain blocked. See
+[adaptive dimensions checkpoint](testing/sketch-parity-adaptive-dimensions-checkpoint-2026-09-11.md).
 
 ### QA-28 — Dimension selection matrix
 
