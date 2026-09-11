@@ -73,3 +73,29 @@ follow-up screenshots are local-only; last verified published image count425.
 Controlled native pending preview remains an input-route limitation, not an app
 failure or a reason to change Return semantics speculatively. Continue independent
 QA07 near-horizontal tolerance/zoom acceptance.
+
+## September 11 finite closure reconciliation
+
+The original finite QA-06 recipe is closed from the retained paired evidence,
+without absorbing pointer-hover or physical-input work. Native and clone checks
+cover first and second Escape, Delete/Backspace after release, released-state
+Return and endpoint double-click, and switching Line to Arc. These routes retain
+the intended committed segments; the clone's one-step Undo/Redo and gallery
+reopen, plus the native history/reopen checks above, remain the persistence
+evidence.
+
+The exact current tree at `f524b13` passed one clean serial 5/5 closure run
+(`LineDeleteInputTests` plus `LineChainUITests`), zero failures or skips:
+`/tmp/os3d-qa06-closure-combined-20260911.xcresult`. This supplements rather
+than replaces the paired live evidence and does not convert the blocked fresh
+native QA-05 chain or QA-19 threshold pair into passes. The already published
+illustrated evidence remains verified at 425 placements with the master at 38
+media; the September 11 closure is a reconciliation, not a duplicate image
+insertion. QA-06 is passed; the milestone inventory is 13 passed / 0 failed /
+1 device-blocked / 42 incomplete. The immutable `05be744` IPA is unchanged.
+
+The dated closure note was inserted once in the existing master roadmap and
+verified through anonymous DOCX export: one closure heading, one current
+inventory string, and all 38 predecessor media retained. Export:
+`/tmp/os3d-qa06-master-closure.docx`, SHA-256
+`2f4b3d0c7ef9d507e459f5052042157ce31bd4f669a24640730a463d135cab00`.

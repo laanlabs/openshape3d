@@ -2031,3 +2031,13 @@ blocked by desktop input delivery. See the September 11 arc closure audit.
 ## September 11 — QA-05 Return/resume checkpoint
 
 Return now finishes an open polyline without disarming Line or changing committed history, and a subsequent endpoint tap starts a fresh chain at that saved endpoint. The corrected exact-tree LineChain suite passes clean 3/3, including strengthened exact history counts and order-independent snap settings. Exact-build live clone A→B→C, Return, B→D→E→B, closing-edge Undo/Redo, and gallery reopen passed. Fresh native Line entry and the Return/Escape/Delete prompt are captured, while native canvas clicks remain a desktop input-delivery blocker. QA-05 therefore remains partial and inventory remains 12/0/1/43. See testing/sketch-parity-line-chain-2026-09-11.md.
+
+## September 11 — QA-06 finite cancellation closure
+
+The retained paired evidence covers Escape once/twice, Delete/Backspace,
+released-state Return/double-click, Line→Arc switching, exact history and gallery
+reopen. A current-tree serial closure run passed clean 5/5 at
+`/tmp/os3d-qa06-closure-combined-20260911.xcresult`. QA-06 is closed only for
+this finite recipe; hover remains QA-21, physical input QA-52, and QA-05's fresh
+native chain remains input-delivery blocked. Inventory advances to 13/0/1/42.
+See testing/sketch-parity-line-delete-2026-09-10.md.

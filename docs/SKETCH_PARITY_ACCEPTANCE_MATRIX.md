@@ -10,7 +10,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
 | QA-05 | Line chain | Core — partial, not passed | Return/resume/intentional-close product path passes clean 3/3 and exact-build clone history/reopen; full fresh native chain remains desktop-input blocked. |
-| QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
+| QA-06 | Line cancel | Core — passed | Paired Escape once/twice, Delete/Backspace, released-state Return/double-click, and Line→Arc switching preserve the intended committed geometry. History and gallery reopen are verified; current-tree closure regression is clean 5/5. Hover and physical input remain QA-21/QA-52. |
 | QA-07 | Line raw aim | Core — passed | Finite near-horizontal above/below recipe across native/clone scales, signed/reverse and H/V supplements, independent Guide/Auto, history and final reopen verified at eb9b4ab. 35 distinct checks across runs; general snap/hover/device remains separate. |
 | QA-08 | Diagonal rectangle | Core — passed | Finite four-quadrant, both sizing-order/lower-left anchor, selected-side/readout, history and saved-reopen recipe closed September10 at e9343a7. Relevant retained regression runs and paired evidence reconciled; illustrated624/master38 verified. Broader input/layout/device cases remain separate. |
 | QA-09 | Center rectangle | Core — passed | Finite both-axis-order/center-preservation recipe plus four release directions, center Lock/migration, selected-side/corner lifecycle, history/reopen closed at e9343a7. Relevant29/30+corrected1/1 latest follow-up retained; illustrated624/master38 verified. No universal UI/device claim. |
@@ -86,7 +86,7 @@ Tap A-B-C; end open; resume from B; close intentionally. Issues: SK-09. Result: 
 
 ### QA-06 — Line cancel
 
-Enter, Escape once/twice, Backspace, double-tap, tool switch. Issues: SK-09. Result: NOT RUN. Evidence/owner: pending.
+Enter, Escape once/twice, Backspace, double-tap, tool switch. Issues: SK-09. Result: **PASSED** for this finite desktop recipe on September 11. Existing paired live evidence covers every route, committed-geometry preservation, one-step history, tool switching, and gallery reopen. The current-tree serial closure run passed clean 5/5. Pointer hover and physical input remain separate QA-21/QA-52 gates. See [line cancellation receipt](testing/sketch-parity-line-delete-2026-09-10.md).
 
 ### QA-07 — Line raw aim
 

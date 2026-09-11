@@ -1,30 +1,26 @@
 # Parity continuation checkpoint
 
-## Current execution — September 11 12:28
+## Current execution — September 11 13:10
 
-QA-05 Return/resume behavior is implemented and exact-build clone verification
-is complete on dirty baseline `89ffd35`. No runner is active. The final serial
-LineChain suite passed clean 3/3 at
-`/tmp/os3d-qa05-linechain-clean-combined-v2-20260911.xcresult`; the corrected
-focused workflow passed 1/1 at
-`/tmp/os3d-qa05-final-focused-v2-20260911.xcresult`. Earlier diagnostic failures
-and the one compile-only fixture correction remain preserved under
-`/tmp/os3d-qa05-return-*.xcresult` and are described in the receipt.
+HEAD `f524b13` is pushed. QA-06 is reconciled as passed for its finite desktop
+recipe from retained paired Escape/Delete/Return/double-click/tool-switch,
+history, and gallery-reopen evidence. The exact current tree passed one clean
+serial 5/5 run at
+`/tmp/os3d-qa06-closure-combined-20260911.xcresult`; no runner is active. The
+illustrated evidence was already export-verified at 425 placements and the
+master closure note is now export-verified exactly once with all 38 predecessor
+media retained (`/tmp/os3d-qa06-master-closure.docx`, SHA-256
+`2f4b3d0c7ef9d507e459f5052042157ce31bd4f669a24640730a463d135cab00`). No
+duplicate image insertion was required for this reconciliation.
 
-Exact-build live clone A→B→C, Return, B resume, D→E→B intentional close,
-closing-edge Undo/Redo, gallery thumbnail, and reopen all passed. Evidence plus
-hash inventory is under `reports/.../line-chain-qa05/`. Native Shapr3D was
-freshly entered with Line armed and its Return/Escape/Delete prompt captured,
-but supported canvas clicks still produce no native mutation. QA-05 stays
-partial; this is a native desktop input-delivery blocker, not an app failure.
-Inventory remains 12 passed / 0 failed / 1 device-blocked / 43 incomplete.
-
-Dirty task files are EditorViewModel.swift, CommandShortcutsView.swift,
-LineChainUITests.swift, acceptance/milestone/implementation/checkpoint docs, and
-the new QA-05 receipt. Exact next: commit/push this safe partial checkpoint,
-then continue an independent finite acceptance case while retaining native QA-05
-and QA-19 input blockers. Unrelated identity/memory files and immutable
-`05be744` IPA remain untouched; no device installation or parity claim.
+Inventory is 13 passed / 0 failed / 1 device-blocked / 42 incomplete. QA-05
+remains partial because fresh native chain clicks are desktop-input blocked;
+QA-19's final native threshold pair is independently blocked. Pointer hover and
+physical input remain QA-21 and QA-52. Current dirty files are documentation for
+this QA-06 reconciliation only. Exact next: commit/push the documentation
+checkpoint, then select and execute the next finite
+core acceptance case. Unrelated identity/memory files and immutable `05be744`
+IPA remain untouched; no device installation or parity claim.
 ## Active continuation — September10 pending three-point numeric input
 
 HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/

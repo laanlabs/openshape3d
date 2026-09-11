@@ -646,3 +646,12 @@ input delivery blocks its final controlled 3D threshold pair.
 ## September 11 — QA-05 Return/resume checkpoint
 
 Return now finishes an open polyline without disarming Line or changing committed history, and a subsequent endpoint tap starts a fresh chain at that saved endpoint. The corrected exact-tree LineChain suite passes clean 3/3, including strengthened exact history counts and order-independent snap settings. Exact-build live clone A→B→C, Return, B→D→E→B, closing-edge Undo/Redo, and gallery reopen passed. Fresh native Line entry and the Return/Escape/Delete prompt are captured, while native canvas clicks remain a desktop input-delivery blocker. QA-05 therefore remains partial and inventory remains 12/0/1/43. See testing/sketch-parity-line-chain-2026-09-11.md.
+
+## September 11 — QA-06 finite cancellation closure
+
+Existing paired live evidence now reconciles the complete finite cancellation
+recipe: Escape once/twice, Delete/Backspace, released-state Return/double-click,
+tool switching, history, and gallery reopen. The exact current tree passed a
+clean serial 5/5 closure run. QA-06 advances the inventory to 13 passed / 0
+failed / 1 device-blocked / 42 incomplete. Hover, physical input, QA-05's fresh
+native chain, and QA-19's native threshold pair remain separate open gates.
