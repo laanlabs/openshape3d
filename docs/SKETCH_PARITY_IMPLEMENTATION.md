@@ -1829,3 +1829,13 @@ works again. Live bottom-width entry, same-edge handle, Undo/Redo and paired
 saved reopen verified. Regression29/30 plus corrected center-rotation1/1; retained
 fixture failures and evidence in [rectangle closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md).
 Illustrated624/master38 export verified; no new IPA/device claim.
+
+## September10 — Three-point pending measurement and Escape
+
+Released three-point baseline readout no longer intersects its leader; scoped
+white/blue outline and offset preserve geometry and hit routing. Rectangle was
+missing from keyboard Escape registration despite a visible Cancel button.
+Added guarded unfinished-clear then idle-disarm lifecycle, with dimension editor
+priority preserved. Paired live pending cancellation/disarm retains committed
+geometry. Clean29/29 and separate3/3 readout run; [receipt](testing/sketch-parity-three-point-matrix-2026-09-10.md).
+Pending numeric interaction and broader QA10 direction/visual criteria remain open.

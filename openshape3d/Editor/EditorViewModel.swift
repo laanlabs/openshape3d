@@ -8049,6 +8049,7 @@ final class EditorViewModel {
         /// leaders would be zero-length.
         let hasWitnessLines: Bool
         let isArcRadius: Bool
+        let isPendingRectangleBaseline: Bool
         let worldArcCenter: SIMD3<Double>?
         let worldArcPoints: [SIMD3<Double>]
     }
@@ -8076,6 +8077,8 @@ final class EditorViewModel {
                     drawsEdgeTicks: d.kind.drawsEdgeTicks,
                     hasWitnessLines: simd_length(d.offset) > 1e-9,
                     isArcRadius: d.kind == .radius && d.arcCenter != nil,
+                    isPendingRectangleBaseline: rectangleType == .threePoint
+                        && rectangleBaseline != nil && rectanglePreview.count == 1,
                     worldArcCenter: d.arcCenter.map(sketch.plane.toWorld),
                     worldArcPoints: d.arcPoints.map(sketch.plane.toWorld))
             }
@@ -9832,6 +9835,17 @@ final class EditorViewModel {
         guard mode.sketchTool == .line, editingDimension == nil else { return }
         if chainAnchor != nil {
             clearChain()
+        } else {
+            deselectSketchTool()
+        }
+    }
+
+    /// Rectangle Escape first discards unfinished placement, then disarms the
+    /// tool. Neither step mutates committed geometry or creates history.
+    func cancelRectangleInput() {
+        guard mode.sketchTool == .rect, editingDimension == nil else { return }
+        if hasPendingRectangle {
+            clearRectanglePlacement()
         } else {
             deselectSketchTool()
         }

@@ -1,24 +1,31 @@
 # Parity continuation checkpoint
 
-## Active continuation — September10, keypad/reselection live verified
+## Active continuation — September10 QA10 pending baseline readout
 
-HEADe9343a7 pushed. Verified product: EditorView hides sketch transform chips during
-size editor; EditorViewModel same-edge toggle requires actual entity selection.
-RectangleWorkflowUI now checks keypad/chip lifecycle and explicitly reselects
-after settled commit/history in center rotation. Prior29/30 and targeted failure
-retained; final diagnostic1/1 passes actual rotation/both sizes/Undo. No runner.
-Live clone bottomwidth1.4818→1, same-edge handle restoration, Undo/Redo and final
-gallery reopen1×0.9858 passed; native7×4 reopened/isolated top/readouts intact.
-Early Escape attempts left Rectangle armed; tool-button disarm used, no false
-cancellation pass. Screenshots copied/hashed in center-matrix `os3d-reselection-*`.
-Illustrated624/all6newhashes/no618predecessorloss, master38 datedfinalreopennote
-export-verified at /tmp/os3d-qa0809-keypad-reselection-{published,master}.docx.
-Exact next publish/verify finiteQA08/09 closure note and commit documentation;
-then QA10 remaining opposite baseline/slopes/stage cancellation. Inventory now
-6passed/0failed/1deviceblocked/49incomplete (38partial,11deferred), total56.
-Native1924 fresh7×4 topselected; clone7715 fresh1×0.9858 bottomselected plusrotated
-priorfixture. Sole desktop/build owner, no runner. Immutable05be744IPA untouched;
-unrelated identity/memory preserved. No merge/install/restart/security changes.
+HEAD593f25c pushed; producte9343a7. QA08/09 finite closures published/verified
+illustrated624/master38, notes once/no predecessorloss. Inventory6passed/0failed/
+1deviceblocked/49incomplete(38partial,11deferred). No IPA modifications.
+Dirty product EditorViewModel.LiveDimensionLabel adds pendingbaselineflag;
+SketchLiveDimensionOverlay adds white/blueoutline and18pointoffsettowardsgeometry
+for releasedthreepointbaseline only. Native17.2047label offsetfromleader; clone
+2.05label struckthrough leader confirmed. Pendinglabel editinteraction, blue/orange
+baselinecolor/leader spacing remain open, not generalized as parity.
+Initial readoutexec6564 completed clean3/3; Escapeexec63056 completed clean29/29, no runner:
+/tmp/os3d-qa10-rectangle-escape-20260910.log/.xcresult; new cancellation stages,
+construction units and tapcancelUI. MissingRectangleEscape registration confirmed;
+added guarded pendingclear then idletool-disarm action and shortcut. Native second
+Escape disarms tool. Initial delivery-only suspicion superseded by codeevidence. Livepostfix completed: outlinedvalueclearofleader, firstEscape clearsbaseline
+whilearmed, second disarms, committedrotatedrectangleunchanged. Native1924 baselinecancelled/Rectanglethreepoint armed; clone
+resetbytests. NativeEscape removedpendingbaseline andkepttoolarmed; clone press/
+hotkeyEscape leftpendingbaseline. Concrete shortcut omission now corrected under test.
+Illustrated diagnosis626/all2hashes/no624loss verified; master38 unchanged.
+Postfixpublication631/all5newhashes/no626loss andmaster38note verified.
+Exactnext commit/push; then
+oppositeheight completion/direction and pendingnumeric interaction. Preserve
+failedattempts. No runner; cloneRectangle disarmed, nativeRectangle disarmed. Evidence /reports/.../three-point-matrix
+withSHA256SUMS; docs/testing/sketch-parity-three-point-matrix-2026-09-10.md.
+No concurrentdesktop; preserveunrelatedidentity/memory, tabs/native sketches.
+No merge/install/restart/securitychanges/duplicatewatchdog.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

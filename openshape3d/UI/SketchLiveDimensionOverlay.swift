@@ -111,12 +111,23 @@ struct SketchLiveDimensionOverlay: View {
             arrowHead(at: lineStart, pointingFrom: lineEnd)
             arrowHead(at: lineEnd, pointingFrom: lineStart)
 
+            // The released three-point baseline remains a pending construction
+            // measurement. Keep its outlined value off the leader, towards the
+            // measured geometry, rather than striking through the number.
+            let dx = witnessStart.x - lineStart.x
+            let dy = witnessStart.y - lineStart.y
+            let offsetLength = hypot(dx, dy)
+            let textAnchor = label.isPendingRectangleBaseline && offsetLength > 1
+                ? CGPoint(x: anchor.x + dx / offsetLength * 18,
+                          y: anchor.y + dy / offsetLength * 18) : anchor
             liveText(label.text,
-                     rotation: readableAngle(from: lineStart, to: lineEnd), at: anchor)
+                     rotation: readableAngle(from: lineStart, to: lineEnd), at: textAnchor,
+                     outlined: label.isPendingRectangleBaseline)
         }
     }
 
-    private func liveText(_ text: String, rotation: Double, at anchor: CGPoint) -> some View {
+    private func liveText(_ text: String, rotation: Double, at anchor: CGPoint,
+                          outlined: Bool = false) -> some View {
         Text(text)
             .font(.system(size: 16))
             .foregroundStyle(Color.black)
@@ -124,6 +135,13 @@ struct SketchLiveDimensionOverlay: View {
             .fixedSize()
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
+            .background {
+                if outlined {
+                    RoundedRectangle(cornerRadius: 3).fill(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 3)
+                            .stroke(Color.blue, lineWidth: 1.5))
+                }
+            }
             .rotationEffect(.radians(rotation))
             .position(anchor)
             .accessibilityIdentifier("LiveDimension")
