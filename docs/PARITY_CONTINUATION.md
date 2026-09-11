@@ -2,7 +2,7 @@
 
 ## Active continuation — September10 pending three-point numeric input
 
-HEAD64992d1 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+HEAD84ca852 pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
 1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
 separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
 Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
@@ -28,8 +28,12 @@ atomiccompletionUndoRedo/reload,cancelleddimensionnoleak. Initiallivefunctionalp
 Final publication640/allfive hashes (completion duplicated)/master38 verified;
 all predecessor images and ordered text retained. No runner. Native reopened
 Front44edges with selected7mm side; clone saved1.5×0.9664 selectedheight.
-Exactnext commit/push pending input fix, then compare/fix release selection and
-Rectangle Undo tool-disarming lifecycle. ContinueQA10oppositedirection/stagecancel/remainingvisualgaps.
+Exec63275 completed clean4/4. Same-build live2.0523×0.9664 rectangle Undo
+removes geometry and disarms Rectangle; Redo restores geometry without rearming.
+Paired native15×7 Undo/Redo reference captured. No runner. Illustrated642/new2
+hashes once/master38 verified; no predecessor image/text loss.
+Exactnext commit/push history lifecycle correction, then native three-point
+center release/Lock comparison and safe center-control identity implementation.
 Receipt docs/testing/sketch-parity-three-point-matrix-2026-09-10.md; allPNGcopied/
 hashedreports/.../three-point-matrix. Master/illustratededitable; nohostblocker.
 Soleowner; preserveunrelatedidentity/memory, reporttabs/nativefixtures; no merge/

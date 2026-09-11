@@ -86,10 +86,13 @@ final class RectangleInputCancellationTests: XCTestCase {
         XCTAssertEqual(reopened, completed)
         vm.undo()
         XCTAssertEqual(vm.activeSketch, before)
+        XCTAssertNil(vm.mode.sketchTool, "Committed three-point Undo disarms drawing")
         vm.redo()
         XCTAssertEqual(vm.activeSketch, completed)
+        XCTAssertNil(vm.mode.sketchTool, "Redo must not rearm rectangle construction")
 
         // A later draft/cancel must not leak its dimension into a fresh rectangle.
+        vm.startSketch(tool: .rect)
         tap(vm, SIMD2(30, 30)); tap(vm, SIMD2(34, 31))
         vm.beginRectangleBaselineEdit(firstCharacter: "3")
         vm.commitDimensionEdit("3")

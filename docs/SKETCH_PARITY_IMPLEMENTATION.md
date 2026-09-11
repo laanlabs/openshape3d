@@ -1853,3 +1853,8 @@ and native Undo disarming versus clone tool retention remain open. Receipt:
 [three-point matrix](testing/sketch-parity-three-point-matrix-2026-09-10.md).
 Illustrated640 placements (five final hashes present; completion duplicated),
 master38 dated note, predecessor image counts and ordered text preserved.
+
+September10 followup: committed three-point Undo now disarms Rectangle, with
+Redo retaining disarmed state; pending cancellation stays separate. Clean4/4
+and paired live geometry/tool-state evidence. Illustrated642/master38 verified.
+Release-center selection remains open; see current three-point matrix receipt.

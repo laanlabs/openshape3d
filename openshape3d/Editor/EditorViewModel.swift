@@ -4959,6 +4959,12 @@ final class EditorViewModel {
 
     func undo() {
         if hasPendingRectangle { clearRectanglePlacement(); return }
+        // Native three-point construction leaves drawing mode when Undo
+        // changes committed history. Pending-placement cancellation above
+        // remains separate and does not consume document history.
+        if mode.sketchTool == .rect, rectangleType == .threePoint {
+            deselectSketchTool()
+        }
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()

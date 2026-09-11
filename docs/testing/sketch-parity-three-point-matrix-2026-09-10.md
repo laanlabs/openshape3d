@@ -97,3 +97,18 @@ prior text characters remain ordered. Master38/no image loss/old text ordered,
 new note once. Exports /tmp/os3d-qa10-pending-final-settled.docx and
 /tmp/os3d-qa10-pending-master.docx. Duplicate completion retained as redundant
 evidence, not an extra distinct check.
+
+### Committed history tool-state correction
+
+Native typed15×7 rectangle Undo removes geometry and disarms Rectangle; Redo
+restores geometry without rearming. Clone previously remained armed. Scoped
+three-point committed Undo now deselects the drawing tool; pending rectangle
+cancellation still returns before touching document history. Clean4/4 in
+/tmp/os3d-qa10-history-disarm-20260910.xcresult (2pendingunits, height/historyUI,
+tap/cancelUI). Final live fresh2.0523×0.9664 rectangle Undo removes only that
+rectangle and clears the palette highlight/header; Redo restores shape without
+rearming. Prior fixture unchanged. history-complete/history-undo-fixed/
+history-redo-fixed PNGs captured; native-typed-undo/redo is paired reference.
+Publication verified642/new2hashes once/master38, no predecessor image or
+ordered text loss (/tmp/os3d-qa10-history-published.docx and history-master.docx). Release center remains
+open. No other drawing tools or whole-app history semantics generalized.
