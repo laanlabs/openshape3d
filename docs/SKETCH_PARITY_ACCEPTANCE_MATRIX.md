@@ -45,7 +45,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
-| QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
+| QA-41 | Trim primitives | Core — partial, not passed | Paired line/circle and rectangle-edge samples; clean 37/37 line/circle/arc/rect/polygon, whole/boundary/history gate. Fresh paired arc/rect/polygon gestures remain blocked. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
@@ -345,7 +345,13 @@ physical routes remain open, so QA40 is not closed.
 
 ### QA-41 — Trim primitives
 
-Line/circle/arc/rect/polygon, boundary versus whole deletion. Issues: ED-03/04. Result: NOT RUN. Evidence/owner: pending.
+Line/circle/arc/rect/polygon, boundary versus whole deletion. Issues: ED-03/04.
+Result: **PARTIAL**. Retained paired line/circle span and rectangle-edge evidence
+is supplemented by a clean 37/37 current-tree primitive/lifecycle/import/UI gate.
+Arc and polygon whole-removal plus polygon-edge Undo are now explicit. Fresh
+paired arc/rectangle/polygon gestures remain input-blocked, so automated coverage
+does not close the case. See
+[Trim primitives checkpoint](testing/sketch-parity-trim-primitives-checkpoint-2026-09-11.md).
 
 ### QA-42 — Trim curves
 

@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:00
+
+HEAD `c4b74c6` is pushed. QA-41's one-owner primitive Trim gate passed clean
+**37/37**, zero failures/skips, at
+`/tmp/os3d-qa41-trim-primitives-20260911.xcresult`. Two missing model assertions
+now cover whole arc removal and polygon-edge removal with exact Undo. Retained
+paired evidence covers crossing-line/circle spans and a rectangle boundary, but
+fresh paired arc/rectangle/polygon gestures remain supported-input blocked.
+
+QA-41 remains partial; inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the bounded Trim tests and checkpoint docs. Exact next action: commit/push safely,
+then execute QA-43 driven/reference/downstream-profile Trim integrity. Immutable
+`05be744` IPA and unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 14:57
 
 HEAD `1e42243` is pushed. QA-40's initial combined transition run completed with

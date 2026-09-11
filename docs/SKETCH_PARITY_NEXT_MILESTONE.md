@@ -758,3 +758,12 @@ Escape and draft/history semantics. Retained paired evidence supplies the live
 comparison for those paths. QA-40 remains partial because fresh paired rotation/
 pan and comprehensive physical/system-keyboard input remain open. Inventory stays
 16/0/1/39.
+
+## September 11 — QA-41 primitive Trim checkpoint
+
+The finite line/circle/arc/rectangle/polygon boundary and whole-removal matrix,
+constraint/reference lifecycle, import remap and real endpoint-drag/Trim/history
+workflow pass clean **37/37**. Retained paired evidence covers line, circle and a
+rectangle boundary. Fresh paired arc/rectangle/polygon gestures remain blocked,
+so QA-41 stays partial and inventory remains 16/0/1/39. QA-43 owns the broader
+driven-reference/downstream-profile recipe.
