@@ -1962,3 +1962,23 @@ is retained as an input-delivery limitation, not counted as UI evidence; exact-
 build Peekaboo verification passed. Illustrated764/all six closure hashes and
 master38/one note export-verified. QA12 is closed; inventory9/0/1/46. Physical
 Pencil/touch and updated device installation remain separate gates.
+
+## September 11 — QA-15 polygon finite closure
+
+The current implementation retains polygon identity, center, radius, side
+count, and first-vertex rotation while editing the post-creation count or
+radius. Count edits are dimensionless and atomic: invalid lower/upper bounds and
+divide-by-zero do not add history; fractional values truncate consistently;
+Undo/Redo restores the complete prior entity. Release still retains both
+readouts without forcing the keypad, and a closed polygon remains available as
+a profile.
+
+Paired live checks verified 5→65 count edits, exact radius changes, two-step
+Undo/Redo, and gallery reopen. Native's count badge is only available
+immediately after creation, so the clone's retained primitive identity after
+reopen is not used to demand a native control that does not exist. The final
+corrected combined regression passed 13/13. Two earlier 12/12 runs omitted the
+boundary method because their selectors named the source file/wrong declared
+class; they remain recorded, not promoted. Illustrated772/master38 publication
+is export-verified. QA-15 is closed only for its finite recipe; constraints,
+hover, and physical Pencil/touch remain separate acceptance lanes.

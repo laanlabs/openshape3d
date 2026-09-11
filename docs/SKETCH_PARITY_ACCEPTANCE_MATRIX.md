@@ -19,7 +19,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-12 | Circle dimensions | Core — PASSED (September11 finite recipe) | Persisted Radius/Diameter preference, equivalent geometry, compact/unclipped leaders, reverse creation direction, armed/disarmed numeric edits, direct Unlock, Circle Escape, history and gallery reopen are paired live. Final current-tree closure 22/22; illustrated764/master38 export-verified. Physical Pencil/touch remains under QA-52. |
 | QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
-| QA-15 | Polygon | Core - partial, not passed | Release/radius/profile plus Sept9 selected-count2 refusal,3.5→3,Undo/Redo and geometry reopen sampled; reopened edit identity and broader count/constraint matrix open. |
+| QA-15 | Polygon | Core — PASSED (September 11 finite recipe) | Paired 5→65 count edit, exact radius, center/orientation retention, two-step Undo/Redo, profile availability and saved reopen verified. Corrected final current-tree regression 13/13; illustrated772/master38 export-verified. Native side-count badge is creation-only; physical input remains QA-52. |
 | QA-16 | Spline | Explicitly deferred | Spline creation/editing; remains in full audit, not passed. |
 | QA-17 | Text sketch | Explicitly deferred | Text sketch; remains in full audit, not passed. |
 | QA-18 | Drawing on points | Core — partial, not passed | Circle-at-rectangle-corner, line endpoint and existing circle center paired. |
@@ -141,7 +141,19 @@ Major/minor radii, rotation, independent edit and lock. Issues: DM-05. Result: N
 
 ### QA-15 — Polygon
 
-Side count boundaries, radius semantics, orientation and exact input. Issues: SK-02; DM-10. Result: NOT RUN. Evidence/owner: pending.
+Side count boundaries, radius semantics, orientation and exact input. Issues:
+SK-02; DM-10. **September 11 finite-recipe result: PASSED.** Native and clone
+both retained center, radius, and first-vertex direction through 5→65 count
+editing; exact radius edits, two-step Undo/Redo, profile availability, and saved
+recovery are paired live. The model boundary test covers 2 refusal, recoverable
+divide-by-zero, 3.5→3, 65 acceptance, 10001 refusal without history, stable
+identity, and atomic Undo/Redo. Final corrected current-tree regression is clean
+13/13. Two earlier clean 12/12 runs omitted the boundary method because their
+selectors named the file/wrong declared class and are not represented as
+boundary coverage. Illustrated772/master38 publication is export-verified.
+Shapr3D's side-count badge is creation-only; reopened count editing is not a
+reference requirement. See
+[polygon closure audit](testing/sketch-parity-polygon-closure-audit-2026-09-11.md).
 
 ### QA-16 — Spline
 
@@ -703,5 +715,17 @@ publication contains 764 placements with all six closure hashes exactly once and
 no predecessor loss; the master retains 38 media and one closure note.
 
 Inventory is **9 passed / 0 failed / 1 device-blocked / 46 incomplete** (35
+partial, 11 explicitly deferred), total 56. Updated device installation and
+physical Pencil/touch remain unverified; immutable 05be744 IPA is unchanged.
+
+### September 11 QA-15 finite closure
+
+QA-15 is now a finite-recipe pass after paired count/radius, orientation,
+history, profile, and reopen verification. The corrected final combined run is
+clean 13/13. Illustrated publication contains 772 placements with all eight new
+hashes once and no loss from the 764-image QA-12 export; the master retains 38
+media and one QA-15 note.
+
+Inventory is **10 passed / 0 failed / 1 device-blocked / 45 incomplete** (34
 partial, 11 explicitly deferred), total 56. Updated device installation and
 physical Pencil/touch remain unverified; immutable 05be744 IPA is unchanged.
