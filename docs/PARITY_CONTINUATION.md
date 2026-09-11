@@ -2,7 +2,7 @@
 
 ## Active continuation — September10, keypad/reselection live verified
 
-HEAD36c5adb pushed. Dirty product: EditorView hides sketch transform chips during
+HEADe9343a7 pushed. Verified product: EditorView hides sketch transform chips during
 size editor; EditorViewModel same-edge toggle requires actual entity selection.
 RectangleWorkflowUI now checks keypad/chip lifecycle and explicitly reselects
 after settled commit/history in center rotation. Prior29/30 and targeted failure
@@ -13,8 +13,9 @@ Early Escape attempts left Rectangle armed; tool-button disarm used, no false
 cancellation pass. Screenshots copied/hashed in center-matrix `os3d-reselection-*`.
 Illustrated624/all6newhashes/no618predecessorloss, master38 datedfinalreopennote
 export-verified at /tmp/os3d-qa0809-keypad-reselection-{published,master}.docx.
-Exact next commit/push current fixes/docs; finiteQA08/09 closure review then next
-core acceptance. Inventory4passed/0failed/1deviceblocked/51incomplete unchanged.
+Exact next publish/verify finiteQA08/09 closure note and commit documentation;
+then QA10 remaining opposite baseline/slopes/stage cancellation. Inventory now
+6passed/0failed/1deviceblocked/49incomplete (38partial,11deferred), total56.
 Native1924 fresh7×4 topselected; clone7715 fresh1×0.9858 bottomselected plusrotated
 priorfixture. Sole desktop/build owner, no runner. Immutable05be744IPA untouched;
 unrelated identity/memory preserved. No merge/install/restart/security changes.

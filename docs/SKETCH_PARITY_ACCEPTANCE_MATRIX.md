@@ -12,8 +12,8 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-05 | Line chain | Core — partial, not passed | Horizontal drag/readout paired; live clone next-preview delivery unresolved. |
 | QA-06 | Line cancel | Core — partial, not passed | Two-stage Escape corrected and paired live, committed line retained; clean12/12 regressions. Released-line Delete corrected and paired with one-step history/reopen; Line→Arc retains geometry. Pending-preview, Return and double-tap routes open. |
 | QA-07 | Line raw aim | Core — passed | Finite near-horizontal above/below recipe across native/clone scales, signed/reverse and H/V supplements, independent Guide/Auto, history and final reopen verified at eb9b4ab. 35 distinct checks across runs; general snap/hover/device remains separate. |
-| QA-08 | Diagonal rectangle | Core — partial live pass | Quadrants, both sizing orders, anchors and saved recovery paired. Axis commit/history and saved-side readouts corrected/live/reopen verified; report616. Bottom-keypad chip overlap and same-edge reselection corrected; final full rectangle UI/annotation regression and live repeat pending before finite closure. |
-| QA-09 | Center rectangle | Core — partial, not passed | Both sizing orders, four release directions, center Lock/migration, selected-side/corner and saved annotation-side history paired; report616 verified. Bottom-keypad chip overlap and same-edge reselection fixes under final relevant UI set; live repeat/publication remain before finite closure. |
+| QA-08 | Diagonal rectangle | Core — passed | Finite four-quadrant, both sizing-order/lower-left anchor, selected-side/readout, history and saved-reopen recipe closed September10 at e9343a7. Relevant retained regression runs and paired evidence reconciled; illustrated624/master38 verified. Broader input/layout/device cases remain separate. |
+| QA-09 | Center rectangle | Core — passed | Finite both-axis-order/center-preservation recipe plus four release directions, center Lock/migration, selected-side/corner lifecycle, history/reopen closed at e9343a7. Relevant29/30+corrected1/1 latest follow-up retained; illustrated624/master38 verified. No universal UI/device claim. |
 | QA-10 | Three-point rectangle | Core — partial, not passed | Rotated sizing/reselection and first-point/height-stage cancellation paired; direction matrix open. |
 | QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
@@ -94,9 +94,15 @@ Near-horizontal intent above/below tolerance at several zoom levels. Issues: SK-
 
 ### QA-08 — Diagonal rectangle
 
+**September10 closure:** PASSED for the finite recipe at `e9343a7`. Earlier partial notes below are historical and superseded only for this recipe. [Closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md) reconciles all required directions/orders, current presentation fixes, test failures/corrections, paired history/reopen and624/master38 verified publication. General layout, other entity/constraint cases and physical input remain separate gates.
+
+
 All four drag quadrants; native anchor policy; exact width/height. Original first-anchor assumption superseded by paired native lower-left samples. Issues: SK-03; DM-11. Result: PARTIAL — mixed-quadrant sequential sizing, default leader sides, center translation/history and paired saved recovery now live verified September 10. Leader and translation groups each passed clean25/25; four-corner marker correction c634c30 final30/30 and center-only Lock35382d4 final31/31 with paired sizing verified. Direct center-padlock styling/action and asymmetric Lock/Unlock selection lifecycle now verified with final33/33 and paired history/reopen. Selected-free center halo additionally matched with1/1 and live comparison. Partial-edge supporting-line colors now match paired left/top Locks; final36/36, live Unlock/history and clone reopen passed. Native reopen retains Lock/corners but selection clearing remains unresolved in that capture. Side-Lock midpoint glyph removed after paired native visibility comparison; final31/31 and live contextual Unlock/history/reopen passed. Native unselected partial-Lock colors were subsequently recovered with actual-edge then blank selection. Remaining: reconcile finite recipe closure; halo/partial-edge/glyph publication recovered September10 through577 with predecessor-preserving exports. Native latest center-lock reopen recovered and passed after dismissing the retained test-crash dialog. Center relationships beyond Lock remain unsupported and are not generalized as parity. Evidence: testing/sketch-parity-diagonal-anchors-2026-09-08.md and testing/sketch-parity-diagonal-matrix-2026-09-10.md. Historical sign-out resolved; recovered report577/master38 verified.
 
 ### QA-09 — Center rectangle
+
+**September10 closure:** PASSED for the finite recipe at `e9343a7`. Earlier partial notes below are historical and superseded only for this recipe. [Closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md) reconciles all required directions/orders, current presentation fixes, test failures/corrections, paired history/reopen and624/master38 verified publication. General layout, other entity/constraint cases and physical input remain separate gates.
+
 
 Origin anchor; center fixed under both dimensions. Issues: SK-03. Result: PARTIAL — prior height-first and up-left width-first paired; September10 right-up width/height halves also preserve center. Release center halo/direct Lock now verified with26/26 and paired history/reopen. Center-specific leaders corrected with final27/27 and allfour controlled release directions; paired up-left two-axis sizing/history/reopen verified. Four-decimal mm/residual readout correction and unchanged-accept Undo now paired verified;36unit and corrected3/3 after retained numeric failure. Rotated center-lock migration, corner rotation/reselection, parallel-side editors, adjoining corner leaders, history selection and corner-Lock conflict/recovery are now paired, regression-tested and published through546 placements; corner editor open/cancel/refusal/success lifecycle is paired with final14/14. Selected corner outline/hollow markers, allfour single-edge triple readouts and shared-dimension editors now match sampled native. Successful side commit clearsedge/handle and retainsparallelreadouts through history, paired with clean14/14. Remaining: reconcile finite recipe closure with older evidence/publication backlog; broader exact-UI/device equivalence not claimed. Earlier publication backlog remains separately tracked. Evidence: testing/sketch-parity-center-width-first-2026-09-08.md; testing/sketch-parity-center-matrix-2026-09-10.md. Google editing recovered; latest567 placements/master38 export-verified.
 
@@ -670,8 +676,8 @@ evidencehashes and master38finalnote exportverified. [Receipt](testing/sketch-pa
 
 ## September 10 acceptance inventory update
 
-QA-04 and QA-07 finite recipes are passed after paired final repeats and publication.
-Together with QA-55/QA-56, four cases are closed.
-**4 passed / 0 failed / 1 device-blocked / 51 incomplete** (40 partial, 11
+QA-04, QA-07, QA-08 and QA-09 finite recipes are passed after paired final repeats and publication.
+Together with QA-55/QA-56, six cases are closed.
+**6 passed / 0 failed / 1 device-blocked / 49 incomplete** (38 partial, 11
 explicitly deferred), total56. Historical partial evidence remains above/in
 receipts. No full UI parity or updated device candidate claim.

@@ -258,3 +258,18 @@ Master `/tmp/os3d-qa0809-keypad-reselection-master.docx` has38 images and one da
 checkpoint with final paired gallery-reopen note. No overlapping runner; current
 result is29/30 plus corrected focused1/1, not a clean combined run. ImmutableIPA
 untouched. Next finite QA08/09 closure review, not candidate-ready claim.
+
+## Finite recipe closure — e9343a7
+
+QA08 PASSED: Sept8 up-left/down-right plus Sept10 down-left/up-right cover allfour
+drag quadrants. Both edit orders preserve native normalizedlowerleft; no firstcorner
+generalization. QA09 PASSED: reversewidthfirst and heightfirst plus Sept10 four
+release directions preserve center under bothdimensions. Relevant axis/migrated
+selection/editor/readout/Lock fixes, history and saved recovery are paired.
+The last presentation gaps (chips and sameedge) are corrected/liveverified above.
+Publication624/master38 preserves predecessors. Regression includes clean78,42,59
+sets and latest29/30+corrected1/1; not a fabricated whole-app clean run.
+Broader compact/layout/handedness, otherentities, hover and physicalinput are
+separate acceptance gates. Inventory6passed/0failed/1deviceblocked/49incomplete
+(38partial,11deferred), total56. NextQA10 oppositedirection threepoint baseline/height
+and stage cancellation, using retained anchor receipts rather than repeating them.

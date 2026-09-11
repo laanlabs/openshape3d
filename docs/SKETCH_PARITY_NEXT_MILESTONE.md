@@ -579,3 +579,13 @@ general snap categories/hover/physicalinput remain separate. Relevant35distinct
 checks pass across retained runs, notonecombinedcleanrun. Inventory4passed/
 0failed/1deviceblocked/51incomplete (40partial11deferred),total56. NextQA08
 remainingdiagonalquadrants andnumericanchor comparison. Immutable05be744IPA unchanged.
+
+### September10 finite rectangle closure checkpoint
+
+QA08/QA09 closed at e9343a7 after evidence reconciliation, final keypad/reselection
+live checks and verified624/master38 publication. Inventory6passed/0failed/
+1deviceblocked/49incomplete (38partial,11deferred). Latest relevant follow-up is
+29/30 plus corrected center-rotation1/1, not a clean combined run. Original
+finite allquadrant/anchor/bothsizeorder criteria are met; broader exactUI/device
+gates remain. NextQA10 opposite baseline/slopes, sizes/reselection and eachstage
+cancellation. Immutable05be744IPA unchanged.
