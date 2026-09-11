@@ -660,11 +660,12 @@ native chain, and QA-19's native threshold pair remain separate open gates.
 
 Endpoint versus short-edge midpoint, outline/profile selection, blank
 deselection, selected-target Delete, one-step Undo, and saved reopen are paired
-or exact-build verified. The current-tree regression passed clean 19/19. QA-23
-is closure-ready, but the illustrated append did not persist and export remains
-at 786 media. Inventory therefore stays 13 passed / 0 failed / 1 device-blocked /
-42 incomplete. QA-24 additive selection is the next finite
-selection case; hover and physical input remain QA-21/QA-52.
+or exact-build verified. The current-tree regression passed clean 19/19.
+Publication is anonymously export-verified at 796 unique image placements: all
+ten new hashes occur once and no predecessor asset is lost. The master roadmap
+retains 38 media and one dated note. QA-23 passes and advances the inventory to
+21 passed / 0 failed / 1 device-blocked / 34 incomplete. QA-24 additive
+selection remains separate; hover and physical input remain QA-21/QA-52.
 
 ## September 11 — QA-24/25 checkpoint
 

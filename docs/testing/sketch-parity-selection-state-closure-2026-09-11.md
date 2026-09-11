@@ -46,10 +46,15 @@ dimension selection QA-28, and physical Pencil/touch QA-52. Fresh native canvas
 input is still blocked for QA-05 and QA-19; this closure relies on retained
 native evidence and does not relabel that delivery blocker.
 
-Publication is not yet verified. The browser editor reported successful key
-delivery but did not establish a document caret; anonymous export contains zero
-QA-23 closure headings and remains at 786 media. No duplicate text or image was
-inserted. Until the illustrated append is saved and export-verified, the case
-remains partial and inventory stays 13 passed / 0 failed / 1 device-blocked /
-42 incomplete. The immutable
-`05be744` IPA is unchanged.
+Publication is verified. A fresh authenticated tab avoided the older tab's
+temporary saving lock. Anonymous DOCX/TXT exports contain one QA-23 closure
+heading and one verdict, 796 unique image placements, all ten new SHA-256 hashes
+exactly once, and all 786 predecessor assets. The new images comprise retained
+native short-edge midpoint, endpoint and profile-selection evidence plus the
+current-build clone blank/profile/outline/Delete/Undo/gallery/reopen sequence.
+The master roadmap retains 38 media and contains one dated closure note.
+
+QA-23 is promoted to passed. Inventory is **21 passed / 0 failed /
+1 device-blocked / 34 incomplete**. Additive selection, hover,
+dimension-selection breadth and physical Pencil/touch remain separate cases.
+The immutable `05be744` IPA is unchanged.

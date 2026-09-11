@@ -1,5 +1,26 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 17:00
+
+HEAD `e190b60` is pushed. QA-23's finite endpoint/midpoint, outline/profile,
+blank-deselect, selected-outline Delete, one-step Undo and gallery-reopen recipe
+is now closed. Its clean current-tree regression remains 19/19 at
+`/tmp/os3d-qa23-selection-baseline-20260911.xcresult`.
+
+Google publication recovered in a fresh authenticated tab without altering the
+older stalled tab. Anonymous exports verify one closure heading and verdict,
+796 unique illustrated placements, all ten new hashes exactly once, and zero
+loss from the prior 786 assets. The master roadmap retains 38 media and one
+dated QA-23 note. Inventory is **21 passed / 0 failed / 1 device-blocked /
+34 incomplete**.
+
+No runner owns the simulator. Dirty files are bounded QA-23 closure
+documentation; unrelated identity/memory files remain untracked. Exact next
+action: commit/push this publication checkpoint, then continue the finite
+QA-29 badge/keypad layout audit using the clean QA-53 51/51 layout gate and
+retained paired evidence. Fresh capture permutations and physical input remain
+separate open gates. Immutable `05be744` IPA is untouched.
+
 ## Current execution — September 11 16:40
 
 HEAD `80dfdc9` is pushed. QA-54's final one-owner current-tree command/keyboard
