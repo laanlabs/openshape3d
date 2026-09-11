@@ -1808,3 +1808,14 @@ and commit, and paired gallery reopen are captured. Fresh native center first
 commit matches this lifecycle; previously dimensioned opposite-side extra
 labels remain a separate open visual case. Illustrated608/master38 publication
 verified. [Closure audit](testing/sketch-parity-rectangle-closure-audit-2026-09-10.md).
+
+## September 10 — axis adjacent and saved-side readouts
+
+Selected axis sides now choose the preceding adjacent edge for the other size.
+Committed sides persist as optional presentation metadata; aliases share the
+same dimension/refs, including after an opposite-side edit. Initial41/41, then
+59/59 plus storage1/1 passed separately; live history exposed stale placement,
+corrected in final59/59. Paired latest Undo/Redo and gallery reopen passed.
+Illustrated616/master38 verified. Legacy unknown sides retain defaults; no
+invented metadata or solver equations. Bottom keypad/transform-chip overlap
+remains the next confirmed UI gap. See rectangle closure audit.

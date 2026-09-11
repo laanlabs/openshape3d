@@ -103,6 +103,9 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
     /// Optional annotation anchor relative to the referenced circle center, in
     /// sketch-plane units. Presentation only; never enters the solver.
     var labelOffset: SIMD2<Double>? = nil
+    /// Committed axis-rectangle annotation sides, presentation only. Legacy nil
+    /// retains existing placement; never adds dimensions or solver references.
+    var rectangleLabelEdges: [Int]? = nil
 
     init(id: UUID = UUID(),
          kind: DimensionKind,
@@ -110,7 +113,8 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
          value: Double,
          formula: String? = nil,
          labelOffset: SIMD2<Double>? = nil,
-         displayExpression: String? = nil) {
+         displayExpression: String? = nil,
+         rectangleLabelEdges: [Int]? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
@@ -118,5 +122,6 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
         self.formula = formula
         self.displayExpression = displayExpression
         self.labelOffset = labelOffset
+        self.rectangleLabelEdges = rectangleLabelEdges
     }
 }

@@ -11835,6 +11835,7 @@ final class EditorViewModel {
         var hasExpression = false
         var isStandaloneLineLength = false
         var isRectangleSize = false
+        var axisRectangleEdge: Int? = nil
         var worldRectangleCenter: SIMD3<Double>? = nil
         var isArcRadius = false
         var worldArcCenter: SIMD3<Double>? = nil
@@ -11855,6 +11856,7 @@ final class EditorViewModel {
         var measuredSeed: Double? = nil
         var validationMessage: String? = nil
         var isPolygonSideCount = false
+        var axisRectangleEdge: Int? = nil
     }
     // Input-mode preference survives individual dimension edit sessions.
     var dimensionUsesSystemKeyboard = false
@@ -11973,9 +11975,10 @@ final class EditorViewModel {
             if let pick = selectedAxisRectangleEdge,
                (selectedSketchEntityIDs == [pick.id] || retainedSize),
                refs.allSatisfy({ $0.entityID == pick.id }),
-               (kind == .horizontal) == (pick.index % 2 == 0),
                let entity = sketchEntity(pick.id, in: sketch),
-               let edge = RectangleConstruction.axisEdge(entity, index: pick.index) {
+               let edge = RectangleConstruction.axisEdge(entity, index:
+                    (kind == .horizontal) == (pick.index % 2 == 0)
+                        ? pick.index : (pick.index + 3) % 4) {
                 return ((edge.a + edge.b) / 2, edge.a, edge.b)
             }
             // Creation direction determines default leader sides, independently
@@ -12255,7 +12258,8 @@ final class EditorViewModel {
         var labels: [SketchDimensionLabel] = []
 
         func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
-                       refs: [ConstraintRef], value: Double, presentationEdgeID: UUID? = nil) -> SketchDimensionLabel? {
+                       refs: [ConstraintRef], value: Double, presentationEdgeID: UUID? = nil,
+                       axisPresentationEdge: Int? = nil) -> SketchDimensionLabel? {
             guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
             if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
                Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
@@ -12284,6 +12288,26 @@ final class EditorViewModel {
                 g.end = b
                 g.anchor = (a + b) / 2
             }
+            var axisEdgeIndex: Int?
+            if kind == .horizontal || kind == .vertical, refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               let entity = sketchEntity(refs[0].entityID, in: sketch), case .rect = entity {
+                let storedEdge = dimensionID.flatMap { id in
+                    sketch.dimensions.first(where: { $0.id == id })?.rectangleLabelEdges?.last
+                }
+                let selectedSide = selectedAxisRectangleEdge?.id == entity.id &&
+                    selectedSketchEntityIDs == [entity.id]
+                if let edgeIndex = axisPresentationEdge ?? (selectedSide ? nil : storedEdge),
+                   (kind == .horizontal) == (edgeIndex % 2 == 0),
+                   let edge = RectangleConstruction.axisEdge(entity, index: edgeIndex) {
+                    g.start = edge.a; g.end = edge.b; g.anchor = (edge.a + edge.b) / 2
+                }
+                axisEdgeIndex = (0..<4).first { index in
+                    guard (kind == .horizontal) == (index % 2 == 0),
+                          let edge = RectangleConstruction.axisEdge(entity, index: index) else { return false }
+                    return simd_distance((edge.a + edge.b) / 2, g.anchor) < 1e-9
+                }
+            }
             // Angles are unitless; lengths follow the display unit. The
             // document itself always stores millimetres — `value` is mm here.
             // Radius and diameter carry the CAD leader (R / Ø, the same
@@ -12309,6 +12333,7 @@ final class EditorViewModel {
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            label.axisRectangleEdge = axisEdgeIndex
             if let dimensionID, let dimension = sketch.dimensions.first(where: { $0.id == dimensionID }) {
                 label.hasExpression = dimension.formula != nil || dimension.displayExpression != nil
             }
@@ -12382,6 +12407,25 @@ final class EditorViewModel {
                 if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
                                          kind: d.kind, refs: d.refs, value: display) {
                     labels.append(label)
+                    // Saved sides remain visible beside a perpendicular edge's
+                    // adjacent readout, or after a successful size commit. All
+                    // aliases share one driving dimension and identical refs.
+                    if sketch.id == activeSketch?.id, let primary = label.axisRectangleEdge,
+                       let saved = d.rectangleLabelEdges {
+                        let perpendicularSelection = selectedAxisRectangleEdge.map { pick in
+                            selectedSketchEntityIDs == [pick.id] && d.refs.allSatisfy { $0.entityID == pick.id } &&
+                                (pick.index % 2 == 0) != (d.kind == .horizontal)
+                        } == true
+                        let retained = selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty && selectedDimensionID == d.id
+                        if perpendicularSelection || retained {
+                            for side in Set(saved).sorted() where side != primary {
+                                guard (0..<4).contains(side), (side % 2 == 0) == (d.kind == .horizontal) else { continue }
+                                if let alias = makeLabel(id: d.id.uuidString + "-axis-side-\(side)",
+                                    in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                                    value: display, axisPresentationEdge: side) { labels.append(alias) }
+                            }
+                        }
+                    }
                     // A committed selected size remains as two parallel
                     // readouts after native drops its edge/handle selection.
                     if sketch.id == activeSketch?.id, selectedDimensionID == d.id,
@@ -12546,7 +12590,8 @@ final class EditorViewModel {
                     : AppSettings.shared.unit.display(fromMM: label.displayValue),
                 lengthUnit: label.kind == .angle || label.isPolygonSideCount ? nil : AppSettings.shared.unit),
             measuredSeed: retainedExpression == nil && !label.isPolygonSideCount ? label.displayValue : nil,
-            isPolygonSideCount: label.isPolygonSideCount
+            isPolygonSideCount: label.isPolygonSideCount,
+            axisRectangleEdge: label.axisRectangleEdge
         )
     }
 
@@ -12760,6 +12805,9 @@ final class EditorViewModel {
             // must not consume Undo or perturb geometry through another solve.
             // Unlocking and changes to the retained source remain real edits.
             if dimensionCommitLocked && after == before { return }
+            if let side = edit.axisRectangleEdge {
+                after.rectangleLabelEdges = Array(Set((before.rectangleLabelEdges ?? []) + [side])).sorted()
+            }
             proposed.dimensions[idx] = after
             candidateDimensionID = dimID
             setup = UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after)
@@ -12768,7 +12816,8 @@ final class EditorViewModel {
                 ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
             let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored,
                                       formula: formula, labelOffset: offset,
-                                      displayExpression: displayExpression)
+                                      displayExpression: displayExpression,
+                                      rectangleLabelEdges: edit.axisRectangleEdge.map { [$0] })
             proposed.dimensions.append(dim)
             candidateDimensionID = dim.id
             setup = AddSketchDimensionCommand(sketchID: sketchID, dimension: dim)

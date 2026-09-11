@@ -188,6 +188,68 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testAxisSavedSideAndAdjacentAliasShareDimensionThroughHistoryAndSerialization() throws {
+        let vm = try makeViewModel(), id = UUID()
+        var source = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        vm.session.perform(AddSketchCommand(sketch: source))
+        vm.mode = .sketching(source.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 1)
+        let bottom = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .horizontal })
+        XCTAssertEqual(bottom.axisRectangleEdge, 0)
+        vm.beginDimensionEdit(bottom)
+        vm.commitDimensionEdit("3")
+        let first = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(first.dimensions.count, 1)
+        XCTAssertEqual(first.dimensions[0].rectangleLabelEdges, [0])
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 3)
+        let widths = vm.sketchDimensionLabels.filter { $0.kind == .horizontal }
+        XCTAssertEqual(widths.count, 2)
+        XCTAssertEqual(Set(widths.compactMap(\.axisRectangleEdge)), [0, 2])
+        XCTAssertEqual(Set(widths.map(\.id)).count, 2)
+        XCTAssertTrue(widths.allSatisfy { $0.dimensionID == first.dimensions[0].id && $0.refs == first.dimensions[0].refs })
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 3)
+        let top = try XCTUnwrap(widths.first { $0.axisRectangleEdge == 2 })
+        vm.beginDimensionEdit(top)
+        vm.cancelDimensionEdit()
+        XCTAssertEqual(vm.activeSketch, first)
+        vm.beginDimensionEdit(top)
+        vm.commitDimensionEdit("2")
+        let second = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(second.dimensions.count, 1, "Presentation aliases never add equations")
+        XCTAssertEqual(second.dimensions[0].rectangleLabelEdges, [0, 2])
+        XCTAssertEqual(second.dimensions[0].refs, first.dimensions[0].refs)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertNil(vm.rectangleHandleGeometry)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, first)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "Undo removes the newly committed annotation side")
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.axisRectangleEdge, 0)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, second)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap(\.axisRectangleEdge)), [0, 2])
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(second))
+        XCTAssertEqual(reopened, second)
+        var legacyDimension = first.dimensions[0]
+        legacyDimension.rectangleLabelEdges = nil
+        let legacyData = try JSONEncoder().encode(legacyDimension)
+        let legacyObject = try XCTUnwrap(JSONSerialization.jsonObject(with: legacyData) as? [String: Any])
+        XCTAssertNil(legacyObject["rectangleLabelEdges"])
+        XCTAssertEqual(try JSONDecoder().decode(SketchDimension.self, from: legacyData), legacyDimension)
+        var guest = DesignDocument()
+        guest.sketches = [second]
+        let inserted = try XCTUnwrap(ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches.first)
+        XCTAssertEqual(inserted.dimensions[0].rectangleLabelEdges, [0, 2])
+        XCTAssertNotEqual(inserted.entities[0].id, id)
+        XCTAssertTrue(inserted.dimensions[0].refs.allSatisfy { $0.entityID == inserted.entities[0].id })
+    }
+
     func testAxisRectangleSizeCommitClearsSideButRetainsEditedReadoutThroughHistory() throws {
         for side in 0..<4 {
             let vm = try makeViewModel(), id = UUID()
@@ -202,6 +264,11 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
             vm.selectedSketchEntityIDs = [id]
             vm.selectedAxisRectangleEdge = (id, side)
             let kind: DimensionKind = side % 2 == 0 ? .horizontal : .vertical
+            let adjacentKind: DimensionKind = kind == .horizontal ? .vertical : .horizontal
+            let adjacent = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == adjacentKind })
+            let adjacentEdge = try XCTUnwrap(RectangleConstruction.axisEdge(source.entities[0], index: (side + 3) % 4))
+            XCTAssertEqual(adjacent.worldStart, source.plane.toWorld(adjacentEdge.a))
+            XCTAssertEqual(adjacent.worldEnd, source.plane.toWorld(adjacentEdge.b))
             let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == kind })
             vm.beginDimensionEdit(label)
             vm.cancelDimensionEdit()

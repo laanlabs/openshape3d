@@ -1,30 +1,26 @@
 # Parity continuation checkpoint
 
-## Active continuation — September 10, axis lifecycle checkpoint
+## Active continuation — September 10, saved-side checkpoint
 
-Base HEAD `7195f92` pushed. Axis successful side-commit cleanup, all-side
-readout/history test and corrected rendered right-height UI fixture are now
-verified and ready to commit. Unrelated identity/memory files preserved.
-No test/build runner active; sole desktop owner. Initial 41/1 real presentation
-failure corrected; same-set final42/42 clean. Earlier78/78 consolidated and
-correctedheight1/1 separate. Live right commit/Undo/Redo and left cancel/commit
-clear selection while preserving chosen-side readout. Paired gallery reopen
-retains native15.5×7 and clone1.5175×2; fresh native Center10×6→10×4 first
-height commit independently confirms one retained readout.
-Remaining discrepancy: previously dimensioned native lower shape shows extra
-parallel labels after opposite-side edits. Fresh native shows two selected/one
-first-commit labels, so do not generalize triple aliases to all axis shapes.
-Exact next: commit/push verified lifecycle checkpoint, then isolate saved-axis
-opposite-side dimension state and compare a fresh same-sequence clone/native
-case; continue finite QA08/09 closure audit. No pending test worker.
-Illustrated608/all8newhashes and master38 dated note verified, no predecessor
-image/text loss. Exports `/tmp/os3d-qa0809-axis-fixed-{published,master}.docx`.
-Evidence copied/hashed into reports/.../center-matrix; detailed receipt:
-`docs/testing/sketch-parity-rectangle-closure-audit-2026-09-10.md`.
-Native1924 remains all-Items reopened sketch in Front view (slight zoom changed).
-Clone7715 remains reopened selected-left rectangle1.5175×2 in Top sketch.
-Inventory4passed/0failed/1deviceblocked/51incomplete. ImmutableIPA05be744
-untouched. No duplicate worker/watchdog, merge/install/hostrestart/securitychange.
+BaseHEAD0067ea4 pushed. Adjacent axis placement + saved annotation-side metadata/
+aliases now verified and ready to commit with tests/docs. Final combined59/59
+clean after initial41/41, saved-side59/59, storage1/1 and a LIVE stale-Undo-alias
+finding. Final live native Undo8→9 one bottom/Redo9→8 both; cloneUndo2→1 one
+bottom/Redo1→2 both. Paired gallery reopen native8×4 andclone2×1.5 retains sides.
+Illustrated616/all8newhashes/master38 dated note verified, no predecessor loss.
+Exports `/tmp/os3d-qa0809-saved-sides-{published,master}.docx`. No test runner.
+Native1924 remains all-Items Front sketch, fresh lower-right8×4; older15.5×7.
+Clone7715 remains reopened left-selected2×1.5, bothwidthreadouts. All finalPNG
+copies/hashes in center-matrix. Receipt testing/sketch-parity-rectangle-closure-audit-2026-09-10.md.
+Exact next commit/push this checkpoint, then fix confirmed bottom keypad overlap:
+Move/Rotate chip paints over lower-right keypad (`sides-final-first-editor`).
+Hide unrelated sketch transform chips while dimension editor is active, verify
+cancel restoration/commit and paired live repeat, documentpublish. Then finish
+finite QA08/09 closure audit. Do not blanket-close from this batch.
+Legacy missing side metadata retains defaults until later edits; no fabricated
+historical reconstruction. Inventory4passed/0failed/1deviceblocked/51incomplete.
+ImmutableIPA05be744 untouched; sole desktop/build owner, unrelated identity/
+memory preserved. No duplicate workers/watchdog/merge/install/hostrestart/security.
 
 ## Prior handoff checkpoint (superseded as stopping condition)
 

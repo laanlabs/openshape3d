@@ -132,3 +132,67 @@ image loss and all prior text retained in order. Master export
 predecessor image/text loss. Prior diagnosis 600 remains included.
 QA08/09 remain partial for the dimension-history-dependent opposite-side
 readout case; no change to inventory or immutable IPA.
+
+### Selection-relative adjacent side diagnosis
+
+On the fresh native Center10×4 fixture, selected right exposes bottom width;
+width10→9 committed there. Subsequent left selection exposes top and saved
+bottom9; selected top exposes saved left4 and adjacent right4. This reproduces
+the extra-label pattern without the older dense shape's edit history. Clone
+selected right instead exposes upper width, inherited from creation direction.
+`axis-history-native-right`, `native-width-editor/commit`, `native-left-after-width`,
+`native-top` and `clone-right` are local hashed diagnosis evidence.
+
+First correction is narrowly selection-relative adjacent placement: selected
+axis side uses its preceding counter-clockwise edge for the other size. Four-side
+world endpoint assertions added to the existing history test. Serial exec29238
+`/tmp/os3d-qa0809-axis-adjacent-20260910.log`/.xcresult owns simulator, running
+AnnotationVisibility + RectangleConstruction + right-height UI. Saved dimension
+presentation-side persistence/duplicate alias behavior remains a distinct next
+fix, not implemented by this placement change. Baseline0067ea4 pushed.
+
+Adjacent placement run29238 passed clean41/41. Live clone selected-right width
+now below, typed1 commits below, selected-left adjacent width moves above.
+Native corresponding bottom9 persists alongside top9; clone lost bottom1.
+New optional `SketchDimension.rectangleLabelEdges` records committed axis
+annotation sides; aliases share same saved dimension/refs and never add solver
+equations. Nil legacy dimensions retain defaults. Project merge preserves the
+metadata. New regression checks alias IDs/refs, one equation, cancel, commit,
+exact Undo/Redo and Codable roundtrip. Serial53489 saved-side run active; no
+postfix claim for this metadata change. New adjacent-fixed evidence copied/hashed.
+
+Saved-side initial run passed59/59; strengthened absent-key legacy decoding and
+project insertion passed1/1 separately. Live clone bottom1 plus adjacenttop1
+now matches native bottom9/top9. Top edit clone1→2 and native9→8 both leave
+two widths with no selection. HOWEVER native Undo returns to one bottom9
+readout; clone Undo showed top1 and bottom1. Exact metadata undo already passed,
+but stale selected-side presentation overrode restored saved side. Final fix
+uses stored-side placement whenever no entity side is selected; new explicit
+Undo label-count/edge assertion added. Final combined run exec2900
+`/tmp/os3d-qa0809-axis-saved-sides-final-20260910.log`/.xcresult now active.
+Native remains at Undo9×4 (Redo not yet performed); no desktop while UI tests
+run. `saved-side-*` screenshots copied/hashed, interim not final evidence.
+
+### Final saved-side result and publication
+
+Final combined59/59 passed in `/tmp/os3d-qa0809-axis-saved-sides-final-20260910.xcresult`
+including the strengthened legacy/insertion and Undo-side checks (no failures
+or skips). Live corrected clone Undo2→1 leaves only bottom1; Redo1→2 restores
+both. Native Undo8→9 leaves bottom9 and Redo9→8 restores both. Final gallery
+reopen retains clone2×1.5 with top/bottom width plus selected-left height and
+native8×4 with both widths. Native all-Items image is persistence-only.
+Latest `sides-final-*` PNGs copied/hashed. Initial live stale-alias failure is
+retained above, not hidden by earlier automated passes.
+
+Illustrated `/tmp/os3d-qa0809-saved-sides-published.docx` verified616 placements,
+all8 new hashes exactly once, no predecessor image or ordered-text loss,
+heading once. Master `/tmp/os3d-qa0809-saved-sides-master.docx`38 placements,
+new dated note once, no predecessor loss. Legacy dimensions cannot recover
+unknown historical annotation sides; nil preserves defaults until subsequent
+edits record a side. No extra equations or reference changes.
+
+Next confirmed visible issue: Move/Rotate chip overlays lower-right keypad
+area in `sides-final-first-editor`; native editor has no such chip. Upper
+commit was reachable but overlap is not a parity pass. Hide unrelated sketch
+transform chips while a dimension editor is active; test restoration on cancel.
+QA08/09 remain partial; inventory unchanged.
