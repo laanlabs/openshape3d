@@ -98,6 +98,12 @@ final class ArcTapConstructionTests: XCTestCase {
 
     func testThirdPointTangentTransitionIsOneUndoableDrawStep() throws {
         let vm = try makeViewModel()
+        let priorGuidepoints = AppSettings.shared.snapToSketchGuidepoints
+        defer { AppSettings.shared.snapToSketchGuidepoints = priorGuidepoints }
+        AppSettings.shared.snapToSketchGuidepoints = true
+        vm.autoConstrainSettings.enabled = true
+        vm.autoConstrainSettings.pointSnap = true
+        vm.autoConstrainSettings.tangent = true
         startArc(vm)
         let sketchID = try XCTUnwrap(vm.activeSketch?.id)
         let lineID = UUID()

@@ -44,7 +44,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
-| QA-40 | Keypad transitions | Core — partial, not passed | Click-away/tool activation and dimension Escape paired; explicit-transform keypad-first Escape and subsequent tool exit live verified (4d6e64e). Full system-keyboard matrix open. |
+| QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired crossing-line/circle span removal; remaining primitives/history open. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Rectangle edge removal/surviving side readout paired; driven/reference/history matrix open. |
@@ -327,7 +327,13 @@ QA-52. See [conflict and point states closure](testing/sketch-parity-conflict-po
 
 ### QA-40 — Keypad transitions
 
-Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12; DM-12. Result: PARTIAL (historical NOT RUN superseded). Prior tool/blank/Escape coverage in ledger. Sept10 same-dimension keyboard/keypad preference, seed replacement and live Escape captured paired; explicit-commit lifecycle11/11. Synthetic XCTest Escape discrepancy retained. Full rotation/pan/compact/device-input matrix remains open. Evidence: testing/sketch-parity-keyboard-preference-2026-09-10.md.
+Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12;
+DM-12. Result: **PARTIAL**. Retained paired tool/blank/Escape/history and
+keyboard/keypad-mode evidence is supplemented by a clean 56/56 current-tree gate.
+The initial 54-pass/2-fail run exposed two preference-contaminated model fixtures;
+the prerequisites were isolated and the complete set reran clean. Fresh paired
+rotation/pan, compact and physical/system-keyboard input remain open. See
+[keypad transition checkpoint](testing/sketch-parity-keypad-transitions-checkpoint-2026-09-11.md).
 
 September10 supplement: `1d28849` fixes software-keyboard occlusion with clean2/2
 UI tests asserting field/commit above actual keyboard. Live portrait invalid draft,

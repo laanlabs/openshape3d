@@ -32,8 +32,15 @@ final class CircleCenterInputTests: XCTestCase {
     }
     func testRadiusConstructionDirectionSurvivesSizingHistoryAndDecode() throws {
         let prior = AppSettings.shared.circularAnnotations
-        defer { AppSettings.shared.circularAnnotations = prior }
+        let priorGrid = AppSettings.shared.snapToGrid
+        defer {
+            AppSettings.shared.circularAnnotations = prior
+            AppSettings.shared.snapToGrid = priorGrid
+        }
         AppSettings.shared.circularAnnotations = .alwaysRadius
+        // Construction direction is the subject here. A persisted Grid choice
+        // must not quantize the oblique fixture before that direction is saved.
+        AppSettings.shared.snapToGrid = false
         for direction in [SIMD2<Double>(-1, 0), SIMD2(0, 1), SIMD2(0, -1), SIMD2(0.6, 0.8)] {
             let vm = try model()
             drag(vm, SIMD2(10, 10), SIMD2(10, 10) + direction * 3)

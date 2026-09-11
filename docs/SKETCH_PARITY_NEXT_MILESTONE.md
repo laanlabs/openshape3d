@@ -747,3 +747,14 @@ paired conflict sequence was already export-verified. QA-39 passes only for its
 finite desktop recipe; QA-36's incomplete all-relation live sweep and QA-52
 physical input remain separate. Inventory advances to **16 passed / 0 failed /
 1 device-blocked / 39 incomplete**.
+
+## September 11 — QA-40 transition checkpoint
+
+The current-tree keypad/cancellation gate passes clean **56/56** after two
+retained preference-contamination failures were corrected in the fixtures. The
+five UI workflows cover click-away, invalid refusal, another/same tool, Exit,
+Undo/Redo and keyboard/keypad switching; 51 model checks cover shape-specific
+Escape and draft/history semantics. Retained paired evidence supplies the live
+comparison for those paths. QA-40 remains partial because fresh paired rotation/
+pan and comprehensive physical/system-keyboard input remain open. Inventory stays
+16/0/1/39.

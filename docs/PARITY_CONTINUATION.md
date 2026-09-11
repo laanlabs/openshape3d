@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 14:57
+
+HEAD `1e42243` is pushed. QA-40's initial combined transition run completed with
+54 passes and two model failures while all five UI workflows passed. The failures
+were persisted-setting contamination: Grid quantized an oblique circle-direction
+fixture and Sketch Guidepoints off suppressed a requested tangent relation. Tests
+now declare and restore those prerequisites. Focused correction passed 2/2 and
+the complete same-set rerun passed clean **56/56**, zero failures/skips, at
+`/tmp/os3d-qa40-keypad-transitions-final-20260911.xcresult`.
+
+QA-40 remains partial for fresh paired rotation/pan and comprehensive physical/
+system-keyboard input. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the two isolated fixtures and bounded QA-40 checkpoint docs. Exact next action:
+commit/push safely, then execute QA-41 primitive Trim acceptance. Immutable
+`05be744` IPA and unrelated identity/memory files remain untouched.
+
 ## Current execution — September 11 14:48
 
 HEAD `5ea6b8a` is pushed. QA-39's one-owner serial gate passed clean **69/69**,
