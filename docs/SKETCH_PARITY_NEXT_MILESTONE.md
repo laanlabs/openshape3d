@@ -811,3 +811,13 @@ includes two real profile-to-extrude workflows. QA-49 passes only this finite
 desktop recipe; exhaustive curved-curve intersection splitting and physical
 input remain separate. Inventory advances to **18 passed / 0 failed /
 1 device-blocked / 37 incomplete**.
+
+## September 11 — QA-50 finite sketch-to-solid closure
+
+Retained paired profile extrusion, nested-hole bore, consumed-source rebuild,
+visibility, history and gallery-reopen evidence is reconciled with a clean
+one-owner **15/15** current-tree profile/feature-graph/cut/history/UI gate.
+QA-50 passes only its finite exact-extrude/hole/consumed/rebuild/Undo recipe;
+advanced Sweep/Loft breadth remains separate and cold-launch state stays QA-51.
+Inventory advances to **19 passed / 0 failed / 1 device-blocked /
+36 incomplete**.

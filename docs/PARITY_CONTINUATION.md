@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current execution — September 11 15:45
+
+HEAD `3ceb192` is pushed. QA-50's final one-owner exact-extrude/hole/source-
+rebuild/history/UI gate passed clean **15/15**, zero failures/skips, at
+`/tmp/os3d-qa50-solid-final-20260911.xcresult`. Retained paired evidence closes
+the finite solid handoff, consumed visibility, bore rebuild, Undo/Redo and
+gallery-reopen recipe. No product source changed and no duplicate report
+publication is claimed.
+
+QA-50 passes only its finite desktop recipe; advanced Sweep/Loft breadth and
+QA-51 cold-launch persistence remain separate. Inventory becomes **19 passed /
+0 failed / 1 device-blocked / 36 incomplete**. No runner owns the simulator.
+Dirty files are bounded QA-50 closure documentation. Exact next action: inspect,
+commit/push, then audit QA-51 save/reopen state against geometry, constraints,
+variables, pattern links, label state and units without repeating already paired
+reopen samples. Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
 ## Current execution — September 11 15:41
 
 HEAD `c039366` is pushed. QA-49's final one-owner profile/construction/entity/UI

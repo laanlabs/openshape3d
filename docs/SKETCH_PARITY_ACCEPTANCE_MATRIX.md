@@ -54,7 +54,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-47 | Projection | Explicitly deferred | Projection linking; remains in full audit, not passed. |
 | QA-48 | Coplanar sketch identity | Core — passed | Finite independent/new, named continuation, consumed-source edit/rebuild, hidden visibility, history and reopen recipe closed September 11; clean 9/9 current-tree gate. |
 | QA-49 | Profile topology | Core — passed | Finite hole/touching/tiny-gap/duplicate/construction-crossing recipe closed September 11 from retained paired evidence and a clean 46/46 current-tree gate. Exhaustive curved intersections remain outside this bounded pass. |
-| QA-50 | Sketch-to-solid | Core — partial, not passed | Pentagon, nested-hole bore, duplicate-boundary block and bow-tie triangle extrusion/history/reopen paired. Consumed source bore rebuild paired; Sweep/Loft smoke remains open. |
+| QA-50 | Sketch-to-solid | Core — passed | Finite exact extrusion/hole/consumed visibility/source rebuild/history recipe closed September 11 from retained paired evidence and a clean 15/15 current-tree gate. Advanced Sweep/Loft breadth remains separate. |
 | QA-51 | Save/reopen | Core - partial, not passed | Paired numeric/radial/rectangle reopen samples retain geometry; latest locked rectangle profile/handle retained. Cold launch and broader downstream state open. |
 | QA-52 | Touch and Pencil | Device-only pending | Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute. |
 | QA-53 | Layout | Core - partial, not passed | Near-rail circle diameter target/leader corrected; paired labels/keypad and reopen, final4/4 after documented guard failures. Landscape radial samples retained; handedness/oblique/manual-placement matrix open. |
@@ -411,7 +411,7 @@ Hole, touching loops, tiny gap, duplicate edge, construction crossing. Issues: E
 
 ### QA-50 — Sketch-to-solid
 
-Exact extrude, correct hole, consumed sketch visibility, edit/rebuild, undo. Issues: ED-09. Result: NOT RUN. Evidence/owner: pending.
+Exact extrude, correct hole, consumed sketch visibility, edit/rebuild, undo. Issues: ED-09. Result: **PASS (finite desktop recipe)**. Retained paired evidence covers closed and nested profiles, consumed-source bore rebuild, visibility, Undo/Redo and gallery reopen. Current-tree profile/feature-graph/cut/history/UI gate passed clean 15/15. Advanced Sweep/Loft breadth remains separate. Evidence: `testing/sketch-parity-sketch-to-solid-closure-2026-09-11.md` plus the downstream, nested-profile and consumed-source receipts.
 
 ### QA-51 — Save/reopen
 
