@@ -260,7 +260,9 @@ struct SketchDimensionOverlay: View {
                             .fixedSize()
                             .rotationEffect(.radians(diameter.rotation))
                             .frame(width: diameter.targetSize.width, height: diameter.targetSize.height)
-                            .contentShape(Rectangle())
+                            .contentShape(DiameterValueHitShape(center: CGPoint(
+                                x: (start.x + end.x) / 2 - diameter.anchor.x + diameter.targetSize.width / 2,
+                                y: (start.y + end.y) / 2 - diameter.anchor.y + diameter.targetSize.height / 2)))
                     } else if let linear {
                         let selectedCornerSize = label.isRectangleSize && label.dimensionID != nil &&
                             viewModel.selectedDimensionID == label.dimensionID &&
@@ -383,7 +385,8 @@ struct SketchDimensionOverlay: View {
         return SketchDiameterDimensionLayout.make(start: start, end: end, anchor: anchor,
             clearance: viewModel.sketchTransformActive ? 60 : 20,
             available: bounds, textWidth: width, allowVertical: headOn, manualAnchor: manualAnchor,
-            preferVertical: !viewModel.sketchTransformActive && viewModel.mode.sketchTool != .circle)
+            preferVertical: !viewModel.sketchTransformActive && viewModel.mode.sketchTool != .circle
+                && viewModel.selectedCircleCenterID == nil && viewModel.retainedCircleCenterReadoutID == nil)
     }
 
     private func diameterDrag(_ label: EditorViewModel.SketchDimensionLabel,
@@ -703,5 +706,23 @@ private struct DimensionField: View {
         .padding(.vertical, 4)
         .background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 2))
+    }
+}
+
+/// A padded diameter value must not take the center's touch/drag. Retain the
+/// value's target everywhere else, including manually displaced labels.
+private struct DiameterValueHitShape: Shape {
+    var center: CGPoint
+    func path(in rect: CGRect) -> Path {
+        let cut = rect.intersection(CGRect(x: center.x - 10, y: center.y - 10, width: 20, height: 20))
+        var path = Path()
+        guard !cut.isNull, !cut.isEmpty else { path.addRect(rect); return path }
+        for region in [
+            CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: cut.minY - rect.minY),
+            CGRect(x: rect.minX, y: cut.maxY, width: rect.width, height: rect.maxY - cut.maxY),
+            CGRect(x: rect.minX, y: cut.minY, width: cut.minX - rect.minX, height: cut.height),
+            CGRect(x: cut.maxX, y: cut.minY, width: rect.maxX - cut.maxX, height: cut.height)
+        ] where !region.isEmpty { path.addRect(region) }
+        return path
     }
 }

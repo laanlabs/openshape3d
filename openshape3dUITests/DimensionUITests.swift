@@ -367,6 +367,41 @@ final class DimensionUITests: XCTestCase {
         XCTAssertLessThan(label.frame.midY, before.midY - 20)
     }
 
+    func testFreshCircleCenterDragMovesGeometryNotDiameterAnnotation() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Circle")
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        start.press(forDuration: 0.15, thenDragTo:
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.56, dy: 0.4)))
+        let center = app.descendants(matching: .any)["CircleCenterControl"].firstMatch
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(center.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["CircleCenterLockToggle"].exists)
+        XCTAssertTrue(label.exists)
+        let before = center.frame
+        let diameter = label.label
+        let grab = center.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.2, thenDragTo: grab.withOffset(CGVector(dx: 70, dy: 0)))
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "CircleCenterControl").count, 1)
+        XCTAssertGreaterThan(center.frame.midX, before.midX + 55, "The circle center, not just its label, must move")
+        XCTAssertEqual(center.frame.midY, before.midY, accuracy: 3)
+        XCTAssertEqual(label.label, diameter)
+        XCTAssertFalse(app.textFields["DimensionField"].exists)
+        attach(app, "fresh-selected-circle-center-moved")
+        app.buttons["UndoButton"].tap()
+        XCTAssertFalse(app.buttons["CircleCenterLockToggle"].exists)
+        XCTAssertFalse(label.exists)
+        XCTAssertEqual(center.frame.midX, before.midX, accuracy: 3)
+        XCTAssertEqual(center.frame.midY, before.midY, accuracy: 3)
+        app.buttons["RedoButton"].tap()
+        XCTAssertGreaterThan(center.frame.midX, before.midX + 55)
+        attach(app, "fresh-circle-center-history")
+    }
+
     func testCircleExplicitCenterMoveRemainsClearOfDiameterButton() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

@@ -40,7 +40,7 @@ struct SketchConstraintOverlay: View {
                         }
                         .buttonStyle(.plain)
                         .position(x: center.x, y: center.y + EditorViewModel.rectangleCenterLockOffset)
-                        .accessibilityIdentifier("RectangleCenterLockToggle")
+                        .accessibilityIdentifier(marker.id.hasSuffix(":circleCenter") ? "CircleCenterLockToggle" : "RectangleCenterLockToggle")
                         .accessibilityLabel(viewModel.canUnlockSketchSelection ? "Unlock center" : "Lock center")
                     }
                 }

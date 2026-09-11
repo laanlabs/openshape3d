@@ -1905,3 +1905,9 @@ Released baseline now uses four-decimal compact precision and positions its valu
 ### September10 QA10 finite recipe closure
 
 Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, including reverse slopes and settled native firstpoint hover/Escape. Product5014cef pushed; final36/36 and illustrated700/master38 closure note verified. Full audit in testing/sketch-parity-three-point-closure-audit-2026-09-10.md. Inventory7passed/0failed/1deviceblocked/48incomplete; nextQA11concentric initiation. General keyboard/layout/import/device gates remain. Immutable05be744IPA unchanged.
+
+### September10 QA11 center-selection distinction
+
+Native freshcirclecenter is selected/Lockable and dragsgeometry; unselectedcenter startsconcentric. Clone freshcenter insteadhollow anddiameterhitarea stole drag. Scopedrelease/centercontrol/hitexclusion draft passesinitial10/10 andlivemove; lifecyclefollowup8/2 caughtoverbroadreadoutcleanup, same10rerunpending. Detailedconcentric-matrixreceipt preservesoldsamplepass andnewdiagnosis. Publication705 verified; notclosed.
+
+QA11 follow-up September11: narrowed lifecycle clean10/10; selected equal-center target correction clean11/11. Live release/move/Undo/Lock/reopen verified; illustrated711/all6hashes. Matched snapping relationships remain open. See concentric receipt.

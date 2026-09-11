@@ -4966,8 +4966,18 @@ final class EditorViewModel {
         // Native three-point construction leaves drawing mode when Undo
         // changes committed history. Pending-placement cancellation above
         // remains separate and does not consume document history.
-        if mode.sketchTool == .rect, rectangleType == .threePoint {
+        if mode.sketchTool == .rect && rectangleType == .threePoint {
             deselectSketchTool()
+        } else if mode.sketchTool == .circle && selectedCircleCenterID != nil {
+            // Only the armed, freshly selected center workflow is live-proven
+            // to disarm and clear on Undo. Ordinary radial/transform history
+            // retains its existing selection/readout lifecycle.
+            deselectSketchTool()
+            selectedSketchPoints.removeAll()
+            selectedSketchEntityIDs.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
         }
         prepareForHistoryChange()
         session.undo()
@@ -4989,6 +4999,7 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        retainedCircleCenterReadoutID = nil
         if selectedSketchPoints.count == 1,
            let point = selectedSketchPoints.first, point.role == .center,
            let sketch = activeSketch, sketch.rotatedRectangleEdges[point.entityID] != nil,
@@ -8247,11 +8258,12 @@ final class EditorViewModel {
     static let rectangleCenterLockHitSize: CGFloat = 22
 
     var sketchRectangleCenterLockMarkers: [SketchPointMarker] {
-        let releasedCenter = mode.sketchTool == .rect && (rectangleType == .center || rectangleType == .threePoint)
+        let releasedCenter = (mode.sketchTool == .circle ||
+            (mode.sketchTool == .rect && (rectangleType == .center || rectangleType == .threePoint)))
             && !hasPendingRectangle && pendingEntity == nil
         guard mode.isSketching, mode.sketchTool == nil || releasedCenter,
               editingDimension == nil, !sketchTransformActive else { return [] }
-        return sketchRectangleCenterMarkers.filter(\.isSelected)
+        return (sketchRectangleCenterMarkers + sketchCircleCenterMarkers).filter(\.isSelected)
     }
 
     /// Shared projected bounds for direct-touch delivery through the viewport.
@@ -8274,6 +8286,7 @@ final class EditorViewModel {
         guard !sketchRectangleCenterLockMarkers.isEmpty else { return }
         // Release may retain the rectangle's edges to show its two sizes.
         // The direct padlock acts on the selected center, not those edges.
+        let circleID = selectedCircleCenterID
         selectedSketchEntityIDs.removeAll()
         let unlocking = canUnlockSketchSelection
         toggleSketchSelectionLock()
@@ -8281,6 +8294,27 @@ final class EditorViewModel {
             selectedSketchPoints = []
             selectedSketchEntityIDs = []
             selectedConstraintID = nil
+            retainedCircleCenterReadoutID = circleID
+        }
+    }
+
+    /// Circle centers remain ordinary solver points. The selected release
+    /// control uses the same local Lock action as a rectangle center.
+    var selectedCircleCenterID: UUID? {
+        guard selectedSketchPoints.count == 1, let point = selectedSketchPoints.first,
+              point.role == .center, let sketch = activeSketch,
+              case .circle? = sketchEntity(point.entityID, in: sketch) else { return nil }
+        return point.entityID
+    }
+
+    var sketchCircleCenterMarkers: [SketchPointMarker] {
+        guard let sketch = activeSketch else { return [] }
+        return sketch.entities.compactMap { entity in
+            guard case let .circle(id, center, _) = entity else { return nil }
+            let state = sketchPointMarkers.first { $0.id == "\(id):center" }?.state ?? .free
+            return SketchPointMarker(id: "\(id):circleCenter",
+                world: SIMD3<Float>(sketch.plane.toWorld(center)), state: state,
+                isSelected: selectedSketchPoints.contains(.init(entityID: id, role: .center)))
         }
     }
 
@@ -8319,8 +8353,10 @@ final class EditorViewModel {
 
     /// Selected entities of the active sketch (accent highlight; palette
     /// Delete removes them).
+    var retainedCircleCenterReadoutID: UUID?
     var selectedSketchEntityIDs: Set<UUID> = [] {
         didSet {
+            retainedCircleCenterReadoutID = nil
             if oldValue != selectedSketchEntityIDs {
                 retainedSketchTransform = nil
                 temporaryDiameterLabelOffsets.removeAll()
@@ -8341,7 +8377,9 @@ final class EditorViewModel {
     /// Points tapped for constraints (endpoints/centers). Independent of
     /// `selectedSketchEntityIDs` so a mixed selection (e.g. a point + a line
     /// for Midpoint) is expressible.
-    var selectedSketchPoints: Set<SketchPointSelection> = []
+    var selectedSketchPoints: Set<SketchPointSelection> = [] {
+        didSet { retainedCircleCenterReadoutID = nil }
+    }
 
     /// The constraint glyph currently selected (tap-select in the overlay or the
     /// Items panel). Palette/keyboard Delete removes it. Mutually exclusive with
@@ -9609,7 +9647,17 @@ final class EditorViewModel {
             pendingEntity = nil
             return true
         }
-        let control = SketchHitTester.nearestControlPoint(
+        // Coincident centers have equal hit distances. Keep the explicitly
+        // selected circle as the drag target instead of choosing entity order.
+        let selectedCenterControl: SketchHitTester.ControlHit? = {
+            guard let id = selectedCircleCenterID,
+                  let entity = sketchEntity(id, in: sketch),
+                  case let .circle(_, center, _) = entity,
+                  simd_distance(raw, center) <= controlPointTolerance else { return nil }
+            return .init(entity: entity, kind: .center, point: center,
+                         distance: simd_distance(raw, center))
+        }()
+        let control = selectedCenterControl ?? SketchHitTester.nearestControlPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance
         )
         let body = control == nil ? SketchHitTester.nearestEntity(
@@ -10484,6 +10532,16 @@ final class EditorViewModel {
         }
         commitPendingArc()
 
+        // Native's freshly selected circle center remains a move control
+        // while Circle is armed. An unselected center still starts a new circle.
+        if tool == .circle, let sketch = activeSketch,
+           selectedSketchPoints.contains(where: { point in
+               guard point.role == .center,
+                     case let .circle(_, center, _)? = sketchEntity(point.entityID, in: sketch)
+               else { return false }
+               return simd_distance(raw, center) <= controlPointTolerance
+           }), beginSketchEntityDrag(at: raw, in: sketch) { return true }
+
         // An armed drawing tool owns the stroke, even on existing geometry.
         // Toggle it off to drag points, entities, or the selection gizmo.
         if tool == nil {
@@ -10676,7 +10734,7 @@ final class EditorViewModel {
         // Open numeric input only after an explicit dimension tap.
         if tool == .circle || tool == .rect || tool == .polygon {
             selectedSketchEntityIDs = [entity.id]
-            selectedSketchPoints = tool == .rect && rectangleType == .center
+            selectedSketchPoints = tool == .circle || (tool == .rect && rectangleType == .center)
                 ? [.init(entityID: entity.id, role: .center)] : []
         }
         if tool == .line {
@@ -11702,7 +11760,10 @@ final class EditorViewModel {
                     worldAnchor: sketch.plane.toWorld(local), slot: slot,
                     isRectangleCenterLock: c.kind == .fixed && c.refs.count == 1 &&
                         c.refs[0].role == .center && sketch.entities.contains(where: {
-                            if case .rect = $0 { return $0.id == c.refs[0].entityID }; return false
+                            switch $0 {
+                            case .rect, .circle: return $0.id == c.refs[0].entityID
+                            default: return false
+                            }
                         }) || (c.kind == .fixed && c.refs.count == 1 && c.refs[0].role == .center &&
                                RectangleConstruction.centerDiagonalReferences(c.refs[0].entityID, in: sketch) != nil)
                 ))
@@ -12192,6 +12253,11 @@ final class EditorViewModel {
     /// editable candidate label; also what the palette Dimension action edits).
     private var dimensionCandidate: (kind: DimensionKind, refs: [ConstraintRef])? {
         guard mode.isSketching else { return nil }
+        if selectedSketchEntityIDs.isEmpty, selectedSketchPoints.isEmpty,
+           let id = retainedCircleCenterReadoutID, let sketch = activeSketch,
+           case .circle? = sketchEntity(id, in: sketch) {
+            return (.diameter, [.init(entityID: id, role: .whole)])
+        }
         if let edges = selectedRectangleDimensionEdges {
             return (.distance, Self.lineLengthRefs(edges[0]))
         }
@@ -12225,7 +12291,9 @@ final class EditorViewModel {
         // drag one out — so offering R on release meant the same circle showed
         // two different numbers seconds apart. An arc's radius is the useful
         // value (and what its centre-and-sweep is defined by), so it keeps R.
-        if radii.count == 1, lines.isEmpty, pts.isEmpty {
+        if radii.count == 1, lines.isEmpty, pts.isEmpty ||
+            (pts == [.init(entityID: radii[0].id, role: .center)] &&
+             selectedCircleCenterID == radii[0].id) {
             let entity = radii[0]
             let isFullCircle: Bool
             if case .circle = entity { isFullCircle = true } else { isFullCircle = false }

@@ -15,7 +15,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-08 | Diagonal rectangle | Core — passed | Finite four-quadrant, both sizing-order/lower-left anchor, selected-side/readout, history and saved-reopen recipe closed September10 at e9343a7. Relevant retained regression runs and paired evidence reconciled; illustrated624/master38 verified. Broader input/layout/device cases remain separate. |
 | QA-09 | Center rectangle | Core — passed | Finite both-axis-order/center-preservation recipe plus four release directions, center Lock/migration, selected-side/corner lifecycle, history/reopen closed at e9343a7. Relevant29/30+corrected1/1 latest follow-up retained; illustrated624/master38 verified. No universal UI/device claim. |
 | QA-10 | Three-point rectangle | Core — passed | Original rotated-baseline/perpendicular-height/each-stage-cancel recipe closed at5014cef with paired forward/reverse slopes, pending numeric/leaders, center/legacy controls, history/reopen. Final36/36; illustrated700/master38 closure note verified. Detailed three-point closure audit retains failures and input/import/device qualifications. |
-| QA-11 | Concentric circles | Sampled live recipe passed | Top/mouse existing-center initiation preserves inner circle and line; Pencil pending. |
+| QA-11 | Concentric circles | Core — partial, not passed | Prior unselected-center initiation sampled; September10 confirms fresh selected center must move instead. Clone release selection/diameter-hit gap corrected under regression; initial10/10 and live movement pass, history refinement retained8/2 failure then clean10/10; equal-center target correction under regression. See concentric-matrix receipt; no full closure yet. |
 | QA-12 | Circle dimensions | Core — partial, not passed | Diameter release/keypad/center-preserving edit paired; radius-mode matrix open. |
 | QA-13 | Arc construction | Core — partial, not passed | Two endpoint taps/default45°, radius+sweep presentation, third-point placement, Return completion, chained shared endpoint, two-stage Escape cancellation, line-to-arc tangent transition and direct minor/semicircle/major gesture boundaries paired; clone hover path is automated-only and physical Pencil/touch remains unverified (direct-arc/default-shape/pending-feedback/arc-cancellation/third-point/chaining/Return/tangent/boundary receipts). |
 | QA-14 | Ellipse dimensions | Explicitly deferred | Advanced ellipse-axis coverage; remains in full audit, not passed. |
@@ -114,7 +114,7 @@ Rotated baseline, perpendicular height, cancel at each stage. Issues: SK-03. Res
 
 ### QA-11 — Concentric circles
 
-New circle starts at existing center without edit interception. Issues: SK-04. Result: NOT RUN. Evidence/owner: pending.
+New circle starts at an unselected existing center without edit interception; a freshly selected center remains a move control. Issues: SK-04. Result: PARTIAL. September10/11 paired release and unselected-center creation captured; center-history cleanup final10/10 and live disarm passed. Selected coincident-center target correction is under regression; matched snapping settings, Lock/readout and final reopen/publication remain. Evidence: testing/sketch-parity-concentric-matrix-2026-09-10.md. Sole owner: dedicated parity session.
 
 ### QA-12 — Circle dimensions
 

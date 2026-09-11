@@ -312,3 +312,84 @@ publication export and finiteQA10 closure reconciliation. No candidate claim.
 ## Latest verified — September10 23:37 EDT
 
 QA10 finite recipe closed at5014cef; final36/36, illustrated700/all5finalhashes+8angled/master38/closure note verified. Inventory7/0/1/48 (37partial11deferred). No runner. Native FrontSketch04 has14rectangles/56edges, selectedlastreverseangled20.4084×9; firstpoint draft cancelled and Rectangle disarmed. Simulator UItests resetfixture; app requiresrelaunch. Exactnext commit/pushclosure docs then paired QA11concentric center initiation plus history/reopen/current regression. Preserve old QA11 sampledpass evidence; do not repeat fixedQA10. Unrelatedidentityfiles/IPA untouched.
+
+## Latest actual running — September10 23:46 EDT
+
+HEADc66039f pushed. QA11 selectedfreshcircle mismatch confirmed: nativecenter
+dragmovesonecircle; clonecenterdragmovesdiameterlabel. Unselectednativecenter
+createsouterafterUndo/rearm. DirtyEditorViewModel circlecenterrelease/drag/
+markers/dimensioncandidate/Lock, PointStateOverlay+ConstraintOverlay+
+DimensionOverlay centerhitexclusion, newCircleCenterInputTests. Serial42305
+/tmp/os3d-qa11-center-input-20260910.xcresult owns simulator. Exactnext collect
+result, addmeaningful UI selectedcenterdrag vs labeltarget regression, live
+postfix/nativeLock comparison/publication/commit. Nativecircletooloff with
+outer16.0041+inner9.3357at620340selectedcenter;14rectanglesretained. Cloneunit
+testownsfixture/relaunchneeded. Inventory7/0/1/48. Nootherworkers/IPAchanges.
+
+Initial center-input run42305 passed clean7/7 (2newbehavior +5diameterlayoutunits). Added UI workflow targets renderedCircleCenterControl and requiresactualcenter displacement, unchangeddiameter, singlecircle andUndoRedo. Serial17232 nowruns same7units+3UI (newcenterdrag, existingexplicitMove, diametercommit) at /tmp/os3d-qa11-center-ui-20260910.xcresult. No desktopoverlap; no livepostfixclaim. NativeEscape additionallyretainsselectedcenter/diameter afterdisarming; candidate labelcondition keeps thatstate.
+
+## Initial live correction and lifecycle follow-up
+
+Center UI17232 passed clean10/10 (7units+3UI). Exact-build live freshcircle
+430650→465650 noworange selectedcenter/Lock/Ø0.8649. Drag430650→490650
+movesactualcircle60px, diameterunchanged; sourcecircleaboveunchanged. Toolbar
+UndoRedo restoresgeometry but retainedselectedcenter/Circlearmed, unlike
+nativepriorcenterMoveUndo thatclearspoint/readout/disarmsCircle. No blanket
+historyparityclaim. Native directcenterLock (outerconcentric circle) clears
+control, centerturnsgreen andØ16.0041 remains; circlegeometryunchanged.
+Added scoped circlecenter historypreparation and ephemeral free-diameter
+readout afterlocalLock (not a drivingdimension). Selectionchanges/history clear
+that ephemeralreadout. Unit+UI assertions strengthened. Serial88531 owns
+simulator: /tmp/os3d-qa11-center-lifecycle-20260910.xcresult, same10checks.
+Exactnext collectresult, livehistory/Lock/unselectedconcentric/reopen; then
+publish/commit. Current source dirty5productfiles,2testfiles,docs.
+
+QA11 diagnosis publication verified705placements/all5newhashesonce/no700loss/orderedprior text. Masterlastverified38 QA10closure; QA11masterupdate followsfinal live. Serial88531 stillactive; no desktopinteraction.
+
+Lifecycle88531 finished8passed/2failed: diameter-radial Undo and explicitMove
+Undo lost theirDimensionLabel because genericselectedcirclecleanup was too
+broad. Newfresh-centerUIpassed. Narrowed cleanup to armedCircle+selectedcenter
+inUndo only; ordinary radial/transform histories retainpreviousbehavior.
+No assertion weakened. Same10checks now serial21417,
+/tmp/os3d-qa11-center-lifecycle-final-20260910.xcresult.
+Currentlastverifiedpublication705/master38; no postfixlifecycleliveclaim.
+
+## September 11 00:08 — current execution checkpoint
+
+HEAD c66039f; five product files, two test files and QA11 docs dirty; unrelated
+identity/memory untouched. Lifecycle21417 completed clean10/10. Live release
+and move retain diameter0.8649; first resumed Undo/Redo attempts mistakenly
+used app-targeted window-relative coordinates with global values, missed toolbar,
+and are excluded. Correct global Undo restored center. Unselected center then
+created outer1.4859 at430650. Selected outer-center drag incorrectly moved older
+inner circle, while selected control remained atoutercenter; exact screenshots
+final-concentric/final-concentric-move retained. Correct toolbar Undo restored
+both and cleared selection/disarmed Circle. Native LockUndo/recreateouter then
+selectedcenter drag moves BOTH connected circles. Clone Settings visibly has
+SketchGuidepoints OFF, so independent motion is not missing-constraint evidence.
+Hit target must still retain selected outer identity: scoped selected-circle
+center priority added plus exact two-circle target/UndoRedo regression.
+Serial /tmp/os3d-qa11-center-target-20260911.xcresult now owns simulator; collect
+actual result before desktop. Exact next final selectedtarget live, Lock/readout,
+matched guidepoint settings/concentric relation, galleryreopen/publication then
+commit/push. Native center now650380 withconnected9.3357/16.0041circles; clone
+settings sheet open before test reset. Last illustrated705/master38 verified;
+QA11master diagnosis paragraph insertedonce, exportpending. No IPA changes.
+
+## September11 00:16 verified correction checkpoint
+
+Center-target final clean11/11 at /tmp/os3d-qa11-center-target-20260911.xcresult;
+no runner. Exact build live freshcenter move/Undo clearscontrols/disarms; unselected
+center createsouter. Selectedouter nowmoves30,40 whileinnerstays (guidepointsoff),
+retainsØ1.4859. DirectLock clearscentercontrol, greencenter/freeØretained. Gallery
+reopen retains3circles includingolderUIfixture, inner0.8649, movedouter1.4859 and
+centerLock; rimreselectionreads1.4859. Native connectedpair movesboth; retained
+separatecomparison becausecloneGuidepointsoff. NativeLock referencepaired.
+Illustrated711/all6newhashesonce/no705imageororderedtextloss verified; master38
+QA11diagnosis verified and finalcheckpoint paragraphinsertedonce/exportpending.
+No runtimeworkers; clonecurrentouterrimselected/tooloff; nativeconnectedcircles
+center650380,Circlearmed. Exactnext commit/push verifiedcenterinputfix, then
+matchedGuidepoints/Auto-Constrain QA11 relationship and finalpairedreopen.
+Acceptanceunchanged7/0/1/48; no IPA/devicechanges.
+
+Final master export verified38, checkpointheadingonce, no priorimages/text loss.

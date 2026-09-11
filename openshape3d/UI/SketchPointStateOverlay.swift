@@ -27,7 +27,9 @@ struct SketchPointStateOverlay: View {
         if viewModel.mode.isSketching {
             ZStack(alignment: .topLeading) {
                 ForEach(viewModel.sketchPointMarkers) { marker in
-                    markerView(marker)
+                    if !viewModel.sketchCircleCenterMarkers.contains(where: { $0.id.replacingOccurrences(of: ":circleCenter", with: ":center") == marker.id }) {
+                        markerView(marker)
+                    }
                 }
                 if let marker = viewModel.selectedMigratedRectangleCornerMarker,
                    let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
@@ -38,7 +40,7 @@ struct SketchPointStateOverlay: View {
                         .position(x: pt.x, y: pt.y)
                         .accessibilityIdentifier("SelectedRectangleCorner")
                 }
-                ForEach(viewModel.sketchRectangleCenterMarkers) { marker in
+                ForEach(viewModel.sketchRectangleCenterMarkers + viewModel.sketchCircleCenterMarkers) { marker in
                     if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
                         Circle().fill(marker.isSelected ? Color.orange : (marker.state == .free ? Self.free : Self.constrained))
                             .frame(width: 5, height: 5)
@@ -51,7 +53,7 @@ struct SketchPointStateOverlay: View {
                                 }
                             }
                             .position(x: pt.x, y: pt.y)
-                            .accessibilityIdentifier("RectangleCenterControl")
+                            .accessibilityIdentifier(marker.id.hasSuffix(":circleCenter") ? "CircleCenterControl" : "RectangleCenterControl")
                     }
                 }
             }
