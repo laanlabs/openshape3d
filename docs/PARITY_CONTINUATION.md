@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current — Intersecting Tangent diagnosis
+
+Baseline c007c0a. Native Sketch12 Top shallow overlap R8000/R5000,
+centers950620/1010620 (distance9453.7983mm), applies external contact,
+moves first center to927620, preserves second/radii. Deep overlap same radii
+centers950450/980450 (distance4726.8982mm), applies internal contact,
+moves first to961450, preserves second/radii. Both apply deselect.
+Clone matching shallow pair400730/460730 radii50/30px disables Tangent.
+Native/clone screenshots preserved under constraint-types/
+qa36-overlap-tangent-live-2026-09-12. Before-fix method test failed0/1; no runner.
+Receipt: /tmp/os3d-qa36-overlap-before-20260912.xcresult and .log.
+Dirty ConstraintApplyTests adds shallow/deep × First/Last × order coverage;
+Product now admits intersecting full circles and picks nearest contact
+(radius-difference versus radius-sum), keeping equal-radius contact external.
+Next focused regression, combined gate, changed live/history/reopen/publication.
+Reports985/master38 unchanged. QA36partial26/0/1/29; iPad unchanged.
+
+
 ## Current — Nested circle Tangent paired and published
 
 Source5f4ab54 pushed. Final93/93 passed, zero failures/skips, one serial run:

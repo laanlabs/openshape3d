@@ -18,7 +18,7 @@ struct SketchConstraintRail: View {
         .init(title: "Vertical", kind: .vertical, prerequisite: "Select lines or two points"),
         .init(title: "Parallel", kind: .parallel, prerequisite: "Select two or more lines"),
         .init(title: "Perpendicular", kind: .perpendicular, prerequisite: "Select two lines"),
-        .init(title: "Tangent", kind: .tangent, prerequisite: "Select a line and circle/arc, or two separate or nested circles"),
+        .init(title: "Tangent", kind: .tangent, prerequisite: "Select a line and circle/arc, or two circles"),
         .init(title: "Lock", kind: .fixed, prerequisite: "Select geometry or a point")
     ]
     private let more: [Action] = [

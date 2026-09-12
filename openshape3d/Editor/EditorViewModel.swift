@@ -11600,15 +11600,14 @@ final class EditorViewModel {
         }
     }
 
-    /// Paired separated/external and strictly nested/internal full-circle branches.
-    /// Intersecting circles and arc pairs remain unverified.
+    /// Paired full-circle branches choose the nearer internal/external contact.
+    /// Arc pairs and coincident equal circles remain unsupported.
     private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
         guard selected.count == 2,
               case let .circle(_, a, ra) = selected[0],
               case let .circle(_, b, rb) = selected[1],
-              simd_length(b - a) >= ra + rb - 1e-9 ||
-                (abs(ra - rb) > 1e-9 && simd_length(b - a) <= abs(ra - rb) + 1e-9)
+              simd_length(b - a) > 1e-9 || abs(ra - rb) > 1e-9
         else { return nil }
         return selected
     }
@@ -12030,7 +12029,9 @@ final class EditorViewModel {
         var constraint = SketchConstraint(kind: kind, refs: refs)
         if kind == .tangent, let pair = circleTangentOperands,
            case let .circle(_, a, ra) = pair[0], case let .circle(_, b, rb) = pair[1] {
-            constraint.circleTangency = simd_length(b - a) < ra + rb - 1e-9
+            // The midpoint between radius difference and sum is the larger radius.
+            // Native deep overlap chooses internal contact; shallow overlap external.
+            constraint.circleTangency = abs(ra - rb) > 1e-9 && simd_length(b - a) < max(ra, rb)
                 ? .internalContact : .externalContact
         }
         return [constraint]

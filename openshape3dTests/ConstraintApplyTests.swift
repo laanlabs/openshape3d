@@ -1617,6 +1617,51 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testIntersectingCircleTangentChoosesNearestContactAndRestoresHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for first in [false, true] {
+            AppSettings.shared.anchoredSketchEntity = first ? .firstSelected : .lastSelected
+            for distance in [0.6, 1.2] {
+                for reversed in [false, true] {
+                    let vm = try makeViewModel()
+                    let entities: [SketchEntity] = [
+                        .circle(id: UUID(), center: .zero, radius: 1),
+                        .circle(id: UUID(), center: SIMD2(distance, 0), radius: 0.625)]
+                    let original = openSketch(vm, entities: entities)
+                    vm.mode = .sketching(original.id, tool: nil)
+                    let ids = entities.map(\.id)
+                    let order = reversed ? Array(ids.reversed()) : ids
+                    vm.selectSketchEntitiesInOrder(order)
+                    XCTAssertTrue(vm.canApplyConstraint(.tangent))
+                    vm.applyConstraint(.tangent)
+                    let applied = try XCTUnwrap(vm.activeSketch)
+                    let internalContact = distance < 1
+                    XCTAssertEqual(applied.constraints.first { $0.kind == .tangent }?.circleTangency,
+                                   internalContact ? .internalContact : .externalContact)
+                    guard case let .circle(_, a, ra) = applied.entities[0],
+                          case let .circle(_, b, rb) = applied.entities[1] else { return XCTFail("Missing circles") }
+                    XCTAssertEqual(ra, 1, accuracy: 1e-8)
+                    XCTAssertEqual(rb, 0.625, accuracy: 1e-8)
+                    XCTAssertEqual(simd_length(b - a), internalContact ? 0.375 : 1.625, accuracy: 1e-8)
+                    let anchor = first ? order[0] : order[1]
+                    XCTAssertEqual(applied.entities.first { $0.id == anchor }, entities.first { $0.id == anchor })
+                    XCTAssertEqual(applied.dimensions, original.dimensions)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+                    var repeated = applied
+                    for _ in 0..<3 { repeated.entities = SketchSolverBridge.solve(repeated, movingEntity: nil, dragTarget: nil).entities }
+                    XCTAssertLessThan(SketchSolverBridge.residualNorm(repeated), 1e-7)
+                    XCTAssertEqual(repeated.constraints, applied.constraints)
+                    vm.undo()
+                    XCTAssertEqual(vm.activeSketch, original)
+                    vm.redo()
+                    XCTAssertEqual(vm.activeSketch, applied)
+                }
+            }
+        }
+    }
+
     func testNestedCircleTangentPreservesInternalContactAndHistory() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected
