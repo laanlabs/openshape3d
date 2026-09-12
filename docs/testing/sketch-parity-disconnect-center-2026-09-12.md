@@ -39,3 +39,28 @@ Scoped center model +both failed UI rerun active at
 and changed live still pending. First combined receipt retained.
 
 Scoped correction passes3/3, zero failures/skips, including both unchanged armed-circle UI assertions. Corrected combined120 next.
+
+Final corrected120/120 passed in one serial run on03b9e1c, zero failures/skips (109model+11UI). No runner. Changed live next.
+
+## Changed-build paired verification
+
+On03b9e1c, disarmed selected-center drag220315 moves only the circle, keeps
+point-only selection without dimension/gizmo, and preserves line250315→350350.
+Two Undo restore movement then explicit center/endpointA Coincident (saved JSON
+confirmed); two Redo restore detach then movement. Gallery reopen retains
+Ø0.6168mm and detached center220315. Native two Undo restore center500550 then
+connection with Disconnect enabled; two Redo restore detach then center470550.
+Native gallery reopen retains detached circle and fixed line; selected rim
+confirms R18000mm. Reopened screen coordinates recentered to563523/589523.
+The initial Coincident placement/selection discrepancy remains separate: clone
+averages both points despite First Selected; native holds circle and moves line.
+No claim of initial application-anchor or annotation-layout parity.
+Publication pending; reports remain1138/master38. No runner.
+
+## Publication verified
+
+Illustrated1146 unique placements, all eight new source hashes exactly once,
+heading once and zero loss from1138 predecessor. Master38 unchanged media,
+checkpoint heading once and zero loss. Durable directory contains before/after
+DOCX, publication-assets.json and publication-verification.json, paired PNG/actions
+and clone restored-sketch JSON. QA38 remains partial27/0/1/28.

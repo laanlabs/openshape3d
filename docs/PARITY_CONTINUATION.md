@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active — QA38 circle-center paired; primitive corner next
+
+Source03b9e1c pushed; final corrected120/120 clean, zero failures/skips.
+Changed clone point-only center drag, independent line, two-step history/saved
+Coincident restoration and gallery reopen Ø0.6168 verified. Native two-step
+history/reopen R18000 verified. Both apps parked reopened selected rims.
+Illustrated1146/master38 verified: eight hashes once/headings once/no loss.
+Durable disconnect/qa38-center-live-2026-09-12 holds PNG/actions, restoredJSON,
+exports/hash verification. No runner. Next native/clone primitive rectangle
+stored-corner Disconnect; existing120 includes automated breadth, no rerun
+unless source changes. Initial center+endpoint Coincident averaging/selection
+in clone despite First Selected remains separate unresolved gap.
+QA38partial27/0/1/28; iPad/immutable05be744 unchanged.
+
+
 ## Active — QA38 circle-center drag selection correction
 
 Sourceee329b1 pushed; first combined118/120 (109model+9UI) with two armed
@@ -7,10 +22,11 @@ circle readout failures. Branch was over-broad; restricted to disarmed mode,
 keeping previously verified armed readout. UI assertions unchanged. Scoped
 3/3 passed, zero failures/skips: center model +two failed UI. No runner.
 /tmp/os3d-qa38-center-scoped-20260912.{log,xcresult}. Dirty source+docs.
-Checkpoint scoped correction, then corrected combined120 and changed live.
+Scoped03b9e1c pushed. Final2 passes120/120, zero failures/skips, on03b9e1c; no runner. /tmp/os3d-qa38-center-final2-20260912.{log,xcresult}.
+Changed live/history and both reopenings verified. Publication next; no runner.
 Native detached R18000 center470550, line500550→600650 fixed; overlap chooser
 Circle Center route works. Clone before circle220315, Ø0.6168, line250315→350350;
-whole-circle promotion is fixed in source, not yet repeated live. Separate
+whole-circle promotion fixed and repeated live; native R18000 and clone Ø0.6168 retained through reopen. Separate
 initial two-point Coincident average movement/selection issue retained, not fixed.
 Durable qa38-center-live-2026-09-12. QA38partial27/0/1/28, reports1138/master38;
 iPad/immutable05be744 unchanged. No desktop while upcoming runner active.

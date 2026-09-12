@@ -2414,3 +2414,13 @@ point-only after Disconnect; no false point-to-parent0mm label. Native and
 changed clone independent movement, two-step history and both gallery reopenings
 verified. Illustrated1138/master38, nine hashes once/no loss. QA38 remains
 partial for non-line/primitive variants; inventory27/0/1/28, iPad unchanged.
+
+## September 12 — QA38 circle-center Disconnect paired checkpoint
+
+Source03b9e1c; final corrected120/120, zero failures/skips. Disarmed selected
+circle-center drag remains point-only; armed readouts preserved after an initial
+over-broad118/120 run. Both apps preserve size and independent line geometry,
+two-step Undo/Redo and gallery reopen. Illustrated1146/master38 verified, eight
+hashes once/no predecessor loss. [Receipt](testing/sketch-parity-disconnect-center-2026-09-12.md).
+Initial two-point Coincident anchor/selection difference remains separately open.
+QA38 partial: primitive stored-corner live comparison next.
