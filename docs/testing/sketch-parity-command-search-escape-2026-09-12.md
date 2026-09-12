@@ -97,3 +97,37 @@ six solver-core cases and the full numericUI workflow. Expanded near-axis
 matrix1/1 passed across horizontal/vertical, both tiny-slope signs, three scales
 and free/fixed-start states. Existing conflict/refusal tolerances unchanged;
 no diagnostic source remains. Final broad regression and changed live pending.
+
+## Final current-source gate and changed live
+
+Final broad serial run on43bbf06 passes252/252, zero failures/skips, exit0:
+`/tmp/os3d-qa54-broad-final-20260912.xcresult` and summary/log siblings.
+No runner. Earlier84/85 and focused8/8 plus1/1 are separate receipts, not
+combined with this terminal count.
+
+Changed build: Command Search selected, foreground letter opens Search;
+Circle result executes and arms Circle. Foreground Escape closes only Search
+and keyboard, retaining sketch and Circle. Unavailable Fillet in an empty
+design leaves Search open with explicit feedback. Initial plane-entry sample
+clicked a moving top bar before settling and left sketch; excluded from the
+active-sketch comparison. The settled repeat passes.
+
+Fresh free line2.236mm: keypad12+ refuses with syntax warning; append1 commits
+13mm. Undo restores2.236; Redo restores13; gallery reopen and reselection show
+the13mm expression annotation. Native exact13mm and Undo were observed at a
+different scale; not a viewport/pivot parity claim. Command Search preference
+persists across gallery reopen; Hotkeys restoration verified after the sheet
+stops scrolling. First restoration click missed during settling and is excluded.
+
+Nineteen hash-distinct screenshots inserted into illustrated report, one dated
+note appended to master. Export verification pending against1208/master38.
+Physical key/Pencil delivery remains QA52; XCTest synthetic Escape remains an
+undelivered-input limitation, not counted as live proof. Inventory31/0/1/24.
+
+## Publication verified and finite acceptance closed
+
+Anonymous exports verify illustrated1227 unique media, nineteen new hashes each
+exactly once, zero loss from1208; master38 unchanged, one heading in each report.
+Durable `keyboard/qa54-live-2026-09-12/publication-verification.json` retains
+export SHA256s, complete media inventories and predecessor proof; XML retained.
+QA54 finite desktop recipe closes, inventory32/0/1/23. PhysicalQA52 remains open.

@@ -1,5 +1,24 @@
 # Parity continuation checkpoint
 
+## Active — QA54 finite closure verified, ready to checkpoint
+
+Source43bbf06 pushed. Final252/252, zero failures/skips, no runner. Changed live
+Search preference/result/foreground Escape and numeric12+→12+1=13/history/reopen
+verified. Illustrated1227/master38, nineteen hashes once/no1208 predecessor loss.
+QA54 closed; inventory32/0/1/23. Only five task docs dirty, no source changes.
+Next commit/push closure docs, inspect QA40 rotate/pan transition finite gap.
+Simulator parked reopened Untitled2 with13mm line; Hotkeys restored. Native
+Sketch12 restored reference free line; no operation pending. iPad unchanged.
+
+## Active — QA54 broad final252/252 passed on43bbf06
+
+43bbf06 pushed (includes Search7b0e033). Final broad serial gate252/252,
+zero failures/skips, terminal exit0; no runner. Summary retained at
+/tmp/os3d-qa54-broad-final-20260912-summary.json and xcresult/log siblings.
+Next changed-build Search preference/results/Escape plus arithmetic resize/
+history/reopen, publication against1208/master38. Inventory31/0/1/24,
+QA54partial; iPad unchanged.
+
 ## Active — QA54 solver focused8/8 and scale matrix1/1 passed
 
 Search7b0e033 pushed; solver fallback and exact model/scale tests dirty, ready

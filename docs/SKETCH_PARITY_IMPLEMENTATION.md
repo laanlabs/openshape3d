@@ -2482,3 +2482,13 @@ Midpoint/point-pair evidence, QA37 is passed. Illustrated1208/master38 verified,
 fourteen hashes once/no loss. Inventory31/0/1/24. General overlap picking and
 physical input excluded. Local disk low; no new full export copy, verification
 in memory with durable XML/hash receipt.
+
+## September 12 — QA54 keyboard/search closure
+
+Source43bbf06 (Search7b0e033): scoped Search Escape, explicit-result dispatch
+bypassing bare-key preference, and isotropic retry only for stalled diagonal
+solves. Final252/252, fresh paired preference/Search scope plus exact numeric
+recovery/history/reopen; illustrated1227/master38 export-verified, nineteen
+hashes once/no predecessor loss. QA54 finite desktop PASS; inventory32/0/1/23.
+See `testing/sketch-parity-command-search-escape-2026-09-12.md` for failed gates,
+input exclusions and physicalQA52 boundary. No runner; iPad unchanged.

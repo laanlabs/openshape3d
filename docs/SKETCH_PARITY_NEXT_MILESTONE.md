@@ -868,3 +868,13 @@ tool-specific Escape scopes and history. Retained paired native/clone keyboard
 evidence remains valid. Fresh native preference switching and physical hardware-
 key delivery remain unproven, so QA-54 stays partial and inventory remains
 **20 passed / 0 failed / 1 device-blocked / 35 incomplete**.
+
+## September 12 — QA54 keyboard/search closure
+
+Source43bbf06 (Search7b0e033): scoped Search Escape, explicit-result dispatch
+bypassing bare-key preference, and isotropic retry only for stalled diagonal
+solves. Final252/252, fresh paired preference/Search scope plus exact numeric
+recovery/history/reopen; illustrated1227/master38 export-verified, nineteen
+hashes once/no predecessor loss. QA54 finite desktop PASS; inventory32/0/1/23.
+See `testing/sketch-parity-command-search-escape-2026-09-12.md` for failed gates,
+input exclusions and physicalQA52 boundary. No runner; iPad unchanged.
