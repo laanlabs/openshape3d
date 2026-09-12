@@ -324,6 +324,12 @@ history and reopen evidence. Constraint correctness remains QA-36/39. See
 
 ### QA-36 — Constraint types
 
+September12 fresh ordinary-line H/V and Last Selected Parallel now have
+paired length/endpoint/history/both-reopen verification. Final gates108/108,
+110/110 and112/112, respectively. Latest publication1119/master38 verified.
+[Parallel receipt](testing/sketch-parity-parallel-alignment-2026-09-12.md).
+Finite relation-matrix reconciliation next; no acceptance promotion yet.
+
 H/V, parallel, perpendicular, coincident, midpoint, tangent, concentric, equal,
 symmetry. Issues: DM-14. Result: **PARTIAL** — all 11 relation families now have
 direct apply/solve/Undo/Redo/serialization coverage in a clean 64/64 gate.

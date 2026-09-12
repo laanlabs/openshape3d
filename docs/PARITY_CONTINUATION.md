@@ -1,24 +1,18 @@
 # Parity continuation checkpoint
 
-## Active — Parallel correction focused gate
+## Active — Parallel paired checkpoint
 
-Source33f7358 pushed. Before0/1 six failures;
-first focused1/2 (anchor numerical noise); corrected focused2/2 passed.
-Placement scoped Last Selected two ordinary lines, moving line rotates about
-endpointA with original length, preferred line transiently fixed; saved
-relationships authoritative. Pair selection cleanup added. Lock/driver1/1 passed separately. First combined105/105 models plus5/7UI. Both failures stale immediate
-Parallel glyph expectation after deselection. UI fixture now Last Selected,
-explicit reselection/history; focused2UI running exclusively
-/tmp/os3d-qa36-parallel-ui-20260912.{log,xcresult}, exec2874.
-No desktop input while runner owns simulator.
-Native lower600650→700670 becomes600650→700630, upper600600→700580
-unchanged, lower50871.8061mm retained, apply deselects. Clone before lower
-350700→450720 at1.2606mm shrinks/moves both ends, selection retained.
-Native history/reopen and changed clone still pending. Durable
-qa36-parallel-live-2026-09-12 preserves before evidence.
-Next collect locked check, checkpoint source, combined application/merge/
-polish/Trim/rail gate, paired history/reopen/publication.
-Reports1109/master38; QA36partial26/0/1/29; immutable05be744/iPad unchanged.
+Source33f7358, UIe834525 pushed. Final corrected112/112 clean, zero failures/
+skips (105model+7UI); no runner. Before0/1, initialfocused1/2 numerical anchor,
+corrected2/2, locked1/1; firstcombined105model+5/7UI, correctedUI2/2 retained.
+Changed clone350700→450680 preserves1.2606mm/first endpoint/fixed upper,
+apply/history deselect; gallery reopen glyph/value. Native same history and
+reopen50871.8061mm at612605→705586. Both apps parked reopened selected lower.
+Publication1119unique/master38 verified: ten hashesonce/headingsonce/no loss.
+Durable qa36-parallel-live-2026-09-12 contains all PNG/actions/logs/JSON/exports.
+Next reconcile finite QA36 relation checklist against fresh/retained receipts;
+do not expand endless Tangent variants. QA37 First/Last/reverse/Lock variants
+and QA38 Disconnect remain separate. QA36partial26/0/1/29; iPad unchanged.
 
 ## Active — Vertical paired checkpoint
 

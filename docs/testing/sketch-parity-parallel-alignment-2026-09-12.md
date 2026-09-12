@@ -28,3 +28,23 @@ immediately after successful apply. Corrected fixture explicitly selects
 Last Selected, verifies apply deselection, reselects stationary upper line,
 then verifies glyph and Undo/Redo selection cleanup. Focused UI rerun pending.
 No changed-build paired or publication claim yet.
+
+## Final paired checkpoint
+
+Final corrected112/112 on e834525 (source33f7358):105model/integration+7UI,
+zero failures/skips. No runner. Changed clone fresh lower350700→450720
+releases1.2606mm, upper350650→4506301.2625mm; Parallel rotates lower to
+350700→450680, preserves first endpoint/length and upper, deselects.
+Undo restores slope/deselects, reselect then Redo restores Parallel/deselects.
+Gallery reopen retains1.2606mm and glyph. Saved JSON retained locally.
+Native same history/deselection verified, gallery reopen retains50871.8061mm
+at fitted612605→705586. First native Undo screenshot premature while menu
+command was still pending; settled undo2.png is valid evidence. First native
+Home click inactive, switch then repeat succeeded. Changed clone initial
+sheet-transition click did not arm Line, so drag orbited camera without creating
+geometry; Exit/reentry restored sketch view before valid fresh creation.
+
+Illustrated1119unique/master38 verified: ten new source hashes exactly once,
+headings once, no1109/38 predecessor loss. DOCX exports, manifest, verification,
+PNG/actions/test receipts and saved JSON in durable evidence directory.
+QA36 remains partial pending finite relation-matrix reconciliation.
