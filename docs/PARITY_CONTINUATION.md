@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Active — shallow-overlap arc/circle Tangent
+
+Paired off-span checkpoint2e451a5 pushed, reports1033/master38 verified.
+Native fresh lowerarc550550,R10425.5562/180degrees and circle550605,R5000
+shallow overlap accepts Tangent, arc moves up to~550546, circle fixed, radius
+and sweep unchanged. Clone corresponding arc250700/r40,circle250755/r20
+selected but Tangent disabled. Native parked selectedarc; clone pair selected.
+New testShallowOverlapArcCircleTangentPreservesGeometryAndHistory dirty;
+before0/1 (six assertions), eligibility now permits distance>max radii for
+external contact. Focused3/3 clean, no runner. Source/test checkpoint next then final combined
+application/merge/polish/Trim/rail gate.
+Next collect before, extend only confirmed shallow external eligibility, focused
+then combined regression and changed paired live/history/reopen/publication.
+Deep/nested and exact branch boundary remain unverified. Evidence durable
+constraint-types/qa36-shallow-arc-tangent-live-2026-09-12. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged.
+
 ## Active — off-span Tangent changed-build live verified
 
 Source007181c pushed. Corrected final99/99 passed, zero failures/skips; no runner.

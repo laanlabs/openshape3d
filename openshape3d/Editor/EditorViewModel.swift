@@ -11630,8 +11630,8 @@ final class EditorViewModel {
         }
     }
 
-    /// Full circles support both contact branches. Paired separated arc/circle
-    /// contact uses the supporting circle, including beyond the visible span.
+    /// Full circles support both contact branches. Paired separated and shallow-
+    /// overlap arc/circle contact uses the supporting circle, including off-span.
     private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
         guard selected.count == 2 else { return nil }
@@ -11641,7 +11641,9 @@ final class EditorViewModel {
               case let .arc(_, a, ra, _, _) = arc,
               case let .circle(_, b, rb) = circle else { return nil }
         let delta = b - a
-        guard simd_length(delta) >= ra + rb - 1e-9 else { return nil }
+        // Native shallow overlap separates externally without changing the arc
+        // sweep. Keep the unverified deep/internal branch unavailable here.
+        guard simd_length(delta) > max(ra, rb) else { return nil }
         return selected
     }
 
