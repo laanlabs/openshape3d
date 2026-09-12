@@ -2302,3 +2302,13 @@ postapply transient timing remains unclaimed. Illustrated1033/master38, ten
 hashes once/no predecessor loss. Overlapping/nested arc-circle and arc-arc
 remain unverified; QA36partial26/0/1/29.
 [Receipt](testing/sketch-parity-offspan-tangent-2026-09-12.md).
+
+
+### September 12 — shallow-overlap arc/circle external Tangent
+
+Source77365e3 extends eligibility to confirmed shallow external overlap, leaving
+deep/internal and exact branch boundary unverified. Before0/1, focused3/3,
+final100/100 clean. Paired preserved arc/circle values, geometry Undo/Redo and
+both gallery reopenings verified; saved external residual0.0, no dimensions.
+Illustrated1042/master38, nine hashesonce/no predecessor loss. QA36partial26/0/1/29;
+iPad unchanged. [Receipt](testing/sketch-parity-shallow-arc-tangent-2026-09-12.md).

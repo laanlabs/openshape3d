@@ -1,21 +1,19 @@
 # Parity continuation checkpoint
 
-## Active — shallow-overlap arc/circle Tangent
+## Active — shallow arc/circle paired checkpoint
 
-Paired off-span checkpoint2e451a5 pushed, reports1033/master38 verified.
-Native fresh lowerarc550550,R10425.5562/180degrees and circle550605,R5000
-shallow overlap accepts Tangent, arc moves up to~550546, circle fixed, radius
-and sweep unchanged. Clone corresponding arc250700/r40,circle250755/r20
-selected but Tangent disabled. Native parked selectedarc; clone pair selected.
-New testShallowOverlapArcCircleTangentPreservesGeometryAndHistory dirty;
-before0/1 (six assertions), eligibility now permits distance>max radii for
-external contact. Focused3/3 clean, no runner. Source/test checkpoint next then final combined
-application/merge/polish/Trim/rail gate.
-Next collect before, extend only confirmed shallow external eligibility, focused
-then combined regression and changed paired live/history/reopen/publication.
-Deep/nested and exact branch boundary remain unverified. Evidence durable
-constraint-types/qa36-shallow-arc-tangent-live-2026-09-12. QA36partial26/0/1/29;
-iPad/immutable05be744 unchanged.
+Source77365e3 pushed; final100/100 clean, no failures/skips, no runner.
+Native R10425.5562/180degrees arc550550→550546 with fixedR5000 circle550605;
+Undo/Redo and gallery reopen confirmed same radius/sweep. Native now reopened
+Sketch12Top selectedarc593523, circle593578. Clone LastSelected confirmed,
+arc250700→~250695,circle250755 fixed; R0.4947/179.59degrees preserved through
+Undo/reopen. Saved externalContact residual0.0,no dimensions. Clone parked
+reopenedSketch1Top selectedarc. Initial settings-dismiss timing camera rotation
+was restored throughExit/Items reopen; no geometry from that miss.
+Publication verified1042/master38, nine hashesonce, headingsonce/no1033/38loss.
+No runner. Next commit/push paired docs, then native deeper arc/circle probe.
+Then fresh native deep/nested arc-circle boundary. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged. Durable qa36-shallow-arc-tangent-live-2026-09-12.
 
 ## Active — off-span Tangent changed-build live verified
 
