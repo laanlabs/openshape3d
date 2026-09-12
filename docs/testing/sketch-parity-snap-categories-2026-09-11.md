@@ -78,3 +78,42 @@ continued to work through accessibility.
 This is retained as a native input-delivery blocker, not an application failure
 and not snap-category evidence. No synthetic placement is counted. QA-19 stays
 partial while independent finite acceptance work continues.
+
+
+### September11 evening — recovered input, first threshold pair inconclusive
+
+After QA05 closure3c2538b, native Circle input works using global bridge drags.
+Body04 face entry created provisional Sketch10 on a side face, not the intended
+top face; no top-face acceptance is claimed. All acquisition categories were
+visibly off (Hints on), and a circle aimed6px right/6px above the visible vertex
+was raw. Undo removed it; only3D Guide Points was enabled, but the identical
+repeat remained raw. This8.5px offset therefore does not establish acquisition.
+Next narrower2px/2px aim and pre-placement hint inspection; QA19 remainspartial.
+Remote scroll explicitly rejected foreground=false, but CLI lacks --foreground;
+synthFirst fallback ran local and did not reach GUI. These are input diagnostics,
+not camera or snapping defects. No product change. Durable new PNG/JSON under
+snap-categories/native-threshold-2026-09-11; publication remainspending.
+
+
+The narrower2px/2px repeat produced the same vertex-centered circle with3D
+Guide Points bothON andOFF, despite visuallyverified settings andUndo between.
+Both screenshots' unobscured blue arc fits yield approximate center404.97,297.80;
+the earlier6px/6px ON/OFF pair both yield410.88,291.48. These image-derived fits
+supplement inspection, not exact model coordinates. Thus neither pair proves
+category-dependent acquisition; narrowdirect point hit may take precedence.
+The intermediate apparent ON acquisition is NOT a pass aftertheOFF control.
+Next verify official scope and choose a non-hit near-threshold or3Dreference
+fixture. No clone behavior changed, no QA19closure. NativeSketch10currently
+one nearvertexcircle, all acquisitionOFF, HintsON; no runner.
+
+
+The face-center control (aim800,400→900,350 window-local) also produced the
+same circle with3D Guide PointsOFF/ON. No native category distinction has been
+established on this active side-face fixture. The official glossary describes
+3D guide-point acquisition, but does not resolve direct-hit/active-face scope:
+https://support.shapr3d.com/hc/en-us/articles/7644593398172-Glossary-of-terms
+This bounded investigation is checkpointed as inconclusive, not productfailure
+or paritypass. No source/tests changed; existing21/21 remains historical, not a
+newrun. Evidence locally retained; not published as a closure. Next independent
+work QA37 First/Last anchor live comparison; QA19needs a clarified3Dreference
+fixture and changed-build clone pair beforeclosure. Inventory26/0/1/29.

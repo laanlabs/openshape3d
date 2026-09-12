@@ -1,5 +1,42 @@
 # Parity continuation checkpoint
 
+## Current execution — QA19 inconclusive checkpoint; QA37 live next
+
+HEAD3c2538b. QA19docs-only diagnostic ready tocommit. Native side-face
+Sketch10Circle at800,400,3DGuidePointsON, other acquisitionOFF,HintsON.
+Corner6pxpair bothraw;2pxpair bothvertexhit; facecenterpair alsosame. No
+category-dependent result or productchange; QA19remains partial. All PNG/JSON/
+sha256 durable snap-categories/native-threshold-2026-09-11. No runner.
+Nextcommit/pushdiagnosticthenQA37 First/Last live using existing8ffd4fe
+implementation/final44/44 receipt; preserveQA19fixture forlaterclarifiedscope.
+Inventory26/0/1/29; reports863/38; nativeGUIworks via200msglobalpresses,
+scrollCLIforeground mismatch. Clone lastLineChainUI fixture. iPadunchanged.
+
+## Current execution — QA19 corner pairs inconclusive; face-center control next
+
+HEAD3c2538b. No runner; native desktop owns. Side-face Sketch10, Circle armed.
+All acquisition OFF/HintsON. Nearvertex6px/6px raw bothOFF/ON;2px/2pxvertexhit
+bothOFF/ON. No category-dependent result; do not promote intermediateONclaim.
+Official docs identify derived face centers asguidepoints, so next samegesture
+near facecenter avoids direct vertex hit precedence. Undo currentcircle active;
+face extents405,298→1189,497; center797,397.5 local, windoworigin99,79.
+Aim800,400→900,350 off then only3DpointsON exactrepeat; inspecteach state.
+Dirtyonly QA19receipt/continuation; evidence durable snap-categories/
+native-threshold-2026-09-11. ScrollCLIremote foregroundmismatch retained,
+noenvironmentchange. Inventory26/0/1/29; reports863/38. iPadunchanged.
+
+## Current execution — QA19 native face threshold pair setup
+
+HEAD3c2538b pushed QA05 closure; inventory26/0/1/29, reports863/38 verified.
+No runner. Native Body04 fitted inTop, extents454,232→1096,715; top-right
+corner free of existing sketchpoints. Body05 fit was irrelevant andnotcounted.
+Face-select desktop command active; next inspect, enterCircle onface, GridOFF/
+sketchpointsOFF/guidelinesOFF, 3DGuidePoints OFF vsON repeated nearvertex aim.
+Retained QA19final21/21/controlproof exists; near-threshold pair andpublication
+stillmissing. Clone is last LineChainUI fixture; debugseed may beusedforbody
+setup without claimingseed as user-inputproof. No productchange or testneeded
+yet; no iPad/immutable05be744 changes; unrelatedfilespreserved.
+
 ## Current execution — QA05 closed; next unfinished core recipe
 
 HEAD1fdb6a3; documentation-only closure now ready to commit. Current serial3/3
