@@ -2448,3 +2448,7 @@ Inventory28/0/1/27 unchanged; QA37fullmatrix remains partial; iPad unchanged.
 ## September12 — Trim readout interception and QA41 closure
 
 Source2016713 suppresses numeric readouts only during Trim; selected polygon count no longer intercepts the edge midpoint. Before0/1 fails two assertions, focused11/11 then final123/123 clean. Changed exact midpoint/history/reopen paired; fresh rectangle/arc/polygon geometry supplements retained line/circle. Illustrated1174/master38 verified, twelve hashes once/no loss. Native explicit Exit/save/reopen passes; immediate-reopen discrepancy retained without cause. [Receipt](testing/sketch-parity-trim-readouts-2026-09-12.md). QA41 finite pass, inventory29/0/1/26; iPad unchanged.
+
+## September12 — Rectangle side-driver Trim references
+
+Source13badd6 adds optional owning edge on new primitive rectangle driver creation (Lock/typed), import/JSON preservation and Trim ownership cleanup. Before0/1, focused21/21, expanded matrix1/1, final145/145 clean. Paired driver removal/survival, exact clone JSON history, profile opening and both reopenings verified. Illustrated1184/master38, ten hashes once/no loss. [Receipt](testing/sketch-parity-trim-side-driver-2026-09-12.md). QA43 current-data finite pass; inventory30/0/1/25. Legacy nil transfer unchanged; duplicate readout styling separate. iPad unchanged.

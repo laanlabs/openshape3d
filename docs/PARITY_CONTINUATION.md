@@ -1,5 +1,46 @@
 # Parity continuation checkpoint
 
+## Active — QA43 finite current-data closure verified; QA37 audit next
+
+Source13badd6 pushed; final145/145 clean, no failures/skips, no runner.
+Changed live driver cleanup/exact saved Undo/Redo/profile/reopen paired.
+Illustrated1184/master38 verified, ten new hashes once/headings once/no loss.
+Durable trim/qa43-live-2026-09-12 holds source PNG/actions/JSON and exports.
+QA43 finite current-data pass; inventory30/0/1/25. Legacy nil ownership retains
+old transfer; duplicate labels excluded. Native parked reopened height keypad,
+clone reopened U right selection. iPad/immutable05be744 unchanged.
+Next QA37 exact First/Last/reverse/Lock override/repeated stability recipe;
+audit retained September12 anchor receipts before fresh comparison. Do not
+repeat completed constraint-family variants. No runner.
+
+## Active — QA43 changed live passed; publication next
+
+Source13badd6 pushed, final145/145 clean, zero failures/skips, no runner.
+Fresh clone top2/right1 drivers: top Trim drops width, retains height only;
+JSON exact Undo/Redo, gallery reopen and open-profile/no-fill verified.
+Native retained height Unlock, bottom free Lock, Undo top Unlock and saved
+reopen height Unlock verified. No source changes after final gate.
+Ten assets staged publication-assets.json under trim/qa43-live-2026-09-12;
+baseline illustrated1174/master38 copied. Illustrated section and ten images inserted; master note inserted. Verify save/export before retry.
+Next export/hash verify before claiming publication or QA43 finite closure. Legacy nil driving
+edge unchanged; duplicate readout styling excluded. Inventory29/0/1/26.
+Native parked reopened height keypad; clone reopened right-side U selection.
+iPad/immutable05be744 unchanged.
+
+## Active — QA43 side-owner final gate running
+
+Source13badd6 pushed. Before0/1 confirms extra width driver; focused21/21 and
+expanded all-four-side Lock/typed matrix1/1 pass, JSON/import/history included.
+Final combined application/annotation/lifecycle/Trim/merge/polish +two UI
+running exclusively, exec75468, /tmp/os3d-qa43-side-final-20260912.{log,xcresult}.
+Collect terminal/summary before desktop or source changes. Changed-build live
+must use a NEW rectangle or remove/re-add old dimensions: legacy nil provenance
+intentionally keeps prior behavior. Exact native/clone top-width and right-height
+Lock, top Trim, height Unlock versus bottom free Lock, Undo/Redo/reopen next.
+Native parked bottom width editor of open U; clone UI fixture may be replaced
+by final test. No competing worker. Reports1174/master38, inventory29/0/1/26.
+QA41closed0c1f170; QA43partial. iPad/immutable05be744 unchanged.
+
 ## Active — QA43 primitive rectangle side-driver gap
 
 HEAD0c1f170/source2016713; QA41 closed, inventory29/0/1/26.

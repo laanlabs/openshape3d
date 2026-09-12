@@ -47,7 +47,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
 | QA-41 | Trim primitives | Core — passed (finite desktop recipe) | Fresh paired rectangle/arc/polygon removal supplements retained line/circle evidence. Readout interception fixed2016713; final123/123 and changed midpoint/history/reopen pass. Illustrated1174/master38 verified; native immediate-reopen discrepancy retained separately from explicit Exit/save route. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
-| QA-43 | Trim references | Core — partial, not passed | Paired rectangle boundary/profile handoff plus clean 60/60 current-tree affected/surviving reference, profile invalidation and exact Undo gate. Fresh paired driven-reference/history gesture remains blocked. |
+| QA-43 | Trim references | Core — passed (finite current-data recipe) | Source13badd6 removes the trimmed rectangle side driver and preserves the surviving driver; paired driver/history/reopen plus exact saved JSON and open-profile checks. Final145/145; illustrated1184/master38 verified. Legacy nil ownership retains old behavior; duplicate label styling excluded. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
 | QA-45 | Move/rotate/copy | Core — partial, not passed | Extensive paired exact-value/local-frame/Copy/Escape/history evidence plus clean 50/50 current-tree direct line/circle/rectangle and mixed line+circle Copy matrix. Fresh paired mixed-selection and compact-layout checks remain open. |
 | QA-46 | Pattern | Explicitly deferred | Advanced linked patterns; remains in full audit, not passed. |
@@ -392,18 +392,16 @@ Ellipse bounded span; spline capability separately; preserve shape. Issues: ED-0
 ### QA-43 — Trim references
 
 Dimensioned/constrained geometry, downstream profile, full undo restoration.
-Issues: ED-04. Result: PARTIAL. Retained paired evidence shows a rectangle
-boundary removed, its open U profile no longer selectable for extrusion, an
-unaffected closed profile still usable, and a surviving side readout retained.
-The current tree passes a clean serial 60/60 Trim/reference/profile/import/UI
-gate. A production endpoint-based driving dimension on the removed span is
-dropped; an unrelated dimension, constraint and construction line survive; the
-profile opens; Undo restores the exact sketch, closed profile and valid refs.
-The initial focused fixture incorrectly used a documented legacy whole-line ref
-and failed 0/1 before correction; no product source changed. Fresh paired
-driven-reference and full history gestures remain supported-input blocked, so
-automation is not promoted to live parity. Evidence:
-[Trim references checkpoint](testing/sketch-parity-trim-references-checkpoint-2026-09-11.md).
+Issues: ED-04. Result: **PASSED for the finite current-data desktop recipe**.
+Fresh paired locked top width/right height, top Trim, surviving height Unlock,
+removed width no longer driving, Undo-restored driver and saved reopen verified.
+Source13badd6 adds explicit side ownership for new primitive rectangle dimensions;
+legacy nil provenance deliberately retains old transfer behavior. Final145/145
+clean covers all-four-side Lock/typed creation, JSON/import, surviving references,
+profile invalidation and exact history. Changed clone saved JSON Undo/Redo is
+exact; open U loses fill while unrelated profiles remain. Duplicate label styling
+is separate, not claimed as matched. Illustrated1184/master38 verified, ten
+hashes once/no loss. See [side-driver receipt](testing/sketch-parity-trim-side-driver-2026-09-12.md).
 
 ### QA-44 — Offset
 
@@ -907,3 +905,8 @@ Illustrated1154/master38 verified. iPad unchanged.
 
 Inventory **29 passed /0 failed /1 device-blocked /26 incomplete**, total56.
 QA43 driven-reference live workflow next; device/immutable05be744 unchanged.
+
+## September12 — QA43 finite closure reconciliation
+
+Inventory **30 passed /0 failed /1 device-blocked /25 incomplete**, total56.
+Current-data reference recipe passed; legacy ownership and label caveats retained.
