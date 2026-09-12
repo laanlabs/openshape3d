@@ -1,5 +1,25 @@
 # Parity continuation checkpoint
 
+## Active — QA38 closed; point-pair Coincident next
+
+Source03b9e1c/current corrected120/120 clean reused. Rectangle paired
+Disconnect/center translation/two-step history/both reopenings verified.
+Illustrated1154/master38, eight hashes once/headings once/no loss.
+Receipt sketch-parity-disconnect-rectangle-2026-09-12.md; durable
+disconnect/qa38-rectangle-live-2026-09-12. No runner/source dirty.
+QA38 finite pass, inventory28/0/1/27. Native parked reopened rectangle
+top side618237,100000×70000; clone reopened primitive281650→430775,
+external line250775→330840.
+Next confirmed point-pair Coincident anchor/selection discrepancy: native
+FirstSelected preserves rectangle/circle and moves external line endpoint;
+clone averages both and retains zero readout despite same preference.
+Read applyConstraint/commitAppliedConstraints and solver point-welding, add
+before regression for incremental point selection order, native held shape
+and geometry/history. No source fix until reproduced. Existing source order
+sidecar includes points; suspect solver welding overrides transient whole Lock,
+not yet proven. iPad/immutable05be744 unchanged.
+
+
 ## Active — QA38 circle-center paired; primitive corner next
 
 Source03b9e1c pushed; final corrected120/120 clean, zero failures/skips.
@@ -8,9 +28,13 @@ Coincident restoration and gallery reopen Ø0.6168 verified. Native two-step
 history/reopen R18000 verified. Both apps parked reopened selected rims.
 Illustrated1146/master38 verified: eight hashes once/headings once/no loss.
 Durable disconnect/qa38-center-live-2026-09-12 holds PNG/actions, restoredJSON,
-exports/hash verification. No runner. Next native/clone primitive rectangle
-stored-corner Disconnect; existing120 includes automated breadth, no rerun
-unless source changes. Initial center+endpoint Coincident averaging/selection
+exports/hash verification. No runner. Rectangle stored-corner Disconnect live preserves geometry in both apps;
+center drag moves rectangle alone. Clone two-step history and reopen verified,
+saved data confirms single rect and restored Coincident. Native first Undo
+currently executing; collect before next input. No test/build runner. Native
+rectangle moved30px to529230→652316, line500316→580410 fixed. Clone rect
+281650→430775,line250775→330840. Native history/reopen/publication next.
+Existing120 includes automated breadth; no source changes. Initial center+endpoint Coincident averaging/selection
 in clone despite First Selected remains separate unresolved gap.
 QA38partial27/0/1/28; iPad/immutable05be744 unchanged.
 

@@ -2424,3 +2424,12 @@ two-step Undo/Redo and gallery reopen. Illustrated1146/master38 verified, eight
 hashes once/no predecessor loss. [Receipt](testing/sketch-parity-disconnect-center-2026-09-12.md).
 Initial two-point Coincident anchor/selection difference remains separately open.
 QA38 partial: primitive stored-corner live comparison next.
+
+## September12 — QA38 finite Disconnect closed
+
+Primitive stored-corner paired translation/history/reopen completes endpoint,
+midpoint and circle-center coverage. Source03b9e1c/current corrected120/120
+reused; no new source change. Illustrated1154/master38, eight hashes once/no
+loss. [Closure receipt](testing/sketch-parity-disconnect-rectangle-2026-09-12.md).
+Inventory28/0/1/27. Initial point-pair Coincident averaging/selection remains
+open and is next; physical-device behavior not claimed.

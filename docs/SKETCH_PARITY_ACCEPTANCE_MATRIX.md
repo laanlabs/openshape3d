@@ -42,7 +42,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-35 | Constraint rail | Core — PASSED (September 11 finite recipe) | Model availability matrix plus portrait/landscape disabled guidance, settings access, enabled application and glyph pass clean 30/30; retained paired contextual Lock/Unlock/history/reopen evidence reconciled. Constraint semantics remain QA-36/39. |
 | QA-36 | Constraint types | Core — passed (finite desktop family recipe) | All eleven families have paired apply/history/reopen receipts, latest Perpendicular pivot c73f126. Current-source114/114 clean includes eleven-family application/residual/history/JSON matrix. Illustrated1129/master38 retain all predecessors; QA37 anchor breadth and other explicitly unverified variants remain separate. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
-| QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
+| QA-38 | Disconnect | Core — passed | Endpoint, midpoint, circle-center and primitive-corner detachment/movement/history/reopen paired. Current corrected120/120; illustrated1154/master38 verified. Initial Coincident anchoring and general overlap picking remain separate. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
 | QA-41 | Trim primitives | Core — partial, not passed | Paired line/circle and rectangle-edge samples; clean 37/37 line/circle/arc/rect/polygon, whole/boundary/history gate. Fresh paired arc/rect/polygon gestures remain blocked. |
@@ -342,7 +342,7 @@ First/Last, reverse order, existing locks override, repeated solve stability. Is
 
 ### QA-38 — Disconnect
 
-Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: **PARTIAL**. Four-line edge Disconnect/move/history/reopen is paired. Midpoint, explicit circle-center connection and primitive-rectangle diagonal-corner semantics now preserve geometry/dimensions/unrelated constraints and history in a clean 58/58 gate; those new cases still need paired live evidence. See [Disconnect receipt](testing/sketch-parity-disconnect-2026-09-08.md).
+Endpoint and midpoint connections, unrelated constraints survive, undo. Issues: DM-09. Result: **PASSED — September12 finite recipe**. Retained four-line endpoint plus freshly paired midpoint, circle-center and primitive stored-corner Disconnect, independent movement, history and reopening. Current corrected120/120 covers unrelated dimensions/constraints and archive/import/Trim/Delete integrity. Illustrated1154/master38 verified with predecessor preservation. Initial point-pair Coincident anchoring/selection is separately open. See [closure receipt](testing/sketch-parity-disconnect-rectangle-2026-09-12.md).
 
 ### QA-39 — Conflict and point states
 
@@ -893,3 +893,9 @@ Finite eleven-family recipe closed on c73f126 with current-source114/114 and
 retained paired application/history/reopen receipts. Illustrated1129/master38
 closure notes verified without media changes. Inventory **27 passed /0 failed /
 1 device-blocked /28 incomplete**, total56. iPad unchanged.
+
+## September12 — QA38 closure reconciliation
+
+QA38 finite Disconnect passed; prior QA36closure inventory27/0/1/28 advances
+to **28 passed /0 failed /1 device-blocked /27 incomplete**, total56.
+Illustrated1154/master38 verified. iPad unchanged.
