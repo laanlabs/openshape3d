@@ -1,5 +1,30 @@
 # Parity continuation checkpoint
 
+## Active — QA38 detached-point drag selection diagnosis
+
+HEAD5228ae6, sourcec73f126/final114. QA36closed b4462ec; QA37inputblocked.
+Before0/1 reproduced exactly parent-edge selection and0mm label failures;
+geometry/history/JSON passed. Scoped selected-endpoint drag cleanup implemented.
+Focused2 active exclusively exec29672:
+/tmp/os3d-qa38-point-drag-focused-20260912.{log,xcresult}.
+Dirty EditorViewModel/ConstraintApplyTests + receipt/continuation. No desktop
+input during runner. Next focused result, final relevant regression, checkpoint
+and changed-build paired repeat/history/reopen/publication.
+Native prior saved Midpoint endpoint758410
+Disconnect clears relation/selection, geometry unchanged; point drag→788400
+independent, target704410→813410 fixed. Native parked moved point.
+Clone fresh source350600→350650,target300700→400700; explicitMidpoint→
+source350600→350700. Before JSON confirms Midpoint/unrelatedParallel/Perp;
+Disconnect removes onlyMidpoint, entities exact. Direct pointdrag initially
+missed from timing; after settled pointselection moves endpoint→380690,
+targetfixed, but retains point+parentedge, spurious0mm label/gizmo. Edge-first
+drag also works. One move Undo restored; latest settled drag movedagain.
+Next add focused model regression for selected detached endpoint drag retaining
+point-only selection; inspect beginSketchEntityDrag selected-point branch.
+No claim of geometry failure now. Native history/reopen and clone history/reopen
+pending. Durable disconnect/qa38-midpoint-live-2026-09-12 has PNG/actions/JSON.
+Inventory27/0/1/28; reports1129/master38; iPad unchanged.
+
 ## Active — QA37 ordered-input blocked; QA38 next
 
 QA36 closed b4462ec, sourcec73f126/final114. Reports1129/master38 verified.

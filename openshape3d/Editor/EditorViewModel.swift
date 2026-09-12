@@ -9860,9 +9860,12 @@ final class EditorViewModel {
             return true
         }
         if (control?.kind == .lineStart || control?.kind == .lineEnd),
-           sketch.rotatedRectangleEdges.values.contains(where: { $0.contains(entity.id) }) {
+           (sketch.rotatedRectangleEdges.values.contains(where: { $0.contains(entity.id) })
+            || selectedSketchPoints.contains(.init(entityID: entity.id,
+                role: control?.kind == .lineStart ? .endpointA : .endpointB))) {
             // Keep the grabbed endpoint, not its entire edge, selected.
-            // Never retain a stale point-plus-edge zero-distance candidate.
+            // This also applies to a directly selected ordinary endpoint after
+            // Disconnect. Adding its parent creates a false zero-distance label.
             selectedSketchEntityIDs.removeAll()
             selectedSketchPoints = [.init(entityID: entity.id,
                 role: control?.kind == .lineStart ? .endpointA : .endpointB)]

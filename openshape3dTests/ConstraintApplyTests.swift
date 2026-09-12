@@ -1102,6 +1102,55 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(document.sketches[0], detached)
     }
 
+    func testDisconnectedSelectedEndpointDragKeepsPointOnlyAndIndependentHistory() throws {
+        let settings = AppSettings.shared
+        let prior = (settings.snapToGrid, settings.snapToSketchGuidelines,
+                     settings.snapToSketchGuidepoints, settings.snapToFaceGuidepoints)
+        settings.snapToGrid = false; settings.snapToSketchGuidelines = false
+        settings.snapToSketchGuidepoints = false; settings.snapToFaceGuidepoints = false
+        defer {
+            settings.snapToGrid = prior.0; settings.snapToSketchGuidelines = prior.1
+            settings.snapToSketchGuidepoints = prior.2; settings.snapToFaceGuidepoints = prior.3
+        }
+        let vm = try makeViewModel()
+        let target = line(SIMD2(0, 0), SIMD2(10, 0))
+        let source = line(SIMD2(5, 4), SIMD2(5, 0))
+        let joined = SketchConstraint(kind: .midpoint, refs: [
+            .init(entityID: source.id, role: .endpointB),
+            .init(entityID: target.id, role: .whole)])
+        let sketch = Sketch(plane: .ground, entities: [target, source], constraints: [joined])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        let point = EditorViewModel.SketchPointSelection(entityID: source.id, role: .endpointB)
+        vm.selectedSketchPoints = [point]
+        vm.disconnectSketchSelection()
+        let detached = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(detached.entities, sketch.entities)
+        XCTAssertFalse(detached.constraints.contains(joined))
+        vm.selectedSketchPoints = [point]
+        func ray(_ p: SIMD2<Double>) -> Ray {
+            Ray(origin: SIMD3<Float>(sketch.plane.toWorld(p) + sketch.plane.normal * 10),
+                direction: SIMD3<Float>(-sketch.plane.normal))
+        }
+        XCTAssertTrue(vm.beginSketchStroke(ray: ray(SIMD2(5, 0))))
+        vm.updateSketchStroke(ray: ray(SIMD2(6, 1)))
+        vm.endSketchStroke(ray: ray(SIMD2(6, 1)))
+        let moved = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(moved.entities[0], target)
+        guard case let .line(_, a, b) = moved.entities[1] else { return XCTFail("Line missing") }
+        XCTAssertEqual(simd_distance(a, SIMD2(5, 4)), 0, accuracy: 1e-8)
+        XCTAssertEqual(simd_distance(b, SIMD2(6, 1)), 0, accuracy: 1e-8)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty, "Dragging a selected endpoint must not add its parent edge")
+        XCTAssertEqual(vm.selectedSketchPoints, [point])
+        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.dimensionID == nil && $0.displayValue == 0 },
+                       "No spurious point-to-own-edge zero distance")
+        vm.undo(); XCTAssertEqual(vm.activeSketch, detached)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, sketch)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, detached)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, moved)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(moved)), moved)
+    }
+
     func testDisconnectCoversMidpointNonLineAndPrimitiveConnectionsWithoutDataLoss() throws {
         // Midpoint is a connection relationship, but Equal Length is not.
         let midpointVM = try makeViewModel()
