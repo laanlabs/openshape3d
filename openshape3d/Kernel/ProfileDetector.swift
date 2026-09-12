@@ -310,9 +310,9 @@ nonisolated enum ProfileDetector {
     }
 
     private static func lineLoops(in sketch: Sketch) -> [Profile] {
-        // A chain is one entity exploded to a polyline. Only its two ENDPOINTS
-        // enter the node graph — tessellated interior points (arcs) are never
-        // junction candidates; they are spliced into the loop when walked.
+        // A chain starts as one entity exploded to a polyline. Straight chains
+        // are split at intersections below; curved chains use only endpoints
+        // as junctions, retaining their tessellated interior for traversal.
         struct Chain {
             let entityID: UUID
             let points: [SIMD2<Double>]
@@ -374,6 +374,81 @@ nonisolated enum ProfileDetector {
                 chains[i] = Chain(entityID: chains[i].entityID, points: points,
                                   isArc: chains[i].isArc, spline: chains[i].spline)
             }
+        }
+
+        // Interior straight-line crossings are junctions too. Split only the
+        // temporary graph: the original entities, constraints and boundary
+        // ownership remain unchanged. Curves retain their analytic chains.
+        let straightIndices = chains.indices.filter {
+            !chains[$0].isArc && chains[$0].spline == nil && chains[$0].points.count == 2
+        }
+        var cuts: [Int: [(t: Double, point: SIMD2<Double>)]] = [:]
+        func cross(_ a: SIMD2<Double>, _ b: SIMD2<Double>) -> Double {
+            a.x * b.y - a.y * b.x
+        }
+        for (offset, i) in straightIndices.enumerated() {
+            let a = chains[i].points[0], r = chains[i].points[1] - a
+            for j in straightIndices.dropFirst(offset + 1) {
+                let c = chains[j].points[0], v = chains[j].points[1] - c
+                let denominator = cross(r, v)
+                let length = simd_length(r)
+                // Normalize numerically collinear overlaps into matching
+                // subsegments before deduplication. Solver roundoff can put a
+                // partial duplicate a few ulps off its boundary; angle sorting
+                // must not turn that into a spur that swallows the whole face.
+                // Use node precision, not the much broader endpoint weld.
+                if abs(cross(c - a, r)) / length <= quantum,
+                   abs(cross(c + v - a, r)) / length <= quantum {
+                    let rr = simd_length_squared(r)
+                    let t0 = simd_dot(c - a, r) / rr
+                    let t1 = simd_dot(c + v - a, r) / rr
+                    let lo = max(0, min(t0, t1)), hi = min(1, max(t0, t1))
+                    if hi > lo {
+                        for t in [lo, hi] {
+                            let point = a + r * t
+                            let u = min(1, max(0, simd_dot(point - c, v) / simd_length_squared(v)))
+                            cuts[i, default: []].append((t, point))
+                            cuts[j, default: []].append((u, point))
+                        }
+                    }
+                    continue
+                }
+                guard abs(denominator) > 1e-12 * length * simd_length(v) else { continue }
+                let t = cross(c - a, v) / denominator
+                let u = cross(c - a, r) / denominator
+                guard t >= 0, t <= 1, u >= 0, u <= 1 else { continue }
+                let point = a + r * t
+                cuts[i, default: []].append((t, point))
+                cuts[j, default: []].append((u, point))
+            }
+        }
+        var splitChains: [Chain] = []
+        for (index, chain) in chains.enumerated() {
+            guard let interior = cuts[index] else {
+                splitChains.append(chain)
+                continue
+            }
+            let ordered = ([(t: 0.0, point: chain.points[0])] + interior
+                + [(t: 1.0, point: chain.points[1])]).sorted { $0.t < $1.t }
+            var previous = ordered[0].point
+            for cut in ordered.dropFirst() where NodeKey(cut.point) != NodeKey(previous) {
+                splitChains.append(Chain(entityID: chain.entityID,
+                                         points: [previous, cut.point], isArc: false))
+                previous = cut.point
+            }
+        }
+        chains = splitChains
+
+        // A repeated straight stroke is still an editable entity, but it is
+        // only one geometric boundary. Parallel coincident half-edges create
+        // zero-area cycles and can swallow an otherwise closed face. Keep the
+        // first entity as the stable boundary owner; do not mutate the sketch.
+        // Only straight chains qualify: arcs/splines with the same endpoints
+        // may enclose a real region and must remain distinct.
+        var straightBoundaries = Set<Set<NodeKey>>()
+        chains = chains.filter { chain in
+            guard !chain.isArc, chain.spline == nil, chain.points.count == 2 else { return true }
+            return straightBoundaries.insert(Set(chain.points.map(NodeKey.init))).inserted
         }
 
         // Planar FACE TRAVERSAL over half-edges.

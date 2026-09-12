@@ -70,10 +70,8 @@ final class ConstraintApplyUITests: XCTestCase {
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing two lines should push undoable steps")
 
-        // Select both lines by tapping their middles.
+        // The last drawn line is selected; add the first line to the pair.
         p(0.42, 0.45).tap()
-        sleep(1)
-        p(0.615, 0.585).tap()
         sleep(1)
 
         // Apply Coincident: the corner snaps together (one undo step).
@@ -112,8 +110,7 @@ final class ConstraintApplyUITests: XCTestCase {
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a line should push an undoable step")
 
-        // Select the line, then level it.
-        p(0.48, 0.49).tap()
+        // The completed line is selected; level it directly.
         sleep(1)
         applyConstraint(app, "Constraint_Horizontal")
         sleep(1)

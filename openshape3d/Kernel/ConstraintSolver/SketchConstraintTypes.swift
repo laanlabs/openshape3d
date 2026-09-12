@@ -27,10 +27,14 @@ nonisolated enum PointRole: String, Codable, Equatable, Sendable {
 nonisolated struct ConstraintRef: Codable, Equatable, Sendable {
     var entityID: UUID
     var role: PointRole
+    /// Optional side of an axis-aligned rectangle (bottom/right/top/left).
+    /// Only used by whole-operand Lock; absent in legacy whole-entity locks.
+    var rectangleEdge: Int? = nil
 
-    init(entityID: UUID, role: PointRole) {
+    init(entityID: UUID, role: PointRole, rectangleEdge: Int? = nil) {
         self.entityID = entityID
         self.role = role
+        self.rectangleEdge = rectangleEdge
     }
 }
 
@@ -52,17 +56,26 @@ nonisolated enum SketchConstraintKind: String, Codable, Equatable, Sendable {
     case fixed
 }
 
+/// Saved circle-circle Tangent branch; nil on legacy records means external.
+nonisolated enum CircleTangency: String, Codable, Equatable, Sendable {
+    case externalContact
+    case internalContact
+}
+
 /// A symbolic constraint on a sketch. `refs` layout is kind-specific and
 /// documented in `SketchSolverBridge` (which lowers each kind).
 nonisolated struct SketchConstraint: Identifiable, Codable, Equatable, Sendable {
     let id: UUID
     var kind: SketchConstraintKind
     var refs: [ConstraintRef]
+    var circleTangency: CircleTangency? = nil
 
-    init(id: UUID = UUID(), kind: SketchConstraintKind, refs: [ConstraintRef]) {
+    init(id: UUID = UUID(), kind: SketchConstraintKind, refs: [ConstraintRef],
+         circleTangency: CircleTangency? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
+        self.circleTangency = circleTangency
     }
 }
 
@@ -92,16 +105,38 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
     /// nil for a plain numeric dimension. Decoded via the synthesized Codable's
     /// `decodeIfPresent`, so pre-tranche-3 sketches (no "formula" key) load as nil.
     var formula: String? = nil
+    /// Retained constant arithmetic in its explicit input units. Unlike a
+    /// variable formula, this is presentation/source text, not re-evaluated
+    /// when document variables change. Optional for legacy documents.
+    var displayExpression: String? = nil
+    /// Optional annotation anchor relative to the referenced circle center, in
+    /// sketch-plane units. Presentation only; never enters the solver.
+    var labelOffset: SIMD2<Double>? = nil
+    /// Committed axis-rectangle annotation sides, presentation only. Legacy nil
+    /// retains existing placement; never adds dimensions or solver references.
+    var rectangleLabelEdges: [Int]? = nil
+    /// The primitive rectangle edge whose size was made driving. Unlike label
+    /// aliases, this provenance determines whether Trim removes the driver.
+    /// Legacy nil retains the existing point-reference transfer behavior.
+    var rectangleDrivingEdge: Int? = nil
 
     init(id: UUID = UUID(),
          kind: DimensionKind,
          refs: [ConstraintRef],
          value: Double,
-         formula: String? = nil) {
+         formula: String? = nil,
+         labelOffset: SIMD2<Double>? = nil,
+         displayExpression: String? = nil,
+         rectangleLabelEdges: [Int]? = nil,
+         rectangleDrivingEdge: Int? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
         self.value = value
         self.formula = formula
+        self.displayExpression = displayExpression
+        self.labelOffset = labelOffset
+        self.rectangleLabelEdges = rectangleLabelEdges
+        self.rectangleDrivingEdge = rectangleDrivingEdge
     }
 }

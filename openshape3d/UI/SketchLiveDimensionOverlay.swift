@@ -15,6 +15,8 @@
 
 import SwiftUI
 
+// The Metal canvas has a fixed light gradient, even with dark UI chrome.
+// Annotation ink follows that canvas, not the system foreground (white in dark mode).
 struct SketchLiveDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
 
@@ -27,9 +29,11 @@ struct SketchLiveDimensionOverlay: View {
     var body: some View {
         // Reproject whenever the camera moves.
         let _ = viewModel.cameraEpoch
-        ZStack(alignment: .topLeading) {
-            ForEach(viewModel.liveDimensionLabels, id: \.id) { label in
-                dimensionView(label)
+        GeometryReader { geo in
+            ZStack(alignment: .topLeading) {
+                ForEach(viewModel.liveDimensionLabels, id: \.id) { label in
+                    dimensionView(label, in: geo.size)
+                }
             }
         }
         // Purely informational — taps must reach the sketch underneath.
@@ -41,13 +45,37 @@ struct SketchLiveDimensionOverlay: View {
     }
 
     @ViewBuilder
-    private func dimensionView(_ label: EditorViewModel.LiveDimensionLabel) -> some View {
-        if let lineStart = project(label.worldLineStart),
-           let lineEnd = project(label.worldLineEnd),
-           let witnessStart = project(label.worldWitnessStart),
-           let witnessEnd = project(label.worldWitnessEnd),
-           let anchor = project(label.worldLabel),
-           hypot(lineEnd.x - lineStart.x, lineEnd.y - lineStart.y) > 1 {
+    private func dimensionView(_ label: EditorViewModel.LiveDimensionLabel,
+                               in size: CGSize) -> some View {
+        if !label.worldArcPoints.isEmpty, let arc = arcLeader(label) {
+            Path { path in
+                path.addLines(arc.points)
+                path.move(to: arc.center)
+                path.addLine(to: arc.points[0])
+                path.move(to: arc.center)
+                path.addLine(to: arc.points[arc.points.count - 1])
+            }
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
+            arrowHead(at: arc.points[0], pointingFrom: arc.points[1])
+            arrowHead(at: arc.points[arc.points.count - 1],
+                      pointingFrom: arc.points[arc.points.count - 2])
+            liveText(label.text, rotation: arc.rotation, at: arc.anchor)
+        } else if label.isArcRadius,
+                  let center = project(label.worldLineStart),
+                  let tip = project(label.worldLineEnd),
+                  let radial = radiusLeader(center: center, tip: tip, in: size) {
+            Path { path in
+                path.move(to: center)
+                path.addLine(to: radial.tail)
+            }
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
+            arrowHead(at: tip, pointingFrom: radial.tail)
+            liveText(label.text, rotation: radial.rotation, at: radial.anchor)
+        } else if let geometry = linearGeometry(label),
+                  hypot(geometry.lineEnd.x - geometry.lineStart.x,
+                        geometry.lineEnd.y - geometry.lineStart.y) > 1 {
+            let lineStart = geometry.lineStart, lineEnd = geometry.lineEnd
+            let witnessStart = geometry.witnessStart, witnessEnd = geometry.witnessEnd
 
             // Witness lines: thin leaders from the geometry out to the
             // dimension line. Skipped entirely for a dimension drawn straight
@@ -59,14 +87,14 @@ struct SketchLiveDimensionOverlay: View {
                     path.move(to: witnessEnd)
                     path.addLine(to: lineEnd)
                 }
-                .stroke(Color.primary.opacity(0.45), lineWidth: 0.75)
+                .stroke(Color.black.opacity(0.45), lineWidth: 0.75)
             }
 
             Path { path in
                 path.move(to: lineStart)
                 path.addLine(to: lineEnd)
             }
-            .stroke(Color.primary.opacity(0.85), lineWidth: 1)
+            .stroke(Color.black.opacity(0.85), lineWidth: 1)
 
             // Ticks ON the circle where the diameter meets it — without them
             // the arrowheads float against the curve with nothing saying where
@@ -76,25 +104,110 @@ struct SketchLiveDimensionOverlay: View {
                     appendTick(&path, at: lineStart, along: lineEnd)
                     appendTick(&path, at: lineEnd, along: lineStart)
                 }
-                .stroke(Color.primary.opacity(0.85), lineWidth: 1.25)
+                .stroke(Color.black.opacity(0.85), lineWidth: 1.25)
             }
 
             arrowHead(at: lineStart, pointingFrom: lineEnd)
             arrowHead(at: lineEnd, pointingFrom: lineStart)
 
-            Text(label.text)
-                .font(.caption2.weight(.semibold))
-                .monospacedDigit()
-                .fixedSize()
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 4))
-                // Ride the dimension line the way a CAD annotation does, but
-                // never upside down.
-                .rotationEffect(.radians(readableAngle(from: lineStart, to: lineEnd)))
-                .position(anchor)
-                .accessibilityIdentifier("LiveDimension")
+            liveText(label.text,
+                     rotation: readableAngle(from: lineStart, to: lineEnd), at: geometry.anchor,
+                     outlined: label.isPendingRectangleBaseline)
         }
+    }
+
+    private func linearGeometry(_ label: EditorViewModel.LiveDimensionLabel)
+        -> (lineStart: CGPoint, lineEnd: CGPoint, witnessStart: CGPoint,
+            witnessEnd: CGPoint, anchor: CGPoint)? {
+        guard var start = project(label.worldLineStart),
+              var end = project(label.worldLineEnd),
+              let a = project(label.worldWitnessStart),
+              let b = project(label.worldWitnessEnd),
+              var anchor = project(label.worldLabel) else { return nil }
+        if label.isPendingRectangleBaseline {
+            // Native keeps this distance fixed as baseline length changes.
+            // Match completed rectangle leaders (100 view points), not the
+            // generic in-flight measurement's length-proportional world offset.
+            let dx = start.x - a.x, dy = start.y - a.y
+            let length = hypot(dx, dy)
+            guard length > 0.001 else { return nil }
+            let nx = dx / length, ny = dy / length
+            start = CGPoint(x: a.x + nx * 100, y: a.y + ny * 100)
+            end = CGPoint(x: b.x + nx * 100, y: b.y + ny * 100)
+            // Native places the value above its readable text baseline.
+            // Reversing construction moves the leader to the other side of
+            // the geometry, but must not flip the value below that leader.
+            let angle = readableAngle(from: start, to: end)
+            anchor = CGPoint(x: (start.x + end.x) / 2 + CGFloat(sin(angle)) * 24,
+                             y: (start.y + end.y) / 2 - CGFloat(cos(angle)) * 24)
+        }
+        return (start, end, a, b, anchor)
+    }
+
+    private func liveText(_ text: String, rotation: Double, at anchor: CGPoint,
+                          outlined: Bool = false) -> some View {
+        Text(text)
+            .font(.system(size: 16))
+            .foregroundStyle(Color.black)
+            .monospacedDigit()
+            .fixedSize()
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background {
+                if outlined {
+                    RoundedRectangle(cornerRadius: 3).fill(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 3)
+                            .stroke(Color.blue, lineWidth: 1.5))
+                }
+            }
+            .rotationEffect(.radians(rotation))
+            .position(anchor)
+            .accessibilityIdentifier("LiveDimension")
+    }
+
+    private func arcLeader(_ label: EditorViewModel.LiveDimensionLabel)
+        -> (points: [CGPoint], center: CGPoint, anchor: CGPoint, rotation: Double)? {
+        guard let worldCenter = label.worldArcCenter,
+              let center = project(worldCenter), label.worldArcPoints.count > 2 else { return nil }
+        let projected = label.worldArcPoints.compactMap(project)
+        guard projected.count == label.worldArcPoints.count else { return nil }
+        func offset(_ point: CGPoint, by distance: CGFloat) -> CGPoint {
+            let dx = point.x - center.x, dy = point.y - center.y
+            let length = hypot(dx, dy)
+            guard length > 0.001 else { return point }
+            return CGPoint(x: point.x + dx / length * distance,
+                           y: point.y + dy / length * distance)
+        }
+        let points = projected.map { offset($0, by: 40) }
+        let middle = points.count / 2
+        let before = points[middle - 1], after = points[middle + 1]
+        var rotation = atan2(Double(after.y - before.y), Double(after.x - before.x))
+        if rotation > .pi / 2 { rotation -= .pi }
+        if rotation < -.pi / 2 { rotation += .pi }
+        return (points, center, offset(projected[middle], by: 60), rotation)
+    }
+
+    private func radiusLeader(center: CGPoint, tip: CGPoint, in size: CGSize)
+        -> (tail: CGPoint, anchor: CGPoint, rotation: Double)? {
+        let dx = tip.x - center.x, dy = tip.y - center.y
+        let length = hypot(dx, dy)
+        guard length > 1 else { return nil }
+        let ux = dx / length, uy = dy / length
+        let bounds = CGRect(x: 96, y: 140, width: max(1, size.width - 192),
+                            height: max(1, size.height - 210))
+        var extensionLength: CGFloat = 220
+        if ux > 0.001 { extensionLength = min(extensionLength, (bounds.maxX - tip.x) / ux) }
+        if ux < -0.001 { extensionLength = min(extensionLength, (bounds.minX - tip.x) / ux) }
+        if uy > 0.001 { extensionLength = min(extensionLength, (bounds.maxY - tip.y) / uy) }
+        if uy < -0.001 { extensionLength = min(extensionLength, (bounds.minY - tip.y) / uy) }
+        extensionLength = max(0, extensionLength)
+        let tail = CGPoint(x: tip.x + ux * extensionLength, y: tip.y + uy * extensionLength)
+        var rotation = atan2(Double(dy), Double(dx))
+        if rotation > .pi / 2 { rotation -= .pi }
+        if rotation < -.pi / 2 { rotation += .pi }
+        let anchor = CGPoint(x: tip.x + ux * extensionLength * 0.7 - uy * 18,
+                             y: tip.y + uy * extensionLength * 0.7 + ux * 18)
+        return (tail, anchor, rotation)
     }
 
     /// Short tick at `point`, perpendicular to the line running to `other`.
@@ -126,7 +239,7 @@ struct SketchLiveDimensionOverlay: View {
                                          y: base.y - ux * Self.arrowHalfWidth))
                 path.closeSubpath()
             }
-            .fill(Color.primary.opacity(0.85))
+            .fill(Color.black.opacity(0.85))
         }
     }
 

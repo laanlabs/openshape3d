@@ -322,12 +322,18 @@ struct EditorView: View {
     }
 
     private func sketchStatusText(_ viewModel: EditorViewModel) -> String {
+        if viewModel.isPickingSymmetryAxis { return "Select a line for the axis of symmetry" }
         guard let sketch = viewModel.activeSketch else { return "Sketching" }
         if case .sketching(_, let tool) = viewModel.mode {
             switch tool {
             case .text: return "Tap to place text"
             case .project: return "Tap a body to project its edges"
-            case nil: return "Drag to orbit — pick a tool to draw"
+            case nil:
+                if viewModel.sketchTransformActive {
+                    return viewModel.selectedSketchEntityIDs.isEmpty
+                        ? "Select sketch geometry to move or rotate" : "Drag an arrow or tap for an exact value"
+                }
+                return "Drag to orbit — pick a tool to draw"
             default: break
             }
         }
@@ -941,22 +947,41 @@ struct EditorView: View {
                 // dimension editor — the primary interaction — rather than
                 // selecting the glyph (which is also deletable via the Items
                 // panel).
-                SketchConstraintOverlay(viewModel: viewModel)
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchConstraintOverlay(viewModel: viewModel)
+                }
             }
             .overlay {
-                // Sketch dimension annotations + inline editors (plan §C2).
-                SketchDimensionOverlay(viewModel: viewModel)
-            }
-            .overlay {
-                // Per-point DOF markers: blue hollow = free, green =
-                // constrained, blue square = locked. Non-interactive (plan §C4).
+                // Informational point markers belong below numeric editors:
+                // otherwise endpoint circles paint over opaque keypad keys.
                 SketchPointStateOverlay(viewModel: viewModel)
             }
             .overlay {
-                // Live width/height/Ø readout for the stroke in flight (§1.1).
-                // Above the persisted-dimension layer but non-interactive, so
-                // it never steals a tap from a real dimension label.
+                // Pending measurements remain below opaque numeric editors.
                 SketchLiveDimensionOverlay(viewModel: viewModel)
+            }
+            .overlay {
+                // Sketch dimension annotations + inline editors (plan §C2).
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchDimensionOverlay(viewModel: viewModel)
+                }
+            }
+            .overlay {
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchTransformControlsOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchRadialHandleOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
             }
             .overlay {
                 // Non-interactive projected overlays, grouped in one ZStack to
@@ -1005,6 +1030,14 @@ struct EditorView: View {
                     // the numeric bar and become untappable in portrait.
                     .padding(.top, 8)
                     .padding(.bottom, bottomBarInset)
+            }
+            .overlay(alignment: settings.paletteOnRight ? .leading : .trailing) {
+                if viewModel.mode.isSketching, !viewModel.sketchTransformActive, !viewModel.isPickingSymmetryAxis {
+                    SketchConstraintRail(viewModel: viewModel)
+                        .padding(settings.paletteOnRight ? .leading : .trailing, 14)
+                        .padding(.top, 100)
+                        .padding(.bottom, bottomBarInset + 20)
+                }
             }
             .overlay(alignment: .bottom) {
                 VStack(spacing: 10) {
@@ -1078,11 +1111,22 @@ struct EditorView: View {
                     .accessibilityIdentifier("CopyBadge")
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
-                } else if viewModel.mode.isSketching,
-                          !viewModel.selectedSketchEntityIDs.isEmpty {
+                } else if viewModel.mode.isSketching, viewModel.mode.sketchTool == nil,
+                          viewModel.editingDimension == nil,
+                          (!viewModel.selectedSketchEntityIDs.isEmpty || viewModel.sketchTransformActive) {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
+                    HStack {
+                    if viewModel.usesExplicitSketchTransform || viewModel.sketchTransformActive {
+                        Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
+                            viewModel.sketchTransformActive.toggle()
+                        }
+                        .buttonStyle(.bordered)
+                        .background(.regularMaterial, in: Capsule())
+                        .accessibilityIdentifier("SketchTransformMode")
+                    }
                     Button {
+                        if viewModel.usesExplicitSketchTransform { viewModel.sketchTransformActive = true }
                         viewModel.sketchCopyOnDrag.toggle()
                     } label: {
                         Label("Copy", systemImage: "plus.square.on.square")
@@ -1092,6 +1136,9 @@ struct EditorView: View {
                     .tint(viewModel.sketchCopyOnDrag ? Color.blue : Color.secondary)
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityIdentifier("SketchCopyBadge")
+                    .disabled(viewModel.selectedSketchEntityIDs.isEmpty)
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
                 } else if viewModel.sectionState != nil {
@@ -1151,21 +1198,47 @@ struct EditorView: View {
                         .accessibilityIdentifier("InsertSymbolDone")
                     }
                 } else if viewModel.mode.isSketching {
-                    statusPill(icon: "pencil.and.outline", text: sketchStatusText(viewModel)) {
-                        sketchStateChip(viewModel)
-                        // Shown when the camera drifted >10° off head-on.
-                        if viewModel.lookAtSketchAvailable {
-                            Button("Look at Sketch") {
-                                viewModel.lookAtSketch()
+                    VStack(spacing: 8) {
+                        if viewModel.mode.sketchTool == .rect {
+                            HStack(spacing: 12) {
+                                Menu {
+                                    ForEach(RectangleType.allCases, id: \.self) { type in
+                                        Button(type.title + " Rectangle") { viewModel.setRectangleType(type) }
+                                            .accessibilityIdentifier("RectangleType-" + type.rawValue)
+                                    }
+                                } label: {
+                                    Label(viewModel.rectangleType.title + " Rectangle", systemImage: "chevron.down")
+                                }
+                                .accessibilityIdentifier("RectangleTypeMenu")
+                                Text(viewModel.rectangleInstruction).font(.caption)
+                                if viewModel.hasPendingRectangle {
+                                    Button("Cancel Rectangle") { viewModel.clearRectanglePlacement() }
+                                        .accessibilityIdentifier("CancelRectangle")
+                                }
                             }
+                            .padding(10)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        statusPill(icon: "pencil.and.outline", text: sketchStatusText(viewModel)) {
+                            sketchStateChip(viewModel)
+                            // Shown when the camera drifted >10° off head-on.
+                            if viewModel.lookAtSketchAvailable {
+                                Button("Look at Sketch") {
+                                    viewModel.lookAtSketch()
+                                }
+                                .controlSize(.small)
+                                .accessibilityIdentifier("LookAtSketch")
+                            }
+                            if viewModel.isPickingSymmetryAxis {
+                                Button("Cancel Symmetry") { viewModel.cancelSymmetryAxisPick() }
+                                    .accessibilityIdentifier("CancelSymmetry")
+                            }
+                            Button("Exit Sketching") {
+                                viewModel.finishSketch()
+                            }
+                            .buttonStyle(.borderedProminent)
                             .controlSize(.small)
-                            .accessibilityIdentifier("LookAtSketch")
                         }
-                        Button("Exit Sketching") {
-                            viewModel.finishSketch()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
                     }
                 } else if case .pickingSketchPlane = viewModel.mode {
                     statusPill(
@@ -1421,9 +1494,15 @@ struct EditorView: View {
                     Button {
                         viewModel.undo()
                     } label: {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "arrow.uturn.backward")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Undo")
                     }
-                    .disabled(!viewModel.session.undoStack.canUndo)
+                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle)
                     // Distinct from the software keyboard's own "Undo": with
                     // only a label to match on, `app.buttons["Undo"]` found two
                     // elements and every single-element query threw.
@@ -1432,9 +1511,16 @@ struct EditorView: View {
                     Button {
                         viewModel.redo()
                     } label: {
-                        Label("Redo", systemImage: "arrow.uturn.forward")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "arrow.uturn.forward")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Redo")
                     }
                     .disabled(!viewModel.session.undoStack.canRedo)
+                    .accessibilityIdentifier("RedoButton")
 
                     Button {
                         viewModel.fitView()
@@ -1560,7 +1646,13 @@ struct EditorView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Label("Settings", systemImage: "gearshape")
+                        ZStack {
+                            Color.clear
+                            Image(systemName: "gearshape")
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("Settings")
                     }
                     .accessibilityIdentifier("SettingsButton")
                 }

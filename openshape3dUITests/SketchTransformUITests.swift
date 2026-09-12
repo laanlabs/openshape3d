@@ -11,6 +11,33 @@ import XCTest
 
 final class SketchTransformUITests: XCTestCase {
 
+    private func attach(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
+    private func tapHorizontalLine(
+        _ app: XCUIApplication, window: XCUIElement, row: Int, expectedRows: Int
+    ) {
+        let centers = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker")
+            .allElementsBoundByIndex
+            .map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+            .sorted { $0.y < $1.y }
+        XCTAssertEqual(centers.count, expectedRows * 2)
+        let pair = Array(centers[(row * 2)..<(row * 2 + 2)])
+        let midpoint = CGPoint(
+            x: pair.map(\.x).reduce(0, +) / 2,
+            y: pair.map(\.y).reduce(0, +) / 2
+        )
+        window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: midpoint.x - window.frame.minX,
+            dy: midpoint.y - window.frame.minY
+        )).tap()
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
@@ -42,14 +69,21 @@ final class SketchTransformUITests: XCTestCase {
         // on empty grid, where the selection gizmo's move handle will sit.
         point(0.35, 0.42).press(forDuration: 0.15, thenDragTo: point(0.65, 0.42))
         point(0.35, 0.58).press(forDuration: 0.15, thenDragTo: point(0.65, 0.58))
+        sleep(1)
 
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing lines should push undoable commands")
 
-        // Select both lines (tap + tap toggles each into the selection).
-        point(0.50, 0.42).tap()
+        // Drawing tools own canvas input until explicitly toggled off.
+        tapPaletteTool(app, group: "Sketch", label: "Line")
         sleep(1)
-        point(0.50, 0.58).tap()
+        // Release retains the newest line selection. Clear it first, then
+        // select each body away from the midpoint constraint glyph.
+        point(0.75, 0.70).tap()
+        sleep(1)
+        tapHorizontalLine(app, window: window, row: 0, expectedRows: 2)
+        sleep(1)
+        tapHorizontalLine(app, window: window, row: 1, expectedRows: 2)
         sleep(1)
 
         // The sketch Copy chip riding the selection proves the gizmo state
@@ -57,6 +91,7 @@ final class SketchTransformUITests: XCTestCase {
         XCTAssertTrue(app.buttons["SketchCopyBadge"].waitForExistence(timeout: 3),
                       "Selecting sketch entities should show the sketch Copy chip")
 
+        attach(app, "two-lines-before-move")
         // Drag the move handle at the selection centroid: both lines
         // translate in ONE coalesced undo step.
         point(0.50, 0.50).press(
@@ -67,6 +102,7 @@ final class SketchTransformUITests: XCTestCase {
         )
         sleep(1)
 
+        attach(app, "two-lines-after-move")
         // Exactly three undo steps: line A, line B, gizmo move.
         for step in 1...3 {
             XCTAssertTrue(undo.isEnabled, "Undo step \(step) should be available")
@@ -76,6 +112,96 @@ final class SketchTransformUITests: XCTestCase {
                        "Line + line + gizmo move should be exactly three undo steps")
 
         app.buttons["Exit Sketching"].tap()
+    }
+
+    func testSingleLineRequiresExplicitTransformAndCopyStillMoves() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        p(0.35, 0.42).press(forDuration: 0.15, thenDragTo: p(0.65, 0.42))
+        sleep(1)
+        app.buttons["Line"].tap()
+        sleep(1)
+        p(0.75, 0.70).tap()
+        sleep(1)
+        tapHorizontalLine(app, window: window, row: 0, expectedRows: 1)
+        let mode = app.buttons["SketchTransformMode"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 3))
+        XCTAssertEqual(mode.label, "Move/Rotate")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.exists)
+        let original = label.frame
+        attach(app, "single-line-default-dimension-no-ring")
+        let markers = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker").allElementsBoundByIndex
+        XCTAssertEqual(markers.count, 2)
+        // Use the visible line body away from the centered dimension badge.
+        // The midpoint is intentionally occupied by that overlay and tests
+        // badge hit-testing rather than direct entity dragging.
+        let dragPoint = CGPoint(
+            x: markers[0].frame.midX * 0.75 + markers[1].frame.midX * 0.25,
+            y: markers[0].frame.midY * 0.75 + markers[1].frame.midY * 0.25
+        )
+        let dragStart = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: dragPoint.x - window.frame.minX,
+            dy: dragPoint.y - window.frame.minY
+        ))
+        let dragEnd = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: dragPoint.x - window.frame.minX,
+            dy: dragPoint.y - window.frame.minY + 60
+        ))
+        dragStart.press(forDuration: 0.3, thenDragTo: dragEnd)
+        XCTAssertGreaterThan(label.frame.midY, original.midY + 30,
+                             "Direct body dragging remains available outside transform mode")
+        app.buttons["UndoButton"].tap()
+        XCTAssertEqual(label.frame.midY, original.midY, accuracy: 3)
+        mode.tap()
+        XCTAssertEqual(mode.label, "Done")
+        let center = CGPoint(x: (markers[0].frame.midX + markers[1].frame.midX) / 2,
+                             y: (markers[0].frame.midY + markers[1].frame.midY) / 2)
+        for glyph in app.buttons.matching(identifier: "ConstraintGlyph").allElementsBoundByIndex {
+            XCTAssertFalse(glyph.frame.contains(center), "Constraint glyph must not cover the move target")
+        }
+        attach(app, "single-line-explicit-before-center-drag")
+        let xControl = app.descendants(matching: .any)
+            .matching(identifier: "SketchTransform-x").firstMatch
+        XCTAssertTrue(xControl.waitForExistence(timeout: 3))
+        let xStart = xControl.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        xStart.press(forDuration: 0.3, thenDragTo: xStart.withOffset(CGVector(dx: 80, dy: 0)))
+        XCTAssertGreaterThan(label.frame.midX, original.midX + 30)
+        attach(app, "single-line-explicit-move")
+        app.buttons["SketchCopyBadge"].tap()
+        let yControl = app.descendants(matching: .any)
+            .matching(identifier: "SketchTransform-y").firstMatch
+        XCTAssertTrue(yControl.waitForExistence(timeout: 3))
+        let yStart = yControl.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        yStart.press(forDuration: 0.3, thenDragTo: yStart.withOffset(CGVector(dx: 0, dy: 100)))
+        XCTAssertGreaterThan(label.frame.midY, original.midY + 80)
+        XCTAssertEqual(mode.label, "Done", "Copy must retain explicit transform mode")
+        mode.tap()
+        XCTAssertEqual(mode.label, "Move/Rotate")
+        attach(app, "single-line-copy-done")
+        sleep(1)
+        p(0.75, 0.70).tap()
+        sleep(1)
+        attach(app, "single-line-copy-selection-cleared")
+        tapHorizontalLine(app, window: window, row: 0, expectedRows: 2)
+        sleep(1)
+        attach(app, "single-line-copy-original-reselected")
+        XCTAssertTrue(label.waitForExistence(timeout: 3), "Copy must leave the original line selectable")
+        XCTAssertEqual(label.frame.midY, original.midY, accuracy: 3,
+                       "Copy must not proximity-weld and translate its source")
+        attach(app, "single-line-copy-original-retained")
     }
 
     func testRotateAroundWorldAxisTypedAngleCommitUndo() throws {

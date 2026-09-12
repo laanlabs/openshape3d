@@ -10,6 +10,37 @@ import XCTest
 
 final class ExpressionEvaluatorTests: XCTestCase {
 
+    func testDimensionDiagnosticsUseParsedDenominators() {
+        XCTAssertEqual(ExpressionEvaluator.validationMessage(" ", variables: [:]),
+                       "A value is needed but none is given.")
+        for expression in ["1/0", "1/(2-2)", "1/zero", "1/0 mm"] {
+            XCTAssertEqual(ExpressionEvaluator.validationMessage(expression, variables: ["zero": 0]),
+                           "Expression is invalid. Cannot divide by zero.", expression)
+        }
+        XCTAssertEqual(ExpressionEvaluator.validationMessage("2+", variables: [:]),
+                       "Expression contains a syntax error that cannot be parsed.")
+        XCTAssertNil(ExpressionEvaluator.validationMessage("1/0.5", variables: [:]))
+        XCTAssertNil(ExpressionEvaluator.validationMessage("1/zero", variables: ["zero": 2]))
+    }
+
+    func testFullyQualifiedAdditiveLengths() throws {
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1 cm + 2 mm")), 12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("=0.1 cm + 0.2 mm")), 1.2, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1e-2 m - 2 mm + .1 cm")), 9)
+        for invalid in ["1 cm + 2", "1 cm + 2 deg", "1 cm * 2 mm", "1 m m + 2 mm",
+                        "1 cm 2 mm", "1 cm + 2 mm junk", "1 cm ++ 2 mm", "1e999 m + 1 mm"] {
+            XCTAssertNil(ExpressionEvaluator.additiveLengthMM(invalid), invalid)
+        }
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("0.025 ft + 0.5 in")), 20.32, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("0.00125 ft + 0.025 in")), 1.016, accuracy: 1e-12)
+        XCTAssertEqual(try XCTUnwrap(ExpressionEvaluator.additiveLengthMM("1 ft - 6 in")), 152.4, accuracy: 1e-12)
+        for invalid in ["1 ft * 2 in", "1 ft + 2", "1 ft + 2 deg", "1 ft + 2 inch"] {
+            XCTAssertNil(ExpressionEvaluator.additiveLengthMM(invalid), invalid)
+        }
+        // Existing scalar evaluator retains its established suffix convention.
+        XCTAssertEqual(ExpressionEvaluator.evaluate("2 cm"), 2)
+    }
+
     func testPlainNumbers() {
         XCTAssertEqual(ExpressionEvaluator.evaluate("20"), 20)
         XCTAssertEqual(ExpressionEvaluator.evaluate("25.4"), 25.4)

@@ -1,8 +1,7 @@
 # Status & Next Steps — Handoff Notes
 
-Last updated: 2026-09-05 (Import Units prompt, LiDAR scan import fixes, in-app bug reporter, Items Manager folders, project folders in the gallery — see the three newest mission log entries; before that: textured mesh import glTF/USDZ/OBJ + exact OCCT face draft; before that: SOLIDWORKS practice problems through the UI; 2026-09-03 SOLIDWORKS practice-problem campaign — extrude end
-conditions, B-rep touch commits, draft of an existing face; see the mission
-log just below, and **§4c for the campaign's state and how to resume it**).
+Last updated: 2026-09-07 — rectangle construction and constraint discoverability; see the new mission log and
+[full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
 Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
@@ -10,6 +9,81 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-09, arc endpoint tangent transition
+
+Paired native/clone construction confirmed that a visually tangent endpoint Arc
+was not storing the native Tangent relationship. Arc third-point commit now
+performs endpoint-only inference through the saved point, angle, and setting
+gates, then commits the Arc and accepted constraint as one Draw history step.
+Native and the exact clone build both showed the tangent glyph; one-step Undo
+and Redo matched. Focused inference/construction passed 31/31 and the final
+combined solver/construction/existing-arc-UI regression passed cleanly 63/63.
+Direct gesture major/minor boundaries, hover delivery, physical Pencil/touch,
+QA-55/56, final candidate regression, and device-build handoff remain open.
+[Detailed receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
+
+## Mission log — 2026-09-09, direct arc boundaries
+
+Controlled native and clone gestures now cover direct minor, semicircle and
+major construction. Native sampled 90/180/220 degrees; the differently scaled
+clone sampled 81.91/176.03/214.93 degrees. Clone toolbar Undo removed only the
+major arc and Redo restored its profile. QA-13 remains partial for simulator
+hover delivery and physical Pencil/touch; no exact macOS-to-iPad coordinate or
+device-input equivalence is claimed.
+[Detailed receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
+
+## Mission log — 2026-09-09, downstream smoke
+
+Native and clone each carried an isolated circle through closed-profile
+selection, extrusion commit and solid Undo/Redo; the clone also canceled a
+preview cleanly. Current-revision Sweep/Loft UI plus kernel/feature-graph
+coverage passed 65/65 in one serial run. QA-56 is passed without claiming
+advanced downstream parity or physical-device testing.
+[Detailed receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
+
+## Mission log — 2026-09-09, sustained use
+
+QA-55 passed paired ten-cycle rectangle/circle/line construction, history,
+dense-state gallery reopen and clone post-test relaunch. One clean 71/71
+focused profile/cache/constraint/construction/selection run supplements the
+live evidence. No visible hang occurred. Native needed a settled circle-release
+pause; wall-clock automation timings are recorded but are not a performance
+comparison. Physical Pencil endurance remains unverified.
+[Detailed receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
+
+## Current baseline correction — 2026-09-07
+
+The September 5 sections below are **historical**, not the current implementation contract.
+At audited revision `88b0478`, both Always Show Dimensions and Always Show Constraints default **OFF**. Off means selection-based, not hidden and not “all active sketch annotations.” The follow-up implementation filters each annotation and makes normal model-mode outline taps recover its dimensions; see [implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
+
+`PSTools.Dimension.*` and the shipped Dimension tutorial include **2D Drawings** features. The “ten sketch dimension tools” / G2 list below is **withdrawn as a sketch requirement**. Label dragging also needs verified sketch-specific evidence. Native Shapr3D was accessible during the September 6 audit; the old accessibility blockage below is historical. Camera behavior requires per-device UI verification, not assumptions from old notes.
+
+## Mission log — 2026-09-07 noon, illustrated evidence and camera entry
+
+Published [illustrated Google Docs addendum](https://docs.google.com/document/d/1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko/edit) with 16 embedded screenshots; exported-image count and anonymous reading verified. The desktop locked again, so fresh direct A/B awaits unlock. An hourly continuation reminder is enabled at the user’s request until stopped.
+
+Changed beginSketch to align the camera to the selected plane automatically, removing the unsupported preserve-oblique-view reference claim. Simulator build passed; focused RectangleWorkflowUITests/testCenterRectangleExtendsAcrossItsStartingPoint passed (1/1, 12:10 EDT), asserting no Look at Sketch action is needed and checking the drawn profile. Receipt: `/tmp/os3d-parity-camera-ui.xcresult`. Fresh live reference recheck and other planes remain open. Diagonal-anchor, post-draw line readout and keypad fixes remain open.
+
+## Mission log — 2026-09-07, direct two-app comparison
+
+Operated native Shapr3D and the latest dedicated simulator build through Peekaboo after desktop unlock. Confirmed diagonal rectangle first-corner drift on width edit, oblique sketch entry, missing post-draw line readout, keypad obstruction and incomplete three-point dimension presentation. Center width anchoring and circle-at-corner drawing matched in the exercised cases. [Live receipt](testing/sketch-parity-live-2026-09-07.md) separates direct evidence, matches and unresolved investigations. Prioritize the confirmed diagonal-anchor issue; do not label center anchoring universally broken. No source change or new automated test run in this pass.
+
+## Mission log — 2026-09-07, rectangle construction and constraint discoverability
+
+Added center/diagonal/three-point rectangle selection, staged tap/drag construction, anchor/preview/readouts, cancellation, and one-step rectangle undo. Rotated rectangles reuse four ordinary lines with seven internal constraints. Drawing tools now own strokes beginning on existing geometry; disarm for point/entity/gizmo editing. A visible opposite-side constraint rail exposes common relations, prerequisites and settings, with More/compact fallback. Rectangle terminology is expanded from “Rect.”
+
+A small-profile extrusion regression exposed fixed model-unit acquisition floors: outline targets now use 16 screen points and control points 24. This fixes selection acquisition, not snap/grid resolution. New pure tests exercise geometry, solver/Codable preservation and selection across zoom levels. Verification covers 60 distinct tests across the combined run (58 passed, two line-label failures) and the final 9/9 passing correction rerun; see [the second-batch receipt](testing/sketch-parity-rectangles-2026-09-07.md).
+
+Remaining priorities: typed rectangle anchor preservation/two-axis entry; remaining snapping categories/grid behavior; rectangle and edit intent A/B on physical Pencil and mouse; constraint Disconnect; distance/radius preferences and other confirmed dimension gaps. All 42 audit records remain tracked; this mission is not a full parity sign-off.
+
+## Mission log — 2026-09-07, sketch parity foundations
+
+Implemented normal outline selection in model mode (depth-aware; profile interiors remain extrudable), per-annotation selection filtering, persistent snapping preferences, and pending keypad cleanup on tool/selection/exit transitions. Defaults remain both annotation visibility switches OFF; existing grid/guidepoint snaps default ON. Grid-off also disables face-edge quantization and sketch translation capture. Snap acquisition and auto-constraint recording remain distinct.
+
+Final combined verification: **40 unit + 7 UI tests passed, 0 failures**; [receipt](testing/sketch-parity-foundations-2026-09-07.md). See [the implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md) for exact scope and all remaining audit issues. SK-05 is partial: independently configurable guidelines and off-plane 3D guidepoints are not implemented. DM-12 is only partially verified, not a complete keypad/keyboard matrix sign-off.
+
+Existing `SketchToolsUITests` exposed a missing `RedoButton` accessibility identifier (the button was present under label “Redo”); added it alongside the existing Undo identifier to unblock the end-to-end undo/redo/profile regression.
 
 ## Mission log — 2026-09-05, sketch dimensions stop vanishing (Shapr3D-measured)
 
@@ -49,8 +123,7 @@ and its full vocabulary (3,226 keys) in `en.lproj/Localizable.strings` via
 tool — the Homebrew `ffmpeg` here is broken (missing `libx265`). Driving
 Shapr3D live is NOT possible: UI scripting needs Accessibility and `osascript`
 returns `not allowed assistive access (-1719)`. Write-up + screenshots:
-`docs/SHAPR3D_SKETCH_PARITY.md`. Still open there: G2 (ten dimension tools +
-adaptive menu), G3 (draggable badge), G7 (Disconnect, Anchored Sketch Entity),
+`docs/SHAPR3D_SKETCH_PARITY.md`. Historical list (corrected above): G2 (withdrawn: ten-tool evidence came from 2D Drawings), G3 (badge dragging needs sketch-specific verification), G7 (Disconnect, Anchored Sketch Entity),
 G8 (spline / sketch-pattern UI).
 
 **On-canvas number pad for dimensions (`NumericKeypad`).** Tapping a dimension
@@ -312,9 +385,9 @@ check `contentShape` FIRST when a SwiftUI control renders but will not activate.
    for taps to land in — the same failure shape as the branch's edge-picking
    cluster, and worth not adding a second source of.
 
-Still open in `SHAPR3D_SKETCH_PARITY.md`: G2 (ten dimension tools + the adaptive
-menu that would let you ask a circle for R instead of Ø), G3 (draggable badge),
-G7, G8. Also unpinned: no test proves a badge does not swallow a viewport tap —
+Historical G2–G8 list in `SHAPR3D_SKETCH_PARITY.md`: the ten-tool G2 list is
+withdrawn (2D Drawings evidence); use audit DM-03/DM-04 for sketch dimension
+choices. G3 needs sketch-specific evidence; G7 and G8 remain in the audit queue. Also unpinned: no test proves a badge does not swallow a viewport tap —
 gating on content narrows the window but does not close it.
 
 **⚠️ 16 UI-suite failures are already on this branch, from the UNCOMMITTED

@@ -21,9 +21,9 @@
 //  `nullSpaceAnalysis`).
 //
 //  Scope notes (v1):
-//   - Arc / ellipse angles and ellipse radii are NOT solve variables; only arc
-//     & polygon centers and their radii move. Arc endpoints are therefore not
-//     welded (documented limitation).
+//   - Arc sweep is a scalar; its starting direction stays fixed. Ellipse angles
+//     and radii are not solve variables. Arc endpoints are still not welded
+//     (documented limitation).
 //   - `.coincident` between two points welds them; `.coincident` of a point to a
 //     whole line is lowered to a `ColinearPointConstraint` (point-on-line).
 //
@@ -69,9 +69,15 @@ nonisolated enum SketchSolverBridge {
         _ sketch: Sketch,
         movingEntity: UUID?,
         dragTarget: SIMD2<Double>?,
-        knownDOF: Int? = nil
+        knownDOF: Int? = nil,
+        preservingRectangleCorner: UUID? = nil,
+        preservingLineDirection: UUID? = nil,
+        preservingTangentCircle: (circle: UUID, line: UUID)? = nil
     ) -> Outcome {
-        let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget)
+        let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget,
+                              preservingRectangleCorner: preservingRectangleCorner,
+                              preservingLineDirection: preservingLineDirection,
+                              preservingTangentCircle: preservingTangentCircle)
         guard !sys.initial.isEmpty else {
             return Outcome(entities: sketch.entities, dof: 0,
                            converged: true, structuralResidual: 0)
@@ -82,17 +88,194 @@ nonisolated enum SketchSolverBridge {
             fixed: sys.fixed,
             constraints: sys.solveConstraints
         )
-        let solved = result.variables
+        var solved = result.variables
+        var converged = result.converged
+        func structuralResidual(_ variables: [Double]) -> Double {
+            var sumSquares = 0.0
+            for constraint in sys.structural {
+                for r in constraint.residuals(variables) { sumSquares += r * r }
+            }
+            return sumSquares.squareRoot()
+        }
+        // A pointer target is a preference, not another saved constraint.
+        // When it is off the allowed motion (e.g. a horizontal line with one
+        // endpoint locked), first pull toward it, then project the compromise
+        // back onto the structural system. Otherwise a valid one-DOF edit is
+        // rejected as a conflict merely because the pointer moved diagonally.
+        // Genuine structural contradictions still report their residual below.
+        if movingEntity != nil, dragTarget != nil,
+           structuralResidual(solved) > 1e-6 {
+            let projected = ConstraintSolver.solve(
+                initial: solved, fixed: sys.fixed, constraints: sys.structural)
+            solved = projected.variables
+            converged = projected.converged
+        }
         let dof = knownDOF ?? nullSpaceAnalysis(sys, at: solved).dof
         let newEntities = writeBack(sketch.entities, sys: sys, vars: solved)
-        // Structural residuals evaluated AT the solution (no second solve).
-        var sumSquares = 0.0
-        for constraint in sys.structural {
-            for r in constraint.residuals(solved) { sumSquares += r * r }
-        }
         return Outcome(entities: newEntities, dof: dof,
-                       converged: result.converged,
-                       structuralResidual: sumSquares.squareRoot())
+                       converged: converged,
+                       structuralResidual: structuralResidual(solved))
+    }
+
+    /// Move/Rotate line targets are transient pointer intent. Build from the
+    /// original sketch so saved locks and welded junctions retain their meaning.
+    static func solveLineTransform(_ sketch: Sketch, targets: [SketchEntity],
+                                   preservingLineID: UUID? = nil) -> [SketchEntity]? {
+        guard !targets.isEmpty, targets.allSatisfy({ if case .line = $0 { return true }; return false })
+        else { return nil }
+        return solvePointTransform(sketch, targets: targets, preservingLineID: preservingLineID)
+    }
+
+    /// Solve rigid line/circle/arc intent against the original saved constraints.
+    /// Arc orientation is carried separately from the center/sweep solver slots;
+    /// a whole-arc Lock retains the original orientation as well as its center.
+    /// Arc endpoint welding remains unsupported by the underlying sketch solver.
+    static func solvePointTransform(_ sketch: Sketch, targets: [SketchEntity],
+                                    preservingLineID: UUID? = nil) -> [SketchEntity]? {
+        guard !targets.isEmpty, targets.allSatisfy({
+            switch $0 { case .line, .circle, .arc: return true; default: return false }
+        }) else { return nil }
+        var anchored = sketch
+        if let id = preservingLineID {
+            anchored.constraints.append(SketchConstraint(kind: .fixed,
+                refs: [.init(entityID: id, role: .whole)]))
+        }
+        let sys = buildSystem(from: anchored, movingEntity: nil, dragTarget: nil)
+        var pulls = sys.structural
+        for entity in targets {
+            for slot in mutableSlots(entity) {
+                guard let index = sys.pointIndex[SlotKey(entityID: slot.entityID, role: slot.role)]
+                else { return nil }
+                pulls.append(FixedPointConstraint(p: index, target: slot.position))
+            }
+        }
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed,
+                                               constraints: sys.structural)
+        let residual = sys.structural.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        let wholeLocked = Set(sketch.constraints.filter { $0.kind == .fixed }
+            .flatMap { $0.refs }.filter { $0.role == .whole }.map { $0.entityID })
+        var oriented = sketch.entities
+        for case let .arc(id, _, _, targetStart, _) in targets where !wholeLocked.contains(id) {
+            guard let index = oriented.firstIndex(where: { $0.id == id }),
+                  case let .arc(_, center, radius, start, end) = oriented[index] else { return nil }
+            oriented[index] = .arc(id: id, center: center, radius: radius,
+                startAngle: targetStart, endAngle: targetStart + SketchEntity.arcSweep(startAngle: start, endAngle: end))
+        }
+        return writeBack(oriented, sys: sys, vars: projected.variables)
+    }
+
+    /// A rectangle center drag is rigid translation, including for an
+    /// undimensioned rectangle. Temporary size equations never enter history;
+    /// existing locks and connections remain part of the projected system.
+    static func solveAxisRectangleTranslation(_ sketch: Sketch, id: UUID,
+                                               delta: SIMD2<Double>) -> [SketchEntity]? {
+        guard case let .rect(_, lo, hi)? = sketch.entities.first(where: { $0.id == id }),
+              delta.x.isFinite, delta.y.isFinite else { return nil }
+        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+              let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { return nil }
+        var rigid = sys.structural
+        for axis in 0..<2 {
+            rigid.append(AxisDistanceConstraint(pA: a, pB: b, axis: axis,
+                sign: 1, distance: hi[axis] - lo[axis]))
+        }
+        var pulls = rigid
+        pulls.append(FixedPointConstraint(p: a, target: lo + delta))
+        pulls.append(FixedPointConstraint(p: b, target: hi + delta))
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed, constraints: rigid)
+        let residual = rigid.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        if zip(projected.variables, sys.initial).allSatisfy({ abs($0 - $1) < 1e-8 }) {
+            return sketch.entities // Refused movement must not add a numerical-noise undo step.
+        }
+        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+    }
+
+    /// A free axis-aligned edge resizes against the opposite side. A saved
+    /// dimension on that axis instead preserves size and translates the shape.
+    /// Solve from the original sketch so explicit locks/relationships still win.
+    static func solveAxisRectangleEdge(_ sketch: Sketch, id: UUID, edge: Int,
+                                       delta: Double) -> [SketchEntity]? {
+        guard let entity = sketch.entities.first(where: { $0.id == id }),
+              case let .rect(_, lo, hi) = entity,
+              let geometry = RectangleConstruction.axisEdge(entity, index: edge) else { return nil }
+        let axis = edge % 2 == 0 ? 1 : 0
+        let driven = sketch.dimensions.contains {
+            $0.kind == (axis == 0 ? .horizontal : .vertical) &&
+            $0.refs.count == 2 && $0.refs.allSatisfy { $0.entityID == id }
+        }
+        let shift = geometry.normal * delta
+        var newLo = lo, newHi = hi
+        if driven { newLo += shift; newHi += shift }
+        else if edge == 0 || edge == 3 { newLo += shift }
+        else { newHi += shift }
+        guard newHi.x - newLo.x > 1e-3, newHi.y - newLo.y > 1e-3 else { return nil }
+        let sys = buildSystem(from: sketch, movingEntity: nil, dragTarget: nil)
+        var pulls = sys.structural
+        for slot in mutableSlots(.rect(id: id, min: newLo, max: newHi)) {
+            guard let index = sys.pointIndex[SlotKey(entityID: id, role: slot.role)] else { return nil }
+            pulls.append(FixedPointConstraint(p: index, target: slot.position))
+        }
+        let pulled = ConstraintSolver.solve(initial: sys.initial, fixed: sys.fixed, constraints: pulls)
+        let projected = ConstraintSolver.solve(initial: pulled.variables, fixed: sys.fixed, constraints: sys.structural)
+        let residual = sys.structural.flatMap { $0.residuals(projected.variables) }
+            .reduce(0.0) { $0 + $1 * $1 }.squareRoot()
+        guard projected.converged, residual <= 1e-5 else { return nil }
+        return writeBack(sketch.entities, sys: sys, vars: projected.variables)
+    }
+
+    /// Prefer the normalized lower-left corner for diagonal width/height edits.
+    /// Paired reverse-drag checks corrected the earlier first-corner assumption.
+    /// Explicit relationships win when holding that corner is incompatible.
+    /// Legacy rectangles have no intent metadata and retain the existing solve.
+    static func solveDimensionEdit(_ sketch: Sketch, dimension: SketchDimension,
+                                   tolerance: Double = 1e-5,
+                                   preservingLineID: UUID? = nil,
+                                   preservingPoint: ConstraintRef? = nil) -> Outcome {
+        let editedIDs = Set(dimension.refs.map(\.entityID))
+        if dimension.kind == .distance, editedIDs.count == 1, let edge = editedIDs.first,
+           let group = sketch.rotatedRectangleEdges.first(where: { $0.value.contains(edge) }),
+           sketch.constraints.contains(where: {
+               $0.kind == .fixed && $0.refs == [.init(entityID: group.key, role: .center)]
+           }) {
+            let directed = solveOutcome(sketch, movingEntity: nil, dragTarget: nil,
+                                        preservingLineDirection: edge)
+            if directed.converged && directed.structuralResidual <= tolerance { return directed }
+        }
+        // Fresh standalone line sizing retains the drawing start. This is only
+        // a transient preference: a saved endpoint lock can override it.
+        if let point = preservingPoint {
+            var anchoredSketch = sketch
+            anchoredSketch.constraints.append(SketchConstraint(kind: .fixed, refs: [point]))
+            let anchored = solveOutcome(anchoredSketch, movingEntity: nil, dragTarget: nil)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
+        // Three-point sizing can prefer an adjacent side, matching the
+        // paired native baseline/height workflows. This is transient intent, never
+        // a persisted Lock; explicit relationships still take precedence.
+        if let id = preservingLineID,
+           sketch.entities.contains(where: { if case .line = $0 { return $0.id == id }; return false }) {
+            var anchoredSketch = sketch
+            anchoredSketch.constraints.append(SketchConstraint(kind: .fixed,
+                refs: [.init(entityID: id, role: .whole)]))
+            let anchored = solveOutcome(anchoredSketch, movingEntity: nil, dragTarget: nil)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
+        let ids = Set(dimension.refs.map(\.entityID))
+        if (dimension.kind == .horizontal || dimension.kind == .vertical),
+           ids.count == 1, let id = ids.first,
+           sketch.rectangleSizingAnchors[id]?.cornerUsesMax != nil,
+           sketch.entities.contains(where: { if case .rect = $0 { return $0.id == id }; return false }) {
+            let anchored = solveOutcome(sketch, movingEntity: nil, dragTarget: nil,
+                                        preservingRectangleCorner: id)
+            if anchored.converged && anchored.structuralResidual <= tolerance { return anchored }
+        }
+        return solveOutcome(sketch, movingEntity: nil, dragTarget: nil)
     }
 
     static func solve(
@@ -222,6 +405,8 @@ nonisolated enum SketchSolverBridge {
     struct DefinitionReport: Equatable, Sendable {
         var states: [UUID: Bool]
         var dof: Int
+        /// Supporting-line determinacy in axisEdge order; length may remain free.
+        var rectangleEdges: [UUID: [Bool]] = [:]
     }
 
     static func definitionReport(_ sketch: Sketch) -> DefinitionReport {
@@ -240,7 +425,15 @@ nonisolated enum SketchSolverBridge {
         for e in sketch.entities {
             states[e.id] = entityDetermined(e, sys: sys, determined: analysis.determined)
         }
-        return DefinitionReport(states: states, dof: analysis.dof)
+        var edges: [UUID: [Bool]] = [:]
+        for case let .rect(id, _, _) in sketch.entities {
+            guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+                  let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { continue }
+            // Horizontal sides depend on y, vertical sides on x. A free
+            // endpoint may slide along a determined supporting line.
+            edges[id] = [2*a+1, 2*b, 2*b+1, 2*a].map { analysis.determined[$0] }
+        }
+        return DefinitionReport(states: states, dof: analysis.dof, rectangleEdges: edges)
     }
 
     // MARK: - System model
@@ -273,6 +466,7 @@ nonisolated enum SketchSolverBridge {
         var pointCount: Int
         var pointIndex: [SlotKey: Int]
         var radiusVar: [UUID: Int]
+        var arcSweepVar: [UUID: Int]
         /// Residuals for constraints + dimensions ONLY (no transient drag).
         var structural: [any ConstraintResidual]
         /// Source object per `structural` entry (same indices). A constraint
@@ -327,7 +521,10 @@ nonisolated enum SketchSolverBridge {
     private static func buildSystem(
         from sketch: Sketch,
         movingEntity: UUID?,
-        dragTarget: SIMD2<Double>?
+        dragTarget: SIMD2<Double>?,
+        preservingRectangleCorner: UUID? = nil,
+        preservingLineDirection: UUID? = nil,
+        preservingTangentCircle: (circle: UUID, line: UUID)? = nil
     ) -> System {
         // 1. Raw point slots for every entity.
         var slots: [RawSlot] = []
@@ -353,6 +550,10 @@ nonisolated enum SketchSolverBridge {
         // Proximity weld (endpoint-like slots within 1e-6).
         for i in 0..<slots.count where slots[i].endpointLike {
             for j in (i + 1)..<slots.count where slots[j].endpointLike {
+                let a = ConstraintRef(entityID: slots[i].entityID, role: slots[i].role)
+                let b = ConstraintRef(entityID: slots[j].entityID, role: slots[j].role)
+                guard !sketch.disconnectedEndpoints.contains(a),
+                      !sketch.disconnectedEndpoints.contains(b) else { continue }
                 if simd_distance(slots[i].position, slots[j].position) < 1e-6 { union(i, j) }
             }
         }
@@ -395,6 +596,13 @@ nonisolated enum SketchSolverBridge {
                 radiusVar[e.id] = 2 * pointCount + scalarValues.count
                 scalarValues.append(r)
             }
+        }
+
+        // Arc angle dimensions drive sweep while retaining the starting ray.
+        var arcSweepVar: [UUID: Int] = [:]
+        for case let .arc(id, _, _, start, end) in sketch.entities {
+            arcSweepVar[id] = 2 * pointCount + scalarValues.count
+            scalarValues.append(SketchEntity.arcSweep(startAngle: start, endAngle: end))
         }
 
         // 6. Initial variable vector.
@@ -443,10 +651,33 @@ nonisolated enum SketchSolverBridge {
                 case .endpointA, .endpointB, .center:
                     if let pi = pIdx(ref.entityID, ref.role) { fixPoint(pi) }
                 case .whole:
+                    if let edge = ref.rectangleEdge, (0..<4).contains(edge),
+                       case .rect? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                       let a = pIdx(ref.entityID, .endpointA),
+                       let b = pIdx(ref.entityID, .endpointB) {
+                        // A=lower-left, B=upper-right: pin three coordinates,
+                        // leaving only the opposite edge's normal coordinate free.
+                        let normalAxis = edge % 2 == 0 ? 1 : 0
+                        fixed.insert(2 * a + (1 - normalAxis))
+                        fixed.insert(2 * b + (1 - normalAxis))
+                        fixed.insert(2 * (edge == 0 || edge == 3 ? a : b) + normalAxis)
+                        continue
+                    }
                     for pi in entityPoints[ref.entityID] ?? [] { fixPoint(pi) }
                     if let rv = radiusVar[ref.entityID] { fixed.insert(rv) }
+                    if let av = arcSweepVar[ref.entityID] { fixed.insert(av) }
                 }
             }
+        }
+
+        // Native diagonal dimensions hold left/bottom regardless of drag order
+        // (paired up-left width and down-right height checks). Old corner
+        // metadata still distinguishes diagonal from center creation; do not
+        // reinterpret it as a permanent Lock or change ordinary dragging.
+        if let id = preservingRectangleCorner,
+           sketch.rectangleSizingAnchors[id]?.cornerUsesMax != nil,
+           let a = pIdx(id, .endpointA) {
+            fixPoint(a)
         }
 
         // 9. Lower constraints + dimensions to residuals, recording each
@@ -458,6 +689,27 @@ nonisolated enum SketchSolverBridge {
         func lower(_ residual: any ConstraintResidual) {
             structural.append(residual)
             structuralSources.append(currentSource)
+        }
+        if let id = preservingLineDirection, let (a, b) = linePair(id) {
+            let delta = SIMD2(initial[2*b] - initial[2*a], initial[2*b+1] - initial[2*a+1])
+            if simd_length(delta) > 1e-9 {
+                lower(LineDirectionConstraint(a: a, b: b, direction: simd_normalize(delta)))
+            }
+        }
+        // Application-only preference: a free circle approaches the anchored
+        // line along its normal without changing radius. This removes the
+        // tangent's free along-line motion (especially unstable at tiny slopes).
+        // The editor retries without this preference if saved constraints win.
+        if let pair = preservingTangentCircle,
+           let center = pIdx(pair.circle, .center), let rv = radiusVar[pair.circle],
+           let (a, b) = linePair(pair.line) {
+            let delta = SIMD2(initial[2*b] - initial[2*a], initial[2*b+1] - initial[2*a+1])
+            if simd_length(delta) > 1e-9 {
+                fixed.insert(rv)
+                lower(PointProjectionConstraint(p: center,
+                    origin: SIMD2(initial[2*center], initial[2*center+1]),
+                    direction: simd_normalize(delta)))
+            }
         }
         func appendAlign(_ refs: [ConstraintRef], horizontal: Bool) {
             let wholeLines = refs.filter { $0.role == .whole }
@@ -480,8 +732,33 @@ nonisolated enum SketchSolverBridge {
                 lower(ColinearPointConstraint(p: p, lA: la, lB: lb))
             }
         }
-        func appendTangent(_ refs: [ConstraintRef]) {
+        func appendTangent(_ refs: [ConstraintRef], branch: CircleTangency?) {
             guard refs.count == 2 else { return }
+            if let ra = radiusVar[refs[0].entityID], let rb = radiusVar[refs[1].entityID],
+               let ca = pIdx(refs[0].entityID, .center), let cb = pIdx(refs[1].entityID, .center) {
+                // Seed the persisted contact branch geometrically. The free
+                // six-variable LM solve otherwise stalls for some center rays.
+                // Never move a fixed coordinate; every saved residual still
+                // participates in the ensuing solve and conflict validation.
+                let a = SIMD2(initial[2 * ca], initial[2 * ca + 1])
+                let b = SIMD2(initial[2 * cb], initial[2 * cb + 1])
+                let delta = b - a
+                let distance = simd_length(delta)
+                let internalContact = branch == .internalContact
+                let target = internalContact ? abs(initial[ra] - initial[rb]) : initial[ra] + initial[rb]
+                if distance > 1e-12, target >= 0, abs(distance - target) > 1e-10 {
+                    let direction = delta / distance
+                    if !fixed.contains(2 * ca), !fixed.contains(2 * ca + 1) {
+                        let seed = b - direction * target
+                        initial[2 * ca] = seed.x; initial[2 * ca + 1] = seed.y
+                    } else if !fixed.contains(2 * cb), !fixed.contains(2 * cb + 1) {
+                        let seed = a + direction * target
+                        initial[2 * cb] = seed.x; initial[2 * cb + 1] = seed.y
+                    }
+                }
+                lower(TangentCircleCircleConstraint(centerA: ca, centerB: cb, radiusA: ra, radiusB: rb, internalContact: internalContact))
+                return
+            }
             var lineRef: ConstraintRef?
             var circleRef: ConstraintRef?
             for r in refs {
@@ -514,7 +791,22 @@ nonisolated enum SketchSolverBridge {
             currentSource = .constraint(c.id)
             switch c.kind {
             case .fixed:
-                break // handled via the fixed set
+                // Rectangle centers are derived from their diagonal corners.
+                // Pin only the midpoint so both size axes remain editable.
+                for ref in c.refs where ref.role == .center {
+                    if let (first, opposite) = RectangleConstruction.centerDiagonalReferences(ref.entityID, in: sketch),
+                       let a = pIdx(first.entityID, first.role),
+                       let b = pIdx(opposite.entityID, opposite.role) {
+                        let target = SIMD2((initial[2 * a] + initial[2 * b]) / 2,
+                                           (initial[2 * a + 1] + initial[2 * b + 1]) / 2)
+                        lower(FixedMidpointConstraint(a: a, b: b, target: target))
+                        continue
+                    }
+                    guard case let .rect(_, lo, hi)? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                          let a = pIdx(ref.entityID, .endpointA),
+                          let b = pIdx(ref.entityID, .endpointB) else { continue }
+                    lower(FixedMidpointConstraint(a: a, b: b, target: (lo + hi) / 2))
+                }
             case .coincident:
                 guard c.refs.count == 2 else { break }
                 let r0 = c.refs[0], r1 = c.refs[1]
@@ -560,14 +852,26 @@ nonisolated enum SketchSolverBridge {
                     lower(MidpointConstraint(p: p, lA: la, lB: lb))
                 }
             case .symmetric:
-                if c.refs.count == 3,
-                   let a = pointOperand(c.refs[0]),
-                   let b = pointOperand(c.refs[1]),
+                if c.refs.count == 3 || c.refs.count == 5,
                    let (la, lb) = linePair(c.refs[2].entityID) {
-                    lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                    let r0 = c.refs[0], r1 = c.refs[1]
+                    if r0.role == .whole, r1.role == .whole,
+                       case .circle? = sketch.entities.first(where: { $0.id == r0.entityID }),
+                       case .circle? = sketch.entities.first(where: { $0.id == r1.entityID }),
+                       let a = pIdx(r0.entityID, .center), let b = pIdx(r1.entityID, .center),
+                       let ra = radiusVar[r0.entityID], let rb = radiusVar[r1.entityID] {
+                        lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                        lower(EqualRadiusConstraint(rVar1: ra, rVar2: rb))
+                    } else if let a = pointOperand(r0), let b = pointOperand(r1) {
+                        lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                        if c.refs.count == 5,
+                           let p2 = pointOperand(c.refs[3]), let q2 = pointOperand(c.refs[4]) {
+                            lower(SymmetricConstraint(pA: p2, pB: q2, lA: la, lB: lb))
+                        }
+                    }
                 }
             case .tangent:
-                appendTangent(c.refs)
+                appendTangent(c.refs, branch: c.circleTangency)
             case .colinear:
                 guard c.refs.count == 2 else { break }
                 let r0 = c.refs[0], r1 = c.refs[1]
@@ -597,7 +901,9 @@ nonisolated enum SketchSolverBridge {
                     lower(RadiusConstraint(radiusVar: rv, radius: d.value / 2))
                 }
             case .angle:
-                if let (a1, b1, a2, b2) = twoLines(d.refs) {
+                if d.refs.count == 1, let ref = d.refs.first, let av = arcSweepVar[ref.entityID] {
+                    lower(ArcSweepConstraint(sweepVar: av, sweep: d.value))
+                } else if let (a1, b1, a2, b2) = twoLines(d.refs) {
                     lower(AngleConstraint(l1A: a1, l1B: b1, l2A: a2, l2B: b2, angle: d.value))
                 }
             case .horizontal, .vertical:
@@ -633,6 +939,7 @@ nonisolated enum SketchSolverBridge {
             pointCount: pointCount,
             pointIndex: pointIndex,
             radiusVar: radiusVar,
+            arcSweepVar: arcSweepVar,
             structural: structural,
             structuralSources: structuralSources,
             solveConstraints: solveConstraints,
@@ -664,8 +971,12 @@ nonisolated enum SketchSolverBridge {
             case let .circle(id, c, r):
                 return .circle(id: id, center: pt(id, .center) ?? c, radius: rad(id, r))
             case let .arc(id, c, r, sa, ea):
+                let oldSweep = SketchEntity.arcSweep(startAngle: sa, endAngle: ea)
+                let sweep = sys.arcSweepVar[id].map { vars[$0] } ?? oldSweep
+                // Avoid representation-only changes to untouched wrapped arcs.
+                let end = abs(sweep - oldSweep) > 1e-10 ? sa + sweep : ea
                 return .arc(id: id, center: pt(id, .center) ?? c, radius: rad(id, r),
-                            startAngle: sa, endAngle: ea)
+                            startAngle: sa, endAngle: end)
             case let .ellipse(id, c, rx, ry, rot):
                 return .ellipse(id: id, center: pt(id, .center) ?? c, radiusX: rx, radiusY: ry, rotation: rot)
             case let .polygon(id, c, r, sides, rot):
@@ -699,6 +1010,7 @@ nonisolated enum SketchSolverBridge {
             idxs.append(2 * pi + 1)
         }
         if let rv = sys.radiusVar[e.id] { idxs.append(rv) }
+        if let av = sys.arcSweepVar[e.id] { idxs.append(av) }
         guard !idxs.isEmpty else { return true }
         return idxs.allSatisfy { $0 < determined.count && determined[$0] }
     }
@@ -832,12 +1144,22 @@ nonisolated enum SketchPointState: Sendable, Equatable {
 
 nonisolated extension SketchSolverBridge {
 
+    struct PointStateAnalysis {
+        var points: [SketchPointKey: SketchPointState]
+        /// Axis rectangle corners ordered min, bottom-right, max, top-left.
+        var rectangleCorners: [UUID: [SketchPointState]]
+    }
+
     /// Per-point determinacy for every point of every entity in `sketch`, keyed
     /// by (entityID, role). Reuses the SAME build → solve → null-space path as
     /// `entityStates`, but reports at (entity, role) granularity instead of one
     /// bool per entity. Coincident (welded) points share solver variables and
     /// therefore report identical states — desired for showing connected joints.
     static func pointStates(_ sketch: Sketch) -> [SketchPointKey: SketchPointState] {
+        pointStateAnalysis(sketch).points
+    }
+
+    static func pointStateAnalysis(_ sketch: Sketch) -> PointStateAnalysis {
         var out: [SketchPointKey: SketchPointState] = [:]
 
         // Which points an explicit `.fixed` (Lock) constraint pins. A `.whole`
@@ -848,6 +1170,12 @@ nonisolated extension SketchSolverBridge {
         for c in sketch.constraints where c.kind == .fixed {
             for ref in c.refs {
                 if ref.role == .whole {
+                    // Side locks are classified from the actual fixed variables
+                    // below, not as if both rectangle corners were fully locked.
+                    if let edge = ref.rectangleEdge, (0..<4).contains(edge),
+                       case .rect? = sketch.entities.first(where: { $0.id == ref.entityID }) {
+                        continue
+                    }
                     lockedWholeEntities.insert(ref.entityID)
                 } else {
                     lockedPoints.insert(SketchPointKey(entityID: ref.entityID, role: ref.role))
@@ -871,7 +1199,7 @@ nonisolated extension SketchSolverBridge {
                     out[key] = explicitlyLocked(slot.entityID, slot.role) ? .locked : .constrained
                 }
             }
-            return out
+            return PointStateAnalysis(points: out, rectangleCorners: [:])
         }
 
         let solved = ConstraintSolver.solve(
@@ -912,6 +1240,18 @@ nonisolated extension SketchSolverBridge {
                 }
             }
         }
-        return out
+        var corners: [UUID: [SketchPointState]] = [:]
+        for case let .rect(id, _, _) in sketch.entities {
+            guard let a = sys.pointIndex[SlotKey(entityID: id, role: .endpointA)],
+                  let b = sys.pointIndex[SlotKey(entityID: id, role: .endpointB)] else { continue }
+            // The off-diagonal corners combine coordinates from two solver
+            // points. Classify those coordinates, not the endpoints as wholes.
+            corners[id] = [[2*a, 2*a+1], [2*b, 2*a+1], [2*b, 2*b+1], [2*a, 2*b+1]].map { vars in
+                if vars.allSatisfy({ sys.fixed.contains($0) }) { return .locked }
+                if vars.allSatisfy({ $0 < determined.count && determined[$0] }) { return .constrained }
+                return .free
+            }
+        }
+        return PointStateAnalysis(points: out, rectangleCorners: corners)
     }
 }

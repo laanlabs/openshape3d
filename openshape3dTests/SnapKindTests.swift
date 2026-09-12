@@ -21,6 +21,24 @@ final class SnapKindTests: XCTestCase {
     private let line = SketchEntity.line(
         id: UUID(), a: SIMD2(0, 0), b: SIMD2(10, 0))
 
+    func testAcquisitionRadiusIsStableAcrossZoomAndGuidepointCategories() {
+        for scale in [0.001, 0.01, 0.1, 1.0] {
+            let endpoint = SIMD2<Double>(0, 0)
+            let entity = SketchEntity.line(id: UUID(), a: endpoint, b: SIMD2(100 * scale, 0))
+            let options = SnapOptions(grid: false, sketchGuidepoints: true, faceGuidepoints: false)
+            let tolerance = SnapEngine.screenPointTolerance(worldUnitsPerPoint: scale)
+            XCTAssertEqual(SnapEngine.snap(SIMD2(0, 5 * scale), in: sketch([entity]),
+                options: options, tolerance: tolerance).kind, .endpoint)
+            XCTAssertEqual(SnapEngine.snap(SIMD2(0, 20 * scale), in: sketch([entity]),
+                options: options, tolerance: tolerance).kind, .free)
+            XCTAssertEqual(SnapEngine.snap(SIMD2(50 * scale, 5 * scale), in: sketch([entity]),
+                options: options, tolerance: tolerance).kind, .midpoint)
+            let off = SnapOptions(grid: false, sketchGuidepoints: false, faceGuidepoints: false)
+            XCTAssertEqual(SnapEngine.snap(SIMD2(0, 5 * scale), in: sketch([entity]),
+                options: off, tolerance: tolerance).point, SIMD2(0, 5 * scale))
+        }
+    }
+
     // MARK: What the snap latched onto
 
     func testAnEndpointSnapIsNamedAsOne() {

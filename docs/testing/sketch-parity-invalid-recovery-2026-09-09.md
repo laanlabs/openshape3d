@@ -1,0 +1,252 @@
+# QA-33 / QA-40 closure batch — September 9, 2026
+
+Baseline a40c22c; product runtime 05be744. The exported 05be744 IPA is immutable
+and is not overwritten by acceptance work. Handoff is not milestone completion.
+
+## Finite closure criteria
+
+- QA-33: in each app, zero and negative linear sizes, malformed expression and
+  division by zero must not silently commit geometry or a driving value. Record
+  exact warning, editor dismissal/retention and recovery with a valid value.
+  One Undo must restore the pre-valid-edit shape, with no invalid history step.
+- QA-40: explicitly compare Escape, blank click, tool switch and system-keyboard
+  commit/cancel; verify no orphan editor or hidden canvas interception. Repeat
+  edge-adjacent editor in portrait/landscape. Unsupported desktop/Pencil routes
+  remain separately blocked, not inferred from unit results.
+- Known mismatch carried forward: native inline warning versus clone modal error.
+  No product correction claimed before a current paired recheck.
+
+## Recovery and execution
+
+No prior runner active. Peekaboo image window/screen/background routes report
+`Web-focus detection returned without its required mutation outcome`. Existing
+Peekaboo GUI bridge is healthy with accessibility, posting and screen grants;
+`see` works for native1924 and clone6492. Explicit app switch preceded successful
+native Sketch02 entry. Error is capture/input routing, not a product failure.
+Snapshots /tmp/os3d-resume-native.png, /tmp/os3d-resume-clone.png and
+/tmp/os3d-numeric-native-entry.png inspected. Native remains dense Sketch02;
+new invalid numeric interaction not yet performed.
+
+Added a bounded regression to DimensionKeypadCommitTests: six invalid strings,
+unchanged geometry/dimensions, valid25 recovery, then exactly two Undo actions
+restore the original and remove its construction. Product source unchanged.
+Serial run completed clean1/1 (six inputs in one test): /tmp/os3d-invalid-recovery-20260909.xcresult,
+log /tmp/os3d-invalid-recovery-20260909.log. Live UI work paused during run; no runner remains.
+No new case pass, no publication claim yet.
+
+## Read-only device eligibility
+
+Paired iPad Pro11-inch (3rd generation), iPadOS26.6.1, Developer Mode enabled.
+Its UDID matches a device entry in the preserved development profile. Eligibility
+only: no installation, no physical touch/Pencil validation, no profile mutation.
+
+## Current paired zero refusal
+
+Native fresh line29.0517mm: zero commit closes keypad, restores original readout
+and presents nonmodal “Distance between points must be a non zero value.”
+Screenshot /tmp/os3d-numeric-native-zero.png. Clone fresh line2mm: zero commit
+closes keypad, preserves2mm and presents blocking Something Went Wrong alert
+with “Dimension must be greater than zero.” /tmp/os3d-numeric-clone-zero.png.
+Different viewport/zoom and displayed lengths; this is warning behavior evidence,
+not equal-scale typography acceptance.
+
+Input recovery: foreground click of exposed simulator title at190,55 selects
+correct6492; previous380,65 was covered by old simulator5147. New sketch entry
+was repeated after an animation-time click exited the first empty sketch. Only
+settled second construction is used as evidence.
+
+Implemented dimension parse/range refusals via existing transient notice; solver
+conflicts remain unchanged. Expanded test asserts notice, no modal, closed editor,
+unchanged geometry/history and valid recovery. Serial DimensionKeypadCommitTests
+run /tmp/os3d-numeric-notice-20260909.xcresult owns simulator (exec62721).
+Live post-fix and publication pending.
+
+## Post-fix result
+
+Clean8/8 DimensionKeypadCommitTests; no failures/skips. No runner remains.
+Live fresh Front-plane clone line2mm rejects0 via nonmodal notice, closes keypad
+and preserves2mm. Reopening and committing1mm works; one toolbar Undo restores2mm.
+Native zero→valid20mm recovery also succeeds; Cmd+Z restores original150px line
+length (from103px at20mm). An initial presumed Undo coordinate hit camera-quarter-
+turn instead; that screenshot is excluded as history proof. Actual Cmd+Z screenshot
+shows Undo notice and restored geometry. Native clears readout after Undo whereas
+clone retains it; no blanket lifecycle parity claim. Native Top vs clone Front are
+recorded; numeric behavior compared, not equal-viewport style.
+
+Seven screenshots retained under reports/openshape3d-core-sketch-milestone-2026-09-08/
+numeric-recovery with SHA256SUMS.txt. Publication pending. Warning icon/style still
+differs. Negative/malformed native comparisons and QA40 matrix remain open.
+
+## Expression lifecycle distinction — next correction
+
+Native -1 rejects with “Negative values aren't accepted”, closes keypad, restores
+29.0517mm. Native1/0 and2+ instead keep the keypad/text open with yellow inline
+warning and specific divide-by-zero/syntax messages. Draft screenshots inspected.
+Clone2+ current transient-notice implementation still dismissed keypad; confirmed
+/tmp/os3d-numeric-clone-mal-result.png. Moved editing-state dismissal after parse
+validation so malformed expressions remain editable. Range rejections still close.
+Test recovery now uses the retained editor, reopening only for0/-1. Inline-warning
+style and specific parser messages remain unmatched. Serial8unit+click-away/tool-
+switch UI run active: /tmp/os3d-numeric-retention-20260909.xcresult (exec70335).
+Native negative/division/syntax evidence at /tmp/os3d-numeric-native-negative.png,
+/tmp/os3d-numeric-native-div-result.png, /tmp/os3d-numeric-native-mal-result.png.
+
+Retention run completed clean9/9 (8unit+1UI). Live corrected clone retains2+
+and allows adding1 in the same editor to commit3mm. Screenshots os3d-retain-result
+and os3d-retain-recovery retained. Top-canvas notice vs native field-anchored
+yellow warning remains a visible gap. Initial zero publication export verified
+270placements, all5 added hashes once, dated heading once; export
+/tmp/os3d-numeric-publication.docx. Expression screenshots/addendum and master
+note pending. No full acceptance row closed.
+
+Refusal/lifecycle checkpoint5a44568 pushed. Field-anchored yellow diagnostic now
+implemented in a follow-up, using edit-session validationMessage cleared when
+the draft changes. Specific divide-by-zero/syntax wording remains generic.
+Serial9-check regression /tmp/os3d-numeric-inline-20260909.xcresult (exec16581)
+active; live follow-up pending. No artifact replacement.
+
+Field-warning final run clean9/9. Live2+ yellow field diagnostic, clear-on-edit to
+2+1, and3mm commit all inspected. os3d-inline-result/cleared/recovery screenshots
+retained. Native uses more specific parser text and separate field indicator;
+these exact visual details remain known differences. Master continuation note
+export-verified once with38images (/tmp/os3d-numeric-master.docx). No runner.
+Next invalid-draft click-away/Escape; final4 image publication pending.
+
+## Invalid click-away follow-up
+
+Native malformed2+ blank click dismisses keypad with Invalid expression notice,
+restores29.0517mm. Clone malformed3+ blank click retained keypad, unchanged3mm.
+Screenshots /tmp/os3d-invalid-away-native.png and os3d-invalid-away-clone.png.
+Fix: finishDimensionEditOnClickAway discards retained invalid draft and shows
+notice; explicit submit still keeps correction available. Existing UI test now
+first performs invalid click-away and retains exact final3-action history check.
+Serial8unit+1UI run /tmp/os3d-numeric-invalid-away-20260909.xcresult (exec20039).
+Final4 diagnostic images inserted once; initial export remains270 so pending
+sync, no duplicate insertion.
+
+Final invalid-away run clean9/9. Live clone malformed2+ blank-click now dismisses
+with Invalid expression notice,2mm unchanged; fade and settled screenshots both
+retained. Paired malformed2+ Escape discards without warning and keeps original
+readouts/geometry in both apps. No runner. Final diagnostic publication verified
+274placements/all4 new hashes; prior270assets preserved in initial export and
+final repeated export /tmp/os3d-numeric-publication-final2.docx. Last click-away/
+Escape screenshot addendum still pending.
+
+## Specific diagnostic follow-up
+
+Paired clone-1 dismisses unchanged2mm;1/0 and empty retain editor with generic
+yellow warning. Native empty specifically says A value is needed but none is
+given; division and syntax messages are specific. Relevant /tmp screenshots:
+os3d-negative-clone-result, os3d-div-clone-result, os3d-empty-native-result,
+os3d-empty-clone-result. No geometry mutation. Added parser-backed diagnostic
+classification (actual evaluated zero denominator, not substring matching),
+with empty/division/syntax text. Regression exec51509 active at
+/tmp/os3d-numeric-diagnostics-20260909.xcresult. Live wording pending.
+
+Specific diagnostic run passed clean22/22 (14expression+8keypad). Live empty,
+1/0 and2+ now show the native-observed specific wording while retaining drafts;
+screenshots os3d-specific-empty/div/syntax-result inspected. Warning field
+indicator/layout and count limits remain open. Dismissal export now278placements,
+all4 new hashes once and zero prior asset loss, /tmp/os3d-numeric-dismissal-
+publication2.docx. Latest specific-message images pending publication. No runner.
+
+## Selected polygon count continuation — September 9, 23:30 EDT
+
+Native completed pentagon exposes an on-canvas 5 sides readout. Explicit 2
+preserves the pentagon; inspected 3.5 draft commits a triangle at unchanged R15.
+65, 100 and 101 also commit. High-count immediate screenshots are unsettled:
+999 appeared only on a later frame. Do not infer rejection or a native upper
+limit from these early frames. Native high-count limit remains unverified.
+
+Clone completed hexagon only exposes radius; bottom Sides field changes the next
+construction default, not selected geometry. Clicking 3 appended to 6 (63) while
+the existing polygon remained six-sided. Paired screenshots /tmp/os3d-count-
+native-release/editor/two-result/frac-draft/frac-result and clone-release/editor/
+three-result retained.
+
+Selected-polygon side-count control now implemented separately from geometric
+dimensions. Count edits preserve ID/center/radius/rotation, use one sketch-rebuild
+history operation, truncate positive fractions, and do not alter future defaults.
+Polygon radius uses the actual first-vertex direction and plain radius leader.
+Defensive supported count ceiling10000 is NOT a native-parity claim; exact upper
+limit remains open. Serial keypad regression running at
+/tmp/os3d-polygon-count-20260909.xcresult (exec13460); live correction pending.
+
+Initial polygon run8pass/1fail: test used scientific notation1e100, unsupported
+by expression parser, so malformed retention correctly contradicted dismissal
+assertion. Fixture now uses plain10001. No product change for this failure.
+Corrected full keypad rerun exec99811 at /tmp/os3d-polygon-count-final-20260909.xcresult.
+
+Corrected keypad run clean9/9. Live reopened Untitled3 selected polygon now has
+6 sides plus plain radius leader. Explicit2 refused unchanged,3.5->3 preserved
+R1/center/right vertex, toolbarUndo6 andRedo3 captured. Count-anchor on triangle
+initially used circumscribed bound; adjusted to actual odd-polygon opposite edge.
+Serial9unit+polygon/profile UI+circle-dimension UI now running exec6528 at
+/tmp/os3d-polygon-count-ui-20260909.xcresult. No parallel desktop interaction.
+Default transform ring remains a possible mismatch: native evidence was Polygon
+armed, clone was reselected with tool disarmed; compare same state before changing
+that behavior. Polygon warning wording differs; native upper bound remains open.
+Specific diagnostic publication export verified281placements/all3 hashes once
+and no predecessor loss, /tmp/os3d-specific-publication.docx.
+
+Expanded final run passed clean11/11:9keypad unit+polygon/profile UI+circle
+dimension UI. Final live fresh Polygon-armed clone has no transform ring, matching
+native armed state; refined triangle count sits adjacent to actual opposite edge.
+Both retained geometry on gallery reopen: clone3sides/R1; native triangle
+3edges/perimeter77.9423mm (consistent with R15). Native after reopen offers edge
+selection, not restored side-count/radius construction readouts in this sample;
+clone retains count-edit identity. Reopened editing flow is NOT identical.
+Native actual settled256 count also inspected, confirming earlier captures were
+delayed; no high-count limit claim.
+Illustrated diagnosis285placements/all4newhashes/no priorloss verified at
+/tmp/os3d-count-publication.docx. Final triangle/reopen3image addendum pending.
+No runner. No physical device validation/artifact replacement.
+
+Final publication verified: illustrated288placements/all3finalhashes once, no
+predecessor loss (/tmp/os3d-count-final-publication.docx). Master38images, dated
+Numeric and polygon continuation checkpoint heading once and predecessor note
+retained (/tmp/os3d-count-master.docx). QA15/33 remain partial as described.
+
+## September 11 — native upper-count boundary probe
+
+A fresh native pentagon on Sketch 05 exposed the real `5 sides` editor after the
+Polygon tool was disarmed. Submitting `10001` did **not** immediately refuse the
+value: Shapr3D entered a modal busy overlay and held approximately 100% CPU while
+the original five-sided geometry remained visible underneath. A foreground
+Escape was delivered and did not cancel the computation; the overlay remained
+after an additional settled observation. This is not classified as an accepted
+count, a completed mutation, or a Shapr3D product failure.
+
+The original and busy-state screenshots plus SHA-256 inventory are retained in
+`reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/qa33-upper-bound-2026-09-11/`.
+Only the affected Shapr3D application was normally quit and relaunched. It
+recovered to Recents with the project card intact; Simulator and Google Docs
+were untouched. The disposable probe may not have persisted, which is desirable
+but not used as evidence.
+
+This comparison proves that OpenShape3D's immediate `10001` refusal at its
+defensive `10000` ceiling is not established native parity. QA-33 remains partial
+until a bounded, completed native out-of-range rule can be observed without
+locking the reference workflow. The paired lower-bound/refusal, malformed-input,
+recovery and history evidence remains valid. Immutable `05be744` IPA unchanged.
+
+## September 11 17:58 — completed gate and publication reconciled
+
+HEAD `6768bae`; no xcodebuild, XCTest or Peekaboo runner active at reconciliation.
+The pending gate had already completed: `os3d-qa33-invalid-final2-20260911.xcresult`
+in `/tmp` reports **19 passed / 0 failed / 0 skipped** on the owned simulator.
+Its predecessor passed 17/17 but omitted two methods because selectors named the
+wrong class; this is retained as an invocation error, not a product failure.
+No tests were repeated during reconciliation and no product source changed.
+
+Illustrated publication is verified at **803 unique media**, exactly three new
+assets and zero loss from the 800-asset QA-30 predecessor. The master roadmap
+now contains one dated QA-33 upper-count boundary checkpoint, retains all 38
+media and preserves prior text ignoring whitespace. Both before/after exports
+and `publication-verification.json` are retained under the absolute evidence
+root `/Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/numeric-recovery/qa33-upper-bound-2026-09-11/`.
+
+QA-33 stays partial. Inventory remains **22 passed / 0 failed / 1 device-blocked /
+33 incomplete**. Do not repeat the unresolved native 10001 stress probe. Next
+independent finite comparison: QA-27 Absolute/Horizontal/Vertical menu and
+geometry/history, using the implemented chooser and retained 18/18 gate.

@@ -28,9 +28,23 @@ struct ConstraintSettingsView: View {
                 } header: {
                     Text("Visibility")
                 } footer: {
-                    Text("Keep a sketch's dimensions and constraints on canvas "
-                         + "after you leave it, and show every visible sketch's "
-                         + "— not just the one you are editing.")
+                    Text("When off, annotations follow selected geometry. Turn on to show all annotations in visible sketches, including after leaving sketch mode.")
+                }
+
+                SnappingSettingsSection(settings: settings)
+
+                Section {
+                    Picker("Keep in place", selection: $settings.anchoredSketchEntity) {
+                        ForEach(AnchoredSketchEntity.allCases, id: \.self) { choice in
+                            Text(choice.title).tag(choice)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("AnchoredSketchEntityPicker")
+                } header: {
+                    Text("Anchored Sketch Entity")
+                } footer: {
+                    Text("Choose whether the first or last selected entity stays in place when applying a constraint. Existing constraints take priority.")
                 }
 
                 Section {
@@ -104,6 +118,6 @@ struct ConstraintSettingsView: View {
             }
         }
         .accessibilityIdentifier("ConstraintSettingsPanel")
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 }

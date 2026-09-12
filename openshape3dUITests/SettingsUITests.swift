@@ -15,6 +15,236 @@ final class SettingsUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testSettingsCenterTargetOpensInBothOrientations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launch()
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            let settings = app.buttons["SettingsButton"]
+            XCTAssertTrue(settings.waitForExistence(timeout: 10))
+            XCTAssertGreaterThanOrEqual(settings.frame.width, 44)
+            // UIKit clips toolbar height to 36pt; verify delivered center taps,
+            // not an assumed external height for the SwiftUI content frame.
+            settings.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons["SettingsDone"].waitForExistence(timeout: 3))
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "settings-center-\(orientation.rawValue)"
+            shot.lifetime = .keepAlways; add(shot)
+            app.buttons["SettingsDone"].tap()
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
+    func testToolbarSideSwapsSketchPaletteAndConstraintRailInBothOrientations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+
+        startSketchTool(app, "Line")
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.80, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        lookAtSketch(app)
+
+        let line = app.buttons["Line"].firstMatch
+        let rail = app.buttons["ConstraintRailSettings"]
+        XCTAssertTrue(line.waitForExistence(timeout: 5))
+        XCTAssertTrue(rail.waitForExistence(timeout: 5))
+
+        func setPaletteSide(_ title: String) {
+            app.buttons["SettingsButton"].tap()
+            XCTAssertTrue(app.buttons["SettingsDone"].waitForExistence(timeout: 3))
+            let form = app.collectionViews.firstMatch
+            let side = app.segmentedControls["SettingsPaletteSide"].firstMatch
+            for _ in 0..<10 where !side.exists || !side.isHittable { form.swipeUp() }
+            XCTAssertTrue(side.waitForExistence(timeout: 3))
+            side.buttons[title].tap()
+            XCTAssertTrue(side.buttons[title].isSelected)
+            app.buttons["SettingsDone"].tap()
+        }
+
+        func assertSides(paletteRight: Bool, orientation: UIDeviceOrientation,
+                         file: StaticString = #filePath, line sourceLine: UInt = #line) {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            let middle = window.frame.midX
+            if paletteRight {
+                XCTAssertGreaterThan(line.frame.midX, middle, file: file, line: sourceLine)
+                XCTAssertLessThan(rail.frame.midX, middle, file: file, line: sourceLine)
+            } else {
+                XCTAssertLessThan(line.frame.midX, middle, file: file, line: sourceLine)
+                XCTAssertGreaterThan(rail.frame.midX, middle, file: file, line: sourceLine)
+            }
+            XCTAssertTrue(line.isHittable, file: file, line: sourceLine)
+            XCTAssertTrue(rail.isHittable, file: file, line: sourceLine)
+        }
+
+        setPaletteSide("Left")
+        assertSides(paletteRight: false, orientation: .portrait)
+        assertSides(paletteRight: false, orientation: .landscapeLeft)
+        XCUIDevice.shared.orientation = .portrait
+        sleep(2)
+
+        setPaletteSide("Right")
+
+        assertSides(paletteRight: true, orientation: .portrait)
+        assertSides(paletteRight: true, orientation: .landscapeLeft)
+        XCUIDevice.shared.orientation = .portrait
+        sleep(2)
+        setPaletteSide("Left")
+    }
+
+    func testAccessibilityTextKeepsPanelsAndSketchExitReachable() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchArguments += ["-UIPreferredContentSizeCategoryName",
+                                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge"]
+        app.launch()
+        let window = app.windows.firstMatch
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            for identifier in ["SettingsButton", "ItemsButton", "HistoryButton", "SketchGroup"] {
+                let control = app.buttons[identifier]
+                XCTAssertTrue(control.exists, "\(identifier) exists with accessibility text")
+                XCTAssertTrue(control.isHittable, "\(identifier) remains reachable")
+                XCTAssertTrue(window.frame.intersects(control.frame), "\(identifier) stays on screen")
+            }
+
+            app.buttons["ItemsButton"].tap()
+            let items = app.descendants(matching: .any)
+                .matching(identifier: "ItemsPanel").firstMatch
+            XCTAssertTrue(items.waitForExistence(timeout: 3))
+            XCTAssertTrue(window.frame.intersects(items.frame))
+            app.buttons["ItemsButton"].tap()
+
+            app.buttons["HistoryButton"].tap()
+            let history = app.descendants(matching: .any)
+                .matching(identifier: "HistoryPanel").firstMatch
+            XCTAssertTrue(history.waitForExistence(timeout: 3))
+            XCTAssertTrue(window.frame.intersects(history.frame))
+            app.buttons["HistoryButton"].tap()
+        }
+
+        XCUIDevice.shared.orientation = .portrait
+        startSketchTool(app, "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            for identifier in ["Exit Sketching", "Line", "ConstraintRailSettings"] {
+                let control = app.buttons[identifier].firstMatch
+                XCTAssertTrue(control.exists, "\(identifier) exists while sketching")
+                XCTAssertTrue(control.isHittable, "\(identifier) remains reachable while sketching")
+                XCTAssertTrue(window.frame.intersects(control.frame), "\(identifier) stays on screen")
+            }
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
+    func testSingleKeyActionPreferencePersistsAcrossLaunch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+
+        func openSingleKeyPicker(_ target: XCUIApplication) -> XCUIElement {
+            target.buttons["SettingsButton"].tap()
+            XCTAssertTrue(target.buttons["SettingsDone"].waitForExistence(timeout: 3))
+            let form = target.collectionViews.firstMatch
+            let picker = target.segmentedControls["SettingsSingleKeyAction"].firstMatch
+            for _ in 0..<10 where !picker.exists || !picker.isHittable { form.swipeUp() }
+            XCTAssertTrue(picker.waitForExistence(timeout: 3))
+            return picker
+        }
+
+        var picker = openSingleKeyPicker(app)
+        picker.buttons["Command Search"].tap()
+        XCTAssertTrue(picker.buttons["Command Search"].isSelected)
+        app.buttons["SettingsDone"].tap()
+        app.terminate()
+
+        let reopened = XCUIApplication()
+        reopened.launchEnvironment["OS3D_FRESH"] = "1"
+        reopened.launch()
+        XCTAssertTrue(reopened.buttons["CommandSearchButton"].waitForExistence(timeout: 10))
+        picker = openSingleKeyPicker(reopened)
+        XCTAssertTrue(picker.buttons["Command Search"].isSelected,
+                      "Hardware-key routing preference survives relaunch")
+        picker.buttons["Hotkeys"].tap()
+        XCTAssertTrue(picker.buttons["Hotkeys"].isSelected)
+        reopened.buttons["SettingsDone"].tap()
+    }
+
+    func testSnappingControlsPersistAcrossLaunch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+        app.buttons["SettingsButton"].tap()
+        let identifiers = ["SnapToGridToggle", "SnapToSketchGuidelinesToggle",
+                           "SnapToSketchGuidepointsToggle",
+                           "SnapToFaceGuidepointsToggle", "ShowSnapHintsToggle"]
+        func reveal(_ identifier: String) -> XCUIElement {
+            for _ in 0..<10 {
+                let toggle = app.switches[identifier].firstMatch
+                if toggle.exists && toggle.isHittable { return toggle }
+                app.swipeUp(velocity: .slow)
+                sleep(1)
+            }
+            return app.switches[identifier].firstMatch
+        }
+        func expectValue(_ value: String, on toggle: XCUIElement) {
+            let changed = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "value == %@", value), object: toggle)
+            XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed)
+        }
+        func activate(_ toggle: XCUIElement, identifier: String) {
+            if identifier == "ShowSnapHintsToggle" {
+                toggle.tap()
+            } else {
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.90, dy: 0.5)).tap()
+            }
+        }
+        for identifier in identifiers {
+            let toggle = reveal(identifier)
+            XCTAssertTrue(toggle.exists)
+            if toggle.value as? String == "1" {
+                activate(toggle, identifier: identifier)
+            }
+            expectValue("0", on: toggle)
+        }
+        app.buttons["SettingsDone"].tap()
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
+        app.buttons["SettingsButton"].tap()
+        for identifier in identifiers {
+            let toggle = reveal(identifier)
+            XCTAssertEqual(toggle.value as? String, "0", "Explicit off must survive relaunch")
+            activate(toggle, identifier: identifier) // restore default
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "restoring-\(identifier)"; shot.lifetime = .keepAlways; add(shot)
+            expectValue("1", on: toggle)
+        }
+        app.buttons["SettingsDone"].tap()
+    }
+
     /// Extrude a rectangle into a box and select it, so the info bar shows
     /// Volume/Bounds rows with unit readouts.
     private func makeAndSelectBox(_ app: XCUIApplication, _ window: XCUIElement) {

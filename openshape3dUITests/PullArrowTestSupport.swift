@@ -31,11 +31,9 @@ extension XCTestCase {
 
     /// Square the camera up to the active sketch plane.
     ///
-    /// Entering a sketch KEEPS the camera where the user left it (Shapr3D
-    /// behaviour — you draw on the plane from whatever view you were in), so a
-    /// test that drives a sketch by normalized screen coordinates has to face
-    /// the plane first; otherwise its taps land somewhere else entirely on the
-    /// plane and the geometry it thinks it drew is not the geometry it drew.
+    /// Sketch entry now aligns automatically (direct reference verification,
+    /// 2026-09-07). Keep this helper for tests that orbit during sketch editing:
+    /// normalized screen coordinates require a predictable drawing view.
     ///
     /// The Look at Sketch button only exists while the camera is off-axis, so
     /// its absence means we are already head-on and there is nothing to do.
@@ -58,7 +56,8 @@ extension XCTestCase {
     /// Tap a palette tool found by its visible label (Line/Rect/Circle/Union/…),
     /// opening `group` first if it isn't directly hittable.
     func tapPaletteTool(_ app: XCUIApplication, group: String, label: String) {
-        let query = app.buttons.containing(.staticText, identifier: label)
+        let visibleLabel = label == "Rect" ? "Rectangle" : label
+        let query = app.buttons.containing(.staticText, identifier: visibleLabel)
         if !query.firstMatch.isHittable {
             app.buttons[group + "Group"].tap()
             _ = query.firstMatch.waitForExistence(timeout: 2)

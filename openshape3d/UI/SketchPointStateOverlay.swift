@@ -27,7 +27,34 @@ struct SketchPointStateOverlay: View {
         if viewModel.mode.isSketching {
             ZStack(alignment: .topLeading) {
                 ForEach(viewModel.sketchPointMarkers) { marker in
-                    markerView(marker)
+                    if !viewModel.sketchCircleCenterMarkers.contains(where: { $0.id.replacingOccurrences(of: ":circleCenter", with: ":center") == marker.id }) {
+                        markerView(marker)
+                    }
+                }
+                if let marker = viewModel.selectedMigratedRectangleCornerMarker,
+                   let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
+                    Circle().stroke(Color.orange, lineWidth: 1.5)
+                        .background(Circle().fill(Color.white.opacity(0.9)))
+                        .frame(width: 9, height: 9)
+                        .background(Circle().fill(Color.orange.opacity(0.25)).frame(width: 16, height: 16))
+                        .position(x: pt.x, y: pt.y)
+                        .accessibilityIdentifier("SelectedRectangleCorner")
+                }
+                ForEach(viewModel.sketchRectangleCenterMarkers + viewModel.sketchCircleCenterMarkers) { marker in
+                    if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
+                        Circle().fill(marker.isSelected ? Color.orange : (marker.state == .free ? Self.free : Self.constrained))
+                            .frame(width: 5, height: 5)
+                            .background {
+                                // Native distinguishes the selected movable center
+                                // from a selected locked point even away from hover.
+                                if marker.isSelected && marker.state == .free {
+                                    Circle().fill(Color.orange.opacity(0.25))
+                                        .frame(width: 16, height: 16)
+                                }
+                            }
+                            .position(x: pt.x, y: pt.y)
+                            .accessibilityIdentifier(marker.id.hasSuffix(":circleCenter") ? "CircleCenterControl" : "RectangleCenterControl")
+                    }
                 }
             }
             // Informational only — must never steal taps from the canvas/gizmo.
@@ -49,33 +76,43 @@ struct SketchPointStateOverlay: View {
     private func markerView(_ marker: EditorViewModel.SketchPointMarker) -> some View {
         // Contract D exposes `world` as SIMD3<Float>; the projector is Double.
         if let pt = viewModel.cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)) {
-            glyph(for: marker.state)
+            glyph(for: marker.state, rectangleCorner: marker.isRectangleCorner)
                 .position(x: pt.x, y: pt.y)
                 .accessibilityIdentifier("SketchPointMarker")
         }
     }
 
     @ViewBuilder
-    private func glyph(for state: SketchPointState) -> some View {
-        switch state {
-        case .free:
-            // Under-constrained / movable: hollow blue circle.
+    private func glyph(for state: SketchPointState, rectangleCorner: Bool) -> some View {
+        if rectangleCorner {
+            // Paired rectangle corners remain hollow even when fixed.
             Circle()
-                .stroke(Self.free, lineWidth: 1.5)
-                .background(Circle().fill(Color(.systemBackground).opacity(0.55)))
+                .stroke(state == .free ? Self.free : Self.constrained, lineWidth: 1.5)
+                .background(Circle().fill(Color.white.opacity(0.9)))
                 .frame(width: 9, height: 9)
-        case .constrained:
-            // Fully determined / connected: solid green dot.
-            Circle()
-                .fill(Self.constrained)
-                .overlay(Circle().stroke(Color.white.opacity(0.9), lineWidth: 0.75))
-                .frame(width: 8, height: 8)
-        case .locked:
-            // Fully fixed: solid blue square — distinct from the green dot.
-            RoundedRectangle(cornerRadius: 1.5)
-                .fill(Self.locked)
-                .overlay(RoundedRectangle(cornerRadius: 1.5).stroke(Color.white.opacity(0.9), lineWidth: 0.75))
-                .frame(width: 8, height: 8)
+        } else {
+            switch state {
+            case .free:
+                // Under-constrained / movable: hollow blue circle.
+                Circle()
+                    .stroke(Self.free, lineWidth: 1.5)
+                    // The canvas remains light even when the surrounding chrome
+                    // uses dark mode; a semantic background made hollow points black.
+                    .background(Circle().fill(Color.white.opacity(0.9)))
+                    .frame(width: 9, height: 9)
+            case .constrained:
+                // Fully determined / connected: solid green dot.
+                Circle()
+                    .fill(Self.constrained)
+                    .overlay(Circle().stroke(Color.white.opacity(0.9), lineWidth: 0.75))
+                    .frame(width: 8, height: 8)
+            case .locked:
+                // Fully fixed: solid blue square — distinct from the green dot.
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(Self.locked)
+                    .overlay(RoundedRectangle(cornerRadius: 1.5).stroke(Color.white.opacity(0.9), lineWidth: 0.75))
+                    .frame(width: 8, height: 8)
+            }
         }
     }
 }

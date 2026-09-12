@@ -20,10 +20,11 @@ final class RenderFlagsTests: XCTestCase {
     // MARK: - Uniform struct layout (Swift ↔ MSL shared via ShaderTypes.h)
 
     func testFrameUniformsStride() {
-        // 1 float4x4 (64) + 10 float4 (160) + 4 floats (16) = 240, 16-aligned.
+        // 1 float4x4 (64) + 12 float4 (192) + 4 floats (16) = 272,
+        // rounded to the imported C struct's 16-byte tail alignment (288).
         // MSL compiles the same header, so a drift here means the GPU reads
         // garbage — update both sides together.
-        XCTAssertEqual(MemoryLayout<FrameUniforms>.stride, 240)
+        XCTAssertEqual(MemoryLayout<FrameUniforms>.stride, 288)
         XCTAssertEqual(MemoryLayout<FrameUniforms>.stride % 16, 0)
     }
 

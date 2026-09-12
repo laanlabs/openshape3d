@@ -12,6 +12,19 @@ import XCTest
 
 final class AppSettingsTests: XCTestCase {
 
+    @MainActor
+    func testCircularAnnotationPreferencePersistsWithCompatibleDefault() throws {
+        let suite = "CircularAnnotationsTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertEqual(settings.circularAnnotations, .radiusAndDiameter)
+        settings.circularAnnotations = .alwaysRadius
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .alwaysRadius)
+        settings.circularAnnotations = .radiusAndDiameter
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .radiusAndDiameter)
+    }
+
     // MARK: DisplayUnit conversion
 
     func testConversionFactors() {
@@ -48,7 +61,14 @@ final class AppSettingsTests: XCTestCase {
     func testCompactLengthTrimsZeros() {
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 12.7), "12.7 mm")
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 5), "5 mm")
-        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1 in")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 0.869 / 2), "0.4345 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 12.34567), "12.3457 mm")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1\"")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 1.016), "0.04\"")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 20.32), "0.0667'")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 1.016), "0.0033'")
+        XCTAssertEqual(DisplayUnit.inches.symbol, "in", "Input suffix stays distinct from annotation")
+        XCTAssertEqual(DisplayUnit.feet.symbol, "ft")
     }
 
     // MARK: Persistence
@@ -68,6 +88,26 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.antiAliasing, 4)
     }
 
+    func testSnappingPreferencesPersistIncludingExplicitOff() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.snapOptions, SnapOptions())
+        XCTAssertTrue(first.showSnapHints)
+        XCTAssertTrue(first.snapToSketchGuidelines)
+        first.snapToGrid = false
+        first.snapToSketchGuidelines = false
+        first.snapToSketchGuidepoints = false
+        first.snapToFaceGuidepoints = false
+        first.showSnapHints = false
+        let next = AppSettings(defaults: defaults)
+        XCTAssertEqual(next.snapOptions, SnapOptions(grid: false, sketchGuidepoints: false,
+                                                    faceGuidepoints: false))
+        XCTAssertFalse(next.showSnapHints)
+        XCTAssertFalse(next.snapToSketchGuidelines)
+        next.snapToGrid = true
+        XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
+    }
+
     func testSettingsPersistAcrossReload() {
         let defaults = freshDefaults()
         let first = AppSettings(defaults: defaults)
@@ -81,6 +121,16 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(second.theme, .dark)
         XCTAssertTrue(second.paletteOnRight)
         XCTAssertEqual(second.antiAliasing, 2)
+    }
+
+    func testAnchoredSketchEntityPreferencePersistsWithFirstSelectedDefault() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.anchoredSketchEntity, .firstSelected)
+        first.anchoredSketchEntity = .lastSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .lastSelected)
+        first.anchoredSketchEntity = .firstSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .firstSelected)
     }
 
     func testLaunchSampleCountRejectsInvalidStoredValues() {

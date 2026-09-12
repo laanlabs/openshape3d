@@ -13,9 +13,45 @@ import simd
 
 nonisolated enum SketchHitTester {
 
+    /// Outline picking must not swallow a small profile interior
+    /// when zoomed in. A fixed millimetre floor becomes a huge screen target.
+    static func screenPickTolerance(worldUnitsPerPoint: Double) -> Double {
+        max(1e-6, 16 * worldUnitsPerPoint)
+    }
+
+    static func screenControlPointTolerance(worldUnitsPerPoint: Double) -> Double {
+        max(1e-6, 24 * worldUnitsPerPoint)
+    }
+
     struct EntityHit {
         var entity: SketchEntity
         var distance: Double
+    }
+
+    struct RayEntityHit {
+        var entity: SketchEntity
+        var distance: Float
+        var outlineDistance: Double
+    }
+
+    static func nearestEntity(along ray: Ray, in sketches: [Sketch], tolerance: Double,
+                              maximumDepth: Float = .infinity) -> RayEntityHit? {
+        var best: RayEntityHit?
+        for sketch in sketches where !sketch.isHidden {
+            let plane = sketch.plane
+            guard let depth = ray.intersect(
+                planePoint: SIMD3<Float>(plane.origin), planeNormal: SIMD3<Float>(plane.normal)),
+                depth <= maximumDepth + 0.01 else { continue }
+            let local = plane.toLocal(SIMD3<Double>(ray.point(at: depth)))
+            guard let hit = nearestEntity(to: local, in: sketch.entities, tolerance: tolerance)
+            else { continue }
+            if let best, depth > best.distance + 0.001
+                || (abs(depth - best.distance) <= 0.001 && hit.distance >= best.outlineDistance) {
+                continue
+            }
+            best = RayEntityHit(entity: hit.entity, distance: depth, outlineDistance: hit.distance)
+        }
+        return best
     }
 
     /// A draggable handle on an entity.
@@ -86,7 +122,8 @@ nonisolated enum SketchHitTester {
     /// its `PointRole`. Used to select individual points for constraints
     /// (plan §C3).
     static func nearestPoint(
-        to p: SIMD2<Double>, in entities: [SketchEntity], tolerance: Double
+        to p: SIMD2<Double>, in entities: [SketchEntity], tolerance: Double,
+        preservingLineInterior: Bool = false
     ) -> PointHit? {
         var best: PointHit?
         for entity in entities {
@@ -95,6 +132,19 @@ nonisolated enum SketchHitTester {
                 if d <= tolerance, best == nil || d < best!.distance {
                     best = PointHit(entityID: entity.id, role: role, point: point, distance: d)
                 }
+            }
+        }
+        if preservingLineInterior, let point = best,
+           let hit = nearestEntity(to: p, in: entities, tolerance: tolerance),
+           case let .line(_, a, b) = hit.entity {
+            let delta = b - a, length = simd_length(delta)
+            if length > 1e-6 {
+                let fraction = simd_dot(p - a, delta) / (length * length)
+                // Oversized endpoint targets must not consume the middle of a
+                // short line. Exact points (including other geometry) still win.
+                if fraction > 0.25, fraction < 0.75,
+                   point.distance > length * 0.25,
+                   hit.distance < point.distance { return nil }
             }
         }
         return best
@@ -128,6 +178,7 @@ nonisolated enum SketchHitTester {
                 (.rectCorner(1), SIMD2(hi.x, lo.y)),
                 (.rectCorner(2), hi),
                 (.rectCorner(3), SIMD2(lo.x, hi.y)),
+                (.center, (lo + hi) / 2),
             ]
         case let .circle(_, center, radius):
             return [(.center, center), (.radius, center + SIMD2(radius, 0))]
@@ -239,6 +290,8 @@ nonisolated enum SketchHitTester {
             return .line(id: id, a: p, b: b)
         case let (.line(id, a, _), .lineEnd):
             return .line(id: id, a: a, b: p)
+        case let (.rect(_, lo, hi), .center):
+            return translated(entity, by: p - (lo + hi) / 2)
         case let (.rect(id, lo, hi), .rectCorner(index)):
             let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
             let opposite = corners[(index + 2) % 4]

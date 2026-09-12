@@ -1,5 +1,8 @@
 # openshape3d
 
+> Sketch usability work (September 2026): [current implementation status and 42-issue queue](docs/SKETCH_PARITY_IMPLEMENTATION.md). Earlier parity notes contain historical defaults; both annotation visibility switches currently default off (selection-based).
+
+
 An open-source direct-modeling CAD app for iPad and iPhone,
 built with SwiftUI, a **custom Metal renderer**, and a dual geometry kernel:
 [OpenCASCADE](https://github.com/Open-Cascade-SAS/OCCT) (OCCT) for exact B-rep

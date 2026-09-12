@@ -96,9 +96,15 @@ nonisolated enum SketchTessellator {
 
     /// Dashed variant of `segments(for:on:)` for construction entities.
     static func dashedSegments(
-        for entities: [SketchEntity], on plane: SketchPlane
+        for entities: [SketchEntity], on plane: SketchPlane,
+        worldUnitsPerPoint: Double? = nil
     ) -> [SIMD3<Float>] {
-        dashed(segments(for: entities, on: plane), dash: dashLength, gap: dashGap)
+        // Construction strokes are a screen annotation, not model-sized gaps.
+        // Preserve the legacy pattern for callers without a viewport scale.
+        let scale = worldUnitsPerPoint.flatMap { $0.isFinite && $0 > 0 ? Float($0) : nil }
+        return dashed(segments(for: entities, on: plane),
+                      dash: scale.map { $0 * 8 } ?? dashLength,
+                      gap: scale.map { $0 * 4 } ?? dashGap)
     }
 
     /// Splits solid line-batch segments (point pairs) into short dashes.

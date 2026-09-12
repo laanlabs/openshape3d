@@ -23,8 +23,12 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
     var pointSnap = true
     var parallelPerpendicular = true
     var tangent = true
-    var equal = true
-    /// Half-width of the horizontal/vertical snap, in degrees.
+    // Paired near-equal strokes (2026-09-08) remain independent in native.
+    // Equality inference can move existing geometry, so require explicit opt-in.
+    // Codable still restores the saved choice; manual Equal is unaffected.
+    var equal = false
+    /// Angular fallback for inference without a screen-space guide tolerance.
+    /// Live line guides use a four-screen-point band (September 10 correction).
     ///
     /// Measured against Shapr3D on 2026-09-06 by drawing lines at known angles
     /// and checking whether the committed edge was snapped flat and carried a
@@ -36,6 +40,12 @@ nonisolated struct AutoConstraintSettings: Codable, Equatable, Sendable {
 }
 
 nonisolated enum AutoConstraintEngine {
+    /// Ray intersections pass through Float coordinates. Admit only numerical
+    /// roundoff at the screen-distance boundary, not an extra visible snap band.
+    static func withinAxisDistance(_ delta: Double, tolerance: Double) -> Bool {
+        abs(delta) <= tolerance + max(abs(tolerance) * 1e-6, 1e-9)
+    }
+
     // Nested types are marked `nonisolated` explicitly: under the module's
     // `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` they do not inherit the outer
     // enum's isolation, and the nonisolated `infer` constructs them via their
@@ -86,6 +96,40 @@ nonisolated enum AutoConstraintEngine {
 
     // MARK: - Entry point
 
+    /// Directional acquisition and persistent relations are separate choices.
+    /// Native Guide Lines can flatten a near-axis line with Auto-constraining
+    /// off; disabling Guide Lines preserves raw aim even when Auto is on.
+    static func inferLineInput(
+        anchor: SIMD2<Double>, current: SIMD2<Double>, existing: [SketchEntity],
+        settings: AutoConstraintSettings, guideLines: Bool,
+        guideDistanceTolerance: Double? = nil
+    ) -> Result {
+        var acquisition = settings
+        if !settings.enabled {
+            acquisition.pointSnap = false
+            acquisition.parallelPerpendicular = false
+            acquisition.tangent = false
+            acquisition.equal = false
+        }
+        let delta = current - anchor
+        let exactlyAxisAligned = abs(delta.x) < 1e-9 || abs(delta.y) < 1e-9
+        acquisition.horizontalVertical = guideLines ||
+            (settings.enabled && settings.horizontalVertical && exactlyAxisAligned)
+        acquisition.enabled = settings.enabled || guideLines
+        guard acquisition.enabled else {
+            return Result(snappedPoint: current, guides: [], constraints: [])
+        }
+        var result = inferLine(anchor: anchor, current: current,
+            existing: existing, settings: acquisition,
+            axisDistanceTolerance: guideLines ? guideDistanceTolerance : nil)
+        if !settings.enabled {
+            result.constraints = []
+        } else if !settings.horizontalVertical {
+            result.constraints.removeAll { $0.kind == .horizontal || $0.kind == .vertical }
+        }
+        return result
+    }
+
     static func infer(
         tool: SketchTool,
         anchor: SIMD2<Double>,
@@ -104,6 +148,61 @@ nonisolated enum AutoConstraintEngine {
             // tools) only do point-snap in v1.
             return inferPointSnapOnly(current: current, existing: existing, settings: settings)
         }
+    }
+
+    /// Arc construction has a third-point stage, so its final tangent cannot
+    /// be inferred by the two-point stroke path above. Match native's endpoint
+    /// transition: when an arc endpoint is already on a line endpoint and the
+    /// radius is perpendicular to that line within the configured angle gate,
+    /// emit a real Tangent relationship. Interior crossings and merely nearby
+    /// lines are deliberately excluded.
+    static func inferArcTangencies(
+        arc: SketchEntity,
+        existing: [SketchEntity],
+        settings: AutoConstraintSettings
+    ) -> [Inferred] {
+        guard settings.enabled, settings.tangent,
+              case let .arc(_, center, radius, start, end) = arc,
+              radius > lengthEpsilon else { return [] }
+
+        let arcEndpoints = [
+            SketchEntity.arcPoint(center: center, radius: radius, angle: start),
+            SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+        ]
+        let tolerance = settings.angleToleranceDeg * .pi / 180
+        var inferred: [Inferred] = []
+        var usedLines: Set<UUID> = []
+
+        for endpoint in arcEndpoints {
+            let radialVector = endpoint - center
+            let radialLength = simd_length(radialVector)
+            guard radialLength > lengthEpsilon else { continue }
+            let radial = radialVector / radialLength
+            var best: (id: UUID, deviation: Double)?
+
+            for entity in existing {
+                guard case let .line(id, a, b) = entity, !usedLines.contains(id) else { continue }
+                let lineVector = b - a
+                let lineLength = simd_length(lineVector)
+                guard lineLength > lengthEpsilon,
+                      min(simd_length(endpoint - a), simd_length(endpoint - b))
+                        <= settings.pointTolerance else { continue }
+                let direction = lineVector / lineLength
+                let deviation = asin(min(1, abs(simd_dot(direction, radial))))
+                if deviation <= tolerance,
+                   best == nil || deviation < best!.deviation {
+                    best = (id, deviation)
+                }
+            }
+
+            if let best {
+                usedLines.insert(best.id)
+                inferred.append(Inferred(
+                    kind: .tangent, selfRole: .whole,
+                    targetEntityID: best.id, targetRole: .whole))
+            }
+        }
+        return inferred
     }
 
     // MARK: - Non-line tools: point-snap only
@@ -139,7 +238,8 @@ nonisolated enum AutoConstraintEngine {
         anchor: SIMD2<Double>,
         current: SIMD2<Double>,
         existing: [SketchEntity],
-        settings: AutoConstraintSettings
+        settings: AutoConstraintSettings,
+        axisDistanceTolerance: Double? = nil
     ) -> Result {
         var snapped = current
         var guides: [Guide] = []
@@ -171,7 +271,9 @@ nonisolated enum AutoConstraintEngine {
         if settings.horizontalVertical, !didPointSnap, length > lengthEpsilon {
             let devHorizontal = atan2(abs(dir.y), abs(dir.x))  // 0 == horizontal
             let devVertical = atan2(abs(dir.x), abs(dir.y))    // 0 == vertical
-            if devHorizontal <= tolRad, devHorizontal <= devVertical {
+            let nearHorizontal = axisDistanceTolerance.map { withinAxisDistance(dir.y, tolerance: $0) } ?? (devHorizontal <= tolRad)
+            let nearVertical = axisDistanceTolerance.map { withinAxisDistance(dir.x, tolerance: $0) } ?? (devVertical <= tolRad)
+            if nearHorizontal, devHorizontal <= devVertical {
                 snapped = SIMD2(current.x, anchor.y)
                 constraints.append(Inferred(
                     kind: .horizontal, selfRole: .whole, targetEntityID: nil, targetRole: nil))
@@ -180,7 +282,7 @@ nonisolated enum AutoConstraintEngine {
                 guides.append(Guide(
                     kind: .horizontal, a: SIMD2(x0, anchor.y), b: SIMD2(x1, anchor.y)))
                 didHV = true
-            } else if devVertical <= tolRad {
+            } else if nearVertical {
                 snapped = SIMD2(anchor.x, current.y)
                 constraints.append(Inferred(
                     kind: .vertical, selfRole: .whole, targetEntityID: nil, targetRole: nil))

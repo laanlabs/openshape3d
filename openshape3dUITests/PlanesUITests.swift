@@ -12,6 +12,13 @@ import XCTest
 
 final class PlanesUITests: XCTestCase {
 
+    private func attach(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
@@ -69,6 +76,44 @@ final class PlanesUITests: XCTestCase {
 
         app.buttons["Exit Sketching"].tap()
         XCTAssertFalse(app.staticTexts["Sketching on plane"].exists)
+    }
+
+    func testCoplanarNewSketchAndNamedContinuationStaySeparate() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        for y in [CGFloat(0.45), CGFloat(0.65)] {
+            startSketchTool(app, "Line")
+            XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+            p(0.80, 0.78).tap()
+            XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+            lookAtSketch(app)
+            sleep(1)
+            p(0.40, y).press(forDuration: 0.15, thenDragTo: p(0.60, y))
+            app.buttons["Exit Sketching"].tap()
+        }
+        app.buttons["ItemsButton"].tap()
+        XCTAssertTrue(app.textFields["ItemName-Sketch 1"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.textFields["ItemName-Sketch 2"].exists,
+                      "Starting on the same plane must not silently append to Sketch 1")
+        attach(app, "independent-coplanar-items")
+        let first = app.otherElements["ItemRow-Sketch 1"].firstMatch
+        first.coordinate(withNormalizedOffset: CGVector(dx: 0.06, dy: 0.5)).tap()
+        app.buttons["ItemsButton"].tap()
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+        XCTAssertFalse(app.staticTexts["Choose a sketch plane"].exists,
+                       "Explicit item entry must continue that sketch")
+        p(0.40, 0.55).press(forDuration: 0.15, thenDragTo: p(0.60, 0.55))
+        app.buttons["Exit Sketching"].tap()
+        app.buttons["ItemsButton"].tap()
+        XCTAssertTrue(app.textFields["ItemName-Sketch 2"].exists)
+        XCTAssertFalse(app.textFields["ItemName-Sketch 3"].exists)
+        attach(app, "named-continuation-keeps-two-items")
     }
 
     func testSketchOnFaceThenExtrudeNewBody() throws {

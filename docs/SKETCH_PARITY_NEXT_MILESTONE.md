@@ -1,0 +1,870 @@
+# Next milestone: core-sketch acceptance and iPad comparison candidate
+
+Planned September 8, 2026. Starting revision `cd0937d`, PR #29.
+
+## Outcome and boundaries
+
+Deliver a screenshot-backed, reproducible core-sketch acceptance report and an
+identified installable iPad comparison candidate. This is not full Shapr3D
+feature parity, nor physical Pencil sign-off. Preserve all 42 existing audit
+records and map the original 56 acceptance scenarios to covered, failed,
+blocked, or explicitly deferred; do not silently narrow the audit.
+
+Native macOS Shapr3D and mouse-operated iPad simulator remain the available
+reference pair. Record version, build revision, input, plane, orientation,
+settings, and project state. Differences in scale are acceptable when comparing
+interaction semantics; record actual dimensions and anchors separately.
+
+## Blocking on-canvas acceptance gate (Jason's subsequent steering)
+
+Line, circle, rectangle and arc UI must be compared in drawing, selected,
+unselected and numeric-edit states: label placement/style, dimension leaders and
+arrowheads, handles, selection highlights, constraint icons, and keypad
+appearance/activation/commit/cancel. Geometry-only passes do not satisfy this
+gate. The agent identifies visible mismatches from paired screenshots; Jason is
+not required to catalog them. Native macOS versus simulator scaling differences
+must be recorded, not used to claim exact matching. Known visual differences
+remain blocking until corrected or explicitly accepted by Jason.
+
+## Ordered execution
+
+### 1. Recover baseline and resolve history uncertainty
+
+- Reconcile actual git state, active processes, installed simulator build, and
+  desktop availability; replace stale running claims in the checkpoint.
+- Use disposable projects and give one workflow exclusive desktop ownership.
+- Repeat creation, dimension edit, Undo, and Redo in both apps, first in a new
+  project and then after gallery reopen. Compare toolbar input and supported
+  keyboard/accessible input independently; verify foreground delivery.
+- Inspect geometry and usable closed profiles, not merely selection badges.
+- Distinguish an input-delivery failure from product history failure before
+  changing source. If one route remains blocked, explicitly retain that gap
+  and continue independent acceptance rather than looping on identical clicks.
+- Exit: demonstrated geometry restoration and no-op diagnosis, or an explicit
+  reproducible blocker that prevents history sign-off. Fix confirmed app bugs.
+
+### 2. Drawing, plane entry, and cancellation
+
+- Compare XY/XZ/YZ entry, ground fallback, camera normal alignment, visible
+  grid, exit/re-entry, and intended sketch identity on a coincident plane.
+- Exercise line drag and supported tap-chain interaction, retained length,
+  explicit numeric edit, next segment, finish, and half-finished cancellation.
+- Test circle initiation at existing geometry without unintended movement.
+- Cancel each rectangle construction stage and switch tools while numeric
+  input is open; confirm no phantom geometry or blocked canvas remains.
+- Exit: reproducible entry/draw/cancel flows, correct destination sketch, no
+  unintended edits, coherent undo, and paired before/after evidence.
+
+### 3. Complete rectangle and numeric-input matrix
+
+- Diagonal rectangles: all four drag quadrants, width then height and reverse
+  sequence, native anchor preservation, reselection, save/reopen, undo/redo.
+  September8 paired evidence corrects the earlier first-corner assumption:
+  sampled diagonal numeric edits preserve normalized lower-left bounds.
+- Center rectangles: both axis-edit orders and center preservation.
+- Three-point rectangles: opposite baseline directions/slopes, each dimension,
+  reselection/reload, and interaction with explicit constraints.
+- Numeric entry: initial replacement, decimal/sign where valid, commit/cancel,
+  supported width-to-height navigation, invalid input, and tool-switch cleanup.
+- Check keypad reachability near canvas edges in portrait, landscape, and
+  compact layouts, including available handedness/system-keyboard modes.
+- Exit: geometry and driving values agree; no undriven-side drift, inaccessible
+  commit control, invisible input interception, or silent invalid conversion.
+
+### 4. Selection, snapping, constraints, and editing integrity
+
+- Compare endpoint/midpoint/outline/profile selection, blank deselection,
+  additive selection, short entities and small profiles at multiple zooms.
+- Exercise independent snap toggles, all-off coordinates, visible grid scale,
+  guidepoint acquisition, and preference persistence; distinguish temporary
+  snapping from persistent constraints.
+- Validate common constraint creation/removal, lock, conflicts/rollback, and
+  disconnect where supported. Existing relations must survive unrelated edits.
+- Exercise basic trim and move/copy integrity, cancellation and coherent undo;
+  preserve or explicitly account for affected constraint/dimension references.
+- Exit: selected target matches action, no hidden quantization with snaps off,
+  and no unexpected geometry jumps, data loss, or dangling references.
+
+### 5. Persistence and sketch-to-solid handoff
+
+- Exit/re-enter/reopen representative edited sketches with dimensions and
+  constraints; verify intended visibility and separate sketch identity.
+- Compare closed/open profiles, nested holes and construction geometry, then
+  extrusion handoff. Open profiles must not masquerade as valid closed regions.
+- Run the relevant final regression set on one identified final revision,
+  serially, without simultaneous GUI automation. Report all failures/reruns
+  accurately; do not sum historical runs into a clean-suite claim.
+- Exit: no blocking crash, hang, data-loss, history or core interaction failure.
+
+### 6. Publish acceptance and prepare device handoff
+
+- Update the issue ledger and illustrated Google Doc with paired captions,
+  expected/observed results and corrected outcomes, including the previously
+  unpublished final gallery-reopen evidence. Verify saved/exported content.
+- Publish a coverage matrix: implemented, regression-tested, live-compared,
+  documented, device-tested, plus explicit failures/deferrals.
+- Identify device build version/revision, artifact location and signing/install
+  prerequisites. Verify an installable artifact before calling it a candidate;
+  simulator output is not a device build. Do not collect credentials in chat.
+- Provide a short physical iPad checklist: Pencil start/snap, draw/finish/cancel,
+  dimension entry, selection, constraints, Undo/Redo, rotation and save/reopen.
+- Do not merge or claim installation without authorization and verification.
+
+## Evidence and fix loop
+
+For every case: case ID linked to audit record; recipe/settings; reference and
+clone captures; expected/observed behavior; verdict (pass/fail/blocked/not run);
+source revision; test receipt; publication status; next action. Save evidence in
+`reports/openshape3d-core-sketch-milestone-2026-09-08/` under the workspace.
+
+Reproduce in both apps -> fix confirmed discrepancy -> focused meaningful
+regression -> paired live recheck -> update ledger and publication -> next case.
+Prioritize crashes/data loss first, then history and blocked drawing, then
+geometry/constraint correctness, then reachability/discoverability differences.
+
+## Scope and release gate
+
+Advanced patterns, projection linking, ellipse/spline trim, comprehensive units/
+variables and non-core dimension capabilities remain in the full audit queue.
+Explicitly report any deferred core criterion: a deferral is not a pass. A core
+blocker prevents candidate readiness; a reference/license/access limitation is
+recorded as blocked rather than inferred from automated clone tests.
+
+Milestone complete only when the core matrix has paired evidence, blocking UI
+issues are resolved, relevant final regressions pass, documentation is verified,
+and the identified installable build/checklist exists. Physical-input results
+remain pending until actually tested. Keep working until that gate or a genuine
+external blocker; a batch completion is not the stopping condition.
+
+## Ownership and progress
+
+Resume the existing dedicated “OpenShape3D parity — PR #29” session; do not create
+duplicate desktop workers or watchdog jobs. Preserve temporary keep-awake
+authorization but never restart, log out, change lock settings, or restart Screen
+Sharing. If locked, continue useful independent code/tests/documentation.
+
+Report concrete results and blockers, not reminder-only messages. Maintain
+`docs/PARITY_CONTINUATION.md` with actual running state and exact next action.
+
+## September8 execution checkpoint: full-turn boundary
+
+Arc90/270 and native360 conversion sampled; corrected full-circle conversion has
+clean25-test regression, live saved-radius migration and clone gallery reopen.
+Return next to live history availability immediately after an edit and after
+autosave, distinguishing disabled state from input delivery before changing code.
+Candidate gate remains open; illustrated publication still blocked.
+
+## September 8, 17:41 execution update
+
+Four-line rectangle normal handle now live-compared through free/locked motion,
+history and reopen. Next is axis-aligned rectangle edge/control behavior, then
+remaining numeric/selection matrix. Both Docs Saving; no candidate gate claim.
+
+## September 8, 18:46 execution update
+
+Axis-edge controls and selected-side leaders verified; portrait painted-center
+Undo correction passes live and focused clean2/2. Saved2x1 editors/reopen pass.
+Next: paired per-edge Lock semantics, then remaining numeric/selection matrix.
+Leader-side memory remains a known visual difference. Both Docs blocked;
+publication and installable-candidate gates remain open.
+
+## September 8, 19:03 execution update
+
+Side-specific rectangle Lock now verified through free/blocked movement,
+Undo/Redo, removal and reopened scope; final scoped36/36 clean. Next contextual
+Unlock action and constrained-edge colors, then remaining acceptance matrix.
+Docs publication remains externally blocked; candidate gate still open.
+
+## September 8, 19:12 execution update
+
+Contextual Unlock now live verified with history and reopened result; clean9/9.
+Continue direct arc construction (QA-13 still untouched), retaining edge-color
+and compact-menu differences. Publication remains blocked; final artifact/gate
+not reached.
+
+## September 8, 19:53 execution update
+
+QA-13 direct arc now sampled but partial: mouse acquisition/completion remains
+unresolved, not a pass. QA-38 native four-line edge Disconnect and Undo verified;
+clone topology-only action under regression, live movement/reopen pending.
+Primitive rectangle edges and midpoint/non-line connections remain open.
+Both Docs still blocked; all new screenshots locally indexed. No candidate claim.
+
+20:00 follow-through: four-line edge Disconnect now clean34/34 plus paired
+movement/history/gallery reopen. Next remaining connection cases and generic
+ring mismatch; publication remains blocked, candidate gate not reached.
+
+
+## September 8, 22:11 execution update
+
+Publication restored in separate existing-Doc tabs; old stalled tabs preserved.
+Circle transform whole-Lock correction4a09b06 clean28/28 pluspairedlive/history/
+reopen. Arc translation/rotation Lock correction now11distinctpassingchecks and
+pairedlive/reopen. Continue remaining numeric/selection acceptance, including
+circle diameter text covering explicit move target, fullsnap/gridmatrix and
+primitive/mixedtransformlimits. Finalregression/installableartifact gateopen.
+
+## September 9, 00:04 execution update
+
+Explicit white transform controls, exact axis values, retained re-edits, rotated
+local frame and circle frame-only history are implemented with focused regression
+and paired live evidence. Settled native history correction cecd1f5 retains the
+armed tool while clearing selection, rather than exiting it (earlier interpretation
+withdrawn). Clean21/21 and live reselection/Done; illustrated102 images and master38
+with correction notes export-verified. Escape keypad-first cancellation now under
+regression. Remaining transform candidate/driven annotation visibility, overlap,
+rotated direct-drag/Copy/compact coverage and full core matrix remain open.
+No installable candidate or physical-device sign-off yet.
+
+## September 9 — QA-13 third-point/chaining update
+
+Native direct Arc now has an unambiguous recipe: two endpoints, a hovered/clicked
+third point, then automatic shared-endpoint continuation. OpenShape3D matches the
+available click/touch route and has automated hover coverage; final relevant
+regression is clean 34/34. Major/minor boundary and tangent-transition cases
+remain open, as does physical Pencil input, so QA-13 and the milestone remain
+partial.
+
+Prepared [physical iPad A/B checklist](SKETCH_PARITY_DEVICE_AB.md) September9.
+Artifact fields explicitly pending; configuration is not installation/signing proof.
+
+## September 9, 01:21 execution update
+
+Near-rail circle diameter target/leader correction has paired live evidence,
+final4/4 regression after documented compile/Top-limit failures, live edit/history
+and paired reopen. Illustrated116/allfournewhashes and master38 final note
+verified. Continue normal circular reselection/manual annotation positioning,
+then remaining rotated/mixed/compact and core acceptance. Full visual gate and
+identified device artifact remain open; no milestone/candidate completion claim.
+
+## September 9 — manual circle diameter label placement
+
+Free placement now lasts for the current selection; stored diameter placement
+is independently undoable and saved relative to the circle center. Fresh paired
+free/driven label drag, typed-value inheritance, unchanged geometry, history and
+gallery reopen verified. Optional Codable metadata preserves old files and merge.
+Initial25/26, immediate-reselection targeted failure, settled targeted1/1:
+26 distinct passing checks across runs, not one clean run. No selection-code
+change; rapid successive input remains unverified. Scope is head-on circle
+diameter labels; default selected orientation, oblique placement and other
+dimension types remain open. [Receipt](testing/sketch-parity-circle-label-drag-2026-09-09.md).
+
+## September 9 — default selected-circle outside leader
+
+Paired removal of a driving diameter then reselection confirmed native outside
+vertical versus clone interior horizontal. Normal head-on selection now prefers
+the outside leader; drawing readouts and manual overrides remain. Clean6/6 plus
+followup2/2; initially mistyped omitted selector corrected, not counted. Fresh
+clone release/selection/keypad/Ø1/manual override/Undo and paired gallery reopen
+verified. Immediate dimension unlock vs clone commit and oblique placement remain
+open; fresh native construction input attempts excluded.
+[Receipt](testing/sketch-parity-circle-default-leader-2026-09-09.md).
+
+## September 9 — immediate dimension lock action
+
+Unchanged keypad Lock now immediately adds/removes the measured driving size
+without moving geometry; changed drafts disable the key. Actual stored state is
+shown, with neutral icons. Ordinary numeric commit remains driving. Clean12/12
+(9 unit + 3 UI), then a successful tint-only build and live inspection. Paired
+line/circle action, draft cancellation, freed radial resize/history and gallery
+reopen verified: clone Ø0.992/line0.793, native Ø1000/line1750.6361 retain locks.
+First click away dismisses an editor in both apps; separate selection follows.
+Rapid radial first attempt excluded; settled repeat counted. Wider numeric/visual
+matrix and device artifact remain open.
+[Receipt](testing/sketch-parity-dimension-lock-action-2026-09-09.md).
+
+Publication verified: illustrated130 images, all3 final PNG hashes matched;
+master38 images with final gallery-reopen and tint notes exported.
+
+## September 9 — alternate Dimension entry for stored sizes
+
+Constrain → Dimension used a suppressed candidate label when a stored size
+already existed, leaving no visible keypad. It now reuses the matching stored
+label/ID. Clean9/9 (7unit+2UI). Live circleØ1→Ø2, unchanged center, Undo/Redo
+and gallery reopen with palette entry verified; native existingØ1000→Ø2000
+center/history and final reopened closed-lock editor paired. Native reference
+is size editing, not an identical alternate palette. Illustrated135 images/all5
+new hashes and master38 final reopen note export-verified.
+[Receipt](testing/sketch-parity-dimension-palette-2026-09-09.md).
+
+## September 9 — independent coplanar sketch identity (f4319dd)
+
+Paired native unselected Front entry creates03 independently of02; clone first-
+coincident reuse incorrectly joined new geometry to1. Plane-based creation now
+allocates a new identity; explicit named item/outline continuation is retained.
+Corrected16/16 (12unit+4UI); initial missing-helper compilation failure ran no
+tests. Live independent circle1/line2, named edit, independent visibility and
+paired gallery reopen with hidden old/visible new sketch verified. Consumed/
+overlapping selection/downstream variants remain open.
+[Receipt](testing/sketch-parity-coplanar-identity-2026-09-09.md).
+
+Illustrated142 images/all4 final hashes and master38 final note verified.
+
+Inactive profile blue-fill gap now under separate focused regression4410;
+rendering keeps all unselected profiles clear during sketching, while preserving
+model-mode extrusion fills. No live post-fix claim yet.
+
+## September 9 — inactive reference profile fill verified
+
+Focused serial4410 completed clean6/6 (4 SketchIdentity unit + 2 Plane UI).
+No runner remains. Fresh live Front circle1/line2: inactive circle clear during
+Sketch2 editing; Exit restores profile fill; interior selection offers Extrude,
+cancelled without creating a body. Gallery reopen retains two items and clear
+reference while explicitly reopening2. Native reopened03 likewise shows old02
+clear; normalized Front screenshot inspected. Reference color/style differences
+remain outside this fill correction. Consumed/overlap/downstream cases remain open.
+
+Illustrated145 images and all3 new PNG hashes verified by anonymous DOCX export;
+master38 final reopen note verified. Evidence os3d-reference-fill-native-front.png,
+os3d-reference-fill-final-reopen.png, os3d-reference-fill-extrude.png and exports
+retained in workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
+transform-controls. No iPad-ready claim.
+
+## September 9 — nested circle profile sample
+
+## Final sampled nested-profile result
+
+Native double-click view cube exposes default oblique view; reselect annulus
+and click0mm badge. Typed500 and committed: Body02 with visible bore. Undo
+removesBody02, Redo restores; gallery reopen retains body/bore. Clone Undo
+removes its offset-hole solid, Redo restores; gallery reopen retains it in
+oblique view. Images inspected. Native concentric and clone offset samples
+are different geometries: paired result is nested-region/extrusion/history/
+persistence behavior, not equal dimensions or complete topology acceptance.
+
+Existing ProfileTests completed clean15/15, including through-hole ray probe,
+/tmp/os3d-nested-profile-20260909.log/.xcresult, serial41439 completed0. No
+implementation changes in this lane. Illustrated147 images with both final
+reopen PNG hashes matched; master38 final15/15 note verified. Exports/evidence
+copied to durable transform-controls report. Touching loops, tiny gaps,
+duplicate edges, downstream rebuild and device artifact remain open.
+
+[Receipt](testing/sketch-parity-nested-profiles-2026-09-09.md).
+
+## September 9 — named consumed-source rebuild
+
+## Final source-edit result
+
+Both apps Undo restored the old source diameter and bore; Redo restored the
+larger source/bore. Both gallery reopens retained enlarged solids. Native
+Body02/Sketch03 and cloneExtrude/Sketch2 retained original ownership; no new
+sketch was created by named entry. Broader visibility toggle cases remain open.
+Existing history/profile-seed regression completed clean5/5 (2+3), serial70997,
+/tmp/os3d-consumed-source-20260909.log/.xcresult. Unit tests terminated clone
+app after the already captured final reopen; relaunch before more live work.
+No code change in this lane.
+
+Illustrated151 images and all4 new PNG hashes verified by DOCX export; master38
+final5/5 and gallery-reopen note verified. Evidence/export retained in durable
+transform-controls reports. This samples downstream bore rebuild, not full
+Sweep/Loft/downstream smoke or all profile topology/device readiness.
+
+[Receipt](testing/sketch-parity-consumed-source-2026-09-09.md).
+
+## September 9 — visible gap closure / hidden-source control
+
+Paired visible20px gap rejects profile selection; explicit closure produces a
+profile, Undo/Redo removes/restores it and gallery reopen retains it. Controlled
+hidden-source entry/Exit matches native; initial mismatch was differing state,
+not a code defect. No new code/tests. Tiny tolerance, touching/duplicate/crossing
+cases remain open. [Receipt](testing/sketch-parity-gap-closure-2026-09-09.md).
+Publication pending; prior illustrated151/master38 verified.
+
+Final publication: illustrated155 embedded images, all4 new closure/reopen
+PNG hashes and corrected prose verified by DOCX export. Master38 retains final
+reopen/visibility correction note. Export copies retained locally.
+
+## September 9 — shared boundary / construction rendering
+
+Paired adjacent regions select independently; construction divider merges the
+regions. Fixed confirmed oversized model-unit construction dashes with viewport
+8/4-point pattern for selected/unselected paths. Clean24/24 construction/profile
+checks; live Front/oblique, regular/construction history and final reopen pass.
+Multi-scale dash test automated-only: bridge scroll rejected. Curved phase,
+point-touch, duplicates/tiny tolerance remain open. Illustrated160/all5 new
+hashes and master38 final note export verified. [Receipt](testing/sketch-parity-touching-construction-2026-09-09.md).
+
+## September 9 — duplicate straight boundary correction
+
+Paired duplicate topedge preserved nativeprofile but removed cloneprofile.
+Temporary profilegraph now collapses coincident straight boundaries, preserving
+editableentities and firstboundaryowner; arcs/splines remain distinct. Initial
+2testsfailed; corrected22profile/history/seed +27curve/entity checks passed in
+separate cleanruns. Live savedprofile recovered; freshreverseoverlap extrudes;
+pairedblockUndo/Redo and finalreopen pass. Earlierduplicate-only liveUndo remains
+inconclusive. Partialoverlap/duplicatecurves/pointtouch/tinytolerance open.
+Illustrated165 imageplacements/164uniqueassets (reusedidenticalimage), all5
+evidencehashes and master38finalnote exportverified. [Receipt](testing/sketch-parity-duplicate-boundary-2026-09-09.md).
+
+## September 9 — point-touch and partial straight overlap
+
+Both apps independently select loops sharing only one vertex. Partially
+duplicated top boundaries retain their profile; native interior endpoints and
+clone snapped corner-ending sample recorded separately. Clean2/2 precise
+geometry checks cover point touch and both partial-overlap directions. No
+production change. Paired gallery reopen retains selectable loops and prior
+bodies. Illustrated173 placements/all8 new hashes; master38 final note verified.
+[Receipt](testing/sketch-parity-point-touch-2026-09-09.md). Remaining topology
+and installable-device gate still open.
+
+## September 9 — crossing straight-profile correction
+
+Native bow-tie exposes two triangles; clone exposed none. Temporary straight
+intersection splitting now supplies missing graph junctions without changing
+editable entities/constraints. Initial red test failed; corrected clean42/42
+profile/history/seed/curve run. Live independent triangle selection, extrusion,
+Undo/Redo and paired final reopen pass. Illustrated179/all6 new hashes and
+master38 final note export verified. Curved intersections excluded; earlier
+partial-overlap first-loop fill disappeared during later editing, still open.
+[Receipt](testing/sketch-parity-crossing-profiles-2026-09-09.md).
+
+## September 9 — numerical partial-overlap stability
+
+The earlier partial-overlap profile vanished after more constrained drawing.
+Read-only saved geometry exposed ~4e-14mm offset in the duplicate segment, not
+an open boundary. Exact fixture failed; temporary graph overlap normalization
+at existing node precision fixes it without editing geometry. Corrected clean
+43/43; live saved recovery, fresh overlap plus continued line Undo/Redo and
+paired final reopen pass. Illustrated184/all5 hashes; master38 final note
+verified. Initial pass and subsequent failure retained in audit.
+[Receipt](testing/sketch-parity-partial-overlap-stability-2026-09-09.md).
+
+## QA-13 endpoint input checkpoint — September 9
+
+Native two endpoint clicks created an arc; clone ignored them. Added the missing
+route into existing pending-arc construction. Five distinct regression checks
+pass across corrected/targeted runs (initial compile failure and immediate-input
+UI failure retained). Fresh live creation/history/reselect/keypad and paired
+gallery reopen verified. Illustrated191 placements/new4 hashes and master38
+finalnote verified. Default45° versus106.26°, pending feedback and bulge/finish
+remain open; not fullQA13. [Receipt](testing/sketch-parity-direct-arc-recheck-2026-09-09.md).
+
+## September 9 — new arc default curvature
+
+Native forward/reverse endpoint inputs produce45° on the directed chord's right
+side; clone produced106.26° on the opposite side. Corrected new construction
+only; saved arcs unchanged. Clean18/18 construction/analytic/arcUI checks; live
+forward/reverse, Undo/Redo and paired gallery reopen verified. Illustrated197
+placements/all4 new hashes and master38 final note export verified. Pending
+radius/sweep feedback, clipping and Return/chaining still open; not fullQA13.
+[Receipt](testing/sketch-parity-arc-default-shape-2026-09-09.md).
+
+## September 9 — pending arc readout checkpoint
+
+Paired pending arcs exposed a missing clone sweep: native shows two radius rays,
+a curved angular leader, sweep and endpoint radius; clone showed radius only.
+The corrected informational overlay passes focused22/22 and updates both values
+during clone midpoint drag. A later isolated native recheck proved the apparent
+midpoint drag starts a chained arc, so the earlier native-adjustment
+interpretation is withdrawn. Native third-point placement and Return/chaining
+remain inconclusive and were not changed. Final combined39/39 passed in one run;
+illustrated201/all4 new hashes and master38 final note export verified. QA-13
+remains partial.
+[Receipt](testing/sketch-parity-arc-pending-feedback-2026-09-09.md).
+
+## September 9 — pending arc cancellation
+
+Native first Escape discards the unfinished arc and disarms Arc while retaining
+committed geometry; the next Escape exits sketch mode. Clone initially ignored
+Escape with a pending arc. Arc-specific cancellation and a guarded neutral-sketch
+fallback now match the paired sequence. The first focused run failed at compile
+time in its new fixture; the corrected run passed cleanly 6/6. The exact updated
+binary passed the live two-stage repeat with an existing arc retained. QA-13 is
+still partial because third-point placement, Return/chaining, major/minor and
+tangent transition remain open.
+[Receipt](testing/sketch-parity-arc-cancellation-2026-09-09.md).
+
+## September 9 — QA-13 Return checkpoint
+
+Native Return accepts the current/default Arc after its first two endpoints.
+OpenShape3D now routes the default keyboard action only in that pending state and
+commits through the same shared-endpoint chaining path as a third-point click.
+Paired live Return/Escape checks passed; focused 11/11 and final combined 35/35
+passed cleanly. Direct construction major/minor boundaries and tangent transition
+remain open, as do simulator hover delivery and physical Pencil validation, so
+QA-13 and the milestone remain partial. Publication is anonymously export-
+verified at 219 illustrated placements (all six new hashes) and 38 master
+drawings after restoring one prior chained-arc image displaced during editing.
+[Receipt](testing/sketch-parity-arc-return-2026-09-09.md).
+
+## September 9 — QA-13 tangent-transition checkpoint
+
+Paired line-to-arc construction exposed a stored-relationship gap: native
+persisted a tangent glyph at the shared endpoint while the clone merely looked
+tangent. Endpoint-only arc inference now uses the saved point/angle/toggle
+gates, commits with the arc in one Draw history step, and leaves unrelated or
+oblique geometry alone. Paired live selection and Undo/Redo passed; focused
+31/31 and final combined 63/63 passed cleanly. Three experimental canvas-UI
+assertions failed to reselect the arc and were removed rather than counted.
+Direct gesture major/minor boundaries, hover delivery and physical Pencil remain
+open, so QA-13 and the milestone remain partial. Anonymous exports verify 227
+illustrated placements with all eight new hashes and no predecessor loss; the
+master remains at 38 drawings with its dated note.
+[Receipt](testing/sketch-parity-arc-tangent-transition-2026-09-09.md).
+
+## September 9 — QA-13 direct boundary checkpoint
+
+Controlled native gestures produced direct 90-degree minor, 180-degree
+semicircle and 220-degree major arcs. The exact clone build, at a different
+screen scale, produced 81.91, 176.03 and 214.93 degrees and restored the major
+profile through toolbar Undo/Redo. Direct minor-to-major construction is now
+paired; this is behavioral category evidence rather than coordinate equality.
+QA-13 remains partial for clone hover delivery and physical Pencil/touch. No
+source change or additional automated run was needed; the last relevant
+current-revision combined arc suite remains clean 63/63.
+[Receipt](testing/sketch-parity-arc-major-minor-boundaries-2026-09-09.md).
+
+## September 9 — QA-56 downstream checkpoint
+
+Paired live circle-profile extrusion, cancellation and solid history now pass.
+The exact revision also passed one clean 65/65 serial downstream run covering
+two Sweep/Loft UI flows and 63 kernel/feature-graph checks. QA-56 is the first
+fully passed case in the retained 56-case inventory. Device input remains
+blocked and the milestone candidate gate is not reached.
+[Receipt](testing/sketch-parity-downstream-smoke-2026-09-09.md).
+
+## September 9 — QA-55 sustained-use checkpoint
+
+Ten paired rectangle/circle/line construction cycles, per-cycle history, dense
+sketch state and gallery reopen passed without a visible hang. The clone also
+retained its project after the focused unit-test host closed and the exact
+build relaunched. One clean 71/71 current-revision profile/cache/constraint/
+construction/selection run supplements the live evidence. Native required a
+settled-release pause for circles; invalid fast-switch and clone-orbit attempts
+are retained and excluded. QA-55 passes without claiming comparable automation
+wall times or physical Pencil endurance.
+[Receipt](testing/sketch-parity-sustained-use-2026-09-09.md).
+
+## September 9 — final same-working-tree regression
+
+The final serial regression on the candidate working tree passes 1,598 total:
+1,595 passed, zero failed and three skipped. The nine deterministic failures from
+the prior full run pass together 9/9 after one product viewport-ownership fix and
+rendered-target fixture corrections. Exact-build live clone Chamfer activation and
+edge acquisition are captured; native retains a different edge-first solid-tool
+workflow and is not counted as core-sketch parity. Publication, committed revision,
+and signed device artifact inspection remain the final gate actions. Physical
+iPad/Pencil input remains unverified.
+
+## September 9 — installable comparison artifact
+
+Final corrections are committed and pushed as `05be744`. The same revision was
+archived and exported as a development IPA for already provisioned devices. The
+strictly verified iPhoneOS/arm64 artifact is 16,876,597 bytes with SHA-256
+`b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`;
+the team profile contains 81 device entries and expires 2027-07-21. The IPA and
+inspection receipt are retained in the milestone report's `final-gate` folder.
+This identifies a physical comparison candidate without claiming installation,
+Pencil/touch validation, full parity or completion of the retained 56-case map.
+Final publication is anonymously export-verified: the illustrated report has
+265 placements / 263 unique media with all five new screenshot hashes exactly
+once; the master retains 38 drawings and exactly one final candidate note.
+
+## September 10 — Empty-entry acceptance closed
+
+QA-04 Top/Front/Right empty entry, Exit/two-stage Escape, existing visible/hidden
+item preservation, first-line Items/history and final gallery reopen verified
+in native and tested clone. Scoped product fix0c8c268; initial6/6 plus revised
+5/5. Illustrated417/all6closurehashes/no predecessorloss and master38 verified.
+Inventory3passed/0failed/1deviceblocked/52incomplete (41partial/11deferred).
+Continue QA-06 remaining Backspace/double-click/tool-switch cancellation routes;
+no device-ready/full-parity claim. Receipt testing/sketch-parity-empty-entry-2026-09-10.md.
+
+## September 10 — QA-07 finite recipe closure
+
+Pushed eb9b4ab screen-distance guide fix has paired above/below at changedscales,
+signed/reverse and H/V supplements, Guide/Auto independence, history and final
+saved recovery (clone8lines/native22edges). QA07 original raw-aimrecipe passed;
+general snap categories/hover/physicalinput remain separate. Relevant35distinct
+checks pass across retained runs, notonecombinedcleanrun. Inventory4passed/
+0failed/1deviceblocked/51incomplete (40partial11deferred),total56. NextQA08
+remainingdiagonalquadrants andnumericanchor comparison. Immutable05be744IPA unchanged.
+
+### September10 finite rectangle closure checkpoint
+
+QA08/QA09 closed at e9343a7 after evidence reconciliation, final keypad/reselection
+live checks and verified624/master38 publication. Inventory6passed/0failed/
+1deviceblocked/49incomplete (38partial,11deferred). Latest relevant follow-up is
+29/30 plus corrected center-rotation1/1, not a clean combined run. Original
+finite allquadrant/anchor/bothsizeorder criteria are met; broader exactUI/device
+gates remain. NextQA10 opposite baseline/slopes, sizes/reselection and eachstage
+cancellation. Immutable05be744IPA unchanged.
+
+### September10 QA10 finite recipe closure
+
+Original rotatedbaseline/perpendicularheight/each-stagecancellation now paired, including reverse slopes and settled native firstpoint hover/Escape. Product5014cef pushed; final36/36 and illustrated700/master38 closure note verified. Full audit in testing/sketch-parity-three-point-closure-audit-2026-09-10.md. Inventory7passed/0failed/1deviceblocked/48incomplete; nextQA11concentric initiation. General keyboard/layout/import/device gates remain. Immutable05be744IPA unchanged.
+
+## September11 QA11 finite closure
+
+Selected/unselectedcenterinitiation, savedconnection/clearlinkcontrol, paired
+movement/history/reopen nowverified. Clean35/35 plusseparatefinal6/6; illustrated
+724/all9hashes/no715loss. Finalclone1.4852/.8645; native16.0041/9.3357. Draft
+.8708 unverifiedvaluewithdrawn/corrected. Nativepopoverblockedhistory excluded;
+cleanrepeatpassed. Inventory8/0/1/47 (36partial11deferred). Audit
+testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
+Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
+Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
+Masterclosureinsertedonce/exportverificationpending; IPAunchanged.
+
+## September 11 — QA-18 midpoint checkpoint
+
+Paired line-midpoint Circle initiation, geometry-specific Undo/Redo, and clone
+gallery reopen pass on the corrected build. A visible line-constraint glyph
+had intercepted armed drawing strokes; ordinary constraint badges now defer to
+the active drawing tool without changing center Lock controls. The final
+focused run is clean 2/2; the initial 0/2 fixture run assumed diameter labels
+despite the retained Always Radius preference and is recorded separately.
+Endpoint, center, rectangle-corner, and midpoint initiation now have paired
+coverage. Face-corner initiation remains open, so QA-18 remains partial and the
+inventory remains 10 passed / 0 failed / 1 device-blocked / 45 incomplete.
+
+## September 11 — QA-18 finite closure
+
+Top-face-corner initiation now has paired release and Undo/Redo evidence; the
+clone also retains the corner-centered circle after gallery reopen. Combined
+with the prior endpoint, existing-circle-center, rectangle-corner, and midpoint
+evidence, the finite QA-18 recipe passes. The current-tree serial regression is
+clean 13/13. Illustrated publication is export-verified at 786 placements with
+all seven closure hashes exactly once and no predecessor loss; master remains
+38 media with the dated closure note. Inventory advances to 11 passed / 0
+failed / 1 device-blocked / 44 incomplete. Persistent midpoint relationships,
+hover, topology editing, and physical Pencil/touch remain separate gates.
+
+## September 11 — QA-13 finite closure reconciliation
+
+The already published endpoint/side, third-point, Return, chaining,
+cancellation, tangent and direct minor/semicircle/major evidence satisfies the
+original finite arc recipe. A new current-tree 63/63 serial gate also verifies
+R/Ø-aware 90→360 conversion and exact Undo/Redo restoration. Hover remains
+QA-21 and physical input remains QA-52 rather than blocking QA-13. Inventory is
+12 passed / 0 failed / 1 device-blocked / 43 incomplete. The illustrated report
+remains at its verified 786-image baseline. The master closure note is
+export-verified exactly once with all 38 predecessor media hashes retained.
+QA-19 remains independently partial because native canvas
+input delivery blocks its final controlled 3D threshold pair.
+
+## September 11 — QA-05 Return/resume checkpoint
+
+Return now finishes an open polyline without disarming Line or changing committed history, and a subsequent endpoint tap starts a fresh chain at that saved endpoint. The corrected exact-tree LineChain suite passes clean 3/3, including strengthened exact history counts and order-independent snap settings. Exact-build live clone A→B→C, Return, B→D→E→B, closing-edge Undo/Redo, and gallery reopen passed. Fresh native Line entry and the Return/Escape/Delete prompt are captured, while native canvas clicks remain a desktop input-delivery blocker. QA-05 therefore remains partial and inventory remains 12/0/1/43. See testing/sketch-parity-line-chain-2026-09-11.md.
+
+## September 11 — QA-06 finite cancellation closure
+
+Existing paired live evidence now reconciles the complete finite cancellation
+recipe: Escape once/twice, Delete/Backspace, released-state Return/double-click,
+tool switching, history, and gallery reopen. The exact current tree passed a
+clean serial 5/5 closure run. QA-06 advances the inventory to 13 passed / 0
+failed / 1 device-blocked / 42 incomplete. Hover, physical input, QA-05's fresh
+native chain, and QA-19's native threshold pair remain separate open gates.
+
+## September 11 — QA-23 finite selection-state closure
+
+Endpoint versus short-edge midpoint, outline/profile selection, blank
+deselection, selected-target Delete, one-step Undo, and saved reopen are paired
+or exact-build verified. The current-tree regression passed clean 19/19.
+Publication is anonymously export-verified at 796 unique image placements: all
+ten new hashes occur once and no predecessor asset is lost. The master roadmap
+retains 38 media and one dated note. QA-23 passes and advances the inventory to
+21 passed / 0 failed / 1 device-blocked / 34 incomplete. QA-24 additive
+selection remains separate; hover and physical input remain QA-21/QA-52.
+
+## September 11 — QA-24/25 checkpoint
+
+QA-24 automation is clean 19/19 but remains partial pending native Shift/additive
+and an independent live seeded-state repeat. QA-25's final annotation off-state
+gate is clean 23/23 across none/one/several/disjoint saved-dimension ownership,
+but fresh paired live capture and illustrated publication remain blocked by
+simulator input delivery. The inventory stays 13 passed / 0 failed /
+1 device-blocked / 42 incomplete. Continue QA-26 independently while retaining
+these live/publication gates; do not relabel automated evidence as paired proof.
+
+## September 11 — QA-26/27 independent checkpoints
+
+QA-26 now has a clean 16/16 automated active/other/hidden, exit/re-entry and
+toggle matrix. QA-27 implements the missing sloped-line Absolute/Horizontal/
+Vertical Dimension chooser and passes a final clean 18/18 model/UI gate,
+including commit, Undo/Redo and serialization. Earlier selector and history
+presentation assertion failures are retained as fixture corrections. Both cases
+remain partial because fresh paired live interaction and illustrated publication
+are blocked by simulator input delivery. Inventory remains 13 passed / 0 failed /
+1 device-blocked / 42 incomplete; immutable IPA unchanged.
+
+## September 11 — QA-30 numeric sequence checkpoint
+
+An edge-positioned width→height workflow now supplements retained paired sizing
+evidence. The final one-owner serial gate passes clean 4/4 across numeric keypad,
+system keyboard, adjacent-control retention, edge reachability and Undo/Redo.
+The earlier selector-only failure and a parallel-clone run are retained but not
+counted as the final gate. Fresh exact-build paired repeat and publication remain
+blocked by simulator input delivery, so inventory remains 13/0/1/42.
+
+## September 11 — QA-30 finite closure
+
+Retained paired width→height sizing is reconciled with a clean exact-tree 4/4
+serial gate for numeric keypad, system keyboard, adjacent-control retention,
+near-edge clearance, first-digit replacement, commit and Undo/Redo. Current-build
+captures were inspected. Anonymous exports verify one QA-30 closure, 800 unique
+illustrated placements, exactly four new assets, no loss from the prior 796, and
+one master-roadmap note with its original 38 media. QA-30 passes for this finite
+desktop recipe. Inventory advances to 22 passed / 0 failed / 1 device-blocked /
+33 incomplete. QA-29 dense/manual/zoom layout and QA-52 physical input remain
+separate; immutable IPA unchanged.
+
+## September 11 — QA-34 finite closure
+
+Retained paired driven-refusal, direct Unlock, free-resize, history and saved
+reopen evidence now has a clean one-owner 29/29 current-tree gate. The gate
+distinguishes a stored driving dimension from an exact one-time unlocked resize
+and verifies draft rejection plus coherent history. Two stale UI-fixture failures
+caused by intentional selection cleanup are retained; no product source changed.
+QA-34 passes only for its finite desktop recipe. Inventory advances to
+14 passed / 0 failed / 1 device-blocked / 41 incomplete.
+
+## September 11 — QA-35 finite closure
+
+The adaptive availability matrix and portrait/landscape rail workflows pass a
+clean one-owner 30/30 current-tree gate. Retained paired contextual Lock/Unlock,
+other-lock preservation, history and reopen evidence supplies the live rail
+comparison. Three annotation-dependent test fixtures now explicitly control
+their saved visibility prerequisite; no product source changed. QA-35 passes for
+its finite desktop rail recipe, while solve/conflict semantics remain QA-36/39.
+Inventory advances to 15/0/1/40.
+
+## September 11 — QA-36 constraint-type checkpoint
+
+A direct 11-relation application/history/serialization matrix supplements the
+existing adaptive rail and inference tests. The final one-owner gate passes clean
+64/64. The initial compile-only nested-type qualification failure is retained.
+Paired live coverage remains incomplete for Equal Length, Equal Radius,
+Symmetric and a fresh exact-build all-type sweep, so QA-36 remains partial and
+inventory stays 15/0/1/40.
+
+## September 11 — QA-37/38 independent checkpoints
+
+QA-37 adds the documented First Selected / Last Selected anchor preference,
+ordered selection and saved-constraint priority. Its final settings/model/UI gate
+passes clean 44/44, but fresh paired gestures remain input-blocked. QA-38 extends
+Disconnect to Midpoint, explicit non-line point connections and primitive
+rectangle diagonal corners without geometry/dimension loss; its final
+Disconnect/merge/Trim/UI gate passes clean 58/58. Those new forms are also
+automated-only. Both cases remain partial and inventory stays 15 passed / 0
+failed / 1 device-blocked / 40 incomplete.
+
+## September 11 — QA-39 finite closure
+
+Retained paired under/fully-defined visuals, point versus entity Lock, rejected
+conflict with unchanged geometry, direct Unlock, Undo/Redo and saved reopen are
+reconciled with a clean one-owner **69/69** current-tree gate. The gate covers
+point determinacy, definition cache, saved-constraint priority, refusal/rollback
+and specific conflict attribution. No new publication is claimed because the
+paired conflict sequence was already export-verified. QA-39 passes only for its
+finite desktop recipe; QA-36's incomplete all-relation live sweep and QA-52
+physical input remain separate. Inventory advances to **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**.
+
+## September 11 — QA-40 transition checkpoint
+
+The current-tree keypad/cancellation gate passes clean **56/56** after two
+retained preference-contamination failures were corrected in the fixtures. The
+five UI workflows cover click-away, invalid refusal, another/same tool, Exit,
+Undo/Redo and keyboard/keypad switching; 51 model checks cover shape-specific
+Escape and draft/history semantics. Retained paired evidence supplies the live
+comparison for those paths. QA-40 remains partial because fresh paired rotation/
+pan and comprehensive physical/system-keyboard input remain open. Inventory stays
+16/0/1/39.
+
+## September 11 — QA-41 primitive Trim checkpoint
+
+The finite line/circle/arc/rectangle/polygon boundary and whole-removal matrix,
+constraint/reference lifecycle, import remap and real endpoint-drag/Trim/history
+workflow pass clean **37/37**. Retained paired evidence covers line, circle and a
+rectangle boundary. Fresh paired arc/rectangle/polygon gestures remain blocked,
+so QA-41 stays partial and inventory remains 16/0/1/39. QA-43 owns the broader
+driven-reference/downstream-profile recipe.
+
+## September 11 — QA-43 Trim reference checkpoint
+
+Retained paired rectangle-boundary evidence is reconciled with a clean one-owner
+**60/60** current-tree Trim/reference/profile/import/UI gate. The new lifecycle
+case drops only a dimension whose endpoint was trimmed away, preserves unrelated
+dimensions/constraints/construction geometry, invalidates the opened profile and
+restores the exact closed sketch on Undo. One initial legacy-whole-ref fixture
+failure is retained and corrected to the production endpoint representation; no
+product source changed. Fresh paired driven-reference/history gestures remain
+input-blocked, so QA-43 stays partial and inventory remains 16/0/1/39.
+
+## September 11 — QA-45 Move/rotate/copy checkpoint
+
+Retained paired exact-value, pivot/frame, constrained refusal, Copy, Escape,
+history and reopen evidence is reconciled with a clean one-owner **50/50**
+current-tree solver/UI gate. New coverage exercises mixed line+circle Copy off/on,
+source independence and exact two-step history. One stale label-position proxy
+and one floating-roundoff fixture failure are retained and corrected without a
+product-source change. Fresh paired mixed-selection and compact-layout checks
+remain input-blocked, so QA-45 stays partial and inventory remains 16/0/1/39.
+
+## September 11 — QA-48 finite coplanar-identity closure
+
+Retained paired independent/new, explicit named continuation, consumed-source
+edit/rebuild, visibility, history and gallery-reopen evidence is reconciled with
+a clean one-owner **9/9** current-tree identity/profile/rebuild/UI gate. The
+first broader attempt is retained but excluded after a cloned-runner denial and
+an unrelated Items context-menu animation stall. QA-48 passes only its finite
+desktop identity recipe. Overlapping coplanar fill hit precedence remains under
+selection/profile topology, and projection/device input remain separate.
+Inventory advances to **17 passed / 0 failed / 1 device-blocked /
+38 incomplete**.
+
+## September 11 — QA-49 finite profile-topology closure
+
+The detailed hole/touching/tiny-gap/duplicate/construction-crossing recipe is
+reconciled with retained paired profile/history/reopen evidence and a clean
+one-owner **46/46** current-tree profile/construction/entity/UI gate. The run
+distinguishes a weldable micron line/arc endpoint from a real 50 µm opening and
+includes two real profile-to-extrude workflows. QA-49 passes only this finite
+desktop recipe; exhaustive curved-curve intersection splitting and physical
+input remain separate. Inventory advances to **18 passed / 0 failed /
+1 device-blocked / 37 incomplete**.
+
+## September 11 — QA-50 finite sketch-to-solid closure
+
+Retained paired profile extrusion, nested-hole bore, consumed-source rebuild,
+visibility, history and gallery-reopen evidence is reconciled with a clean
+one-owner **15/15** current-tree profile/feature-graph/cut/history/UI gate.
+QA-50 passes only its finite exact-extrude/hole/consumed/rebuild/Undo recipe;
+advanced Sweep/Loft breadth remains separate and cold-launch state stays QA-51.
+Inventory advances to **19 passed / 0 failed / 1 device-blocked /
+36 incomplete**.
+
+## September 11 — QA-51 finite save/reopen closure
+
+Retained paired numeric, radial, rectangle, arc, polygon, profile, coplanar and
+consumed-source reopen evidence is reconciled with a clean one-owner **47/47**
+current-tree archive/persistence/UI gate. Cold gallery duplicate/open, archive
+reference remapping, constraints/dimensions, variables, linked patterns,
+annotation state, settings and display units all pass. Two 60-second gallery
+animation-idle waits completed successfully and are retained as timing evidence,
+not a performance comparison. QA-51 passes only this finite desktop recipe;
+advanced feature-link breadth and physical-device lifecycle remain separate.
+Inventory advances to **20 passed / 0 failed / 1 device-blocked /
+35 incomplete**.
+
+
+## September 11 — QA-53 layout checkpoint
+
+A clean one-owner **51/51** current-tree layout gate covers portrait/landscape,
+toolbar handedness, Items/History panels, accessibility text, constraint rail,
+edge editors, near-rail diameter targets and the compact landscape bar. Retained
+paired label/keypad/radial samples remain valid. Fresh handedness, large-text and
+panel permutations are automated-only because supported window capture fails, so
+QA-53 stays partial and inventory remains **20 passed / 0 failed /
+1 device-blocked / 35 incomplete**.
+
+
+## September 11 — QA-54 keyboard checkpoint
+
+A clean one-owner **84/84** current-tree gate covers persisted Single Key Action,
+command routing/search, numeric focus/recovery, keypad switching, Return,
+tool-specific Escape scopes and history. Retained paired native/clone keyboard
+evidence remains valid. Fresh native preference switching and physical hardware-
+key delivery remain unproven, so QA-54 stays partial and inventory remains
+**20 passed / 0 failed / 1 device-blocked / 35 incomplete**.

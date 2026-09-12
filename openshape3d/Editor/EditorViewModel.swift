@@ -55,7 +55,11 @@ protocol ViewportCameraControl: AnyObject {
 @Observable
 final class EditorViewModel {
     let session: DocumentSession
-    var mode: EditorMode = .idle
+    var mode: EditorMode = .idle {
+        didSet {
+            if !mode.isSketching || mode.sketchTool != nil { sketchTransformActive = false }
+        }
+    }
     var selection: Set<BodyID> = []
 
     /// Multi-select chip (plan §B13, spec §8.1): while on, viewport taps
@@ -605,6 +609,7 @@ final class EditorViewModel {
             ))
         }
         var scene = ViewportScene(bodies: drawables)
+        scene.gridPlane = activeSketch?.plane
 
         // Tool preview (extrude/revolve): translucent accent body — except a
         // face push/pull preview replaces the source body, so it renders as a
@@ -825,11 +830,12 @@ final class EditorViewModel {
         // defined, BLUE when under-defined.
         let committedColor = SIMD4<Float>(0.15, 0.17, 0.20, 1)
         let pendingColor = SIMD4<Float>(0.20, 0.48, 0.95, 1)
-        // Selection is Shapr3D blue (matches the body accent). It has to read
-        // as DISTINCT from the under-defined blue below — both are blue in
-        // Shapr3D too — so selection is a brighter, more saturated azure while
-        // under-defined stays the calmer mid-blue.
-        let selectedColor = SIMD4<Float>(0.0, 0.60, 1.0, 1)
+        // Paired native line/arc selections are orange; under-defined geometry
+        // stays blue. Do not conflate selected edges with construction previews
+        // or the separate manipulation control.
+        let selectedColor = mode.sketchTool == nil
+            ? SIMD4<Float>(1.0, 0.60, 0.0, 1) : pendingColor
+        let manipulationColor = SIMD4<Float>(0.0, 0.60, 1.0, 1)
         let definedColor = Self.definedSketchColor
         let underDefinedColor = Self.underDefinedSketchColor
         // Hidden sketches are skipped — except the one being edited.
@@ -844,14 +850,30 @@ final class EditorViewModel {
             let unselected = sketch.entities.filter { !selectedSketchEntityIDs.contains($0.id) }
             // Per-entity definition state, only for the sketch being edited —
             // from the memo; a miss solves in the background, never here.
-            let states: [UUID: Bool]? = (sketch.id == activeSketchID)
-                ? sketchDefinitionReport(for: sketch)?.states : nil
+            let definition = (sketch.id == activeSketchID)
+                ? sketchDefinitionReport(for: sketch) : nil
+            let states = definition?.states
             func committedColorFor(_ id: UUID) -> SIMD4<Float> {
                 guard let states else { return committedColor }
                 return (states[id] ?? false) ? definedColor : underDefinedColor
             }
+            func appendRectangleEdges(_ entity: SketchEntity) {
+                for index in 0..<4 {
+                    guard let edge = RectangleConstruction.axisEdge(entity, index: index) else { continue }
+                    let color = definition?.rectangleEdges[entity.id].map {
+                        $0[index] ? definedColor : underDefinedColor
+                    } ?? committedColorFor(entity.id)
+                    let line = SketchEntity.line(id: entity.id, a: edge.a, b: edge.b)
+                    let segments = construction.contains(entity.id)
+                        ? SketchTessellator.dashedSegments(for: [line], on: sketch.plane, worldUnitsPerPoint: worldPerPoint)
+                        : SketchTessellator.segments(for: [line], on: sketch.plane)
+                    scene.sketchLines.append(SketchLineBatch(segments: segments, color: color))
+                }
+            }
+            let axisRectangles = unselected.filter { definition?.rectangleEdges[$0.id] != nil }
+            for entity in axisRectangles { appendRectangleEdges(entity) }
             // Solid committed entities, grouped by state color.
-            let regularUnselected = unselected.filter { !construction.contains($0.id) }
+            let regularUnselected = unselected.filter { !construction.contains($0.id) && !axisRectangles.contains($0) }
             for (color, group) in Dictionary(grouping: regularUnselected, by: { committedColorFor($0.id) }) {
                 let segs = SketchTessellator.segments(for: group, on: sketch.plane)
                 if !segs.isEmpty {
@@ -859,15 +881,24 @@ final class EditorViewModel {
                 }
             }
             // Dashed construction entities, grouped by state color.
-            let constructionUnselected = unselected.filter { construction.contains($0.id) }
+            let constructionUnselected = unselected.filter { construction.contains($0.id) && !axisRectangles.contains($0) }
             for (color, group) in Dictionary(grouping: constructionUnselected, by: { committedColorFor($0.id) }) {
-                let segs = SketchTessellator.dashedSegments(for: group, on: sketch.plane)
+                let segs = SketchTessellator.dashedSegments(for: group, on: sketch.plane, worldUnitsPerPoint: worldPerPoint)
                 if !segs.isEmpty {
                     scene.sketchLines.append(SketchLineBatch(segments: segs, color: color))
                 }
             }
             let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
-            let regularSelected = selected.filter { !construction.contains($0.id) }
+            let edgeSelected = selected.filter { selectedAxisRectangleEdge?.id == $0.id && selectedSketchEntityIDs.count == 1 }
+            for entity in edgeSelected {
+                guard let pick = selectedAxisRectangleEdge,
+                      let edge = RectangleConstruction.axisEdge(entity, index: pick.index) else { continue }
+                appendRectangleEdges(entity)
+                scene.sketchLines.append(SketchLineBatch(
+                    segments: SketchTessellator.segments(for: [.line(id: entity.id, a: edge.a, b: edge.b)], on: sketch.plane),
+                    color: selectedColor))
+            }
+            let regularSelected = selected.filter { !construction.contains($0.id) && !edgeSelected.contains($0) }
             if !regularSelected.isEmpty {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.segments(for: regularSelected, on: sketch.plane),
@@ -878,14 +909,51 @@ final class EditorViewModel {
             if !constructionSelected.isEmpty {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.dashedSegments(
-                        for: constructionSelected, on: sketch.plane
+                        for: constructionSelected, on: sketch.plane, worldUnitsPerPoint: worldPerPoint
                     ),
                     color: selectedColor
                 ))
             }
-            // Closed regions get a fill — the Shapr3D affordance that a
-            // profile can be pulled into 3D.
-            scene.profileFills.append(contentsOf: fillBatches(for: sketch))
+            // Tangent may contact an arc's supporting circle outside its
+            // visible span. Native shows the complementary arc as a violet
+            // dashed guide, never as selectable/profile-producing geometry.
+            if activeSketchID == sketch.id {
+                var guided = Set<UUID>()
+                for constraint in sketch.constraints where constraint.kind == .tangent {
+                    guard annotationIsVisible(refs: constraint.refs,
+                        alwaysShow: AppSettings.shared.alwaysShowConstraints,
+                        explicitlySelected: selectedConstraintID == constraint.id) else { continue }
+                    let ids = Set(constraint.refs.map(\.entityID))
+                    let operands = sketch.entities.filter { ids.contains($0.id) }
+                    guard let arc = operands.first(where: { if case .arc = $0 { return true }; return false }),
+                          let circle = operands.first(where: { if case .circle = $0 { return true }; return false }),
+                          case let .arc(id, center, radius, start, end) = arc,
+                          case let .circle(_, otherCenter, otherRadius) = circle,
+                          !guided.contains(id) else { continue }
+                    // An internally tangent smaller arc contacts the far side
+                    // of its supporting circle, away from the larger center.
+                    let reverseRay = constraint.circleTangency == .internalContact && radius < otherRadius
+                    let ray = reverseRay ? center - otherCenter : otherCenter - center
+                    guard simd_length(ray) > 1e-9 else { continue }
+                    let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+                    let offset = SketchEntity.arcSweep(startAngle: start, endAngle: atan2(ray.y, ray.x))
+                    guard sweep > 1e-9, offset > sweep + 1e-9 else { continue }
+                    guided.insert(id)
+                    let extensionArc = SketchEntity.arc(id: id, center: center, radius: radius,
+                                                       startAngle: end, endAngle: start)
+                    scene.sketchLines.append(SketchLineBatch(
+                        segments: SketchTessellator.dashedSegments(for: [extensionArc], on: sketch.plane,
+                                                                  worldUnitsPerPoint: worldPerPoint),
+                        color: SIMD4<Float>(0.55, 0.30, 0.95, 1)))
+                }
+            }
+            // While sketching, native leaves unselected closed regions clear,
+            // including reference profiles belonging to other sketch items.
+            // An armed profile tool adds its explicit selection fill below;
+            // do not tint every region merely because its boundary is closed.
+            if activeSketchID == nil {
+                scene.profileFills.append(contentsOf: fillBatches(for: sketch))
+            }
         }
         // The regions an armed profile tool is working on read stronger than
         // the rest: the first one and every extra one tapped in afterwards.
@@ -904,11 +972,15 @@ final class EditorViewModel {
         }
         if case .sketching(let activeID, _) = mode,
            let sketch = session.document.sketches.first(where: { $0.id == activeID }) {
-            let pendings = [pendingEntity, pendingArcEntity].compactMap { $0 }
+            let pendings = [pendingEntity, pendingArcEntity].compactMap { $0 } + rectanglePreview
             if !pendings.isEmpty {
+                // A released three-point baseline is the active construction
+                // edge (native orange), not a new blue stroke or committed edge.
+                let releasedRectangleBaseline = rectangleType == .threePoint
+                    && rectangleBaseline != nil && rectanglePreview.count == 1
                 scene.sketchLines.append(SketchLineBatch(
                     segments: SketchTessellator.segments(for: pendings, on: sketch.plane),
-                    color: pendingColor
+                    color: releasedRectangleBaseline ? SIMD4<Float>(1.0, 0.60, 0.0, 1) : pendingColor
                 ))
             }
             // Offset Edge (spec §1.9): the picked source entities read as
@@ -943,17 +1015,24 @@ final class EditorViewModel {
                 if lineWillClose, let start = chainStart {
                     scene.sketchLines.append(SketchLineBatch(
                         segments: Self.closeLoopMarkerSegments(at: start, on: sketch.plane),
-                        color: selectedColor
+                        color: pendingColor
                     ))
                 }
             }
             // Selection gizmo (plan §B6, spec §1.10): move handle at the
             // selection centroid plus a rotate ring around it.
-            if let centroid = sketchSelectionCentroid {
+            if mode.sketchTool == nil, !usesExplicitSketchTransform, !sketchTransformActive,
+               let centroid = sketchSelectionCentroid {
                 scene.sketchLines.append(SketchLineBatch(
                     segments: sketchGizmoSegments(centroid: centroid, plane: sketch.plane),
-                    color: selectedColor
+                    color: manipulationColor
                 ))
+            }
+            if mode.sketchTool == .rect,
+               let anchor = rectangleAnchor ?? rectangleBaseline?.a ?? sketchStrokeStart {
+                scene.sketchLines.append(SketchLineBatch(
+                    segments: Self.chainAnchorMarkerSegments(at: anchor, on: sketch.plane),
+                    color: pendingColor))
             }
             // Live auto-constraint guides (plan §B): violet reference lines for
             // the relationships being inferred for the in-progress stroke.
@@ -2636,7 +2715,7 @@ final class EditorViewModel {
     private func nearestSketchLine(
         to ray: Ray
     ) -> (a: SIMD2<Double>, b: SIMD2<Double>, plane: SketchPlane)? {
-        let tolerance = max(0.4, 16 * worldPerPoint)
+        let tolerance = SketchHitTester.screenPickTolerance(worldUnitsPerPoint: worldPerPoint)
         var best: (a: SIMD2<Double>, b: SIMD2<Double>, plane: SketchPlane, distance: Double)?
         for sketch in session.document.sketches where !sketch.isHidden {
             guard let local = localPoint(of: ray, on: sketch.plane) else { continue }
@@ -2804,6 +2883,7 @@ final class EditorViewModel {
     /// sketching, import. Notably reverts the rotate preview, which mutates
     /// transforms outside the undo stack until committed.
     private func cancelTransientPicks() {
+        cancelSymmetryAxisPick()
         cancelRotateAxis()
         cancelTranslate()
         cancelAlign()
@@ -3067,6 +3147,12 @@ final class EditorViewModel {
         cancelTool()
         blendSelectedEdges = []
         blendBodyID = selection.count == 1 ? selection.first : nil
+        // Blend edge picking owns the viewport now. Keeping the source body
+        // selected left its transform gizmo visible, and ViewportView gives
+        // those controls first refusal on taps. Retain the source identity in
+        // blendBodyID, but remove the ordinary selection so the newly armed
+        // tool gets an unobstructed picking surface.
+        selection.removeAll()
         blendValue = 1
         blendPreview = nil
         mode = .pickingBlendEdges(kind)
@@ -4910,15 +4996,150 @@ final class EditorViewModel {
     }
 
     func undo() {
+        if isPickingSymmetryAxis { cancelSymmetryAxisPick(); return }
+        if hasPendingRectangle { clearRectanglePlacement(); return }
+        // Native three-point construction leaves drawing mode when Undo
+        // changes committed history. Pending-placement cancellation above
+        // remains separate and does not consume document history.
+        if mode.sketchTool == .rect && rectangleType == .threePoint {
+            deselectSketchTool()
+        } else if mode.sketchTool == .circle && selectedCircleCenterID != nil {
+            // Only the armed, freshly selected center workflow is live-proven
+            // to disarm and clear on Undo. Ordinary radial/transform history
+            // retains its existing selection/readout lifecycle.
+            deselectSketchTool()
+            selectedSketchPoints.removeAll()
+            selectedSketchEntityIDs.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
+        }
+        // Direct radius Unlock while Circle is armed clears/disarms on native
+        // Undo. Keep this scoped to that command, not radial drag/transform history.
+        if mode.sketchTool == .circle, !sketchTransformActive,
+           let removal = session.undoStack.undoCommands.last as? RemoveSketchDimensionCommand,
+           removal.sketchID == activeSketch?.id, removal.dimension.kind == .radius,
+           removal.dimension.refs.count == 1,
+           let id = removal.dimension.refs.first?.entityID,
+           selectedSketchEntityIDs.contains(id), let sketch = activeSketch,
+           case .circle? = sketchEntity(id, in: sketch) {
+            deselectSketchTool()
+            clearCircleNumericSelection()
+        }
+        clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
+        clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
+        clearAppliedRelationSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
     }
 
     func redo() {
+        clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
+        clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
+        clearAppliedRelationSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
+    }
+
+    private func clearLineDimensionSelection(for command: DocumentCommand?) {
+        guard let change = command as? SetLineDimensionKindCommand,
+              change.sketchID == activeSketch?.id else { return }
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        editingDimension = nil
+    }
+
+    private func clearAppliedRelationSelection(for command: DocumentCommand?) {
+        guard mode.isSketching, let sketchID = activeSketch?.id else { return }
+        func addsDeselectingRelation(_ command: DocumentCommand) -> Bool {
+            if let group = command as? CompositeCommand {
+                return group.commands.contains(where: addsDeselectingRelation)
+            }
+            guard let addition = command as? AddSketchConstraintCommand else { return false }
+            return addition.sketchID == sketchID && clearsSelectionAfterApplying(addition.constraint)
+        }
+        guard let command, addsDeselectingRelation(command) else { return }
+        clearAppliedRelationSelection()
+    }
+
+    private func clearAppliedRelationSelection() {
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        editingDimension = nil
+    }
+
+    private func clearsSelectionAfterApplying(_ constraint: SketchConstraint) -> Bool {
+        let ordinaryAxisAlignment = (constraint.kind == .horizontal || constraint.kind == .vertical) && constraint.refs.count == 1 &&
+            constraint.refs[0].role == .whole && activeSketch?.entities.contains(where: {
+                if case .line = $0 { return $0.id == constraint.refs[0].entityID }
+                return false
+            }) == true
+        let ordinaryParallelPair = constraint.kind == .parallel && constraint.refs.count == 2 &&
+            constraint.refs.allSatisfy { ref in
+                ref.role == .whole && activeSketch?.entities.contains(where: {
+                    if case .line = $0 { return $0.id == ref.entityID }
+                    return false
+                }) == true
+            }
+        let shapePointPair = constraint.kind == .coincident && constraint.refs.count == 2 &&
+            constraint.refs.allSatisfy { $0.role != .whole } &&
+            constraint.refs.contains { ref in
+                activeSketch?.entities.contains { entity in
+                    if case .line = entity { return entity.id == ref.entityID }
+                    return false
+                } == true
+            } &&
+            constraint.refs.contains { ref in
+                activeSketch?.entities.contains { entity in
+                    guard entity.id == ref.entityID else { return false }
+                    switch entity { case .circle, .rect: return true; default: return false }
+                } == true
+            }
+        return ordinaryAxisAlignment || ordinaryParallelPair || shapePointPair || constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+            constraint.kind == .tangent || constraint.kind == .concentric ||
+            (constraint.kind == .coincident && constraint.refs.count == 2 &&
+             constraint.refs.filter { $0.role == .whole }.count == 1)
+    }
+
+    /// The paired disarmed-circle numeric workflow clears its rim/readout on
+    /// commit and history. Do not apply this to free radial drags or transforms.
+    private func clearCircleNumericSelection(for command: DocumentCommand?) {
+        guard mode.isSketching, mode.sketchTool == nil, !sketchTransformActive,
+              let sketch = activeSketch, let command else { return }
+        func affectsSelectedCircle(_ command: DocumentCommand) -> Bool {
+            if let group = command as? CompositeCommand {
+                return group.commands.contains(where: affectsSelectedCircle)
+            }
+            let dimension: SketchDimension
+            let sketchID: SketchID
+            if let add = command as? AddSketchDimensionCommand {
+                dimension = add.dimension; sketchID = add.sketchID
+            } else if let update = command as? UpdateSketchDimensionCommand {
+                dimension = update.after; sketchID = update.sketchID
+            } else { return false }
+            guard sketchID == sketch.id, dimension.refs.count == 1,
+                  dimension.kind == .radius || dimension.kind == .diameter,
+                  let id = dimension.refs.first?.entityID,
+                  selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains(where: { $0.entityID == id }),
+                  case .circle? = sketchEntity(id, in: sketch) else { return false }
+            return true
+        }
+        if affectsSelectedCircle(command) { clearCircleNumericSelection() }
+    }
+
+    private func clearCircleNumericSelection() {
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        retainedCircleCenterReadoutID = nil
+        editingDimension = nil
     }
 
     /// MUST run BEFORE any history mutation (undo/redo/rollback). An armed
@@ -4930,6 +5151,37 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        cancelSymmetryAxisPick()
+        retainedCircleCenterReadoutID = nil
+        if selectedSketchPoints.count == 1,
+           let point = selectedSketchPoints.first, point.role == .center,
+           let sketch = activeSketch, sketch.rotatedRectangleEdges[point.entityID] != nil,
+           sketch.rectangleSizingAnchors[point.entityID] == nil {
+            selectedSketchPoints.removeAll()
+            selectedSketchEntityIDs.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
+        }
+        // Direct migrated-corner history clears the endpoint/readouts in
+        // native, just as explicit transform history clears its selection.
+        if selectedMigratedRectangleCornerEdges != nil {
+            selectedSketchPoints.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            editingDimension = nil
+        }
+        // Native drops the operation selection/value but keeps Move/Rotate
+        // armed: selecting another sketch entity restores transform controls.
+        if sketchTransformActive {
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            retainedSketchTransform = nil
+            sketchCopyOnDrag = false
+            editingDimension = nil
+        }
+        activeSketchTransformControl = nil
+        clearRectanglePlacement()
         if case .rotatingAroundAxis = mode { cancelRotateAxis() }
     }
 
@@ -4947,6 +5199,11 @@ final class EditorViewModel {
         scaleEntryActive = false
         // Pending sketch state may reference entities that no longer exist.
         pendingArc = nil
+        arcTapStart = nil
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
         adjustingArcBulge = false
         clearChain()
         sketchEntityDrag = nil
@@ -5377,12 +5634,32 @@ final class EditorViewModel {
         // Plain (non-additive) taps drop any sketch-entity selection left
         // over from Select mode, so the orange highlight can't get stuck.
         selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedConstraintID = nil
+        selectedDimensionID = nil
+        editingDimension = nil
 
         if bodyHit == nil, case .faceSelected = mode, let context = toolContext,
            let distance = context.distance, abs(distance) > 1e-4 {
             // Spec §4.1/§18: tapping empty grid commits a nonzero face pull
             // (same rule as profile extrudes); a zero pull cancels below.
             commitTool()
+            return
+        }
+
+        // Outline taps select sketch geometry; profile interiors still start
+        // extrusion. Respect depth so hidden-behind-body sketches cannot steal taps.
+        let imageDepth = imageHit(ray: ray)?.distance
+        let occluderDepth = min(bodyHit?.distance ?? .infinity, imageDepth ?? .infinity)
+        if let hit = SketchHitTester.nearestEntity(
+            along: ray, in: session.document.sketches,
+            tolerance: modelSketchPickTolerance, maximumDepth: occluderDepth
+        ) {
+            cancelTool()
+            selection.removeAll()
+            selectedImageID = nil
+            selectedSketchEntityIDs = [hit.entity.id]
+            mode = .idle
             return
         }
 
@@ -5461,7 +5738,7 @@ final class EditorViewModel {
             return
         }
 
-        // Tapping a construction plane starts (or continues) a sketch on it.
+        // Tapping a construction plane starts a new sketch on it.
         if let hit = PlanePicking.pick(ray: ray, tiles: constructionPlaneTiles) {
             cancelTool()
             selection.removeAll()
@@ -5575,22 +5852,14 @@ final class EditorViewModel {
     /// Select-mode tap fallback: toggle the sketch entity under the ray
     /// (nearest across every visible sketch). Returns false on a miss.
     private func toggleSketchEntityUnderRay(_ ray: Ray) -> Bool {
-        var best: (id: UUID, distance: Double)?
-        for sketch in session.document.sketches where !sketch.isHidden {
-            guard let local = localPoint(of: ray, on: sketch.plane),
-                  let hit = SketchHitTester.nearestEntity(
-                      to: local, in: sketch.entities, tolerance: entityPickTolerance
-                  )
-            else { continue }
-            if best == nil || hit.distance < best!.distance {
-                best = (hit.entity.id, hit.distance)
-            }
-        }
-        guard let best else { return false }
-        if selectedSketchEntityIDs.contains(best.id) {
-            selectedSketchEntityIDs.remove(best.id)
+        guard let hit = SketchHitTester.nearestEntity(
+            along: ray, in: session.document.sketches, tolerance: modelSketchPickTolerance,
+            maximumDepth: imageHit(ray: ray)?.distance ?? .infinity
+        ) else { return false }
+        if selectedSketchEntityIDs.contains(hit.entity.id) {
+            selectedSketchEntityIDs.remove(hit.entity.id)
         } else {
-            selectedSketchEntityIDs.insert(best.id)
+            selectedSketchEntityIDs.insert(hit.entity.id)
         }
         return true
     }
@@ -7514,7 +7783,7 @@ final class EditorViewModel {
             cancelTool()
             return
         }
-        let tolerance = max(0.4, 16 * worldPerPoint)
+        let tolerance = SketchHitTester.screenPickTolerance(worldUnitsPerPoint: worldPerPoint)
         var best: (entity: SketchEntity, plane: SketchPlane, distance: Double)?
         for sketch in session.document.sketches where !sketch.isHidden {
             guard let local = localPoint(of: ray, on: sketch.plane) else { continue }
@@ -7822,8 +8091,119 @@ final class EditorViewModel {
 
     // MARK: - Sketch mode
 
+    private(set) var rectangleType: RectangleType = .diagonal
+    private var rectangleAnchor: SIMD2<Double>?
+    private var rectangleBaseline: (a: SIMD2<Double>, b: SIMD2<Double>)?
+    private var rectangleIDs = (0..<4).map { _ in UUID() }
+    private var rectanglePreview: [SketchEntity] = []
+    private var rectangleBaselineDimension: SketchDimension?
+    var hasPendingRectangle: Bool { rectangleAnchor != nil || rectangleBaseline != nil }
+    var rectangleInstruction: String {
+        if rectangleType == .threePoint {
+            return rectangleBaseline == nil ? "Draw the baseline" : "Draw the perpendicular height"
+        }
+        return rectangleType == .center ? "Draw from center to corner" : "Draw between opposite corners"
+    }
+
+    func setRectangleType(_ type: RectangleType) {
+        clearRectanglePlacement()
+        editingDimension = nil
+        rectangleType = type
+    }
+
+    func clearRectanglePlacement() {
+        rectangleAnchor = nil
+        rectangleBaseline = nil
+        rectangleBaselineDimension = nil
+        rectanglePreview = []
+        rectangleIDs = (0..<4).map { _ in UUID() }
+        if mode.sketchTool == .rect {
+            pendingEntity = nil
+            sketchStrokeStart = nil
+            sketchStrokeStartRaw = nil
+            sketchStrokeCurrent = nil
+            activeSnap = nil
+            activeGuides = []
+            pendingInferredConstraints = []
+        }
+    }
+
+    private func updateRectanglePreview(from start: SIMD2<Double>, to end: SIMD2<Double>) {
+        if let base = rectangleBaseline {
+            rectanglePreview = RectangleConstruction.threePoint(
+                a: base.a, b: base.b, heightPoint: end, ids: rectangleIDs)
+            if rectanglePreview.isEmpty {
+                rectanglePreview = [.line(id: rectangleIDs[0], a: base.a, b: base.b)]
+            }
+        } else {
+            rectanglePreview = [.line(id: rectangleIDs[0], a: start, b: end)]
+        }
+    }
+
+    private func placeThreePointRectangle(from start: SIMD2<Double>, to end: SIMD2<Double>,
+                                          sketchID: SketchID) {
+        guard let base = rectangleBaseline else {
+            guard simd_length(end - start) > 1e-3 else { return }
+            rectangleBaseline = (start, end)
+            rectangleAnchor = nil
+            rectanglePreview = [.line(id: rectangleIDs[0], a: start, b: end)]
+            return
+        }
+        let edges = RectangleConstruction.threePoint(a: base.a, b: base.b,
+                                                    heightPoint: end, ids: rectangleIDs)
+        guard edges.count == 4 else { return }
+        let constraints = RectangleConstruction.constraints(for: edges)
+        guard let before = activeSketch, before.id == sketchID else { return }
+        var after = before
+        after.entities += edges
+        after.constraints += constraints
+        // Persist the ordered rectangle identity without center-sizing intent.
+        // Its center is a control, not a new geometric entity or default Lock.
+        after.rotatedRectangleEdges[edges[0].id] = edges.map(\.id)
+        if let dimension = rectangleBaselineDimension {
+            after.dimensions.append(dimension)
+        }
+        session.perform(ReplaceSketchGeometryCommand(title: "Draw Rectangle", before: before, after: after))
+        clearRectanglePlacement()
+        // Keep the whole completed rectangle selected, exposing its two
+        // adjacent lengths without automatically opening a keypad.
+        selectedSketchEntityIDs = Set(edges.map(\.id))
+        selectedSketchPoints = [.init(entityID: edges[0].id, role: .center)]
+        session.save()
+    }
+
+    private func handleRectangleTap(ray: Ray) {
+        guard case .sketching(let sketchID, _) = mode,
+              let point = sketchPoint(from: ray), let sketch = activeSketch else { return }
+        editingDimension = nil
+        if rectangleType == .threePoint, let base = rectangleBaseline {
+            placeThreePointRectangle(from: base.a, to: point, sketchID: sketchID)
+        } else if let anchor = rectangleAnchor {
+            if rectangleType == .threePoint {
+                placeThreePointRectangle(from: anchor, to: point, sketchID: sketchID)
+            } else if let entity = RectangleConstruction.axisAligned(
+                from: anchor, to: point, centered: rectangleType == .center) {
+                pendingInferredConstraints = []
+                commitDrawnEntity(entity, sketchID: sketchID, in: sketch, rectangleEnd: point)
+                clearRectanglePlacement()
+                selectedSketchEntityIDs = [entity.id]
+                selectedSketchPoints = rectangleType == .center
+                    ? [.init(entityID: entity.id, role: .center)] : []
+            }
+        } else {
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            rectangleAnchor = point
+        }
+    }
+
     /// In-progress entity during a sketch drag (rubber band).
     var pendingEntity: SketchEntity?
+    /// A chained Arc stays armed after its third-point commit. Pointer/Pencil
+    /// hover previews the next chord from the prior endpoint without advancing
+    /// the tap state; the next click still owns endpoint two.
+    private var arcEndpointHoverPreviewActive = false
+    private let arcEndpointPreviewID = UUID()
     private var sketchStrokeStart: SIMD2<Double>?
     /// Where the drag currently is, plane-local. Only the live dimension
     /// readout needs it — a circle's Ø leader swings to follow the finger.
@@ -7835,10 +8215,10 @@ final class EditorViewModel {
 
     /// Named snap under the pointer, ready for the overlay to place: Shapr3D
     /// tells you WHICH snap caught you ("Endpoint") so a near miss is obvious
-    /// before you commit. Nil for the grid, which is always on and would just
-    /// label every stroke.
+    /// before you commit. Grid snaps remain unlabelled to avoid labelling every stroke.
     var activeSnapLabel: (text: String, world: SIMD3<Double>)? {
-        guard let snap = activeSnap, let text = snap.kind.label,
+        guard AppSettings.shared.showSnapHints,
+              let snap = activeSnap, let text = snap.kind.label,
               let plane = activeSketch?.plane else { return nil }
         return (text, plane.toWorld(snap.point))
     }
@@ -7862,6 +8242,10 @@ final class EditorViewModel {
         /// False when the dimension line sits ON the geometry, so the witness
         /// leaders would be zero-length.
         let hasWitnessLines: Bool
+        let isArcRadius: Bool
+        let isPendingRectangleBaseline: Bool
+        let worldArcCenter: SIMD3<Double>?
+        let worldArcPoints: [SIMD3<Double>]
     }
 
     /// Dimensions for the stroke in flight — width/height while dragging a
@@ -7871,21 +8255,31 @@ final class EditorViewModel {
         guard let sketch = activeSketch else { return [] }
         // A pending arc is still being shaped (its bulge is draggable), so it
         // keeps its readout after the initial drag ends.
-        guard let entity = pendingEntity ?? pendingArcEntity else { return [] }
+        let entities = (pendingEntity ?? pendingArcEntity).map { [$0] }
+            ?? Array(rectanglePreview.prefix(2))
         let unit = AppSettings.shared.unit
-        return LiveDimensionKit.dimensions(for: entity, towards: sketchStrokeCurrent)
-            .map { d in
-                LiveDimensionLabel(
-                    id: d.id,
-                    text: LiveDimensionKit.label(d, unit: unit),
+        return entities.enumerated().flatMap { index, entity in
+            LiveDimensionKit.dimensions(for: entity, towards: sketchStrokeCurrent,
+                circleUsesRadius: AppSettings.shared.circularAnnotations == .alwaysRadius).map { d in
+                let pendingBaseline = rectangleType == .threePoint
+                    && rectangleBaseline != nil && rectanglePreview.count == 1
+                return LiveDimensionLabel(
+                    id: rectanglePreview.isEmpty ? d.id : "rectangle-\(index)-\(d.id)",
+                    text: pendingBaseline ? unit.compactLengthString(fromMM: d.value)
+                        : LiveDimensionKit.label(d, unit: unit),
                     worldLineStart: sketch.plane.toWorld(d.lineStart),
                     worldLineEnd: sketch.plane.toWorld(d.lineEnd),
                     worldWitnessStart: sketch.plane.toWorld(d.start),
                     worldWitnessEnd: sketch.plane.toWorld(d.end),
                     worldLabel: sketch.plane.toWorld(d.labelPoint),
                     drawsEdgeTicks: d.kind.drawsEdgeTicks,
-                    hasWitnessLines: simd_length(d.offset) > 1e-9)
+                    hasWitnessLines: simd_length(d.offset) > 1e-9,
+                    isArcRadius: d.kind == .radius && d.arcCenter != nil,
+                    isPendingRectangleBaseline: pendingBaseline,
+                    worldArcCenter: d.arcCenter.map(sketch.plane.toWorld),
+                    worldArcPoints: d.arcPoints.map(sketch.plane.toWorld))
             }
+        }
     }
 
     // MARK: - Auto-constraint / inference (plan §B, spec §3, contract D)
@@ -7894,6 +8288,27 @@ final class EditorViewModel {
     /// UserDefaults (saved on every mutation).
     var autoConstrainSettings = AutoConstraintSettings() {
         didSet { saveAutoConstrainSettings() }
+    }
+
+    /// Point acquisition must not sneak back in through inference when the
+    /// user explicitly disables sketch guidepoints. Other relationships remain independent.
+    private var effectiveAutoConstrainSettings: AutoConstraintSettings {
+        var settings = autoConstrainSettings
+        settings.pointSnap = settings.pointSnap && AppSettings.shared.snapToSketchGuidepoints
+        return settings
+    }
+
+    private func inferSketchInput(tool: SketchTool, anchor: SIMD2<Double>,
+                                  current: SIMD2<Double>, existing: [SketchEntity],
+                                  settings: AutoConstraintSettings) -> AutoConstraintEngine.Result {
+        if tool == .line {
+            return AutoConstraintEngine.inferLineInput(anchor: anchor, current: current,
+                existing: existing, settings: settings,
+                guideLines: AppSettings.shared.snapToSketchGuidelines,
+                guideDistanceTolerance: 4 * worldPerPoint)
+        }
+        return AutoConstraintEngine.infer(tool: tool, anchor: anchor, current: current,
+                                         existing: existing, settings: settings)
     }
 
     /// Presents the auto-constrain settings panel (sheet).
@@ -7928,6 +8343,8 @@ final class EditorViewModel {
         var id: String
         var world: SIMD3<Float>
         var state: SketchPointState
+        var isRectangleCorner = false
+        var isSelected = false
     }
 
     /// Memoized `sketchPointMarkers`, keyed on the document revision and active
@@ -7942,6 +8359,16 @@ final class EditorViewModel {
     /// sketching or no active sketch). Reuses `SketchSolverBridge.pointStates`
     /// (a full solve + null-space eigen decomposition), memoized per document
     /// revision; the overlay reprojects each cached marker on camera moves.
+    private func migratedRectangleEdgeIDs(in sketch: Sketch) -> Set<UUID> {
+        let lineIDs = Set(sketch.entities.compactMap { entity -> UUID? in
+            if case .line = entity { return entity.id }
+            return nil
+        })
+        return Set(sketch.rotatedRectangleEdges.values.filter {
+            $0.count == 4 && Set($0).count == 4 && Set($0).isSubset(of: lineIDs)
+        }.flatMap { $0 })
+    }
+
     var sketchPointMarkers: [SketchPointMarker] {
         let cc = session.changeCount
         guard let sketch = activeSketch else {
@@ -7951,7 +8378,9 @@ final class EditorViewModel {
         if let cache = pointMarkerCache, cache.changeCount == cc, cache.sketchID == sketch.id {
             return cache.markers
         }
-        let states = SketchSolverBridge.pointStates(sketch)
+        let analysis = SketchSolverBridge.pointStateAnalysis(sketch)
+        let states = analysis.points
+        let migratedEdges = migratedRectangleEdgeIDs(in: sketch)
         var out: [SketchPointMarker] = []
         out.reserveCapacity(states.count)
         for (key, state) in states {
@@ -7962,18 +8391,140 @@ final class EditorViewModel {
             out.append(SketchPointMarker(
                 id: "\(key.entityID):\(key.role.rawValue)",
                 world: SIMD3<Float>(Float(w.x), Float(w.y), Float(w.z)),
-                state: state
+                state: state, isRectangleCorner: analysis.rectangleCorners[key.entityID] != nil ||
+                    (migratedEdges.contains(key.entityID) && (key.role == .endpointA || key.role == .endpointB))
             ))
+        }
+        for case let .rect(id, lo, hi) in sketch.entities {
+            guard let corners = analysis.rectangleCorners[id], corners.count == 4 else { continue }
+            for (index, local) in [(1, SIMD2(hi.x, lo.y)), (3, SIMD2(lo.x, hi.y))] {
+                out.append(SketchPointMarker(id: "\(id):corner\(index)",
+                    world: SIMD3<Float>(sketch.plane.toWorld(local)), state: corners[index], isRectangleCorner: true))
+            }
         }
         pointMarkerCache = (cc, sketch.id, out)
         return out
+    }
+
+    /// Rectangle centers are rigid-translation controls, not independent
+    /// solver points. Keep them separate from endpoint constraint markers.
+    static let rectangleCenterLockOffset: CGFloat = 40
+    static let rectangleCenterLockHitSize: CGFloat = 22
+
+    var sketchRectangleCenterLockMarkers: [SketchPointMarker] {
+        let releasedCenter = (mode.sketchTool == .circle ||
+            (mode.sketchTool == .rect && (rectangleType == .center || rectangleType == .threePoint)))
+            && !hasPendingRectangle && pendingEntity == nil
+        guard mode.isSketching, mode.sketchTool == nil || releasedCenter,
+              editingDimension == nil, !sketchTransformActive else { return [] }
+        return (sketchRectangleCenterMarkers + sketchCircleCenterMarkers).filter(\.isSelected)
+    }
+
+    /// Shared projected bounds for direct-touch delivery through the viewport.
+    /// Mouse/accessibility delivery may instead invoke the SwiftUI button.
+    func toggleRectangleCenterLock(at point: CGPoint) -> Bool {
+        let half = Self.rectangleCenterLockHitSize / 2
+        for marker in sketchRectangleCenterLockMarkers {
+            guard let center = cameraControl?.worldToScreenPoint(SIMD3<Double>(marker.world)),
+                  abs(point.x - center.x) <= half,
+                  abs(point.y - center.y - Self.rectangleCenterLockOffset) <= half else { continue }
+            toggleRectangleCenterLock()
+            return true
+        }
+        return false
+    }
+
+    /// Native direct Lock finishes the point selection; direct Unlock leaves
+    /// it selected so the now-free center is immediately available to move.
+    func toggleRectangleCenterLock() {
+        guard !sketchRectangleCenterLockMarkers.isEmpty else { return }
+        // Release may retain the rectangle's edges to show its two sizes.
+        // The direct padlock acts on the selected center, not those edges.
+        let circleID = selectedCircleCenterID
+        selectedSketchEntityIDs.removeAll()
+        let unlocking = canUnlockSketchSelection
+        toggleSketchSelectionLock()
+        if !unlocking && canUnlockSketchSelection {
+            selectedSketchPoints = []
+            selectedSketchEntityIDs = []
+            selectedConstraintID = nil
+            retainedCircleCenterReadoutID = circleID
+        }
+    }
+
+    /// Circle centers remain ordinary solver points. The selected release
+    /// control uses the same local Lock action as a rectangle center.
+    var selectedCircleCenterID: UUID? {
+        guard selectedSketchPoints.count == 1, let point = selectedSketchPoints.first,
+              point.role == .center, let sketch = activeSketch,
+              case .circle? = sketchEntity(point.entityID, in: sketch) else { return nil }
+        return point.entityID
+    }
+
+    var sketchCircleCenterMarkers: [SketchPointMarker] {
+        guard let sketch = activeSketch else { return [] }
+        return sketch.entities.compactMap { entity in
+            guard case let .circle(id, center, _) = entity else { return nil }
+            let state = sketchPointMarkers.first { $0.id == "\(id):center" }?.state ?? .free
+            return SketchPointMarker(id: "\(id):circleCenter",
+                world: SIMD3<Float>(sketch.plane.toWorld(center)), state: state,
+                isSelected: selectedSketchPoints.contains(.init(entityID: id, role: .center)))
+        }
+    }
+
+    var sketchRectangleCenterMarkers: [SketchPointMarker] {
+        guard let sketch = activeSketch else { return [] }
+        return sketch.entities.compactMap { entity in
+            let id = entity.id
+            let center: SIMD2<Double>
+            if case let .rect(_, lo, hi) = entity {
+                center = (lo + hi) / 2
+            } else if let (a, b) = RectangleConstruction.centerDiagonalReferences(id, in: sketch),
+                      let first = localPoint(a, in: sketch), let opposite = localPoint(b, in: sketch) {
+                center = (first + opposite) / 2
+            } else { return nil }
+            let locked = sketch.constraints.contains { constraint in
+                constraint.kind == .fixed && constraint.refs.contains {
+                    $0.entityID == id && ($0.role == .center || ($0.role == .whole && $0.rectangleEdge == nil))
+                }
+            }
+            return SketchPointMarker(id: "\(id):rectangleCenter",
+                world: SIMD3<Float>(sketch.plane.toWorld(center)), state: locked ? .locked : .free,
+                isSelected: selectedSketchPoints.contains(.init(entityID: id, role: .center)))
+        }
+    }
+
+    private func migratedRectangleCenter(at raw: SIMD2<Double>, in sketch: Sketch) -> (UUID, SIMD2<Double>)? {
+        sketch.rotatedRectangleEdges.keys.compactMap { id -> (UUID, SIMD2<Double>)? in
+            guard RectangleConstruction.centerDiagonalReferences(id, in: sketch) != nil,
+                  let center = localPoint(.init(entityID: id, role: .center), in: sketch),
+                  simd_distance(center, raw) <= controlPointTolerance else { return nil }
+            return (id, center)
+        }.min { simd_distance($0.1, raw) < simd_distance($1.1, raw) }
     }
 
     // MARK: - Sketch element selection + drag-editing
 
     /// Selected entities of the active sketch (accent highlight; palette
     /// Delete removes them).
-    var selectedSketchEntityIDs: Set<UUID> = []
+    var retainedCircleCenterReadoutID: UUID?
+    /// Membership remains a Set for fast rendering checks, while this sidecar
+    /// preserves the tap order required by the First/Last anchored-entity
+    /// constraint preference.
+    private(set) var selectedSketchEntityOrder: [UUID] = []
+    var selectedSketchEntityIDs: Set<UUID> = [] {
+        didSet {
+            reconcileSketchSelectionOrder(added: selectedSketchEntityIDs.subtracting(oldValue))
+            retainedCircleCenterReadoutID = nil
+            if oldValue != selectedSketchEntityIDs {
+                retainedSketchTransform = nil
+                temporaryDiameterLabelOffsets.removeAll()
+                if mode.sketchTool != nil { sketchTransformActive = false }
+                sketchRadialDrag = nil
+                selectedAxisRectangleEdge = nil
+            }
+        }
+    }
 
     /// A selected model point (endpoint/center) on a sketch entity, addressed
     /// by the role the constraint solver understands (plan §C3).
@@ -7985,7 +8536,33 @@ final class EditorViewModel {
     /// Points tapped for constraints (endpoints/centers). Independent of
     /// `selectedSketchEntityIDs` so a mixed selection (e.g. a point + a line
     /// for Midpoint) is expressible.
-    var selectedSketchPoints: Set<SketchPointSelection> = []
+    var selectedSketchPoints: Set<SketchPointSelection> = [] {
+        didSet {
+            reconcileSketchSelectionOrder(added: Set(selectedSketchPoints.subtracting(oldValue).map(\.entityID)))
+            retainedCircleCenterReadoutID = nil
+        }
+    }
+
+    private func reconcileSketchSelectionOrder(added: Set<UUID>) {
+        let live = selectedSketchEntityIDs.union(selectedSketchPoints.map(\.entityID))
+        selectedSketchEntityOrder.removeAll { !live.contains($0) }
+        let documentOrder = activeSketch?.entities.map(\.id) ?? []
+        let additions = added.filter { live.contains($0) && !selectedSketchEntityOrder.contains($0) }
+            .sorted {
+                (documentOrder.firstIndex(of: $0) ?? .max) <
+                (documentOrder.firstIndex(of: $1) ?? .max)
+            }
+        selectedSketchEntityOrder.append(contentsOf: additions)
+    }
+
+    /// Deterministic seam for multi-select routes and acceptance tests. Normal
+    /// canvas taps still build the same order incrementally via the observers.
+    func selectSketchEntitiesInOrder(_ ids: [UUID]) {
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedSketchEntityOrder = []
+        for id in ids { selectedSketchEntityIDs.insert(id) }
+    }
 
     /// The constraint glyph currently selected (tap-select in the overlay or the
     /// Items panel). Palette/keyboard Delete removes it. Mutually exclusive with
@@ -8010,6 +8587,7 @@ final class EditorViewModel {
         /// path (plan §C1) as the fixed baseline every frame solves from — and
         /// as the command's undo `before`.
         var baseline: [SketchEntity]
+        var showedBlockedNotice = false
         var pushed = false
         /// Structural DOF from the first solved tick; the constraint system
         /// does not change while dragging, so later ticks pass it back and
@@ -8018,14 +8596,20 @@ final class EditorViewModel {
     }
     private var sketchEntityDrag: SketchEntityDrag?
 
-    /// Screen-space pick tolerances projected onto the sketch plane. Floors
-    /// keep grabs forgiving when the head-on camera is zoomed far in/out.
+    /// Screen-sized acquisition targets at the current camera scale. Only a
+    /// numerical epsilon floor remains; model-unit floors swallow short edges.
     private var worldPerPoint: Double { cameraControl?.worldUnitsPerPoint ?? 0.01 }
+    private var sketchSnapTolerance: Double {
+        SnapEngine.screenPointTolerance(worldUnitsPerPoint: worldPerPoint)
+    }
     private var controlPointTolerance: Double {
-        max(SnapEngine.pointTolerance * 1.2, 24 * worldPerPoint)
+        SketchHitTester.screenControlPointTolerance(worldUnitsPerPoint: worldPerPoint)
+    }
+    private var modelSketchPickTolerance: Double {
+        SketchHitTester.screenPickTolerance(worldUnitsPerPoint: worldPerPoint)
     }
     private var entityPickTolerance: Double {
-        max(0.4, 16 * worldPerPoint)
+        SketchHitTester.screenPickTolerance(worldUnitsPerPoint: worldPerPoint)
     }
 
     // MARK: - Sketch Move/Rotate gizmo (plan §B6, spec §1.10)
@@ -8033,6 +8617,316 @@ final class EditorViewModel {
     /// Copy chip while sketching (spec §1.10): the next gizmo drag
     /// moves/rotates duplicates of the selection. Resets after each drag.
     var sketchCopyOnDrag = false
+    var sketchTransformActive = false {
+        didSet { if !sketchTransformActive { retainedSketchTransform = nil } }
+    }
+
+    private struct RetainedSketchTransform {
+        var control: SketchTransformControl
+        var value: Double
+        var drag: SketchGizmoDrag
+        var result: Sketch
+    }
+    private var retainedSketchTransform: RetainedSketchTransform?
+    private var activeSketchTransformControl: SketchTransformControl?
+    private var activeSketchTransformValue = 0.0
+
+    private var validRetainedSketchTransform: RetainedSketchTransform? {
+        guard sketchTransformActive, let retained = retainedSketchTransform,
+              let sketch = activeSketch, sketch.id == retained.result.id,
+              sketch.entities == retained.result.entities,
+              sketch.constraints == retained.result.constraints,
+              selectedSketchEntityIDs == Set(retained.drag.originals.map(\.id)) else { return nil }
+        return retained
+    }
+
+    func retainedSketchTransformValue(_ control: SketchTransformControl) -> Double? {
+        guard let retained = validRetainedSketchTransform, retained.control == control else { return nil }
+        return retained.value
+    }
+
+    var sketchTransformFrameAngle: Double {
+        if let drag = sketchGizmoDrag, let control = activeSketchTransformControl {
+            return drag.frameAngle + (control == .rotation ? activeSketchTransformValue * .pi / 180 : 0)
+        }
+        guard let retained = validRetainedSketchTransform else { return 0 }
+        return retained.drag.frameAngle + (retained.control == .rotation ? retained.value * .pi / 180 : 0)
+    }
+
+    private func sketchTransformOffset(_ control: SketchTransformControl, value: Double, angle: Double) -> SIMD2<Double> {
+        control == .x ? SIMD2(cos(angle), sin(angle)) * value : SIMD2(-sin(angle), cos(angle)) * value
+    }
+
+    enum SketchTransformControl: String, CaseIterable {
+        case x, y, rotation
+        var title: String { self == .rotation ? "Angle" : (self == .x ? "X" : "Y") }
+    }
+
+    /// The overlay supplies signed plane-axis distance or degrees, independent
+    /// of zoom. Reuse the same baseline, Copy and coalesced history as canvas drags.
+    private var rotationWouldDiscardRectangleReferences: Bool {
+        guard !sketchCopyOnDrag, let sketch = activeSketch else { return false }
+        if selectedSketchEntityIDs.count == 1, let id = selectedSketchEntityIDs.first,
+           RectangleConstruction.prepareCenterRotation(sketch, id: id,
+                edgeIDs: [id, UUID(), UUID(), UUID()]) != nil { return false }
+        let ids = Set(sketch.entities.compactMap { entity -> UUID? in
+            guard selectedSketchEntityIDs.contains(entity.id), case .rect = entity else { return nil }
+            return entity.id
+        })
+        return sketch.constraints.contains { $0.refs.contains { ids.contains($0.entityID) } }
+            || sketch.dimensions.contains { $0.refs.contains { ids.contains($0.entityID) } }
+    }
+
+    func updateSketchTransformControl(_ control: SketchTransformControl, value: Double) {
+        guard value.isFinite, sketchTransformActive, let center = sketchSelectionCentroid else { return }
+        if control == .rotation, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return
+        }
+        if sketchGizmoDrag == nil {
+            if let retained = validRetainedSketchTransform, retained.control == control, !sketchCopyOnDrag {
+                var resumed = retained.drag
+                resumed.pushed = false
+                resumed.undoEntities = activeSketch?.entities
+                if resumed.replacementBefore != nil { resumed.replacementBefore = activeSketch }
+                sketchGizmoDrag = resumed
+            } else {
+                let frameAngle = sketchTransformFrameAngle
+                retainedSketchTransform = nil
+                let grab = control == .rotation ? center + SIMD2(1, 0) : center
+                guard beginSketchGizmoDrag(at: grab, forcedKind: control == .rotation ? .rotate : .move) else { return }
+                // Starting a different local-axis operation keeps the accepted
+                // frame and pivot rather than recomputing the new geometry bounds.
+                sketchGizmoDrag?.frameAngle = frameAngle
+                sketchGizmoDrag?.pivot = center
+            }
+        }
+        activeSketchTransformControl = control
+        activeSketchTransformValue = value
+        guard let drag = sketchGizmoDrag else { return }
+        let raw: SIMD2<Double>
+        switch control {
+        case .x, .y:
+            raw = drag.grabPoint + sketchTransformOffset(control, value: value, angle: drag.frameAngle)
+        case .rotation:
+            let angle = value * .pi / 180
+            raw = drag.pivot + SIMD2(cos(angle), sin(angle))
+        }
+        updateSketchGizmoDrag(raw: raw, quantize: false)
+    }
+
+    func endSketchTransformControl() {
+        guard let drag = sketchGizmoDrag else { return }
+        sketchGizmoDrag = nil
+        if drag.pushed {
+            session.rebuildForSketchChange(drag.sketchID)
+            session.save()
+            if let control = activeSketchTransformControl, let result = activeSketch,
+               drag.originals.allSatisfy({
+                   switch $0 { case .line, .circle, .arc: return true; default: return false }
+               }) {
+                retainedSketchTransform = RetainedSketchTransform(control: control,
+                    value: activeSketchTransformValue, drag: drag, result: result)
+            }
+        }
+        activeSketchTransformControl = nil
+    }
+
+    @discardableResult
+    func commitSketchTransformControl(_ control: SketchTransformControl, text: String) -> Bool {
+        if control == .rotation, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return false
+        }
+        guard let parsed = ExpressionEvaluator.evaluate(text, variables: session.variableValues()), parsed.isFinite else {
+            showNotice("Enter a valid distance or angle.")
+            return false
+        }
+        let suffix = NumericKeypad.trailingUnit(in: text)
+        guard control == .rotation ? (suffix == nil || suffix == "deg") : suffix != "deg" else {
+            showNotice("Use an angle for rotation or a length for movement.")
+            return false
+        }
+        let value = control == .rotation ? parsed :
+            (Self.lengthUnit(forSuffix: suffix) ?? AppSettings.shared.unit).mm(fromDisplay: parsed)
+        if abs(value) > 1e-10 || retainedSketchTransformValue(control) != nil { updateSketchTransformControl(control, value: value) }
+        endSketchTransformControl()
+        return true
+    }
+
+    var selectedSingleRadialEntity: SketchEntity? {
+        guard mode.isSketching, mode.sketchTool == nil,
+              selectedSketchEntityIDs.count == 1,
+              let entity = activeSketch?.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }) else { return nil }
+        switch entity {
+        case .arc, .circle: return entity
+        default: return nil
+        }
+    }
+
+    var selectedAxisRectangleEdge: (id: UUID, index: Int)?
+
+    var rectangleHandleGeometry: (a: SIMD2<Double>, b: SIMD2<Double>, normal: SIMD2<Double>)? {
+        guard mode.isSketching, mode.sketchTool == nil, selectedSketchPoints.isEmpty,
+              let sketch = activeSketch else { return nil }
+        if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+           let entity = sketch.entities.first(where: { $0.id == pick.id }) {
+            return RectangleConstruction.axisEdge(entity, index: pick.index)
+        }
+        guard let edge = selectedRectangleEdge, case let .line(_, a, b) = edge,
+              let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch),
+              let index = loop.firstIndex(of: edge.id),
+              let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
+              case let .line(_, c, d) = opposite else { return nil }
+        return (a, b, simd_normalize((a + b - c - d) / 2))
+    }
+
+    var selectedRectangleEdge: SketchEntity? {
+        guard mode.isSketching, mode.sketchTool == nil,
+              selectedSketchEntityIDs.count == 1, let sketch = activeSketch,
+              let entity = sketch.entities.first(where: { selectedSketchEntityIDs.contains($0.id) }),
+              case .line = entity,
+              RectangleConstruction.dimensionEdges(containing: entity.id, in: sketch) != nil
+        else { return nil }
+        return entity
+    }
+
+    var hasContextualSketchHandle: Bool {
+        selectedSingleRadialEntity != nil || rectangleHandleGeometry != nil
+    }
+
+    /// Native single-line selection exposes its dimension, not the transform
+    /// gizmo. Keep direct body/endpoint dragging; Move/Rotate or Copy opts in.
+    var usesExplicitSketchTransform: Bool {
+        if hasContextualSketchHandle || selectedMigratedRectangleCornerEdges != nil { return true }
+        if selectedSketchPoints.isEmpty, let sketch = activeSketch,
+           sketch.rotatedRectangleEdges.values.contains(where: { Set($0) == selectedSketchEntityIDs }) {
+            return true
+        }
+        guard selectedSketchEntityIDs.count == 1, selectedSketchPoints.isEmpty,
+              let entity = selectedSketchEntities.first else { return false }
+        if case .line = entity { return true }
+        if case .rect = entity { return true }
+        return false
+    }
+
+    private struct RectangleEdgeDrag {
+        var sketch: Sketch
+        var edge: SketchEntity
+        var oppositeID: UUID
+        var axisEdge: Int? = nil
+        var normal: SIMD2<Double>
+        var pushed = false
+        var showedBlockedNotice = false
+    }
+    private var rectangleEdgeDrag: RectangleEdgeDrag?
+
+    func updateRectangleEdgeDrag(delta: Double) {
+        if rectangleEdgeDrag == nil, let pick = selectedAxisRectangleEdge,
+           let sketch = activeSketch, let edge = sketch.entities.first(where: { $0.id == pick.id }),
+           let geometry = rectangleHandleGeometry {
+            rectangleEdgeDrag = .init(sketch: sketch, edge: edge, oppositeID: edge.id,
+                                      axisEdge: pick.index, normal: geometry.normal)
+        }
+        if rectangleEdgeDrag == nil {
+            guard let sketch = activeSketch, let edge = selectedRectangleEdge,
+                  case let .line(_, a, b) = edge,
+                  let loop = RectangleConstruction.dimensionEdges(containing: edge.id, in: sketch),
+                  let index = loop.firstIndex(of: edge.id),
+                  let opposite = sketch.entities.first(where: { $0.id == loop[(index + 2) % 4] }),
+                  case let .line(_, c, d) = opposite else { return }
+            var normal = simd_normalize(SIMD2(-(b - a).y, (b - a).x))
+            if simd_dot((a + b - c - d) / 2, normal) < 0 { normal = -normal }
+            rectangleEdgeDrag = .init(sketch: sketch, edge: edge, oppositeID: opposite.id, normal: normal)
+        }
+        guard var drag = rectangleEdgeDrag else { return }
+        let targets = SketchTransform.translate(entities: [drag.edge], by: drag.normal * delta)
+        let outcome: [SketchEntity]?
+        if let edge = drag.axisEdge {
+            outcome = SketchSolverBridge.solveAxisRectangleEdge(drag.sketch, id: drag.edge.id, edge: edge, delta: delta)
+        } else {
+            outcome = SketchSolverBridge.solveLineTransform(drag.sketch, targets: targets,
+                preservingLineID: drag.oppositeID)
+        }
+        guard let solved = outcome else {
+            if !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true; rectangleEdgeDrag = drag
+            }
+            return
+        }
+        if solved == drag.sketch.entities, abs(delta) > 1e-6, !drag.showedBlockedNotice {
+            showNotice("Locked or constrained sketch parts can't be moved.")
+            drag.showedBlockedNotice = true
+        }
+        if solved != drag.sketch.entities || drag.pushed {
+            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketch.id,
+                before: drag.sketch.entities, after: solved)
+            if drag.pushed { session.amend(command) }
+            else { session.perform(command); drag.pushed = true }
+        }
+        rectangleEdgeDrag = drag
+    }
+
+    func endRectangleEdgeDrag() {
+        if let drag = rectangleEdgeDrag, drag.pushed {
+            session.rebuildForSketchChange(drag.sketch.id)
+            session.save()
+        }
+        rectangleEdgeDrag = nil
+    }
+
+    var selectedSingleArc: SketchEntity? {
+        guard case .arc? = selectedSingleRadialEntity else { return nil }
+        return selectedSingleRadialEntity
+    }
+
+    private struct SketchRadialDragState {
+        var sketch: Sketch
+        var entityID: UUID
+        var radius: Double
+        var pushed = false
+        var showedBlockedNotice = false
+    }
+    private var sketchRadialDrag: SketchRadialDragState?
+
+    func updateRadialRadiusDrag(delta: Double) {
+        if sketchRadialDrag == nil {
+            guard let sketch = activeSketch, let entity = selectedSingleRadialEntity else { return }
+            let radius: Double
+            switch entity {
+            case let .arc(_, _, r, _, _), let .circle(_, _, r): radius = r
+            default: return
+            }
+            editingDimension = nil
+            sketchRadialDrag = .init(sketch: sketch, entityID: entity.id, radius: radius)
+        }
+        guard var drag = sketchRadialDrag else { return }
+        guard let entities = SketchRadialDrag.solve(drag.sketch, entityID: drag.entityID,
+                  radius: max(1e-3 + 1e-8, drag.radius + delta)) else {
+            if !drag.showedBlockedNotice, abs(delta) > 1e-6 {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchRadialDrag = drag
+            }
+            return
+        }
+        guard entities != drag.sketch.entities || drag.pushed else { return }
+        let command = UpdateSketchEntitiesCommand(sketchID: drag.sketch.id,
+            before: drag.sketch.entities, after: entities)
+        if drag.pushed { session.amend(command) }
+        else { session.perform(command); drag.pushed = true }
+        sketchRadialDrag = drag
+    }
+
+    func endRadialRadiusDrag() {
+        if let drag = sketchRadialDrag, drag.pushed {
+            session.rebuildForSketchChange(drag.sketch.id)
+            session.save()
+        }
+        sketchRadialDrag = nil
+    }
+
 
     private enum SketchGizmoDragKind { case move, rotate }
 
@@ -8044,24 +8938,59 @@ final class EditorViewModel {
         var sketchID: SketchID
         /// Entities when the drag began (transform baseline).
         var originals: [SketchEntity]
+        var baselineSketch: Sketch
         var pivot: SIMD2<Double>
         var grabPoint: SIMD2<Double>
         var pushed = false
+        var showedBlockedNotice = false
+        var undoEntities: [SketchEntity]?
+        var replacementBefore: Sketch?
+        var directRectangleCorner = false
+        var frameAngle = 0.0
     }
     private var sketchGizmoDrag: SketchGizmoDrag?
 
     /// Gizmo dimensions in plane units (floored for constant screen size).
-    private var sketchGizmoHandleRadius: Double { max(0.4, 22 * worldPerPoint) }
+    private var sketchGizmoHandleRadius: Double { sketchTransformActive ? 22 * worldPerPoint : max(0.4, 22 * worldPerPoint) }
     private var sketchGizmoRingRadius: Double { max(1.4, 64 * worldPerPoint) }
     private var sketchGizmoRingWidth: Double { max(0.35, 16 * worldPerPoint) }
 
     /// Centroid of the selected sketch entities (gizmo anchor), plane-local.
     var sketchSelectionCentroid: SIMD2<Double>? {
+        if let drag = sketchGizmoDrag, let control = activeSketchTransformControl {
+            return control == .rotation ? drag.pivot : drag.pivot + sketchTransformOffset(control,
+                value: activeSketchTransformValue, angle: drag.frameAngle)
+        }
+        if let retained = validRetainedSketchTransform {
+            return retained.control == .rotation ? retained.drag.pivot : retained.drag.pivot + sketchTransformOffset(retained.control,
+                value: retained.value, angle: retained.drag.frameAngle)
+        }
         guard let sketch = activeSketch else { return nil }
         let selected = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !selected.isEmpty else { return nil }
+        if sketchTransformActive, selected.count == 1 {
+            return Self.explicitSketchTransformCenter(selected[0])
+        }
         let sum = selected.reduce(SIMD2<Double>.zero) { $0 + Self.entityCenter($1) }
         return sum / Double(selected.count)
+    }
+
+    /// Native's initial single-arc transform pivot is the visible arc bounds,
+    /// not the center of its supporting circle. Include cardinal extrema so
+    /// short/major arcs and angle seams do not depend on tessellation density.
+    nonisolated static func explicitSketchTransformCenter(_ entity: SketchEntity) -> SIMD2<Double> {
+        guard case let .arc(_, center, radius, start, end) = entity else { return entityCenter(entity) }
+        let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+        var angles = [start, end]
+        for cardinal in [0.0, Double.pi / 2, Double.pi, 3 * Double.pi / 2] {
+            var offset = (cardinal - start).truncatingRemainder(dividingBy: 2 * .pi)
+            if offset < 0 { offset += 2 * .pi }
+            if offset <= sweep + 1e-10 { angles.append(cardinal) }
+        }
+        let points = angles.map { SketchEntity.arcPoint(center: center, radius: radius, angle: $0) }
+        let lo = points.reduce(points[0]) { simd_min($0, $1) }
+        let hi = points.reduce(points[0]) { simd_max($0, $1) }
+        return (lo + hi) / 2
     }
 
     nonisolated static func entityCenter(_ entity: SketchEntity) -> SIMD2<Double> {
@@ -8083,6 +9012,7 @@ final class EditorViewModel {
     private func sketchGizmoSegments(
         centroid: SIMD2<Double>, plane: SketchPlane
     ) -> [SIMD3<Float>] {
+        guard !isPickingSymmetryAxis else { return [] }
         func world(_ p: SIMD2<Double>) -> SIMD3<Float> {
             let w = plane.toWorld(p)
             return SIMD3(Float(w.x), Float(w.y), Float(w.z))
@@ -8111,7 +9041,8 @@ final class EditorViewModel {
 
     /// A drag starting on the selection gizmo claims the stroke: the center
     /// handle translates, the ring rotates. Copy chip duplicates first.
-    private func beginSketchGizmoDrag(at raw: SIMD2<Double>) -> Bool {
+    private func beginSketchGizmoDrag(at raw: SIMD2<Double>, forcedKind: SketchGizmoDragKind? = nil) -> Bool {
+        guard !usesExplicitSketchTransform || sketchTransformActive else { return false }
         guard case .sketching(let sketchID, _) = mode,
               !selectedSketchEntityIDs.isEmpty,
               let centroid = sketchSelectionCentroid,
@@ -8119,9 +9050,11 @@ final class EditorViewModel {
         else { return false }
         let distance = simd_length(raw - centroid)
         let kind: SketchGizmoDragKind
-        if distance <= sketchGizmoHandleRadius {
+        if let forcedKind {
+            kind = forcedKind
+        } else if distance <= sketchGizmoHandleRadius {
             kind = .move
-        } else if abs(distance - sketchGizmoRingRadius) <= sketchGizmoRingWidth {
+        } else if !sketchTransformActive, abs(distance - sketchGizmoRingRadius) <= sketchGizmoRingWidth {
             kind = .rotate
         } else {
             return false
@@ -8129,10 +9062,36 @@ final class EditorViewModel {
         var entities = sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
         guard !entities.isEmpty else { return false }
 
+        if kind == .rotate, !sketchCopyOnDrag, entities.count == 1,
+           let id = entities.first?.id,
+           let prepared = RectangleConstruction.prepareCenterRotation(sketch, id: id,
+                edgeIDs: [id, UUID(), UUID(), UUID()]),
+           let edges = RectangleConstruction.dimensionEdges(containing: id, in: prepared) {
+            sketchGizmoDrag = SketchGizmoDrag(kind: kind, sketchID: sketchID,
+                originals: prepared.entities.filter { edges.contains($0.id) },
+                baselineSketch: prepared, pivot: centroid, grabPoint: raw,
+                replacementBefore: sketch)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
+
+        // Decomposition currently removes the primitive and its references.
+        // Consume the gesture without changing history until rotation can
+        // migrate those references, rather than silently losing saved intent.
+        if kind == .rotate, rotationWouldDiscardRectangleReferences {
+            showNotice("Rotation of dimensioned or constrained rectangles isn't supported yet.")
+            return true
+        }
+
         // Copy chip: duplicate first; the drag then moves the copies.
         if sketchCopyOnDrag {
             sketchCopyOnDrag = false
+            let retainTransformMode = sketchTransformActive
             entities = duplicateSketchEntities(entities, in: sketchID)
+            // The copied IDs are a continuation of this explicit operation,
+            // not a new canvas selection that should dismiss Move/Rotate.
+            sketchTransformActive = retainTransformMode
         }
 
         // Rotation decomposes rects into 4 lines once, up front, so every
@@ -8149,6 +9108,7 @@ final class EditorViewModel {
             kind: kind,
             sketchID: sketchID,
             originals: entities,
+            baselineSketch: activeSketch ?? sketch,
             pivot: centroid,
             grabPoint: raw
         )
@@ -8159,18 +9119,57 @@ final class EditorViewModel {
 
     /// Clone `entities` with fresh IDs in one undo step; the copies become
     /// the selection and the drag baseline.
-    private func duplicateSketchEntities(
+    func duplicateSketchEntities(
         _ entities: [SketchEntity], in sketchID: SketchID
     ) -> [SketchEntity] {
         var copies: [SketchEntity] = []
+        var sourceIDs: [UUID: UUID] = [:]
         var commands: [DocumentCommand] = []
         for entity in entities {
             for copy in PatternKit.transformed(entity, by: .identity) {
                 copies.append(copy)
+                sourceIDs[copy.id] = entity.id
                 commands.append(AddSketchEntityCommand(sketchID: sketchID, entity: copy))
             }
         }
         guard !commands.isEmpty else { return entities }
+        // Copies initially overlap their sources. Prevent the solver's proximity
+        // weld from moving originals along with them, including after undo/reopen.
+        // Preserve coincident joins *within* the copied line group explicitly.
+        if let sketch = activeSketch {
+            var slots: [(ConstraintRef, SIMD2<Double>)] = []
+            for copy in copies {
+                if case let .line(id, a, b) = copy {
+                    slots.append((.init(entityID: id, role: .endpointA), a))
+                    slots.append((.init(entityID: id, role: .endpointB), b))
+                }
+            }
+            if !slots.isEmpty {
+                var constraints = sketch.constraints
+                for i in slots.indices {
+                    for j in slots.indices where j > i {
+                        if slots[i].0.entityID != slots[j].0.entityID,
+                           simd_distance(slots[i].1, slots[j].1) < 1e-6 {
+                            guard let firstID = sourceIDs[slots[i].0.entityID],
+                                  let secondID = sourceIDs[slots[j].0.entityID] else { continue }
+                            let first = ConstraintRef(entityID: firstID, role: slots[i].0.role)
+                            let second = ConstraintRef(entityID: secondID, role: slots[j].0.role)
+                            let explicitlyJoined = sketch.constraints.contains {
+                                $0.kind == .coincident && $0.refs.contains(first) && $0.refs.contains(second)
+                            }
+                            guard explicitlyJoined || (!sketch.disconnectedEndpoints.contains(first)
+                                && !sketch.disconnectedEndpoints.contains(second)) else { continue }
+                            constraints.append(.init(kind: .coincident,
+                                refs: [slots[i].0, slots[j].0]))
+                        }
+                    }
+                }
+                commands.append(DisconnectSketchEndpointsCommand(sketchID: sketchID,
+                    beforeConstraints: sketch.constraints, afterConstraints: constraints,
+                    beforeEndpoints: sketch.disconnectedEndpoints,
+                    afterEndpoints: sketch.disconnectedEndpoints + slots.map { $0.0 }))
+            }
+        }
         session.perform(commands.count == 1
             ? commands[0]
             : CompositeCommand(title: "Copy", commands: commands))
@@ -8211,7 +9210,7 @@ final class EditorViewModel {
         return result
     }
 
-    private func updateSketchGizmoDrag(raw: SIMD2<Double>) {
+    private func updateSketchGizmoDrag(raw: SIMD2<Double>, quantize: Bool = true) {
         guard var drag = sketchGizmoDrag else { return }
         let after: [SketchEntity]
         switch drag.kind {
@@ -8222,8 +9221,8 @@ final class EditorViewModel {
                 (delta.x / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing,
                 (delta.y / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing
             )
-            if abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
-            if abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
+            if quantize, AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
+            if quantize, AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
             after = SketchTransform.translate(entities: drag.originals, by: delta)
         case .rotate:
             // 5° steps while dragging (matches the body rings).
@@ -8231,13 +9230,56 @@ final class EditorViewModel {
                 drag.grabPoint.y - drag.pivot.y, drag.grabPoint.x - drag.pivot.x
             )
             let currentAngle = atan2(raw.y - drag.pivot.y, raw.x - drag.pivot.x)
-            let degrees = ((currentAngle - anchorAngle) * 180 / .pi / 5).rounded() * 5
+            let rawDegrees = (currentAngle - anchorAngle) * 180 / .pi
+            let degrees = quantize && !drag.directRectangleCorner ? (rawDegrees / 5).rounded() * 5 : rawDegrees
             after = SketchTransform.rotate(
                 entities: drag.originals, about: drag.pivot, angle: degrees * .pi / 180
             )
         }
         // Rects were pre-decomposed, so the mapping is always one-to-one.
         guard after.count == drag.originals.count else { return }
+        if drag.originals.allSatisfy({
+            switch $0 { case .line, .circle, .arc: return true; default: return false }
+        }) {
+            guard let solved = SketchSolverBridge.solvePointTransform(drag.baselineSketch, targets: after)
+            else {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                return
+            }
+            if solved == drag.baselineSketch.entities, after != drag.originals,
+               !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchGizmoDrag = drag
+            }
+            // A circle rotated about its center has unchanged geometry, but
+            // native retains the rotated operation frame and an Undo step.
+            // Record that accepted operation without perturbing its center,
+            // radius, or constraints just to force a geometric difference.
+            let circleFrameOnly = activeSketchTransformControl == .rotation
+                && drag.originals.count == 1
+                && drag.originals.allSatisfy { if case .circle = $0 { return true }; return false }
+                && after == drag.originals
+                && retainedSketchTransform?.value != activeSketchTransformValue
+            guard solved != (drag.undoEntities ?? drag.baselineSketch.entities) || drag.pushed || circleFrameOnly else { return }
+            let command: DocumentCommand
+            if let before = drag.replacementBefore {
+                var migrated = drag.baselineSketch
+                migrated.entities = solved
+                command = ReplaceSketchGeometryCommand(title: "Rotate", before: before, after: migrated)
+            } else {
+                command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
+                    before: drag.undoEntities ?? drag.baselineSketch.entities, after: solved)
+            }
+            if drag.pushed { session.amend(command) }
+            else {
+                session.perform(command)
+                drag.pushed = true
+                if drag.replacementBefore != nil { selectedSketchEntityIDs = Set(drag.originals.map(\.id)) }
+                sketchGizmoDrag = drag
+            }
+            return
+        }
         guard after != drag.originals || drag.pushed else { return }
         let updates: [DocumentCommand] = zip(drag.originals, after).map {
             UpdateSketchEntityCommand(sketchID: drag.sketchID, before: $0.0, after: $0.1)
@@ -8260,6 +9302,25 @@ final class EditorViewModel {
     /// entities to offset; other tools toggle entity selection, or finalize/
     /// clear pending state on empty space.
     private func handleSketchTap(ray: Ray, tool: SketchTool?) {
+        if isPickingSymmetryAxis {
+            if let raw = rawSketchPoint(from: ray), let sketch = activeSketch,
+               let hit = SketchHitTester.nearestEntity(to: raw, in: sketch.entities.filter {
+                   if case .line = $0 { return true }; return false
+               }, tolerance: entityPickTolerance) {
+                completeSymmetryAxisPick(hit.entity.id)
+            }
+            return
+        }
+        // Native click-away accepts the value; the same tap must not also
+        // place a point or trim geometry underneath the editor.
+        if editingDimension != nil {
+            finishDimensionEditOnClickAway()
+            return
+        }
+        if tool == .rect {
+            handleRectangleTap(ray: ray)
+            return
+        }
         if tool == .trim {
             performTrim(ray: ray)
             return
@@ -8290,10 +9351,36 @@ final class EditorViewModel {
             placePendingSymbol(ray: ray)
             return
         }
-        if pendingArc != nil {
-            // Tap elsewhere finalizes the bulge-adjustable pending arc.
+        if tool == .arc, pendingArc == nil {
+            guard let raw = rawSketchPoint(from: ray) else { return }
+            let point = SnapEngine.snap(raw, in: activeSketch,
+                faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions,
+                tolerance: sketchSnapTolerance).point
             clearChain()
-            commitPendingArc()
+            if let start = arcTapStart {
+                guard simd_length(point - start) > 1e-6 else { return }
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+                pendingArc = PendingArc(a: start, b: point,
+                    sagitta: Self.defaultSagitta(a: start, b: point))
+                arcTapStart = nil
+            } else {
+                arcTapStart = point
+                selectedSketchEntityIDs.removeAll()
+                selectedSketchPoints.removeAll()
+            }
+            return
+        }
+        if pendingArc != nil {
+            // Pointer/Pencil hover normally establishes the third-point shape.
+            // A touch-only device has no hover, so the committing tap must also
+            // apply its location before finalizing the arc.
+            if var arc = pendingArc, let raw = rawSketchPoint(from: ray) {
+                arc.sagitta = Self.clampedSagitta(Self.signedSagitta(of: raw, arc: arc), arc: arc)
+                pendingArc = arc
+            }
+            clearChain()
+            commitPendingArc(chain: true)
             return
         }
         // Line tool: taps place polyline vertices (extend the chain / close the
@@ -8321,11 +9408,30 @@ final class EditorViewModel {
     private func selectSketchGeometryTap(
         at raw: SIMD2<Double>, in sketch: Sketch
     ) -> Bool {
+        editingDimension = nil
         // Tapping geometry clears any constraint/dimension glyph selection.
         selectedConstraintID = nil
         selectedDimensionID = nil
+        if let (id, _) = migratedRectangleCenter(at: raw, in: sketch) {
+            let point = SketchPointSelection(entityID: id, role: .center)
+            let wasSelected = selectedSketchPoints == [point]
+            selectedSketchEntityIDs = []
+            selectedSketchPoints = wasSelected ? [] : [point]
+            return true
+        }
+        if let control = SketchHitTester.nearestControlPoint(
+            to: raw, in: sketch.entities, tolerance: controlPointTolerance),
+           control.kind == .center, case .rect = control.entity {
+            let point = SketchPointSelection(entityID: control.entity.id, role: .center)
+            let wasSelected = selectedSketchPoints == [point]
+            selectedSketchEntityIDs.removeAll()
+            selectedAxisRectangleEdge = nil
+            selectedSketchPoints = wasSelected ? [] : [point]
+            return true
+        }
         if let pt = SketchHitTester.nearestPoint(
-            to: raw, in: sketch.entities, tolerance: controlPointTolerance
+            to: raw, in: sketch.entities, tolerance: controlPointTolerance,
+            preservingLineInterior: true
         ) {
             let sel = SketchPointSelection(entityID: pt.entityID, role: pt.role)
             if selectedSketchPoints.contains(sel) {
@@ -8338,7 +9444,18 @@ final class EditorViewModel {
         if let hit = SketchHitTester.nearestEntity(
             to: raw, in: sketch.entities, tolerance: entityPickTolerance
         ) {
-            if selectedSketchEntityIDs.contains(hit.entity.id) {
+            if case .rect = hit.entity,
+               let index = RectangleConstruction.nearestAxisEdge(hit.entity, to: raw) {
+                selectedSketchPoints.remove(SketchPointSelection(entityID: hit.entity.id, role: .center))
+                if selectedSketchEntityIDs.contains(hit.entity.id),
+                   selectedAxisRectangleEdge?.id == hit.entity.id,
+                   selectedAxisRectangleEdge?.index == index {
+                    selectedSketchEntityIDs.remove(hit.entity.id)
+                } else {
+                    selectedSketchEntityIDs.insert(hit.entity.id)
+                    selectedAxisRectangleEdge = (hit.entity.id, index)
+                }
+            } else if selectedSketchEntityIDs.contains(hit.entity.id) {
                 selectedSketchEntityIDs.remove(hit.entity.id)
             } else {
                 selectedSketchEntityIDs.insert(hit.entity.id)
@@ -8712,15 +9829,80 @@ final class EditorViewModel {
     /// points (endpoints/centers/handles) win, then the entity body
     /// (translate). Selects the grabbed entity.
     private func beginSketchEntityDrag(at raw: SIMD2<Double>, in sketch: Sketch) -> Bool {
-        let control = SketchHitTester.nearestControlPoint(
+        if let (id, center) = migratedRectangleCenter(at: raw, in: sketch),
+           let edges = RectangleConstruction.dimensionEdges(containing: id, in: sketch) {
+            selectedSketchEntityIDs = []
+            selectedSketchPoints = [.init(entityID: id, role: .center)]
+            sketchGizmoDrag = SketchGizmoDrag(kind: .move, sketchID: sketch.id,
+                originals: sketch.entities.filter { edges.contains($0.id) }, baselineSketch: sketch,
+                pivot: center, grabPoint: raw)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
+        // Coincident centers have equal hit distances. Keep the explicitly
+        // selected circle as the drag target instead of choosing entity order.
+        let selectedCenterControl: SketchHitTester.ControlHit? = {
+            guard let id = selectedCircleCenterID,
+                  let entity = sketchEntity(id, in: sketch),
+                  case let .circle(_, center, _) = entity,
+                  simd_distance(raw, center) <= controlPointTolerance else { return nil }
+            return .init(entity: entity, kind: .center, point: center,
+                         distance: simd_distance(raw, center))
+        }()
+        let control = selectedCenterControl ?? SketchHitTester.nearestControlPoint(
             to: raw, in: sketch.entities, tolerance: controlPointTolerance
         )
         let body = control == nil ? SketchHitTester.nearestEntity(
             to: raw, in: sketch.entities, tolerance: entityPickTolerance
         ) : nil
         guard let entity = control?.entity ?? body?.entity else { return false }
-        if !selectedSketchEntityIDs.contains(entity.id) {
+        if case .rectCorner? = control?.kind,
+           sketch.constraints.contains(where: { $0.kind == .fixed && $0.refs == [.init(entityID: entity.id, role: .center)] }),
+           Set(sketch.dimensions.filter { $0.refs.contains(where: { $0.entityID == entity.id }) }.map(\.kind)) == [.horizontal, .vertical],
+           let prepared = RectangleConstruction.prepareCenterRotation(sketch, id: entity.id,
+                edgeIDs: [entity.id, UUID(), UUID(), UUID()]),
+           let edges = RectangleConstruction.dimensionEdges(containing: entity.id, in: prepared) {
+            selectedSketchPoints = []
             selectedSketchEntityIDs = [entity.id]
+            sketchGizmoDrag = SketchGizmoDrag(kind: .rotate, sketchID: sketch.id,
+                originals: prepared.entities.filter { edges.contains($0.id) }, baselineSketch: prepared,
+                pivot: Self.entityCenter(entity), grabPoint: raw,
+                replacementBefore: sketch, directRectangleCorner: true)
+            sketchStrokeStart = nil
+            pendingEntity = nil
+            return true
+        }
+        if (control?.kind == .lineStart || control?.kind == .lineEnd),
+           (sketch.rotatedRectangleEdges.values.contains(where: { $0.contains(entity.id) })
+            || selectedSketchPoints.contains(.init(entityID: entity.id,
+                role: control?.kind == .lineStart ? .endpointA : .endpointB))) {
+            // Keep the grabbed endpoint, not its entire edge, selected.
+            // This also applies to a directly selected ordinary endpoint after
+            // Disconnect. Adding its parent creates a false zero-distance label.
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints = [.init(entityID: entity.id,
+                role: control?.kind == .lineStart ? .endpointA : .endpointB)]
+        } else if mode.sketchTool == nil, control?.kind == .center, case .circle = entity,
+                  selectedSketchPoints.contains(.init(entityID: entity.id, role: .center)) {
+            // A disarmed selected center remains point-only while translating.
+            // Armed Circle retains its creation readout during center movement.
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints = [.init(entityID: entity.id, role: .center)]
+        } else if control?.kind == .center, case .rect = entity {
+            selectedSketchEntityIDs.removeAll()
+            selectedAxisRectangleEdge = nil
+            selectedSketchPoints = [.init(entityID: entity.id, role: .center)]
+        } else {
+            if case .rect = entity {
+                selectedSketchPoints.remove(.init(entityID: entity.id, role: .center))
+                if let index = RectangleConstruction.nearestAxisEdge(entity, to: raw) {
+                    selectedAxisRectangleEdge = (entity.id, index)
+                }
+            }
+            if !selectedSketchEntityIDs.contains(entity.id) {
+                selectedSketchEntityIDs = [entity.id]
+            }
         }
         sketchEntityDrag = SketchEntityDrag(
             sketchID: sketch.id,
@@ -8736,6 +9918,32 @@ final class EditorViewModel {
 
     private func updateSketchEntityDrag(raw: SIMD2<Double>) {
         guard var drag = sketchEntityDrag, let sketch = activeSketch else { return }
+
+        if drag.control == .center, case let .rect(id, lo, hi) = drag.before {
+            var baseline = sketch
+            baseline.entities = drag.baseline
+            let others = Sketch(plane: sketch.plane,
+                entities: drag.baseline.filter { $0.id != id })
+            let center = (lo + hi) / 2
+            let target = SnapEngine.snap(center + raw - drag.grabPoint, in: others,
+                options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
+            let solved = SketchSolverBridge.solveAxisRectangleTranslation(
+                baseline, id: id, delta: target - center)
+            if (solved == nil || solved == drag.baseline),
+               simd_distance(target, center) > 2 * worldPerPoint, !drag.showedBlockedNotice {
+                showNotice("Locked or constrained sketch parts can't be moved.")
+                drag.showedBlockedNotice = true
+                sketchEntityDrag = drag
+            }
+            guard let solved else { return }
+            guard solved != drag.baseline || drag.pushed else { return }
+            let command = UpdateSketchEntitiesCommand(sketchID: drag.sketchID,
+                before: drag.baseline, after: solved)
+            if drag.pushed { session.amend(command) }
+            else { session.perform(command); drag.pushed = true }
+            sketchEntityDrag = drag
+            return
+        }
 
         // Solve-on-edit (plan §C1): when the sketch carries constraints or
         // dimensions, route a control-point drag through the solver so
@@ -8756,7 +9964,7 @@ final class EditorViewModel {
                 plane: sketch.plane,
                 entities: sketch.entities.filter { $0.id != drag.before.id }
             )
-            let point = SnapEngine.snap(raw, in: others).point
+            let point = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
             after = SketchHitTester.applying(control, at: point, to: drag.before)
         } else {
             // Body translate: grid-capture each axis, like the extrude drag.
@@ -8765,8 +9973,8 @@ final class EditorViewModel {
                 (delta.x / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing,
                 (delta.y / SnapEngine.gridSpacing).rounded() * SnapEngine.gridSpacing
             )
-            if abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
-            if abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
+            if AppSettings.shared.snapToGrid, abs(delta.x - snapped.x) < 0.15 { delta.x = snapped.x }
+            if AppSettings.shared.snapToGrid, abs(delta.y - snapped.y) < 0.15 { delta.y = snapped.y }
             after = SketchHitTester.translated(drag.before, by: delta)
         }
         let current = sketch.entities.first { $0.id == drag.before.id }
@@ -8797,7 +10005,7 @@ final class EditorViewModel {
             plane: sketch.plane,
             entities: drag.baseline.filter { $0.id != drag.before.id }
         )
-        let target = SnapEngine.snap(raw, in: others).point
+        let target = SnapEngine.snap(raw, in: others, options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
 
         // Always solve from the fixed pre-drag baseline so the target is
         // absolute and the result is deterministic across frames.
@@ -8861,6 +10069,7 @@ final class EditorViewModel {
         var sagitta: Double
     }
     var pendingArc: PendingArc?
+    private var arcTapStart: SIMD2<Double>?
     private var adjustingArcBulge = false
 
     var pendingArcEntity: SketchEntity? {
@@ -8881,6 +10090,8 @@ final class EditorViewModel {
     private var sketchStrokeStartRaw: SIMD2<Double>?
 
     private var chainAnchor: SIMD2<Double>?
+    /// Creation-only sizing intent; Escape/tool changes clear it with the chain.
+    private var freshLineSizingID: UUID?
     /// First point of the chain — a stroke closing onto it ends the chain.
     private var chainStart: SIMD2<Double>?
     /// The chain's first segment, so `chainStart` can be re-read from the
@@ -8895,13 +10106,102 @@ final class EditorViewModel {
     /// True while a hover is previewing the next line segment (pointer/Pencil),
     /// so the preview can be torn down without disturbing a real drag.
     private var lineHoverPreviewActive = false
+    private var lineSnapHoverActive = false
     /// The hovered next-segment endpoint sits on the chain's start, so the next
     /// tap will CLOSE the loop — the overlay highlights the start to signal it.
     private(set) var lineWillClose = false
     /// Stable id for the hover preview entity (keeps render diffing cheap).
     private let linePreviewID = UUID()
 
+    /// Escape abandons only the unfinished line continuation. A second Escape
+    /// disarms Line, matching the native two-stage workflow; committed segments
+    /// and the document's undo stack are untouched.
+    func cancelLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        if chainAnchor != nil {
+            clearChain()
+        } else {
+            deselectSketchTool()
+        }
+    }
+
+    /// Rectangle Escape first discards unfinished placement, then disarms the
+    /// tool. Neither step mutates committed geometry or creates history.
+    func cancelRectangleInput() {
+        guard mode.sketchTool == .rect, editingDimension == nil else { return }
+        if hasPendingRectangle {
+            clearRectanglePlacement()
+        } else {
+            deselectSketchTool()
+        }
+    }
+
+    /// Native Delete finishes Line without deleting the last committed segment.
+    /// Numeric editing owns its own Delete key and must not disarm the tool.
+    func deleteLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        deselectSketchTool()
+    }
+
+    /// Return finishes the current open polyline without placing another
+    /// segment. Native keeps Line armed, so the next empty or endpoint tap can
+    /// start a new chain while the committed geometry and history remain.
+    func finishLineInput() {
+        guard mode.sketchTool == .line, editingDimension == nil else { return }
+        clearChain()
+    }
+
+    /// Escape abandons an unfinished three-point arc without committing it.
+    /// Native also drops the Arc tool in this state; a following Escape may
+    /// therefore leave sketch mode instead of reviving the discarded preview.
+    func cancelArcInput() {
+        guard case .sketching(let id, tool: .arc) = mode,
+              editingDimension == nil else { return }
+        pendingArc = nil
+        arcTapStart = nil
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
+        adjustingArcBulge = false
+        activeGuides = []
+        activeSnap = nil
+        mode = .sketching(id, tool: nil)
+    }
+
+    /// Native Circle Escape disarms while retaining the completed size selection.
+    /// Dimension-field cancellation owns Escape first; no document history here.
+    func cancelCircleInput() {
+        guard mode.sketchTool == .circle, editingDimension == nil else { return }
+        pendingEntity = nil
+        sketchStrokeStart = nil
+        sketchStrokeCurrent = nil
+        activeGuides = []
+        activeSnap = nil
+        pendingInferredConstraints = []
+        deselectSketchTool()
+    }
+
+    /// Hardware Return accepts the default/current third-point shape without
+    /// requiring a canvas tap. Native Shapr3D keeps Arc armed and chains from
+    /// the accepted endpoint, so this is the same commit path as a third tap.
+    func finishArcInput() {
+        guard mode.sketchTool == .arc, pendingArc != nil,
+              editingDimension == nil else { return }
+        commitPendingArc(chain: true)
+    }
+
+    /// Register the sketch-level Escape only in a settled, unselected state.
+    /// Tool input and contextual operations own Escape ahead of this fallback.
+    var canExitSketchWithEscape: Bool {
+        mode.isSketching && mode.sketchTool == nil && editingDimension == nil &&
+        !sketchTransformActive && !selectModeActive && pendingSymbolID == nil &&
+        selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty &&
+        selectedConstraintID == nil && selectedDimensionID == nil
+    }
+
     private func clearChain() {
+        freshLineSizingID = nil
         chainAnchor = nil
         chainStart = nil
         chainStartEntityID = nil
@@ -8909,26 +10209,103 @@ final class EditorViewModel {
         _ = clearLinePreviewIfNeeded()
     }
 
-    /// Rubber-band preview for the line tool: while a tap-chain is open, show the
-    /// segment from the current anchor to the hovered point (pointer/Pencil),
-    /// snapped, and flag when the hover sits on the chain's start so the next tap
-    /// closes the loop. A nil ray (hover left) or a non-line-chain state clears
-    /// it. Returns true when the visible state changed so the viewport redraws.
+    /// Pointer/Pencil-hover previews for tap-built sketch tools. An arc's third
+    /// point is the hovered point after its two endpoints; Line and Rectangle
+    /// retain their existing rubber-band previews below. A nil ray keeps an
+    /// arc's last valid shape and clears only the transient line preview.
     @discardableResult
     func updateLinePreview(ray: Ray?) -> Bool {
+        if mode.sketchTool == .arc, var arc = pendingArc,
+           let ray, let raw = rawSketchPoint(from: ray) {
+            let before = arc.sagitta
+            arc.sagitta = Self.clampedSagitta(Self.signedSagitta(of: raw, arc: arc), arc: arc)
+            pendingArc = arc
+            return abs(before - arc.sagitta) > 1e-9
+        }
+        if mode.sketchTool == .arc, pendingArc == nil, let start = arcTapStart {
+            let previous = pendingEntity
+            guard let ray, let sketch = activeSketch,
+                  let raw = rawSketchPoint(from: ray) else {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+                return previous != nil
+            }
+            let snap = SnapEngine.snap(raw, in: sketch,
+                faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions,
+                tolerance: sketchSnapTolerance)
+            guard simd_length(snap.point - start) > 1e-6 else {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+                return previous != nil
+            }
+            pendingEntity = Self.arcEntity(id: arcEndpointPreviewID, a: start, b: snap.point,
+                sagitta: Self.defaultSagitta(a: start, b: snap.point))
+            sketchStrokeCurrent = snap.point
+            activeSnap = snap.snappedToPoint ? (snap.kind, snap.point) : nil
+            arcEndpointHoverPreviewActive = pendingEntity != nil
+            return previous != pendingEntity
+        }
+        if arcEndpointHoverPreviewActive {
+            pendingEntity = nil
+            arcEndpointHoverPreviewActive = false
+        }
+        // Before the first click, identify the point the line would start on.
+        // This is feedback only: do not create an anchor, segment or undo entry.
+        if mode.sketchTool == .line, !tapChainActive, sketchStrokeStart == nil {
+            let previous = activeSnap
+            if let ray, let sketch = activeSketch, let raw = rawSketchPoint(from: ray) {
+                let snap = SnapEngine.snap(raw, in: sketch,
+                    faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
+                activeSnap = snap.snappedToPoint ? (snap.kind, snap.point) : nil
+            } else {
+                activeSnap = nil
+            }
+            lineSnapHoverActive = activeSnap != nil
+            return previous?.kind != activeSnap?.kind || previous?.point != activeSnap?.point
+        }
+        if mode.sketchTool == .rect, hasPendingRectangle {
+            let before = rectanglePreview
+            let previousEntity = pendingEntity
+            if let ray, let point = sketchPoint(from: ray) {
+                sketchStrokeCurrent = point
+                if rectangleType == .threePoint {
+                    if let start = rectangleBaseline?.a ?? rectangleAnchor {
+                        updateRectanglePreview(from: start, to: point)
+                    }
+                } else if let anchor = rectangleAnchor {
+                    pendingEntity = RectangleConstruction.axisAligned(from: anchor, to: point,
+                        centered: rectangleType == .center, id: rectangleIDs[0])
+                }
+            } else {
+                pendingEntity = nil
+                rectanglePreview = rectangleBaseline.map {
+                    [.line(id: rectangleIDs[0], a: $0.a, b: $0.b)]
+                } ?? []
+            }
+            return before != rectanglePreview || previousEntity != pendingEntity
+        }
         guard case .sketching(_, .some(.line)) = mode,
               tapChainActive, let anchor = chainAnchor,
               let ray, let sketch = activeSketch, let raw = rawSketchPoint(from: ray)
         else { return clearLinePreviewIfNeeded() }
 
-        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops())
+        let snap = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
         var end = snap.point
         var willClose = false
         if let start = chainStart,
            simd_length(start - anchor) > SnapEngine.pointTolerance,
-           simd_length(raw - start) <= Self.lineCloseTolerance {
+           simd_length(raw - start) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? Self.lineCloseTolerance : 1e-9) {
             end = start
             willClose = true
+        }
+        if !willClose {
+            let result = inferSketchInput(tool: .line, anchor: anchor, current: end,
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings)
+            end = result.snappedPoint
+            activeGuides = result.guides
+        } else {
+            activeGuides = []
         }
         let entity = SketchEntity.line(id: linePreviewID, a: anchor, b: end)
         let changed = pendingEntity != entity || lineWillClose != willClose
@@ -8948,13 +10325,15 @@ final class EditorViewModel {
 
     @discardableResult
     private func clearLinePreviewIfNeeded() -> Bool {
-        guard lineHoverPreviewActive else { return false }
+        guard lineHoverPreviewActive || lineSnapHoverActive else { return false }
+        lineSnapHoverActive = false
         lineHoverPreviewActive = false
         lineWillClose = false
         pendingEntity = nil
         sketchStrokeStart = nil
         sketchStrokeCurrent = nil
         activeSnap = nil
+        activeGuides = []
         return true
     }
 
@@ -9099,15 +10478,14 @@ final class EditorViewModel {
     var sketchConflictAttribution = SketchSolverBridge.ConflictAttribution()
 
     func startSketch(tool: SketchTool) {
+        cancelSymmetryAxisPick()
+        clearRectanglePlacement()
         if case .sketching(let id, _) = mode {
             commitPendingArc()
             clearChain()
-            // Arming a tool ends any pending value edit. The size field a
-            // freshly drawn shape opens is a big on-canvas card; leaving it up
-            // while the next tool is armed meant the next stroke began ON the
-            // card instead of the canvas. Reaching for another tool is a clear
-            // statement that you are done with that value.
-            editingDimension = nil
+            // Native accepts a pending numeric value when clicking another
+            // tool. Explicit cancellation remains a separate action.
+            finishDimensionEditOnClickAway()
             mode = .sketching(id, tool: tool) // just switch tools
             return
         }
@@ -9133,7 +10511,10 @@ final class EditorViewModel {
     /// stay in the sketch with no drawing tool armed, so empty-space drags
     /// orbit the camera instead of drawing.
     func deselectSketchTool() {
+        cancelSymmetryAxisPick()
         guard case .sketching(let id, _) = mode else { return }
+        clearRectanglePlacement()
+        editingDimension = nil
         commitPendingArc()
         clearChain()
         // Offset picks belong to the tool, not the sketch: dropping the tool
@@ -9184,48 +10565,21 @@ final class EditorViewModel {
         )
     }
 
-    /// Find-or-create the sketch for a plane (same geometric plane → same
-    /// sketch item, Shapr3D's rule) and enter sketching head-on.
+    /// An unselected plane-based entry creates an independent sketch, even on
+    /// a coincident plane. Continue an existing sketch through its item/outline
+    /// instead; geometric coincidence alone is not document identity.
     private func beginSketch(on plane: SketchPlane, tool: SketchTool) {
-        let sketch: Sketch
-        if let existing = session.document.sketches.first(where: {
-            $0.plane.isCoincident(with: plane)
-        }) {
-            sketch = existing
-            // Re-opening a sketch that an extrude auto-hid makes it visible
-            // again, so its profiles stay tappable after Exit Sketching.
-            if existing.isHidden {
-                session.preview { doc in
-                    if let i = doc.sketches.firstIndex(where: { $0.id == existing.id }) {
-                        doc.sketches[i].isHidden = false
-                    }
-                }
-            }
-        } else {
-            let created = Sketch(name: session.document.uniqueSketchName(), plane: plane)
-            session.preview { $0.sketches.append(created) }
-            sketch = created
-            // Eligible for empty-sketch cleanup on exit (see
-            // `removeSketchIfEmpty`); re-opened sketches never are.
-            provisionalSketch = (created.id, session.undoStack.undoCommands.count)
-        }
+        let sketch = Sketch(name: session.document.uniqueSketchName(), plane: plane)
+        session.preview { $0.sketches.append(sketch) }
+        provisionalSketch = (sketch.id, session.undoStack.undoCommands.count)
         mode = .sketching(sketch.id, tool: tool)
-        // Keep the camera where the user put it — Shapr3D sketches in the
-        // current view, and yanking to head-on loses the 3D context they were
-        // working in (and their sense of which way the plane faces).
-        //
-        // The one exception is a grazing view: past this angle the plane
-        // projects to nearly a line, so a drag maps to a wildly amplified
-        // distance on it and drawing is guesswork. `lookAtSketch()` (the
-        // Look at Sketch button) is always there for a deliberate re-aim.
+        // Direct reference verification (2026-09-07): choosing a sketch plane
+        // enters its normal drawing view. Do not require a second Look at
+        // Sketch action before the user can place geometry predictably.
+        // Subsequent user orbiting remains available inside sketch mode.
         if let control = cameraControl {
-            let offAxis = control.offAxisDegrees(to: sketch.plane)
-            if offAxis > Self.grazingSketchAngle {
-                control.moveCameraHeadOn(to: sketch.plane)
-                lookAtSketchAvailable = false
-            } else {
-                lookAtSketchAvailable = offAxis > Self.lookAtSketchThresholdDegrees
-            }
+            control.moveCameraHeadOn(to: sketch.plane)
+            lookAtSketchAvailable = false
         }
     }
 
@@ -9233,6 +10587,9 @@ final class EditorViewModel {
     static let grazingSketchAngle: Double = 80
 
     func finishSketch() {
+        cancelSymmetryAxisPick()
+        clearRectanglePlacement()
+        editingDimension = nil
         commitPendingArc()
         clearChain()
         textPlacement = nil
@@ -9245,6 +10602,8 @@ final class EditorViewModel {
         sketchEntityDrag = nil
         sketchGizmoDrag = nil
         sketchCopyOnDrag = false
+        sketchTransformActive = false
+        sketchRadialDrag = nil
         sketchSolveConflict = false
         sketchConflictAttribution = .init()
         selectedSketchEntityIDs.removeAll()
@@ -9287,6 +10646,17 @@ final class EditorViewModel {
         }
     }
 
+    /// A new entry with no geometry is a drawing context, not an Items row.
+    /// Undo may empty it again; retain its document/history identity underneath.
+    /// Persisted empty sketches are not provisional and remain discoverable.
+    var itemSketches: [Sketch] {
+        guard let provisional = provisionalSketch else { return session.document.sketches }
+        return session.document.sketches.filter { sketch in
+            sketch.id != provisional.id || !sketch.entities.isEmpty ||
+                !sketch.constraints.isEmpty || !sketch.dimensions.isEmpty
+        }
+    }
+
     /// Set by `beginSketch` when it creates a brand-new sketch row: the id
     /// plus the undo depth at creation, consumed by `removeSketchIfEmpty`.
     private var provisionalSketch: (id: SketchID, undoDepth: Int)?
@@ -9308,7 +10678,7 @@ final class EditorViewModel {
     /// Ray → snapped plane-local point, while sketching.
     private func sketchPoint(from ray: Ray) -> SIMD2<Double>? {
         guard let raw = rawSketchPoint(from: ray) else { return nil }
-        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops())
+        let result = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance)
         activeSnap = (result.kind, result.point)
         return result.point
     }
@@ -9366,11 +10736,13 @@ final class EditorViewModel {
     }
 
     func beginSketchStroke(ray: Ray) -> Bool {
+        guard !isPickingSymmetryAxis else { return false }
         guard case .sketching(_, let tool) = mode,
               let raw = rawSketchPoint(from: ray)
         else { return false }
+        editingDimension = nil
         sketchEntityDrag = nil
-        if tool == .trim || tool == .text || tool == .project {
+        if tool == .trim || tool == .text || tool == .project || tool == .offset {
             return false // These tools work by taps; unclaimed drags orbit.
         }
         if pendingSymbolID != nil {
@@ -9387,37 +10759,41 @@ final class EditorViewModel {
         }
         commitPendingArc()
 
-        // Selection gizmo first: drags on the handle/ring transform the
-        // selected entities instead of drawing or editing.
-        if beginSketchGizmoDrag(at: raw) {
-            return true
-        }
+        // Native's freshly selected circle center remains a move control
+        // while Circle is armed. An unselected center still starts a new circle.
+        if tool == .circle, let sketch = activeSketch,
+           selectedSketchPoints.contains(where: { point in
+               guard point.role == .center,
+                     case let .circle(_, center, _)? = sketchEntity(point.entityID, in: sketch)
+               else { return false }
+               return simd_distance(raw, center) <= controlPointTolerance
+           }), beginSketchEntityDrag(at: raw, in: sketch) { return true }
 
-        // Chain continuation stays a drawing gesture even though it starts
-        // on the previous line's endpoint.
-        let chainContinues = tool == .line && chainAnchor != nil
-            && simd_length(raw - chainAnchor!) <= SnapEngine.pointTolerance
-
-        // A drag starting on an entity edits it (select + move); only
-        // strokes that start on empty space draw new geometry.
-        if !chainContinues, let sketch = activeSketch,
-           beginSketchEntityDrag(at: raw, in: sketch) {
-            return true
+        // An armed drawing tool owns the stroke, even on existing geometry.
+        // Toggle it off to drag points, entities, or the selection gizmo.
+        if tool == nil {
+            if beginSketchGizmoDrag(at: raw) { return true }
+            if let sketch = activeSketch, beginSketchEntityDrag(at: raw, in: sketch) { return true }
         }
 
         // No drawing tool armed: empty-space drags orbit the camera so the
         // sketch can be viewed from an angle (Shapr3D).
         guard tool != nil else { return false }
-        // A new stroke supersedes the size field the last shape opened.
-        editingDimension = nil
-
-        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops()).point
+        var point = SnapEngine.snap(raw, in: activeSketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
         if tool == .line, let anchor = chainAnchor {
-            if simd_length(raw - anchor) <= SnapEngine.pointTolerance {
+            if simd_length(raw - anchor) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? sketchSnapTolerance : 1e-9) {
                 point = anchor // continue the chain exactly at the last endpoint
             } else {
                 clearChain()
             }
+        }
+        if tool == .rect, let anchor = rectangleAnchor { point = anchor }
+        if tool != .offset {
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            selectedConstraintID = nil
+            selectedDimensionID = nil
         }
         sketchStrokeStart = point
         sketchStrokeStartRaw = raw
@@ -9427,14 +10803,16 @@ final class EditorViewModel {
     }
 
     /// Drop inferred horizontal/vertical constraints whose stroke was not
-    /// actually aimed within `toleranceDeg`. Pure, so it is testable without a
+    /// actually aimed within the screen-distance band (or angular fallback).
+    /// Pure, so it is testable without a
     /// gesture. Non-H/V inferences (point snaps, parallel, tangent…) pass
     /// through untouched — they are about what the stroke MET, not its angle.
     nonisolated static func aimedConstraints(
         _ constraints: [AutoConstraintEngine.Inferred],
         from rawStart: SIMD2<Double>?,
         to rawEnd: SIMD2<Double>?,
-        toleranceDeg: Double
+        toleranceDeg: Double,
+        axisDistanceTolerance: Double? = nil
     ) -> [AutoConstraintEngine.Inferred] {
         guard let rawStart, let rawEnd else { return constraints }
         let d = rawEnd - rawStart
@@ -9444,8 +10822,8 @@ final class EditorViewModel {
         let devVertical = atan2(abs(d.x), abs(d.y))
         return constraints.filter { inferred in
             switch inferred.kind {
-            case .horizontal: devHorizontal <= tol
-            case .vertical: devVertical <= tol
+            case .horizontal: axisDistanceTolerance.map { AutoConstraintEngine.withinAxisDistance(d.y, tolerance: $0) } ?? (devHorizontal <= tol)
+            case .vertical: axisDistanceTolerance.map { AutoConstraintEngine.withinAxisDistance(d.x, tolerance: $0) } ?? (devVertical <= tol)
             default: true
             }
         }
@@ -9476,10 +10854,10 @@ final class EditorViewModel {
         // collect the guides to render, and stash the constraints to emit if
         // the stroke commits. `existing` = committed entities (the in-progress
         // entity is `pendingEntity`, not yet in the sketch).
-        if autoConstrainSettings.enabled, let sketch = activeSketch {
-            let result = AutoConstraintEngine.infer(
+        if (autoConstrainSettings.enabled || (tool == .line && AppSettings.shared.snapToSketchGuidelines)), !(tool == .rect && rectangleType != .diagonal), let sketch = activeSketch {
+            let result = inferSketchInput(
                 tool: tool, anchor: start, current: current,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             current = result.snappedPoint
             activeGuides = result.guides
@@ -9494,13 +10872,20 @@ final class EditorViewModel {
                 result.constraints,
                 from: sketchStrokeStartRaw,
                 to: rawSketchPoint(from: ray),
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines && tool == .line
+                    ? 4 * worldPerPoint : nil)
         } else {
             activeGuides = []
             pendingInferredConstraints = []
         }
         sketchStrokeCurrent = current
-        pendingEntity = makeEntity(tool: tool, from: start, to: current)
+        if tool == .rect, rectangleType == .threePoint {
+            updateRectanglePreview(from: start, to: current)
+            pendingEntity = nil
+        } else {
+            pendingEntity = makeEntity(tool: tool, from: start, to: current)
+        }
     }
 
     func endSketchStroke(ray: Ray) {
@@ -9516,8 +10901,12 @@ final class EditorViewModel {
             adjustingArcBulge = false
             return
         }
-        if sketchGizmoDrag != nil {
+        if let drag = sketchGizmoDrag {
             sketchGizmoDrag = nil // commands already pushed/amended live
+            if drag.pushed {
+                session.rebuildForSketchChange(drag.sketchID)
+                session.save()
+            }
             return
         }
         if let drag = sketchEntityDrag {
@@ -9538,10 +10927,10 @@ final class EditorViewModel {
         var end = sketchPoint(from: ray) ?? start
         // Re-run inference at the release point so the committed geometry and
         // the emitted constraints stay consistent with the on-screen preview.
-        if autoConstrainSettings.enabled {
-            let result = AutoConstraintEngine.infer(
+        if (autoConstrainSettings.enabled || (tool == .line && AppSettings.shared.snapToSketchGuidelines)), !(tool == .rect && rectangleType != .diagonal) {
+            let result = inferSketchInput(
                 tool: tool, anchor: start, current: end,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             end = result.snappedPoint
             // Same aim gate as `updateSketchStroke` — this re-run happens at
@@ -9551,7 +10940,13 @@ final class EditorViewModel {
                 result.constraints,
                 from: sketchStrokeStartRaw,
                 to: rawSketchPoint(from: ray),
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines && tool == .line
+                    ? 4 * worldPerPoint : nil)
+        }
+        if tool == .rect, rectangleType == .threePoint {
+            placeThreePointRectangle(from: start, to: end, sketchID: sketchID)
+            return
         }
         guard let entity = makeEntity(tool: tool, from: start, to: end) else { return }
         if tool == .arc {
@@ -9559,14 +10954,15 @@ final class EditorViewModel {
             pendingArc = PendingArc(a: start, b: end, sagitta: Self.defaultSagitta(a: start, b: end))
             return
         }
-        commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
-        // Typed size on lift-off (bug report 5ef841c2 — Shapr3D's manual
-        // input field): a freshly drawn circle, rectangle or polygon is
-        // selected and its dimension label opens as a field, so "30 ⏎" sizes
-        // it without a second tap. Drawing again simply dismisses the field.
+        commitDrawnEntity(entity, sketchID: sketchID, in: sketch, rectangleEnd: end)
+        if tool == .rect { clearRectanglePlacement() }
+        // Paired native rechecks: rectangles retain both size badges and
+        // circles retain their diameter and polygons their radius on release.
+        // Open numeric input only after an explicit dimension tap.
         if tool == .circle || tool == .rect || tool == .polygon {
             selectedSketchEntityIDs = [entity.id]
-            beginDimensionForSelection()
+            selectedSketchPoints = tool == .circle || (tool == .rect && rectangleType == .center)
+                ? [.init(entityID: entity.id, role: .center)] : []
         }
         if tool == .line {
             let first = chainStart ?? start
@@ -9585,9 +10981,25 @@ final class EditorViewModel {
     /// settles. Shared by drag-draw (`endSketchStroke`) and the line tool's
     /// tap-to-place chaining (`placeLineChainPoint`).
     private func commitDrawnEntity(
-        _ entity: SketchEntity, sketchID: SketchID, in sketch: Sketch
+        _ entity: SketchEntity, sketchID: SketchID, in sketch: Sketch,
+        rectangleEnd: SIMD2<Double>? = nil
     ) {
-        let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity)
+        var sizingAnchor: RectangleSizingAnchor?
+        if case let .rect(_, lo, _) = entity,
+           let first = rectangleAnchor ?? sketchStrokeStart {
+            sizingAnchor = rectangleType == .center
+                ? rectangleEnd.map { .centered(from: first, to: $0) } ?? .center
+                : .diagonal(first: first, min: lo)
+        }
+        var radiusDirection: SIMD2<Double>?
+        if AppSettings.shared.circularAnnotations == .alwaysRadius,
+           case let .circle(_, center, _) = entity, let end = rectangleEnd,
+           simd_length(end - center) > 1e-9 {
+            radiusDirection = simd_normalize(end - center)
+        }
+        let addEntity = AddSketchEntityCommand(sketchID: sketchID, entity: entity,
+                                             rectangleSizingAnchor: sizingAnchor,
+                                             circleRadiusDirection: radiusDirection)
         let constraintCommands = inferredConstraintCommands(
             for: entity, sketchID: sketchID, in: sketch
         )
@@ -9597,6 +11009,13 @@ final class EditorViewModel {
             session.perform(CompositeCommand(
                 title: "Draw", commands: [addEntity] + constraintCommands
             ))
+        }
+        // Keep the completed segment's measured length visible without
+        // opening the keypad or ending line chaining (live Shapr3D comparison).
+        if case .line = entity {
+            freshLineSizingID = entity.id
+            selectedSketchEntityIDs = [entity.id]
+            selectedSketchPoints.removeAll()
         }
     }
 
@@ -9614,11 +11033,24 @@ final class EditorViewModel {
         else { return }
         _ = clearLinePreviewIfNeeded() // the tap supersedes any hover preview
 
-        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops()).point
+        let target = SnapEngine.snap(raw, in: sketch, faceLoops: activeFaceSnapLoops(), options: AppSettings.shared.snapOptions, tolerance: sketchSnapTolerance).point
 
         guard tapChainActive, let anchor = chainAnchor, let start = chainStart else {
-            // Not chaining: a tap on geometry selects it (dimension/constraint
-            // pick); an empty tap starts a fresh chain at that point.
+            // Not chaining: an endpoint resumes from that exact point, matching
+            // native Line after Return. The entity body still selects for
+            // dimensions/constraints; an empty tap starts a free chain.
+            if let point = SketchHitTester.nearestPoint(
+                to: raw, in: sketch.entities, tolerance: controlPointTolerance,
+                preservingLineInterior: true
+            ), point.role == .endpointA || point.role == .endpointB {
+                selectedSketchEntityIDs.removeAll()
+                selectedSketchPoints.removeAll()
+                chainStart = point.point
+                chainAnchor = point.point
+                chainStartEntityID = nil
+                tapChainActive = true
+                return
+            }
             if selectSketchGeometryTap(at: raw, in: sketch) { return }
             chainStart = target
             chainAnchor = target
@@ -9631,7 +11063,8 @@ final class EditorViewModel {
         // generous than the point-weld tolerance (Shapr3D highlights the start
         // as you approach) so finger-closing a polygon is reliable.
         if simd_length(start - anchor) > SnapEngine.pointTolerance,
-           simd_length(raw - start) <= Self.lineCloseTolerance {
+           simd_length(raw - start) <= (AppSettings.shared.snapToSketchGuidepoints
+                ? Self.lineCloseTolerance : 1e-9) {
             commitChainSegment(from: anchor, to: start, closing: true,
                                sketchID: sketchID, in: sketch)
             return
@@ -9652,17 +11085,18 @@ final class EditorViewModel {
         closing: Bool, sketchID: SketchID, in sketch: Sketch
     ) {
         var end = rawEnd
-        if !closing, autoConstrainSettings.enabled {
-            let result = AutoConstraintEngine.infer(
+        if !closing, autoConstrainSettings.enabled || AppSettings.shared.snapToSketchGuidelines {
+            let result = inferSketchInput(
                 tool: .line, anchor: anchor, current: end,
-                existing: sketch.entities, settings: autoConstrainSettings
+                existing: sketch.entities, settings: effectiveAutoConstrainSettings
             )
             end = result.snappedPoint
             // `anchor` and `rawEnd` are both pre-snap here, so this is already
             // the aimed direction; gating keeps the rule in one place.
             pendingInferredConstraints = Self.aimedConstraints(
                 result.constraints, from: anchor, to: rawEnd,
-                toleranceDeg: autoConstrainSettings.angleToleranceDeg)
+                toleranceDeg: autoConstrainSettings.angleToleranceDeg,
+                axisDistanceTolerance: AppSettings.shared.snapToSketchGuidelines ? 4 * worldPerPoint : nil)
         } else {
             pendingInferredConstraints = []
         }
@@ -9705,20 +11139,46 @@ final class EditorViewModel {
     }
 
     /// Commits the pending arc (next tool action / tap elsewhere / exit).
-    func commitPendingArc() {
+    func commitPendingArc(chain: Bool = false) {
+        if !chain {
+            arcTapStart = nil
+            if arcEndpointHoverPreviewActive {
+                pendingEntity = nil
+                arcEndpointHoverPreviewActive = false
+            }
+        }
         guard let arc = pendingArc else { return }
         pendingArc = nil
+        pendingEntity = nil
+        arcEndpointHoverPreviewActive = false
         adjustingArcBulge = false
         guard case .sketching(let sketchID, _) = mode,
+              let sketch = activeSketch,
               let entity = Self.arcEntity(id: arc.id, a: arc.a, b: arc.b, sagitta: arc.sagitta)
         else { return }
-        session.perform(AddSketchEntityCommand(sketchID: sketchID, entity: entity))
+        pendingInferredConstraints = AutoConstraintEngine.inferArcTangencies(
+            arc: entity, existing: sketch.entities,
+            settings: effectiveAutoConstrainSettings)
+        commitDrawnEntity(entity, sketchID: sketchID, in: sketch)
+        pendingInferredConstraints = []
+        if chain,
+           let committed = activeSketch?.entities.first(where: { $0.id == entity.id }),
+           case let .arc(_, center, radius, start, end) = committed {
+            let a = SketchEntity.arcPoint(center: center, radius: radius, angle: start)
+            let b = SketchEntity.arcPoint(center: center, radius: radius, angle: end)
+            arcTapStart = simd_length(a - arc.b) <= simd_length(b - arc.b) ? a : b
+        } else {
+            arcTapStart = chain ? arc.b : nil
+        }
     }
 
     // MARK: - Arc math (chord + sagitta → SketchEntity.arc)
 
     static func defaultSagitta(a: SIMD2<Double>, b: SIMD2<Double>) -> Double {
-        simd_length(b - a) / 4
+        // Paired native endpoint placement: start at 45 degrees on the
+        // chord's right side. Reversing the endpoints reverses the bulge.
+        // s = (chord / 2) * tan(sweep / 4).
+        -simd_length(b - a) * 0.5 * tan(.pi / 16)
     }
 
     /// The point that drags the bulge: the arc midpoint (chord mid + sagitta
@@ -9764,12 +11224,7 @@ final class EditorViewModel {
             guard simd_length(b - a) > minimum else { return nil }
             return .line(id: UUID(), a: a, b: b)
         case .rect:
-            guard abs(b.x - a.x) > minimum, abs(b.y - a.y) > minimum else { return nil }
-            return .rect(
-                id: UUID(),
-                min: SIMD2(Swift.min(a.x, b.x), Swift.min(a.y, b.y)),
-                max: SIMD2(Swift.max(a.x, b.x), Swift.max(a.y, b.y))
-            )
+            return RectangleConstruction.axisAligned(from: a, to: b, centered: rectangleType == .center)
         case .circle:
             let radius = simd_length(b - a)
             guard radius > minimum else { return nil }
@@ -9806,13 +11261,26 @@ final class EditorViewModel {
     private func inferredConstraintCommands(
         for entity: SketchEntity, sketchID: SketchID, in sketch: Sketch
     ) -> [DocumentCommand] {
-        guard !pendingInferredConstraints.isEmpty else { return [] }
+        var candidates = pendingInferredConstraints
+        // The circle's anchor is a real solver center, unlike its dragged rim.
+        // Preserve an acquired existing circle center as part of the Draw step.
+        // Require actual positional coincidence; never attract a nearby center.
+        if effectiveAutoConstrainSettings.enabled, effectiveAutoConstrainSettings.pointSnap,
+           case let .circle(_, center, _) = entity,
+           let target = sketch.entities.first(where: {
+               guard case let .circle(_, existingCenter, _) = $0 else { return false }
+               return simd_distance(center, existingCenter) <= 1e-6
+           }) {
+            candidates.append(.init(kind: .coincident, selfRole: .center,
+                targetEntityID: target.id, targetRole: .center))
+        }
+        guard !candidates.isEmpty else { return [] }
         // Proposed sketch = committed sketch + the new entity; candidates are
         // added one at a time so each is validated against the accumulated set.
         var proposed = sketch
         proposed.entities.append(entity)
         var accepted: [SketchConstraint] = []
-        for inferred in pendingInferredConstraints {
+        for inferred in candidates {
             let refs = inferredRefs(inferred, newEntityID: entity.id)
             guard !refs.isEmpty else { continue }
             let constraint = SketchConstraint(kind: inferred.kind, refs: refs)
@@ -9856,7 +11324,8 @@ final class EditorViewModel {
     /// explicit coincident constraint (plan §B) — its own undo step, guarded
     /// against over-constraint, and skipped when already coincident.
     private func maybeAddDragCoincident(_ drag: SketchEntityDrag) {
-        guard let control = drag.control,
+        guard effectiveAutoConstrainSettings.enabled, effectiveAutoConstrainSettings.pointSnap,
+              let control = drag.control,
               let role = Self.pointRole(for: control),
               case .sketching(let sketchID, _) = mode,
               let sketch = activeSketch,
@@ -10072,7 +11541,14 @@ final class EditorViewModel {
     /// tangent.
     private var selectedSketchEntities: [SketchEntity] {
         guard let sketch = activeSketch else { return [] }
-        return sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }
+        let byID = Dictionary(uniqueKeysWithValues: sketch.entities.map { ($0.id, $0) })
+        let ordered = selectedSketchEntityOrder.compactMap { id in
+            selectedSketchEntityIDs.contains(id) ? byID[id] : nil
+        }
+        let known = Set(ordered.map(\.id))
+        return ordered + sketch.entities.filter {
+            selectedSketchEntityIDs.contains($0.id) && !known.contains($0.id)
+        }
     }
 
     private var selectedLineEntities: [SketchEntity] {
@@ -10121,15 +11597,120 @@ final class EditorViewModel {
         session.save()
     }
 
+    /// Two similar entities retain their operands while the user chooses an axis.
+    /// This is transient interaction state, never document geometry or history.
+    private(set) var pendingSymmetryEntityIDs: [UUID] = []
+    var isPickingSymmetryAxis: Bool { !pendingSymmetryEntityIDs.isEmpty }
+
+    private var selectedSymmetryEntities: [UUID] {
+        guard selectedSketchEntityIDs.count == 2, let sketch = activeSketch else { return [] }
+        let ids = selectedSketchEntityOrder.filter { selectedSketchEntityIDs.contains($0) }
+        guard ids.count == 2,
+              let first = sketch.entities.first(where: { $0.id == ids[0] }),
+              let second = sketch.entities.first(where: { $0.id == ids[1] }) else { return [] }
+        let roles: Set<PointRole>
+        switch (first, second) {
+        case (.circle, .circle): roles = [.center]
+        case let (.line(_, a, b), .line(_, c, d)):
+            guard simd_distance(a, b) > 1e-8, simd_distance(c, d) > 1e-8 else { return [] }
+            roles = [.endpointA, .endpointB]
+        default: return []
+        }
+        return selectedSketchPoints.allSatisfy {
+            ids.contains($0.entityID) && roles.contains($0.role)
+        } ? ids : []
+    }
+
+    func cancelSymmetryAxisPick() {
+        pendingSymmetryEntityIDs = []
+    }
+
+    func completeSymmetryAxisPick(_ axisID: UUID) {
+        guard isPickingSymmetryAxis, let sketch = activeSketch,
+              !pendingSymmetryEntityIDs.contains(axisID),
+              case let .line(_, a, b)? = sketch.entities.first(where: { $0.id == axisID }),
+              simd_distance(a, b) > 1e-8,
+              pendingSymmetryEntityIDs.count == 2,
+              let first = sketch.entities.first(where: { $0.id == pendingSymmetryEntityIDs[0] }),
+              let second = sketch.entities.first(where: { $0.id == pendingSymmetryEntityIDs[1] }) else { return }
+        let ids = pendingSymmetryEntityIDs
+        let axisRef = ConstraintRef(entityID: axisID, role: .whole)
+        let refs: [ConstraintRef]
+        switch (first, second) {
+        case (.circle, .circle):
+            refs = ids.map { ConstraintRef(entityID: $0, role: .whole) } + [axisRef]
+        case let (.line(_, p, q), .line(_, r, s)):
+            guard simd_distance(p, q) > 1e-8, simd_distance(r, s) > 1e-8 else { return }
+            let direction = simd_normalize(b - a)
+            func reflected(_ point: SIMD2<Double>) -> SIMD2<Double> {
+                let foot = a + direction * simd_dot(point - a, direction)
+                return 2 * foot - point
+            }
+            let direct = simd_distance_squared(reflected(p), r) + simd_distance_squared(reflected(q), s)
+            let reversed = simd_distance_squared(reflected(p), s) + simd_distance_squared(reflected(q), r)
+            // Persist the closest endpoint correspondence, not a solve-time heuristic.
+            // Five refs encode two point pairs sharing the axis in one relationship.
+            let reverse = reversed < direct
+            refs = [ConstraintRef(entityID: ids[0], role: .endpointA),
+                    ConstraintRef(entityID: ids[1], role: reverse ? .endpointB : .endpointA), axisRef,
+                    ConstraintRef(entityID: ids[0], role: .endpointB),
+                    ConstraintRef(entityID: ids[1], role: reverse ? .endpointA : .endpointB)]
+        default: return
+        }
+        let constraint = SketchConstraint(kind: .symmetric, refs: refs)
+        if commitAppliedConstraints(.symmetric, constraints: [constraint],
+                                    operandOrder: ids, axisAnchor: axisID) {
+            cancelSymmetryAxisPick()
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+        }
+    }
+
+    /// Full circles support both contact branches. Paired separated and shallow-
+    /// overlap arc/circle contact uses the supporting circle, including off-span.
+    private var circleTangentOperands: [SketchEntity]? {
+        let selected = selectedRadiusEntities
+        guard selected.count == 2 else { return nil }
+        if case .circle = selected[0], case .circle = selected[1] { return selected }
+        guard let arc = selected.first(where: { if case .arc = $0 { return true }; return false }),
+              let circle = selected.first(where: { if case .circle = $0 { return true }; return false }),
+              case let .arc(_, a, ra, _, _) = arc,
+              case let .circle(_, b, rb) = circle else { return nil }
+        let delta = b - a
+        // Native shallow overlap separates externally; a larger arc with a
+        // deeply intersecting or fully nested smaller circle uses internal
+        // contact. Coincident centers and exact branch boundaries remain unverified.
+        let distance = simd_length(delta)
+        let external = distance > max(ra, rb)
+        let internalOverlap = ra > rb && distance > ra - rb && distance < ra
+        let internalNested = ra > rb && distance > 1e-9 && distance < ra - rb
+        let smallerArcOverlap = ra < rb && distance > rb - ra && distance < rb
+        let smallerArcNested = ra < rb && distance > 1e-9 && distance < rb - ra
+        guard external || internalOverlap || internalNested || smallerArcOverlap || smallerArcNested else { return nil }
+        return selected
+    }
+
     func canApplyConstraint(_ kind: SketchConstraintKind) -> Bool {
-        guard mode.isSketching else { return false }
+        guard mode.isSketching, !isPickingSymmetryAxis else { return false }
+        // Derived rectangle centers currently support only a local Lock.
+        // Do not advertise point relationships the solver cannot yet lower.
+        if kind != .fixed, let sketch = activeSketch,
+           selectedSketchPoints.contains(where: { point in
+               point.role == .center && sketch.entities.contains(where: {
+                   if case .rect = $0 { return $0.id == point.entityID }; return false
+               })
+           }) { return false }
         let points = selectedSketchPoints.count
         let lines = selectedLineEntities.count
         let circles = selectedRadiusEntities.count
         switch kind {
         case .coincident:
-            // Two points, or two lines that share an approximate corner.
-            return points >= 2 || (lines == 2 && nearestEndpointPair(selectedLineEntities) != nil)
+            // A point can lie on the infinite extension of a distinct line.
+            // Keep two-point and approximate shared-corner behavior unchanged.
+            return points >= 2 || pointAndDistinctLineRefs != nil ||
+                (lines == 2 && nearestEndpointPair(selectedLineEntities) != nil)
         case .horizontal, .vertical:
             return lines >= 1 || points == 2
         // Spec §3.2: Parallel takes "2+ lines" — parallelism is transitive, so a
@@ -10143,11 +11724,11 @@ final class EditorViewModel {
         case .equalRadius, .concentric:
             return circles == 2
         case .tangent:
-            return lines == 1 && circles == 1
+            return (lines == 1 && circles == 1) || circleTangentOperands != nil
         case .midpoint:
             return points == 1 && lines == 1
         case .symmetric:
-            return points == 2 && lines == 1
+            return (points == 2 && lines == 1) || selectedSymmetryEntities.count == 2
         case .fixed:
             return points >= 1 || !selectedSketchEntityIDs.isEmpty
         case .colinear:
@@ -10155,16 +11736,137 @@ final class EditorViewModel {
         }
     }
 
+    /// Points explicitly addressable by the constraint model. Primitive
+    /// rectangles expose only their two stored diagonal corners here; this
+    /// deliberately does not decompose them into edges or lose dimensions.
+    private var disconnectOperands: [ConstraintRef] {
+        guard mode.isSketching, mode.sketchTool == nil, let sketch = activeSketch else { return [] }
+        if !selectedSketchPoints.isEmpty {
+            return selectedSketchPoints.compactMap { point in
+                guard let entity = sketch.entities.first(where: { $0.id == point.entityID }),
+                      SketchHitTester.modelPoints(of: entity).contains(where: { $0.role == point.role })
+                else { return nil }
+                return ConstraintRef(entityID: point.entityID, role: point.role)
+            }
+        }
+        return sketch.entities.filter { selectedSketchEntityIDs.contains($0.id) }.flatMap { entity in
+            SketchHitTester.modelPoints(of: entity).map {
+                ConstraintRef(entityID: entity.id, role: $0.role)
+            }
+        }
+    }
+
+    private func disconnects(_ constraint: SketchConstraint, operands: [ConstraintRef]) -> Bool {
+        guard constraint.kind == .coincident || constraint.kind == .midpoint else { return false }
+        return constraint.refs.contains { ref in
+            operands.contains(ref) || (ref.role == .whole && selectedSketchPoints.isEmpty &&
+                                      operands.contains(where: { $0.entityID == ref.entityID }))
+        }
+    }
+
+    private func isImplicitConnectionEndpoint(_ ref: ConstraintRef, in sketch: Sketch) -> Bool {
+        guard ref.role == .endpointA || ref.role == .endpointB,
+              let entity = sketch.entities.first(where: { $0.id == ref.entityID }) else { return false }
+        switch entity {
+        case .line, .rect: return true
+        case let .spline(_, points, closed): return !closed && points.count >= 2
+        default: return false
+        }
+    }
+
+    var canDisconnectSketchSelection: Bool {
+        guard let sketch = activeSketch else { return false }
+        let operands = disconnectOperands
+        if sketch.constraints.contains(where: { disconnects($0, operands: operands) }) { return true }
+        for ref in operands where isImplicitConnectionEndpoint(ref, in: sketch)
+            && !sketch.disconnectedEndpoints.contains(ref) {
+            guard let p = localPoint(ref, in: sketch) else { continue }
+            for entity in sketch.entities where entity.id != ref.entityID {
+                for (role, q) in SketchHitTester.modelPoints(of: entity)
+                    where role == .endpointA || role == .endpointB {
+                    let other = ConstraintRef(entityID: entity.id, role: role)
+                    if !sketch.disconnectedEndpoints.contains(other), simd_distance(p, q) < 1e-6 { return true }
+                }
+            }
+        }
+        return false
+    }
+
+    func disconnectSketchSelection() {
+        guard canDisconnectSketchSelection, let sketch = activeSketch else { return }
+        let operands = disconnectOperands
+        var endpoints = sketch.disconnectedEndpoints
+        for ref in operands where isImplicitConnectionEndpoint(ref, in: sketch)
+            && !endpoints.contains(ref) { endpoints.append(ref) }
+        session.perform(DisconnectSketchEndpointsCommand(sketchID: sketch.id,
+            beforeConstraints: sketch.constraints,
+            afterConstraints: sketch.constraints.filter { !disconnects($0, operands: operands) },
+            beforeEndpoints: sketch.disconnectedEndpoints, afterEndpoints: endpoints))
+        selectedSketchEntityIDs = []
+        selectedSketchPoints = []
+        selectedAxisRectangleEdge = nil
+        selectedConstraintID = nil
+        selectedDimensionID = nil
+        session.save()
+    }
+
+    /// Only explicit locks on the selected operands are removable here. A
+    /// rectangle's other side (or an unrelated operand in a multi-ref Lock)
+    /// must not be unlocked as a side effect.
+    var canUnlockSketchSelection: Bool {
+        guard let sketch = activeSketch,
+              let refs = constraintRefs(for: .fixed, in: sketch), !refs.isEmpty else { return false }
+        return refs.allSatisfy { ref in
+            sketch.constraints.contains { $0.kind == .fixed && $0.refs.contains(ref) }
+        }
+    }
+
+    func toggleSketchSelectionLock() {
+        guard canUnlockSketchSelection else { applyConstraint(.fixed); return }
+        guard let sketch = activeSketch,
+              let refs = constraintRefs(for: .fixed, in: sketch) else { return }
+        var commands: [DocumentCommand] = []
+        for (index, constraint) in sketch.constraints.enumerated().reversed()
+            where constraint.kind == .fixed && constraint.refs.contains(where: refs.contains) {
+            commands.append(RemoveSketchConstraintCommand(sketchID: sketch.id,
+                constraint: constraint, index: index))
+            let remaining = constraint.refs.filter { !refs.contains($0) }
+            if !remaining.isEmpty {
+                commands.append(AddSketchConstraintCommand(sketchID: sketch.id,
+                    constraint: SketchConstraint(id: constraint.id, kind: .fixed, refs: remaining)))
+            }
+        }
+        guard !commands.isEmpty else { return }
+        session.perform(CompositeCommand(title: "Unlock", commands: commands))
+        session.save()
+    }
+
     /// Apply `kind` to the current selection: build a `SketchConstraint` from
     /// the selected points/entities, append it, re-solve the sketch, and commit
     /// the constraint + any solver-moved geometry in ONE undoable command.
     func applyConstraint(_ kind: SketchConstraintKind) {
-        guard canApplyConstraint(kind),
-              case .sketching(let sketchID, _) = mode,
-              let sketch = activeSketch
-        else { return }
-        let newConstraints = constraintsToApply(kind, in: sketch)
-        guard !newConstraints.isEmpty else { return }
+        guard canApplyConstraint(kind), let sketch = activeSketch else { return }
+        if kind == .symmetric, selectedSymmetryEntities.count == 2 {
+            pendingSymmetryEntityIDs = selectedSymmetryEntities
+            editingDimension = nil
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            if case .sketching(let id, _) = mode { mode = .sketching(id, tool: nil) }
+            return
+        }
+        let orderedOperands = selectedSketchEntityOrder.filter { id in
+            selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains { $0.entityID == id }
+        }
+        _ = commitAppliedConstraints(kind, constraints: constraintsToApply(kind, in: sketch),
+                                     operandOrder: orderedOperands)
+    }
+
+    private func commitAppliedConstraints(
+        _ kind: SketchConstraintKind, constraints newConstraints: [SketchConstraint],
+        operandOrder orderedOperands: [UUID], axisAnchor: UUID? = nil
+    ) -> Bool {
+        guard case .sketching(let sketchID, _) = mode, let sketch = activeSketch,
+              !newConstraints.isEmpty else { return false }
 
         // Solve the sketch with the new constraint in place; the bridge welds
         // coincident points and pulls under-defined geometry to satisfy it.
@@ -10184,12 +11886,287 @@ final class EditorViewModel {
                 tolerance: Self.overConstraintTolerance)
             errorMessage = Self.conflictRefusalMessage(
                 adding: Self.constraintTitle(kind), partners: partners, in: proposed)
-            return
+            return false
         }
 
-        let (solvedEntities, _) = SketchSolverBridge.solve(
-            proposed, movingEntity: nil, dragTarget: nil
-        )
+        // Native fixed-circle Tangent keeps the free line's length and far
+        // endpoint, rotating its other end toward the circle. These are only
+        // application preferences: release endpoint, then length if a saved
+        // relationship makes either incompatible. In particular, retry here
+        // after an incompatible preferred whole-line anchor is removed.
+        func solveWithTangentLinePreferences(_ candidate: Sketch) -> SketchSolverBridge.Outcome {
+            if kind == .tangent {
+                let ids = Set(newConstraints.flatMap(\.refs).map(\.entityID))
+                let circles = sketch.entities.filter { entity in
+                    switch entity {
+                    case .circle, .arc: return ids.contains(entity.id)
+                    default: return false
+                    }
+                }
+                if circles.count == 2 {
+                    var preferred = candidate
+                    for circle in circles {
+                        let radius: Double
+                        switch circle {
+                        case let .circle(_, _, r), let .arc(_, _, r, _, _): radius = r
+                        default: continue
+                        }
+                        preferred.dimensions.append(.init(kind: .radius,
+                            refs: [.init(entityID: circle.id, role: .center)], value: radius))
+                    }
+                    let result = SketchSolverBridge.solveOutcome(preferred, movingEntity: nil, dragTarget: nil)
+                    if result.converged && result.structuralResidual <= Self.overConstraintTolerance { return result }
+                    return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+                }
+            }
+            guard kind == .tangent,
+                  let lineID = newConstraints.flatMap(\.refs).map(\.entityID).first(where: { id in
+                      sketch.entities.contains { entity in
+                          if case .line = entity { return entity.id == id }
+                          return false
+                      }
+                  }),
+                  case let .line(_, a, b)? = sketch.entities.first(where: { $0.id == lineID }),
+                  simd_length(b - a) > 1e-9 else {
+                return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+            }
+            var lengthPreferred = candidate
+            lengthPreferred.dimensions.append(SketchDimension(kind: .distance, refs: [
+                .init(entityID: lineID, role: .endpointA), .init(entityID: lineID, role: .endpointB)
+            ], value: simd_length(b - a)))
+            var endpointPreferred = lengthPreferred
+            endpointPreferred.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: lineID, role: .endpointB)]))
+            for preferred in [endpointPreferred, lengthPreferred] {
+                let outcome = SketchSolverBridge.solveOutcome(preferred, movingEntity: nil, dragTarget: nil)
+                if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
+                    return outcome
+                }
+            }
+            return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+        }
+
+        // Paired point-first / line-second Midpoint is not a whole-entity
+        // anchor. First Selected translates the source to the existing target
+        // midpoint; Last Selected preserves the source direction and target's
+        // far end, extending the near end about their intersection. These are
+        // placement preferences, projected against the ORIGINAL saved system
+        // so Locks, dimensions and connections always remain authoritative.
+        let midpointPlacement: [SketchEntity]? = {
+            guard kind == .midpoint, newConstraints.count == 1,
+                  newConstraints[0].refs.count == 2 else { return nil }
+            let point = newConstraints[0].refs[0]
+            let targetRef = newConstraints[0].refs[1]
+            guard point.role == .endpointA || point.role == .endpointB,
+                  targetRef.role == .whole,
+                  orderedOperands == [point.entityID, targetRef.entityID],
+                  case let .line(sourceID, sa, sb)? = sketch.entities.first(where: { $0.id == point.entityID }),
+                  case let .line(targetID, ta, tb)? = sketch.entities.first(where: { $0.id == targetRef.entityID })
+            else { return nil }
+            let selected = point.role == .endpointA ? sa : sb
+            let sourceDirection = sb - sa
+            let targetDirection = tb - ta
+            guard simd_length(sourceDirection) > 1e-9,
+                  simd_length(targetDirection) > 1e-9 else { return nil }
+            let targets: [SketchEntity]
+            if AppSettings.shared.anchoredSketchEntity == .firstSelected {
+                let delta = (ta + tb) / 2 - selected
+                targets = [.line(id: sourceID, a: sa + delta, b: sb + delta),
+                           .line(id: targetID, a: ta, b: tb)]
+            } else {
+                let determinant = sourceDirection.x * targetDirection.y - sourceDirection.y * targetDirection.x
+                guard abs(determinant) > 1e-9 * simd_length(sourceDirection) * simd_length(targetDirection)
+                else { return nil } // Parallel/degenerate variants are not paired.
+                let offset = ta - selected
+                let t = (offset.x * targetDirection.y - offset.y * targetDirection.x) / determinant
+                let contact = selected + t * sourceDirection
+                let nearA = simd_distance(selected, ta) <= simd_distance(selected, tb)
+                targets = [.line(id: sourceID, a: point.role == .endpointA ? contact : sa,
+                                 b: point.role == .endpointB ? contact : sb),
+                           .line(id: targetID, a: nearA ? 2 * contact - tb : ta,
+                                 b: nearA ? tb : 2 * contact - ta)]
+            }
+            return SketchSolverBridge.solvePointTransform(proposed, targets: targets)
+        }()
+
+        // Paired single-line H/V rotates about its first endpoint without
+        // shortening the line. Project this placement against the original saved
+        // system: existing Locks/drivers override preferences, never get replaced.
+        let axisAlignmentPlacement: [SketchEntity]? = {
+            guard kind == .horizontal || kind == .vertical, newConstraints.count == 1,
+                  newConstraints[0].refs.count == 1,
+                  let ref = newConstraints[0].refs.first, ref.role == .whole,
+                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                  simd_length(b - a) > 1e-9 else { return nil }
+            let length = simd_length(b - a)
+            let offset = kind == .horizontal
+                ? SIMD2<Double>(b.x < a.x ? -length : length, 0)
+                : SIMD2<Double>(0, b.y < a.y ? -length : length)
+            let end = a + offset
+            return SketchSolverBridge.solvePointTransform(proposed,
+                targets: [.line(id: id, a: a, b: end)])
+        }()
+
+        // Paired First/Last Selected two-line Parallel rotates the unanchored
+        // operand about endpoint A, preserving its length and the chosen anchor.
+        // Project against saved relationships rather than persisting preferences.
+        let parallelPlacement: [SketchEntity]? = {
+            let anchorIndex = AppSettings.shared.anchoredSketchEntity == .firstSelected ? 0 : 1
+            let movingIndex = 1 - anchorIndex
+            guard kind == .parallel, newConstraints.count == 1,
+                  orderedOperands.count == 2,
+                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == orderedOperands[movingIndex] }),
+                  case let .line(anchorID, anchorA, anchorB)? = sketch.entities.first(where: { $0.id == orderedOperands[anchorIndex] }),
+                  simd_length(b - a) > 1e-9, simd_length(anchorB - anchorA) > 1e-9
+            else { return nil }
+            var direction = simd_normalize(anchorB - anchorA)
+            if simd_dot(direction, b - a) < 0 { direction = -direction }
+            return SketchSolverBridge.solvePointTransform(proposed, targets: [
+                .line(id: id, a: a, b: a + direction * simd_length(b - a)),
+                .line(id: anchorID, a: anchorA, b: anchorB)
+            ], preservingLineID: anchorID)
+        }()
+
+        // For the paired nonparallel free-line case, native Perpendicular
+        // rotates about the intersection of the supporting lines, not the
+        // moving segment's midpoint. Saved constraints remain authoritative.
+        let perpendicularPlacement: [SketchEntity]? = {
+            guard kind == .perpendicular, newConstraints.count == 1,
+                  orderedOperands.count == 2,
+                  AppSettings.shared.anchoredSketchEntity == .lastSelected,
+                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == orderedOperands[0] }),
+                  case let .line(anchorID, c, d)? = sketch.entities.first(where: { $0.id == orderedOperands[1] })
+            else { return nil }
+            let moving = b - a, fixed = d - c
+            let movingLength = simd_length(moving), fixedLength = simd_length(fixed)
+            guard movingLength > 1e-9, fixedLength > 1e-9 else { return nil }
+            let determinant = moving.x * fixed.y - moving.y * fixed.x
+            guard abs(determinant) > 1e-9 * movingLength * fixedLength else { return nil }
+            let offset = c - a
+            let pivot = a + moving * ((offset.x * fixed.y - offset.y * fixed.x) / determinant)
+            let originalDirection = moving / movingLength
+            var targetDirection = SIMD2<Double>(fixed.y, -fixed.x) / fixedLength
+            if simd_dot(originalDirection, targetDirection) < 0 { targetDirection = -targetDirection }
+            let cosine = simd_dot(originalDirection, targetDirection)
+            let sine = originalDirection.x * targetDirection.y - originalDirection.y * targetDirection.x
+            func rotate(_ point: SIMD2<Double>) -> SIMD2<Double> {
+                let v = point - pivot
+                return pivot + SIMD2(cosine * v.x - sine * v.y, sine * v.x + cosine * v.y)
+            }
+            return SketchSolverBridge.solvePointTransform(proposed, targets: [
+                .line(id: id, a: rotate(a), b: rotate(b)), .line(id: anchorID, a: c, b: d)
+            ], preservingLineID: anchorID)
+        }()
+
+        let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
+            ? orderedOperands.first : orderedOperands.last
+        // A point-to-point weld averages its input positions before temporary
+        // Locks are applied. For the paired shape-to-free-line recipe, seed the
+        // free endpoint at the selected shape point first; otherwise the Lock
+        // freezes an already-moved circle/rectangle. Do not bypass any saved
+        // relationship or dimension on the line, or alter general welding.
+        let shapePointPlacement: [SketchEntity]? = {
+            guard kind == .coincident, newConstraints.count == 1,
+                  let preferredAnchor,
+                  let shape = sketch.entities.first(where: { $0.id == preferredAnchor }),
+                  { switch shape { case .circle, .rect: return true; default: return false } }(),
+                  let shapeRef = newConstraints[0].refs.first(where: { $0.entityID == preferredAnchor }),
+                  let anchorPoint = localPoint(shapeRef, in: sketch),
+                  let movingRef = newConstraints[0].refs.first(where: { $0.entityID != preferredAnchor }),
+                  movingRef.role == .endpointA || movingRef.role == .endpointB,
+                  let index = sketch.entities.firstIndex(where: { $0.id == movingRef.entityID }),
+                  case let .line(id, a, b) = sketch.entities[index],
+                  !sketch.constraints.contains(where: { $0.refs.contains { $0.entityID == id } }),
+                  !sketch.dimensions.contains(where: { $0.refs.contains { $0.entityID == id } })
+            else { return nil }
+            var seeded = proposed
+            seeded.entities[index] = .line(id: id,
+                a: movingRef.role == .endpointA ? anchorPoint : a,
+                b: movingRef.role == .endpointB ? anchorPoint : b)
+            seeded.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: preferredAnchor, role: .whole)]))
+            let result = SketchSolverBridge.solveOutcome(seeded, movingEntity: nil, dragTarget: nil)
+            guard result.converged, result.structuralResidual <= Self.overConstraintTolerance else { return nil }
+            return result.entities
+        }()
+        var solvedEntities: [SketchEntity]
+        if let shapePointPlacement {
+            solvedEntities = shapePointPlacement
+        } else if let perpendicularPlacement {
+            solvedEntities = perpendicularPlacement
+        } else if let parallelPlacement {
+            solvedEntities = parallelPlacement
+        } else if let axisAlignmentPlacement {
+            solvedEntities = axisAlignmentPlacement
+        } else if let midpointPlacement {
+            solvedEntities = midpointPlacement
+        } else if kind != .fixed, let preferredAnchor {
+            var anchored = proposed
+            anchored.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: preferredAnchor, role: .whole)]))
+            if let axisAnchor {
+                anchored.constraints.append(.init(kind: .fixed,
+                    refs: [.init(entityID: axisAnchor, role: .whole)]))
+            }
+            // Equal changes size, not a free line's direction. The preferred
+            // operand is already fixed; preserve the other line's direction
+            // transiently, just as for a numeric length edit. Never save an
+            // angle constraint, and let existing relationships override this.
+            let directionID = kind == .equalLength ? orderedOperands.first { id in
+                id != preferredAnchor && sketch.entities.contains {
+                    if case .line = $0 { return $0.id == id }
+                    return false
+                }
+            } : nil
+            // Native Perpendicular rotates a free line without resizing it.
+            // This is a solve preference only, never a persisted dimension;
+            // existing point/geometry constraints still take precedence.
+            let anchoredWithoutLengthPreference = anchored
+            if kind == .perpendicular {
+                for id in orderedOperands where id != preferredAnchor {
+                    guard let entity = sketch.entities.first(where: { $0.id == id }),
+                          case let .line(_, a, b) = entity,
+                          simd_length(b - a) > 1e-9 else { continue }
+                    anchored.dimensions.append(SketchDimension(kind: .distance, refs: [
+                        .init(entityID: id, role: .endpointA),
+                        .init(entityID: id, role: .endpointB)
+                    ], value: simd_length(b - a)))
+                }
+            }
+            let tangentCircle: (circle: UUID, line: UUID)? = {
+                guard kind == .tangent,
+                      sketch.entities.contains(where: { entity in
+                          if case .line = entity { return entity.id == preferredAnchor }
+                          return false
+                      }),
+                      let circle = orderedOperands.first(where: { id in
+                          sketch.entities.contains { entity in
+                              if case .circle = entity { return entity.id == id }
+                              return false
+                          }
+                      }) else { return nil }
+                return (circle, preferredAnchor)
+            }()
+            var outcome = kind == .tangent && tangentCircle == nil
+                ? solveWithTangentLinePreferences(anchored)
+                : SketchSolverBridge.solveOutcome(
+                    anchored, movingEntity: nil, dragTarget: nil,
+                    preservingLineDirection: directionID, preservingTangentCircle: tangentCircle)
+            if directionID != nil || tangentCircle != nil || anchored.dimensions.count != anchoredWithoutLengthPreference.dimensions.count,
+               !outcome.converged || outcome.structuralResidual > Self.overConstraintTolerance {
+                outcome = SketchSolverBridge.solveOutcome(
+                    anchoredWithoutLengthPreference, movingEntity: nil, dragTarget: nil)
+            }
+            if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
+                solvedEntities = outcome.entities
+            } else {
+                // A saved relationship is stronger than this transient
+                // preference. Retry without the temporary anchor.
+                solvedEntities = solveWithTangentLinePreferences(proposed).entities
+            }
+        } else {
+            solvedEntities = solveWithTangentLinePreferences(proposed).entities
+        }
 
         var commands: [DocumentCommand] = newConstraints.map {
             AddSketchConstraintCommand(sketchID: sketchID, constraint: $0)
@@ -10206,6 +12183,11 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
+        // Paired Perpendicular, Midpoint, Tangent and point-on-line Coincident clear
+        // operands/readouts. Keep this scoped to observed forms; refusal returns
+        // earlier and must retain the user's selection.
+        if newConstraints.contains(where: clearsSelectionAfterApplying) { clearAppliedRelationSelection() }
+        return true
     }
 
     /// Human name of a dimension, value included ("Distance 120.00 mm") —
@@ -10281,7 +12263,30 @@ final class EditorViewModel {
             }
         }
         guard let refs = constraintRefs(for: kind, in: sketch) else { return [] }
-        return [SketchConstraint(kind: kind, refs: refs)]
+        var constraint = SketchConstraint(kind: kind, refs: refs)
+        if kind == .tangent, let pair = circleTangentOperands,
+           case let .circle(_, a, ra) = pair[0], case let .circle(_, b, rb) = pair[1] {
+            // The midpoint between radius difference and sum is the larger radius.
+            // Native deep overlap chooses internal contact; shallow overlap external.
+            constraint.circleTangency = simd_length(b - a) < max(ra, rb)
+                ? .internalContact : .externalContact
+        } else if kind == .tangent, let pair = circleTangentOperands,
+                  let arc = pair.first(where: { if case .arc = $0 { return true }; return false }),
+                  let circle = pair.first(where: { if case .circle = $0 { return true }; return false }),
+                  case let .arc(_, a, ra, _, _) = arc,
+                  case let .circle(_, b, rb) = circle {
+            constraint.circleTangency = simd_length(b - a) < max(ra, rb)
+                ? .internalContact : .externalContact
+        }
+        return [constraint]
+    }
+
+    private var pointAndDistinctLineRefs: [ConstraintRef]? {
+        guard selectedSketchPoints.count == 1, let point = selectedSketchPoints.first,
+              selectedLineEntities.count == 1, let line = selectedLineEntities.first,
+              point.entityID != line.id else { return nil }
+        return [.init(entityID: point.entityID, role: point.role),
+                .init(entityID: line.id, role: .whole)]
     }
 
     /// Map the selection to the ref layout each constraint kind expects
@@ -10302,6 +12307,7 @@ final class EditorViewModel {
         switch kind {
         case .coincident:
             if pts.count >= 2 { return [ref(pts[0]), ref(pts[1])] }
+            if let refs = pointAndDistinctLineRefs { return refs }
             return nearestEndpointPair(lines)
         case .horizontal, .vertical:
             if let line = lines.first { return [whole(line)] }
@@ -10317,6 +12323,7 @@ final class EditorViewModel {
                 ConstraintRef(entityID: circles[1].id, role: .center),
             ]
         case .tangent:
+            if let pair = circleTangentOperands { return pair.map(whole) }
             guard let line = lines.first, let circle = circles.first else { return nil }
             return [whole(line), whole(circle)]
         case .midpoint:
@@ -10329,7 +12336,12 @@ final class EditorViewModel {
             var refs = pts.map(ref)
             let pointed = Set(pts.map(\.entityID))
             for e in selectedSketchEntities where !pointed.contains(e.id) {
-                refs.append(whole(e))
+                if let edge = selectedAxisRectangleEdge, edge.id == e.id,
+                   selectedSketchEntityIDs == [e.id] {
+                    refs.append(ConstraintRef(entityID: e.id, role: .whole, rectangleEdge: edge.index))
+                } else {
+                    refs.append(whole(e))
+                }
             }
             return refs.isEmpty ? nil : refs
         }
@@ -10368,6 +12380,8 @@ final class EditorViewModel {
         let code: String
         let worldAnchor: SIMD3<Double>
         let slot: Int
+        var isRectangleCenterLock = false
+        var isCircleCenterConnection = false
     }
 
     /// Compact badge text per constraint kind.
@@ -10407,7 +12421,33 @@ final class EditorViewModel {
         var out: [SketchConstraintGlyph] = []
         var slotAt: [String: Int] = [:] // stack glyphs sharing an anchor
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowConstraints) {
+            let migratedEdges = migratedRectangleEdgeIDs(in: sketch)
             for c in sketch.constraints {
+                // Native migrated rectangle corner Locks read through hollow
+                // green corners and contextual Unlock, not an overlaid badge.
+                // Explicit Items selection/conflict diagnosis remain accessible.
+                if c.kind == .fixed, c.refs.count == 1,
+                   migratedEdges.contains(c.refs[0].entityID),
+                   c.refs[0].role == .endpointA || c.refs[0].role == .endpointB,
+                   selectedConstraintID != c.id,
+                   !sketchConflictAttribution.constraintIDs.contains(c.id) { continue }
+                // Rotation preserves the primitive's structural rules in the
+                // solver, without exposing a new cluster of implicit badges.
+                // Items selection and conflict diagnosis still expose a rule.
+                if selectedConstraintID != c.id,
+                   !sketchConflictAttribution.constraintIDs.contains(c.id),
+                   RectangleConstruction.isStructuralRelation(c, in: sketch) { continue }
+                // Native axis-rectangle side Locks read through their green
+                // corners/edges and contextual Unlock, not a midpoint badge.
+                if c.kind == .fixed, c.refs.count == 1,
+                   let edge = c.refs[0].rectangleEdge, (0..<4).contains(edge),
+                   sketch.entities.contains(where: {
+                       if case .rect = $0 { return $0.id == c.refs[0].entityID }
+                       return false
+                   }) { continue }
+                guard annotationIsVisible(refs: c.refs,
+                    alwaysShow: AppSettings.shared.alwaysShowConstraints,
+                    explicitlySelected: selectedConstraintID == c.id) else { continue }
                 guard let local = constraintAnchorLocal(c, in: sketch) else { continue }
                 // Key by sketch too: two sketches on different planes can share
                 // plane-local coordinates without their glyphs overlapping.
@@ -10417,7 +12457,22 @@ final class EditorViewModel {
                 out.append(SketchConstraintGlyph(
                     id: c.id, sketchID: sketch.id, kind: c.kind,
                     code: Self.constraintCode(c.kind),
-                    worldAnchor: sketch.plane.toWorld(local), slot: slot
+                    worldAnchor: sketch.plane.toWorld(local), slot: slot,
+                    isRectangleCenterLock: c.kind == .fixed && c.refs.count == 1 &&
+                        c.refs[0].role == .center && sketch.entities.contains(where: {
+                            switch $0 {
+                            case .rect, .circle: return $0.id == c.refs[0].entityID
+                            default: return false
+                            }
+                        }) || (c.kind == .fixed && c.refs.count == 1 && c.refs[0].role == .center &&
+                               RectangleConstruction.centerDiagonalReferences(c.refs[0].entityID, in: sketch) != nil),
+                    isCircleCenterConnection: c.kind == .coincident && c.refs.count == 2 &&
+                        c.refs.allSatisfy { ref in
+                            ref.role == .center && sketch.entities.contains {
+                                if case .circle = $0 { return $0.id == ref.entityID }
+                                return false
+                            }
+                        }
                 ))
             }
         }
@@ -10437,6 +12492,7 @@ final class EditorViewModel {
             openItemSketch(sketchID)
             guard activeSketch?.id == sketchID else { return }
         }
+        editingDimension = nil
         selectedConstraintID = (selectedConstraintID == id) ? nil : id
         selectedDimensionID = nil
         selectedSketchEntityIDs.removeAll()
@@ -10445,6 +12501,7 @@ final class EditorViewModel {
 
     /// Select a dimension (from the Items panel) for delete.
     func selectDimension(_ id: UUID) {
+        editingDimension = nil
         selectedDimensionID = (selectedDimensionID == id) ? nil : id
         selectedConstraintID = nil
         selectedSketchEntityIDs.removeAll()
@@ -10555,6 +12612,26 @@ final class EditorViewModel {
     /// A dimension label to draw in the sketch overlay: a driving dimension, or
     /// the live candidate for the current selection (`dimensionID == nil`).
     /// Positions are WORLD-space so the overlay reprojects them each camera move.
+    private var temporaryDiameterLabelOffsets: [UUID: SIMD2<Double>] = [:]
+
+    /// Native free readout placement lasts for the selection; driving dimension
+    /// placement is a separate undoable, saved presentation edit.
+    func moveDiameterLabel(_ label: SketchDimensionLabel, offset: SIMD2<Double>) {
+        guard label.kind == .diameter, offset.x.isFinite, offset.y.isFinite,
+              let entityID = label.refs.first?.entityID,
+              let sketch = session.document.sketches.first(where: { $0.id == label.sketchID })
+        else { return }
+        if let dimensionID = label.dimensionID,
+           let before = sketch.dimensions.first(where: { $0.id == dimensionID }) {
+            var after = before
+            after.labelOffset = offset
+            guard before != after else { return }
+            session.perform(UpdateSketchDimensionCommand(sketchID: sketch.id, before: before, after: after))
+        } else {
+            temporaryDiameterLabelOffsets[entityID] = offset
+        }
+    }
+
     struct SketchDimensionLabel: Identifiable {
         let id: String
         /// The sketch this label annotates. Outside sketch mode the overlay
@@ -10569,25 +12646,82 @@ final class EditorViewModel {
         let worldAnchor: SIMD3<Double>
         let worldStart: SIMD3<Double>
         let worldEnd: SIMD3<Double>
+        // Arc sweep annotations follow the actual sweep, including major arcs.
+        // World points keep the leader aligned when the camera/plane changes.
+        var worldDiameterLabelAnchor: SIMD3<Double>? = nil
+        var isPolygonSideCount = false
+        var hasExpression = false
+        var isStandaloneLineLength = false
+        var isProjectedLineLength = false
+        var worldLineStart: SIMD3<Double>? = nil
+        var worldLineEnd: SIMD3<Double>? = nil
+        var isRectangleSize = false
+        var axisRectangleEdge: Int? = nil
+        var worldRectangleCenter: SIMD3<Double>? = nil
+        var isArcRadius = false
+        var isCircleRadius = false
+        var hasCircleRadiusDirection = false
+        var worldArcCenter: SIMD3<Double>? = nil
+        var worldArcPoints: [SIMD3<Double>] = []
     }
 
     /// In-flight inline edit of a dimension field (the candidate or an existing
     /// dimension). Non-nil while the numeric field is open in the overlay.
     struct DimensionEdit: Equatable {
+        var sessionID = UUID()
         var labelID: String
         var dimensionID: UUID?
         var kind: DimensionKind
         var refs: [ConstraintRef]
         var text: String
+        // Exact measured mm (degrees for angles), separate from rounded UI text.
+        // Retained expressions are evaluated instead and never use this seed.
+        var measuredSeed: Double? = nil
+        var validationMessage: String? = nil
+        var isPolygonSideCount = false
+        var axisRectangleEdge: Int? = nil
+        var isPendingRectangleBaseline = false
+        var hardwareInitiated = false
     }
+    // Input-mode preference survives individual dimension edit sessions.
+    var dimensionUsesSystemKeyboard = false
     var editingDimension: DimensionEdit?
 
-    /// Whether committing the field leaves a DRIVING dimension behind (the
-    /// keypad's lock key). Shapr3D calls these "locked dimensions"; unlocked,
-    /// the typed value still resizes the geometry, it just is not recorded as
-    /// a constraint — and unlocking one that already exists removes it and
-    /// keeps the geometry where it landed. Locked is the default, and the
-    /// field resets to it, because a typed dimension is normally meant to hold.
+    // The field keeps its own SwiftUI text state. Mirror drafts without
+    // observable writes on the TextField binding/render path (which previously
+    // caused a render loop). Session identity prevents stale drafts being used
+    // for a different badge or a reopened editor.
+    @ObservationIgnored private var dimensionDraft: (sessionID: UUID, text: String, changed: Bool)?
+
+    func updateDimensionDraft(_ text: String, sessionID: UUID) {
+        guard let edit = editingDimension, edit.sessionID == sessionID else { return }
+        let changed = text != edit.text ||
+            (dimensionDraft?.sessionID == sessionID && dimensionDraft?.changed == true)
+        dimensionDraft = (sessionID, text, changed)
+        if editingDimension?.validationMessage != nil {
+            editingDimension?.validationMessage = nil
+        }
+    }
+
+    private func finishDimensionEditOnClickAway() {
+        guard let edit = editingDimension else { return }
+        let text = dimensionDraft?.sessionID == edit.sessionID
+            ? dimensionDraft!.text : edit.text
+        // Merely inspecting a badge must not create an extra history step.
+        guard text != edit.text else {
+            cancelDimensionEdit()
+            return
+        }
+        commitDimensionEdit(text)
+        if editingDimension?.validationMessage != nil {
+            cancelDimensionEdit()
+            showNotice("Invalid expression.")
+        }
+    }
+
+    /// Numeric commits normally leave a driving dimension. The unlocked solve
+    /// path remains available to callers, but the keypad lock key independently
+    /// adds/removes the unchanged measured dimension through toggleDimensionLock.
     var dimensionCommitLocked = true
 
     /// Radius of a circular entity (circle/arc/polygon); nil otherwise.
@@ -10604,12 +12738,22 @@ final class EditorViewModel {
 
     /// Plane-local position of a constraint ref's point on its entity.
     private func localPoint(_ ref: ConstraintRef, in sketch: Sketch) -> SIMD2<Double>? {
+        if ref.role == .center,
+           let (a, b) = RectangleConstruction.centerDiagonalReferences(ref.entityID, in: sketch),
+           let first = localPoint(a, in: sketch), let opposite = localPoint(b, in: sketch) {
+            return (first + opposite) / 2
+        }
         guard let e = sketchEntity(ref.entityID, in: sketch) else { return nil }
+        if ref.role == .whole, let index = ref.rectangleEdge,
+           let edge = RectangleConstruction.axisEdge(e, index: index) {
+            return (edge.a + edge.b) / 2
+        }
         switch (e, ref.role) {
         case let (.line(_, a, _), .endpointA): return a
         case let (.line(_, _, b), .endpointB): return b
         case let (.rect(_, mn, _), .endpointA): return mn
         case let (.rect(_, _, mx), .endpointB): return mx
+        case let (.rect(_, lo, hi), .center): return (lo + hi) / 2
         case let (.line(_, a, b), .whole): return (a + b) / 2
         default:
             switch e {
@@ -10647,13 +12791,44 @@ final class EditorViewModel {
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             return ((a + b) / 2, a, b)
         case .horizontal, .vertical:
-            // Drawn along the lower (width) or right-hand (height) side of
-            // the box the two points span, where a rect's sides are.
+            // Explicit edge selection takes priority over creation-side defaults.
             guard refs.count == 2, let a = localPoint(refs[0], in: sketch),
                   let b = localPoint(refs[1], in: sketch) else { return nil }
             let lo = SIMD2(min(a.x, b.x), min(a.y, b.y)), hi = SIMD2(max(a.x, b.x), max(a.y, b.y))
+            let retainedSize = selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty &&
+                sketch.dimensions.contains { $0.id == selectedDimensionID && $0.kind == kind && $0.refs == refs }
+            if let pick = selectedAxisRectangleEdge,
+               (selectedSketchEntityIDs == [pick.id] || retainedSize),
+               refs.allSatisfy({ $0.entityID == pick.id }),
+               let entity = sketchEntity(pick.id, in: sketch),
+               let edge = RectangleConstruction.axisEdge(entity, index:
+                    (kind == .horizontal) == (pick.index % 2 == 0)
+                        ? pick.index : (pick.index + 3) % 4) {
+                return ((edge.a + edge.b) / 2, edge.a, edge.b)
+            }
+            // Creation direction determines default leader sides, independently
+            // of the solver's center/lower-left sizing policy. Legacy center
+            // rectangles without direction metadata keep their old defaults.
+            if refs[0].entityID == refs[1].entityID,
+               case .rect? = sketchEntity(refs[0].entityID, in: sketch),
+               let corner = sketch.rectangleSizingAnchors[refs[0].entityID]?.annotationCornerUsesMax {
+                let s: SIMD2<Double>, e: SIMD2<Double>
+                if kind == .horizontal {
+                    let y = corner.x ? hi.y : lo.y
+                    s = SIMD2(lo.x, y); e = SIMD2(hi.x, y)
+                } else {
+                    let x = corner.y ? lo.x : hi.x
+                    s = SIMD2(x, lo.y); e = SIMD2(x, hi.y)
+                }
+                return ((s + e) / 2, s, e)
+            }
             if kind == .horizontal {
                 let s = lo, e = SIMD2(hi.x, lo.y)
+                return ((s + e) / 2, s, e)
+            }
+            if refs[0].entityID == refs[1].entityID,
+               case .rect? = sketchEntity(refs[0].entityID, in: sketch) {
+                let s = lo, e = SIMD2(lo.x, hi.y)
                 return ((s + e) / 2, s, e)
             }
             let s = SIMD2(hi.x, lo.y), e = hi
@@ -10664,9 +12839,26 @@ final class EditorViewModel {
                   let r = Self.entityRadius(e),
                   let c = localPoint(ConstraintRef(entityID: ref.entityID, role: .center), in: sketch)
             else { return nil }
+            if kind == .radius, case let .polygon(_, _, _, _, angle) = e {
+                let end = c + SIMD2(cos(angle), sin(angle)) * r
+                return ((c + end) / 2, c, end)
+            }
+            if kind == .radius, case let .arc(_, _, _, angle, _) = e {
+                let end = c + SIMD2(cos(angle), sin(angle)) * r
+                return ((c + end) / 2, c, end)
+            }
             let end = c + SIMD2(r, 0)
-            return (c + SIMD2(r * 0.5, 0), c, end)
+            let start = kind == .diameter ? c - SIMD2(r, 0) : c
+            return (c + SIMD2(r * 0.5, 0), start, end)
         case .angle:
+            if refs.count == 1, let ref = refs.first,
+               case let .arc(_, c, r, start, end)? = sketchEntity(ref.entityID, in: sketch) {
+                let mid = start + SketchEntity.arcSweep(startAngle: start, endAngle: end) / 2
+                let direction = SIMD2(cos(mid), sin(mid))
+                return (c + direction * r * 1.7,
+                        c + SIMD2(cos(start), sin(start)) * r,
+                        c + SIMD2(cos(end), sin(end)) * r)
+            }
             guard refs.count == 2,
                   let (a1, b1) = lineEndpoints(refs[0].entityID, in: sketch),
                   let (a2, b2) = lineEndpoints(refs[1].entityID, in: sketch) else { return nil }
@@ -10702,6 +12894,10 @@ final class EditorViewModel {
             guard let ref = refs.first, let e = sketchEntity(ref.entityID, in: sketch) else { return nil }
             return Self.entityRadius(e).map { $0 * 2 }
         case .angle:
+            if refs.count == 1, let ref = refs.first,
+               case let .arc(_, _, _, start, end)? = sketchEntity(ref.entityID, in: sketch) {
+                return SketchEntity.arcSweep(startAngle: start, endAngle: end) * 180 / .pi
+            }
             guard refs.count == 2,
                   let (a1, b1) = lineEndpoints(refs[0].entityID, in: sketch),
                   let (a2, b2) = lineEndpoints(refs[1].entityID, in: sketch) else { return nil }
@@ -10713,10 +12909,71 @@ final class EditorViewModel {
         }
     }
 
+    private var selectedRectangleDimensionEdges: [UUID]? {
+        let releasedCenter = mode.sketchTool == .rect && rectangleType == .threePoint &&
+            selectedSketchPoints.count == 1 && selectedSketchPoints.first?.role == .center &&
+            selectedSketchEntityIDs.contains(selectedSketchPoints.first!.entityID)
+        guard selectedSketchPoints.isEmpty || releasedCenter else { return nil }
+        guard let sketch = activeSketch,
+              let first = selectedSketchEntities.first,
+              let loop = RectangleConstruction.dimensionEdges(containing: first.id, in: sketch),
+              Set(loop) == selectedSketchEntityIDs else { return nil }
+        return loop
+    }
+
+    /// A single side still belongs to its saved migrated center rectangle.
+    /// Keep this distinct from arbitrary connected lines and point selection.
+    private var selectedMigratedRectangleEdges: [UUID]? {
+        guard selectedSketchPoints.isEmpty, selectedSketchEntityIDs.count == 1,
+              let id = selectedSketchEntityIDs.first, let sketch = activeSketch else { return nil }
+        return sketch.rotatedRectangleEdges.values.first { ids in
+            ids.count == 4 && Set(ids).count == 4 && ids.contains(id) &&
+            ids.allSatisfy { edgeID in sketch.entities.contains {
+                if case .line = $0 { return $0.id == edgeID }; return false
+            } }
+        }
+    }
+
+    private var selectedMigratedRectangleCornerEdges: [UUID]? {
+        guard selectedSketchEntityIDs.isEmpty, selectedSketchPoints.count == 1,
+              let point = selectedSketchPoints.first,
+              point.role == .endpointA || point.role == .endpointB,
+              let sketch = activeSketch else { return nil }
+        return sketch.rotatedRectangleEdges.values.first { ids in
+            ids.count == 4 && Set(ids).count == 4 && ids.contains(point.entityID) &&
+            ids.allSatisfy { id in
+                if case .line? = sketchEntity(id, in: sketch) { return true }
+                return false
+            }
+        }
+    }
+
+    var selectedMigratedRectangleCornerMarker: SketchPointMarker? {
+        guard selectedMigratedRectangleCornerEdges != nil,
+              let point = selectedSketchPoints.first, let sketch = activeSketch,
+              let local = localPoint(.init(entityID: point.entityID, role: point.role), in: sketch) else { return nil }
+        return SketchPointMarker(id: "selectedMigratedCorner",
+            world: SIMD3<Float>(sketch.plane.toWorld(local)), state: .free,
+            isRectangleCorner: true, isSelected: true)
+    }
+
+    private static func lineLengthRefs(_ id: UUID) -> [ConstraintRef] {
+        [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+    }
+
     /// The dimension the current selection would create (auto-shown as an
     /// editable candidate label; also what the palette Dimension action edits).
     private var dimensionCandidate: (kind: DimensionKind, refs: [ConstraintRef])? {
         guard mode.isSketching else { return nil }
+        if selectedSketchEntityIDs.isEmpty, selectedSketchPoints.isEmpty,
+           let id = retainedCircleCenterReadoutID, let sketch = activeSketch,
+           case .circle? = sketchEntity(id, in: sketch) {
+            return (AppSettings.shared.circularAnnotations == .alwaysRadius ? .radius : .diameter,
+                    [.init(entityID: id, role: .whole)])
+        }
+        if let edges = selectedRectangleDimensionEdges {
+            return (.distance, Self.lineLengthRefs(edges[0]))
+        }
         let lines = selectedLineEntities
         let radii = selectedRadiusEntities
         let pts = Array(selectedSketchPoints)
@@ -10747,11 +13004,13 @@ final class EditorViewModel {
         // drag one out — so offering R on release meant the same circle showed
         // two different numbers seconds apart. An arc's radius is the useful
         // value (and what its centre-and-sweep is defined by), so it keeps R.
-        if radii.count == 1, lines.isEmpty, pts.isEmpty {
+        if radii.count == 1, lines.isEmpty, pts.isEmpty ||
+            (pts == [.init(entityID: radii[0].id, role: .center)] &&
+             selectedCircleCenterID == radii[0].id) {
             let entity = radii[0]
             let isFullCircle: Bool
             if case .circle = entity { isFullCircle = true } else { isFullCircle = false }
-            return (isFullCircle ? .diameter : .radius,
+            return (isFullCircle && AppSettings.shared.circularAnnotations != .alwaysRadius ? .diameter : .radius,
                     [ConstraintRef(entityID: entity.id, role: .whole)])
         }
         // Single rectangle → width (its height is offered as a second label;
@@ -10759,7 +13018,9 @@ final class EditorViewModel {
         // corners, so width/height are axis distances between them, not the
         // corner-to-corner `.distance` — that would dimension the diagonal.
         if let rect = selectedRectEntities.first, selectedRectEntities.count == 1,
-           lines.isEmpty, radii.isEmpty, pts.isEmpty {
+           lines.isEmpty, radii.isEmpty,
+           pts.isEmpty || (mode.sketchTool == .rect && rectangleType == .center &&
+                selectedSketchPoints == [.init(entityID: rect.id, role: .center)]) {
             return (.horizontal, Self.rectCornerRefs(rect.id))
         }
         return nil
@@ -10772,6 +13033,61 @@ final class EditorViewModel {
     /// True when the palette Dimension action can act on the selection.
     var canDimensionSelection: Bool { dimensionCandidate != nil }
 
+    /// The dimension kinds offered by the adaptive Dimension action. A sloped
+    /// line has three useful measurements in Shapr3D: its true length plus its
+    /// horizontal and vertical projections. Axis-aligned lines keep the single
+    /// unambiguous length action rather than showing duplicate values.
+    var dimensionKindChoices: [DimensionKind] {
+        guard let candidate = dimensionCandidate else { return [] }
+        guard candidate.kind == .distance,
+              selectedSketchPoints.isEmpty,
+              selectedLineEntities.count == 1,
+              selectedSketchEntityIDs.count == 1,
+              case let .line(_, a, b) = selectedLineEntities[0] else {
+            return [candidate.kind]
+        }
+        let delta = b - a
+        guard abs(delta.x) > 1e-9, abs(delta.y) > 1e-9 else {
+            return [candidate.kind]
+        }
+        return [.distance, .horizontal, .vertical]
+    }
+
+    /// The native badge preserves geometry and, for a plain numeric driver,
+    /// replaces its type/value in place rather than adding another driver.
+    func canChooseLineDimensionKind(_ label: SketchDimensionLabel) -> Bool {
+        guard label.isStandaloneLineLength,
+              editingDimension == nil, !sketchTransformActive,
+              let sketch = activeSketch, let candidate = dimensionCandidate else { return false }
+        let dimensions = sketch.dimensions.filter {
+            $0.refs.count == label.refs.count && $0.refs.allSatisfy(label.refs.contains)
+        }
+        if let id = label.dimensionID {
+            guard dimensions.count == 1, dimensions[0].id == id,
+                  dimensions[0].formula == nil else { return false }
+        } else if !dimensions.isEmpty { return false }
+        return label.refs == candidate.refs && dimensionKindChoices.count == 3
+    }
+
+    func chooseLineDimensionKind(_ kind: DimensionKind, label: SketchDimensionLabel) {
+        guard canChooseLineDimensionKind(label), dimensionKindChoices.contains(kind),
+              let before = activeSketch, before.id == label.sketchID,
+              let id = label.refs.first?.entityID, label.kind != kind,
+              let value = measuredValue(kind: kind, refs: label.refs, in: before) else { return }
+        let oldDimension = label.dimensionID.flatMap { dimensionID in
+            before.dimensions.first { $0.id == dimensionID }
+        }
+        var newDimension = oldDimension
+        newDimension?.kind = kind
+        newDimension?.value = value
+        newDimension?.displayExpression = nil
+        let command = SetLineDimensionKindCommand(sketchID: before.id, entityID: id,
+            before: before.lineDimensionKinds[id], after: kind == .distance ? nil : kind,
+            beforeDimension: oldDimension, afterDimension: newDimension)
+        session.perform(command)
+        clearLineDimensionSelection(for: command)
+    }
+
     /// A keypad unit token as a `DisplayUnit`. "deg" is an angle unit and has
     /// no length meaning, so it maps to nil and the value is left alone.
     nonisolated static func lengthUnit(forSuffix suffix: String?) -> DisplayUnit? {
@@ -10779,56 +13095,156 @@ final class EditorViewModel {
         case "mm": .millimeters
         case "cm": .centimeters
         case "m": .meters
+        case "in": .inches
+        case "ft": .feet
         default: nil
         }
     }
 
     /// Number → clean editable string (drops trailing zeros).
-    private static func dimensionFieldText(_ value: Double) -> String {
+    private static func dimensionFieldText(_ value: Double, lengthUnit: DisplayUnit? = nil) -> String {
         if abs(value - value.rounded()) < 1e-6 {
             return String(Int(value.rounded()))
         }
-        return String(format: "%g", (value * 1000).rounded() / 1000)
+        let scale = lengthUnit == .millimeters || lengthUnit == .inches || lengthUnit == .feet
+            ? 10000.0 : 1000.0
+        return String(format: "%g", (value * scale).rounded() / scale)
     }
 
     /// Dimension labels to render in the sketch overlay: existing driving
     /// dimensions plus the live selection candidate (if any and not already an
     /// existing dimension over the same refs).
     /// Sketches whose annotations (dimensions, constraint glyphs) should draw.
-    /// The active sketch always; plus every visible sketch when the user has
+    /// Dimensions use the active sketch during editing; otherwise visible sketches
+    /// may contribute when the user has
     /// asked annotations to persist — Shapr3D's "Constraint & Locked Dimension
     /// Visibility". Without that, leaving a sketch hides the very dimensions
     /// that define it, and a second sketch's dimensions are never visible at all.
     /// The active sketch is included even when hidden, because `openItemSketch`
     /// renders a hidden sketch while it is being edited.
-    private func annotatedSketches(alwaysShow: Bool) -> [Sketch] {
+    private func annotatedSketches(alwaysShow: Bool,
+                                   restrictDimensionsToActiveSketch: Bool = false) -> [Sketch] {
         let active = activeSketch
         if alwaysShow {
-            return session.document.sketches.filter { !$0.isHidden || $0.id == active?.id }
+            return session.document.sketches.filter { sketch in
+                guard !sketch.isHidden || sketch.id == active?.id else { return false }
+                // Native suppresses other sketches' locked dimensions while
+                // editing, including independent coplanar reference geometry.
+                // Outside sketch editing, Always Show still includes all visible
+                // sketches. Constraint glyph policy is intentionally unchanged.
+                if restrictDimensionsToActiveSketch, let active {
+                    return sketch.id == active.id
+                }
+                return true
+            }
         }
-        // The off-state is NOT "hidden". Shapr3D's own wording for it is
-        // "shown based on your current selection", so a sketch you have
-        // selected still shows what defines it — you just don't carry every
-        // sketch's annotations around the canvas. The active sketch always;
-        // plus any visible sketch with a selected entity.
-        var out = active.map { [$0] } ?? []
-        guard !selectedSketchEntityIDs.isEmpty else { return out }
-        for sketch in session.document.sketches
-        where !sketch.isHidden && sketch.id != active?.id
-                && sketch.entities.contains(where: { selectedSketchEntityIDs.contains($0.id) }) {
-            out.append(sketch)
+        // Keep the active sketch as a candidate; each annotation is filtered
+        // below, including a selected glyph or an open dimension editor.
+        let entityIDs = selectedSketchEntityIDs.union(selectedSketchPoints.map(\.entityID))
+        return session.document.sketches.filter {
+            $0.id == active?.id || (!$0.isHidden && $0.entities.contains { entityIDs.contains($0.id) })
         }
-        return out
+    }
+
+    private func annotationIsVisible(refs: [ConstraintRef], alwaysShow: Bool,
+                                     explicitlySelected: Bool) -> Bool {
+        SketchAnnotationVisibility.shows(refs: refs, alwaysShow: alwaysShow,
+            selectedEntities: selectedSketchEntityIDs,
+            selectedPoints: selectedSketchPoints.map {
+                ConstraintRef(entityID: $0.entityID, role: $0.role)
+            }, explicitlySelected: explicitlySelected)
     }
 
     var sketchDimensionLabels: [SketchDimensionLabel] {
         _ = session.changeCount
+        // Native Trim suppresses numeric readouts: the selected boundary must
+        // receive the tap, even where a polygon count or length badge sits.
+        // Keep the selection and saved annotations intact for leaving Trim.
+        if mode.sketchTool == .trim { return [] }
         let unit = AppSettings.shared.unit
         var labels: [SketchDimensionLabel] = []
 
         func makeLabel(id: String, in sketch: Sketch, dimensionID: UUID?, kind: DimensionKind,
-                       refs: [ConstraintRef], value: Double) -> SketchDimensionLabel? {
-            guard let g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+                       refs: [ConstraintRef], value: Double, presentationEdgeID: UUID? = nil,
+                       axisPresentationEdge: Int? = nil) -> SketchDimensionLabel? {
+            var kind = kind
+            var value = value
+            if (kind == .radius || kind == .diameter), refs.count == 1,
+               case .circle? = sketchEntity(refs[0].entityID, in: sketch) {
+                let displayed: DimensionKind = AppSettings.shared.circularAnnotations == .alwaysRadius ? .radius : .diameter
+                if kind != displayed {
+                    value *= displayed == .radius ? 0.5 : 2
+                    kind = displayed
+                }
+            }
+            guard var g = dimensionGeometry(kind: kind, refs: refs, in: sketch) else { return nil }
+            var projectedLine: (SIMD2<Double>, SIMD2<Double>)?
+            if (kind == .horizontal || kind == .vertical), refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+               case let .line(_, a, b)? = sketchEntity(refs[0].entityID, in: sketch),
+               RectangleConstruction.dimensionEdges(containing: refs[0].entityID, in: sketch) == nil {
+                let mid = (a + b) / 2
+                g = kind == .horizontal
+                    ? (mid, SIMD2(a.x, mid.y), SIMD2(b.x, mid.y))
+                    : (mid, SIMD2(mid.x, a.y), SIMD2(mid.x, b.y))
+                projectedLine = (a, b)
+            }
+            if kind == .radius, let id = refs.first?.entityID,
+               case let .circle(_, center, radius)? = sketchEntity(id, in: sketch),
+               let direction = sketch.circleRadiusDirections[id],
+               direction.x.isFinite, direction.y.isFinite, simd_length(direction) > 1e-9 {
+                g.start = center
+                g.end = center + simd_normalize(direction) * radius
+                g.anchor = (g.start + g.end) / 2
+            }
+            if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
+               Set(refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+               let group = selectedMigratedRectangleEdges ?? selectedMigratedRectangleCornerEdges,
+               let dimensionIndex = group.firstIndex(of: refs[0].entityID) {
+                var presentationID: UUID?
+                if let selectedID = selectedSketchEntityIDs.first,
+                   let selectedIndex = group.firstIndex(of: selectedID),
+                   selectedIndex % 2 == dimensionIndex % 2 {
+                    presentationID = selectedID
+                } else if let point = selectedSketchPoints.first,
+                          let index = group.firstIndex(of: point.entityID) {
+                    let adjacent = (index + (point.role == .endpointA ? 3 : 1)) % 4
+                    presentationID = group[index % 2 == dimensionIndex % 2 ? index : adjacent]
+                }
+                if let presentationID, case let .line(_, a, b)? = sketchEntity(presentationID, in: sketch) {
+                    // Reposition the saved annotation, never its driving refs.
+                    g.start = a
+                    g.end = b
+                    g.anchor = (a + b) / 2
+                }
+            }
+            if let presentationEdgeID,
+               case let .line(_, a, b)? = sketchEntity(presentationEdgeID, in: sketch) {
+                g.start = a
+                g.end = b
+                g.anchor = (a + b) / 2
+            }
+            var axisEdgeIndex: Int?
+            if kind == .horizontal || kind == .vertical, refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               let entity = sketchEntity(refs[0].entityID, in: sketch), case .rect = entity {
+                let storedEdge = dimensionID.flatMap { id in
+                    sketch.dimensions.first(where: { $0.id == id })?.rectangleLabelEdges?.last
+                }
+                let selectedSide = selectedAxisRectangleEdge?.id == entity.id &&
+                    selectedSketchEntityIDs == [entity.id]
+                if let edgeIndex = axisPresentationEdge ?? (selectedSide ? nil : storedEdge),
+                   (kind == .horizontal) == (edgeIndex % 2 == 0),
+                   let edge = RectangleConstruction.axisEdge(entity, index: edgeIndex) {
+                    g.start = edge.a; g.end = edge.b; g.anchor = (edge.a + edge.b) / 2
+                }
+                axisEdgeIndex = (0..<4).first { index in
+                    guard (kind == .horizontal) == (index % 2 == 0),
+                          let edge = RectangleConstruction.axisEdge(entity, index: index) else { return false }
+                    return simd_distance((edge.a + edge.b) / 2, g.anchor) < 1e-9
+                }
+            }
             // Angles are unitless; lengths follow the display unit. The
             // document itself always stores millimetres — `value` is mm here.
             // Radius and diameter carry the CAD leader (R / Ø, the same
@@ -10847,25 +13263,155 @@ final class EditorViewModel {
             default:
                 text = unit.compactLengthString(fromMM: value)
             }
-            return SketchDimensionLabel(
+            var label = SketchDimensionLabel(
                 id: id, sketchID: sketch.id, dimensionID: dimensionID, kind: kind, refs: refs,
                 displayValue: value, text: text,
                 worldAnchor: sketch.plane.toWorld(g.anchor),
                 worldStart: sketch.plane.toWorld(g.start),
                 worldEnd: sketch.plane.toWorld(g.end)
             )
+            label.axisRectangleEdge = axisEdgeIndex
+            if let (a, b) = projectedLine {
+                label.isStandaloneLineLength = true
+                label.isProjectedLineLength = true
+                label.worldLineStart = sketch.plane.toWorld(a)
+                label.worldLineEnd = sketch.plane.toWorld(b)
+            }
+            if let dimensionID, let dimension = sketch.dimensions.first(where: { $0.id == dimensionID }) {
+                label.hasExpression = dimension.formula != nil || dimension.displayExpression != nil
+            }
+            if kind == .diameter, let entityID = refs.first?.entityID {
+                let stored = dimensionID.flatMap { id in
+                    sketch.dimensions.first(where: { $0.id == id })?.labelOffset
+                }
+                if let offset = stored ?? temporaryDiameterLabelOffsets[entityID] {
+                    let center = (g.start + g.end) / 2
+                    label.worldDiameterLabelAnchor = sketch.plane.toWorld(center + offset)
+                }
+            }
+            if kind == .distance, let first = refs.first,
+               refs.count == 2, refs.allSatisfy({ $0.entityID == first.entityID }),
+               case .line? = sketchEntity(first.entityID, in: sketch) {
+                if let edges = RectangleConstruction.dimensionEdges(containing: first.entityID, in: sketch) {
+                    let centers = edges.compactMap { sketchEntity($0, in: sketch) }.map(Self.entityCenter)
+                    if centers.count == 4 {
+                        label.isRectangleSize = true
+                        label.worldRectangleCenter = sketch.plane.toWorld(centers.reduce(.zero, +) / 4)
+                    }
+                } else {
+                    label.isStandaloneLineLength = true
+                }
+            }
+            if (kind == .horizontal || kind == .vertical), refs.count == 2,
+               refs[0].entityID == refs[1].entityID,
+               case let .rect(_, lo, hi)? = sketchEntity(refs[0].entityID, in: sketch) {
+                label.isRectangleSize = true
+                label.worldRectangleCenter = sketch.plane.toWorld((lo + hi) / 2)
+            }
+            if kind == .radius, let ref = refs.first,
+               let entity = sketchEntity(ref.entityID, in: sketch) {
+                switch entity {
+                case .arc, .polygon: label.isArcRadius = true
+                case .circle:
+                    label.isArcRadius = true
+                    label.isCircleRadius = true
+                    label.hasCircleRadiusDirection = sketch.circleRadiusDirections[ref.entityID] != nil
+                default: break
+                }
+            }
+            if kind == .angle, refs.count == 1,
+               case let .arc(_, center, radius, start, end)? =
+                    sketchEntity(refs[0].entityID, in: sketch) {
+                let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+                let count = max(8, Int(ceil(sweep / (.pi / 64))))
+                label.worldArcCenter = sketch.plane.toWorld(center)
+                label.worldArcPoints = (0...count).map { index in
+                    let angle = start + sweep * Double(index) / Double(count)
+                    return sketch.plane.toWorld(center + SIMD2(cos(angle), sin(angle)) * radius)
+                }
+            }
+            return label
         }
 
-        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions) {
+        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions,
+                                       restrictDimensionsToActiveSketch: true) {
             for d in sketch.dimensions {
-                // Prefer the measured value so the label is a truthful readout
-                // of the solved geometry (matches the driving value when
-                // satisfied).
+                guard annotationIsVisible(refs: d.refs,
+                    alwaysShow: AppSettings.shared.alwaysShowDimensions,
+                    explicitlySelected: selectedDimensionID == d.id
+                        || editingDimension?.dimensionID == d.id
+                        || (sketch.id == activeSketch?.id && d.kind == .distance &&
+                            d.refs.count == 2 && d.refs[0].entityID == d.refs[1].entityID &&
+                            Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]) &&
+                            (selectedMigratedRectangleEdges?.contains(d.refs[0].entityID) == true ||
+                             selectedMigratedRectangleCornerEdges?.contains(d.refs[0].entityID) == true))) else { continue }
+                // Keep genuine geometry differences visible, but do not let a
+                // negligible solver residual move a satisfied driving dimension
+                // across a decimal rounding tie after editing another size.
                 let stored = d.kind == .angle ? d.value * 180 / .pi : d.value
-                let display = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
+                let measured = measuredValue(kind: d.kind, refs: d.refs, in: sketch) ?? stored
+                let display = abs(measured - stored) <= max(1, abs(stored)) * 1e-10
+                    ? stored : measured
                 if let label = makeLabel(id: d.id.uuidString, in: sketch, dimensionID: d.id,
                                          kind: d.kind, refs: d.refs, value: display) {
                     labels.append(label)
+                    // Saved sides remain visible beside a perpendicular edge's
+                    // adjacent readout, or after a successful size commit. All
+                    // aliases share one driving dimension and identical refs.
+                    if sketch.id == activeSketch?.id, let primary = label.axisRectangleEdge,
+                       let saved = d.rectangleLabelEdges {
+                        let perpendicularSelection = selectedAxisRectangleEdge.map { pick in
+                            selectedSketchEntityIDs == [pick.id] && d.refs.allSatisfy { $0.entityID == pick.id } &&
+                                (pick.index % 2 == 0) != (d.kind == .horizontal)
+                        } == true
+                        let retained = selectedSketchEntityIDs.isEmpty && selectedSketchPoints.isEmpty && selectedDimensionID == d.id
+                        if perpendicularSelection || retained {
+                            for side in Set(saved).sorted() where side != primary {
+                                guard (0..<4).contains(side), (side % 2 == 0) == (d.kind == .horizontal) else { continue }
+                                if let alias = makeLabel(id: d.id.uuidString + "-axis-side-\(side)",
+                                    in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                                    value: display, axisPresentationEdge: side) { labels.append(alias) }
+                            }
+                        }
+                    }
+                    // A committed selected size remains as two parallel
+                    // readouts after native drops its edge/handle selection.
+                    if sketch.id == activeSketch?.id, selectedDimensionID == d.id,
+                       selectedSketchEntityIDs.isEmpty, selectedSketchPoints.isEmpty,
+                       d.kind == .distance, d.refs.count == 2,
+                       d.refs[0].entityID == d.refs[1].entityID,
+                       Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                       let group = sketch.rotatedRectangleEdges.values.first(where: { ids in
+                           ids.count == 4 && Set(ids).count == 4 && ids.contains(d.refs[0].entityID) &&
+                           ids.allSatisfy { if case .line? = sketchEntity($0, in: sketch) { return true }; return false }
+                       }), let groupID = group.first, sketch.rectangleSizingAnchors[groupID] != nil,
+                       let index = group.firstIndex(of: d.refs[0].entityID) {
+                        let oppositeID = group[(index + 2) % 4]
+                        if let opposite = makeLabel(id: d.id.uuidString + "-side-" + oppositeID.uuidString,
+                            in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                            value: display, presentationEdgeID: oppositeID) {
+                            labels.append(opposite)
+                        }
+                    }
+                    // One selected side exposes both adjacent sides. The extra
+                    // readout is another presentation of the same driving size,
+                    // not another dimension or a new solver reference.
+                    if sketch.id == activeSketch?.id, d.kind == .distance,
+                       d.refs.count == 2, d.refs[0].entityID == d.refs[1].entityID,
+                       Set(d.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                       let group = selectedMigratedRectangleEdges,
+                       let groupID = group.first, sketch.rectangleSizingAnchors[groupID] != nil,
+                       let selectedID = selectedSketchEntityIDs.first,
+                       let selectedIndex = group.firstIndex(of: selectedID),
+                       let drivingIndex = group.firstIndex(of: d.refs[0].entityID),
+                       selectedIndex % 2 != drivingIndex % 2 {
+                        let oppositeID = group[(drivingIndex + 2) % 4]
+                        if let opposite = makeLabel(id: d.id.uuidString + "-side-" + oppositeID.uuidString,
+                            in: sketch, dimensionID: d.id, kind: d.kind, refs: d.refs,
+                            value: display, presentationEdgeID: oppositeID) {
+                            labels.append(opposite)
+                        }
+                    }
                 }
             }
         }
@@ -10877,9 +13423,31 @@ final class EditorViewModel {
         // Live candidate — skip if an existing dimension already covers the
         // same refs+kind (so we don't double-draw once it's committed).
         func appendCandidate(id: String, kind: DimensionKind, refs: [ConstraintRef]) {
+            // Native hides temporary circle/arc size readouts in Move/Rotate,
+            // but saved driving dimensions above remain visible and editable.
+            if sketchTransformActive, editingDimension == nil, refs.count == 1,
+               let ref = refs.first, let entity = sketchEntity(ref.entityID, in: sketch) {
+                switch entity {
+                case .circle, .arc: return
+                default: break
+                }
+            }
+            // An opposite side shares the rectangle's saved driving size;
+            // don't add a third temporary label over the same size family.
+            if kind == .distance, refs.count == 2, refs[0].entityID == refs[1].entityID,
+               let edges = selectedMigratedRectangleEdges,
+               let index = edges.firstIndex(of: refs[0].entityID),
+               sketch.dimensions.contains(where: { dimension in
+                   guard dimension.kind == .distance, dimension.refs.count == 2,
+                         dimension.refs[0].entityID == dimension.refs[1].entityID,
+                         Set(dimension.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+                         let other = edges.firstIndex(of: dimension.refs[0].entityID) else { return false }
+                   return index % 2 == other % 2
+               }) { return }
             let refSet = Set(refs.map { "\($0.entityID)-\($0.role.rawValue)" })
             let existing = sketch.dimensions.contains { d in
-                d.kind == kind &&
+                (d.kind == kind || ((d.kind == .radius || d.kind == .diameter)
+                    && (kind == .radius || kind == .diameter))) &&
                 Set(d.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refSet
             }
             if !existing, let value = measuredValue(kind: kind, refs: refs, in: sketch),
@@ -10889,14 +13457,65 @@ final class EditorViewModel {
             }
         }
         if let cand = dimensionCandidate {
-            appendCandidate(id: "candidate", kind: cand.kind, refs: cand.refs)
+            let displayKind: DimensionKind
+            if dimensionKindChoices.count == 3, let id = cand.refs.first?.entityID,
+               let preferred = sketch.lineDimensionKinds[id],
+               dimensionKindChoices.contains(preferred) {
+                displayKind = preferred
+            } else { displayKind = cand.kind }
+            appendCandidate(id: "candidate", kind: displayKind, refs: cand.refs)
             // A selected rectangle offers both its width (the palette's
             // candidate) and its height, each an editable label on its side.
-            if cand.kind == .horizontal {
+            if cand.kind == .radius, cand.refs.count == 1,
+               let ref = cand.refs.first,
+               case .arc? = sketchEntity(ref.entityID, in: sketch) {
+                appendCandidate(id: "candidate-arc-angle", kind: .angle, refs: cand.refs)
+            } else if cand.kind == .horizontal {
                 appendCandidate(id: "candidate-vertical", kind: .vertical, refs: cand.refs)
+            } else if let edges = selectedRectangleDimensionEdges {
+                appendCandidate(id: "candidate-height", kind: .distance,
+                                refs: Self.lineLengthRefs(edges[1]))
             }
         }
+        // Side count is a construction property, not a driving radius dimension.
+        // Keep it available even when the polygon already has a saved radius.
+        if selectedSketchEntityIDs.count == 1, !sketchTransformActive,
+           let id = selectedSketchEntityIDs.first,
+           case let .polygon(_, center, radius, sides, rotation)? = sketchEntity(id, in: sketch) {
+            let extent = sides.isMultiple(of: 2) ? radius : radius * cos(.pi / Double(sides))
+            let opposite = center - SIMD2(cos(rotation), sin(rotation)) * extent
+            var count = SketchDimensionLabel(
+                id: "polygon-count-\(id)", sketchID: sketch.id, dimensionID: nil,
+                kind: .radius, refs: [ConstraintRef(entityID: id, role: .whole)],
+                displayValue: Double(sides), text: "\(sides) sides",
+                worldAnchor: sketch.plane.toWorld(opposite),
+                worldStart: sketch.plane.toWorld(center), worldEnd: sketch.plane.toWorld(opposite))
+            count.isPolygonSideCount = true
+            labels.append(count)
+        }
         return labels
+    }
+
+    var canTypeRectangleBaseline: Bool {
+        mode.sketchTool == .rect && rectangleType == .threePoint &&
+        rectangleBaseline != nil && rectanglePreview.count == 1 && editingDimension == nil
+    }
+
+    var pendingRectangleEditorAnchor: SIMD3<Double>? {
+        guard editingDimension?.isPendingRectangleBaseline == true else { return nil }
+        return liveDimensionLabels.first?.worldLabel
+    }
+
+    func beginRectangleBaselineEdit(firstCharacter: String) {
+        guard canTypeRectangleBaseline else { return }
+        dimensionCommitLocked = true
+        editingDimension = DimensionEdit(labelID: "pending-rectangle-baseline",
+            dimensionID: nil, kind: .distance,
+            refs: [.init(entityID: rectangleIDs[0], role: .endpointA),
+                   .init(entityID: rectangleIDs[0], role: .endpointB)],
+            text: firstCharacter, isPendingRectangleBaseline: true, hardwareInitiated: true)
+        // The first typed character is already a draft, not a measured seed.
+        // Subsequent hardware keys append rather than selecting/replacing it.
     }
 
     /// Open the inline numeric field for a label (tap on a dimension label).
@@ -10908,10 +13527,35 @@ final class EditorViewModel {
             openItemSketch(label.sketchID)
             guard activeSketch?.id == label.sketchID else { return }
         }
+        // Opening an external badge enters its sketch and keeps its defining
+        // geometry selected, so committing does not immediately hide the badge.
+        let definingIDs = Set(label.refs.map(\.entityID))
+        // A rectangle's baseline/height editor should not discard the other
+        // three selected sides (and its other size badge) when opened.
+        var keepsSelectedRectangleSide = false
+        if label.kind == .distance, label.refs.count == 2,
+           label.refs[0].entityID == label.refs[1].entityID,
+           Set(label.refs.map(\.role)) == Set([PointRole.endpointA, .endpointB]),
+           let group = selectedMigratedRectangleEdges,
+           group.contains(label.refs[0].entityID) {
+            keepsSelectedRectangleSide = true
+        }
+        let keepsSelectedCorner = label.kind == .distance &&
+            selectedMigratedRectangleCornerEdges.map { definingIDs.isSubset(of: Set($0)) } == true
+        if !keepsSelectedRectangleSide && !keepsSelectedCorner &&
+            (selectedRectangleDimensionEdges == nil || !definingIDs.isSubset(of: selectedSketchEntityIDs)) {
+            selectedSketchEntityIDs = definingIDs
+        }
+        if !keepsSelectedCorner { selectedSketchPoints.removeAll() }
+        selectedConstraintID = nil
+        selectedDimensionID = label.dimensionID
         // Locked is the default for every fresh edit: a typed dimension is
         // normally meant to hold, and a sticky unlock would silently stop
         // recording them.
         dimensionCommitLocked = true
+        let retainedExpression = label.dimensionID.flatMap { id in
+            activeSketch?.dimensions.first(where: { $0.id == id && $0.kind == label.kind })?.displayExpression
+        }
         editingDimension = DimensionEdit(
             labelID: label.id,
             dimensionID: label.dimensionID,
@@ -10919,18 +13563,32 @@ final class EditorViewModel {
             refs: label.refs,
             // Seed in the display unit so what you edit matches what you read.
             // Angles are unitless. `commitDimensionEdit` converts back.
-            text: Self.dimensionFieldText(
-                label.kind == .angle
+            text: retainedExpression ?? Self.dimensionFieldText(
+                label.kind == .angle || label.isPolygonSideCount
                     ? label.displayValue
-                    : AppSettings.shared.unit.display(fromMM: label.displayValue))
+                    : AppSettings.shared.unit.display(fromMM: label.displayValue),
+                lengthUnit: label.kind == .angle || label.isPolygonSideCount ? nil : AppSettings.shared.unit),
+            measuredSeed: retainedExpression == nil && !label.isPolygonSideCount ? label.displayValue : nil,
+            isPolygonSideCount: label.isPolygonSideCount,
+            axisRectangleEdge: label.axisRectangleEdge
         )
     }
 
-    /// Palette Dimension action: open the field for the selection candidate
-    /// (creating a new driving dimension on commit).
-    func beginDimensionForSelection() {
+    /// Palette Dimension action uses the stored label when this size is already
+    /// driven; otherwise it opens the new selection candidate.
+    func beginDimensionForSelection(kind requestedKind: DimensionKind? = nil) {
         guard let cand = dimensionCandidate, let sketch = activeSketch,
-              let value = measuredValue(kind: cand.kind, refs: cand.refs, in: sketch) else { return }
+              requestedKind.map({ dimensionKindChoices.contains($0) }) ?? true else { return }
+        let kind = requestedKind ?? cand.kind
+        guard let value = measuredValue(kind: kind, refs: cand.refs, in: sketch) else { return }
+        let refs = Set(cand.refs.map { "\($0.entityID)-\($0.role.rawValue)" })
+        if let storedLabel = sketchDimensionLabels.first(where: {
+            $0.dimensionID != nil && $0.kind == kind &&
+            Set($0.refs.map { "\($0.entityID)-\($0.role.rawValue)" }) == refs
+        }) {
+            beginDimensionEdit(storedLabel)
+            return
+        }
         // Locked is the default for every fresh edit: a typed dimension is
         // normally meant to hold, and a sticky unlock would silently stop
         // recording them.
@@ -10938,19 +13596,52 @@ final class EditorViewModel {
         editingDimension = DimensionEdit(
             labelID: "candidate",
             dimensionID: nil,
-            kind: cand.kind,
+            kind: kind,
             refs: cand.refs,
             // `measuredValue` already returns degrees for `.angle`; lengths are
             // millimetres and must be shown in the display unit, exactly as
             // `beginDimensionEdit` does — the two paths open the same field.
             text: Self.dimensionFieldText(
-                cand.kind == .angle
+                kind == .angle
                     ? value
-                    : AppSettings.shared.unit.display(fromMM: value))
+                    : AppSettings.shared.unit.display(fromMM: value),
+                lengthUnit: kind == .angle ? nil : AppSettings.shared.unit),
+            measuredSeed: value
         )
     }
 
+    /// The native lock key acts on the current size, not an uncommitted draft.
+    func canToggleDimensionLock(_ text: String) -> Bool {
+        guard let edit = editingDimension else { return false }
+        return !edit.isPolygonSideCount && text == edit.text
+    }
+
+    func toggleDimensionLock(_ text: String) {
+        guard canToggleDimensionLock(text), let edit = editingDimension,
+              let sketch = activeSketch else { return }
+        if let id = edit.dimensionID {
+            guard sketch.dimensions.contains(where: { $0.id == id }) else { return }
+            deleteDimension(id)
+        } else {
+            guard let measured = measuredValue(kind: edit.kind, refs: edit.refs, in: sketch) else { return }
+            let offset = edit.kind == .diameter
+                ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
+            let dimension = SketchDimension(kind: edit.kind, refs: edit.refs,
+                value: edit.kind == .angle ? measured * .pi / 180 : measured,
+                labelOffset: offset, rectangleDrivingEdge: edit.axisRectangleEdge)
+            // Freeze the actual measured size without solving or moving geometry.
+            session.perform(AddSketchDimensionCommand(sketchID: sketch.id, dimension: dimension))
+            session.save()
+        }
+        cancelDimensionEdit()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        selectedSketchPoints.removeAll()
+        selectedSketchEntityIDs.removeAll()
+    }
+
     func cancelDimensionEdit() {
+        dimensionDraft = nil
         editingDimension = nil
     }
 
@@ -10964,12 +13655,57 @@ final class EditorViewModel {
             editingDimension = nil
             return
         }
-        editingDimension = nil
         // Phase D: evaluate against document variables so a dimension can read
         // e.g. "width/2"; store the raw text as the driving formula only when it
         // references a variable/function (a plain number keeps `formula: nil`).
-        guard let parsed = ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
-            errorMessage = "Couldn't read \"\(rawText)\" as a number."
+        let additiveMM = edit.kind != .angle && !edit.isPolygonSideCount
+            ? ExpressionEvaluator.additiveLengthMM(rawText) : nil
+        let untouchedSeed = rawText == edit.text &&
+            !(dimensionDraft?.sessionID == edit.sessionID && dimensionDraft?.changed == true)
+            ? edit.measuredSeed : nil
+        let seededDisplay = untouchedSeed.map {
+            edit.kind == .angle ? $0 : AppSettings.shared.unit.display(fromMM: $0)
+        }
+        guard let parsed = seededDisplay ?? additiveMM ?? ExpressionEvaluator.evaluate(rawText, variables: session.variableValues()) else {
+            editingDimension?.validationMessage = ExpressionEvaluator.validationMessage(
+                rawText, variables: session.variableValues())
+            return
+        }
+        // An angle is not a length. The scalar evaluator deliberately ignores
+        // suffixes, so reject this before dismissal or any geometry/history edit.
+        if !edit.isPolygonSideCount, edit.kind != .angle,
+           NumericKeypad.trailingUnit(in: rawText) == "deg" {
+            editingDimension?.validationMessage = "Cannot use angle in a length type parameter."
+            return
+        }
+        if edit.kind == .angle,
+           Self.lengthUnit(forSuffix: NumericKeypad.trailingUnit(in: rawText)) != nil {
+            editingDimension?.validationMessage = "Cannot use length in an angle type parameter."
+            return
+        }
+        // Keep malformed expressions editable; valid out-of-range values dismiss.
+        // Paired native 1/0 and 2+ retain the keypad, unlike zero/negative sizes.
+        editingDimension = nil
+        if edit.isPolygonSideCount {
+            // Truncate positive fractional counts, matching the sampled native
+            // 3.5 -> 3 edit. Bound before Int conversion/allocation.
+            guard parsed.isFinite, parsed >= 3, parsed < 10_001 else {
+                showNotice("Polygon side count must be between 3 and 10000.")
+                return
+            }
+            guard let id = edit.refs.first?.entityID,
+                  let before = sketchEntity(id, in: sketch),
+                  case let .polygon(_, center, radius, sides, rotation) = before else { return }
+            let count = Int(parsed)
+            guard count != sides else { return }
+            let after = SketchEntity.polygon(id: id, center: center, radius: radius,
+                                            sides: count, rotation: rotation)
+            // Existing solver references address the center/radius, neither of
+            // which changes. Keep dependent profile rebuild in the same undo.
+            session.performWithSketchRebuild(CompositeCommand(title: "Polygon Sides", commands: [
+                UpdateSketchEntityCommand(sketchID: sketchID, before: before, after: after)
+            ]), sketchID: sketchID)
+            session.save()
             return
         }
         // A trailing unit is letters, so `identifiers(in:)` reads "20 cm" as the
@@ -10980,17 +13716,23 @@ final class EditorViewModel {
         let bodyText = typedUnitSymbol.map {
             String(rawText.trimmingCharacters(in: .whitespaces).dropLast($0.count))
         } ?? rawText
-        let formula = ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
-        // Linear dims must be positive; angles within (0, 180)°.
+        let formula = additiveMM != nil || ExpressionEvaluator.identifiers(in: bodyText).isEmpty ? nil : rawText
+        let isArcSweep = edit.kind == .angle && edit.refs.count == 1 && edit.refs.first.map {
+            if case .arc? = sketchEntity($0.entityID, in: sketch) { return true }
+            return false
+        } == true
+        let completesCircle = isArcSweep && parsed == 360
+        // Linear dimensions are positive; a full arc turn converts to a circle.
         switch edit.kind {
         case .angle:
-            guard parsed > 0, parsed < 180 else {
-                errorMessage = "Angle must be between 0° and 180°."
+            let upperBound = isArcSweep ? 360.0 : 180.0
+            guard parsed > 0, parsed < upperBound || completesCircle else {
+                showNotice("Angle must be between 0° and \(Int(upperBound))°.")
                 return
             }
         default:
             guard parsed > 0 else {
-                errorMessage = "Dimension must be greater than zero."
+                showNotice("Dimension must be greater than zero.")
                 return
             }
         }
@@ -11005,7 +13747,9 @@ final class EditorViewModel {
         // inches. `deg` is not a length and only makes sense on an angle.
         let typedUnit = Self.lengthUnit(forSuffix: typedUnitSymbol)
         let parsedMM: Double
-        if edit.kind == .angle || formula != nil {
+        if let untouchedSeed {
+            parsedMM = untouchedSeed
+        } else if additiveMM != nil || edit.kind == .angle || formula != nil {
             parsedMM = parsed
         } else if let typedUnit {
             parsedMM = typedUnit.mm(fromDisplay: parsed)
@@ -11013,6 +13757,35 @@ final class EditorViewModel {
             parsedMM = AppSettings.shared.unit.mm(fromDisplay: parsed)
         }
         let stored = edit.kind == .angle ? parsedMM * .pi / 180 : parsedMM
+        var trimmedBody = bodyText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedBody.hasPrefix("=") {
+            trimmedBody = String(trimmedBody.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let expressionUnit = edit.kind == .angle ? "deg"
+            : (typedUnit?.symbol ?? AppSettings.shared.unit.symbol)
+        let previousExpression = edit.dimensionID.flatMap { id in
+            sketch.dimensions.first(where: { $0.id == id })?.displayExpression
+        }
+        let isArithmetic = Double(trimmedBody) == nil
+        let retainedScalar = additiveMM != nil ? rawText : isArithmetic ? "(\(trimmedBody)) \(expressionUnit)"
+            : "\(trimmedBody) \(expressionUnit)"
+        let displayExpression = formula == nil && (isArithmetic || typedUnitSymbol != nil)
+            ? (previousExpression == rawText ? rawText : retainedScalar) : nil
+
+        if edit.isPendingRectangleBaseline {
+            guard mode.sketchTool == .rect, let base = rectangleBaseline,
+                  stored.isFinite, stored > 0 else { return }
+            let direction = base.b - base.a
+            let length = simd_length(direction)
+            guard length > 1e-9 else { return }
+            let end = base.a + direction / length * stored
+            rectangleBaseline = (base.a, end)
+            rectanglePreview = [.line(id: rectangleIDs[0], a: base.a, b: end)]
+            rectangleBaselineDimension = dimensionCommitLocked
+                ? SketchDimension(kind: .distance, refs: edit.refs, value: stored,
+                                  formula: formula, displayExpression: displayExpression) : nil
+            return
+        }
 
         var proposed = sketch
         var setup: DocumentCommand
@@ -11021,13 +13794,35 @@ final class EditorViewModel {
            let idx = proposed.dimensions.firstIndex(where: { $0.id == dimID }) {
             let before = proposed.dimensions[idx]
             var after = before
+            if before.kind != edit.kind,
+               (before.kind == .radius || before.kind == .diameter),
+               (edit.kind == .radius || edit.kind == .diameter) {
+                // Accepting a converted seed must not rewrite saved source or
+                // history. Real edits adopt the displayed quantity and keep ID.
+                if dimensionCommitLocked && untouchedSeed != nil { return }
+                after.kind = edit.kind
+            }
             after.value = stored
             after.formula = formula
+            after.displayExpression = displayExpression
+            // Accepting an unchanged driving value dismisses the editor, but
+            // must not consume Undo or perturb geometry through another solve.
+            // Unlocking and changes to the retained source remain real edits.
+            if dimensionCommitLocked && after == before { return }
+            if let side = edit.axisRectangleEdge {
+                after.rectangleLabelEdges = Array(Set((before.rectangleLabelEdges ?? []) + [side])).sorted()
+            }
             proposed.dimensions[idx] = after
             candidateDimensionID = dimID
             setup = UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after)
         } else {
-            let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored, formula: formula)
+            let offset = edit.kind == .diameter
+                ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
+            let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored,
+                                      formula: formula, labelOffset: offset,
+                                      displayExpression: displayExpression,
+                                      rectangleLabelEdges: edit.axisRectangleEdge.map { [$0] },
+                                      rectangleDrivingEdge: edit.axisRectangleEdge)
             proposed.dimensions.append(dim)
             candidateDimensionID = dim.id
             setup = AddSketchDimensionCommand(sketchID: sketchID, dimension: dim)
@@ -11035,28 +13830,78 @@ final class EditorViewModel {
 
         // Over-constraint guard (spec §2.2): the solver refuses a dimension on
         // an already fully-solved region / one that conflicts with existing
-        // dimensions. Don't apply — never corrupt the sketch. Stage 3 names
-        // the partners of the clash.
+        // dimensions. Refuse without applying or recording a history step.
         if SketchSolverBridge.residualNorm(proposed) > Self.overConstraintTolerance {
-            let partners = SketchSolverBridge.conflictPartners(
-                in: proposed,
-                excludingDimensions: [candidateDimensionID],
-                tolerance: Self.overConstraintTolerance)
-            errorMessage = Self.conflictRefusalMessage(
-                adding: "That value", partners: partners, in: proposed)
+            // A rejected size is an expected sketch interaction, not a modal
+            // application error. Native dismisses the editor and shows a notice.
+            showNotice("This constraint would conflict with existing ones.")
             return
         }
 
-        let (solvedEntities, _) = SketchSolverBridge.solve(
-            proposed, movingEntity: nil, dragTarget: nil
-        )
+        guard let candidate = proposed.dimensions.first(where: { $0.id == candidateDimensionID }) else { return }
+        let editedIDs = Set(edit.refs.map(\.entityID))
+        let preferredFarEdge: UUID?
+        if edit.kind == .distance, editedIDs.count == 1, let editedID = editedIDs.first,
+           let edges = RectangleConstruction.dimensionEdges(containing: editedID, in: sketch) {
+            // Paired native workflows: baseline sizing keeps the lower side;
+            // height sizing keeps the far baseline. Recover the component
+            // even when its single edge was reselected after creation/reload.
+            if editedID == edges[0] || editedID == edges[2] {
+                preferredFarEdge = RectangleConstruction.baselineAnchor(
+                    containing: editedID, in: sketch.entities)
+            }
+            else if editedID == edges[1] { preferredFarEdge = edges[2] }
+            else { preferredFarEdge = nil }
+        } else {
+            preferredFarEdge = nil
+        }
+        // Only the first size of a freshly drawn, standalone line has live
+        // evidence for a start-point preference. Reselection differs in native;
+        // connected sketches and their existing rectangle intent remain untouched.
+        let freshLinePoint: ConstraintRef?
+        if edit.kind == .distance, edit.dimensionID == nil, mode.sketchTool == .line,
+           editedIDs.count == 1, let id = editedIDs.first, id == freshLineSizingID,
+           preferredFarEdge == nil,
+           case .line? = sketch.entities.first(where: { $0.id == id }),
+           sketch.constraints.contains(where: {
+               ($0.kind == .horizontal || $0.kind == .vertical) &&
+               $0.refs.contains(where: { $0.entityID == id })
+           }),
+           !sketch.constraints.contains(where: { constraint in
+               constraint.refs.contains(where: { $0.entityID == id }) &&
+               constraint.refs.contains(where: { $0.entityID != id })
+           }),
+           !sketch.dimensions.contains(where: { $0.refs.contains(where: { $0.entityID == id }) }) {
+            freshLinePoint = .init(entityID: id, role: .endpointA)
+        } else { freshLinePoint = nil }
+        var solvedEntities = SketchSolverBridge.solveDimensionEdit(
+            proposed, dimension: candidate, tolerance: Self.overConstraintTolerance,
+            preservingLineID: preferredFarEdge, preservingPoint: freshLinePoint).entities
         // The lock key (Shapr3D's "locked dimension"). Locked — the default —
         // records the value as a driving dimension. Unlocked, the value still
         // drives the solve that runs above, so the geometry lands exactly where
         // it was asked to; it simply is not written down. Unlocking one that
         // already exists deletes it, which is what un-pinning a dimension means.
         var commands: [DocumentCommand] = []
-        if dimensionCommitLocked {
+        if completesCircle, let arcID = edit.refs.first?.entityID,
+           let arcIndex = solvedEntities.firstIndex(where: { $0.id == arcID }),
+           let conversion = ArcDimensionConversion.fullCircle(
+                from: solvedEntities[arcIndex], dimensions: sketch.dimensions) {
+            // The full-turn angle disappears with the arc. Keep entity and radius
+            // dimension identities so other references and undo remain intact.
+            solvedEntities[arcIndex] = conversion.circle
+            for (index, dimension) in sketch.dimensions.enumerated().reversed()
+                where conversion.removedAngleIDs.contains(dimension.id) {
+                commands.append(RemoveSketchDimensionCommand(
+                    sketchID: sketchID, dimension: dimension, index: index))
+            }
+            for after in conversion.updatedRadiusDimensions {
+                if let before = sketch.dimensions.first(where: { $0.id == after.id }) {
+                    commands.append(UpdateSketchDimensionCommand(sketchID: sketchID, before: before, after: after))
+                }
+            }
+            selectedDimensionID = nil
+        } else if dimensionCommitLocked {
             commands.append(setup)
         } else if let dimID = edit.dimensionID,
                   let idx = sketch.dimensions.firstIndex(where: { $0.id == dimID }) {
@@ -11074,6 +13919,31 @@ final class EditorViewModel {
         session.performWithSketchRebuild(commands.count == 1
             ? commands[0]
             : CompositeCommand(title: "Dimension", commands: commands), sketchID: sketchID)
+        if let id = freshLinePoint?.entityID { refreshChainAnchors(lastEntityID: id) }
+        if mode.sketchTool == .circle, edit.kind == .radius,
+           edit.refs.count == 1, let id = edit.refs.first?.entityID,
+           case .circle? = sketchEntity(id, in: sketch) {
+            selectedDimensionID = dimensionCommitLocked ? candidateDimensionID : nil
+        }
+        if mode.sketchTool == nil, !sketchTransformActive,
+           edit.refs.count == 1, edit.kind == .radius || edit.kind == .diameter,
+           let id = edit.refs.first?.entityID,
+           case .circle? = sketchEntity(id, in: sketch) {
+            clearCircleNumericSelection()
+        }
+        // A successful corner-size edit ends its point selection. Cancellation
+        // and rejected values above retain the point, as in native sketching.
+        if selectedMigratedRectangleCornerEdges != nil { selectedSketchPoints.removeAll() }
+        if selectedMigratedRectangleEdges != nil { selectedSketchEntityIDs.removeAll() }
+        if let pick = selectedAxisRectangleEdge, selectedSketchEntityIDs == [pick.id],
+           selectedSketchPoints.isEmpty, edit.kind == .horizontal || edit.kind == .vertical,
+           edit.refs.allSatisfy({ $0.entityID == pick.id }) {
+            selectedSketchEntityIDs.removeAll()
+            // Selection's observer clears its side; keep that presentation
+            // metadata without restoring the entity or its manipulation handle.
+            selectedAxisRectangleEdge = pick
+            selectedDimensionID = dimensionCommitLocked ? candidateDimensionID : nil
+        }
         session.save()
     }
 

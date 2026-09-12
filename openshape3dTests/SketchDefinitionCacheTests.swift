@@ -63,6 +63,27 @@ final class SketchDefinitionCacheTests: XCTestCase {
         Set(vm.scene.sketchLines.map(\.color))
     }
 
+    func testPartialRectangleLockColorsSurviveSingleEdgeSelection() async throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let sketch = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(2, 3), max: SIMD2(12, 9))], constraints: [
+                .init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 3)])])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        _ = vm.scene
+        await vm.settleSketchDefinition()
+        let before = vm.scene.sketchLines
+        XCTAssertEqual(before.filter { $0.color == EditorViewModel.definedSketchColor }.count, 3)
+        XCTAssertEqual(before.filter { $0.color == EditorViewModel.underDefinedSketchColor }.count, 1)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 3)
+        let selected = vm.scene.sketchLines
+        XCTAssertTrue(selected.contains { $0.color == SIMD4<Float>(1, 0.60, 0, 1) })
+        XCTAssertTrue(selected.contains { $0.color == EditorViewModel.underDefinedSketchColor },
+                      "Selecting the fixed edge must not paint the free opposite edge green")
+    }
+
     func testTheSceneSolvesOnceAndReusesItUntilTheSketchChanges() async throws {
         let vm = try makeViewModel()
         let counter = CallCounter()

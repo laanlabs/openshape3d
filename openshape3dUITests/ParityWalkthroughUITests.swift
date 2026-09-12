@@ -421,6 +421,9 @@ final class ParityWalkthroughUITests: XCTestCase {
         }
         drawLine(p(0.30, 0.45), p(0.55, 0.45), expecting: 2)
         drawLine(p(0.57, 0.47), p(0.66, 0.70), expecting: 4)
+        sleep(1)
+        app.buttons["Line"].tap()
+        sleep(1)
 
         // Under-defined geometry reads on-canvas (blue points), not as a toolbar
         // badge — so no "Fully defined" chip should be present yet.
@@ -430,10 +433,29 @@ final class ParityWalkthroughUITests: XCTestCase {
         )
         snap("27-sketch-under-defined-blue")
 
-        // Select both lines by tapping their middles.
-        p(0.42, 0.45).tap()
-        sleep(1)
-        p(0.615, 0.585).tap()
+        // Release retains the second line. Add the horizontal line at a
+        // marker-derived quarter point, away from its dimension label and the
+        // near-touching endpoints. Tapping the second line again would toggle
+        // it out of the additive selection.
+        let centers = markers.allElementsBoundByIndex.map {
+            CGPoint(x: $0.frame.midX, y: $0.frame.midY)
+        }
+        XCTAssertEqual(centers.count, 4)
+        let pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+        let horizontal = pairs
+            .filter { abs(centers[$0.0].y - centers[$0.1].y) < 30 }
+            .max {
+                abs(centers[$0.0].x - centers[$0.1].x)
+                    < abs(centers[$1.0].x - centers[$1.1].x)
+            }!
+        func tapQuarterPoint(_ i: Int, _ j: Int) {
+            let target = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+                dx: (centers[i].x * 0.75 + centers[j].x * 0.25) - window.frame.minX,
+                dy: (centers[i].y * 0.75 + centers[j].y * 0.25) - window.frame.minY
+            ))
+            target.tap()
+        }
+        tapQuarterPoint(horizontal.0, horizontal.1)
         sleep(1)
 
         // Open the adaptive Constrain menu. With two lines selected, direction
@@ -492,7 +514,18 @@ final class ParityWalkthroughUITests: XCTestCase {
         // candidate label appears in the overlay.
         p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
         sleep(1)
-        p(0.48, 0.50).tap()
+        app.buttons["Line"].tap()
+        sleep(1)
+        p(0.80, 0.70).tap()
+        sleep(1)
+        let lineMarkers = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker").allElementsBoundByIndex
+        XCTAssertEqual(lineMarkers.count, 2)
+        let lineMidpoint = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: (lineMarkers[0].frame.midX + lineMarkers[1].frame.midX) / 2 - window.frame.minX,
+            dy: (lineMarkers[0].frame.midY + lineMarkers[1].frame.midY) / 2 - window.frame.minY
+        ))
+        lineMidpoint.tap()
         sleep(1)
 
         let label = app.buttons["DimensionLabel"].firstMatch

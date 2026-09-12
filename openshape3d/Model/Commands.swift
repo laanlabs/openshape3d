@@ -167,16 +167,26 @@ struct AddSketchEntityCommand: DocumentCommand {
     let title = "Sketch"
     let sketchID: SketchID
     let entity: SketchEntity
+    var rectangleSizingAnchor: RectangleSizingAnchor? = nil
+    var circleRadiusDirection: SIMD2<Double>? = nil
 
     func apply(to document: inout DesignDocument) {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.append(entity)
+            if let circleRadiusDirection {
+                document.sketches[index].circleRadiusDirections[entity.id] = circleRadiusDirection
+            }
+            if let rectangleSizingAnchor {
+                document.sketches[index].rectangleSizingAnchors[entity.id] = rectangleSizingAnchor
+            }
         }
     }
 
     func revert(in document: inout DesignDocument) {
         if let index = document.sketches.firstIndex(where: { $0.id == sketchID }) {
             document.sketches[index].entities.removeAll { $0.id == entity.id }
+            document.sketches[index].rectangleSizingAnchors.removeValue(forKey: entity.id)
+            document.sketches[index].circleRadiusDirections.removeValue(forKey: entity.id)
         }
     }
 }
@@ -401,6 +411,26 @@ struct ChangeSketchPlaneCommand: DocumentCommand {
     func revert(in document: inout DesignDocument) { setPlane(before, in: &document) }
 }
 
+/// Disconnect changes topology only; dimensions, geometry and unrelated
+/// relationships are deliberately outside this command's mutation scope.
+struct DisconnectSketchEndpointsCommand: DocumentCommand {
+    let title = "Disconnect"
+    let sketchID: SketchID
+    let beforeConstraints: [SketchConstraint]
+    let afterConstraints: [SketchConstraint]
+    let beforeEndpoints: [ConstraintRef]
+    let afterEndpoints: [ConstraintRef]
+
+    private func set(_ constraints: [SketchConstraint], _ endpoints: [ConstraintRef],
+                     in document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].constraints = constraints
+        document.sketches[index].disconnectedEndpoints = endpoints
+    }
+    func apply(to document: inout DesignDocument) { set(afterConstraints, afterEndpoints, in: &document) }
+    func revert(in document: inout DesignDocument) { set(beforeConstraints, beforeEndpoints, in: &document) }
+}
+
 /// Solve-on-edit multi-entity update (plan §C1): a constraint solve during a
 /// drag moves several entities at once. `before`/`after` are full snapshots
 /// keyed by ID and applied ABSOLUTELY (set-by-ID, not delta), so the command
@@ -433,6 +463,51 @@ struct UpdateSketchEntitiesCommand: DocumentCommand {
     }
 }
 
+/// A distance-type change with its own history identity; no geometry movement.
+struct SetLineDimensionKindCommand: DocumentCommand {
+    let title = "Distance Type"
+    let sketchID: SketchID
+    let entityID: UUID
+    let before: DimensionKind?
+    let after: DimensionKind?
+    var beforeDimension: SketchDimension? = nil
+    var afterDimension: SketchDimension? = nil
+
+    func apply(to document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].lineDimensionKinds[entityID] = after
+        if let dimension = afterDimension,
+           let dimensionIndex = document.sketches[index].dimensions.firstIndex(where: { $0.id == dimension.id }) {
+            document.sketches[index].dimensions[dimensionIndex] = dimension
+        }
+    }
+    func revert(in document: inout DesignDocument) {
+        guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].lineDimensionKinds[entityID] = before
+        if let dimension = beforeDimension,
+           let dimensionIndex = document.sketches[index].dimensions.firstIndex(where: { $0.id == dimension.id }) {
+            document.sketches[index].dimensions[dimensionIndex] = dimension
+        }
+    }
+}
+
+/// Atomic topology/reference migration together with the initiating gesture.
+/// Both snapshots retain the same sketch identity; Undo restores the primitive
+/// and its original references rather than leaving a separate decomposition.
+struct ReplaceSketchGeometryCommand: DocumentCommand {
+    let title: String
+    let before: Sketch
+    let after: Sketch
+
+    private func replace(_ sketch: Sketch, in document: inout DesignDocument) {
+        guard before.id == after.id,
+              let index = document.sketches.firstIndex(where: { $0.id == before.id }) else { return }
+        document.sketches[index] = sketch
+    }
+    func apply(to document: inout DesignDocument) { replace(after, in: &document) }
+    func revert(in document: inout DesignDocument) { replace(before, in: &document) }
+}
+
 /// The 2D position a `ConstraintRef` role names on an entity, for re-anchoring
 /// constraints across trim. Nil for roles the entity doesn't have (and for
 /// `.whole`, which is not a point).
@@ -463,22 +538,36 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
     let removedConstraints: [(index: Int, constraint: SketchConstraint)]
     let removedDimensions: [(index: Int, dimension: SketchDimension)]
 
+    let beforeDisconnected: [ConstraintRef]
+    let removedRectangleAnchors: [UUID: RectangleSizingAnchor]
+    let removedRectangleGroups: [UUID: [UUID]]
+    let removedLineDimensionKinds: [UUID: DimensionKind]
+
     init(ids: Set<UUID>, sketch: Sketch) {
+        let affectedGroups = sketch.rotatedRectangleEdges.filter { !ids.isDisjoint(with: $0.value) }
+        removedRectangleGroups = affectedGroups
+        removedLineDimensionKinds = sketch.lineDimensionKinds.filter { ids.contains($0.key) }
+        removedRectangleAnchors = sketch.rectangleSizingAnchors.filter { ids.contains($0.key) || affectedGroups[$0.key] != nil }
+        beforeDisconnected = sketch.disconnectedEndpoints
         sketchID = sketch.id
         removed = sketch.entities.enumerated()
             .filter { ids.contains($0.element.id) }
             .map { (index: $0.offset, entity: $0.element) }
         removedConstraints = sketch.constraints.enumerated()
-            .filter { $0.element.refs.contains { ids.contains($0.entityID) } }
+            .filter { $0.element.refs.contains { ids.contains($0.entityID) || ($0.role == .center && affectedGroups[$0.entityID] != nil) } }
             .map { (index: $0.offset, constraint: $0.element) }
         removedDimensions = sketch.dimensions.enumerated()
-            .filter { $0.element.refs.contains { ids.contains($0.entityID) } }
+            .filter { $0.element.refs.contains { ids.contains($0.entityID) || ($0.role == .center && affectedGroups[$0.entityID] != nil) } }
             .map { (index: $0.offset, dimension: $0.element) }
     }
 
     func apply(to document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
         let ids = Set(removed.map(\.entity.id))
+        document.sketches[index].lineDimensionKinds = document.sketches[index].lineDimensionKinds.filter { !ids.contains($0.key) }
+        document.sketches[index].rectangleSizingAnchors = document.sketches[index].rectangleSizingAnchors.filter { removedRectangleAnchors[$0.key] == nil }
+        document.sketches[index].rotatedRectangleEdges = document.sketches[index].rotatedRectangleEdges.filter { removedRectangleGroups[$0.key] == nil }
+        document.sketches[index].disconnectedEndpoints.removeAll { ids.contains($0.entityID) }
         document.sketches[index].entities.removeAll { ids.contains($0.id) }
         let constraintIDs = Set(removedConstraints.map(\.constraint.id))
         document.sketches[index].constraints.removeAll { constraintIDs.contains($0.id) }
@@ -488,6 +577,10 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        document.sketches[index].disconnectedEndpoints = beforeDisconnected
+        document.sketches[index].lineDimensionKinds.merge(removedLineDimensionKinds) { _, restored in restored }
+        document.sketches[index].rotatedRectangleEdges.merge(removedRectangleGroups) { _, restored in restored }
+        document.sketches[index].rectangleSizingAnchors.merge(removedRectangleAnchors) { _, restored in restored }
         for entry in removed.sorted(by: { $0.index < $1.index }) {
             let at = min(entry.index, document.sketches[index].entities.count)
             document.sketches[index].entities.insert(entry.entity, at: at)
@@ -515,6 +608,9 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
 /// dangling with a displayed value that drives nothing.
 struct TrimCommand: DocumentCommand {
     let title = "Trim"
+    let beforeDisconnected: [ConstraintRef]?
+    let afterDisconnected: [ConstraintRef]?
+    let beforeLineDimensionKinds: [UUID: DimensionKind]?
     let sketchID: SketchID
     let index: Int
     let removed: SketchEntity
@@ -531,6 +627,9 @@ struct TrimCommand: DocumentCommand {
         self.index = index
         self.removed = removed
         self.fragments = fragments
+        beforeDisconnected = nil
+        afterDisconnected = nil
+        beforeLineDimensionKinds = nil
         retargetedConstraints = []
         retargetedDimensions = []
         droppedConstraints = []
@@ -581,6 +680,10 @@ struct TrimCommand: DocumentCommand {
             return nil  // the constrained point was on the span trimmed away
         }
 
+        beforeDisconnected = sketch.disconnectedEndpoints
+        beforeLineDimensionKinds = sketch.lineDimensionKinds
+        afterDisconnected = sketch.disconnectedEndpoints.compactMap(retarget)
+
         var retargetedC: [(Int, SketchConstraint, SketchConstraint)] = []
         var droppedC: [(Int, SketchConstraint)] = []
         for (i, constraint) in sketch.constraints.enumerated()
@@ -598,6 +701,32 @@ struct TrimCommand: DocumentCommand {
         var droppedD: [(Int, SketchDimension)] = []
         for (i, dimension) in sketch.dimensions.enumerated()
         where dimension.refs.contains(where: { $0.entityID == removed.id }) {
+            if case let .rect(_, lo, hi) = removed,
+               let edge = dimension.rectangleDrivingEdge,
+               (0..<4).contains(edge),
+               dimension.refs.allSatisfy({ $0.entityID == removed.id }) {
+                // A rectangle size is solved through diagonal points, but its
+                // owning edge must survive in full. Do not transfer a removed
+                // top-edge driver to the bottom just because both corners live.
+                let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+                let a = corners[edge], b = corners[(edge + 1) % 4]
+                let survivor = fragments.first {
+                    guard case let .line(_, p, q) = $0 else { return false }
+                    return (simd_length(p - a) < 1e-6 && simd_length(q - b) < 1e-6)
+                        || (simd_length(p - b) < 1e-6 && simd_length(q - a) < 1e-6)
+                }
+                if let survivor {
+                    var after = dimension
+                    after.refs = [.init(entityID: survivor.id, role: .endpointA),
+                                  .init(entityID: survivor.id, role: .endpointB)]
+                    after.rectangleDrivingEdge = nil
+                    after.rectangleLabelEdges = nil
+                    retargetedD.append((i, dimension, after))
+                } else {
+                    droppedD.append((i, dimension))
+                }
+                continue
+            }
             let newRefs = dimension.refs.compactMap(retarget)
             if newRefs.count == dimension.refs.count {
                 var after = dimension
@@ -615,6 +744,13 @@ struct TrimCommand: DocumentCommand {
 
     func apply(to document: inout DesignDocument) {
         guard let sketchIndex = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        if let afterDisconnected { document.sketches[sketchIndex].disconnectedEndpoints = afterDisconnected }
+        if beforeLineDimensionKinds != nil,
+           let kind = document.sketches[sketchIndex].lineDimensionKinds.removeValue(forKey: removed.id) {
+            for fragment in fragments {
+                if case .line = fragment { document.sketches[sketchIndex].lineDimensionKinds[fragment.id] = kind }
+            }
+        }
         document.sketches[sketchIndex].entities.removeAll { $0.id == removed.id }
         let at = min(index, document.sketches[sketchIndex].entities.count)
         document.sketches[sketchIndex].entities.insert(contentsOf: fragments, at: at)
@@ -638,6 +774,8 @@ struct TrimCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         guard let sketchIndex = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        if let beforeDisconnected { document.sketches[sketchIndex].disconnectedEndpoints = beforeDisconnected }
+        if let beforeLineDimensionKinds { document.sketches[sketchIndex].lineDimensionKinds = beforeLineDimensionKinds }
         let ids = Set(fragments.map(\.id))
         document.sketches[sketchIndex].entities.removeAll { ids.contains($0.id) }
         let at = min(index, document.sketches[sketchIndex].entities.count)

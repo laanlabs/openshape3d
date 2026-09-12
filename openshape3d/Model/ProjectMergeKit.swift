@@ -138,21 +138,31 @@ nonisolated enum ProjectMergeKit {
                 isHidden: sketch.isHidden,
                 constructionEntityIDs: Set(sketch.constructionEntityIDs.map(newEntity)),
                 constraints: sketch.constraints.map {
-                    SketchConstraint(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap))
+                    SketchConstraint(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap),
+                                     circleTangency: $0.circleTangency)
                 },
                 dimensions: sketch.dimensions.map {
                     SketchDimension(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap),
-                                    value: $0.value, formula: $0.formula)
+                                    value: $0.value, formula: $0.formula, labelOffset: $0.labelOffset,
+                                    displayExpression: $0.displayExpression, rectangleLabelEdges: $0.rectangleLabelEdges,
+                                    rectangleDrivingEdge: $0.rectangleDrivingEdge)
                 },
                 patternLinks: sketch.patternLinks.map {
                     SketchPatternLink(
                         id: UUID(), seedIDs: $0.seedIDs.map(newEntity),
                         instanceIDs: $0.instanceIDs.map { $0.map(newEntity) }, spec: $0.spec)
-                })
+                },
+                rectangleSizingAnchors: Dictionary(uniqueKeysWithValues:
+                    sketch.rectangleSizingAnchors.map { (newEntity($0.key), $0.value) }),
+                rotatedRectangleEdges: Dictionary(uniqueKeysWithValues:
+                    sketch.rotatedRectangleEdges.map { (newEntity($0.key), $0.value.map(newEntity)) }),
+                disconnectedEndpoints: sketch.disconnectedEndpoints.map(remap),
+                lineDimensionKinds: Dictionary(uniqueKeysWithValues:
+                    sketch.lineDimensionKinds.map { (newEntity($0.key), $0.value) }))
         }
 
         func remap(_ ref: ConstraintRef) -> ConstraintRef {
-            ConstraintRef(entityID: newEntity(ref.entityID), role: ref.role)
+            ConstraintRef(entityID: newEntity(ref.entityID), role: ref.role, rectangleEdge: ref.rectangleEdge)
         }
 
         func remap(_ plane: ConstructionPlane, translation: SIMD3<Double>) -> ConstructionPlane {

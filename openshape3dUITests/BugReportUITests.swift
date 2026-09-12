@@ -31,10 +31,11 @@ final class BugReportUITests: XCTestCase {
         let send = app.buttons["BugReportSend"]
         XCTAssertTrue(send.waitForExistence(timeout: 3))
         XCTAssertFalse(send.isEnabled, "Send needs a summary")
-        // A SwiftUI Toggle folds its label into the switch element, so match
-        // by label rather than by a separate static text.
-        let attach = app.descendants(matching: .any).matching(
-            NSPredicate(format: "label CONTAINS 'Attach this design'")).firstMatch
+        // In portrait the attachment section is now below the Form's realised
+        // rows. Scroll before querying it, and use its stable identifier rather
+        // than depending on how SwiftUI folds a Toggle label into a switch.
+        app.swipeUp()
+        let attach = app.switches["BugAttachToggle"]
         XCTAssertTrue(attach.waitForExistence(timeout: 3),
                       "In the editor the design can be attached")
 

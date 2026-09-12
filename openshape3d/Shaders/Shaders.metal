@@ -312,7 +312,7 @@ vertex UnlitOut vertex_thickLine(
     return out;
 }
 
-// MARK: - Ground grid (procedural, anti-aliased)
+// MARK: - Sketch-plane / ground grid (procedural, anti-aliased)
 
 struct GridOut {
     float4 position [[position]];
@@ -327,11 +327,9 @@ vertex GridOut vertex_grid(
     // distance and centered under the camera target so it never runs out.
     float extent = frame.gridParams.z * 2.0;
     float2 corner = float2((vid & 1) ? 1.0 : -1.0, (vid & 2) ? 1.0 : -1.0);
-    float3 world = float3(
-        frame.gridCenter.x + corner.x * extent,
-        0.0,
-        frame.gridCenter.z + corner.y * extent
-    );
+    float3 world = frame.gridCenter.xyz
+        + frame.gridXAxis.xyz * corner.x * extent
+        + frame.gridYAxis.xyz * corner.y * extent;
     GridOut out;
     out.position = frame.viewProjectionMatrix * float4(world, 1.0);
     out.worldPosition = world;
@@ -348,7 +346,9 @@ fragment float4 fragment_grid(
     GridOut in [[stage_in]],
     constant FrameUniforms &frame [[buffer(BufferIndexFrameUniforms)]]
 ) {
-    float2 p = in.worldPosition.xz;
+    float3 relative = in.worldPosition - frame.gridOrigin.xyz;
+    float2 p = float2(dot(relative, frame.gridXAxis.xyz),
+                      dot(relative, frame.gridYAxis.xyz));
     float2 fw = max(fwidth(p), 1e-6);
 
     float minorSpacing = frame.gridParams.x;
@@ -357,7 +357,8 @@ fragment float4 fragment_grid(
     float minor = gridLine(p, minorSpacing, fw) * 0.35;
     float major = gridLine(p, majorSpacing, fw) * 0.6;
 
-    // X (red-ish) and Z (blue-ish) axes drawn in the same pass.
+    // Color world-aligned axes consistently (X red, Y green, Z blue).
+    // Arbitrary sketch axes use the same weighted world-direction palette.
     float axisWidth = max(fw.y, fw.x) * 1.2;
     float onXAxis = 1.0 - saturate(abs(p.y) / axisWidth); // z≈0 line along X
     float onZAxis = 1.0 - saturate(abs(p.x) / axisWidth); // x≈0 line along Z
@@ -368,11 +369,17 @@ fragment float4 fragment_grid(
     float alpha = strength;
 
     if (onXAxis > 0.0) {
-        color = float3(0.85, 0.30, 0.30);
+        float3 axis = abs(frame.gridXAxis.xyz);
+        color = axis.x * float3(0.85, 0.30, 0.30)
+              + axis.y * float3(0.30, 0.70, 0.35)
+              + axis.z * float3(0.25, 0.45, 0.90);
         alpha = max(alpha, onXAxis * 0.9);
     }
     if (onZAxis > 0.0) {
-        color = float3(0.25, 0.45, 0.90);
+        float3 axis = abs(frame.gridYAxis.xyz);
+        color = axis.x * float3(0.85, 0.30, 0.30)
+              + axis.y * float3(0.30, 0.70, 0.35)
+              + axis.z * float3(0.25, 0.45, 0.90);
         alpha = max(alpha, onZAxis * 0.9);
     }
 
@@ -380,7 +387,8 @@ fragment float4 fragment_grid(
     float dist = length(in.worldPosition - frame.gridCenter.xyz);
     float fade = 1.0 - smoothstep(frame.gridParams.z * 0.35, frame.gridParams.z, dist);
     float3 viewDir = normalize(frame.cameraPosition.xyz - in.worldPosition);
-    float grazing = saturate(abs(viewDir.y) * 4.0);
+    float3 normal = normalize(cross(frame.gridXAxis.xyz, frame.gridYAxis.xyz));
+    float grazing = saturate(abs(dot(viewDir, normal)) * 4.0);
 
     return float4(color, alpha * fade * grazing * 0.85);
 }

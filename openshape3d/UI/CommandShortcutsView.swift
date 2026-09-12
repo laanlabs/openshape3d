@@ -51,6 +51,58 @@ struct CommandShortcutsView: View {
 
     var body: some View {
         ZStack {
+            if viewModel.canTypeRectangleBaseline {
+                ForEach(Array("0123456789."), id: \.self) { character in
+                    Button { viewModel.beginRectangleBaselineEdit(firstCharacter: String(character)) }
+                        label: { EmptyView() }
+                        .keyboardShortcut(KeyEquivalent(character), modifiers: [])
+                        .accessibilityHidden(true)
+                }
+            }
+            if viewModel.mode.sketchTool == .arc, viewModel.pendingArc != nil,
+               viewModel.editingDimension == nil {
+                Button { viewModel.finishArcInput() } label: { EmptyView() }
+                    .keyboardShortcut(.defaultAction)
+                    .accessibilityHidden(true)
+            }
+            if viewModel.mode.sketchTool == .line,
+               viewModel.editingDimension == nil {
+                Button { viewModel.finishLineInput() } label: { EmptyView() }
+                    .keyboardShortcut(.defaultAction)
+                    .accessibilityHidden(true)
+            }
+            if viewModel.editingDimension != nil {
+                Button { viewModel.cancelDimensionEdit() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.isPickingSymmetryAxis {
+                Button { viewModel.cancelSymmetryAxisPick() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .line {
+                Button { viewModel.cancelLineInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+                Button { viewModel.deleteLineInput() } label: { EmptyView() }
+                    .keyboardShortcut(.delete, modifiers: [])
+                    .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .rect {
+                Button { viewModel.cancelRectangleInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .circle {
+                Button { viewModel.cancelCircleInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.mode.sketchTool == .arc {
+                Button { viewModel.cancelArcInput() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.canExitSketchWithEscape {
+                Button { viewModel.finishSketch() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            }
             ForEach(CommandRegistry.routableChordedCommands) { command in
                 if let chord = command.chord, let key = chord.keyEquivalent,
                    !(launcherOwnsBareKeys && chord.isBareKey) {

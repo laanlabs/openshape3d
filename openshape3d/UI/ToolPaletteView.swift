@@ -12,7 +12,7 @@ import SwiftUI
 
 // MARK: - Palette model (view-layer only; values captured at build time)
 
-private enum ToolMenu { case constrain, insert, mirror }
+private enum ToolMenu { case constrain, dimension, insert, mirror }
 
 private struct ToolItem: Identifiable {
     let id: String
@@ -205,7 +205,8 @@ struct ToolPaletteView: View {
             ToolItem(id: "Dimension", label: "Dimension", icon: "ruler",
                      enabled: viewModel.canDimensionSelection,
                      accessibilityID: "DimensionButton",
-                     run: { viewModel.beginDimensionForSelection() }),
+                     run: { viewModel.beginDimensionForSelection() },
+                     menu: viewModel.dimensionKindChoices.count > 1 ? .dimension : nil),
         ])
     }
 
@@ -225,7 +226,7 @@ struct ToolPaletteView: View {
 
     private var drawItems: [ToolItem] {
         [sketchTool("Line", "line.diagonal", .line),
-         sketchTool("Rect", "rectangle", .rect),
+         sketchTool("Rectangle", "rectangle", .rect),
          sketchTool("Circle", "circle", .circle),
          sketchTool("Arc", "point.topleft.down.to.point.bottomright.curvepath", .arc),
          sketchTool("Ellipse", "oval", .ellipse),
@@ -286,6 +287,7 @@ struct ToolPaletteView: View {
         // Tapping the active tool deselects it (same toggle as CreateTool):
         // with no tool armed, empty-space drags orbit the sketch view.
         return ToolItem(id: label, label: label, icon: icon, active: active,
+                        accessibilityID: tool == .rect ? "Rect" : nil,
                         run: {
                             if active {
                                 viewModel.deselectSketchTool()
@@ -377,6 +379,7 @@ struct ToolPaletteView: View {
     private func toolView(_ item: ToolItem, inFlyout: Bool = false) -> some View {
         switch item.menu {
         case .constrain: constraintsMenu
+        case .dimension: dimensionMenu
         case .insert: insertSymbolMenu
         case .mirror: mirrorMenu
         case nil: actionButton(item, inFlyout: inFlyout)
@@ -406,6 +409,32 @@ struct ToolPaletteView: View {
     }
 
     // MARK: - Menu-backed tools (kept bespoke)
+
+    private var dimensionMenu: some View {
+        Menu {
+            ForEach(viewModel.dimensionKindChoices, id: \.rawValue) { kind in
+                Button(dimensionKindTitle(kind)) {
+                    viewModel.beginDimensionForSelection(kind: kind)
+                    expandedGroupID = nil
+                }
+                .accessibilityIdentifier("DimensionKind-" + kind.rawValue)
+            }
+        } label: {
+            paletteIcon("ruler", label: "Dimension")
+                .foregroundStyle(Color.primary)
+        }
+        .disabled(!viewModel.canDimensionSelection)
+        .accessibilityIdentifier("DimensionButton")
+    }
+
+    private func dimensionKindTitle(_ kind: DimensionKind) -> String {
+        switch kind {
+        case .distance: "Absolute"
+        case .horizontal: "Horizontal"
+        case .vertical: "Vertical"
+        default: EditorViewModel.dimensionTitle(.init(kind: kind, refs: [], value: 0))
+        }
+    }
 
     private var mirrorMenu: some View {
         Menu {

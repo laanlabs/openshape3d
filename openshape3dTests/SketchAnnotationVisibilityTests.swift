@@ -5,7 +5,7 @@
 //  Dimensions used to be drawn only while sketching, and only for the sketch
 //  being edited — so leaving a sketch hid the very values that define it, and a
 //  second sketch's dimensions were never visible at all. `annotatedSketches`
-//  now widens that to every visible sketch when "Always Show Dimensions" is on
+//  now includes every visible sketch outside editing when "Always Show Dimensions" is on
 //  (Shapr3D's "Constraint & Locked Dimension Visibility"). These tests pin both
 //  halves, plus the unit-aware label text that replaced a hardcoded " mm".
 //
@@ -23,6 +23,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
     private var savedUnit: DisplayUnit!
     private var savedDimensions: Bool!
     private var savedConstraints: Bool!
+    private var savedCircularAnnotations: CircularAnnotations!
 
     override func setUp() {
         super.setUp()
@@ -31,12 +32,14 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         savedUnit = AppSettings.shared.unit
         savedDimensions = AppSettings.shared.alwaysShowDimensions
         savedConstraints = AppSettings.shared.alwaysShowConstraints
+        savedCircularAnnotations = AppSettings.shared.circularAnnotations
     }
 
     override func tearDown() {
         AppSettings.shared.unit = savedUnit
         AppSettings.shared.alwaysShowDimensions = savedDimensions
         AppSettings.shared.alwaysShowConstraints = savedConstraints
+        AppSettings.shared.circularAnnotations = savedCircularAnnotations
         super.tearDown()
     }
 
@@ -105,7 +108,205 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
 
         vm.mode = .sketching(sketch.id, tool: nil)
-        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "the active sketch always shows")
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "active sketch still requires a selection")
+    }
+
+    func testOffStateShowsOnlyDimensionsOwnedBySeveralDisjointSelections() throws {
+        let vm = try makeViewModel()
+        let ids = [UUID(), UUID(), UUID()]
+        let lengths = [10.0, 20.0, 30.0]
+        let entities = zip(ids, lengths).enumerated().map { index, item in
+            let (id, length) = item
+            let y = Double(index) * 10
+            return SketchEntity.line(id: id, a: SIMD2(0, y), b: SIMD2(length, y))
+        }
+        let dimensions = zip(ids, lengths).map { id, length in
+            SketchDimension(kind: .distance,
+                refs: [ConstraintRef(entityID: id, role: .endpointA),
+                       ConstraintRef(entityID: id, role: .endpointB)],
+                value: length)
+        }
+        let sketch = Sketch(plane: .ground, entities: entities, dimensions: dimensions)
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "nothing selected")
+
+        vm.selectedSketchEntityIDs = [ids[0], ids[1]]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap { $0.dimensionID == nil ? nil : $0.text }),
+                       ["10 mm", "20 mm"],
+                       "several selected entities expose only their own dimensions")
+
+        vm.selectedSketchEntityIDs = [ids[0], ids[2]]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap { $0.dimensionID == nil ? nil : $0.text }),
+                       ["10 mm", "30 mm"],
+                       "disjoint same-sketch selection must not expose the intervening entity")
+    }
+
+    func testSlopedLineOffersAbsoluteHorizontalAndVerticalDimensions() throws {
+        AppSettings.shared.unit = .millimeters
+        for (kind, expected) in [(DimensionKind.distance, 50.0),
+                                 (.horizontal, 30.0),
+                                 (.vertical, 40.0)] {
+            let vm = try makeViewModel()
+            let id = UUID()
+            let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+            let sketch = Sketch(plane: .ground, entities: [line])
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+            vm.mode = .sketching(sketch.id, tool: nil)
+            vm.selectedSketchEntityIDs = [id]
+
+            XCTAssertEqual(vm.dimensionKindChoices, [.distance, .horizontal, .vertical])
+            vm.beginDimensionForSelection(kind: kind)
+            XCTAssertEqual(vm.editingDimension?.kind, kind)
+            XCTAssertEqual(vm.editingDimension?.text, String(Int(expected)))
+            vm.commitDimensionEdit(String(Int(expected)))
+
+            let saved = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(saved.entities, [line])
+            XCTAssertEqual(saved.dimensions.count, 1)
+            XCTAssertEqual(saved.dimensions[0].kind, kind)
+            XCTAssertEqual(saved.dimensions[0].value, expected, accuracy: 1e-9)
+
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch?.entities, [line])
+            XCTAssertTrue(vm.activeSketch?.dimensions.isEmpty == true)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, saved)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(saved)), saved)
+        }
+
+        let vm = try makeViewModel()
+        let id = UUID()
+        let horizontal = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(50, 0))
+        let sketch = Sketch(plane: .ground, entities: [horizontal])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertEqual(vm.dimensionKindChoices, [.distance],
+                       "axis-aligned lines do not offer duplicate measurements")
+    }
+
+    func testLineDistanceTypeIsUndoablePresentationWithoutDriverOrGeometryChange() throws {
+        AppSettings.shared.unit = .millimeters
+        let vm = try makeViewModel()
+        let id = UUID()
+        let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+        let sketch = Sketch(plane: .ground, entities: [line])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        var states = [sketch]
+        for (kind, value) in [(DimensionKind.horizontal, 30.0), (.vertical, 40.0), (.distance, 50.0)] {
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+            XCTAssertTrue(vm.canChooseLineDimensionKind(label))
+            vm.chooseLineDimensionKind(kind, label: label)
+            XCTAssertNil(vm.editingDimension, "Choosing a readout must not open a keypad")
+            let after = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(after.entities, sketch.entities)
+            XCTAssertEqual(after.constraints, sketch.constraints)
+            XCTAssertTrue(after.dimensions.isEmpty, "Presentation must not create a driving constraint")
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                          "Native type choice clears selection before reselecting the readout")
+            vm.selectedSketchEntityIDs = [id]
+            let projected = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+            XCTAssertEqual(projected.kind, kind)
+            XCTAssertEqual(projected.displayValue, value, accuracy: 1e-9)
+            if kind != .distance {
+                XCTAssertTrue(projected.isProjectedLineLength)
+                XCTAssertEqual(projected.worldAnchor, sketch.plane.toWorld(SIMD2(15, 20)))
+                XCTAssertEqual(projected.worldLineStart, sketch.plane.toWorld(SIMD2(0, 0)))
+                XCTAssertEqual(projected.worldLineEnd, sketch.plane.toWorld(SIMD2(30, 40)))
+            }
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(after)), after)
+            states.append(after)
+        }
+        for expected in states.dropLast().reversed() {
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, expected)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                          "Native projection history clears the line selection")
+        }
+        for expected in states.dropFirst() {
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, expected)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        }
+        vm.selectedSketchEntityIDs = [id]
+        let absolute = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == "candidate" })
+        vm.chooseLineDimensionKind(.distance, label: absolute) // no-op: no extra history
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, states[2])
+    }
+
+    func testDrivenLineDistanceTypeReplacesOneDriverAndPreservesGeometryHistory() throws {
+        AppSettings.shared.unit = .millimeters
+        let vm = try makeViewModel()
+        let id = UUID()
+        let refs = [ConstraintRef(entityID: id, role: .endpointA),
+                    ConstraintRef(entityID: id, role: .endpointB)]
+        let driver = SketchDimension(kind: .distance, refs: refs, value: 50)
+        let original = Sketch(plane: .ground,
+            entities: [.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))], dimensions: [driver])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        var states = [original]
+        for (kind, value) in [(DimensionKind.horizontal, 30.0), (.vertical, 40.0), (.distance, 50.0)] {
+            vm.selectedSketchEntityIDs = [id]
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == driver.id })
+            XCTAssertTrue(vm.canChooseLineDimensionKind(label))
+            vm.chooseLineDimensionKind(kind, label: label)
+            let after = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(after.entities, original.entities)
+            XCTAssertEqual(after.constraints, original.constraints)
+            XCTAssertEqual(after.dimensions.count, 1)
+            XCTAssertEqual(after.dimensions[0].id, driver.id)
+            XCTAssertEqual(after.dimensions[0].refs, refs)
+            XCTAssertEqual(after.dimensions[0].kind, kind)
+            XCTAssertEqual(after.dimensions[0].value, value, accuracy: 1e-9)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.editingDimension)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(after)), after)
+            states.append(after)
+        }
+        for state in states.dropLast().reversed() { vm.undo(); XCTAssertEqual(vm.activeSketch, state) }
+        for state in states.dropFirst() { vm.redo(); XCTAssertEqual(vm.activeSketch, state) }
+        vm.selectedSketchEntityIDs = [id]
+        vm.beginDimensionForSelection(kind: .distance)
+        vm.commitDimensionEdit("100")
+        let edited = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(edited.dimensions.count, 1)
+        XCTAssertEqual(edited.dimensions[0].id, driver.id)
+        XCTAssertEqual(edited.dimensions[0].value, 100, accuracy: 1e-9)
+        guard case let .line(_, a, b) = edited.entities[0] else { return XCTFail("Expected line") }
+        XCTAssertEqual(simd_length(b - a), 100, accuracy: 1e-7)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, states.last)
+    }
+
+    func testLineDistanceTypeSurvivesTrimDeleteUndoAndLegacyDecode() throws {
+        let id = UUID(), fragmentID = UUID()
+        let line = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(30, 40))
+        let sketch = Sketch(plane: .ground, entities: [line], lineDimensionKinds: [id: .vertical])
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        let fragment = SketchEntity.line(id: fragmentID, a: SIMD2(15, 20), b: SIMD2(30, 40))
+        let trim = TrimCommand(sketch: sketch, index: 0, removed: line, fragments: [fragment])
+        trim.apply(to: &document)
+        XCTAssertEqual(document.sketches[0].lineDimensionKinds, [fragmentID: .vertical])
+        trim.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+        let delete = RemoveSketchEntitiesCommand(ids: [id], sketch: sketch)
+        delete.apply(to: &document)
+        XCTAssertTrue(document.sketches[0].lineDimensionKinds.isEmpty)
+        delete.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(sketch)) as? [String: Any])
+        legacy.removeValue(forKey: "lineDimensionKinds")
+        XCTAssertTrue(try JSONDecoder().decode(Sketch.self,
+            from: JSONSerialization.data(withJSONObject: legacy)).lineDimensionKinds.isEmpty)
     }
 
     // MARK: - Radius vs diameter (the app used to disagree with itself)
@@ -121,6 +322,8 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
 
         for (kind, expected) in [(DimensionKind.diameter, "Ø40 mm"),
                                  (DimensionKind.radius, "R20 mm")] {
+            AppSettings.shared.circularAnnotations = kind == .radius
+                ? .alwaysRadius : .radiusAndDiameter
             let sketch = Sketch(plane: .ground, entities: [circle],
                                 dimensions: [SketchDimension(kind: kind, refs: ref,
                                                              value: kind == .diameter ? 40 : 20)])
@@ -134,7 +337,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         _ = vm
     }
 
-    func testEveryVisibleSketchContributesNotJustTheActiveOne() throws {
+    func testEveryVisibleSketchContributesOutsideEditing() throws {
         let vm = try makeViewModel()
         let a = dimensionedLine(length: 40)
         let b = dimensionedLine(length: 25)
@@ -142,7 +345,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.session.perform(AddSketchCommand(sketch: b))
 
         AppSettings.shared.alwaysShowDimensions = true
-        vm.mode = .sketching(a.id, tool: nil)
+        vm.mode = .idle
 
         let owners = Set(vm.sketchDimensionLabels.map(\.sketchID))
         XCTAssertEqual(owners, [a.id, b.id],
@@ -163,10 +366,67 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         // Editing a hidden sketch still renders it, so its own dimensions show.
         vm.mode = .sketching(hidden.id, tool: nil)
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
-                       [shown.id, hidden.id])
+                       [hidden.id])
+    }
+
+    func testAlwaysShowToggleCoversActiveOtherHiddenAndReentry() throws {
+        let vm = try makeViewModel()
+        let active = dimensionedLine(length: 10)
+        let other = dimensionedLine(length: 20)
+        let hidden = dimensionedLine(length: 30, hidden: true)
+        for sketch in [active, other, hidden] {
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+        }
+
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(active.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id])
+
+        vm.mode = .idle
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id, other.id],
+                       "leaving the sketch keeps visible-sketch annotations when Always Show is on")
+
+        AppSettings.shared.alwaysShowDimensions = false
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        vm.selectedSketchEntityIDs = [other.entities[0].id]
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [other.id])
+
+        vm.selectedSketchEntityIDs.removeAll()
+        vm.mode = .sketching(hidden.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = true
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
+                       [hidden.id],
+                       "re-entering a hidden sketch includes that active sketch without exposing it otherwise")
     }
 
     // MARK: - Constraint glyphs mirror dimensions
+
+    func testAlwaysShowDimensionsSuppressesOtherSketchesOnlyWhileEditing() throws {
+        let vm = try makeViewModel()
+        let ground = dimensionedLine(length: 50)
+        var front = dimensionedLine(length: 20)
+        front.plane = .worldXY
+        var hiddenFront = dimensionedLine(length: 30, hidden: true)
+        hiddenFront.plane = .worldXY
+        for sketch in [ground, front, hiddenFront] {
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+        }
+        let original = vm.session.document.sketches
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(front.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [front.id])
+        vm.mode = .idle
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [ground.id, front.id])
+        vm.mode = .sketching(ground.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [ground.id])
+        vm.mode = .sketching(hiddenFront.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [hiddenFront.id],
+                       "an independent coplanar sketch must also be suppressed")
+        AppSettings.shared.alwaysShowDimensions = false
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        XCTAssertEqual(vm.session.document.sketches, original,
+                       "visibility transitions must not alter geometry, dimensions or hidden flags")
+    }
 
     func testConstraintGlyphsFollowTheirOwnSetting() throws {
         let vm = try makeViewModel()
@@ -188,6 +448,322 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
     }
 
+    func testAxisSavedSideAndAdjacentAliasShareDimensionThroughHistoryAndSerialization() throws {
+        let vm = try makeViewModel(), id = UUID()
+        var source = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        vm.session.perform(AddSketchCommand(sketch: source))
+        vm.mode = .sketching(source.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 1)
+        let bottom = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == .horizontal })
+        XCTAssertEqual(bottom.axisRectangleEdge, 0)
+        vm.beginDimensionEdit(bottom)
+        vm.commitDimensionEdit("3")
+        let first = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(first.dimensions.count, 1)
+        XCTAssertEqual(first.dimensions[0].rectangleLabelEdges, [0])
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 3)
+        let widths = vm.sketchDimensionLabels.filter { $0.kind == .horizontal }
+        XCTAssertEqual(widths.count, 2)
+        XCTAssertEqual(Set(widths.compactMap(\.axisRectangleEdge)), [0, 2])
+        XCTAssertEqual(Set(widths.map(\.id)).count, 2)
+        XCTAssertTrue(widths.allSatisfy { $0.dimensionID == first.dimensions[0].id && $0.refs == first.dimensions[0].refs })
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 3)
+        let top = try XCTUnwrap(widths.first { $0.axisRectangleEdge == 2 })
+        vm.beginDimensionEdit(top)
+        vm.cancelDimensionEdit()
+        XCTAssertEqual(vm.activeSketch, first)
+        vm.beginDimensionEdit(top)
+        vm.commitDimensionEdit("2")
+        let second = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(second.dimensions.count, 1, "Presentation aliases never add equations")
+        XCTAssertEqual(second.dimensions[0].rectangleLabelEdges, [0, 2])
+        XCTAssertEqual(second.dimensions[0].refs, first.dimensions[0].refs)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertNil(vm.rectangleHandleGeometry)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, first)
+        XCTAssertEqual(vm.sketchDimensionLabels.count, 1, "Undo removes the newly committed annotation side")
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.axisRectangleEdge, 0)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, second)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap(\.axisRectangleEdge)), [0, 2])
+        let reopened = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(second))
+        XCTAssertEqual(reopened, second)
+        var legacyDimension = first.dimensions[0]
+        legacyDimension.rectangleLabelEdges = nil
+        let legacyData = try JSONEncoder().encode(legacyDimension)
+        let legacyObject = try XCTUnwrap(JSONSerialization.jsonObject(with: legacyData) as? [String: Any])
+        XCTAssertNil(legacyObject["rectangleLabelEdges"])
+        XCTAssertEqual(try JSONDecoder().decode(SketchDimension.self, from: legacyData), legacyDimension)
+        var guest = DesignDocument()
+        guest.sketches = [second]
+        let inserted = try XCTUnwrap(ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches.first)
+        XCTAssertEqual(inserted.dimensions[0].rectangleLabelEdges, [0, 2])
+        XCTAssertNotEqual(inserted.entities[0].id, id)
+        XCTAssertTrue(inserted.dimensions[0].refs.allSatisfy { $0.entityID == inserted.entities[0].id })
+    }
+
+    func testAxisRectangleSizeCommitClearsSideButRetainsEditedReadoutThroughHistory() throws {
+        for side in 0..<4 {
+            let vm = try makeViewModel(), id = UUID()
+            let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+            var source = Sketch(plane: .ground, entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+            source.rectangleSizingAnchors[id] = .center
+            source.dimensions = [.init(kind: .horizontal, refs: refs, value: 4),
+                                 .init(kind: .vertical, refs: refs, value: 2)]
+            vm.session.perform(AddSketchCommand(sketch: source))
+            vm.mode = .sketching(source.id, tool: nil)
+            AppSettings.shared.alwaysShowDimensions = false
+            vm.selectedSketchEntityIDs = [id]
+            vm.selectedAxisRectangleEdge = (id, side)
+            let kind: DimensionKind = side % 2 == 0 ? .horizontal : .vertical
+            let adjacentKind: DimensionKind = kind == .horizontal ? .vertical : .horizontal
+            let adjacent = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == adjacentKind })
+            let adjacentEdge = try XCTUnwrap(RectangleConstruction.axisEdge(source.entities[0], index: (side + 3) % 4))
+            XCTAssertEqual(adjacent.worldStart, source.plane.toWorld(adjacentEdge.a))
+            XCTAssertEqual(adjacent.worldEnd, source.plane.toWorld(adjacentEdge.b))
+            let label = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.kind == kind })
+            vm.beginDimensionEdit(label)
+            vm.cancelDimensionEdit()
+            XCTAssertEqual(vm.selectedSketchEntityIDs, [id])
+            XCTAssertEqual(vm.activeSketch, source)
+            vm.beginDimensionEdit(label)
+            vm.commitDimensionEdit(side % 2 == 0 ? "3" : "1")
+            let edited = try XCTUnwrap(vm.activeSketch)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.rectangleHandleGeometry)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            let retained = try XCTUnwrap(vm.sketchDimensionLabels.first)
+            XCTAssertEqual(retained.dimensionID, label.dimensionID)
+            XCTAssertEqual(retained.refs, refs)
+            let edge = try XCTUnwrap(RectangleConstruction.axisEdge(edited.entities[0], index: side))
+            XCTAssertEqual(retained.worldStart, edited.plane.toWorld(edge.a))
+            XCTAssertEqual(retained.worldEnd, edited.plane.toWorld(edge.b))
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, source)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            XCTAssertEqual(vm.sketchDimensionLabels.first?.displayValue, side % 2 == 0 ? 4 : 2)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, edited)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 1)
+            vm.selectedDimensionID = nil
+            XCTAssertTrue(vm.sketchDimensionLabels.isEmpty, "Blank deselection clears retained readout")
+        }
+    }
+
+    func testMigratedRectangleSingleEdgeKeepsBothSavedSizesWithoutDuplicates() throws {
+        let vm = try makeViewModel(), id = UUID(), unrelated = UUID()
+        var source = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        source.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        let refs: [ConstraintRef] = [.init(entityID: id, role: .endpointA), .init(entityID: id, role: .endpointB)]
+        source.dimensions = [.init(kind: .horizontal, refs: refs, value: 4),
+                             .init(kind: .vertical, refs: refs, value: 2)]
+        var migrated = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(
+            source, id: id, edgeIDs: [id, UUID(), UUID(), UUID()]))
+        migrated.entities.append(.line(id: unrelated, a: SIMD2(8, 0), b: SIMD2(10, 0)))
+        vm.session.perform(AddSketchCommand(sketch: migrated))
+        vm.mode = .sketching(migrated.id, tool: nil)
+        AppSettings.shared.alwaysShowDimensions = false
+        let unrelatedMarkers = vm.sketchPointMarkers.filter { $0.id.hasPrefix(unrelated.uuidString) }
+        XCTAssertEqual(unrelatedMarkers.count, 2)
+        XCTAssertTrue(unrelatedMarkers.allSatisfy { !$0.isRectangleCorner }, "Ordinary line marker styles stay unchanged")
+        for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
+            vm.selectedSketchEntityIDs = [edge]
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 3, "Selected side and both adjacent sizes must be visible")
+            XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.id)).count, 3)
+            for label in vm.sketchDimensionLabels {
+                vm.beginDimensionEdit(label)
+                XCTAssertEqual(vm.selectedSketchEntityIDs, [edge])
+                XCTAssertEqual(vm.editingDimension?.refs, label.refs)
+                let presented = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == label.id })
+                XCTAssertEqual(presented.worldStart, label.worldStart)
+                XCTAssertEqual(presented.worldEnd, label.worldEnd)
+                vm.cancelDimensionEdit()
+                XCTAssertEqual(vm.activeSketch, migrated)
+            }
+            XCTAssertEqual(Set(vm.sketchDimensionLabels.compactMap(\.dimensionID)), Set(source.dimensions.map(\.id)))
+            let group = try XCTUnwrap(migrated.rotatedRectangleEdges[id])
+            let edgeIndex = try XCTUnwrap(group.firstIndex(of: edge))
+            let selectedSize = try XCTUnwrap(vm.sketchDimensionLabels.first {
+                $0.dimensionID == source.dimensions[edgeIndex % 2].id
+            })
+            guard case let .line(_, a, b)? = migrated.entities.first(where: { $0.id == edge }) else {
+                return XCTFail("Expected rectangle side")
+            }
+            XCTAssertEqual(selectedSize.worldStart, migrated.plane.toWorld(a))
+            XCTAssertEqual(selectedSize.worldEnd, migrated.plane.toWorld(b))
+            XCTAssertEqual(selectedSize.refs, migrated.dimensions[edgeIndex % 2].refs,
+                           "Presentation must not remap driving geometry")
+            vm.beginDimensionEdit(selectedSize)
+            XCTAssertEqual(vm.selectedSketchEntityIDs, [edge], "Editor must not jump to the opposite driving side")
+            XCTAssertEqual(vm.editingDimension?.refs, selectedSize.refs)
+            let editingLabel = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == selectedSize.id })
+            XCTAssertEqual(editingLabel.worldStart, selectedSize.worldStart)
+            XCTAssertEqual(editingLabel.worldEnd, selectedSize.worldEnd)
+            vm.cancelDimensionEdit()
+            XCTAssertEqual(vm.selectedSketchEntityIDs, [edge])
+            XCTAssertEqual(vm.activeSketch, migrated, "Opening/dismissing an editor must not mutate the sketch")
+            let height = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == source.dimensions[1].id })
+            vm.beginDimensionEdit(height)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 3)
+            vm.commitDimensionEdit("1")
+            XCTAssertEqual(vm.activeSketch?.dimensions.count, 2)
+            XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [4, 1])
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertNil(vm.rectangleHandleGeometry)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == height.dimensionID && $0.displayValue == 1 })
+            let edited = vm.activeSketch
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, migrated)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == height.dimensionID && $0.displayValue == 2 })
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, edited)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, migrated)
+        }
+        vm.selectedDimensionID = nil
+        vm.cancelDimensionEdit()
+        vm.selectedSketchEntityIDs = []
+        for edge in try XCTUnwrap(migrated.rotatedRectangleEdges[id]) {
+            guard case let .line(_, a, b)? = migrated.entities.first(where: { $0.id == edge }) else {
+                return XCTFail("Expected migrated edge")
+            }
+            for (role, corner) in [(PointRole.endpointA, a), (.endpointB, b)] {
+                vm.selectedSketchPoints = [.init(entityID: edge, role: role)]
+                let world = migrated.plane.toWorld(corner)
+                XCTAssertEqual(vm.sketchDimensionLabels.count, 2)
+                XCTAssertEqual(vm.selectedMigratedRectangleCornerMarker?.world, SIMD3<Float>(world))
+                for label in vm.sketchDimensionLabels {
+                    XCTAssertTrue(simd_distance(label.worldStart, world) < 1e-9 ||
+                                  simd_distance(label.worldEnd, world) < 1e-9,
+                                  "Both leaders must use sides adjoining the selected corner")
+                    let sourceDimension = try XCTUnwrap(migrated.dimensions.first { $0.id == label.dimensionID })
+                    XCTAssertEqual(label.refs, sourceDimension.refs)
+                    XCTAssertEqual(label.displayValue, sourceDimension.value)
+                    let selectedPoint = vm.selectedSketchPoints
+                    vm.beginDimensionEdit(label)
+                    XCTAssertEqual(vm.selectedSketchPoints, selectedPoint)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    XCTAssertNil(vm.rectangleHandleGeometry)
+                    let editingLabel = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.id == label.id })
+                    XCTAssertEqual(editingLabel.worldStart, label.worldStart)
+                    XCTAssertEqual(editingLabel.worldEnd, label.worldEnd)
+                    vm.cancelDimensionEdit()
+                    XCTAssertEqual(vm.selectedSketchPoints, selectedPoint)
+                    XCTAssertEqual(vm.activeSketch, migrated)
+                }
+                vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first {
+                    $0.dimensionID == source.dimensions[0].id
+                }))
+                vm.commitDimensionEdit("3 mm")
+                XCTAssertTrue(vm.selectedSketchPoints.isEmpty, "Successful sizing ends corner selection")
+                XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                XCTAssertEqual(vm.activeSketch?.dimensions.map(\.value), [3, 2])
+                vm.undo()
+                XCTAssertEqual(vm.activeSketch, migrated)
+            }
+        }
+        vm.selectedSketchPoints = []
+        // A real geometry tap clears explicit dimension selection; changing
+        // only entity IDs in this fixture must not simulate that incompletely.
+        vm.selectedDimensionID = nil
+        vm.cancelDimensionEdit()
+        vm.selectedSketchEntityIDs = [unrelated]
+        XCTAssertTrue(vm.sketchDimensionLabels.allSatisfy { $0.dimensionID == nil })
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchPoints = [.init(entityID: id, role: .center)]
+        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.dimensionID == source.dimensions[1].id },
+                       "Center selection must not expand to the entire saved group")
+        // A malformed/unsolved opposite edge must not silently replace the
+        // driving reference's measurement merely because that edge is selected.
+        var divergent = migrated
+        let opposite = try XCTUnwrap(migrated.rotatedRectangleEdges[id])[2]
+        let oppositeIndex = try XCTUnwrap(divergent.entities.firstIndex { $0.id == opposite })
+        divergent.entities[oppositeIndex] = .line(id: opposite, a: SIMD2(6, 2), b: SIMD2(0, 2))
+        vm.session.perform(ReplaceSketchGeometryCommand(title: "Unsolved fixture", before: migrated, after: divergent))
+        vm.selectedSketchPoints = []
+        vm.selectedSketchEntityIDs = [opposite]
+        let drivingWidth = try XCTUnwrap(vm.sketchDimensionLabels.first { $0.dimensionID == source.dimensions[0].id })
+        XCTAssertEqual(drivingWidth.displayValue, 4, "Selection must not replace driving-side measurement")
+    }
+
+    func testMigratedRectangleStructuralBadgesStayImplicitButAccessible() throws {
+        let vm = try makeViewModel(), id = UUID(), outsideID = UUID()
+        var source = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(4, 2))])
+        source.rectangleSizingAnchors[id] = .center
+        source.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        var migrated = try XCTUnwrap(RectangleConstruction.prepareCenterRotation(
+            source, id: id, edgeIDs: [id, UUID(), UUID(), UUID()]))
+        let structural = Array(migrated.constraints.dropFirst())
+        migrated.entities.append(.line(id: outsideID, a: SIMD2(5, 0), b: SIMD2(9, 0)))
+        let external = SketchConstraint(kind: .parallel, refs: [
+            .init(entityID: id, role: .whole), .init(entityID: outsideID, role: .whole)])
+        migrated.constraints.append(external)
+        vm.session.perform(AddSketchCommand(sketch: migrated))
+        vm.mode = .sketching(migrated.id, tool: nil)
+        vm.selectedSketchEntityIDs = Set(migrated.entities.map(\.id))
+        for always in [false, true] {
+            AppSettings.shared.alwaysShowConstraints = always
+            XCTAssertEqual(Set(vm.sketchConstraintGlyphs.map(\.id)), [source.constraints[0].id, external.id])
+            XCTAssertTrue(try XCTUnwrap(vm.sketchConstraintGlyphs.first {
+                $0.id == source.constraints[0].id
+            }).isRectangleCenterLock, "Use the existing selected-center control, not another generic padlock")
+            for relation in structural {
+                vm.selectedConstraintID = relation.id
+                XCTAssertTrue(vm.sketchConstraintGlyphs.contains { $0.id == relation.id },
+                              "Items selection must still expose the structural rule")
+                vm.selectedConstraintID = nil
+            }
+        }
+        vm.sketchConflictAttribution.constraintIDs = [structural[0].id]
+        XCTAssertTrue(vm.sketchConstraintGlyphs.contains { $0.id == structural[0].id },
+                      "A conflicting structural rule must remain visible for diagnosis")
+        vm.sketchConflictAttribution = .init()
+        XCTAssertEqual(vm.activeSketch, migrated, "Visibility must not change saved constraints or geometry")
+        XCTAssertEqual(structural.count, 7)
+        XCTAssertFalse(RectangleConstruction.isStructuralRelation(external, in: migrated))
+        var ordinary = migrated
+        ordinary.rotatedRectangleEdges = [:]
+        XCTAssertFalse(RectangleConstruction.isStructuralRelation(structural[0], in: ordinary))
+    }
+
+    func testRectangleSideLockUsesContextualUnlockWithoutMidpointGlyph() throws {
+        let vm = try makeViewModel()
+        let id = UUID()
+        let sketch = Sketch(plane: .ground, entities: [
+            .rect(id: id, min: SIMD2(0, 0), max: SIMD2(10, 6))], constraints: [
+                .init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 0)])])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        vm.selectedAxisRectangleEdge = (id, 0)
+        for always in [false, true] {
+            AppSettings.shared.alwaysShowConstraints = always
+            XCTAssertTrue(vm.sketchConstraintGlyphs.isEmpty)
+        }
+        vm.toggleSketchSelectionLock()
+        XCTAssertTrue(vm.activeSketch?.constraints.isEmpty == true,
+                      "Hiding the badge must retain the contextual Unlock route")
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.constraints, sketch.constraints)
+    }
+
     // MARK: - Label text is unit-aware (was hardcoded "%.2f mm")
 
     func testLabelTextFollowsTheDisplayUnit() throws {
@@ -201,7 +777,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "25.4 mm")
 
         AppSettings.shared.unit = .inches
-        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "1 in",
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.text, "1\"",
                        "25.4 mm is exactly one inch")
     }
 

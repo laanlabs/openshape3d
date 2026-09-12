@@ -8,6 +8,47 @@ final class TwoShapeReproUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testToggleOffAndExitDismissPendingDimensionEditor() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let w = app.windows.firstMatch
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Rect")
+        w.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        lookAtSketch(app)
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            w.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(0.62, 0.60))
+        let initialBadge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(initialBadge.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        initialBadge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        app.buttons["Rect"].firstMatch.tap()
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        XCTAssertFalse(app.buttons["Keypad-7"].firstMatch.exists)
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists)
+        // Reopen a candidate's editor, then exit with it still open.
+        let badge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        let beforeTap = XCTAttachment(screenshot: app.screenshot())
+        beforeTap.name = "rectangle-before-reopen"; beforeTap.lifetime = .keepAlways; add(beforeTap)
+        // Tap the visible badge centre; XCTest's automatic hittable-point
+        // fallback can choose a corner outside the compact rounded label.
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let afterTap = XCTAttachment(screenshot: app.screenshot())
+        afterTap.name = "rectangle-after-reopen"; afterTap.lifetime = .keepAlways; add(afterTap)
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
+        app.buttons["Exit Sketching"].tap()
+        XCTAssertFalse(app.textFields["DimensionField"].firstMatch.exists)
+        XCTAssertFalse(app.buttons["Keypad-7"].firstMatch.exists)
+    }
+
     func testDrawSwitchToolDrawAgain() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
@@ -27,6 +68,12 @@ final class TwoShapeReproUITests: XCTestCase {
         p(0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(0.62, 0.60))
         sleep(1)
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].exists, "alive after shape 1")
+        // Rectangle release no longer auto-opens the pad; explicitly open it
+        // so this still exercises dismissal of a real pending editor.
+        let badge = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 3))
+        badge.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].firstMatch.waitForExistence(timeout: 3))
 
         startSketchTool(app, "Circle")
         sleep(1)
