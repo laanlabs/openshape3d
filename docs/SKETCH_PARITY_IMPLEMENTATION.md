@@ -2122,3 +2122,13 @@ unresolved busy operation, not an accepted count or verified refusal; clone10000
 ceiling is defensive. Illustrated803 media (+3/no predecessor loss) and master38
 with one dated note are export-verified. QA33 remains partial, inventory22/0/1/33.
 See [invalid-input receipt](testing/sketch-parity-invalid-recovery-2026-09-09.md).
+
+
+## September11 evening — QA05 line-chain closure
+
+Fresh native open A→B→C, Return, B-resume→D→E→B, closing-edge Undo/Redo,
+filled profile and saved five-edge reopen now agree with retained exact-build
+clone evidence. Current1fdb6a3 serialLineChain gate3/3; no new product change.
+Illustrated863/master38 verified, ten source hashes plus one visuallyverified
+Google-downsampled clone reopen and no852 predecessorloss. QA05 finite PASS;
+inventory26/0/1/29. Physical/hover remain separate. See line-chain receipt.

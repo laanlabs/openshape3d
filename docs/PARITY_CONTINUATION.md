@@ -1,5 +1,31 @@
 # Parity continuation checkpoint
 
+## Current execution — QA05 closed; next unfinished core recipe
+
+HEAD1fdb6a3; documentation-only closure now ready to commit. Current serial3/3
+clean, no runner. Fresh native full chain/Return/B-resume/closure/Undo/Redo/
+gallery reopen fiveedges verified; retained clone exact-build proof reinspected.
+Illustrated863/master38 saved/exportverified, tennew sourcehashes plus one
+visuallyverified Google-downsampled reopen, no852 predecessorloss. Inventory
+26/0/1/29. Native parkedSketch09 selected fiveedges, normalTop. Clone lastUI
+linechain fixture, simulator idle. Durable line-chain-qa05/native-live-2026-09-11.
+Next commit/push then QA19 category comparison using recovered native input.
+No iPad/immutable05be744 changes; unrelatedidentity/memoryfiles preserved.
+
+## Current execution — QA05 fresh native closure/history verified
+
+HEAD 1fdb6a3; no build/UI runner. Native Sketch09 Top contains A→B→C,
+Return retained geometry/armed Line; resume B→D→E→B completed. Undo removes
+only E→B, Redo restores it; Exit shows filled triangle and unchanged open chain.
+Instantaneous bridge clicks did not seed anchors; 200 ms / 1 px presses did,
+so input delivery difference is explicit, not native product failure.
+Native gallery reopened, limited-version popup dismissed via query, selecting
+Sketch09/Zoom to is active desktop operation. Next inspect saved profile, then
+current-tree LineChainUITests serial3 and publication with retained clone proof.
+Fresh native PNG/JSON preserved under line-chain-qa05/native-live-2026-09-11.
+QA05 partial until final gate/publication; inventory25/0/1/30. Reports852/38.
+No iPad/immutable05be744 changes; unrelated identity/memory files preserved.
+
 ## Current execution — QA25 closed; QA05 fresh native next
 
 HEADdb230f8 fixture pushed; closure docs committing. Final corrected29/29 clean,

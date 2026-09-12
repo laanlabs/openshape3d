@@ -9,7 +9,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-02 | Entry method | Core — partial, not passed | Ground menu entry only; remaining routes open. |
 | QA-03 | Camera angle | Core — partial, not passed | Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open. |
 | QA-04 | Empty entry | Core — passed | Paired Top/Front/Right empty Exit/two-stage Escape, hidden/visible reference preservation, corrected provisional Items/history and final gallery reopen verified on 0c8c268. Initial6/6 plus revised5/5; illustrated417/master38 export-verified. |
-| QA-05 | Line chain | Core — partial, not passed | Return/resume/intentional-close product path passes clean 3/3 and exact-build clone history/reopen; full fresh native chain remains desktop-input blocked. |
+| QA-05 | Line chain | Core — passed | Fresh native A→B→C/Return/B-resume/intentional close/history/five-edge reopen agrees with retained exact-build clone sequence. Current serial3/3 on1fdb6a3; illustrated863/master38 verified, ten exact new hashes plus one visually verified Google-downsampled reopen image. |
 | QA-06 | Line cancel | Core — passed | Paired Escape once/twice, Delete/Backspace, released-state Return/double-click, and Line→Arc switching preserve the intended committed geometry. History and gallery reopen are verified; current-tree closure regression is clean 5/5. Hover and physical input remain QA-21/QA-52. |
 | QA-07 | Line raw aim | Core — passed | Finite near-horizontal above/below recipe across native/clone scales, signed/reverse and H/V supplements, independent Guide/Auto, history and final reopen verified at eb9b4ab. 35 distinct checks across runs; general snap/hover/device remains separate. |
 | QA-08 | Diagonal rectangle | Core — passed | Finite four-quadrant, both sizing-order/lower-left anchor, selected-side/readout, history and saved-reopen recipe closed September10 at e9343a7. Relevant retained regression runs and paired evidence reconciled; illustrated624/master38 verified. Broader input/layout/device cases remain separate. |
@@ -82,7 +82,12 @@ Start then cancel; no persistent empty sketch or unintended visibility change. I
 
 ### QA-05 — Line chain
 
-Tap A-B-C; end open; resume from B; close intentionally. Issues: SK-09. Result: **PARTIAL** — Return now finishes only the transient chain, endpoint resume and intentional close pass a clean 3/3 current-tree suite, and exact-build clone Undo/Redo/gallery reopen passed live. Fresh native canvas clicks remain blocked by desktop input delivery, so the complete recipe is not promoted. See [September 11 line-chain checkpoint](testing/sketch-parity-line-chain-2026-09-11.md).
+Tap A-B-C; end open; resume from B; close intentionally. Issues: SK-09.
+Result: **PASSED** for the finite desktop recipe, September11. Fresh native
+complete sequence/history/reopen matches retained exact-build clone evidence;
+current serial3/3 and863/38 publication verified. Bounded native200ms/1px presses
+resolved instantaneous bridge click delivery; no physical input claim. See
+[September11 line-chain receipt](testing/sketch-parity-line-chain-2026-09-11.md).
 
 ### QA-06 — Line cancel
 
@@ -869,3 +874,10 @@ saved reopen, Exit and retained toggle/hidden/re-entry evidence. Publication
 QA25 finite off-state recipe closes after fresh paired selection evidence,
 corrected29/29 and852/38 publication verification. **25 passed / 0 failed /
 1 device-blocked / 30 incomplete**, total56. No updated physical installation.
+
+
+## September11 QA-05 closure inventory
+
+Fresh native complete chain/history/reopen plus retained clone proof andcurrent
+serial3/3 close QA05. Illustrated863/master38 verified with no predecessorloss.
+**26 passed /0 failed /1 device-blocked /29 incomplete**, total56. iPad unchanged.
