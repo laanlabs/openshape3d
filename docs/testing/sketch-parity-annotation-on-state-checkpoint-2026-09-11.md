@@ -81,3 +81,17 @@ coplanar Sketch2 hides2mm, Exit restores it without changing any of three lines.
 Native/clone sizes differ explicitly (50mm/2mm); comparison is annotation scope.
 PNG/JSON and focused log/summary copied to durable QA26 directory. Combined gate
 and publication pending; QA26 remains partial until final verification.
+
+## Final finite QA26 closure
+
+Source `2fdecd6` pushed. Final combined **29/29**, zero fail/skip, one serial run
+at `/tmp/os3d-qa26-coplanar-final-20260911.xcresult` (26 annotation/identity tests
+and three UI workflows), after separate focused21/21. No runner remains.
+Changed live coplanar suppression/Exit and gallery persistence inspected; prior
+paired active/hidden/re-entry/toggle and other-plane checks remain valid.
+Illustrated export841 unique media, all six new source hashes once, zero835
+predecessor loss, one coplanar heading and final verdict. Master38, one closure
+note, zero loss. Durable `coplanar-publication-manifest.json`, both
+`coplanar-*-verification.json` and `coplanar-*-after.docx` record verification.
+QA26 finite recipe PASS. Inventory24/0/1/31. QA25off-state selection next.
+No iPad installation, Pencil or full-parity claim; immutable05be744 untouched.

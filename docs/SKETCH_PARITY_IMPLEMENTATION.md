@@ -221,6 +221,13 @@ Next: Filter dimension and constraint glyphs by selection relationship, with sep
 
 Acceptance: Off does not flood the active sketch with unrelated locked values; on reveals the documented set; editing badges remain usable.
 
+September 11 QA26 on-state closure: independent coplanar reference dimensions
+must be suppressed while another sketch is edited, not just other-plane values.
+`2fdecd6` scopes persistent dimensions by active sketch identity and preserves
+idle visible-sketch labels plus active-hidden re-entry. Paired scope/Exit and
+gallery reopen verified; focused21/21 then final29/29, illustrated841/master38.
+QA25's broader off-state selection matrix remains separate and incomplete.
+
 ### DM-03 · Absolute/horizontal/vertical distance choice is missing
 
 **Finite QA-27 recipe verified; final54/54 plus paired exact-size/history/reopen** · P1

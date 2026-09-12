@@ -1,5 +1,17 @@
 # Parity continuation checkpoint
 
+## Current execution — QA26 closed; QA25 off-state next
+
+HEAD2fdecd6 source pushed; closure docs being committed. Final29/29 clean,
+focused21/21 separate. Paired coplanar nativeSketch08/06 suppression50 andExit,
+changedcloneSketch2/1 suppression2 andExit; savedgallery2 retained. Earlier
+on/hidden/re-entry/toggle and other-plane evidence retained. Publication841/38
+verified, six hashes once/no835 loss. Inventory24/0/1/31. No runner.
+Next QA25 off-state none/one/several/disjoint saved dimensions, paired GUI now
+working. Inspect native idleFront Sketch08/07/06 and clone post-final UI fixture
+before input. QA26 durablecoplanar exports/manifests/summary/log complete.
+iPadbuild/install pending; immutable05be744 and unrelatedfiles untouched.
+
 ## Current execution — QA26 coplanar live verified, final gate next
 
 Source identity-scope correction + tests ready to checkpoint; focused21/21 clean.
