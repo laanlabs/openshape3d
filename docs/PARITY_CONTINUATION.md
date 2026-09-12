@@ -2,11 +2,12 @@
 
 ## Active — QA38 circle-center drag selection correction
 
-Baseline db56d29/source96b1368. Before0/1 confirms circle-center drag promotes
-whole circle; independent geometry/radius/history/JSON pass. Scoped selected
-circle-center branch implemented; focused3/3 clean, no runner. Checkpointing
-source/tests/receipt; next relevant combined application/merge/polish/Trim plus
-rail UI and circle-center workflows. Then changed live/history/reopen/publication.
+Sourceee329b1 pushed; first combined118/120 (109model+9UI) with two armed
+circle readout failures. Branch was over-broad; restricted to disarmed mode,
+keeping previously verified armed readout. UI assertions unchanged. Scoped
+3/3 passed, zero failures/skips: center model +two failed UI. No runner.
+/tmp/os3d-qa38-center-scoped-20260912.{log,xcresult}. Dirty source+docs.
+Checkpoint scoped correction, then corrected combined120 and changed live.
 Native detached R18000 center470550, line500550→600650 fixed; overlap chooser
 Circle Center route works. Clone before circle220315, Ø0.6168, line250315→350350;
 whole-circle promotion is fixed in source, not yet repeated live. Separate

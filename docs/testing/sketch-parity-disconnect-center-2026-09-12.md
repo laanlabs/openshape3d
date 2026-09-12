@@ -26,3 +26,16 @@ Focused3/3 passed, zero failures/skips: center, prior endpoint and connection br
 live/history/reopen and publication pending. No acceptance promotion.
 Durable disconnect/qa38-center-live-2026-09-12 holds current PNG/actions.
 Reports1138/master38; QA38partial27/0/1/28; immutable05be744/iPad unchanged.
+
+## Initial combined failure and scope correction
+
+Sourceee329b1 first combined gate118/120: all109model and9UI pass, fresh and
+connected armed-circle UI fail only post-drag readout access. This was an
+over-broad source correction, not stale assertions: it altered armed Circle's
+previously verified creation readout. Restricted point-only branch to disarmed
+mode, matching the observed native Disconnect workflow. UI assertions unchanged.
+Scoped center model +both failed UI rerun active at
+/tmp/os3d-qa38-center-scoped-20260912.{log,xcresult}. Final corrected combined
+and changed live still pending. First combined receipt retained.
+
+Scoped correction passes3/3, zero failures/skips, including both unchanged armed-circle UI assertions. Corrected combined120 next.
