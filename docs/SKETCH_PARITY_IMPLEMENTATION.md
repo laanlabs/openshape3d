@@ -2387,3 +2387,12 @@ Parallel final112/112 clean on e834525/source33f7358; changed paired
 application/history/both reopenings now verified. Illustrated1119/master38,
 ten hashesonce/headingsonce/no predecessor loss. No runner; QA36 remains
 partial pending finite matrix reconciliation. See Parallel receipt above.
+
+## Perpendicular supporting-line pivot — September 12, 2026
+
+Sourcec73f126, focused4/4 and final114/114 clean. Fresh Last Selected free
+nonparallel pair now rotates around supporting-line intersection, preserves
+length/anchor and yields to saved constraints. Changed clone and native
+apply/history/both gallery reopenings verified. Illustrated1129/master38, ten
+hashesonce/no predecessor loss. QA36 partial pending finite matrix audit.
+See [pivot receipt](testing/sketch-parity-perpendicular-placement-2026-09-12.md).

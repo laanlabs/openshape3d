@@ -25,3 +25,24 @@ acceptance promotion. Inventory26/0/1/29; reports1119/master38; iPad unchanged.
 Durable evidence: workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
 constraint-types/qa36-perpendicular-placement-live-2026-09-12.
 Logs/xcresults /tmp/os3d-qa36-perp-placement-{before,focused}-20260912.
+
+## Final changed-build paired verification
+
+Source `c73f126`. Final114/114 passed in one serial run, zero failures/skips
+(107 model/integration +7 UI), `/tmp/os3d-qa36-perp-placement-final-20260912.xcresult`.
+Changed clone lower275375→295455 keeps1.026mm, upper350250→430230 fixed.
+Undo restores350300→430320; Redo restores the pivot rotation; both clear
+selection. Gallery reopening retains the relation and1.026mm. Native Undo
+restores554553→636573, Redo477630→498711; gallery reopen561569→576629
+retains43,805.7842mm and supporting-line guides, fixed upper618475→678459.
+The trial overlay was dismissed through its Skip accessibility element; failed
+coordinate clicks on the overlapping modal are retained, not counted. Normal
+to Sketch animation settled before inspecting the reopened geometry.
+
+Illustrated1129 unique placements/master38 verified: ten new source hashes
+once, one heading per report, no predecessor loss from1119/38. Durable
+publication-assets.json/publication-verification.json and before/after DOCX
+record the gate. clone-reopened-sketch.json preserves serialized state.
+This resolves the documented midpoint-pivot mismatch for the scoped Last
+Selected free pair. No blanket First/Last/reverse/locked parity claim. QA36
+remains partial pending finite matrix reconciliation; inventory26/0/1/29.
