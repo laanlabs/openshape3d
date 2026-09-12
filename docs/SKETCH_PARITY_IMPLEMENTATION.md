@@ -2249,3 +2249,14 @@ geometry Undo/Redo and both gallery reopenings. Final93/93 clean in one serial
 run. Illustrated985/master38 verified, ten hashes once/no predecessor loss.
 Native Redo highlight and intersecting/arc variants remain open; QA36partial.
 [Receipt](testing/sketch-parity-nested-tangent-2026-09-12.md).
+
+### September 12 — intersecting-circle Tangent paired checkpoint
+
+Source76dd2b0, final94/94 clean. Native shallow/deep overlap resolves to
+external/internal contact respectively; changed clone preserves both radii,
+second center, geometry Undo/Redo and gallery reopening. Native deep history
+and both reopened branches verified. Illustrated996/master38, eleven new
+hashes once/no predecessor loss. Receipt:
+[intersecting-circle Tangent](testing/sketch-parity-overlap-tangent-2026-09-12.md).
+QA36 remains partial: exact halfway/equal-radius overlap and arc pairs are not
+freshly paired. Inventory26/0/1/29; physical iPad unchanged.

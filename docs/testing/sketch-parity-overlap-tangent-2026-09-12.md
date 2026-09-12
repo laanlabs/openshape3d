@@ -12,7 +12,28 @@ Before regression0/1 confirms missing capability/application. Product now
 admits intersecting circles and selects nearest radius-difference/sum contact;
 the exact halfway tie defaults external (not yet native-observed). Equal-radius
 contact remains external; coincident equal circles and arc pairs unsupported.
-Focused three-case gate running exclusively exec87138 at
-/tmp/os3d-qa36-overlap-focused-20260912.xcresult. Next collect, broaden,
-changed-build paired history/reopen, publish. No closure claim yet.
+Source76dd2b0 pushed. Focused three-case gate passed3/3, zero failures/skips
+at /tmp/os3d-qa36-overlap-focused-20260912.xcresult. Combined94-case
+gate running exclusively exec82688; all87 model checks passed, seven UI
+workflows pending. Changed-build paired history/reopen/publication next.
+No closure claim yet.
 Reports985/master38; inventory26/0/1/29; physical iPad unchanged.
+
+## Changed-build live and final gate
+
+Source76dd2b0 final94/94 passed, zero failures/skips, one serial run:
+52application+19merge+6polish+10Trim+7rail UI. No runner.
+Matched LastSelected after tests left FirstSelected. Initial immediate post-sheet
+Circle attempt instead orbited; discarded and repeated from settled Top view.
+Shallow clone diameters1.2324/0.7358 centers400730/460730 apply external,
+first381730/secondunchanged. Deep diameters1.2398/0.7358 centers200730/230730
+apply internal, first210730/secondunchanged. Deep creation initially dragged
+outer annotation; retry from clear start created inner. Captures distinguish
+attempts. Both branch Undo/Redo preserve geometry/radii; gallery reopen retains
+both Tangent records and inner0.7358. Native deep Undo restores overlap,
+Redo contact, no orange highlight in this run; both branches survive gallery
+reopen, deep innerR5000 exact. Earlier native Redo-highlight ambiguity is not
+retrospectively resolved. Eleven images and notes inserted into both reports;
+anonymous export verified996 unique illustrated images, all11 hashes once,
+headingonce/no985loss; master38 headingonce/no loss. No runner. Nextequal-radius
+overlap and exact halfway boundary comparison; QA36partial26/0/1/29.

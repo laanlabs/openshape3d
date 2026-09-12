@@ -1,22 +1,26 @@
 # Parity continuation checkpoint
 
-## Current — Intersecting Tangent diagnosis
+## Current — Intersecting Tangent paired and published
 
-Baseline c007c0a. Native Sketch12 Top shallow overlap R8000/R5000,
-centers950620/1010620 (distance9453.7983mm), applies external contact,
-moves first center to927620, preserves second/radii. Deep overlap same radii
-centers950450/980450 (distance4726.8982mm), applies internal contact,
-moves first to961450, preserves second/radii. Both apply deselect.
-Clone matching shallow pair400730/460730 radii50/30px disables Tangent.
-Native/clone screenshots preserved under constraint-types/
-qa36-overlap-tangent-live-2026-09-12. Before-fix method test failed0/1; no runner.
-Receipt: /tmp/os3d-qa36-overlap-before-20260912.xcresult and .log.
-Dirty ConstraintApplyTests adds shallow/deep × First/Last × order coverage;
-Product now admits intersecting full circles and picks nearest contact
-(radius-difference versus radius-sum), keeping equal-radius contact external.
-Next focused regression, combined gate, changed live/history/reopen/publication.
-Reports985/master38 unchanged. QA36partial26/0/1/29; iPad unchanged.
-
+Source76dd2b0 pushed; before0/1, focused3/3, final94/94 zero failures/skips
+one serial run:52application+19merge+6polish+10Trim+7rail UI. No runner.
+Native shallow R8000/R5000 overlap resolves externally, deep overlap internally;
+second center/radii retained, apply deselects. Native deep geometry Undo/Redo
+and gallery reopening both branches verified, innerR5000 exact. Clone shallow
+1.2324/0.7358 centers400730/460730→381730/460730; deep1.2398/0.7358
+centers200730/230730→210730/230730; both branches geometry history and
+gallery reopen verified, inner0.7358 and two Tangent Items records retained.
+Initial clone post-settings orbit and label-drag creation interception discarded;
+settled Top and clear-start retries separately captured. LastSelected matched.
+Native now Sketch12Top deep inner947405 selectedR5000; shallow900557/974557.
+Clone Sketch1Top deep inner230730 selected0.7358, Itemsopen; shallow381730/460730.
+Illustrated996unique, eleven hashes once/headingonce/no985loss; master38
+headingonce/no loss. Durable constraint-types/qa36-overlap-tangent-live-2026-09-12
+contains all captures, test logs/summaries, publication-assets/verification,
+and afterDOCX exports. No product changes after final gate.
+Next native equal-radius overlap and exact halfway contact boundary; arc pairs
+still unsupported. Earlier native Redo-highlight ambiguity not retroactively
+resolved by this run's unhighlighted Redo. QA36partial26/0/1/29; iPad unchanged.
 
 ## Current — Nested circle Tangent paired and published
 
