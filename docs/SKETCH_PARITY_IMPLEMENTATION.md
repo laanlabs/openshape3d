@@ -2289,3 +2289,16 @@ Undo/Redo and both gallery reopenings verified. Clone drawn180.02degrees stays
 Illustrated1023/master38, nine hashes once/no predecessor loss. Off-span,
 overlapping/nested arc/circle and arc–arc remain unsupported/unverified.
 QA36partial26/0/1/29. [Receipt](testing/sketch-parity-arc-circle-tangent-2026-09-12.md).
+
+
+### September 12 — off-span arc/circle Tangent
+
+Sources49ac92e/007181c enable separated supporting-circle contact beyond the
+visible arc and scope its complementary dashed guide to annotation visibility.
+Corrected final99/99 clean. Paired geometry/history/both reopenings and settled
+none/arc/circle guide states verified. Clone R0.4947/179.59degrees preserved;
+saved externalContact residual0.0, no added dimensions. Immediate native
+postapply transient timing remains unclaimed. Illustrated1033/master38, ten
+hashes once/no predecessor loss. Overlapping/nested arc-circle and arc-arc
+remain unverified; QA36partial26/0/1/29.
+[Receipt](testing/sketch-parity-offspan-tangent-2026-09-12.md).

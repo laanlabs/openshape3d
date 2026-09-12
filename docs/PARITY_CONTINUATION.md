@@ -1,22 +1,20 @@
 # Parity continuation checkpoint
 
-## Active — off-span Tangent guide selection correction
+## Active — off-span Tangent changed-build live verified
 
-Baseline49ac92e pushed; first combined99/99 passed. Native history/reopen now
-verified: arc radius9568.4738/180degrees retained, circle5000 fixed. Native
-settled Redo/no selection hides dashed extension; reopened arc OR circle selection
-shows it. Thus first clone guide implementation (always visible while active)
-was too broad; not claimed live-matched. Native parked Sketch12Top selectedcircle
-center601216, arc601272. Clone remains post-final test fixture, not yet livechecked.
-Guide visibility regression before0/1 (three assertions). Source now reuses
-annotationIsVisible with existing Always Show/selection policy; focused1/1 clean; no runner. Source EditorViewModel.swift, ConstraintApplyTests.swift,
-continuation and new receipt. No new solver/geometry change in this correction.
-Focused /tmp/os3d-qa36-offspan-visibility-focused-20260912; focused verified.
-Next source checkpoint, final combined rerun, changed clone
-contact/guide selection/history/reopen then publication. Native immediate postapply
-transient display timing remains outside settled-state claim. Reports1023/master38;
-QA36partial26/0/1/29;iPad/immutable05be744 unchanged. Durableoffspanroot contains
-native apply/value/Undo/Redo/reopen-none/reopen-selected/reopen-circle receipts.
+Source007181c pushed. Corrected final99/99 passed, zero failures/skips; no runner.
+Changed clone LastSelected verified: arc450700→450680, circle450620 fixed.
+Arc R0.4947mm/179.59degrees unchanged across apply/Undo/reopen; circle diameter
+0.4953mm. Settled none-selected guide hidden, arc OR circle selection shows
+complementary violet dashed guide. Undo removes relation/restores arc; Redo and
+gallery reopen retain contact. SavedJSON externalContact with no dimensions.
+Native matched geometry/history/reopen and settled guide selection already verified.
+Immediate native postapply transient timing and exact180degree clone creation
+are not claimed. Native parked reopenedSketch12Top selectedcircle; clone reopened
+Sketch1Top selectedarc. No source/test changes after final99. Publication verified illustrated1033/master38: ten hashes once, headingsonce,
+zero predecessor loss. Next native overlapping arc/circle boundary. Durable qa36-offspan-tangent-live-2026-09-12
+contains native/clone captures, final logs/summary and saved sketch. QA36partial
+26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — external arc/circle Tangent paired verification
 
