@@ -1,5 +1,39 @@
 # Parity continuation checkpoint
 
+## Active — QA37 Lock override fix focused and matrix pass
+
+Whole-Locked operand now takes placement-anchor priority for Parallel. Before0/1
+fails two geometry assertions, focused7/7 and expandedmatrix1/1 clean. First/Last
+x bothorders locks, freeanchor/repeatedstability/history preserved. No runner.
+Checkpoint source then final148-case gate; changed live/native history/reopen
+and publication next. Sourcefirst-fixfb5d9a5 already paired1194/master38.
+Native lockedupper943580→1039560; freelower943627→~1040608 selected afterapply,
+length100743.02 retained. Clone shortlower around235293→266287; upperlocked
+200230→300210. Need Undo then changed apply or fresh fixture afterfinaltests.
+QA37partial30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 Lock override placement gap; before test running
+
+HEAD4312d4d/sourcefb5d9a5. FirstSelected paired fix published1194/master38,
+final148/148 retained. New Lock override comparison confirms second gap:
+native upper943580→1039560 whole Locked; lower943627→1039650 free selected
+FIRST, locked upper SECOND. Parallel preserves upper, lower first endpoint and
+100743.02mm length, lower end becomes~1040608. Both deselect.
+Native fresh creation input attempts inconclusive; reused prior pair after
+explicit Delete Constraints and lower endpoint drag. Setup inspected; no
+geometry removed. One-edge selection attempt excluded, clean2edge repeated.
+Clone fresh lower200280→300300, upper200230→300210 wholeLocked. First free then
+locked Parallel preserves locked upper but lower1.26971836→0.40161145mm,
+firstendpoint moves0.45624786mm. Durable QA37 folder holds PNG/saved JSON.
+Strengthened existing testAnchoredSketchEntityPreferenceUsesSelectionOrderAndExistingLocksWin
+adds free length/start checks; before runner exclusive exec92200, /tmp/os3d-qa37-lock-before-20260912.{log,xcresult}.
+Before0/1 confirms two geometry failures. Whole-Locked operand mapping implemented;
+focused7-case runner exec2143, /tmp/os3d-qa37-lock-focused-20260912. Collect before
+source edits or live input. Chosen explicit whole-Locked operand over
+preference in parallel placement while preserving point-lock/driver projection.
+Then focused/final and changed live/history/reopen/publication. Inventory30/0/1/25;
+iPad/immutable05be744 unchanged. Native lowerselected result; clone shortline.
+
 ## Active — QA37 First Selected paired checkpoint verified
 
 Sourcefb5d9a5 pushed; final148/148 clean, zero failures/skips, no runner.

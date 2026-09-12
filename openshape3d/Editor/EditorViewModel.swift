@@ -12011,11 +12011,24 @@ final class EditorViewModel {
         // operand about endpoint A, preserving its length and the chosen anchor.
         // Project against saved relationships rather than persisting preferences.
         let parallelPlacement: [SketchEntity]? = {
-            let anchorIndex = AppSettings.shared.anchoredSketchEntity == .firstSelected ? 0 : 1
-            let movingIndex = 1 - anchorIndex
             guard kind == .parallel, newConstraints.count == 1,
-                  orderedOperands.count == 2,
-                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == orderedOperands[movingIndex] }),
+                  orderedOperands.count == 2 else { return nil }
+            var anchorIndex = AppSettings.shared.anchoredSketchEntity == .firstSelected ? 0 : 1
+            func isWholeLocked(_ index: Int) -> Bool {
+                sketch.constraints.contains { constraint in
+                    constraint.kind == .fixed && constraint.refs.contains {
+                        $0.entityID == orderedOperands[index] && $0.role == .whole
+                    }
+                }
+            }
+            // A saved whole-line Lock outranks First/Last selection. Seed the
+            // other line's length-preserving rotation around that actual anchor;
+            // projecting the locked line toward the free one would shorten it.
+            if !isWholeLocked(anchorIndex), isWholeLocked(1 - anchorIndex) {
+                anchorIndex = 1 - anchorIndex
+            }
+            let movingIndex = 1 - anchorIndex
+            guard case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == orderedOperands[movingIndex] }),
                   case let .line(anchorID, anchorA, anchorB)? = sketch.entities.first(where: { $0.id == orderedOperands[anchorIndex] }),
                   simd_length(b - a) > 1e-9, simd_length(anchorB - anchorA) > 1e-9
             else { return nil }

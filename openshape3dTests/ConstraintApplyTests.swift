@@ -3078,26 +3078,37 @@ final class ConstraintApplyTests: XCTestCase {
         // Existing relationships outrank the preference: the selected-first
         // line cannot also stay fixed when the selected-last line is already
         // explicitly locked at a different angle.
-        let vm = try makeViewModel()
-        let preferred = line(SIMD2(0, 0), SIMD2(10, 0))
-        let locked = line(SIMD2(0, 4), SIMD2(8, 6))
-        let original = Sketch(plane: .ground, entities: [preferred, locked],
-            constraints: [.init(kind: .fixed,
-                refs: [.init(entityID: locked.id, role: .whole)])])
-        vm.session.perform(AddSketchCommand(sketch: original))
-        vm.mode = .sketching(original.id, tool: nil)
-        AppSettings.shared.anchoredSketchEntity = .firstSelected
-        vm.selectSketchEntitiesInOrder([preferred.id, locked.id])
-        vm.applyConstraint(.parallel)
-        let constrained = try XCTUnwrap(vm.activeSketch)
-        XCTAssertEqual(constrained.entities[1], locked, "Saved Lock must override the transient anchor")
-        XCTAssertNotEqual(constrained.entities[0], preferred)
-        XCTAssertLessThanOrEqual(SketchSolverBridge.residualNorm(constrained),
-                                 EditorViewModel.overConstraintTolerance)
-        vm.undo()
-        XCTAssertEqual(vm.activeSketch, original)
-        vm.redo()
-        XCTAssertEqual(vm.activeSketch, constrained)
+        for preference: AnchoredSketchEntity in [.firstSelected, .lastSelected] {
+            for order in [[0, 1], [1, 0]] {
+                let vm = try makeViewModel()
+                let preferred = line(SIMD2(0, 0), SIMD2(10, 0))
+                let locked = line(SIMD2(0, 4), SIMD2(8, 6))
+                let original = Sketch(plane: .ground, entities: [preferred, locked],
+                    constraints: [.init(kind: .fixed,
+                        refs: [.init(entityID: locked.id, role: .whole)])])
+                vm.session.perform(AddSketchCommand(sketch: original))
+                vm.mode = .sketching(original.id, tool: nil)
+                AppSettings.shared.anchoredSketchEntity = preference
+                vm.selectSketchEntitiesInOrder(order.map { [preferred.id, locked.id][$0] })
+                vm.applyConstraint(.parallel)
+                let constrained = try XCTUnwrap(vm.activeSketch)
+                XCTAssertEqual(constrained.entities[1], locked, "Saved Lock must override the transient anchor")
+                XCTAssertNotEqual(constrained.entities[0], preferred)
+                guard case let .line(_, movedA, movedB) = constrained.entities[0] else {
+                    return XCTFail("Expected the free line")
+                }
+                XCTAssertLessThan(simd_distance(movedA, SIMD2(0, 0)), 1e-8,
+                                  "Saved Lock override preserves the free first endpoint")
+                XCTAssertEqual(simd_distance(movedA, movedB), 10, accuracy: 1e-8,
+                               "Saved Lock override rotates without shortening the free line")
+                XCTAssertLessThanOrEqual(SketchSolverBridge.residualNorm(constrained),
+                                         EditorViewModel.overConstraintTolerance)
+                vm.undo()
+                XCTAssertEqual(vm.activeSketch, original)
+                vm.redo()
+                XCTAssertEqual(vm.activeSketch, constrained)
+            }
+        }
     }
 
     // MARK: - Point-role hit testing
