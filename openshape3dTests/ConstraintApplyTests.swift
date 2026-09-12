@@ -1532,6 +1532,83 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertFalse(refused.canApplyConstraint(.coincident), "A point on its own line is not a new relation")
     }
 
+    func testMidpointFreeLineAnchorModesMatchPairedNativeGeometry() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for first in [false, true] {
+            AppSettings.shared.anchoredSketchEntity = first ? .firstSelected : .lastSelected
+            let vm = try makeViewModel()
+            let source = line(SIMD2(0, 1), SIMD2(0, 0.3))
+            let target = line(.zero, SIMD2(1, 0))
+            let original = openSketch(vm, entities: [source, target])
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([source.id, target.id])
+            vm.selectedSketchPoints = [.init(entityID: source.id, role: .endpointB)]
+            vm.selectedSketchEntityIDs = [target.id]
+            XCTAssertTrue(vm.canApplyConstraint(.midpoint))
+            vm.applyConstraint(.midpoint)
+            let applied = try XCTUnwrap(vm.activeSketch)
+            guard case let .line(_, sa, sb) = applied.entities[0],
+                  case let .line(_, ta, tb) = applied.entities[1] else {
+                return XCTFail("Expected source and target lines")
+            }
+            let expectedSA = first ? SIMD2(0.5, 0.7) : SIMD2(0, 1)
+            let expectedSB = first ? SIMD2(0.5, 0) : SIMD2(0, 0)
+            let expectedTA: SIMD2<Double> = first ? SIMD2(0, 0) : SIMD2(-1, 0)
+            XCTAssertLessThan(simd_distance(sa, expectedSA), 1e-8)
+            XCTAssertLessThan(simd_distance(sb, expectedSB), 1e-8)
+            XCTAssertLessThan(simd_distance(ta, expectedTA), 1e-8)
+            XCTAssertLessThan(simd_distance(tb, SIMD2(1, 0)), 1e-8)
+            XCTAssertEqual(applied.constraints.map(\.kind), [.midpoint])
+            XCTAssertEqual(applied.dimensions, original.dimensions)
+            XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, original)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, applied)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(applied)), applied)
+        }
+    }
+
+    func testMidpointPlacementPreferencesRespectLockedTargetAndDrivingLength() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for first in [false, true] {
+            AppSettings.shared.anchoredSketchEntity = first ? .firstSelected : .lastSelected
+            let vm = try makeViewModel()
+            let source = line(SIMD2(0, 1), SIMD2(0, 0.3))
+            let target = line(.zero, SIMD2(1, 0))
+            let lock = SketchConstraint(kind: .fixed, refs: [.init(entityID: target.id, role: .whole)])
+            let dimension = SketchDimension(kind: .distance, refs: [
+                .init(entityID: source.id, role: .endpointA),
+                .init(entityID: source.id, role: .endpointB)
+            ], value: 0.7)
+            var original = Sketch(plane: .ground, entities: [source, target], constraints: [lock])
+            original.dimensions = [dimension]
+            vm.session.perform(AddSketchCommand(sketch: original))
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([source.id, target.id])
+            vm.selectedSketchPoints = [.init(entityID: source.id, role: .endpointB)]
+            vm.selectedSketchEntityIDs = [target.id]
+            vm.applyConstraint(.midpoint)
+            let applied = try XCTUnwrap(vm.activeSketch)
+            XCTAssertNil(vm.errorMessage)
+            XCTAssertEqual(applied.entities[1], target)
+            XCTAssertEqual(applied.dimensions, [dimension])
+            XCTAssertTrue(applied.constraints.contains(lock))
+            XCTAssertEqual(applied.constraints.filter { $0.kind == .midpoint }.count, 1)
+            guard case let .line(_, a, b) = applied.entities[0] else { return XCTFail("Expected source line") }
+            XCTAssertEqual(simd_distance(a, b), 0.7, accuracy: 1e-8)
+            XCTAssertLessThan(simd_distance(b, SIMD2(0.5, 0)), 1e-8)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, original)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, applied)
+        }
+    }
+
     func testMidpointClearsMixedSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected

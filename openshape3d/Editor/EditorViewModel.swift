@@ -11911,10 +11911,55 @@ final class EditorViewModel {
             return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
         }
 
+        // Paired point-first / line-second Midpoint is not a whole-entity
+        // anchor. First Selected translates the source to the existing target
+        // midpoint; Last Selected preserves the source direction and target's
+        // far end, extending the near end about their intersection. These are
+        // placement preferences, projected against the ORIGINAL saved system
+        // so Locks, dimensions and connections always remain authoritative.
+        let midpointPlacement: [SketchEntity]? = {
+            guard kind == .midpoint, newConstraints.count == 1,
+                  newConstraints[0].refs.count == 2 else { return nil }
+            let point = newConstraints[0].refs[0]
+            let targetRef = newConstraints[0].refs[1]
+            guard point.role == .endpointA || point.role == .endpointB,
+                  targetRef.role == .whole,
+                  orderedOperands == [point.entityID, targetRef.entityID],
+                  case let .line(sourceID, sa, sb)? = sketch.entities.first(where: { $0.id == point.entityID }),
+                  case let .line(targetID, ta, tb)? = sketch.entities.first(where: { $0.id == targetRef.entityID })
+            else { return nil }
+            let selected = point.role == .endpointA ? sa : sb
+            let sourceDirection = sb - sa
+            let targetDirection = tb - ta
+            guard simd_length(sourceDirection) > 1e-9,
+                  simd_length(targetDirection) > 1e-9 else { return nil }
+            let targets: [SketchEntity]
+            if AppSettings.shared.anchoredSketchEntity == .firstSelected {
+                let delta = (ta + tb) / 2 - selected
+                targets = [.line(id: sourceID, a: sa + delta, b: sb + delta),
+                           .line(id: targetID, a: ta, b: tb)]
+            } else {
+                let determinant = sourceDirection.x * targetDirection.y - sourceDirection.y * targetDirection.x
+                guard abs(determinant) > 1e-9 * simd_length(sourceDirection) * simd_length(targetDirection)
+                else { return nil } // Parallel/degenerate variants are not paired.
+                let offset = ta - selected
+                let t = (offset.x * targetDirection.y - offset.y * targetDirection.x) / determinant
+                let contact = selected + t * sourceDirection
+                let nearA = simd_distance(selected, ta) <= simd_distance(selected, tb)
+                targets = [.line(id: sourceID, a: point.role == .endpointA ? contact : sa,
+                                 b: point.role == .endpointB ? contact : sb),
+                           .line(id: targetID, a: nearA ? 2 * contact - tb : ta,
+                                 b: nearA ? tb : 2 * contact - ta)]
+            }
+            return SketchSolverBridge.solvePointTransform(proposed, targets: targets)
+        }()
+
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
         var solvedEntities: [SketchEntity]
-        if kind != .fixed, let preferredAnchor {
+        if let midpointPlacement {
+            solvedEntities = midpointPlacement
+        } else if kind != .fixed, let preferredAnchor {
             var anchored = proposed
             anchored.constraints.append(.init(kind: .fixed,
                 refs: [.init(entityID: preferredAnchor, role: .whole)]))
