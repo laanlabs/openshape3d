@@ -2463,3 +2463,22 @@ illustrated1194/master38 verified, ten hashes once/no loss. Fresh Lock override
 comparison remains pending.
 [Receipt](testing/sketch-parity-first-parallel-anchor-2026-09-12.md).
 QA37 partial; inventory30/0/1/25, reports1184/master38; iPad unchanged.
+
+## September12 — Whole-Lock Parallel placement override
+
+Native preserves the free line's length/first endpoint when an explicitly locked
+second operand overrides First Selected. Source1cb2c54 maps that actual anchor
+before placement projection. Before0/1 (geometry failures), focused7/7, expanded
+First/Last/reverse matrix1/1 clean. Final combined and changed live pending.
+[Receipt](testing/sketch-parity-parallel-lock-override-2026-09-12.md).
+QA37 partial, inventory30/0/1/25, reports1194/master38; iPad unchanged.
+
+## September12 — QA37 finite closure
+
+Whole-Lock override source1cb2c54 final148/148 clean, changed paired apply/history/
+both reopenings. Last Selected reverse-order live also preserves anchor, length
+and first endpoint; clone saved reopen exact. With prior First both-order and
+Midpoint/point-pair evidence, QA37 is passed. Illustrated1208/master38 verified,
+fourteen hashes once/no loss. Inventory31/0/1/24. General overlap picking and
+physical input excluded. Local disk low; no new full export copy, verification
+in memory with durable XML/hash receipt.

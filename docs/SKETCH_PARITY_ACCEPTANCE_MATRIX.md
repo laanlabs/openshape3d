@@ -41,7 +41,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-34 | Locked/unlocked value | Core — PASSED (September 11 finite recipe) | Locked versus one-time commit, rejected draft, direct Unlock, free resize, exact history and saved reopen are paired/current-tree verified. Final one-owner gate clean 29/29. Broader constraints/transforms/device remain separate cases. |
 | QA-35 | Constraint rail | Core — PASSED (September 11 finite recipe) | Model availability matrix plus portrait/landscape disabled guidance, settings access, enabled application and glyph pass clean 30/30; retained paired contextual Lock/Unlock/history/reopen evidence reconciled. Constraint semantics remain QA-36/39. |
 | QA-36 | Constraint types | Core — passed (finite desktop family recipe) | All eleven families have paired apply/history/reopen receipts, latest Perpendicular pivot c73f126. Current-source114/114 clean includes eleven-family application/residual/history/JSON matrix. Illustrated1129/master38 retain all predecessors; QA37 anchor breadth and other explicitly unverified variants remain separate. |
-| QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
+| QA-37 | Selection anchor | Core — passed (finite desktop recipe) | First/Last, both orders, explicit whole-Lock override, repeated-solve stability and history/reopen verified. Source1cb2c54 final148/148 clean; illustrated1208/master38, fourteen hashes once/no predecessor loss. |
 | QA-38 | Disconnect | Core — passed | Endpoint, midpoint, circle-center and primitive-corner detachment/movement/history/reopen paired. Current corrected120/120; illustrated1154/master38 verified. Initial Coincident anchoring and general overlap picking remain separate. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
@@ -338,7 +338,7 @@ QA37 and the explicit limitations in individual receipts remain open.
 
 ### QA-37 — Selection anchor
 
-First/Last, reverse order, existing locks override, repeated solve stability. Issues: DM-08. Result: **PARTIAL** — preference, ordered selection, transient anchoring, history, persistence and portrait/landscape settings pass a clean 44/44 gate. Fresh paired gestures remain live-input blocked. See [selection-anchor checkpoint](testing/sketch-parity-selection-anchor-checkpoint-2026-09-11.md).
+First/Last, reverse order, existing locks override, repeated solve stability. Issues: DM-08. Result: **PASSED — September12 finite desktop recipe**. First Selected free Parallel both orders, Last Selected normal/reverse, explicit whole-Lock override, changed history/reopen and retained Midpoint/point-pair comparisons agree. Source1cb2c54 final148/148 clean includes First/Last x both orders free/Lock cases and repeated-solve stability. Illustrated1208/master38 export verified with fourteen new hashes once and no predecessor loss. Immediate Last-route autosave reads lagged and are excluded; visual history and exact final saved reopen verified. General overlap-selection routes and physical input remain separate. See [First placement](testing/sketch-parity-first-parallel-anchor-2026-09-12.md) and [Lock override](testing/sketch-parity-parallel-lock-override-2026-09-12.md).
 
 ### QA-38 — Disconnect
 
@@ -910,3 +910,7 @@ QA43 driven-reference live workflow next; device/immutable05be744 unchanged.
 
 Inventory **30 passed /0 failed /1 device-blocked /25 incomplete**, total56.
 Current-data reference recipe passed; legacy ownership and label caveats retained.
+
+## September12 QA37 closure inventory
+
+Inventory **31 passed /0 failed /1 device-blocked /24 incomplete**, total56.

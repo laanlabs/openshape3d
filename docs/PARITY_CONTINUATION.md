@@ -1,11 +1,50 @@
 # Parity continuation checkpoint
 
-## Active — QA37 Lock override fix focused and matrix pass
+## Active — QA37 closed, next QA54 native Single Key Action
+
+Source1cb2c54 final148/148, no runner. First/Last/reverse/whole-Lock/history/reopen
+finite recipe paired; illustrated1208/master38 verified, fourteen hashes once/no
+loss. Durable qa37-anchor-live-2026-09-12/lock-closure XML/hash receipts; full
+latest export verified in memory because disk has ~300MB free. Only incomplete
+new baseline copy removed; original baseline1194 DOCX and screenshots intact.
+Task docs dirty pending closure commit; no source dirty. Unrelated identity/memory
+untracked preserved. Native parked Last reverse-order Parallel pair in Sketch12;
+clone parked reopened same reverse case and earlier Lock pair. Next QA54 native
+Single Key Action preference read/switch; prior84/84 UI/model gate retained.
+Inventory31/0/1/24; iPad and immutable05be744 unchanged. No build until adequate
+space; continue read-only/UI/docs work. No Mac/security restart.
+
+## Active — QA37 Lock changed live/history/clone reopen passed
+
+Source1cb2c54 final148/148 clean, no runner. Clone fresh Lock override preserves
+free1.26971836mm/firstendpoint and exact lockedupper. Exact saved Undo/Redo/reopen.
+Native Undo/Redo retains Lock and restores Parallel; native gallery saved6:07PM,
+reopen started, skiptrial/selectSketch12/Normal next to confirm persistence.
+No codechanges afterfinal. Publication pending, baseline1194/master38. Durable
+constraint-types/qa37-anchor-live-2026-09-12; files os3d-qa37-lock-* plus fixed-lock-fixed JSON.
+Next native LastSelected reverse-order route after persistence, then clone route,
+publication/finite QA37 closure if all pass. Inventory30/0/1/25; iPad unchanged.
+
+## Active — QA37 Lock override final148/148 passed; changed live next
+
+Source1cb2c54 pushed, final148/148 clean, zero failures/skips, no runner.
+Final receipts /tmp/os3d-qa37-lock-final-20260912.{log,xcresult} +summaryJSON.
+Changed clone must recreate fresh pair after UI tests: upper200230→300210
+wholeLock, lower200280→300300free, FirstSelected free thenlocked. Verify length/
+firstendpoint preservation, history/reopen; native pending history/reopen.
+Native parked result lower943627→~1040608 selected100743.02mm, upperlocked
+943580→1039560. First free pluslockedsecond confirmed native placement.
+Then final LastSelected reverse-order observation if needed, publication/QA37
+finite closure. Reports1194/master38, inventory30/0/1/25; iPad unchanged.
+
+## Active — QA37 Lock override final running
 
 Whole-Locked operand now takes placement-anchor priority for Parallel. Before0/1
 fails two geometry assertions, focused7/7 and expandedmatrix1/1 clean. First/Last
-x bothorders locks, freeanchor/repeatedstability/history preserved. No runner.
-Checkpoint source then final148-case gate; changed live/native history/reopen
+x bothorders locks, freeanchor/repeatedstability/history preserved.
+Source1cb2c54 pushed; final combined exclusive exec62582,
+/tmp/os3d-qa37-lock-final-20260912.{log,xcresult}. Collect before desktop.
+Changed live/native history/reopen
 and publication next. Sourcefirst-fixfb5d9a5 already paired1194/master38.
 Native lockedupper943580→1039560; freelower943627→~1040608 selected afterapply,
 length100743.02 retained. Clone shortlower around235293→266287; upperlocked
