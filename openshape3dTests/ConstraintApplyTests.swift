@@ -1343,6 +1343,66 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testCoincidentPointOnLineExtensionPreservesTargetAndHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let source = line(SIMD2(-1.5, -0.3), SIMD2(-0.5, -0.7))
+        let target = line(.zero, SIMD2(1, 0))
+        let original = openSketch(vm, entities: [source, target])
+        vm.mode = .sketching(original.id, tool: nil)
+        func selectOperands(_ model: EditorViewModel) {
+            model.selectSketchEntitiesInOrder([])
+            model.selectedSketchPoints = [.init(entityID: source.id, role: .endpointA)]
+            model.selectedSketchEntityIDs = [target.id]
+        }
+        selectOperands(vm)
+        XCTAssertTrue(vm.canApplyConstraint(.coincident))
+        vm.applyConstraint(.coincident)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(applied.constraints.map(\.kind), [.coincident])
+        XCTAssertEqual(applied.constraints.first?.refs, [
+            .init(entityID: source.id, role: .endpointA),
+            .init(entityID: target.id, role: .whole)])
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        guard case let .line(_, point, end) = applied.entities[0],
+              case let .line(_, a, b) = applied.entities[1] else {
+            return XCTFail("Expected two lines")
+        }
+        XCTAssertEqual(point.x, -1.5, accuracy: 1e-8)
+        XCTAssertEqual(point.y, 0, accuracy: 1e-8) // Infinite extension, not nearest endpoint.
+        XCTAssertLessThan(simd_distance(end, SIMD2(-0.5, -0.7)), 1e-8)
+        XCTAssertLessThan(simd_distance(a, .zero), 1e-8)
+        XCTAssertLessThan(simd_distance(b, SIMD2(1, 0)), 1e-8)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        selectOperands(vm); vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        selectOperands(vm); vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+            from: JSONEncoder().encode(applied)), applied)
+
+        let refused = try makeViewModel()
+        let locked = Sketch(plane: .ground, entities: [source, target], constraints: [source, target].map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        refused.session.perform(AddSketchCommand(sketch: locked))
+        refused.mode = .sketching(locked.id, tool: nil)
+        selectOperands(refused); refused.applyConstraint(.coincident)
+        XCTAssertEqual(refused.activeSketch, locked)
+        XCTAssertEqual(refused.selectedSketchEntityIDs, [target.id])
+        XCTAssertEqual(refused.selectedSketchPoints, [.init(entityID: source.id, role: .endpointA)])
+        XCTAssertNotNil(refused.errorMessage)
+        refused.selectedSketchEntityIDs = [source.id]
+        XCTAssertFalse(refused.canApplyConstraint(.coincident), "A point on its own line is not a new relation")
+    }
+
     func testMidpointClearsMixedSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected

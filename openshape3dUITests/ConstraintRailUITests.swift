@@ -18,6 +18,9 @@ final class ConstraintRailUITests: XCTestCase {
     func testMidpointApplicationAndHistoryDeselectMixedOperands() {
         verifyRail(midpoint: true)
     }
+    func testCoincidentPointOnLineAppliesAndHistoryDeselects() {
+        verifyRail(coincident: true)
+    }
     func testCircleSymmetryChoosesAxisAfterOperandsAndCancels() {
         verifySymmetryAxisPick(circles: true)
     }
@@ -79,7 +82,7 @@ final class ConstraintRailUITests: XCTestCase {
         shot.name = circles ? "circle-symmetry-axis-applied" : "line-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
     }
 
-    private func verifyRail(perpendicular: Bool = false, midpoint: Bool = false) {
+    private func verifyRail(perpendicular: Bool = false, midpoint: Bool = false, coincident: Bool = false) {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
@@ -120,28 +123,28 @@ final class ConstraintRailUITests: XCTestCase {
         XCTAssertTrue(anchorPicker.buttons["Last Selected"].exists)
         anchorPicker.buttons["Last Selected"].tap()
         XCTAssertTrue(anchorPicker.buttons["Last Selected"].isSelected)
-        if !midpoint {
+        if !midpoint && !coincident {
             anchorPicker.buttons["First Selected"].tap()
             XCTAssertTrue(anchorPicker.buttons["First Selected"].isSelected)
         }
         app.buttons["ConstraintSettingsDone"].tap()
         p(0.32, 0.42).press(forDuration: 0.15, thenDragTo: p(0.58, 0.42))
-        p(0.32, 0.60).press(forDuration: 0.15, thenDragTo: p(0.58, 0.64))
+        p(coincident ? 0.22 : 0.32, 0.60).press(forDuration: 0.15, thenDragTo: p(coincident ? 0.38 : 0.58, 0.64))
         app.buttons["Line"].firstMatch.tap() // disarm to select/edit geometry
-        if midpoint {
+        if midpoint || coincident {
             let horizontal = app.buttons["ConstraintRail-horizontal"]
             p(0.68, 0.75).tap() // Clear the last drawn line before mixed selection.
             expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
             waitForExpectations(timeout: 3)
-            p(0.32, 0.60).tap()
+            p(coincident ? 0.22 : 0.32, 0.60).tap()
             expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.buttons["ConstraintRail-fixed"])
             waitForExpectations(timeout: 3)
             XCTAssertFalse(horizontal.isEnabled) // One point, not its entire line.
             p(0.40, 0.42).tap() // Last Selected anchors the target line.
             expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: horizontal)
             waitForExpectations(timeout: 3)
-            app.buttons["ConstraintRailMore"].tap()
-            let control = app.buttons["Midpoint"].firstMatch
+            if !coincident { app.buttons["ConstraintRailMore"].tap() }
+            let control = coincident ? app.buttons["ConstraintRail-coincident"] : app.buttons["Midpoint"].firstMatch
             XCTAssertTrue(control.waitForExistence(timeout: 3))
             XCTAssertTrue(control.isEnabled)
             control.tap()
@@ -149,7 +152,7 @@ final class ConstraintRailUITests: XCTestCase {
             waitForExpectations(timeout: 3)
             p(0.40, 0.42).tap()
             let glyph = app.buttons.matching(NSPredicate(format:
-                "identifier == 'ConstraintGlyph' AND label == 'M'")).firstMatch
+                "identifier == 'ConstraintGlyph' AND label == %@", coincident ? "⌖" : "M")).firstMatch
             XCTAssertTrue(glyph.waitForExistence(timeout: 3))
             app.buttons["Undo"].firstMatch.tap()
             XCTAssertFalse(horizontal.isEnabled)
@@ -160,7 +163,7 @@ final class ConstraintRailUITests: XCTestCase {
             p(0.40, 0.42).tap()
             XCTAssertTrue(glyph.waitForExistence(timeout: 3))
             let shot = XCTAttachment(screenshot: app.screenshot())
-            shot.name = "midpoint-history-reselected"; shot.lifetime = .keepAlways; add(shot)
+            shot.name = coincident ? "coincident-point-line-history-reselected" : "midpoint-history-reselected"; shot.lifetime = .keepAlways; add(shot)
             return
         }
         // The last drawn segment is already selected; select only the first

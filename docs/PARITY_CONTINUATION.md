@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active — Coincident point-plus-line diagnosis
+
+HEAD1f68fc2. Native isolated source600580→700620 and target750550→850550
+159.8835mm. Point+target Coincident projects sourceA600550 onto infinite
+extension; sourceB/target fixed. Apply clears, Undo restores, selected Redo
+clears. Initial target with existing Midpoint joint was ambiguous; isolated
+fixture supersedes it. Native parked afterRedo. Clone point250760+line280424
+Coincident disabled, captured. Before0/1 confirmed disabled route; source capability/refs and scoped
+point-on-line cleanup implemented, no solver changes. Focused2/2 passed. New
+UI workflow active exclusively, xcodebuild session21735 at /tmp/os3d-qa36-
+coincident-ui-20260912.xcresult/.log. No desktop input until terminal.
+Next collect UI, correct confirmed failure only, combined regression, changed
+paired live/reopen/publication. Source/rail/model/UI tests in this WIP commit. Evidence durable
+qa36-coincident-live-2026-09-12; reports925/38; QA36partial26/0/1/29.
+
 ## Current — Midpoint selection paired and published
 
 Source9659fec / test279a34b pushed; final82/82 zero failures/skips in one

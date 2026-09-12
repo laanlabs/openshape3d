@@ -5027,8 +5027,7 @@ final class EditorViewModel {
                 return group.commands.contains(where: addsDeselectingRelation)
             }
             guard let addition = command as? AddSketchConstraintCommand else { return false }
-            return addition.sketchID == sketchID &&
-                (addition.constraint.kind == .perpendicular || addition.constraint.kind == .midpoint)
+            return addition.sketchID == sketchID && clearsSelectionAfterApplying(addition.constraint)
         }
         guard let command, addsDeselectingRelation(command) else { return }
         clearAppliedRelationSelection()
@@ -5040,6 +5039,12 @@ final class EditorViewModel {
         selectedDimensionID = nil
         selectedConstraintID = nil
         editingDimension = nil
+    }
+
+    private func clearsSelectionAfterApplying(_ constraint: SketchConstraint) -> Bool {
+        constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+            (constraint.kind == .coincident && constraint.refs.count == 2 &&
+             constraint.refs.filter { $0.role == .whole }.count == 1)
     }
 
     /// The paired disarmed-circle numeric workflow clears its rim/readout on
@@ -11609,8 +11614,10 @@ final class EditorViewModel {
         let circles = selectedRadiusEntities.count
         switch kind {
         case .coincident:
-            // Two points, or two lines that share an approximate corner.
-            return points >= 2 || (lines == 2 && nearestEndpointPair(selectedLineEntities) != nil)
+            // A point can lie on the infinite extension of a distinct line.
+            // Keep two-point and approximate shared-corner behavior unchanged.
+            return points >= 2 || pointAndDistinctLineRefs != nil ||
+                (lines == 2 && nearestEndpointPair(selectedLineEntities) != nil)
         case .horizontal, .vertical:
             return lines >= 1 || points == 2
         // Spec §3.2: Parallel takes "2+ lines" — parallelism is transitive, so a
@@ -11861,10 +11868,10 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
-        // Paired Perpendicular and Midpoint application/history clear the operands and
-        // readouts. Keep this scoped to the observed relation; refusal returns
+        // Paired Perpendicular, Midpoint and point-on-line Coincident clear
+        // operands/readouts. Keep this scoped to observed forms; refusal returns
         // earlier and must retain the user's selection.
-        if kind == .perpendicular || kind == .midpoint { clearAppliedRelationSelection() }
+        if newConstraints.contains(where: clearsSelectionAfterApplying) { clearAppliedRelationSelection() }
         return true
     }
 
@@ -11944,6 +11951,14 @@ final class EditorViewModel {
         return [SketchConstraint(kind: kind, refs: refs)]
     }
 
+    private var pointAndDistinctLineRefs: [ConstraintRef]? {
+        guard selectedSketchPoints.count == 1, let point = selectedSketchPoints.first,
+              selectedLineEntities.count == 1, let line = selectedLineEntities.first,
+              point.entityID != line.id else { return nil }
+        return [.init(entityID: point.entityID, role: point.role),
+                .init(entityID: line.id, role: .whole)]
+    }
+
     /// Map the selection to the ref layout each constraint kind expects
     /// (documented in `SketchSolverBridge`). Returns nil when the selection
     /// does not form the operands for `kind`.
@@ -11962,6 +11977,7 @@ final class EditorViewModel {
         switch kind {
         case .coincident:
             if pts.count >= 2 { return [ref(pts[0]), ref(pts[1])] }
+            if let refs = pointAndDistinctLineRefs { return refs }
             return nearestEndpointPair(lines)
         case .horizontal, .vertical:
             if let line = lines.first { return [whole(line)] }

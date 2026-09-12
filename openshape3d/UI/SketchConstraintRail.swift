@@ -13,7 +13,7 @@ struct SketchConstraintRail: View {
         var id: String { kind.rawValue }
     }
     private let common: [Action] = [
-        .init(title: "Coincident", kind: .coincident, prerequisite: "Select two points or meeting lines"),
+        .init(title: "Coincident", kind: .coincident, prerequisite: "Select two points, a point and line, or meeting lines"),
         .init(title: "Horizontal", kind: .horizontal, prerequisite: "Select lines or two points"),
         .init(title: "Vertical", kind: .vertical, prerequisite: "Select lines or two points"),
         .init(title: "Parallel", kind: .parallel, prerequisite: "Select two or more lines"),

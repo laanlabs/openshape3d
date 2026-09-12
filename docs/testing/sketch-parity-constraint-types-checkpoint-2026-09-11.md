@@ -358,3 +358,22 @@ publication-assets.json/publication-verification.json/after DOCX exports.
 Native reopen fit initially used unsupported --button CLI option; corrected
 --right and observed Zoom to succeeded. No product action occurred on failed
 invocations. No runner; QA36partial26/0/1/29; iPad unchanged.
+
+
+## Coincident point-plus-line WIP — September 12
+
+Fresh isolated native source600580→700620 and target750550→850550
+159.8835mm. Selected endpoint plus whole target applies Coincident to the
+infinite extension: sourceA600550, other endpoint and target unchanged.
+Application and selected Redo clear selection; Undo restores detached source.
+Initial probe with the existing Midpoint joint was ambiguous and is not used
+as point-on-line proof. Right-to-left crossing box lost prior point selection;
+left-to-right containing box produced the verified mixed operands.
+Clone selected point250760 plus separate line280424 leaves Coincident disabled.
+Before-fix targeted0/1, 11 downstream assertions fail from disabled/no command
+route (including Undo removing original sketch, not a history defect).
+Source now enables one point plus a distinct line using existing point+whole
+solver lowering, with cleanup scoped to that Coincident form. Two-point and
+shared-corner routes unchanged. Focused2-case gate active; live changed build,
+UI gate and publication pending. Captures durable qa36-coincident-live-2026-09-12.
+QA36partial26/0/1/29, iPad unchanged.
