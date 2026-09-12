@@ -2260,3 +2260,12 @@ hashes once/no predecessor loss. Receipt:
 [intersecting-circle Tangent](testing/sketch-parity-overlap-tangent-2026-09-12.md).
 QA36 remains partial: exact halfway/equal-radius overlap and arc pairs are not
 freshly paired. Inventory26/0/1/29; physical iPad unchanged.
+
+### September 12 — equal-radius internal Tangent paired checkpoint
+
+Source5ddba88 permits internal zero-distance contact without deleting either
+circle. Final95/95 clean, paired native/changed-clone geometry history and gallery
+reopen verified; saved clone retains two IDs and two Ø1 dimensions. Illustrated
+1005/master38, nine hashes once/no predecessor loss. QA36partial26/0/1/29;
+exact halfway, initially coincident and arc variants remain unverified.
+[Receipt](testing/sketch-parity-equal-contact-2026-09-12.md).

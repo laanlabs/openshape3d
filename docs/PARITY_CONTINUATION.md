@@ -1,20 +1,20 @@
 # Parity continuation checkpoint
 
-## Current — Equal-radius internal-contact diagnosis
+## Current — Equal-radius internal Tangent paired and published
 
-Baseline098557f. Native Sketch12Top two R9000 circles centers550630/590630
-(distance7059.6428mm) Tangent moves first to590630: two edges retained,
-center distance0, same total length113097.3355mm, Tangent marker.
-Clone source currently forces external for equal radii. Before regression failed0/1, three assertions at
-/tmp/os3d-qa36-equal-contact-before-20260912.xcresult. Product removes
-equal-radius external exception and permits target0 geometric seed. Focused
-three-case gate running exclusively exec32048 at
-/tmp/os3d-qa36-equal-contact-focused-20260912.xcresult and .log.
-Evidence durable constraint-types/qa36-equal-contact-live-2026-09-12.
-Next collect focused result, combined gate, changed paired history/reopen/publication.
-Native parked coincident equal pair selected2edges; clone runner owns simulator.
-Reports996/master38; QA36partial26/0/1/29; iPad unchanged.
-
+Source5ddba88 pushed; before0/1, focused3/3, final95/95 zero failures/skips,
+one serial run. No runner; no source edits after final. Native equal R9000 pair
+retains two edges at coincident centers, unchanged total length113097.3355mm;
+geometry history and gallery reopen pass. Changed clone exact Ø1 pair retains
+both circles/dimensions through apply/history/reopen; saved JSON proves distinct
+IDs/internalContact and center difference3.13e-12 only. LastSelected matched.
+Illustrated1005unique/master38 verified: nine hashes once, headingsonce/no loss
+from996/38. All captures, logs/summaries, saved JSON/identity validation, manifests
+and DOCX exports durable in constraint-types/qa36-equal-contact-live-2026-09-12.
+Native parked Sketch12Top reopened equalpair637568 selected2edges; clone
+Sketch1Top coincident325750 selectedØ1, Itemsopen. Next fresh native halfway /
+initially coincident contact boundary, then arc variants. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged.
 
 ## Current — Intersecting Tangent paired and published
 
