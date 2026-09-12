@@ -2150,3 +2150,13 @@ with ten hashes once and no predecessor loss. QA36 remains partial: settled
 native history-axis selection, independently unequal native radii and other
 Symmetry element types remain open. Inventory26/0/1/29; iPad unchanged. See
 [constraint receipt](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
+
+
+### September 12 two-line Symmetry paired checkpoint
+
+`bcc70c1` adds two-line axis picking with persistent endpoint correspondence;
+`ebf4c37` verifies final76/76. Fresh matched Last Selected application, Undo/Redo
+and gallery reopen preserve the fixed operand/axis and reflected line in both
+apps. Illustrated903/master38 verified, eight hashes once/no predecessor loss.
+QA36 remains partial for the remaining relation sweep; inventory26/0/1/29.
+See the constraint-types checkpoint for exact fixture values and evidence paths.

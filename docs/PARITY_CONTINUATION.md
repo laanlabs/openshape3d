@@ -1,15 +1,22 @@
 # Parity continuation checkpoint
 
-## Current — line Symmetry final76/76 passed
+## Current — two-line Symmetry paired and published
 
-Sourcebcc70c1 plus new line UI/import tests verified one final76/76 run, zero
-fail/skip (72model/integration+4UI), final xcresult/log/summary above. No runner.
-Next changed clone live: reopen savedSketch1/Top, match Last Selected, create
-axis350630→350810, left180650→250690, right420690→530660; disarm, clear then
-select left/right in order, Symmetric→axis. Native Last Selected retained;
-right fixed, left reflected; native nowSketch11afterappliedlineSymmetry.
-Then paired history/reopen and publication. Reports895/38 unchanged.
-QA36partial; inventory26/0/1/29; iPad/immutableIPA unchanged.
+Source `bcc70c1`, tested `ebf4c37`: final76/76 zero fail/skip in one run.
+No runner. Fresh native and changed clone Last Selected two-line→Symmetry→axis
+preserve right operand/axis and reflect left; Undo restores original, Redo
+reflection. Gallery reopen/reselection confirms native81.9876mm and
+clone1.4098mm in separate-scale fixtures. Illustrated903 unique: eight source
+hashes once, heading once, no895 predecessor loss. Master38, heading once,
+no loss. Durable exports/images/verification in workspace reports under
+constraint-types/qa36-line-symmetry-live-2026-09-12.
+Next fresh remaining QA36 relation sweep, beginning Perpendicular two-line
+application/history/reopen; arc Symmetry remains an unverified element variant.
+Native parked Sketch11 Front left reflected small line selected; clone Sketch1
+Top left reflected small line selected, Last Selected, acquisitionOFF,
+AutoConstrainOFF. No task source dirty; unrelated identity/memory preserved.
+QA36partial, inventory26/0/1/29; iPad/immutable05be744 unchanged.
+Historical running entries below are superseded by this checkpoint.
 
 ## Active gate — line Symmetry combined regression
 

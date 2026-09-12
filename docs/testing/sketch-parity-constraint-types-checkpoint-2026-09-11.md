@@ -241,3 +241,20 @@ Final two-line combined gate **76/76**, zero fail/skip in one serial run:
 38application +18merge +6polish +10Trim +4rail UI. Sourcebcc70c1 plus
 line UI/import tests; receipt /tmp/os3d-qa36-line-sym-final-20260912.xcresult,
 log/summary copied durable. No runner. Changed-build live remains next.
+
+
+## Two-line changed-build paired verification and publication
+
+Sourcebcc70c1, testedebf4c37; final76/76 reused, no new source change.
+With Last Selected matched, native left57.9747mm reflects to match fixed right
+81.9876mm; clone left reflects to fixed right1.4098mm. Axis and unrelated
+geometry stay fixed. Both Undo restore the original left geometry, Redo restores
+reflection, and gallery reopening/reselection displays the exact resulting
+length and Symmetry glyph. Clone Undo screenshot proves geometry/deselection,
+not a selected numeric readout. Fixtures intentionally use different scales.
+Eight fresh images plus all intermediate PNG/JSON are retained under workspace
+reports/openshape3d-core-sketch-milestone-2026-09-08/constraint-types/
+qa36-line-symmetry-live-2026-09-12. Illustrated export903 unique images,
+eight hashes once/heading once/no895 loss; master38/heading once/no loss.
+publication-verification.json and both DOCX exports retained. No runner.
+QA36partial pending remaining relation sweep; inventory26/0/1/29, iPad unchanged.
