@@ -1,20 +1,19 @@
 # Parity continuation checkpoint
 
-## Active — point-pair Coincident focused regression
+## Active — point-pair Coincident verified; QA41 Trim next
 
-HEAD632b1b1, source/tests dirty: EditorViewModel.swift and ConstraintApplyTests.
-Before0/1 reproduces First Selected circle/rect moved halfway and retained
-selection/readout; incremental order assertion passed. Before receipt
-/tmp/os3d-point-pair-before-20260912.{log,xcresult}. Scoped source seeds only
-a free line endpoint to the preferred circle/rect point before averaging weld;
-existing line constraints/dimensions excluded from this placement. Selection
-clear added for shape point pairs; narrow to shape+line before final gate.
-Focused3/3 passed; selection predicate narrowed to observed line+shape.
-No runner. Source checkpoint then combined121 gate next, followed by changed
-paired geometry/selection/history/reopen.
-No changed-source live proof/publication yet. Native/clone parked reopened
-QA38rectangle fixtures. QA38closed632b1b1; reports1154/master38,
-inventory28/0/1/27. Immutable05be744/iPad unchanged.
+Source9e99752 pushed, final121/121 clean, zero failures/skips; no runner.
+Changed circle and rectangle clean point-only apply/history/gallery reopen
+verified. First rect attempt retained whole line after drawing; failed shape
+preservation retained as extra-operand fixture, clean blank-reset repeat passed.
+No additional source changes. Durable evidence and reopened JSON:
+reports/openshape3d-core-sketch-milestone-2026-09-08/disconnect/point-pair-live-2026-09-12
+under workspace. Receipt sketch-parity-point-pair-anchor-2026-09-12.md updated.
+Publication1162/master38 verified, eight hashes once/headings once/no loss.
+Next QA41 fresh native arc/rectangle/polygon Trim gesture comparison; read
+finite receipt and existing tests before creating fixtures. Native remains reopened QA38 rectangle; clone reopened both
+joined shapes, circle252284, primitive252647→399745. No desktop competitor.
+Inventory28/0/1/27; QA37partial, QA38closed. Immutable05be744/iPad unchanged.
 
 
 ## Active — QA38 closed; point-pair Coincident next

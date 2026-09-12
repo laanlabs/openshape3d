@@ -2433,3 +2433,14 @@ reused; no new source change. Illustrated1154/master38, eight hashes once/no
 loss. [Closure receipt](testing/sketch-parity-disconnect-rectangle-2026-09-12.md).
 Inventory28/0/1/27. Initial point-pair Coincident averaging/selection remains
 open and is next; physical-device behavior not claimed.
+
+## Point-pair Coincident shape anchor — September12,2026
+
+Source9e99752 fixes clean FirstSelected circle-center/rectangle stored-corner
+to free-line endpoint placement and apply/history deselection. Final121/121
+clean; changed live apply/Undo/Redo/gallery reopen verified against retained
+native shape-preserving comparisons. Extra whole-line selection attempt is
+retained separately, not included in the clean point-only claim.
+[Receipt](testing/sketch-parity-point-pair-anchor-2026-09-12.md).
+Illustrated1162/master38 verified, eight hashes once/no predecessor loss.
+Inventory28/0/1/27 unchanged; QA37fullmatrix remains partial; iPad unchanged.
