@@ -2364,3 +2364,10 @@ sourcef5d82e5 preserves original length and first endpoint, projects against sav
 Locks/drivers, and clears selection on successful apply/history. Final108/108
 clean; changed live and both reopenings verified. Illustrated1099/master38,
 ten exact hashes once/no predecessor loss. QA36partial; Vertical next.
+
+## QA-36 ordinary-line Vertical — September 12, 2026
+
+[Paired Vertical receipt](testing/sketch-parity-vertical-alignment-2026-09-12.md):
+source9466502 extends axis placement/selection cleanup to confirmed Vertical.
+Final110/110, changed live/history/both reopenings verified; illustrated1109/
+master38, ten hashesonce/no predecessor loss. QA36partial; Parallel next.

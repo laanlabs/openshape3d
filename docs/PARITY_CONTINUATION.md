@@ -1,19 +1,17 @@
 # Parity continuation checkpoint
 
-## Active — Vertical paired gap
+## Active — Vertical paired checkpoint
 
-Baseline3d2f673/sourcef5d82e5, final108/108 retained. Native fresh500350→530450
-aligns500350→500454, preserves50272.4354mm and first endpoint, deselects on
-apply/Undo/Redo. Clone450300→480400 shortens1.3009→1.2464mm, moves both ends
-to465300→465400 and retains selection. Settings matchedLast/acquisitionAutoOFF.
-Before-source Vertical0/1 failed six assertions at
-/tmp/os3d-qa36-vertical-before-20260912.log/.xcresult. Vertical extension implemented; four-case H/V geometry/history/Lock-driver gate
-passed4/4 at /tmp/os3d-qa36-vertical-focused-20260912; no runner.
-Next combined final then changed-build live/publication.
-Durable qa36-vertical-alignment-live-2026-09-12 contains paired captures.
-Next collect before, extend scoped axis placement, guard saved constraints,
-focused/final/changed-live/reopen/publication. No overlapping desktop input.
-Reports1099/master38; QA36partial26/0/1/29; iPad unchanged.
+Source9466502 pushed; before0/1, focused4/4, final110/110 clean
+(103model/integration+7UI), zero failures/skips; no runner. Changed clone
+450300→450405 retains1.3009mm/first endpoint and deselects apply/history;
+both gallery reopenings retain relation/value. Native50272.4354mm at527352→527453.
+Saved clone Vertical/unrelatedParallel, dimensions0. Publication1109unique/
+master38, ten hashesonce/headingsonce/no loss. Durable
+qa36-vertical-alignment-live-2026-09-12 contains receipts/JSON/exports/PNG.
+Next fresh Parallel comparison on separate free lines with matched anchor
+settings, values/history/reopen. Both apps parked selected reopened Vertical.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Active — Horizontal paired checkpoint
 

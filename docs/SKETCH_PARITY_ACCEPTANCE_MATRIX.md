@@ -353,8 +353,13 @@ Smaller-arc deep and fully nested contact now have paired history/reopen,
 final103/103 and104/104 on5076e32/7349e99; illustrated1078/master38 verified.
 See [smaller nested receipt](testing/sketch-parity-small-nested-arc-tangent-2026-09-12.md).
 Native Redo highlight and remaining arc contact boundaries remain unverified.
-Free-target Midpoint modes are paired as recorded above. Remaining all-type live sweep
-is still incomplete. See
+Ordinary-line Horizontal now has fresh paired length/first-endpoint preservation,
+selection/history and both reopening evidence, final108/108 onf5d82e5;
+illustrated1099/master38 verified. See [Horizontal receipt](testing/sketch-parity-horizontal-alignment-2026-09-12.md).
+Free-target Midpoint modes are paired as recorded above. Vertical also has paired length/first-endpoint, selection/history/both reopenings,
+final110/110 on9466502 and illustrated1109/master38; see
+[Vertical receipt](testing/sketch-parity-vertical-alignment-2026-09-12.md).
+Parallel fresh sweep remains pending. See
 [constraint types checkpoint](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
 
 ### QA-37 — Selection anchor
