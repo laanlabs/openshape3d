@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active — Vertical paired gap
+
+Baseline3d2f673/sourcef5d82e5, final108/108 retained. Native fresh500350→530450
+aligns500350→500454, preserves50272.4354mm and first endpoint, deselects on
+apply/Undo/Redo. Clone450300→480400 shortens1.3009→1.2464mm, moves both ends
+to465300→465400 and retains selection. Settings matchedLast/acquisitionAutoOFF.
+Before-source Vertical0/1 failed six assertions at
+/tmp/os3d-qa36-vertical-before-20260912.log/.xcresult. Vertical extension implemented; four-case H/V geometry/history/Lock-driver gate
+passed4/4 at /tmp/os3d-qa36-vertical-focused-20260912; no runner.
+Next combined final then changed-build live/publication.
+Durable qa36-vertical-alignment-live-2026-09-12 contains paired captures.
+Next collect before, extend scoped axis placement, guard saved constraints,
+focused/final/changed-live/reopen/publication. No overlapping desktop input.
+Reports1099/master38; QA36partial26/0/1/29; iPad unchanged.
+
 ## Active — Horizontal paired checkpoint
 
 Sourcef5d82e5 pushed; before0/1, focused1/1 and locked-driver1/1 separately,
