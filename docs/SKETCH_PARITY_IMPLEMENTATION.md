@@ -2221,3 +2221,12 @@ constraints. Final87/87 passed, with changed-build paired exact line values,
 Undo/Redo and both gallery reopenings. Illustrated955/master38 verified, ten
 hashes once/no predecessor loss. QA36 remains partial26/0/1/29. [Reverse Tangent
 receipt](testing/sketch-parity-tangent-reverse-2026-09-12.md).
+
+## Concentric selection cleanup — September 12, 2026
+
+Source `2e84f84` clears successful Concentric application and history operands;
+refusal preserves selection. No geometry solver change. Final **88/88** in one
+serial run plus paired exact radii, selected history and both gallery reopenings.
+Illustrated965/master38 verified, ten new hashes once and no predecessor loss.
+[Concentric receipt](testing/sketch-parity-concentric-application-2026-09-12.md).
+QA36 remains partial; two-circle Tangent application is next, not yet verified.

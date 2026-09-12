@@ -1,23 +1,23 @@
 # Parity continuation checkpoint
 
-## Current — Concentric selection follow-up under test
+## Current — Concentric paired and publication verified
 
-Base6fc0bfe pushed, reverse Tangent complete. Native separate circles650640 R40
-and740660 R30: Concentric retains second center740660, preserves both radii,
-clears apply selection. Exact outer/inner values inspected. Native parked inner
-selected740642. Background Escape did not disarm; foreground plus no-auto-focus
-worked. Several pre-reentry drawing attempts inconclusive, no geometry added;
-Exit/reenter and settled blank state allowed both fixtures. Native history/reopen
-for Concentric pending. Existing Tangent fixtures preserved.
-Clone separate circles200700 diameter0.7457 and400730 diameter0.4944, selected
-A thenB: Concentric centers at400730 but retains both selected/gizmo, unlike
-native. Source has no Concentric cleanup. Before focused0/1 failed four selection assertions only; geometry/radii/JSON and
-locked refusal passed. Concentric added to successful application/history cleanup;
-focused1/1 now passes. No runner. Source/test correction checkpointed WIP;
-combined88-case gate next. Durable constraint-types/
-qa36-concentric-live-2026-09-12 has native/clone before captures. Next run final combined application/merge/polish/Trim/rail gate, changed live/history/
-reopen and publication. Inventory26/0/1/29, QA36partial; reports955/master38;
-iPad/immutable05be744 unchanged.
+Source2e84f84 pushed. Final88/88 in one serial run, zero failures/skips:
+47application+18merge+6polish+10Trim+7rail UI. No runner or desktop process active.
+Native R40/R30 circles preserve radii at second center740660 and clear selection.
+Changed clone diameters0.7457/0.4944 preserve radii at400730 with LastSelected;
+apply, deliberately selected Undo/Redo and both gallery reopenings verified.
+Initial changed run inherited FirstSelected from tests; Undo restored fixture
+before matched LastSelected repeat. Refusal retains operands; no solver changes.
+Illustrated965 unique, ten new hashes once, heading once/no955 predecessor loss;
+master38, heading once/no loss. Durable constraint-types/
+qa36-concentric-live-2026-09-12 contains captures, receipts and verified exports.
+Native parked Sketch11Front inner circle740642 selected; clone Sketch1Top
+inner400710 selected, Items open. LastSelected matched, acquisition/Auto off.
+Next fresh two-circle Tangent application: native control enabled, clone currently
+requires line+circle. Application not yet observed, so no solver fix authorized
+by evidence yet. Use independent circles, preserve existing Concentric fixtures.
+QA36 remains partial; inventory26/0/1/29. iPad/immutable05be744 unchanged.
 
 ## Current — Reverse Tangent paired and published
 
