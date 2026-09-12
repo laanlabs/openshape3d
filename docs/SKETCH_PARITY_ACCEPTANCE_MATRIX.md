@@ -45,7 +45,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-38 | Disconnect | Core — passed | Endpoint, midpoint, circle-center and primitive-corner detachment/movement/history/reopen paired. Current corrected120/120; illustrated1154/master38 verified. Initial Coincident anchoring and general overlap picking remain separate. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
 | QA-40 | Keypad transitions | Core — partial, not passed | Retained paired click-away/tool/toggle/Exit/Escape/history/keyboard-mode evidence; clean 56/56 current-tree gate. Rotation/pan and full physical/system-keyboard matrix remain open. |
-| QA-41 | Trim primitives | Core — partial, not passed | Paired line/circle and rectangle-edge samples; clean 37/37 line/circle/arc/rect/polygon, whole/boundary/history gate. Fresh paired arc/rect/polygon gestures remain blocked. |
+| QA-41 | Trim primitives | Core — passed (finite desktop recipe) | Fresh paired rectangle/arc/polygon removal supplements retained line/circle evidence. Readout interception fixed2016713; final123/123 and changed midpoint/history/reopen pass. Illustrated1174/master38 verified; native immediate-reopen discrepancy retained separately from explicit Exit/save route. |
 | QA-42 | Trim curves | Explicitly deferred | Ellipse/spline trim; remains in full audit, not passed. |
 | QA-43 | Trim references | Core — partial, not passed | Paired rectangle boundary/profile handoff plus clean 60/60 current-tree affected/surviving reference, profile invalidation and exact Undo gate. Fresh paired driven-reference/history gesture remains blocked. |
 | QA-44 | Offset | Explicitly deferred | Offset completeness; remains in full audit, not passed. |
@@ -375,12 +375,15 @@ physical routes remain open, so QA40 is not closed.
 ### QA-41 — Trim primitives
 
 Line/circle/arc/rect/polygon, boundary versus whole deletion. Issues: ED-03/04.
-Result: **PARTIAL**. Retained paired line/circle span and rectangle-edge evidence
-is supplemented by a clean 37/37 current-tree primitive/lifecycle/import/UI gate.
-Arc and polygon whole-removal plus polygon-edge Undo are now explicit. Fresh
-paired arc/rectangle/polygon gestures remain input-blocked, so automated coverage
-does not close the case. See
-[Trim primitives checkpoint](testing/sketch-parity-trim-primitives-checkpoint-2026-09-11.md).
+Result: **PASSED** for the finite desktop primitive recipe, September12.
+Fresh paired rectangle boundary/Undo, whole arc/Undo, bounded arc span and
+primitive polygon edge complement retained line/circle comparisons. Trim-only
+readout suppression fixes the confirmed polygon-count interception. Final123/123
+on2016713, zero failures/skips; changed exact midpoint tap/history/reopen pass.
+Native explicit Exit/save/reopen preserves the missing edge; earlier immediate
+reopen restored it and remains an unresolved route, not a passed save scenario.
+Illustrated1174/master38 verified, twelve new hashes once/no predecessor loss.
+See [Trim readout and primitive receipt](testing/sketch-parity-trim-readouts-2026-09-12.md).
 
 ### QA-42 — Trim curves
 
@@ -899,3 +902,8 @@ closure notes verified without media changes. Inventory **27 passed /0 failed /
 QA38 finite Disconnect passed; prior QA36closure inventory27/0/1/28 advances
 to **28 passed /0 failed /1 device-blocked /27 incomplete**, total56.
 Illustrated1154/master38 verified. iPad unchanged.
+
+## September12 — QA41 finite closure reconciliation
+
+Inventory **29 passed /0 failed /1 device-blocked /26 incomplete**, total56.
+QA43 driven-reference live workflow next; device/immutable05be744 unchanged.

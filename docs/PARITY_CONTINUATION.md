@@ -1,18 +1,20 @@
 # Parity continuation checkpoint
 
-## Active — QA41 Trim readout obstruction reproduced
+## Active — QA41 finite closure verified; QA43 next
 
-HEADaa7c6d8 pushed, source9e99752 final121/121; no runner. QA41rectangle
-boundary/Undo paired; whole arc/Undo paired; bounded right arc span paired.
-Pentagon left boundary removal geometry passes both, but clone side-count
-badge intercepts midpoint448340 and opens keypad while Trim armed. Native
-hides readouts. Clone tap448322 away from badge removes only same edge.
-Confirmed UI obstruction; before0/1 failed both polygon/line suppression assertions; other restoration/geometry assertions passed. Source guard now hides sketchDimensionLabels only for Trim. Focused11/11 passed, zero failures/skips; no runner. Source guard/tests checkpoint next, then combined gate; no changed-build live proof yet.
-Both parked trimmed pentagons/arcs; native center800650, clone480340.
-Durable PNG/actions reports/openshape3d-core-sketch-milestone-2026-09-08/trim/qa41-live-2026-09-12 under workspace.
-Remaining history/reopen, corrected current-tree gate, changed paired repeat
-and publication. Reports1162/master38; inventory28/0/1/27; iPad unchanged.
-
+Source2016713 pushed; final123/123 clean, no failures/skips, no runner.
+Changed clone exact polygon midpoint/history/reopen passed. Native explicit
+Escape/Exit Sketching/completed gallery save/reopen preserves open pentagon.
+Earlier immediate native reopen restored edge; unresolved route retained.
+Illustrated1174/master38 verified, twelve hashes once/headings once/no loss.
+Durable trim/qa41-live-2026-09-12 under workspace reports contains receipts,
+PNGs/actions, exports, publication-assets/verification JSON. QA41 finite pass;
+inventory29/0/1/26. iPad/immutable05be744 unchanged.
+Next QA43 fresh driven dimension/constraint Trim, surviving reference/profile,
+Undo/Redo and reopen comparison. Existing123 includes lifecycle/reference test;
+do not repeat unless source or assertions change. Native normal Sketch12 at
+reopened open pentagon, clone reopened open pentagon+unrelated hex/ellipse.
+No runner or desktop process. No source dirty; closure docs ready to commit.
 
 ## Active — QA38 closed; point-pair Coincident next
 

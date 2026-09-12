@@ -2444,3 +2444,7 @@ retained separately, not included in the clean point-only claim.
 [Receipt](testing/sketch-parity-point-pair-anchor-2026-09-12.md).
 Illustrated1162/master38 verified, eight hashes once/no predecessor loss.
 Inventory28/0/1/27 unchanged; QA37fullmatrix remains partial; iPad unchanged.
+
+## September12 — Trim readout interception and QA41 closure
+
+Source2016713 suppresses numeric readouts only during Trim; selected polygon count no longer intercepts the edge midpoint. Before0/1 fails two assertions, focused11/11 then final123/123 clean. Changed exact midpoint/history/reopen paired; fresh rectangle/arc/polygon geometry supplements retained line/circle. Illustrated1174/master38 verified, twelve hashes once/no loss. Native explicit Exit/save/reopen passes; immediate-reopen discrepancy retained without cause. [Receipt](testing/sketch-parity-trim-readouts-2026-09-12.md). QA41 finite pass, inventory29/0/1/26; iPad unchanged.
