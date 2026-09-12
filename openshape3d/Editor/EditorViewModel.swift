@@ -11600,15 +11600,22 @@ final class EditorViewModel {
         }
     }
 
-    /// Paired full-circle branches choose the nearer internal/external contact.
-    /// Already-concentric equal circles can retain internal contact without moving.
-    /// Arc pairs remain unsupported.
+    /// Full circles support both contact branches. The paired free-arc case
+    /// currently covers external contact along a ray inside the visible span.
     private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
-        guard selected.count == 2,
-              case .circle = selected[0],
-              case .circle = selected[1]
-        else { return nil }
+        guard selected.count == 2 else { return nil }
+        if case .circle = selected[0], case .circle = selected[1] { return selected }
+        guard let arc = selected.first(where: { if case .arc = $0 { return true }; return false }),
+              let circle = selected.first(where: { if case .circle = $0 { return true }; return false }),
+              case let .arc(_, a, ra, start, end) = arc,
+              case let .circle(_, b, rb) = circle else { return nil }
+        let delta = b - a
+        guard simd_length(delta) >= ra + rb - 1e-9 else { return nil }
+        let direction = atan2(delta.y, delta.x)
+        let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+        let offset = SketchEntity.arcSweep(startAngle: start, endAngle: direction)
+        guard sweep > 1e-9, offset <= sweep + 1e-9 else { return nil }
         return selected
     }
 
@@ -11818,15 +11825,21 @@ final class EditorViewModel {
             if kind == .tangent {
                 let ids = Set(newConstraints.flatMap(\.refs).map(\.entityID))
                 let circles = sketch.entities.filter { entity in
-                    if case .circle = entity { return ids.contains(entity.id) }
-                    return false
+                    switch entity {
+                    case .circle, .arc: return ids.contains(entity.id)
+                    default: return false
+                    }
                 }
                 if circles.count == 2 {
                     var preferred = candidate
                     for circle in circles {
-                        guard case let .circle(id, _, radius) = circle else { continue }
+                        let radius: Double
+                        switch circle {
+                        case let .circle(_, _, r), let .arc(_, _, r, _, _): radius = r
+                        default: continue
+                        }
                         preferred.dimensions.append(.init(kind: .radius,
-                            refs: [.init(entityID: id, role: .center)], value: radius))
+                            refs: [.init(entityID: circle.id, role: .center)], value: radius))
                     }
                     let result = SketchSolverBridge.solveOutcome(preferred, movingEntity: nil, dragTarget: nil)
                     if result.converged && result.structuralResidual <= Self.overConstraintTolerance { return result }
@@ -12033,6 +12046,8 @@ final class EditorViewModel {
             // Native deep overlap chooses internal contact; shallow overlap external.
             constraint.circleTangency = simd_length(b - a) < max(ra, rb)
                 ? .internalContact : .externalContact
+        } else if kind == .tangent, circleTangentOperands != nil {
+            constraint.circleTangency = .externalContact
         }
         return [constraint]
     }

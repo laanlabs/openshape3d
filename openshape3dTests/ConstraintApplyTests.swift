@@ -1617,6 +1617,68 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testFreeArcCircleExternalTangentPreservesSweepRadiusAndHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
+                                  startAngle: .pi, endAngle: 2 * .pi)
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, -2.2), radius: 0.5)
+        let original = openSketch(vm, entities: [arc, circle])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([arc.id, circle.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(applied.constraints.first { $0.kind == .tangent }?.circleTangency, .externalContact)
+        guard case let .arc(_, center, radius, start, end) = applied.entities[0] else {
+            return XCTFail("Missing arc")
+        }
+        XCTAssertEqual(center.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(center.y, -0.7, accuracy: 1e-8)
+        XCTAssertEqual(radius, 1, accuracy: 1e-8)
+        XCTAssertEqual(start, .pi, accuracy: 1e-8)
+        XCTAssertEqual(end, 2 * .pi, accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], circle)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(applied), 1e-8)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
+    }
+
+    func testArcCircleTangentSpanBoundaryAndLockedRefusal() throws {
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
+                                  startAngle: .pi, endAngle: 2 * .pi)
+        for other in [
+            SketchEntity.circle(id: UUID(), center: SIMD2(0, 2.2), radius: 0.5),
+            .circle(id: UUID(), center: SIMD2(0, -0.5), radius: 0.5),
+            .arc(id: UUID(), center: SIMD2(0, -2.2), radius: 0.5, startAngle: 0, endAngle: .pi)
+        ] {
+            let vm = try makeViewModel()
+            let original = openSketch(vm, entities: [arc, other])
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([arc.id, other.id])
+            XCTAssertFalse(vm.canApplyConstraint(.tangent))
+            vm.applyConstraint(.tangent)
+            XCTAssertEqual(vm.activeSketch, original)
+        }
+        let vm = try makeViewModel()
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, -2.2), radius: 0.5)
+        var original = Sketch(plane: .ground, entities: [arc, circle])
+        original.constraints = [arc, circle].map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        }
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([arc.id, circle.id])
+        vm.applyConstraint(.tangent)
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertEqual(vm.selectedSketchEntityIDs, Set([arc.id, circle.id]))
+    }
+
     func testAlreadyConcentricEqualCirclesAcceptTangentWithoutGeometryChange() throws {
         let vm = try makeViewModel()
         let a = SketchEntity.circle(id: UUID(), center: SIMD2(2, 3), radius: 1)
