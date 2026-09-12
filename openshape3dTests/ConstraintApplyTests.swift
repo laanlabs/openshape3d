@@ -16,6 +16,43 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testPointPairCoincidentPreservesFirstShapeAndClearsSelection() throws {
+        let previous = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .firstSelected
+        defer { AppSettings.shared.anchoredSketchEntity = previous }
+        for rectangle in [false, true] {
+            let vm = try makeViewModel()
+            let shape: SketchEntity = rectangle
+                ? .rect(id: UUID(), min: SIMD2(0, 0), max: SIMD2(8, 6))
+                : .circle(id: UUID(), center: SIMD2(0, 0), radius: 3)
+            let target = line(SIMD2(0, -4), SIMD2(8, -8))
+            let original = openSketch(vm, entities: [shape, target])
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectedSketchEntityIDs = []
+            vm.selectedSketchPoints = [.init(entityID: shape.id,
+                                             role: rectangle ? .endpointA : .center)]
+            vm.selectedSketchPoints.insert(.init(entityID: target.id, role: .endpointA))
+            XCTAssertEqual(vm.selectedSketchEntityOrder, [shape.id, target.id])
+            XCTAssertTrue(vm.canApplyConstraint(.coincident))
+            vm.applyConstraint(.coincident)
+            let result = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(result.entities[0], shape, "Native preserves the first selected shape")
+            guard case let .line(_, a, b) = result.entities[1] else { return XCTFail("Expected line") }
+            XCTAssertEqual(a.x, 0, accuracy: 1e-8)
+            XCTAssertEqual(a.y, 0, accuracy: 1e-8)
+            XCTAssertEqual(b, SIMD2(8, -8))
+            XCTAssertEqual(result.constraints.count, 1)
+            XCTAssertEqual(result.constraints[0].kind, .coincident)
+            XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+            XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+            XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+            vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+            vm.redo(); XCTAssertEqual(vm.activeSketch, result)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(result)), result)
+        }
+    }
+
     func testLineSymmetryAxisPairingHistoryAndArchive() throws {
         let previous = AppSettings.shared.anchoredSketchEntity
         defer { AppSettings.shared.anchoredSketchEntity = previous }

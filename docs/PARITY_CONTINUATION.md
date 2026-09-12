@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Active — point-pair Coincident focused regression
+
+HEAD632b1b1, source/tests dirty: EditorViewModel.swift and ConstraintApplyTests.
+Before0/1 reproduces First Selected circle/rect moved halfway and retained
+selection/readout; incremental order assertion passed. Before receipt
+/tmp/os3d-point-pair-before-20260912.{log,xcresult}. Scoped source seeds only
+a free line endpoint to the preferred circle/rect point before averaging weld;
+existing line constraints/dimensions excluded from this placement. Selection
+clear added for shape point pairs; narrow to shape+line before final gate.
+Focused3/3 passed; selection predicate narrowed to observed line+shape.
+No runner. Source checkpoint then combined121 gate next, followed by changed
+paired geometry/selection/history/reopen.
+No changed-source live proof/publication yet. Native/clone parked reopened
+QA38rectangle fixtures. QA38closed632b1b1; reports1154/master38,
+inventory28/0/1/27. Immutable05be744/iPad unchanged.
+
+
 ## Active — QA38 closed; point-pair Coincident next
 
 Source03b9e1c/current corrected120/120 clean reused. Rectangle paired

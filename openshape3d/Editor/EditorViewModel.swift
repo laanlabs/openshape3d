@@ -5087,7 +5087,21 @@ final class EditorViewModel {
                     return false
                 }) == true
             }
-        return ordinaryAxisAlignment || ordinaryParallelPair || constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+        let shapePointPair = constraint.kind == .coincident && constraint.refs.count == 2 &&
+            constraint.refs.allSatisfy { $0.role != .whole } &&
+            constraint.refs.contains { ref in
+                activeSketch?.entities.contains { entity in
+                    if case .line = entity { return entity.id == ref.entityID }
+                    return false
+                } == true
+            } &&
+            constraint.refs.contains { ref in
+                activeSketch?.entities.contains { entity in
+                    guard entity.id == ref.entityID else { return false }
+                    switch entity { case .circle, .rect: return true; default: return false }
+                } == true
+            }
+        return ordinaryAxisAlignment || ordinaryParallelPair || shapePointPair || constraint.kind == .perpendicular || constraint.kind == .midpoint ||
             constraint.kind == .tangent || constraint.kind == .concentric ||
             (constraint.kind == .coincident && constraint.refs.count == 2 &&
              constraint.refs.filter { $0.role == .whole }.count == 1)
@@ -12045,8 +12059,39 @@ final class EditorViewModel {
 
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
+        // A point-to-point weld averages its input positions before temporary
+        // Locks are applied. For the paired shape-to-free-line recipe, seed the
+        // free endpoint at the selected shape point first; otherwise the Lock
+        // freezes an already-moved circle/rectangle. Do not bypass any saved
+        // relationship or dimension on the line, or alter general welding.
+        let shapePointPlacement: [SketchEntity]? = {
+            guard kind == .coincident, newConstraints.count == 1,
+                  let preferredAnchor,
+                  let shape = sketch.entities.first(where: { $0.id == preferredAnchor }),
+                  { switch shape { case .circle, .rect: return true; default: return false } }(),
+                  let shapeRef = newConstraints[0].refs.first(where: { $0.entityID == preferredAnchor }),
+                  let anchorPoint = localPoint(shapeRef, in: sketch),
+                  let movingRef = newConstraints[0].refs.first(where: { $0.entityID != preferredAnchor }),
+                  movingRef.role == .endpointA || movingRef.role == .endpointB,
+                  let index = sketch.entities.firstIndex(where: { $0.id == movingRef.entityID }),
+                  case let .line(id, a, b) = sketch.entities[index],
+                  !sketch.constraints.contains(where: { $0.refs.contains { $0.entityID == id } }),
+                  !sketch.dimensions.contains(where: { $0.refs.contains { $0.entityID == id } })
+            else { return nil }
+            var seeded = proposed
+            seeded.entities[index] = .line(id: id,
+                a: movingRef.role == .endpointA ? anchorPoint : a,
+                b: movingRef.role == .endpointB ? anchorPoint : b)
+            seeded.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: preferredAnchor, role: .whole)]))
+            let result = SketchSolverBridge.solveOutcome(seeded, movingEntity: nil, dragTarget: nil)
+            guard result.converged, result.structuralResidual <= Self.overConstraintTolerance else { return nil }
+            return result.entities
+        }()
         var solvedEntities: [SketchEntity]
-        if let perpendicularPlacement {
+        if let shapePointPlacement {
+            solvedEntities = shapePointPlacement
+        } else if let perpendicularPlacement {
             solvedEntities = perpendicularPlacement
         } else if let parallelPlacement {
             solvedEntities = parallelPlacement
