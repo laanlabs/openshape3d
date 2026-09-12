@@ -1,5 +1,28 @@
 # Parity continuation checkpoint
 
+## Current — line Symmetry final76/76 passed
+
+Sourcebcc70c1 plus new line UI/import tests verified one final76/76 run, zero
+fail/skip (72model/integration+4UI), final xcresult/log/summary above. No runner.
+Next changed clone live: reopen savedSketch1/Top, match Last Selected, create
+axis350630→350810, left180650→250690, right420690→530660; disarm, clear then
+select left/right in order, Symmetric→axis. Native Last Selected retained;
+right fixed, left reflected; native nowSketch11afterappliedlineSymmetry.
+Then paired history/reopen and publication. Reports895/38 unchanged.
+QA36partial; inventory26/0/1/29; iPad/immutableIPA unchanged.
+
+## Active gate — line Symmetry combined regression
+
+WIPbcc70c1 pushed, model4/4 and separate UI1/1 clean. Added test-only shared
+line/circle UI workflow and line endpoint-reference import assertion. Final
+combined application/merge/polish/Trim +4 UI workflows active exclusively:
+/tmp/os3d-qa36-line-sym-final-20260912.xcresult/.log, exec57540. No desktop
+interaction while running. Dirty tests and documentation only; sourceunchanged.
+Next collect exact terminal counts, commit tests/docs, then recreate native
+line fixture in changed clone, verify geometry/history/reopen, publish once.
+Native parked afterlineSymmetry; simulator owned byrunner/resetstore.
+Reports895/38 verified; QA36partial, inventory26/0/1/29, iPadunchanged.
+
 ## Current WIP — two-line Symmetry extension
 
 Native confirms two whole lines→Symmetry→axis. Correct additive separate boxes

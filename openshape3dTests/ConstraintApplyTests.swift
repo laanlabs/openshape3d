@@ -66,6 +66,14 @@ final class ConstraintApplyTests: XCTestCase {
                 let restored = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(result))
                 XCTAssertEqual(restored, result)
                 XCTAssertLessThan(SketchSolverBridge.residualNorm(restored), 1e-8)
+                var guest = DesignDocument()
+                guest.sketches = [restored]
+                let imported = try XCTUnwrap(ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches.first)
+                let importedRefs = try XCTUnwrap(imported.constraints.first).refs
+                XCTAssertEqual(importedRefs.map(\.role), constraint.refs.map(\.role))
+                XCTAssertTrue(Set(importedRefs.map(\.entityID)).isDisjoint(with: Set(constraint.refs.map(\.entityID))))
+                XCTAssertTrue(importedRefs.allSatisfy { ref in imported.entities.contains { $0.id == ref.entityID } })
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(imported), 1e-8)
             }
         }
     }

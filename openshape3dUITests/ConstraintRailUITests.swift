@@ -13,6 +13,12 @@ final class ConstraintRailUITests: XCTestCase {
         verifyRail()
     }
     func testCircleSymmetryChoosesAxisAfterOperandsAndCancels() {
+        verifySymmetryAxisPick(circles: true)
+    }
+    func testLineSymmetryChoosesAxisAfterOperandsAndCancels() {
+        verifySymmetryAxisPick(circles: false)
+    }
+    private func verifySymmetryAxisPick(circles: Bool) {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
@@ -27,16 +33,22 @@ final class ConstraintRailUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
         sleep(2); lookAtSketch(app)
         p(0.49, 0.35).press(forDuration: 0.15, thenDragTo: p(0.49, 0.73))
-        app.buttons["Circle"].firstMatch.tap()
-        p(0.34, 0.52).press(forDuration: 0.15, thenDragTo: p(0.40, 0.52))
-        p(0.64, 0.57).press(forDuration: 0.15, thenDragTo: p(0.70, 0.57))
-        app.buttons["Circle"].firstMatch.tap()
-        // The last circle remains selected after disarming, as in the rail's
-        // established two-line fixture. Add only the first circle.
-        p(0.34, 0.475).tap()
+        if circles {
+            app.buttons["Circle"].firstMatch.tap()
+            p(0.34, 0.52).press(forDuration: 0.15, thenDragTo: p(0.40, 0.52))
+            p(0.64, 0.57).press(forDuration: 0.15, thenDragTo: p(0.70, 0.57))
+            app.buttons["Circle"].firstMatch.tap()
+            p(0.34, 0.475).tap()
+        } else {
+            p(0.30, 0.52).press(forDuration: 0.15, thenDragTo: p(0.40, 0.56))
+            p(0.62, 0.57).press(forDuration: 0.15, thenDragTo: p(0.74, 0.53))
+            app.buttons["Line"].firstMatch.tap()
+            p(0.35, 0.54).tap()
+        }
+        // The last created entity remains selected; add only the first.
         sleep(1) // Let the single-tap recognizer resolve before opening a menu.
         let selectionShot = XCTAttachment(screenshot: app.screenshot())
-        selectionShot.name = "circle-symmetry-operands"; selectionShot.lifetime = .keepAlways; add(selectionShot)
+        selectionShot.name = circles ? "circle-symmetry-operands" : "line-symmetry-operands"; selectionShot.lifetime = .keepAlways; add(selectionShot)
         func invokeSymmetry() {
             app.buttons["ConstraintRailMore"].tap()
             let symmetry = app.buttons["Symmetric"].firstMatch
@@ -58,7 +70,7 @@ final class ConstraintRailUITests: XCTestCase {
         XCTAssertTrue(app.buttons.matching(NSPredicate(format:
             "identifier == 'ConstraintGlyph' AND label == '⧓'")).firstMatch.waitForExistence(timeout: 3))
         let shot = XCTAttachment(screenshot: app.screenshot())
-        shot.name = "circle-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
+        shot.name = circles ? "circle-symmetry-axis-applied" : "line-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
     }
 
     private func verifyRail() {

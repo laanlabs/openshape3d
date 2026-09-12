@@ -212,3 +212,32 @@ illustrated report; export verified895 unique, four hashes once/no891 loss;
 master38, one follow-up heading/no loss. Files os3d-sym-follow-* and
 os3d-sym-unequal-* preserved in durable Symmetry directory. Remaining other
 element/relation sweep keeps QA36 partial. Inventory26/0/1/29, iPad unchanged.
+
+
+## Two-line Symmetry WIP — September 12
+
+Native two separate sloped lines57.9747/81.9876mm→Symmetry→axis reflects
+left endpoints to the right line while preserving right and axis. First broad
+box also selected axis endpoint (disabled action); two separate additive boxes
+correctly isolate two edges and enable the workflow. Clone two selected lines
+kept Symmetric disabled. Evidence os3d-sym-lines-* retained durable.
+
+WIP source `bcc70c1` extends circle axis-picking to two nondegenerate lines.
+One saved Symmetric relationship encodes two explicit endpoint pairs sharing
+the axis as five references. Closest initial correspondence is persisted, not
+rechosen at each solve. Reject an operand as axis; retain cancellation, atomic
+history, First/Last anchoring and refusal behavior. Legacy three-ref point and
+circle forms remain supported.
+
+Focused model4/4 and separate delivered UI1/1 passed, zero failures/skips.
+Added archive/import remapping assertion before final combined gate (application,
+merge, polish, Trim, four rail UI workflows), currently running at
+/tmp/os3d-qa36-line-sym-final-20260912.xcresult. No final result claimed.
+Changed-build line live/history/reopen/publication pending. Reports895/master38
+unchanged; QA36partial; inventory26/0/1/29; physical iPad unchanged.
+
+
+Final two-line combined gate **76/76**, zero fail/skip in one serial run:
+38application +18merge +6polish +10Trim +4rail UI. Sourcebcc70c1 plus
+line UI/import tests; receipt /tmp/os3d-qa36-line-sym-final-20260912.xcresult,
+log/summary copied durable. No runner. Changed-build live remains next.
