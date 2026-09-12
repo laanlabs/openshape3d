@@ -1,5 +1,35 @@
 # Parity continuation checkpoint
 
+## Active — QA40 cube focused1/1 passed, checkpoint ready
+
+Source cube-only block and UI guard verified1/1 after before0/1. No runner.
+Next broad Camera/Orientation/Layout/numeric model plus cube/numeric/drag UI
+gate, then changed live repeat/publication. QA40 remainspartial32/0/1/23;
+reports1227/master38; QA54ed46642 pushed; iPad unchanged.
+
+## Active — QA40 cube correction focused runner14059
+
+Before0/1 confirms open editor moves75points during cube drag. Product fix
+claims/consumes only cube drags while editingDimension exists; no tap/pan change.
+Focused corrected runner14059, /tmp/os3d-qa40-cube-fixed-20260912 log/xcresult;
+exclusive simulator. Dirty ViewportView.swift, DimensionUITests.swift andtwo
+docs. Next collect, broader camera/dimension gate, changed live andpublication.
+Inventory32/0/1/23; QA54ed46642 pushed; reports1227/master38; iPad unchanged.
+
+## Active — QA40 cube/keypad before-source regression running
+
+QA54 closureed46642 pushed; final252/252 and reports1227/master38 verified.
+Inventory32/0/1/23. Native open keypad blocks cube drag; first orientation-arrow
+click dismisses editor, second rotates. Same native cube drag without editor
+rotates successfully. Clone cube drag rotates with editor/draft still open.
+New DimensionUITests/testOpenDimensionBlocksCubeDragUntilDismissed before-source
+runner75725 exclusively owns simulator; /tmp/os3d-qa40-cube-before-20260912
+log/xcresult. Product source unchanged. Next collect before result, scope cube
+input blocking to open numeric editor, focused/regression and changed paired
+live/history/reopen. Pan remains untested. Local keyboard/qa40-camera-live-2026-09-12
+screens retained; no new publication. Native parked rotated with original
+70912.4119mm line selected, editor closed. Immutable IPA/iPad unchanged.
+
 ## Active — QA54 finite closure verified, ready to checkpoint
 
 Source43bbf06 pushed. Final252/252, zero failures/skips, no runner. Changed live

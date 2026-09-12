@@ -67,6 +67,43 @@ final class DimensionUITests: XCTestCase {
         commit.tap()
     }
 
+    func testOpenDimensionBlocksCubeDragUntilDismissed() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.42))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.58, dy: 0.42)))
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let field = app.textFields["DimensionField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        app.buttons["Keypad-1"].tap()
+        app.buttons["Keypad-2"].tap()
+        app.buttons["Keypad-+"].tap()
+        let before = field.frame
+        let cube = app.staticTexts["Top"].firstMatch
+        XCTAssertTrue(cube.waitForExistence(timeout: 3))
+        let start = cube.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: -110, dy: -100))
+        start.press(forDuration: 0.15, thenDragTo: end)
+        sleep(1)
+        XCTAssertEqual(field.value as? String, "12+")
+        XCTAssertEqual(field.frame.midX, before.midX, accuracy: 1,
+                       "An open numeric editor blocks orientation-cube drag")
+        XCTAssertEqual(field.frame.midY, before.midY, accuracy: 1)
+        app.buttons["KeypadDelete"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertFalse(field.exists)
+        start.press(forDuration: 0.15, thenDragTo: end)
+        XCTAssertTrue(app.buttons["LookAtSketch"].waitForExistence(timeout: 3),
+                      "Cube orbit works again after numeric commit")
+    }
+
     func testSlopedLineDimensionActionOffersAbsoluteHorizontalAndVertical() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
