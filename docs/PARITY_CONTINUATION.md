@@ -1,5 +1,21 @@
 # Parity continuation checkpoint
 
+## Active — fully nested arc/circle native confirmed
+
+Paired deep checkpointfb3c5c8 pushed, final101/101, reports1051/master38.
+Native fresh lowerarc550650,R11849.9336/180degrees, circle550660,R6000,
+fully nested (center distance2962.4786 < radiusdifference5849.9336), two edges
+accept Tangent. Arc moves up to550640, circle stays fixed, radius/sweep retained.
+Short10/15px circle strokes created no circle; settled20px stroke succeeded.
+Native parked selectedarc550640/circle550660. Clone matching arc250700/r40,
+circle250710/r20 selects both but Tangent disabled, prior deep pair450705/450725.
+Before regression0/1; bounded nonconcentric fully-nested larger-arc eligibility
+implemented, focused5/5 clean, zero failures/skips. No runner.
+Next checkpoint/push, final102 gate, changed live/native history/reopen and publication.
+Exact coincident centers, radiusdifference boundary, maxradius boundary,
+smaller-arc deep/nested, arc-arc remain unverified. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged. Durable qa36-nested-arc-tangent-live-2026-09-12.
+
 ## Active — deep arc/circle paired verification
 
 Source568f9da pushed, final101/101 clean, zero failures/skips, no runner.

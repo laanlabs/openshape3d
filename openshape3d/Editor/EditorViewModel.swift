@@ -11642,12 +11642,13 @@ final class EditorViewModel {
               case let .circle(_, b, rb) = circle else { return nil }
         let delta = b - a
         // Native shallow overlap separates externally; a larger arc with a
-        // deeply intersecting smaller circle uses internal contact. Fully nested
-        // and smaller-arc deep pairs remain outside the verified boundary.
+        // deeply intersecting or fully nested smaller circle uses internal
+        // contact. Coincident centers and exact branch boundaries remain unverified.
         let distance = simd_length(delta)
         let external = distance > max(ra, rb)
         let internalOverlap = ra > rb && distance > ra - rb && distance < ra
-        guard external || internalOverlap else { return nil }
+        let internalNested = ra > rb && distance > 1e-9 && distance < ra - rb
+        guard external || internalOverlap || internalNested else { return nil }
         return selected
     }
 
