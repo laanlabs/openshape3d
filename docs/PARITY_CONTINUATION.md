@@ -1,19 +1,28 @@
 # Parity continuation checkpoint
 
-## Active — Coincident point-plus-line diagnosis
+## Current — Coincident point-on-line paired and published
 
-HEAD1f68fc2. Native isolated source600580→700620 and target750550→850550
-159.8835mm. Point+target Coincident projects sourceA600550 onto infinite
-extension; sourceB/target fixed. Apply clears, Undo restores, selected Redo
-clears. Initial target with existing Midpoint joint was ambiguous; isolated
-fixture supersedes it. Native parked afterRedo. Clone point250760+line280424
-Coincident disabled, captured. Before0/1 confirmed disabled route; source capability/refs and scoped
-point-on-line cleanup implemented, no solver changes. Focused2/2 passed. New
-UI workflow active exclusively, xcodebuild session21735 at /tmp/os3d-qa36-
-coincident-ui-20260912.xcresult/.log. No desktop input until terminal.
-Next collect UI, correct confirmed failure only, combined regression, changed
-paired live/reopen/publication. Source/rail/model/UI tests in this WIP commit. Evidence durable
-qa36-coincident-live-2026-09-12; reports925/38; QA36partial26/0/1/29.
+Sourceaabbf7f pushed; final84/84 zero failures/skips in one serial run:
+43application+18merge+6polish+10Trim+7rail UI. No runner. Before0/1 reproduced
+disabled capability; focused2/2 and UI1/1 preceded final clean gate.
+Fresh native and changed clone project an endpoint onto a separate line's
+infinite extension, preserve target/other endpoint and clear successful apply
+selection. Undo/selected Redo native, deliberately reselected Undo/Redo clone,
+and both gallery reopening pass. Native target159.8835mm; clone1.2371mm with
+saved Coincident visible in Items. Existing solver lowering reused; own-line
+point rejected, locked refusal retains operands. Other Coincident forms unchanged.
+Illustrated935 unique: ten hashes once, heading once, no925 predecessor loss;
+master38 heading once/no loss. Durable constraint-types/qa36-coincident-live-
+2026-09-12 has captures, all test receipts, publication-assets/verification and
+DOCX exports. Initial Midpoint-joint probe ambiguous and excluded; isolated
+new target gives the true point-on-extension comparison.
+Native parked reopenedSketch11Front: target750550→850550 selected, source
+600550→700620; existing Midpoint/Equal/Symmetry/Perpendicular fixtures intact.
+Clone reopenedSketch1Top: target300680→400680 selected, source150680→250770,
+Items open with saved Coincident. LastSelected/acquisitionOFF/AutoOFF matched.
+Next fresh manual Tangent application/history comparison, reuse retained native
+baseline only where exact recipe matches. QA36partial26/0/1/29; iPad and
+immutable05be744 unchanged. No competing worker or desktop process active.
 
 ## Current — Midpoint selection paired and published
 

@@ -2189,3 +2189,13 @@ selected history and gallery reopening. Refusal retains operands. Native
 anchor/placement difference remains explicitly open. Illustrated925/master38,
 ten hashes once/headings once/no predecessor loss. QA36partial26/0/1/29;
 no runner, iPad unchanged. Next point-plus-line Coincident comparison.
+
+
+### September 12 Coincident point-on-line capability
+
+Sourceaabbf7f enables one selected point plus a distinct line, using existing
+point+whole-line lowering and scoped successful/history deselection. Own-line
+point rejected; locked refusal retains operands. Final84/84 and fresh paired
+extension projection/history/reopen pass, target159.8835mm native/1.2371mm clone
+preserved. Illustrated935/master38 verified, ten hashes once/no predecessor loss.
+QA36partial26/0/1/29; next manual Tangent sweep, no iPad claim.

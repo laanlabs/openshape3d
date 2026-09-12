@@ -377,3 +377,20 @@ solver lowering, with cleanup scoped to that Coincident form. Two-point and
 shared-corner routes unchanged. Focused2-case gate active; live changed build,
 UI gate and publication pending. Captures durable qa36-coincident-live-2026-09-12.
 QA36partial26/0/1/29, iPad unchanged.
+
+Focused2/2 and new real rail UI1/1 passed with unchanged projection/history
+assertions. WIPaabbf7f pushed. Combined84-case application/merge/polish/Trim
+and7rail UI gate active, exclusive owner. Changed live/reopen remains next.
+
+
+### Coincident changed-build paired/publication gate
+
+Sourceaabbf7f final84/84 zero fail/skip in one serial run:77model/integration
+plus7rail UI. Changed extension projection preserves target1.2371mm, other
+endpoint, and clears selection. Deliberately selected Undo/Redo restores exact
+visible geometry/deselects. Native isolated target159.8835mm remains fixed;
+Undo/selected Redo and both gallery reopening retain the relation. Clone Items
+shows saved Coincident. Illustrated935 unique, ten source hashes once, heading
+once/no925 loss; master38 heading once/no loss. qa36-coincident-live-2026-09-12
+contains all captures/logs/summaries/manifest/verification/after DOCX exports.
+No runner. QA36partial26/0/1/29; other relation variants remain open, iPad unchanged.
