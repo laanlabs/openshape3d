@@ -12603,24 +12603,25 @@ final class EditorViewModel {
     /// dimensions plus the live selection candidate (if any and not already an
     /// existing dimension over the same refs).
     /// Sketches whose annotations (dimensions, constraint glyphs) should draw.
-    /// The active sketch always; plus every visible sketch when the user has
+    /// Dimensions use the active sketch during editing; otherwise visible sketches
+    /// may contribute when the user has
     /// asked annotations to persist — Shapr3D's "Constraint & Locked Dimension
     /// Visibility". Without that, leaving a sketch hides the very dimensions
     /// that define it, and a second sketch's dimensions are never visible at all.
     /// The active sketch is included even when hidden, because `openItemSketch`
     /// renders a hidden sketch while it is being edited.
     private func annotatedSketches(alwaysShow: Bool,
-                                   restrictDimensionsToActivePlane: Bool = false) -> [Sketch] {
+                                   restrictDimensionsToActiveSketch: Bool = false) -> [Sketch] {
         let active = activeSketch
         if alwaysShow {
             return session.document.sketches.filter { sketch in
                 guard !sketch.isHidden || sketch.id == active?.id else { return false }
-                // Native suppresses another plane's locked dimensions while
-                // editing a sketch, even when that reference geometry is visible.
+                // Native suppresses other sketches' locked dimensions while
+                // editing, including independent coplanar reference geometry.
                 // Outside sketch editing, Always Show still includes all visible
                 // sketches. Constraint glyph policy is intentionally unchanged.
-                if restrictDimensionsToActivePlane, let active {
-                    return sketch.plane.isCoincident(with: active.plane)
+                if restrictDimensionsToActiveSketch, let active {
+                    return sketch.id == active.id
                 }
                 return true
             }
@@ -12817,7 +12818,7 @@ final class EditorViewModel {
         }
 
         for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions,
-                                       restrictDimensionsToActivePlane: true) {
+                                       restrictDimensionsToActiveSketch: true) {
             for d in sketch.dimensions {
                 guard annotationIsVisible(refs: d.refs,
                     alwaysShow: AppSettings.shared.alwaysShowDimensions,

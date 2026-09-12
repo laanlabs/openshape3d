@@ -1,5 +1,27 @@
 # Parity continuation checkpoint
 
+## Current execution — QA26 coplanar live verified, final gate next
+
+Source identity-scope correction + tests ready to checkpoint; focused21/21 clean.
+Changed-clone gallery retained2mm, Sketch2 editing suppressesSketch1 label,
+Exit restores; nativeSketch08 suppressesSketch06 50mm thenExit restores.
+Durable QA26 directory contains PNG/JSON and focusedsummary/log. No runner.
+Next final combined annotation/identity/constraint-rail/coplanar-UI gate, then
+publish coplanar closure evidence against835/38 predecessors. QA26partial;
+inventory23/0/1/32. NativeidleFront, cloneidleTop; iPad/immutable05be744 untouched.
+
+## Current execution — QA26 independent coplanar correction
+
+HEAD60f7012; EditorViewModel and annotation tests dirty. Native independent
+Sketch08 created onFront after committed Top Sketch07; original FrontSketch06
+50mm label suppressed with AlwaysShowON, Exit restores50. PNG/JSON copied into
+QA26 durable live directory. Confirmed active-sketch scope, not merely plane.
+Source filter now identity-based; glyph scope unchanged. Annotation suite active
+/tmp/os3d-qa26-coplanar-focused-20260911.xcresult and.log, sole simulator owner.
+Next collect, fix any genuine failure, changed-build coplanar live comparison,
+broader gate/publication and safe commit. Native idleFront withSketch08/07/06;
+clone store may reset under tests. Inventory23/0/1/32; QA26partial. No device change.
+
 ## Current execution — QA26 verified partial checkpoint
 
 HEAD6b89d01 source fix pushed; docs update ready to commit. Final29/29 zero

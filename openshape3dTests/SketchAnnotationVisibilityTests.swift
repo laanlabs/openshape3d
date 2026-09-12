@@ -5,7 +5,7 @@
 //  Dimensions used to be drawn only while sketching, and only for the sketch
 //  being edited — so leaving a sketch hid the very values that define it, and a
 //  second sketch's dimensions were never visible at all. `annotatedSketches`
-//  now widens that to every visible sketch when "Always Show Dimensions" is on
+//  now includes every visible sketch outside editing when "Always Show Dimensions" is on
 //  (Shapr3D's "Constraint & Locked Dimension Visibility"). These tests pin both
 //  halves, plus the unit-aware label text that replaced a hardcoded " mm".
 //
@@ -337,7 +337,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         _ = vm
     }
 
-    func testEveryVisibleSketchContributesNotJustTheActiveOne() throws {
+    func testEveryVisibleSketchContributesOutsideEditing() throws {
         let vm = try makeViewModel()
         let a = dimensionedLine(length: 40)
         let b = dimensionedLine(length: 25)
@@ -345,7 +345,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.session.perform(AddSketchCommand(sketch: b))
 
         AppSettings.shared.alwaysShowDimensions = true
-        vm.mode = .sketching(a.id, tool: nil)
+        vm.mode = .idle
 
         let owners = Set(vm.sketchDimensionLabels.map(\.sketchID))
         XCTAssertEqual(owners, [a.id, b.id],
@@ -366,7 +366,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         // Editing a hidden sketch still renders it, so its own dimensions show.
         vm.mode = .sketching(hidden.id, tool: nil)
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
-                       [shown.id, hidden.id])
+                       [hidden.id])
     }
 
     func testAlwaysShowToggleCoversActiveOtherHiddenAndReentry() throws {
@@ -380,7 +380,7 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
 
         AppSettings.shared.alwaysShowDimensions = true
         vm.mode = .sketching(active.id, tool: nil)
-        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id, other.id])
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id])
 
         vm.mode = .idle
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [active.id, other.id],
@@ -395,13 +395,13 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.mode = .sketching(hidden.id, tool: nil)
         AppSettings.shared.alwaysShowDimensions = true
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)),
-                       [active.id, other.id, hidden.id],
+                       [hidden.id],
                        "re-entering a hidden sketch includes that active sketch without exposing it otherwise")
     }
 
     // MARK: - Constraint glyphs mirror dimensions
 
-    func testAlwaysShowDimensionsSuppressesOtherPlaneOnlyWhileEditing() throws {
+    func testAlwaysShowDimensionsSuppressesOtherSketchesOnlyWhileEditing() throws {
         let vm = try makeViewModel()
         let ground = dimensionedLine(length: 50)
         var front = dimensionedLine(length: 20)
@@ -420,8 +420,8 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
         vm.mode = .sketching(ground.id, tool: nil)
         XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [ground.id])
         vm.mode = .sketching(hiddenFront.id, tool: nil)
-        XCTAssertTrue(vm.sketchDimensionLabels.contains { $0.sketchID == hiddenFront.id })
-        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.sketchID == ground.id })
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [hiddenFront.id],
+                       "an independent coplanar sketch must also be suppressed")
         AppSettings.shared.alwaysShowDimensions = false
         XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
         XCTAssertEqual(vm.session.document.sketches, original,

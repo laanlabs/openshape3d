@@ -68,3 +68,16 @@ item. Official plane documentation explains immediate same-plane continuation:
 https://support.shapr3d.com/hc/en-us/articles/7874240047388-Using-sketch-planes
 Next establish a separate same-plane item after an intervening creation, then
 compare its annotation scope. Inventory23/0/1/32; iPad/immutable05be744 unchanged.
+
+## Independent coplanar correction
+
+Native Sketch08 independently created on Front after committing Top Sketch07.
+With Always Show Dimensions ON, visible Front Sketch06's50mm dimension is
+suppressed during Sketch08 editing and restored on Exit. This disproves the
+intermediate plane-only scope; the dimension filter now uses active sketch ID.
+Constraint glyph behavior remains unchanged. Focused annotation21/21 clean.
+Changed clone gallery reopened saved2mm Sketch1 driver; editing independent
+coplanar Sketch2 hides2mm, Exit restores it without changing any of three lines.
+Native/clone sizes differ explicitly (50mm/2mm); comparison is annotation scope.
+PNG/JSON and focused log/summary copied to durable QA26 directory. Combined gate
+and publication pending; QA26 remains partial until final verification.
