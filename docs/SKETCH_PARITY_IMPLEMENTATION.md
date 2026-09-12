@@ -2396,3 +2396,12 @@ length/anchor and yields to saved constraints. Changed clone and native
 apply/history/both gallery reopenings verified. Illustrated1129/master38, ten
 hashesonce/no predecessor loss. QA36 partial pending finite matrix audit.
 See [pivot receipt](testing/sketch-parity-perpendicular-placement-2026-09-12.md).
+
+## QA-36 finite family closure — September 12, 2026
+
+All eleven named constraint families now have paired apply/history/reopen
+receipts. Current-source114/114 on c73f126 supplements those changed-build
+live checks; latest Perpendicular pivot paired at3d734bb. Illustrated1129/
+master38 closure notes export-verified, no media loss/duplication. Inventory
+27/0/1/28. QA37 order/Locks/repeated-solve breadth and explicit variant limits
+remain open. [Closure](testing/sketch-parity-constraint-types-closure-2026-09-12.md).

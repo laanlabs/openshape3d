@@ -1,5 +1,17 @@
 # Parity continuation checkpoint
 
+## Active — QA36 finite family closed; QA37 next
+
+Sourcec73f126, paired3d734bb; final114/114 clean, zero failures/skips.
+Eleven-family paired receipts reconciled. Illustrated1129/master38 closure
+headings once, media exactly unchanged; durable qa36-family-closure-2026-09-12.
+Inventory27/0/1/28; iPad/immutable05be744 unchanged. No runner.
+Both apps parked selected reopened Perpendicular. Next QA37 normal/reversed
+selection under First/Last using explicit first-line selection plus Shift-box
+containing only the second; verify membership after each input, then geometry.
+Prior whole-pair box attempt was inconclusive. Reuse clean114 model coverage;
+no duplicate tests unless a confirmed new behavior requires a change.
+
 ## Active — Perpendicular pivot paired checkpoint
 
 Source c73f126 pushed; final114/114 clean, zero failures/skips (107model+7UI).

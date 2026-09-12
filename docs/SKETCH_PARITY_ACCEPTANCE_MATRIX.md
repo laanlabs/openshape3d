@@ -40,7 +40,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-33 | Invalid numeric input | Core — partial live pass | Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Native10001 enters unresolved busy processing, so clone10000 is defensive, not verified parity. Diagnosis illustrated803/master38 published; upper bound stays open. |
 | QA-34 | Locked/unlocked value | Core — PASSED (September 11 finite recipe) | Locked versus one-time commit, rejected draft, direct Unlock, free resize, exact history and saved reopen are paired/current-tree verified. Final one-owner gate clean 29/29. Broader constraints/transforms/device remain separate cases. |
 | QA-35 | Constraint rail | Core — PASSED (September 11 finite recipe) | Model availability matrix plus portrait/landscape disabled guidance, settings access, enabled application and glyph pass clean 30/30; retained paired contextual Lock/Unlock/history/reopen evidence reconciled. Constraint semantics remain QA-36/39. |
-| QA-36 | Constraint types | Core — partial, live matrix incomplete | Clean 64/64 current-tree gate directly applies and restores all 11 relation families, with inference/persistence/rail coverage. Retained paired H/V, Lock, Parallel, tangent and concentric evidence exists; Equal Length/Radius and circle/two-line Symmetry now have paired history/reopen checkpoints (final90/90 and76/76, respectively); Perpendicular length/selection now has paired history/reopen and final80/80; remaining fresh all-type live sweep stays open. |
+| QA-36 | Constraint types | Core — passed (finite desktop family recipe) | All eleven families have paired apply/history/reopen receipts, latest Perpendicular pivot c73f126. Current-source114/114 clean includes eleven-family application/residual/history/JSON matrix. Illustrated1129/master38 retain all predecessors; QA37 anchor breadth and other explicitly unverified variants remain separate. |
 | QA-37 | Selection anchor | Core — partial, not passed | Diagonal/center/three-point numeric anchors and locked-endpoint drag sampled; full constrained matrix open. |
 | QA-38 | Disconnect | Core — partial | Four-line edge separation/history/reopen paired; clean34/34. Midpoint/primitive/non-line cases and ring visual difference remain. |
 | QA-39 | Conflict and point states | Core — passed | Finite under/fully-defined, point/entity Lock, refusal/rollback, attribution, history and reopen recipe closed September 11; clean 69/69 current-tree gate. |
@@ -324,52 +324,17 @@ history and reopen evidence. Constraint correctness remains QA-36/39. See
 
 ### QA-36 — Constraint types
 
-September12 fresh ordinary-line H/V and Last Selected Parallel now have
-paired length/endpoint/history/both-reopen verification. Final gates108/108,
-110/110 and112/112, respectively. Latest publication1119/master38 verified.
-[Parallel receipt](testing/sketch-parity-parallel-alignment-2026-09-12.md).
-Finite relation-matrix reconciliation next; no acceptance promotion yet.
-
-H/V, parallel, perpendicular, coincident, midpoint, tangent, concentric, equal,
-symmetry. Issues: DM-14. Result: **PARTIAL** — all 11 relation families now have
-direct apply/solve/Undo/Redo/serialization coverage in a clean 64/64 gate.
-Equal Length/Radius and circle/two-line Symmetry now have fresh paired
-application/history/reopen evidence. Final gates90/90,64/64 and76/76 support
-those checkpoints. Perpendicular length and selection cleanup has paired
-application/history/reopen evidence and final80/80. Midpoint selection cleanup now has paired application/history/reopen and
-final82/82. Free-target point-first/line-second anchor modes now match paired
-application/history and Last-mode both-app reopen, final106/106 on e177ce1;
-illustrated1089/master38 verified. Reverse-order/parallel variants unclaimed.
-See [Midpoint anchor receipt](testing/sketch-parity-midpoint-anchor-2026-09-12.md). Coincident point-on-line
-extension application/history/reopen is now paired, final84/84. Tangent now has
-paired free-circle and fixed-circle/free-line history/reopen, final86/86 and87/87,
-with illustrated955/master38 publication verified. Manual Concentric selection
-cleanup is paired with final88/88, illustrated965/master38 verified. External
-two-circle Tangent is paired with final90/90, illustrated975/master38 verified
-at1969350. Nested internal contact is paired on source5f4ab54 with final93/93,
-geometry history and both gallery reopenings; illustrated985/master38 verified.
-Intersecting and equal-radius full-circle contact, already-concentric relation,
-separated/off-span and shallow/deep arc-circle contact now have paired history/
-reopen checkpoints. Deep arc-circle final101/101 on568f9da, illustrated1051/
-master38 verified; see [deep arc receipt](testing/sketch-parity-deep-arc-tangent-2026-09-12.md).
-Fully nested larger-arc contact now has paired history/both reopenings and
-final102/102 oncb22065, illustrated1060/master38 verified; see
-[nested arc receipt](testing/sketch-parity-nested-arc-tangent-2026-09-12.md).
-Smaller-arc deep and fully nested contact now have paired history/reopen,
-final103/103 and104/104 on5076e32/7349e99; illustrated1078/master38 verified.
-See [smaller nested receipt](testing/sketch-parity-small-nested-arc-tangent-2026-09-12.md).
-Native Redo highlight and remaining arc contact boundaries remain unverified.
-Ordinary-line Horizontal now has fresh paired length/first-endpoint preservation,
-selection/history and both reopening evidence, final108/108 onf5d82e5;
-illustrated1099/master38 verified. See [Horizontal receipt](testing/sketch-parity-horizontal-alignment-2026-09-12.md).
-Free-target Midpoint modes are paired as recorded above. Vertical also has paired length/first-endpoint, selection/history/both reopenings,
-final110/110 on9466502 and illustrated1109/master38; see
-[Vertical receipt](testing/sketch-parity-vertical-alignment-2026-09-12.md).
-Parallel fresh sweep is paired (112/112). Perpendicular supporting-intersection
-pivot correction is now paired with history/both reopenings (114/114 on c73f126),
-illustrated1129/master38 verified. See
-[pivot receipt](testing/sketch-parity-perpendicular-placement-2026-09-12.md) and
-[constraint types checkpoint](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
+H/V, Parallel, Perpendicular, Coincident, Midpoint, Tangent, Concentric,
+Equal Length/Radius and Symmetry. Issues: DM-14. Result: **PASSED** for the
+finite desktop family recipe on September12. Eleven paired application/history/
+reopen lanes are reconciled in the [closure receipt](testing/sketch-parity-constraint-types-closure-2026-09-12.md).
+Current-source114/114 clean on c73f126 includes all-family residual/history/JSON
+checks and seven rail UI workflows. Last free-line Perpendicular pivot gap is
+paired and publication verified. Illustrated1129/master38 retain every family
+predecessor; closure heading once in both reports. No duplicate images.
+This does not assert all selection orders, saved-constraint combinations,
+Tangent geometry boundaries, coincident-edge selection routes or physical input.
+QA37 and the explicit limitations in individual receipts remain open.
 
 ### QA-37 — Selection anchor
 
@@ -921,3 +886,10 @@ corrected29/29 and852/38 publication verification. **25 passed / 0 failed /
 Fresh native complete chain/history/reopen plus retained clone proof andcurrent
 serial3/3 close QA05. Illustrated863/master38 verified with no predecessorloss.
 **26 passed /0 failed /1 device-blocked /29 incomplete**, total56. iPad unchanged.
+
+## September12 QA-36 closure inventory
+
+Finite eleven-family recipe closed on c73f126 with current-source114/114 and
+retained paired application/history/reopen receipts. Illustrated1129/master38
+closure notes verified without media changes. Inventory **27 passed /0 failed /
+1 device-blocked /28 incomplete**, total56. iPad unchanged.
