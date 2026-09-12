@@ -1,8 +1,33 @@
 # Parity continuation checkpoint
 
-## Active — QA37 First Selected Parallel gap
+## Active — QA37 First Selected paired checkpoint verified
 
-HEAD729f4b3/source13badd6. Native First Selected both selection orders preserves
+Sourcefb5d9a5 pushed; final148/148 clean, zero failures/skips, no runner.
+Changed both selection orders, exact saved history/gallery reopen; native history
+and reopen pass. Illustrated1194/master38 verified, ten hashes once/headings once,
+no predecessor loss. Durable constraint-types/qa37-anchor-live-2026-09-12.
+Next fresh native Lock override of First Selected, then clone equivalent. Native
+normal view parallelpair943580→1039560 and943628→1039608; clone reopened
+pair200650→300630 and200700→300680. No active tools. QA37 still partial.
+Inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 paired First Selected verified; publication export running
+
+Sourcefb5d9a5 pushed; final148/148 clean. Changed clone both selection orders,
+length/endpoint/anchor preserved, exact saved Undo/Redo and gallery reopen.
+Native reverse history/reopen verified. No test runner. Export exec56033 downloading
+illustrated/master after ten-image append; verify hashes/headings/predecessors
+before retry or publication claim. Durable constraint-types/qa37-anchor-live-2026-09-12.
+Baseline1184/master38. Native now normal view: parallelpair943580→1039560 and
+943628→1039608 (new camera framing). Clone reopened pair200650→300630 and
+200700→300680. Next native Lock override fresh pair, then changed clone equivalent.
+QA37 partial, inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 First Selected final148/148; changed live next
+
+HEAD/sourcefb5d9a5 pushed. Final combined148/148 clean, zero failures/skips, no runner;
+/tmp/os3d-qa37-first-final-20260912.{log,xcresult}. Changed-build live/history/reopen next.
+Baseline729f4b3/source13badd6. Native First Selected both selection orders preserves
 first operand and rotates second about endpoint A without shortening. Clone
 First Selected preserves first but second length1.2619028→0.3912311, A moves0.4565193.
 Native lower960650→1060670 / upper960600→1060580; reverse applied parked.

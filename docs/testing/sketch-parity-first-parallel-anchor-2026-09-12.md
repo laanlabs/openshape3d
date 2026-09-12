@@ -31,6 +31,21 @@ Exact Undo/Redo and JSON assertions retained.
 
 Durable evidence: /Users/thelodgestudio/.openclaw/workspace/reports/
 openshape3d-core-sketch-milestone-2026-09-08/constraint-types/qa37-anchor-live-2026-09-12.
-Changed-build live, reverse-order/Lock override matrix, final regression and
+Final148/148 clean onfb5d9a5, zero failures/skips; no runner.
+Changed-build live, native Lock override comparison and
 publication pending. QA37 remains partial. Inventory30/0/1/25; illustrated1184,
 master38. iPad and immutable05be744 unchanged.
+
+## Changed-build live on fb5d9a5
+
+FirstSelected persisted setting verified. Fresh plain additive two-line pair:
+anchor remains exact; moving length1.2619028081922297→1.2619028081922117,
+first endpoint displacement3.7e-14mm. Undo/Redo saved sketches exact after
+autosave settles (initial immediate Undo database read was stale; repeated
+settled read exact). Reverse-order FirstSelected also preserves upper and
+rotates lower about original endpoint. Exit/gallery/reopen exactly equals
+reverse-applied saved sketch, unrelated polygon/ellipse preserved.
+Native reverse-result Undo/Redo and explicit Exit/gallery/reopen pass.
+Publication verified: illustrated1194 unique, ten hashes exactly once, one heading,
+no1184 predecessor loss. Master38, one heading, no loss. Both exports and
+verification JSON retained locally. QA37 remains partial for fresh Lock override.

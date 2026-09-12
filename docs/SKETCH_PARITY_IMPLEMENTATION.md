@@ -2452,3 +2452,14 @@ Source2016713 suppresses numeric readouts only during Trim; selected polygon cou
 ## September12 — Rectangle side-driver Trim references
 
 Source13badd6 adds optional owning edge on new primitive rectangle driver creation (Lock/typed), import/JSON preservation and Trim ownership cleanup. Before0/1, focused21/21, expanded matrix1/1, final145/145 clean. Paired driver removal/survival, exact clone JSON history, profile opening and both reopenings verified. Illustrated1184/master38, ten hashes once/no loss. [Receipt](testing/sketch-parity-trim-side-driver-2026-09-12.md). QA43 current-data finite pass; inventory30/0/1/25. Legacy nil transfer unchanged; duplicate readout styling separate. iPad unchanged.
+
+## September12 — First Selected Parallel placement
+
+Native both selection orders preserve the anchored line and rotate the free
+line about endpoint A without shortening. Sourcefb5d9a5 extends the existing
+Last Selected placement to First Selected. Before0/1, focused4/4 and expanded
+6/6 and final148/148 clean. Changed both orders/history/both reopenings paired;
+illustrated1194/master38 verified, ten hashes once/no loss. Fresh Lock override
+comparison remains pending.
+[Receipt](testing/sketch-parity-first-parallel-anchor-2026-09-12.md).
+QA37 partial; inventory30/0/1/25, reports1184/master38; iPad unchanged.
