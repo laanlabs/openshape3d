@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Active — QA37 First Selected Parallel gap
+
+HEAD729f4b3/source13badd6. Native First Selected both selection orders preserves
+first operand and rotates second about endpoint A without shortening. Clone
+First Selected preserves first but second length1.2619028→0.3912311, A moves0.4565193.
+Native lower960650→1060670 / upper960600→1060580; reverse applied parked.
+Clone initial lower200700→300720 / upper200650→300630. Shift-box attempt rotated
+camera, excluded; plain second tap successfully selected pair before Parallel.
+Saved JSON proves geometric gap independent of camera. Durable constraint-types/
+qa37-anchor-live-2026-09-12 holds PNG/JSON. First/AutoOFF settings matched.
+Before0/1 failed three moving geometry assertions; focused4/4 and expanded6/6 clean; no runner, /tmp/os3d-qa37-first-before-20260912
+log/xcresult; new ConstraintApplyTests/testFirstSelectedParallelPreservesFreeLineLengthAndFirstEndpoint.
+Scoped First/Last operand mapping implemented. Checkpoint source, run final combined
+reverse/Lock matrix and combined then
+changed live/history/reopen/publication. Lock override/reverse/current matrix pending.
+Reports1184/master38; inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
 ## Active — QA43 finite current-data closure verified; QA37 audit next
 
 Source13badd6 pushed; final145/145 clean, no failures/skips, no runner.
