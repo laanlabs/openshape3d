@@ -2321,3 +2321,11 @@ clone/native apply, geometry history and both reopenings verified. Illustrated
 1051/master38, nine hashesonce/no predecessor loss. Fully nested, smaller-arc
 deep pairs, exact midpoint and arc-arc remain unverified; QA36partial26/0/1/29.
 See [paired receipt](testing/sketch-parity-deep-arc-tangent-2026-09-12.md).
+
+## Fully nested arc/circle Tangent — September 12, 2026
+
+Sourcecb22065 enables confirmed nonconcentric larger-arc nested internal
+contact. Before0/1, focused5/5, final102/102 clean; paired application/history/
+both reopenings verified. Illustrated1060/master38, nine hashesonce/no loss.
+Exact centers/boundaries, smaller-arc deep/nested and arc-arc remain unverified.
+QA36partial26/0/1/29. [Paired receipt](testing/sketch-parity-nested-arc-tangent-2026-09-12.md).

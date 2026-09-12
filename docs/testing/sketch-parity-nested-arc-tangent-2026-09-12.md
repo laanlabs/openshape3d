@@ -15,3 +15,16 @@ and arc-arc remain unverified/disabled. Combined102 and changed paired live/
 history/reopen/publication pending. Reports1051/master38; QA36partial26/0/1/29.
 iPad/immutable05be744 unchanged. Durable constraint-types/
 qa36-nested-arc-tangent-live-2026-09-12.
+
+Final102/102 passed, zero failures/skips, oncb22065. Changed clone LastSelected,
+acquisition/Auto off, arc250700→250690 and circle250710 fixed; R0.4947/179.59
+retained through apply/Undo/Redo/gallery reopen. Saved arc radius0.4946802078065139,
+sweep179.58778684509392, circle radius0.24730092287075092; internalContact residual
+2.7755575615628914e-17, no dimensions. Native Undo/Redo/reopen retains exact
+R11849.9336/180degrees and fixedR6000 circle; reopened arc604581/circle604599.
+Nine illustrated images and master note saved, export verification pending.
+No source changes after final102; no runner.
+
+Publication verified1060unique/master38, nine hashesonce, headingsonce, zero
+predecessor loss. Local DOCX exports/manifests/verification and all PNG/test
+receipts retained. QA36partial26/0/1/29 unchanged.

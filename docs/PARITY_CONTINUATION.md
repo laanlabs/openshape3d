@@ -1,20 +1,17 @@
 # Parity continuation checkpoint
 
-## Active — fully nested arc/circle native confirmed
+## Active — fully nested arc/circle paired verification
 
-Paired deep checkpointfb3c5c8 pushed, final101/101, reports1051/master38.
-Native fresh lowerarc550650,R11849.9336/180degrees, circle550660,R6000,
-fully nested (center distance2962.4786 < radiusdifference5849.9336), two edges
-accept Tangent. Arc moves up to550640, circle stays fixed, radius/sweep retained.
-Short10/15px circle strokes created no circle; settled20px stroke succeeded.
-Native parked selectedarc550640/circle550660. Clone matching arc250700/r40,
-circle250710/r20 selects both but Tangent disabled, prior deep pair450705/450725.
-Before regression0/1; bounded nonconcentric fully-nested larger-arc eligibility
-implemented, focused5/5 clean, zero failures/skips. No runner.
-Next checkpoint/push, final102 gate, changed live/native history/reopen and publication.
-Exact coincident centers, radiusdifference boundary, maxradius boundary,
-smaller-arc deep/nested, arc-arc remain unverified. QA36partial26/0/1/29;
-iPad/immutable05be744 unchanged. Durable qa36-nested-arc-tangent-live-2026-09-12.
+Sourcecb22065 pushed; final102/102 clean, zero failures/skips; no runner.
+Changed clone arc250700→250690,circle250710 fixed; R0.4947/179.59degrees
+preserved through history/reopen, saved internalContact residual2.8e-17,
+no dimensions. Native exactR11849.9336/180degrees and fixedR6000 circle retain
+contact/history/reopen. Native parked selectedarc604581/circle604599; clone
+selectedarc250690/circle250710. Publication verified1060unique/master38,
+nine hashesonce, headingsonce/no1051/38loss. No runner.
+Next checkpoint/push docs and native smaller-arc deep contact comparison.
+Exact centers/radiusdifference/maxradius boundaries and arc-arc remain unverified.
+QA36partial26/0/1/29; iPad unchanged. Durable qa36-nested-arc-tangent-live-2026-09-12.
 
 ## Active — deep arc/circle paired verification
 

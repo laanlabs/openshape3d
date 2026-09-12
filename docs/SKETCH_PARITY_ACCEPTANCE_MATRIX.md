@@ -339,7 +339,15 @@ cleanup is paired with final88/88, illustrated965/master38 verified. External
 two-circle Tangent is paired with final90/90, illustrated975/master38 verified
 at1969350. Nested internal contact is paired on source5f4ab54 with final93/93,
 geometry history and both gallery reopenings; illustrated985/master38 verified.
-Native Redo highlight and intersecting/arc contact variants remain unverified. Remaining all-type live sweep
+Intersecting and equal-radius full-circle contact, already-concentric relation,
+separated/off-span and shallow/deep arc-circle contact now have paired history/
+reopen checkpoints. Deep arc-circle final101/101 on568f9da, illustrated1051/
+master38 verified; see [deep arc receipt](testing/sketch-parity-deep-arc-tangent-2026-09-12.md).
+Fully nested larger-arc contact now has paired history/both reopenings and
+final102/102 oncb22065, illustrated1060/master38 verified; see
+[nested arc receipt](testing/sketch-parity-nested-arc-tangent-2026-09-12.md).
+Native Redo highlight, free-target Midpoint anchor and remaining arc contact
+boundaries remain unverified. Remaining all-type live sweep
 is still incomplete. See
 [constraint types checkpoint](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
 
