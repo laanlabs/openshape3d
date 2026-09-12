@@ -2179,3 +2179,13 @@ refusal retains operands. Final80/80 and changed live apply/Undo/Redo/gallery
 reopen pass; exact1.2291mm/glyph persist. Illustrated915/master38 verified,
 four hashes once/no predecessor loss. Earlier selection gap is superseded;
 unconstrained free-line placement still differs. QA36partial26/0/1/29.
+
+
+### September 12 Midpoint selection follow-up
+
+Source9659fec/test279a34b: final82/82 zero fail/skip, paired successful apply,
+selected history and gallery reopening. Refusal retains operands. Native
+319.7689mm target and clone1.2371mm target/saved Midpoint persist; free-target
+anchor/placement difference remains explicitly open. Illustrated925/master38,
+ten hashes once/headings once/no predecessor loss. QA36partial26/0/1/29;
+no runner, iPad unchanged. Next point-plus-line Coincident comparison.

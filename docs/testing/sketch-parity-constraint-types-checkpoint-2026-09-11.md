@@ -338,3 +338,23 @@ now require blank deselection, one selected point (Lock enabled/H disabled),
 then target line before opening the menu. Corrected UI1/1 passes application,
 Undo/Redo deselection and glyph reselection. No product/source change after
 9659fec. Final82-case combined gate active; changed live/reopen still pending.
+
+
+Final current-tree gate82/82 passed, zero fail/skip in one serial run on279a34b
+(source9659fec):42application+18merge+6polish+10Trim+6rail UI. Exact summary/log
+copied durable. No runner; changed live/native persistence and publication next.
+
+
+### Midpoint changed-build live and publication verification
+
+Source9659fec/test279a34b final82/82 is clean. Changed application, selected
+Undo/Redo and gallery reopening match native selection cleanup. Native reopened
+target319.7689mm; clone1.2371mm and saved Midpoint record in Items. Native free
+target resizing/repositioning remains a separate open anchor variant; this fix
+changes selection only. Illustrated925 unique: ten source hashes once, heading
+once, no915 predecessor loss. Master38: heading once/no loss. Durable
+qa36-midpoint-live-2026-09-12 contains all os3d-midpoint-* evidence and
+publication-assets.json/publication-verification.json/after DOCX exports.
+Native reopen fit initially used unsupported --button CLI option; corrected
+--right and observed Zoom to succeeded. No product action occurred on failed
+invocations. No runner; QA36partial26/0/1/29; iPad unchanged.

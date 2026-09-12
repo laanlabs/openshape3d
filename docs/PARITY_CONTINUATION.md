@@ -1,27 +1,26 @@
 # Parity continuation checkpoint
 
-## Active WIP — scoped Midpoint selection cleanup
+## Current — Midpoint selection paired and published
 
-HEAD360c204 before this WIP commit. Before-fix unit0/1 fails only six selected
-entity/point assertions after apply/Undo/Redo; geometry/history/archive/refusal
-checks passed. Native selected-point apply/history clears; pointer-away Undo
-excludes hover. Clone retained point/ring/readout. Shared cleanup now recognizes
-only Perpendicular or Midpoint additions in active-sketch grouped history;
-refusal remains unchanged. No solve geometry change.
-Focused gate3/4: all3 model checks pass, UI disabled Midpoint before apply.
-Recording shows endpoint selection absent after rapid clear/point/line taps.
-UI now waits for cleared state and exactly one point before adding line; same
-enabled assertion retained. CorrectedUI2 passed1/1, zero fail/skip.
-Source9659fec pushed, test-only synchronization follows. Final combined82-case
-gate running exclusively, exec38626:
-/tmp/os3d-qa36-midpoint-final-20260912.xcresult/.log. No final result yet.
-No desktop actions until terminal. Source EditorViewModel plus ConstraintApply
-and ConstraintRail UI tests; documentation/evidence preserved. Next exact result,
-fix only confirmed issues, broader regression, changed live/history/reopen and
-publication. Native parked afterUndo; clone reset by UI when it runs.
-Free native target resizes/repositions while clone target stays fixed; retained
-separate anchor variant, not fixed. All captures durable qa36-midpoint-live-
-2026-09-12. Reports915/38; inventory26/0/1/29; QA36partial, iPad unchanged.
+Source9659fec / test279a34b pushed; final82/82 zero failures/skips in one
+serial run (42application+18merge+6polish+10Trim+6rail UI). No runner.
+Changed live successful apply and deliberately reselected Undo/Redo clear
+operands; refused application retains them in regression. Both apps reopen the
+saved midpoint relation. Native target319.7689mm; clone1.2371mm with Midpoint
+record visible in Items. Native free target resizing/repositioning differs from
+clone fixed-target solving; separate open anchor variant, no geometry fix.
+Illustrated925 unique, ten source hashes exactly once, one heading/no915 loss;
+master38 one heading/no loss. All captures, final receipts, publication-assets,
+publication-verification and after DOCX exports preserved under durable
+constraint-types/qa36-midpoint-live-2026-09-12. Earlier before0/1 and focused3/4
+fixture failure followed by UI1/1 remain recorded; final82 is clean combined.
+Native parked reopenedSketch11 Front target319.7689 selected, endpoints545400
+and745400, joint645400; clone reopenedSketch1Top target1.2371 selected, Items
+open showing Midpoint. LastSelected/acquisitionOFF/AutoOFF. No active process.
+Next fresh native point+line Coincident apply/history: native menu enabled,
+clone capability currently excludes this operand combination, solver supports
+point+whole-line colinearity. Confirm application before changing code.
+QA36partial, inventory26/0/1/29; physical iPad/immutable05be744 unchanged.
 
 ## Current — Perpendicular selection paired and published
 
