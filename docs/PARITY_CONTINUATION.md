@@ -1,20 +1,23 @@
 # Parity continuation checkpoint
 
-## Active — Already-concentric equal-circle Tangent
+## Current — Already-concentric equal-circle Tangent paired checkpoint
 
-Baseline293bf9c. Native fresh two R9000 circles at560250/650250 then
-Concentric→650250; both selected2edges/center0. Tangent enabled and accepted,
-marker appears, geometry unchanged, selection clears. Direct center-start
-second creation moved selected first circle instead; undone/discarded. Separate
-creation+Concentric is the verified fixture, not unconstrained duplicate creation.
-Native parked650250 coincident with Concentric+Tangent. Before regression0/1 with six downstream assertions failed at
-/tmp/os3d-qa36-initial-coincident-before-20260912.xcresult. Focused3/3 passed
-at /tmp/os3d-qa36-initial-coincident-focused-20260912.xcresult. No runner.
-Production removes only coincident-equal eligibility exclusion; new test asserts
-unchanged geometry, retained Concentric, added internal Tangent/history/archive.
-Next final combined regression, changed clone paired history/reopen/publication. Evidence
-constraint-types/qa36-initial-coincident-live-2026-09-12. Reports1005/master38;
-QA36partial26/0/1/29; iPad unchanged.
+Sourcec6dee5d pushed; before0/1, focused3/3, final96/96 clean serial run,
+zero failures/skips. No runner/no source edits after final. Native R9000 pair
+joined by Concentric accepts Tangent at coincident centers. Changed clone exact
+Ø1 pair at300730/420730→420730 accepts Tangent, Items/history removes/restores
+only Tangent while retaining Concentric and two diameter1 records. Both gallery
+reopenings verified; native selected2edges/center0/Tangentmarker/total113097.3355.
+Clone saved JSON distinctIDs/both relations/internalContact, center4e-11 only.
+Important selection route: clone Exit→Select marquee→Done→Items reopening;
+native in-sketch box. Relation verified, selection-route parity not claimed.
+Illustrated1014unique/master38: nine hashes once, headingsonce/no1005/38loss.
+Durable constraint-types/qa36-initial-coincident-live-2026-09-12 contains all
+captures/test logs/summaries/saved JSON/manifests/verification/afterDOCX.
+Native parked Sketch12Top coincident650250 selected2edges; clone Sketch1Top
+coincident420730, Itemsopen. LastSelected matched; acquisition/AutoOFF.
+Next fresh native circle/arc Tangent comparison. Exact halfway/selection route
+remain open; QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — Equal-radius internal Tangent paired and published
 

@@ -2269,3 +2269,13 @@ reopen verified; saved clone retains two IDs and two Ø1 dimensions. Illustrated
 1005/master38, nine hashes once/no predecessor loss. QA36partial26/0/1/29;
 exact halfway, initially coincident and arc variants remain unverified.
 [Receipt](testing/sketch-parity-equal-contact-2026-09-12.md).
+
+### September 12 — already-concentric equal circles accept Tangent
+
+Sourcec6dee5d, final96/96 clean. Native/changed clone relation addition without
+geometry change, constraint Undo/Redo and both gallery reopenings verified.
+Clone saved identities, Concentric/internal Tangent and two Ø1 values retained.
+Illustrated1014/master38, nine hashes once/no predecessor loss. Clone uses
+Exit→Select marquee→Done→Items reopen to select both coincident edges; native
+uses in-sketch box. This UI-route difference remains open. QA36partial26/0/1/29.
+[Receipt](testing/sketch-parity-initial-coincident-2026-09-12.md).
