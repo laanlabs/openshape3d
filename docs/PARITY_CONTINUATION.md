@@ -1,29 +1,19 @@
 # Parity continuation checkpoint
 
-## Active — QA38 detached-point drag selection diagnosis
+## Active — QA38 midpoint paired; circle-center next
 
-HEAD5228ae6, sourcec73f126/final114. QA36closed b4462ec; QA37inputblocked.
-Before0/1 reproduced exactly parent-edge selection and0mm label failures;
-geometry/history/JSON passed. Scoped selected-endpoint drag cleanup implemented.
-Focused2 active exclusively exec29672:
-/tmp/os3d-qa38-point-drag-focused-20260912.{log,xcresult}.
-Dirty EditorViewModel/ConstraintApplyTests + receipt/continuation. No desktop
-input during runner. Next focused result, final relevant regression, checkpoint
-and changed-build paired repeat/history/reopen/publication.
-Native prior saved Midpoint endpoint758410
-Disconnect clears relation/selection, geometry unchanged; point drag→788400
-independent, target704410→813410 fixed. Native parked moved point.
-Clone fresh source350600→350650,target300700→400700; explicitMidpoint→
-source350600→350700. Before JSON confirms Midpoint/unrelatedParallel/Perp;
-Disconnect removes onlyMidpoint, entities exact. Direct pointdrag initially
-missed from timing; after settled pointselection moves endpoint→380690,
-targetfixed, but retains point+parentedge, spurious0mm label/gizmo. Edge-first
-drag also works. One move Undo restored; latest settled drag movedagain.
-Next add focused model regression for selected detached endpoint drag retaining
-point-only selection; inspect beginSketchEntityDrag selected-point branch.
-No claim of geometry failure now. Native history/reopen and clone history/reopen
-pending. Durable disconnect/qa38-midpoint-live-2026-09-12 has PNG/actions/JSON.
-Inventory27/0/1/28; reports1129/master38; iPad unchanged.
+Source96b1368 pushed; final116/116 clean, zero failures/skips (108model+8UI).
+No runner. Changed clone point-only detached endpoint drag→380700, target and
+sourceother fixed; no false0mm/gizmo. Two-step Undo/Redo and gallery reopen
+verified. Native two-step history/reopen verified; reopened detached788394,
+sourceother758351,target705405→813405. Both apps parked reopened fixtures.
+Illustrated1138/master38 verified: nine hashes once, headings once, no loss.
+Durable disconnect/qa38-midpoint-live-2026-09-12 holds PNG/actions/JSON/logs,
+exports/publication verification. QA38 still partial; next fresh circle-center
+Coincident Disconnect using prior native circle/line fixture if addressable;
+then primitive stored corner. Read connection breadth receipt. No new source
+change/test needed absent confirmed behavior. Inventory27/0/1/28; QA36 closed;
+QA37 exact-order input blocked. iPad/immutable05be744 unchanged.
 
 ## Active — QA37 ordered-input blocked; QA38 next
 

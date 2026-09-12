@@ -2405,3 +2405,12 @@ live checks; latest Perpendicular pivot paired at3d734bb. Illustrated1129/
 master38 closure notes export-verified, no media loss/duplication. Inventory
 27/0/1/28. QA37 order/Locks/repeated-solve breadth and explicit variant limits
 remain open. [Closure](testing/sketch-parity-constraint-types-closure-2026-09-12.md).
+
+## September 12 — QA38 midpoint Disconnect paired checkpoint
+
+[Midpoint receipt](testing/sketch-parity-disconnect-midpoint-2026-09-12.md):
+source96b1368, final116/116 clean. Selected ordinary endpoint drag remains
+point-only after Disconnect; no false point-to-parent0mm label. Native and
+changed clone independent movement, two-step history and both gallery reopenings
+verified. Illustrated1138/master38, nine hashes once/no loss. QA38 remains
+partial for non-line/primitive variants; inventory27/0/1/28, iPad unchanged.
