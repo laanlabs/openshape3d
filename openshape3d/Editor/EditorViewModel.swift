@@ -928,9 +928,12 @@ final class EditorViewModel {
                     guard let arc = operands.first(where: { if case .arc = $0 { return true }; return false }),
                           let circle = operands.first(where: { if case .circle = $0 { return true }; return false }),
                           case let .arc(id, center, radius, start, end) = arc,
-                          case let .circle(_, otherCenter, _) = circle,
+                          case let .circle(_, otherCenter, otherRadius) = circle,
                           !guided.contains(id) else { continue }
-                    let ray = otherCenter - center
+                    // An internally tangent smaller arc contacts the far side
+                    // of its supporting circle, away from the larger center.
+                    let reverseRay = constraint.circleTangency == .internalContact && radius < otherRadius
+                    let ray = reverseRay ? center - otherCenter : otherCenter - center
                     guard simd_length(ray) > 1e-9 else { continue }
                     let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
                     let offset = SketchEntity.arcSweep(startAngle: start, endAngle: atan2(ray.y, ray.x))
@@ -11648,7 +11651,8 @@ final class EditorViewModel {
         let external = distance > max(ra, rb)
         let internalOverlap = ra > rb && distance > ra - rb && distance < ra
         let internalNested = ra > rb && distance > 1e-9 && distance < ra - rb
-        guard external || internalOverlap || internalNested else { return nil }
+        let smallerArcOverlap = ra < rb && distance > rb - ra && distance < rb
+        guard external || internalOverlap || internalNested || smallerArcOverlap else { return nil }
         return selected
     }
 

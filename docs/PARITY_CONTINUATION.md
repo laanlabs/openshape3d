@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active — smaller arc / larger circle deep contact
+
+HEAD dab3ba4; dirty EditorViewModel.swift + ConstraintApplyTests.swift.
+Before0/1 retained. Fix enables smaller-arc deep overlap and reverses guide
+ray for internal contact when arc radius is smaller.
+Native arc1000600 R6708.725/180degrees and circle1000625 R13000:
+Tangent moves arc down to~1000606, circle fixed, opposite-side dashed guide.
+Clone arc450700 r20/circle450725 r40 both selected, Tangent disabled.
+Focused five-case test passed5/5, zero failures/skips; no runner.
+/tmp/os3d-qa36-small-arc-focused-20260912.xcresult and .log.
+Next final
+regression, changed live/history/reopen/publication.
+Durable constraint-types/qa36-small-arc-tangent-live-2026-09-12 PNGs saved.
+Reports1060/master38; QA36partial26/0/1/29; iPad unchanged.
+
 ## Active — fully nested arc/circle paired verification
 
 Sourcecb22065 pushed; final102/102 clean, zero failures/skips; no runner.
