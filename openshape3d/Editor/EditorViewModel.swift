@@ -5042,7 +5042,7 @@ final class EditorViewModel {
     }
 
     private func clearsSelectionAfterApplying(_ constraint: SketchConstraint) -> Bool {
-        constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+        constraint.kind == .perpendicular || constraint.kind == .midpoint || constraint.kind == .tangent ||
             (constraint.kind == .coincident && constraint.refs.count == 2 &&
              constraint.refs.filter { $0.role == .whole }.count == 1)
     }
@@ -11832,10 +11832,24 @@ final class EditorViewModel {
                     ], value: simd_length(b - a)))
                 }
             }
+            let tangentCircle: (circle: UUID, line: UUID)? = {
+                guard kind == .tangent,
+                      sketch.entities.contains(where: { entity in
+                          if case .line = entity { return entity.id == preferredAnchor }
+                          return false
+                      }),
+                      let circle = orderedOperands.first(where: { id in
+                          sketch.entities.contains { entity in
+                              if case .circle = entity { return entity.id == id }
+                              return false
+                          }
+                      }) else { return nil }
+                return (circle, preferredAnchor)
+            }()
             var outcome = SketchSolverBridge.solveOutcome(
                 anchored, movingEntity: nil, dragTarget: nil,
-                preservingLineDirection: directionID)
-            if directionID != nil || anchored.dimensions.count != anchoredWithoutLengthPreference.dimensions.count,
+                preservingLineDirection: directionID, preservingTangentCircle: tangentCircle)
+            if directionID != nil || tangentCircle != nil || anchored.dimensions.count != anchoredWithoutLengthPreference.dimensions.count,
                !outcome.converged || outcome.structuralResidual > Self.overConstraintTolerance {
                 outcome = SketchSolverBridge.solveOutcome(
                     anchoredWithoutLengthPreference, movingEntity: nil, dragTarget: nil)
@@ -11868,7 +11882,7 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
-        // Paired Perpendicular, Midpoint and point-on-line Coincident clear
+        // Paired Perpendicular, Midpoint, Tangent and point-on-line Coincident clear
         // operands/readouts. Keep this scoped to observed forms; refusal returns
         // earlier and must retain the user's selection.
         if newConstraints.contains(where: clearsSelectionAfterApplying) { clearAppliedRelationSelection() }

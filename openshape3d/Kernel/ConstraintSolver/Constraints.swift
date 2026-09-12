@@ -438,3 +438,15 @@ nonisolated struct LineDirectionConstraint: ConstraintResidual {
         [cross2(point(vars, b) - point(vars, a), direction)]
     }
 }
+
+/// Transient application preference, not a saved geometric relationship.
+struct PointProjectionConstraint: ConstraintResidual {
+    let p: Int
+    let origin: SIMD2<Double>
+    let direction: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(p) }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        [simd_dot(point(vars, p) - origin, direction)]
+    }
+}

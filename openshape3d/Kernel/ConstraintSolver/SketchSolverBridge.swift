@@ -71,11 +71,13 @@ nonisolated enum SketchSolverBridge {
         dragTarget: SIMD2<Double>?,
         knownDOF: Int? = nil,
         preservingRectangleCorner: UUID? = nil,
-        preservingLineDirection: UUID? = nil
+        preservingLineDirection: UUID? = nil,
+        preservingTangentCircle: (circle: UUID, line: UUID)? = nil
     ) -> Outcome {
         let sys = buildSystem(from: sketch, movingEntity: movingEntity, dragTarget: dragTarget,
                               preservingRectangleCorner: preservingRectangleCorner,
-                              preservingLineDirection: preservingLineDirection)
+                              preservingLineDirection: preservingLineDirection,
+                              preservingTangentCircle: preservingTangentCircle)
         guard !sys.initial.isEmpty else {
             return Outcome(entities: sketch.entities, dof: 0,
                            converged: true, structuralResidual: 0)
@@ -521,7 +523,8 @@ nonisolated enum SketchSolverBridge {
         movingEntity: UUID?,
         dragTarget: SIMD2<Double>?,
         preservingRectangleCorner: UUID? = nil,
-        preservingLineDirection: UUID? = nil
+        preservingLineDirection: UUID? = nil,
+        preservingTangentCircle: (circle: UUID, line: UUID)? = nil
     ) -> System {
         // 1. Raw point slots for every entity.
         var slots: [RawSlot] = []
@@ -691,6 +694,21 @@ nonisolated enum SketchSolverBridge {
             let delta = SIMD2(initial[2*b] - initial[2*a], initial[2*b+1] - initial[2*a+1])
             if simd_length(delta) > 1e-9 {
                 lower(LineDirectionConstraint(a: a, b: b, direction: simd_normalize(delta)))
+            }
+        }
+        // Application-only preference: a free circle approaches the anchored
+        // line along its normal without changing radius. This removes the
+        // tangent's free along-line motion (especially unstable at tiny slopes).
+        // The editor retries without this preference if saved constraints win.
+        if let pair = preservingTangentCircle,
+           let center = pIdx(pair.circle, .center), let rv = radiusVar[pair.circle],
+           let (a, b) = linePair(pair.line) {
+            let delta = SIMD2(initial[2*b] - initial[2*a], initial[2*b+1] - initial[2*a+1])
+            if simd_length(delta) > 1e-9 {
+                fixed.insert(rv)
+                lower(PointProjectionConstraint(p: center,
+                    origin: SIMD2(initial[2*center], initial[2*center+1]),
+                    direction: simd_normalize(delta)))
             }
         }
         func appendAlign(_ refs: [ConstraintRef], horizontal: Bool) {

@@ -1343,6 +1343,84 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testTangentFreeCirclePreservesRadiusAndNearbyCenterWithHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for firstSelected in [false, true] {
+            AppSettings.shared.anchoredSketchEntity = firstSelected ? .firstSelected : .lastSelected
+            for slope in [0.0, 0.00000023841858, 0.4] {
+                for side in [-1.0, 1.0] {
+                    let vm = try makeViewModel()
+                    let a = SIMD2<Double>(0.96910429, -3.99125981)
+                    let b = a + SIMD2<Double>(0.74064648, slope)
+                    let direction = simd_normalize(b - a)
+                    let normal = SIMD2<Double>(-direction.y, direction.x) * side
+                    let center = (a + b) / 2 + normal * 0.984
+                    let radius = 0.37262403965
+                    let circle = SketchEntity.circle(id: UUID(), center: center, radius: radius)
+                    let target = line(a, b)
+                    let original = openSketch(vm, entities: [circle, target])
+                    vm.mode = .sketching(original.id, tool: nil)
+                    vm.selectSketchEntitiesInOrder(firstSelected ? [target.id, circle.id] : [circle.id, target.id])
+                    XCTAssertTrue(vm.canApplyConstraint(.tangent))
+                    vm.applyConstraint(.tangent)
+                    let result = try XCTUnwrap(vm.activeSketch)
+                    guard case let .circle(_, c, r) = result.entities[0] else { return XCTFail("Circle missing") }
+                    XCTAssertEqual(r, radius, accuracy: 1e-8)
+                    XCTAssertLessThan(simd_distance(c, (a + b) / 2 + normal * radius), 1e-7)
+                    XCTAssertEqual(result.entities[1], target)
+                    XCTAssertEqual(result.constraints.map(\.kind), [.tangent])
+                    XCTAssertEqual(result.dimensions, original.dimensions)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    vm.selectSketchEntitiesInOrder(firstSelected ? [target.id, circle.id] : [circle.id, target.id]); vm.undo()
+                    XCTAssertEqual(vm.activeSketch, original)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    vm.selectSketchEntitiesInOrder(firstSelected ? [target.id, circle.id] : [circle.id, target.id]); vm.redo()
+                    XCTAssertEqual(vm.activeSketch, result)
+                    XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                    XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(result)), result)
+                    XCTAssertLessThan(SketchSolverBridge.residualNorm(result), 1e-7)
+                }
+            }
+        }
+    }
+
+    func testTangentSavedLocksOverridePreferenceAndRefusalRetainsSelection() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for wholeCircleLocked in [false, true] {
+            let vm = try makeViewModel()
+            let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0.5, 2), radius: 0.4)
+            let target = line(.zero, SIMD2(1, 0))
+            let original = Sketch(plane: .ground, entities: [circle, target], constraints: [
+                .init(kind: .fixed, refs: [.init(entityID: circle.id, role: wholeCircleLocked ? .whole : .center)]),
+                .init(kind: .fixed, refs: [.init(entityID: target.id, role: .whole)])
+            ])
+            vm.session.perform(AddSketchCommand(sketch: original))
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([circle.id, target.id])
+            vm.applyConstraint(.tangent)
+            if wholeCircleLocked {
+                XCTAssertEqual(vm.activeSketch, original)
+                XCTAssertNotNil(vm.errorMessage)
+                XCTAssertEqual(vm.selectedSketchEntityIDs, [circle.id, target.id])
+            } else {
+                let result = try XCTUnwrap(vm.activeSketch)
+                guard case let .circle(_, center, radius) = result.entities[0] else { return XCTFail("Circle missing") }
+                XCTAssertEqual(center, SIMD2(0.5, 2))
+                XCTAssertEqual(radius, 2, accuracy: 1e-7)
+                XCTAssertEqual(result.entities[1], target)
+                XCTAssertEqual(result.constraints.count, 3)
+                XCTAssertTrue(result.dimensions.isEmpty)
+                XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+                vm.redo(); XCTAssertEqual(vm.activeSketch, result)
+            }
+        }
+    }
+
     func testCoincidentPointOnLineExtensionPreservesTargetAndHistory() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected

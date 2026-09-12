@@ -1,5 +1,29 @@
 # Parity continuation checkpoint
 
+## Current — Tangent correction focused checks passed, WIP checkpoint
+
+Base3fc01c8; source/test changes checkpointed with this note. Focused1/1 then
+expanded2/2 passed; no runner. Next combined application/merge/polish/Trim/rail
+regression, then changed-build paired live/history/reopen and publication.
+Native fresh isolated circle R50mm plus line95.9311mm applies Tangent by moving
+center530630 to530669, preserving radius/target and clearing selection; selected
+Undo/Redo restore/clear. Native parked after Redo; gallery reopen pending.
+Clone fresh circle radius0.37262403965 center(1.33923244,-3.00727820), target
+(0.96910429,-3.99125981) to(1.70975077,-3.99125957), applied to center
+(99.89930118,-3.31294107), radius0.67828690. Saved model confirms defect;
+Undo restores exact original geometry but retained selection. Both JSON snapshots
+and all native/clone captures preserved under durable constraint-types/
+qa36-tangent-live-2026-09-12. Before regression0/1, 30 assertions across six
+orientation/side fixtures; not an infrastructure failure.
+Correction under test adds transient radius/along-line projection preference for
+circle against anchored line, fallback to existing relationships, and scoped
+Tangent apply/history selection cleanup. No saved extra Lock/dimension.
+Expanded regression covers First/Last anchored-line order, both sides and three
+slopes, saved center-Lock override and whole-Lock refusal retaining selection.
+Changed live verification/publication remains pending; no acceptance promotion.
+Publication remains935/master38; Tangent diagnosis not yet published.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
 ## Current — Coincident point-on-line paired and published
 
 Sourceaabbf7f pushed; final84/84 zero failures/skips in one serial run:
