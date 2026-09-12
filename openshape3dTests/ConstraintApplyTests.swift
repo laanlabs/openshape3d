@@ -1749,6 +1749,56 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
     }
 
+    func testSmallerArcNestedCircleTangentUsesInternalContactAndOppositeGuide() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        let priorVisibility = AppSettings.shared.alwaysShowConstraints
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        AppSettings.shared.alwaysShowConstraints = false
+        defer {
+            AppSettings.shared.anchoredSketchEntity = prior
+            AppSettings.shared.alwaysShowConstraints = priorVisibility
+        }
+        let vm = try makeViewModel()
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 0.5,
+                                  startAngle: .pi, endAngle: 2 * .pi)
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, -0.25), radius: 1)
+        let original = openSketch(vm, entities: [arc, circle])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([arc.id, circle.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        guard case let .arc(_, center, radius, start, end) = applied.entities[0] else {
+            return XCTFail("Missing arc")
+        }
+        XCTAssertEqual(center.y, 0.25, accuracy: 1e-8)
+        XCTAssertEqual(center.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(radius, 0.5, accuracy: 1e-8)
+        XCTAssertEqual(start, .pi, accuracy: 1e-8)
+        XCTAssertEqual(end, 2 * .pi, accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], circle)
+        XCTAssertEqual(applied.constraints.last?.circleTangency, .internalContact)
+        let guideColor = SIMD4<Float>(0.55, 0.30, 0.95, 1)
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        for id in [arc.id, circle.id] {
+            vm.selectSketchEntitiesInOrder([id])
+            XCTAssertTrue(vm.scene.sketchLines.contains { $0.color == guideColor && !$0.segments.isEmpty })
+        }
+        vm.selectedSketchEntityIDs.removeAll()
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+        vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+        vm.selectSketchEntitiesInOrder([arc.id])
+        XCTAssertTrue(vm.scene.sketchLines.contains { $0.color == guideColor })
+        vm.finishSketch()
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+    }
+
     func testShallowOverlapArcCircleTangentPreservesGeometryAndHistory() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected

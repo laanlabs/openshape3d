@@ -11652,7 +11652,8 @@ final class EditorViewModel {
         let internalOverlap = ra > rb && distance > ra - rb && distance < ra
         let internalNested = ra > rb && distance > 1e-9 && distance < ra - rb
         let smallerArcOverlap = ra < rb && distance > rb - ra && distance < rb
-        guard external || internalOverlap || internalNested || smallerArcOverlap else { return nil }
+        let smallerArcNested = ra < rb && distance > 1e-9 && distance < rb - ra
+        guard external || internalOverlap || internalNested || smallerArcOverlap || smallerArcNested else { return nil }
         return selected
     }
 
