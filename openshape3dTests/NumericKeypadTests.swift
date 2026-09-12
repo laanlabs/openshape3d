@@ -442,6 +442,28 @@ final class DimensionKeypadCommitTests: XCTestCase {
 
     /// Invalid submissions must not become dimensions or consume history, and
     /// the next valid edit must remain usable after any rejected expression.
+    func testFreeSmallLineAcceptsRecoveredArithmeticLength() throws {
+        let previousUnit = AppSettings.shared.unit
+        defer { AppSettings.shared.unit = previousUnit }
+        AppSettings.shared.unit = .millimeters
+        let vm = try makeViewModel()
+        let entity = SketchEntity.line(id: UUID(),
+            a: SIMD2(-1.1494557857513428, 1.0198372602462769),
+            b: SIMD2(0.3819158971309662, 1.0198373794555664))
+        let sketch = Sketch(plane: .ground, entities: [entity])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: .line)
+        vm.selectedSketchEntityIDs = [entity.id]
+        vm.beginDimensionForSelection()
+        vm.commitDimensionEdit("12+")
+        XCTAssertNotNil(vm.editingDimension?.validationMessage)
+        vm.commitDimensionEdit("12+1")
+        XCTAssertNil(vm.notice, "A free line has no conflicting constraint")
+        XCTAssertEqual(try XCTUnwrap(length(vm, sketch.id)), 13, accuracy: 1e-6)
+        vm.session.undo()
+        XCTAssertEqual(vm.activeSketch?.entities, sketch.entities)
+    }
+
     func testInvalidLengthInputsPreserveGeometryAndAllowRecovery() throws {
         for raw in ["0", "-1", "", "1/0", "2+", "unknown_dimension"] {
             let vm = try makeViewModel()

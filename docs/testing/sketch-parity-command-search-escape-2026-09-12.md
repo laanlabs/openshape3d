@@ -72,3 +72,28 @@ hardware dispatch keeps its existing preference behavior. Existing five UI
 workflows explicitly launch with Command Search via process-local defaults,
 so this regression cannot hide behind a persisted Hotkeys preference again.
 Current focused runner5951, os3d-qa54-dispatch-focused-20260912.
+
+Corrected focused five Search UI cases pass5/5 on7b0e033 with CommandSearch
+explicitly selected. Result dispatch, unavailable-command refusal, scrim, empty
+results and close/history all passed together. Full combined keyboard gate
+now running; changed-build paired repeat/publication still pending.
+
+## Numeric regression uncovered by combined gate
+
+Combined84/85; isolated numericUI0/1. Invalid12+ warning/recovery passed, valid
+12+1 commit was falsely refused. Saved geometry has no constraints/dimensions,
+A(-1.1494557857513428,1.0198372602462769),
+B(0.3819158971309662,1.0198373794555664). New exact model0/1 reproduces;
+direct solvertrace gives nonconverged200iterations/residual4.202656 and huge
+transverse motion. The tiny Y derivative is amplified by diagonal damping.
+Native exact13mm resize succeeded and toolbar-menu Undo restored original;
+second attempted tiny edit did not open a field, excluded.
+Fallback retries only stalled solves from original input with isotropic damping
+and retains only a lower residual; successful original solves stay untouched.
+Focused exactmodel/SolverCore/numericUI run active; no final solver pass yet.
+
+Stalled-solver correction focused8/8 passed: exact arithmetic/model/history,
+six solver-core cases and the full numericUI workflow. Expanded near-axis
+matrix1/1 passed across horizontal/vertical, both tiny-slope signs, three scales
+and free/fixed-start states. Existing conflict/refusal tolerances unchanged;
+no diagnostic source remains. Final broad regression and changed live pending.

@@ -1,5 +1,51 @@
 # Parity continuation checkpoint
 
+## Active — QA54 solver focused8/8 and scale matrix1/1 passed
+
+Search7b0e033 pushed; solver fallback and exact model/scale tests dirty, ready
+for checkpoint. No runner. Successful original solves remain unchanged.
+Next broad combined solver/constraint/numeric/keyboard gate, then changed live
+Search result/preference/Escape and exact resize/history/reopen, publication.
+Reports1208/master38; inventory31/0/1/24; iPad unchanged.
+
+## Active — QA54 stalled-solver fallback focused gate running
+
+Exact free-line model before0/1: one distance13 target, no constraints, diagonal
+LM stalls200iterations residual4.202656 and rotates off-axis. Native exact13mm
+accepted, Undo restores original reference line (screens retained); attempted
+second tiny edit did not open editor and is excluded.
+Solver retries only nonconverged diagonal solves from original state with
+isotropic damping; accepts lower residual, existing conflict tolerance unchanged.
+No change to previously converged solves. Dirty Solver.swift and NumericKeypad
+test, docs; Search source7b0e033 pushed. Exclusive focused runner27649,
+/tmp/os3d-qa54-small-line-fixed-20260912: exact model+SolverCore+numeric UI.
+Next focusedterminal, broad solver/constraint/keyboard gate, changed live and
+publication. Inventory31/0/1/24; reports1208/master38; iPad unchanged.
+
+## Active — QA54 numeric free-line refusal reproduced in model
+
+Search source7b0e033 pushed; focused5/5. Full combined84/85 (76model+8of9UI),
+only numeric13 commit refused. IsolatedUI0/1 and new exact-geometry model0/1
+reproduce. Saved line A(-1.1494557858,1.0198372602),
+B(0.3819158971,1.0198373795), no constraints/dimensions. Invalid12+ recovery
+passes; valid12+1 gets conflict notice. New NumericKeypadTests model guard
+dirty, no product numeric fix. Solver/edited-ref trace runner53586 exclusively,
+/tmp/os3d-qa54-small-line-trace-20260912; collect before desktop.
+Next identify numeric cause, preserve refusal protections, paired native/clone
+resize and focused/full regression. QA54 stillpartial31/0/1/24; reports1208/38;
+iPad unchanged. No native/clone new publication claim.
+
+## Active — QA54 focused5/5, combined keyboard gate running
+
+Checkpoint7b0e033 pushed. Corrected Search UI5/5 clean with Command Search
+explicitly selected. Source final candidate; no trace/Button experiments remain.
+Full keyboard/settings/command/input model plus9UI serial gate exec50507,
+/tmp/os3d-qa54-keyboard-final-20260912.{log,xcresult}, exclusive simulator.
+No desktop until terminal. Next changed-build paired preference/result/Escape
+and saved reopen, report publication against1208/master38, closure ifverified.
+Foreground Escape already passed previous same Escape source; recheck afterfinal.
+Inventory31/0/1/24; iPad unchanged. Native parked Chamfer/Fillet noapply.
+
 ## Active — QA54 explicit-result dispatch correction, focused five running
 
 File trace proved row handler executes; runCommand reroutes result as bare key

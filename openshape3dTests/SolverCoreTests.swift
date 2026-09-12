@@ -56,6 +56,33 @@ private nonisolated struct TFixedPoint: ConstraintResidual {
 
 final class SolverCoreTests: XCTestCase {
 
+    func testNearAxisDistanceResizeAcrossScalesAndFixedEndpoints() {
+        for scale in [0.001, 1.0, 1000.0] {
+            for swapped in [false, true] {
+                for sign in [-1.0, 1.0] {
+                    for fixedStart in [false, true] {
+                        let major = 1.531371682882309 * scale
+                        let minor = sign * 1.1920928955078125e-7 * scale
+                        let initial = [0.0, 0.0, swapped ? minor : major, swapped ? major : minor]
+                        let target = 13 * scale
+                        let result = ConstraintSolver.solve(initial: initial,
+                            fixed: fixedStart ? [0, 1] : [],
+                            constraints: [TDistance(pA: 0, pB: 1, distance: target)])
+                        XCTAssertTrue(result.variables.allSatisfy(\.isFinite))
+                        XCTAssertLessThan(result.residualNorm, max(1e-8, target * 1e-8))
+                        let dx = result.variables[2] - result.variables[0]
+                        let dy = result.variables[3] - result.variables[1]
+                        XCTAssertEqual(hypot(dx, dy), target, accuracy: max(1e-8, target * 1e-8))
+                        if fixedStart {
+                            XCTAssertEqual(result.variables[0], initial[0])
+                            XCTAssertEqual(result.variables[1], initial[1])
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private func dist(_ v: [Double], _ pA: Int, _ pB: Int) -> Double {
         let dx = v[2 * pB] - v[2 * pA]
         let dy = v[2 * pB + 1] - v[2 * pA + 1]
