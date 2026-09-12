@@ -13156,6 +13156,10 @@ final class EditorViewModel {
 
     var sketchDimensionLabels: [SketchDimensionLabel] {
         _ = session.changeCount
+        // Native Trim suppresses numeric readouts: the selected boundary must
+        // receive the tap, even where a polygon count or length badge sits.
+        // Keep the selection and saved annotations intact for leaving Trim.
+        if mode.sketchTool == .trim { return [] }
         let unit = AppSettings.shared.unit
         var labels: [SketchDimensionLabel] = []
 

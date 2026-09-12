@@ -16,6 +16,26 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testTrimSuppressesSelectedReadoutsAndRestoresThemOnExit() throws {
+        let vm = try makeViewModel()
+        let polygon = SketchEntity.polygon(id: UUID(), center: .zero,
+            radius: 4, sides: 5, rotation: 0)
+        let segment = line(SIMD2(8, 0), SIMD2(8, 6))
+        let original = openSketch(vm, entities: [polygon, segment])
+        for entity in [polygon, segment] {
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([entity.id])
+            let labels = vm.sketchDimensionLabels
+            XCTAssertFalse(labels.isEmpty)
+            vm.mode = .sketching(original.id, tool: .trim)
+            XCTAssertTrue(vm.sketchDimensionLabels.isEmpty,
+                "Native Trim hides readouts so they cannot intercept boundary taps")
+            XCTAssertEqual(vm.activeSketch, original)
+            vm.mode = .sketching(original.id, tool: nil)
+            XCTAssertEqual(vm.sketchDimensionLabels.map(\.id), labels.map(\.id))
+        }
+    }
+
     func testPointPairCoincidentPreservesFirstShapeAndClearsSelection() throws {
         let previous = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .firstSelected

@@ -1,19 +1,17 @@
 # Parity continuation checkpoint
 
-## Active — point-pair Coincident verified; QA41 Trim next
+## Active — QA41 Trim readout obstruction reproduced
 
-Source9e99752 pushed, final121/121 clean, zero failures/skips; no runner.
-Changed circle and rectangle clean point-only apply/history/gallery reopen
-verified. First rect attempt retained whole line after drawing; failed shape
-preservation retained as extra-operand fixture, clean blank-reset repeat passed.
-No additional source changes. Durable evidence and reopened JSON:
-reports/openshape3d-core-sketch-milestone-2026-09-08/disconnect/point-pair-live-2026-09-12
-under workspace. Receipt sketch-parity-point-pair-anchor-2026-09-12.md updated.
-Publication1162/master38 verified, eight hashes once/headings once/no loss.
-Next QA41 fresh native arc/rectangle/polygon Trim gesture comparison; read
-finite receipt and existing tests before creating fixtures. Native remains reopened QA38 rectangle; clone reopened both
-joined shapes, circle252284, primitive252647→399745. No desktop competitor.
-Inventory28/0/1/27; QA37partial, QA38closed. Immutable05be744/iPad unchanged.
+HEADaa7c6d8 pushed, source9e99752 final121/121; no runner. QA41rectangle
+boundary/Undo paired; whole arc/Undo paired; bounded right arc span paired.
+Pentagon left boundary removal geometry passes both, but clone side-count
+badge intercepts midpoint448340 and opens keypad while Trim armed. Native
+hides readouts. Clone tap448322 away from badge removes only same edge.
+Confirmed UI obstruction; before0/1 failed both polygon/line suppression assertions; other restoration/geometry assertions passed. Source guard now hides sketchDimensionLabels only for Trim. Focused11/11 passed, zero failures/skips; no runner. Source guard/tests checkpoint next, then combined gate; no changed-build live proof yet.
+Both parked trimmed pentagons/arcs; native center800650, clone480340.
+Durable PNG/actions reports/openshape3d-core-sketch-milestone-2026-09-08/trim/qa41-live-2026-09-12 under workspace.
+Remaining history/reopen, corrected current-tree gate, changed paired repeat
+and publication. Reports1162/master38; inventory28/0/1/27; iPad unchanged.
 
 
 ## Active — QA38 closed; point-pair Coincident next
