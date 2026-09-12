@@ -2210,3 +2210,14 @@ Final86/86 passed after focused1/1 and expanded2/2. Changed-build application,
 selected Undo/Redo and both gallery reopenings verified; illustrated945/master38
 retain all predecessor media and ten new hashes exactly once. [Tangent receipt](testing/sketch-parity-tangent-application-2026-09-12.md)
 records exact persisted geometry, Undo restoration and the evidence boundary.
+
+
+## Fixed-circle Tangent line preservation — September 12, 2026
+
+Source `2b89368` fixes the reverse case: a driving-size, center-locked circle
+previously displaced and lengthened its free tangent line. Application-only
+length/endpoint preferences yield to saved relationships and persist no extra
+constraints. Final87/87 passed, with changed-build paired exact line values,
+Undo/Redo and both gallery reopenings. Illustrated955/master38 verified, ten
+hashes once/no predecessor loss. QA36 remains partial26/0/1/29. [Reverse Tangent
+receipt](testing/sketch-parity-tangent-reverse-2026-09-12.md).
