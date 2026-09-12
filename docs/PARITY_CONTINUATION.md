@@ -1,17 +1,22 @@
 # Parity continuation checkpoint
 
-## Active — scoped Perpendicular selection cleanup
+## Current — Perpendicular selection paired and published
 
-HEAD81e7b02 pushed length-fix paired publication911/38. New cleanup clears
-operands/readouts after successful Perpendicular and matching grouped history
-addition only; refusal retains selection. Model3/3 passed (cleanup/refusal and
-length/fallback regressions), /tmp/os3d-qa36-perpendicular-selection-20260912.
-New visible-rail UI apply/Undo/Redo/reselect workflow passed1/1 separately,
-/tmp/os3d-qa36-perpendicular-selection-ui-20260912.xcresult/.log, zero fail/skip.
-No runner. Next final combined gate, changed live application/history/reopen
-and publication. Source/tests checkpointed; only confirmed Perpendicular scoped.
-Native parked reopenedSketch11Front free line70.8204 selected, clone store
-reset by UI. No acceptance promotion; QA36partial26/0/1/29, iPad unchanged.
+Source3a337c2 pushed, final80/80 zero fail/skip in one serial run:
+41application+18merge+6polish+10Trim+5rail UI. No runner.
+Changed live application, deliberate reselection before Undo/Redo, and gallery
+reopen pass: history clears selection and restores geometry; reopened line
+1.2291mm and Perpendicular glyph retained. Native evidence in preceding length
+section supplies comparison. Only selection gap resolved; unconstrained native
+free-line relocation still differs and is not claimed fixed.
+Illustrated915 unique, four hashes once/heading once/no911 predecessor loss;
+master38/heading once/no loss. Durable qa36-perpendicular-live-2026-09-12 has
+os3d-perp-clean-* captures, selection-assets.json, selection-after DOCX exports
+and selection-publication-verification.json. No test/source changes after3a337c2.
+Next fresh Coincident/Midpoint application/history/reopen comparison. Native
+parked reopenedSketch11Front free line70.8204 selected; clone reopenedSketch1Top
+line1.2291 selected near265270, LastSelected/acquisitionOFF/AutoConstrainOFF.
+QA36partial, inventory26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — Perpendicular length fix paired and published
 

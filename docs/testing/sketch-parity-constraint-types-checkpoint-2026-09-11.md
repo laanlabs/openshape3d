@@ -299,3 +299,18 @@ cleanup. Model3/3 passed including retained refusal and length/fallback; separat
 visible-rail UI1/1 proves disabled single-line actions after apply/history and
 saved perpendicular glyph after deliberate reselection. No runner. Broader gate
 and changed-build paired repeat/publication pending; QA36partial26/0/1/29.
+
+
+### Selection cleanup final gate and changed live publication
+
+Source3a337c2 final80/80 zero fail/skip, one serial run (41application,
+18merge,6polish,10Trim,5rail UI). Successful application and deliberately
+reselected Undo/Redo clear selection while preserving exact visible geometry.
+Gallery reopen/reselection displays1.2291mm and Perpendicular glyph. Native
+comparison retained in preceding published length section. Selection gap is
+resolved; unconstrained native/clone positional choice remains different.
+Illustrated915 unique, four source hashes once/heading once/no911 loss;
+master38 heading once/no loss. Durable qa36-perpendicular-live-2026-09-12
+contains os3d-perp-clean-* and selection-assets/publication-verification JSON,
+selection-after exports and final test receipts. No runner. QA36partial,
+inventory26/0/1/29; physical iPad unchanged. Next Coincident/Midpoint sweep.

@@ -2170,3 +2170,12 @@ Undo/Redo and gallery reopening preserve1.2291mm; native preserves70.8204mm
 in its fixture. Illustrated911/master38 verified with eight hashes once/no loss.
 Selection cleanup and unconstrained placement remain explicit follow-ups;
 QA36partial26/0/1/29, iPad unchanged.
+
+
+### September 12 Perpendicular selection follow-up
+
+`3a337c2` scopes successful application/history deselection to Perpendicular;
+refusal retains operands. Final80/80 and changed live apply/Undo/Redo/gallery
+reopen pass; exact1.2291mm/glyph persist. Illustrated915/master38 verified,
+four hashes once/no predecessor loss. Earlier selection gap is superseded;
+unconstrained free-line placement still differs. QA36partial26/0/1/29.
