@@ -1,5 +1,17 @@
 # Parity continuation checkpoint
 
+## Active — Two-circle Tangent diagnosis
+
+Basef7f8b16. Native external circle-circle Tangent apply/radii/Undo verified;
+Redo restores tangency with orange selection (detail unresolved). Clone same
+two-circle selection disables Tangent. New focused test0/1 reproduces gap,
+no runner/source change. Dirty test and diagnosis docs. Native nested-circle
+probe next: outer1000600 R70 exists; attempted inner drags added no circle.
+Circle armed; settle via Exit/reenter before retry. Clone two circles200320
+and400340 selected, Concentric fixture intact. Evidence durable in
+constraint-types/qa36-circle-tangent-live-2026-09-12. Publication pending.
+No acceptance promotion;26/0/1/29, reports965/master38, iPad unchanged.
+
 ## Current — Concentric paired and publication verified
 
 Source2e84f84 pushed. Final88/88 in one serial run, zero failures/skips:

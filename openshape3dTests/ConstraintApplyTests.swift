@@ -1585,6 +1585,38 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertNotNil(refusedVM.errorMessage)
     }
 
+    func testTwoCircleExternalTangentPreservesRadiiAndPreferredCenter() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let a = SketchEntity.circle(id: UUID(), center: SIMD2(0, 0), radius: 0.4)
+        let b = SketchEntity.circle(id: UUID(), center: SIMD2(1.6, -0.32), radius: 0.3)
+        let original = openSketch(vm, entities: [a, b])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([a.id, b.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertTrue(applied.constraints.contains { $0.kind == .tangent })
+        guard case let .circle(_, ca, ra) = applied.entities[0],
+              case let .circle(_, cb, rb) = applied.entities[1] else {
+            return XCTFail("Missing circles")
+        }
+        XCTAssertEqual(ra, 0.4, accuracy: 1e-8)
+        XCTAssertEqual(rb, 0.3, accuracy: 1e-8)
+        XCTAssertEqual(cb.x, 1.6, accuracy: 1e-8)
+        XCTAssertEqual(cb.y, -0.32, accuracy: 1e-8)
+        XCTAssertEqual(simd_length(cb - ca), ra + rb, accuracy: 1e-8)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+    }
+
     func testConcentricPreservesRadiiAndClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let vm = try makeViewModel()
         let prior = AppSettings.shared.anchoredSketchEntity
