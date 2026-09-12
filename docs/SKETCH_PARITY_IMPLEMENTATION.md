@@ -2312,3 +2312,12 @@ final100/100 clean. Paired preserved arc/circle values, geometry Undo/Redo and
 both gallery reopenings verified; saved external residual0.0, no dimensions.
 Illustrated1042/master38, nine hashesonce/no predecessor loss. QA36partial26/0/1/29;
 iPad unchanged. [Receipt](testing/sketch-parity-shallow-arc-tangent-2026-09-12.md).
+
+## Deep arc/circle internal Tangent — September 12, 2026
+
+Source568f9da enables the confirmed larger-arc deep intersection branch and
+persists internalContact. Before0/1, focused4/4, final101/101 clean; changed
+clone/native apply, geometry history and both reopenings verified. Illustrated
+1051/master38, nine hashesonce/no predecessor loss. Fully nested, smaller-arc
+deep pairs, exact midpoint and arc-arc remain unverified; QA36partial26/0/1/29.
+See [paired receipt](testing/sketch-parity-deep-arc-tangent-2026-09-12.md).

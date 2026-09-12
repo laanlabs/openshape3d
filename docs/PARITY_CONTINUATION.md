@@ -1,19 +1,18 @@
 # Parity continuation checkpoint
 
-## Active — deep arc/circle internal contact implemented
+## Active — deep arc/circle paired verification
 
-Baseline5e7cd12. Native larger arc R11267.1795/180degrees and fixedR6000
-circle accept deep-overlap internal contact. Clone matching pair disabled Tangent.
-Before regression failed0/1 with six assertions; bounded eligibility and persisted
-internalContact branch now implemented. Focused4/4 clean, zero failures/skips:
-deep, shallow, off-span and boundary/refusal. No runner.
-Exact max-radius boundary, fully nested, smaller-arc deep pairs and arc-arc
-remain unverified and disabled. No solver changes.
-Next combined application/merge/polish/Trim/rail UI gate, then changed-build
-paired history/reopen and publication. Native parked selected deep arc760606,
-circle760625. Reports1042/master38; QA36partial26/0/1/29. iPad unchanged.
-Receipts /tmp/os3d-qa36-deep-arc-{before,focused}-20260912.xcresult and logs;
-durable constraint-types/qa36-deep-arc-tangent-live-2026-09-12.
+Source568f9da pushed, final101/101 clean, zero failures/skips, no runner.
+Changed clone live arc450700→450705, circle450725 fixed; R0.4947/179.59degrees
+retained through Undo/Redo and gallery reopen. Saved internalContact residual
+1.4e-16, no dimensions. Native Undo/Redo/reopen retains R11267.1795/180degrees,
+fixedR6000 circle. Native parked reopened selected arc762572/circle762590;
+clone reopened selectedarc450705/circle450725.
+Publication verified1051unique/master38, nine hashesonce, headingsonce/no1042/38loss.
+No runner. Next checkpoint/push docs and native fully nested larger-arc/circle probe.
+Fully nested, exact midpoint, smaller-arc deep pairs and arc-arc unverified.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged. Durable
+constraint-types/qa36-deep-arc-tangent-live-2026-09-12.
 
 ## Active — shallow arc/circle paired checkpoint
 
