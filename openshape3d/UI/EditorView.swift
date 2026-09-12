@@ -947,9 +947,9 @@ struct EditorView: View {
                 // dimension editor — the primary interaction — rather than
                 // selecting the glyph (which is also deletable via the Items
                 // panel).
-                SketchConstraintOverlay(viewModel: viewModel)
-                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
-                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchConstraintOverlay(viewModel: viewModel)
+                }
             }
             .overlay {
                 // Informational point markers belong below numeric editors:
@@ -962,26 +962,26 @@ struct EditorView: View {
             }
             .overlay {
                 // Sketch dimension annotations + inline editors (plan §C2).
-                SketchDimensionOverlay(viewModel: viewModel)
-                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
-                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchDimensionOverlay(viewModel: viewModel)
+                }
             }
             .overlay {
-                SketchTransformControlsOverlay(viewModel: viewModel)
-                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
-                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-                SketchRadialHandleOverlay(viewModel: viewModel)
-                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
-                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-                SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
-                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
-                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchTransformControlsOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchRadialHandleOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                if !viewModel.isPickingSymmetryAxis {
+                    SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
             }
             .overlay {
                 // Non-interactive projected overlays, grouped in one ZStack to

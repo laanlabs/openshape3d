@@ -155,6 +155,11 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
             cameraAnimator?.animate(to: pose, duration: 0.4)
             return
         }
+        if viewModel.isPickingSymmetryAxis, let ray = ray(at: point) {
+            viewModel.handle(.tap(ray: ray))
+            sceneDidChange()
+            return
+        }
         // Touch can arrive at Metal even when a projected SwiftUI control is
         // drawn above it. Dispatch the rectangle's scoped padlock before picks,
         // just as gizmo handles below dispatch before ordinary geometry.

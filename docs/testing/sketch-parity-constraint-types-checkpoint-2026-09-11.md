@@ -155,3 +155,25 @@ and logs copied durable. New delivered axis-pick/cancel UI test is currently
 running at `/tmp/os3d-qa36-symmetry-ui-20260912.xcresult` (not yet counted).
 Changed-build live/history/reopen and final combined regression still pending.
 This is WIP, not QA36 closure; inventory26/0/1/29, iPad/immutableIPA unchanged.
+
+
+### Symmetry UI diagnosis and focused recovery
+
+Five UI failures retained (initial, top-arc, additive, settled, overlay receipts).
+The first four never selected the first circle: new outer hit-testing modifiers
+interfered with existing overlay behavior. Conditional view omission only during
+axis picking restored ordinary taps. The fifth reached both circles but the
+retained center of the last-created circle incorrectly excluded the selection.
+Accepting only own-center markers fixes that without accepting unrelated points.
+The pending state now also suppresses the rendered sketch ring and routes axis
+taps before other gizmo controls. Corrected focused run **4/4**, zero failures/
+skips, includes three model checks and menu→Cancel→menu→axis→saved glyph UI.
+Full combined rerun pending at os3d-qa36-symmetry-final-20260912.xcresult.
+These are fixes to the WIP implementation; no changed-build live parity claim yet.
+
+
+Final corrected combined Symmetry gate: **64/64**, zero failures/skips,
+61 model/integration plus3 real rail UI workflows, one serial run. Summary/log
+copied durable; xcresult `/tmp/os3d-qa36-symmetry-final-20260912.xcresult`.
+This supersedes only automated status; native/changed-clone live and publication
+remain pending. Earlier failures are retained, not counted as clean passes.

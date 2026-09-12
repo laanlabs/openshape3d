@@ -27,6 +27,10 @@ final class ConstraintApplyTests: XCTestCase {
         let original = openSketch(vm, entities: [left, right, axis])
         vm.mode = .sketching(original.id, tool: nil)
         vm.selectSketchEntitiesInOrder([left.id, right.id])
+        // Circle release retains its own center marker alongside the rim.
+        vm.selectedSketchPoints = [.init(entityID: axis.id, role: .endpointA)]
+        XCTAssertFalse(vm.canApplyConstraint(.symmetric), "An unrelated point is not a two-circle selection")
+        vm.selectedSketchPoints = [.init(entityID: right.id, role: .center)]
         XCTAssertTrue(vm.canApplyConstraint(.symmetric))
         vm.applyConstraint(.symmetric)
         XCTAssertTrue(vm.isPickingSymmetryAxis)
@@ -37,7 +41,8 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, original)
         vm.completeSymmetryAxisPick(left.id) // Not a line: keep waiting.
         XCTAssertTrue(vm.isPickingSymmetryAxis)
-        vm.completeSymmetryAxisPick(axis.id)
+        vm.handle(.tap(ray: Ray(origin: SIMD3<Float>(original.plane.toWorld(SIMD2(0, 6)) + original.plane.normal * 10),
+                                direction: SIMD3<Float>(-original.plane.normal))))
         XCTAssertFalse(vm.isPickingSymmetryAxis)
         XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         let result = try XCTUnwrap(vm.activeSketch)

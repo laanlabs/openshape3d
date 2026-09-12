@@ -8923,6 +8923,7 @@ final class EditorViewModel {
     private func sketchGizmoSegments(
         centroid: SIMD2<Double>, plane: SketchPlane
     ) -> [SIMD3<Float>] {
+        guard !isPickingSymmetryAxis else { return [] }
         func world(_ p: SIMD2<Double>) -> SIMD3<Float> {
             let w = plane.toWorld(p)
             return SIMD3(Float(w.x), Float(w.y), Float(w.z))
@@ -11504,7 +11505,8 @@ final class EditorViewModel {
     var isPickingSymmetryAxis: Bool { !pendingSymmetryCircleIDs.isEmpty }
 
     private var selectedSymmetryCircles: [UUID] {
-        guard selectedSketchPoints.isEmpty, selectedSketchEntityIDs.count == 2,
+        guard selectedSketchEntityIDs.count == 2,
+              selectedSketchPoints.allSatisfy({ $0.role == .center && selectedSketchEntityIDs.contains($0.entityID) }),
               let sketch = activeSketch else { return [] }
         let ids = selectedSketchEntityOrder.filter { id in
             selectedSketchEntityIDs.contains(id) && sketch.entities.contains {

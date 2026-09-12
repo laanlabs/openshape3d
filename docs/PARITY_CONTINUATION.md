@@ -1,19 +1,19 @@
 # Parity continuation checkpoint
 
-## Active execution — QA36 Symmetry WIP checkpoint
+## Latest checkpoint — QA36 Symmetry final64/64
 
-Source/test changes ready for checkpoint from2bc7595. Native circle→Symmetry→
-axis→apply/Undo proved; native parked afterUndo in Sketch11. New circle workflow
-model tests2/2 then broader61/61 clean; source includes pending-drag guard.
-UI test compiling/running exclusively: exec81632,
-/tmp/os3d-qa36-symmetry-ui-20260912.{log,xcresult}. Do not duplicate/interact.
-Next collect UI result, correct only confirmed failures, final combined gate,
-changed live clone/native history/reopen, native unequal-circle probe (current
-native pair had priorEqual Radius). Whole-circle radius coupling implemented
-but this particular native behavior not yet observed. No publication forSymmetry.
-Durable constraint-types/qa36-symmetry-live-2026-09-11 contains native/images/logs.
-Reports881/master38; inventory26/0/1/29; iPad/immutable05be744 unchanged.
-Unrelated IDENTITY/SOUL/USER/memory untracked and preserved. No competing runner.
+Source fixes from006bf4b verified in one final **64/64** run, zero fail/skip
+(61 model/integration and3 UI). Receipt
+/tmp/os3d-qa36-symmetry-final-20260912.xcresult; summary/log copied durable
+constraint-types/qa36-symmetry-live-2026-09-11. No runner.
+Fixed overlay hit-testing interception and retained own-center operand handling;
+pendingaxis hides sketchgizmo, routes tapbeforecontrols, rejectsdragging.
+Next fresh changed-build clone/native apply/history/reopen, native unequal-circle
+radius probe (previousnativepairhadEqualRadius). Native parkedafterSymmetryUndo
+inSketch11 Front withverticalaxisx725 andR43circles600300/850330. Simulator test
+resetstore andendswithtwo-lineParallelfixture; recreatecircle/axisforlivesample.
+Reports881/master38 unchanged, QA36partial, inventory26/0/1/29. iPad/immutableIPA
+unchanged. UnrelatedIDENTITY/SOUL/USER/memory untrackedpreserved.
 
 ## Latest checkpoint — Equal Radius paired/publication verified
 

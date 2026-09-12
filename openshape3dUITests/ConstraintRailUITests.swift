@@ -31,9 +31,12 @@ final class ConstraintRailUITests: XCTestCase {
         p(0.34, 0.52).press(forDuration: 0.15, thenDragTo: p(0.40, 0.52))
         p(0.64, 0.57).press(forDuration: 0.15, thenDragTo: p(0.70, 0.57))
         app.buttons["Circle"].firstMatch.tap()
-        p(0.77, 0.78).tap() // Explicitly clear the release selection.
-        p(0.28, 0.52).tap()
-        p(0.70, 0.57).tap()
+        // The last circle remains selected after disarming, as in the rail's
+        // established two-line fixture. Add only the first circle.
+        p(0.34, 0.475).tap()
+        sleep(1) // Let the single-tap recognizer resolve before opening a menu.
+        let selectionShot = XCTAttachment(screenshot: app.screenshot())
+        selectionShot.name = "circle-symmetry-operands"; selectionShot.lifetime = .keepAlways; add(selectionShot)
         func invokeSymmetry() {
             app.buttons["ConstraintRailMore"].tap()
             let symmetry = app.buttons["Symmetric"].firstMatch
