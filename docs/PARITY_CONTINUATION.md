@@ -1,5 +1,32 @@
 # Parity continuation checkpoint
 
+## Current — Tangent locked-circle/free-line correction under test
+
+Base0f0b6d7; source/test correction checkpointed with this note. No runner.
+Before0/1 failed seven assertions. Focused2/3 had only a4e-13 radius equality
+failure; tight numeric tolerance corrected it and3/3 passed. Expanded saved
+endpointA Lock fallback1/1 passed. Combined87-case gate next.
+Native fresh circle850660 R30 and line830710→870710 length63.9544mm:
+box-selection order did not establish a reliable circle anchor, so those probes
+are inconclusive. Undo restored fixture. Explicit center Lock + radius30 commit
+makes circle fully defined. Tangent then holds circle and rotates line endpointA
+to~843680 while endpointB870710 and exact63.9544 length remain fixed; apply
+clears operands. Native parked line selected at856695. New native history/reopen
+for locked-circle variant pending; older free-circle checkpoint remains verified.
+Clone fresh center300700, center Lock+diameter0.4946773052, line280750→320750
+length0.4942971468: Tangent holds circle but moves line to X~-45 and length4.3007.
+Read-only saved JSON confirms; Undo restores line endpoints(-0.7598895431,
+-3.1285703182),(-0.2655923963,-3.1285700798). First immediate DB read after Undo
+was still async stale; later read matches restored screenshot and is retained.
+Durable constraint-types/qa36-tangent-reverse-live-2026-09-12 contains native/
+clone captures and saved before/applied JSON. No reverse assets published yet.
+Correction under test adds transient length+endpointB preference, releasing
+endpoint then length for saved-constraint conflicts; retries after incompatible
+preferred anchor is removed. No new saved fixed/dimension data.
+Next collect focused result, regression guard constrained fallback, finalcombined,
+checkpoint/push, changed live/history/reopen and publication. Last verified
+publication945/master38. QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
 ## Current — Tangent free-circle correction paired and published
 
 Sourceb8cf6b7 pushed; final86/86 zero failures/skips in one serial run:

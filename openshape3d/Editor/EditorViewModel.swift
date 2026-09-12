@@ -11796,6 +11796,39 @@ final class EditorViewModel {
             return false
         }
 
+        // Native fixed-circle Tangent keeps the free line's length and far
+        // endpoint, rotating its other end toward the circle. These are only
+        // application preferences: release endpoint, then length if a saved
+        // relationship makes either incompatible. In particular, retry here
+        // after an incompatible preferred whole-line anchor is removed.
+        func solveWithTangentLinePreferences(_ candidate: Sketch) -> SketchSolverBridge.Outcome {
+            guard kind == .tangent,
+                  let lineID = newConstraints.flatMap(\.refs).map(\.entityID).first(where: { id in
+                      sketch.entities.contains { entity in
+                          if case .line = entity { return entity.id == id }
+                          return false
+                      }
+                  }),
+                  case let .line(_, a, b)? = sketch.entities.first(where: { $0.id == lineID }),
+                  simd_length(b - a) > 1e-9 else {
+                return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+            }
+            var lengthPreferred = candidate
+            lengthPreferred.dimensions.append(SketchDimension(kind: .distance, refs: [
+                .init(entityID: lineID, role: .endpointA), .init(entityID: lineID, role: .endpointB)
+            ], value: simd_length(b - a)))
+            var endpointPreferred = lengthPreferred
+            endpointPreferred.constraints.append(.init(kind: .fixed,
+                refs: [.init(entityID: lineID, role: .endpointB)]))
+            for preferred in [endpointPreferred, lengthPreferred] {
+                let outcome = SketchSolverBridge.solveOutcome(preferred, movingEntity: nil, dragTarget: nil)
+                if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
+                    return outcome
+                }
+            }
+            return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+        }
+
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
         var solvedEntities: [SketchEntity]
@@ -11846,9 +11879,11 @@ final class EditorViewModel {
                       }) else { return nil }
                 return (circle, preferredAnchor)
             }()
-            var outcome = SketchSolverBridge.solveOutcome(
-                anchored, movingEntity: nil, dragTarget: nil,
-                preservingLineDirection: directionID, preservingTangentCircle: tangentCircle)
+            var outcome = kind == .tangent && tangentCircle == nil
+                ? solveWithTangentLinePreferences(anchored)
+                : SketchSolverBridge.solveOutcome(
+                    anchored, movingEntity: nil, dragTarget: nil,
+                    preservingLineDirection: directionID, preservingTangentCircle: tangentCircle)
             if directionID != nil || tangentCircle != nil || anchored.dimensions.count != anchoredWithoutLengthPreference.dimensions.count,
                !outcome.converged || outcome.structuralResidual > Self.overConstraintTolerance {
                 outcome = SketchSolverBridge.solveOutcome(
@@ -11859,12 +11894,10 @@ final class EditorViewModel {
             } else {
                 // A saved relationship is stronger than this transient
                 // preference. Retry without the temporary anchor.
-                solvedEntities = SketchSolverBridge.solve(
-                    proposed, movingEntity: nil, dragTarget: nil).0
+                solvedEntities = solveWithTangentLinePreferences(proposed).entities
             }
         } else {
-            solvedEntities = SketchSolverBridge.solve(
-                proposed, movingEntity: nil, dragTarget: nil).0
+            solvedEntities = solveWithTangentLinePreferences(proposed).entities
         }
 
         var commands: [DocumentCommand] = newConstraints.map {

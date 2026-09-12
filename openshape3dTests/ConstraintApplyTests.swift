@@ -1386,6 +1386,57 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testTangentLockedCirclePreservesFreeLineLengthEndpointAndHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for pinStart in [false, true] {
+            for lineSelectedLast in [false, true] {
+                let vm = try makeViewModel()
+                let center = SIMD2<Double>(-0.5131351352, -2.514377594)
+                let radius = 0.24733865261
+                let circle = SketchEntity.circle(id: UUID(), center: center, radius: radius)
+                let a = SIMD2<Double>(-0.7598895431, -3.1285703182)
+                let b = SIMD2<Double>(-0.2655923963, -3.1285700798)
+                let target = line(a, b)
+                var original = Sketch(plane: .ground, entities: [circle, target], constraints: [
+                    .init(kind: .fixed, refs: [.init(entityID: circle.id, role: .center)])
+                ], dimensions: [SketchDimension(kind: .diameter,
+                    refs: [.init(entityID: circle.id, role: .whole)], value: radius * 2)])
+                if pinStart {
+                    original.constraints.append(.init(kind: .fixed,
+                        refs: [.init(entityID: target.id, role: .endpointA)]))
+                }
+                vm.session.perform(AddSketchCommand(sketch: original))
+                vm.mode = .sketching(original.id, tool: nil)
+                vm.selectSketchEntitiesInOrder(lineSelectedLast ? [circle.id, target.id] : [target.id, circle.id])
+                vm.applyConstraint(.tangent)
+                let result = try XCTUnwrap(vm.activeSketch)
+                guard case let .line(_, movedA, movedB) = result.entities[1] else { return XCTFail("Line missing") }
+                guard case let .circle(id, solvedCenter, solvedRadius) = result.entities[0] else {
+                    return XCTFail("Circle missing")
+                }
+                XCTAssertEqual(id, circle.id)
+                XCTAssertEqual(solvedCenter, center)
+                XCTAssertEqual(solvedRadius, radius, accuracy: 1e-9)
+                XCTAssertEqual(simd_length(movedB - movedA), simd_length(b - a), accuracy: 1e-7)
+                if pinStart {
+                    XCTAssertEqual(movedA, a, "Saved endpoint Lock overrides transient endpoint preference")
+                } else {
+                    XCTAssertLessThan(simd_distance(movedB, b), 1e-8)
+                    XCTAssertLessThan(simd_distance(movedA, a), simd_length(b - a))
+                }
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(result), 1e-7)
+                XCTAssertEqual(result.constraints.map(\.kind), original.constraints.map(\.kind) + [.tangent])
+                XCTAssertEqual(result.dimensions, original.dimensions)
+                XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+                vm.redo(); XCTAssertEqual(vm.activeSketch, result)
+                XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(result)), result)
+            }
+        }
+    }
+
     func testTangentSavedLocksOverridePreferenceAndRefusalRetainsSelection() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected
