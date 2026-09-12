@@ -1,28 +1,28 @@
 # Parity continuation checkpoint
 
-## Current — Tangent correction focused checks passed, WIP checkpoint
+## Current — Tangent free-circle correction paired and published
 
-Base3fc01c8; source/test changes checkpointed with this note. Focused1/1 then
-expanded2/2 passed; no runner. Next combined application/merge/polish/Trim/rail
-regression, then changed-build paired live/history/reopen and publication.
-Native fresh isolated circle R50mm plus line95.9311mm applies Tangent by moving
-center530630 to530669, preserving radius/target and clearing selection; selected
-Undo/Redo restore/clear. Native parked after Redo; gallery reopen pending.
-Clone fresh circle radius0.37262403965 center(1.33923244,-3.00727820), target
-(0.96910429,-3.99125981) to(1.70975077,-3.99125957), applied to center
-(99.89930118,-3.31294107), radius0.67828690. Saved model confirms defect;
-Undo restores exact original geometry but retained selection. Both JSON snapshots
-and all native/clone captures preserved under durable constraint-types/
-qa36-tangent-live-2026-09-12. Before regression0/1, 30 assertions across six
-orientation/side fixtures; not an infrastructure failure.
-Correction under test adds transient radius/along-line projection preference for
-circle against anchored line, fallback to existing relationships, and scoped
-Tangent apply/history selection cleanup. No saved extra Lock/dimension.
-Expanded regression covers First/Last anchored-line order, both sides and three
-slopes, saved center-Lock override and whole-Lock refusal retaining selection.
-Changed live verification/publication remains pending; no acceptance promotion.
-Publication remains935/master38; Tangent diagnosis not yet published.
-QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+Sourceb8cf6b7 pushed; final86/86 zero failures/skips in one serial run:
+45application+18merge+6polish+10Trim+7rail UI. No runner. Before0/1 reproduces
+jump/radius/selection defects; focused1/1 then expanded2/2 preceded final gate.
+Fresh native anchored-line Tangent preserves R50mm/target95.9311mm, moves circle
+to near tangent position, clears apply/selected Undo/Redo and reopens atR50.
+Changed clone preserves diameter0.7452mm and target0.7406mm, moves center450740
+to450790 against target420820→480820, clears apply/deliberately selected history,
+and reopens with exact diameter and Tangent visible in Items.
+Transient radius/center-projection preference yields to saved constraints; no
+extra Lock/dimension persisted. Both First/Last line-anchor orders, both sides,
+three slopes, center-Lock fallback and whole-Lock refusal covered in regression.
+Illustrated945 unique, ten hashes once, heading once/no935 loss; master38 one
+heading/no loss. Durable constraint-types/qa36-tangent-live-2026-09-12 includes
+captures, saved before/bad geometry, test receipts and publication verification.
+Native parked reopenedSketch11Front circle553669 selected, R50, line523700→583700.
+Clone reopenedSketch1Top circle450790 selected, Items open, diameter0.7452.
+Matched LastSelected/acquisitionOFF/AutoOFF. Native trial-dismiss coordinate
+attempt did not dismiss; fresh AX Skip button worked, no subscription changes.
+Next fresh reverse Tangent anchor comparison: keep circle fixed and move line.
+Do not infer this variant from free-circle checks. QA36partial26/0/1/29;
+physical iPad and immutable05be744 unchanged. No competing process active.
 
 ## Current — Coincident point-on-line paired and published
 

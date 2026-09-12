@@ -2199,3 +2199,14 @@ point rejected; locked refusal retains operands. Final84/84 and fresh paired
 extension projection/history/reopen pass, target159.8835mm native/1.2371mm clone
 preserved. Illustrated935/master38 verified, ten hashes once/no predecessor loss.
 QA36partial26/0/1/29; next manual Tangent sweep, no iPad claim.
+
+## Tangent application correction — September 12, 2026
+
+QA-36 remains partial. A fresh native/clone comparison confirmed free-circle
+Tangent application could resize and move the clone circle far along a nearly
+horizontal target. Source `b8cf6b7` adds an application-only radius/projection
+preference with saved-constraint fallback and native-observed selection cleanup.
+Final86/86 passed after focused1/1 and expanded2/2. Changed-build application,
+selected Undo/Redo and both gallery reopenings verified; illustrated945/master38
+retain all predecessor media and ten new hashes exactly once. [Tangent receipt](testing/sketch-parity-tangent-application-2026-09-12.md)
+records exact persisted geometry, Undo restoration and the evidence boundary.
