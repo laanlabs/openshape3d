@@ -19,3 +19,12 @@ pending. No acceptance promotion. Reports1109/master38; inventory26/0/1/29.
 Durable evidence: /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/constraint-types/qa36-parallel-live-2026-09-12.
 Logs/xcresults: /tmp/os3d-qa36-parallel-{before,focused,focused2,locked}-20260912.
 Immutable05be744/iPad unchanged.
+
+## Combined gate and UI fixture correction
+
+Source33f7358 pushed. First combined105/105 model/integration and5/7UI;
+two failures at ConstraintRailUITests.swift:199 expected visible glyphs
+immediately after successful apply. Corrected fixture explicitly selects
+Last Selected, verifies apply deselection, reselects stationary upper line,
+then verifies glyph and Undo/Redo selection cleanup. Focused UI rerun pending.
+No changed-build paired or publication claim yet.

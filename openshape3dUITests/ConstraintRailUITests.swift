@@ -126,6 +126,10 @@ final class ConstraintRailUITests: XCTestCase {
         if !midpoint && !coincident {
             anchorPicker.buttons["First Selected"].tap()
             XCTAssertTrue(anchorPicker.buttons["First Selected"].isSelected)
+            if !perpendicular {
+                anchorPicker.buttons["Last Selected"].tap()
+                XCTAssertTrue(anchorPicker.buttons["Last Selected"].isSelected)
+            }
         }
         app.buttons["ConstraintSettingsDone"].tap()
         p(0.32, 0.42).press(forDuration: 0.15, thenDragTo: p(0.58, 0.42))
@@ -196,8 +200,21 @@ final class ConstraintRailUITests: XCTestCase {
             return
         }
         parallel.tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format:
-            "identifier == 'ConstraintGlyph' AND label == '∥'")).firstMatch.waitForExistence(timeout: 3))
+        let horizontal = app.buttons["ConstraintRail-horizontal"]
+        expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
+        waitForExpectations(timeout: 3)
+        p(0.45, 0.42).tap() // Last Selected is the stationary upper operand.
+        let glyph = app.buttons.matching(NSPredicate(format:
+            "identifier == 'ConstraintGlyph' AND label == '∥'")).firstMatch
+        XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+        app.buttons["Undo"].firstMatch.tap()
+        XCTAssertFalse(horizontal.isEnabled)
+        XCTAssertFalse(glyph.exists)
+        p(0.45, 0.42).tap()
+        app.buttons["Redo"].firstMatch.tap()
+        XCTAssertFalse(horizontal.isEnabled)
+        p(0.45, 0.42).tap()
+        XCTAssertTrue(glyph.waitForExistence(timeout: 3))
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "parallel-from-visible-rail"; shot.lifetime = .keepAlways; add(shot)
     }

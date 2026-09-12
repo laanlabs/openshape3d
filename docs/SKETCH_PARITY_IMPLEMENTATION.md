@@ -2371,3 +2371,14 @@ ten exact hashes once/no predecessor loss. QA36partial; Vertical next.
 source9466502 extends axis placement/selection cleanup to confirmed Vertical.
 Final110/110, changed live/history/both reopenings verified; illustrated1109/
 master38, ten hashesonce/no predecessor loss. QA36partial; Parallel next.
+
+## Parallel free-line preservation — September 12, 2026
+
+[Paired diagnosis and regression receipt](testing/sketch-parity-parallel-alignment-2026-09-12.md).
+Native Last Selected preserves moving line length/first endpoint and fixed
+second line, deselecting after apply. Clone shrink/endpoint movement reproduced.
+Source33f7358 corrects this ordinary two-line placement with saved constraints
+remaining authoritative. Focused2/2 plus separate Lock/driver1/1 passed;
+combined105model checks passed, two stale rail UI glyph assertions corrected
+and rerunning. Changed-build live/history/reopen/publication pending;
+QA36 remains partial, inventory26/0/1/29, iPad unchanged.
