@@ -1,5 +1,26 @@
 # Parity continuation checkpoint
 
+## Active — Horizontal alignment gap
+
+Baseline9c3551c/sourcee177ce1; final106/106 retained. Native fresh free
+line500300→600330, LastSelected and AutoOFF inherited explicitly verified
+from Midpoint. More→H/V aligns500300→604300, clears selection, exact
+48028.3119mm preserved. Clone fresh350700→450730, 1.2897mm,
+Horizontal aligns350715→450715 and shortens1.2361mm, selection retained.
+Confirmed geometry/selection gap. Before0/1 (six assertions), corrected focused1/1.
+Scoped Horizontal placement/cleanup implemented; saved endpoint/driver guard
+passed1/1 separately at /tmp/os3d-qa36-horizontal-locked-20260912.
+No runner. Next combined final gate then changed-build live/publication.
+Before log/xcresult
+/tmp/os3d-qa36-horizontal-before-20260912. Both apps parked selected aligned
+lines; native500300→604300, clone350715→450715. Durable
+qa36-axis-alignment-live-2026-09-12 has all PNG/action captures.
+Native Undo/Redo now verified restoring geometry and clearing line selection.
+Next collect locked-driver result, combined regression and changed live checks.
+Vertical native comparison remains untested.
+Scope only confirmed behavior, then focused/final/live/history/reopen/publication.
+Reports1089/master38; QA36partial26/0/1/29; iPad unchanged.
+
 ## Active — free-target Midpoint paired checkpoint
 
 Sourcee177ce1 pushed. Corrected before0/1 (six geometry failures), focused2/2,
@@ -12,8 +33,8 @@ Clone saved JSON dimensions0, Midpoint plus unrelated Parallel intact.
 Both apps parked reopened selected Last-mode target, Last Selected preference.
 Publication1089unique/master38, eleven hashesonce/headingsonce/no1078/38loss.
 Durable qa36-midpoint-anchor-live-2026-09-12 contains all evidence and exports.
-Next push paired docs then reconcile remaining finite QA36 family evidence;
-do not expand tangency boundary probes merely because they are untested.
+Paired docs9c3551c pushed. Next fresh H/V and Parallel core sweep; these
+currently rely on retained older paired evidence. No duplicate Tangent probes.
 Reverse selection order/parallel/degenerate/non-line Midpoint not claimed.
 QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 

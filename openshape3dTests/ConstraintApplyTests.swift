@@ -1532,6 +1532,68 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertFalse(refused.canApplyConstraint(.coincident), "A point on its own line is not a new relation")
     }
 
+    func testHorizontalPreservesFreeLineLengthFirstEndpointAndClearsSelection() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let a = SIMD2<Double>(0, 0)
+        let b = SIMD2<Double>(1, -0.3)
+        let entity = line(a, b)
+        let original = openSketch(vm, entities: [entity])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([entity.id])
+        vm.applyConstraint(.horizontal)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        guard case let .line(_, newA, newB) = applied.entities[0] else { return XCTFail("Expected line") }
+        XCTAssertLessThan(simd_distance(newA, a), 1e-8)
+        XCTAssertEqual(newB.y, a.y, accuracy: 1e-8)
+        XCTAssertEqual(simd_distance(newA, newB), simd_distance(a, b), accuracy: 1e-8)
+        XCTAssertGreaterThan(newB.x, newA.x)
+        XCTAssertEqual(applied.constraints.map(\.kind), [.horizontal])
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        vm.selectSketchEntitiesInOrder([entity.id])
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        vm.selectSketchEntitiesInOrder([entity.id])
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+            from: JSONEncoder().encode(applied)), applied)
+    }
+
+    func testHorizontalPlacementRespectsLockedEndpointAndDrivingLength() throws {
+        let vm = try makeViewModel()
+        let a = SIMD2<Double>(0, 0), b = SIMD2<Double>(1, -0.3)
+        let entity = line(a, b)
+        let lock = SketchConstraint(kind: .fixed, refs: [.init(entityID: entity.id, role: .endpointB)])
+        let length = SketchDimension(kind: .distance, refs: [
+            .init(entityID: entity.id, role: .endpointA), .init(entityID: entity.id, role: .endpointB)
+        ], value: simd_distance(a, b))
+        var original = Sketch(plane: .ground, entities: [entity], constraints: [lock])
+        original.dimensions = [length]
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([entity.id])
+        vm.applyConstraint(.horizontal)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertNil(vm.errorMessage)
+        guard case let .line(_, newA, newB) = applied.entities[0] else { return XCTFail("Expected line") }
+        XCTAssertLessThan(simd_distance(newB, b), 1e-8)
+        XCTAssertEqual(newA.y, b.y, accuracy: 1e-8)
+        XCTAssertEqual(simd_distance(newA, newB), length.value, accuracy: 1e-8)
+        XCTAssertEqual(applied.dimensions, [length])
+        XCTAssertTrue(applied.constraints.contains(lock))
+        XCTAssertEqual(applied.constraints.filter { $0.kind == .horizontal }.count, 1)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+    }
+
     func testMidpointFreeLineAnchorModesMatchPairedNativeGeometry() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         defer { AppSettings.shared.anchoredSketchEntity = prior }

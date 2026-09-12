@@ -352,8 +352,8 @@ final102/102 oncb22065, illustrated1060/master38 verified; see
 Smaller-arc deep and fully nested contact now have paired history/reopen,
 final103/103 and104/104 on5076e32/7349e99; illustrated1078/master38 verified.
 See [smaller nested receipt](testing/sketch-parity-small-nested-arc-tangent-2026-09-12.md).
-Native Redo highlight, free-target Midpoint anchor and remaining arc contact
-boundaries remain unverified. Remaining all-type live sweep
+Native Redo highlight and remaining arc contact boundaries remain unverified.
+Free-target Midpoint modes are paired as recorded above. Remaining all-type live sweep
 is still incomplete. See
 [constraint types checkpoint](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
 

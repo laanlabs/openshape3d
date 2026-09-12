@@ -5075,7 +5075,12 @@ final class EditorViewModel {
     }
 
     private func clearsSelectionAfterApplying(_ constraint: SketchConstraint) -> Bool {
-        constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+        let ordinaryHorizontal = constraint.kind == .horizontal && constraint.refs.count == 1 &&
+            constraint.refs[0].role == .whole && activeSketch?.entities.contains(where: {
+                if case .line = $0 { return $0.id == constraint.refs[0].entityID }
+                return false
+            }) == true
+        return ordinaryHorizontal || constraint.kind == .perpendicular || constraint.kind == .midpoint ||
             constraint.kind == .tangent || constraint.kind == .concentric ||
             (constraint.kind == .coincident && constraint.refs.count == 2 &&
              constraint.refs.filter { $0.role == .whole }.count == 1)
@@ -11954,10 +11959,26 @@ final class EditorViewModel {
             return SketchSolverBridge.solvePointTransform(proposed, targets: targets)
         }()
 
+        // Paired single-line Horizontal rotates about its first endpoint without
+        // shortening the line. Project this placement against the original saved
+        // system: existing Locks/drivers override preferences, never get replaced.
+        let horizontalPlacement: [SketchEntity]? = {
+            guard kind == .horizontal, newConstraints.count == 1,
+                  newConstraints[0].refs.count == 1,
+                  let ref = newConstraints[0].refs.first, ref.role == .whole,
+                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == ref.entityID }),
+                  simd_length(b - a) > 1e-9 else { return nil }
+            let end = a + SIMD2<Double>(b.x < a.x ? -simd_length(b - a) : simd_length(b - a), 0)
+            return SketchSolverBridge.solvePointTransform(proposed,
+                targets: [.line(id: id, a: a, b: end)])
+        }()
+
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
         var solvedEntities: [SketchEntity]
-        if let midpointPlacement {
+        if let horizontalPlacement {
+            solvedEntities = horizontalPlacement
+        } else if let midpointPlacement {
             solvedEntities = midpointPlacement
         } else if kind != .fixed, let preferredAnchor {
             var anchored = proposed
