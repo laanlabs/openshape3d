@@ -5042,7 +5042,8 @@ final class EditorViewModel {
     }
 
     private func clearsSelectionAfterApplying(_ constraint: SketchConstraint) -> Bool {
-        constraint.kind == .perpendicular || constraint.kind == .midpoint || constraint.kind == .tangent ||
+        constraint.kind == .perpendicular || constraint.kind == .midpoint ||
+            constraint.kind == .tangent || constraint.kind == .concentric ||
             (constraint.kind == .coincident && constraint.refs.count == 2 &&
              constraint.refs.filter { $0.role == .whole }.count == 1)
     }

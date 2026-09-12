@@ -1,5 +1,24 @@
 # Parity continuation checkpoint
 
+## Current — Concentric selection follow-up under test
+
+Base6fc0bfe pushed, reverse Tangent complete. Native separate circles650640 R40
+and740660 R30: Concentric retains second center740660, preserves both radii,
+clears apply selection. Exact outer/inner values inspected. Native parked inner
+selected740642. Background Escape did not disarm; foreground plus no-auto-focus
+worked. Several pre-reentry drawing attempts inconclusive, no geometry added;
+Exit/reenter and settled blank state allowed both fixtures. Native history/reopen
+for Concentric pending. Existing Tangent fixtures preserved.
+Clone separate circles200700 diameter0.7457 and400730 diameter0.4944, selected
+A thenB: Concentric centers at400730 but retains both selected/gizmo, unlike
+native. Source has no Concentric cleanup. Before focused0/1 failed four selection assertions only; geometry/radii/JSON and
+locked refusal passed. Concentric added to successful application/history cleanup;
+focused1/1 now passes. No runner. Source/test correction checkpointed WIP;
+combined88-case gate next. Durable constraint-types/
+qa36-concentric-live-2026-09-12 has native/clone before captures. Next run final combined application/merge/polish/Trim/rail gate, changed live/history/
+reopen and publication. Inventory26/0/1/29, QA36partial; reports955/master38;
+iPad/immutable05be744 unchanged.
+
 ## Current — Reverse Tangent paired and published
 
 Source2b89368 pushed; final87/87 zero failures/skips, one serial run:

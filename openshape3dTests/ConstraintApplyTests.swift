@@ -1585,6 +1585,56 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertNotNil(refusedVM.errorMessage)
     }
 
+    func testConcentricPreservesRadiiAndClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
+        let vm = try makeViewModel()
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let entities: [SketchEntity] = [
+            .circle(id: UUID(), center: SIMD2(0, 0), radius: 0.37),
+            .circle(id: UUID(), center: SIMD2(2.4, -0.4), radius: 0.25)]
+        let original = openSketch(vm, entities: entities)
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder(entities.map(\.id))
+        vm.selectedSketchPoints = [.init(entityID: entities[0].id, role: .center)]
+        vm.applyConstraint(.concentric)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertTrue(applied.constraints.contains { $0.kind == .concentric })
+        guard case let .circle(_, center, radius) = applied.entities[0] else {
+            return XCTFail("Circle missing")
+        }
+        XCTAssertEqual(center.x, 2.4, accuracy: 1e-8)
+        XCTAssertEqual(center.y, -0.4, accuracy: 1e-8)
+        XCTAssertEqual(radius, 0.37, accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], entities[1])
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        XCTAssertNil(vm.selectedConstraintID)
+        XCTAssertNil(vm.selectedDimensionID)
+        vm.selectSketchEntitiesInOrder([entities[0].id])
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        vm.selectSketchEntitiesInOrder([entities[1].id])
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+
+        let refusedVM = try makeViewModel()
+        let locked = Sketch(plane: .ground, entities: entities, constraints: entities.map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        refusedVM.session.perform(AddSketchCommand(sketch: locked))
+        refusedVM.mode = .sketching(locked.id, tool: nil)
+        refusedVM.selectSketchEntitiesInOrder(entities.map(\.id))
+        refusedVM.applyConstraint(.concentric)
+        XCTAssertEqual(refusedVM.activeSketch, locked)
+        XCTAssertEqual(refusedVM.selectedSketchEntityIDs, Set(entities.map(\.id)))
+        XCTAssertNotNil(refusedVM.errorMessage)
+    }
+
     func testPerpendicularClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let vm = try makeViewModel()
         let entities = [line(SIMD2(0, 0), SIMD2(0.9, -0.4)),
