@@ -11601,13 +11601,13 @@ final class EditorViewModel {
     }
 
     /// Paired full-circle branches choose the nearer internal/external contact.
-    /// Arc pairs and coincident equal circles remain unsupported.
+    /// Already-concentric equal circles can retain internal contact without moving.
+    /// Arc pairs remain unsupported.
     private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
         guard selected.count == 2,
-              case let .circle(_, a, ra) = selected[0],
-              case let .circle(_, b, rb) = selected[1],
-              simd_length(b - a) > 1e-9 || abs(ra - rb) > 1e-9
+              case .circle = selected[0],
+              case .circle = selected[1]
         else { return nil }
         return selected
     }

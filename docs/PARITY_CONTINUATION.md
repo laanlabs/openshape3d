@@ -1,5 +1,21 @@
 # Parity continuation checkpoint
 
+## Active — Already-concentric equal-circle Tangent
+
+Baseline293bf9c. Native fresh two R9000 circles at560250/650250 then
+Concentric→650250; both selected2edges/center0. Tangent enabled and accepted,
+marker appears, geometry unchanged, selection clears. Direct center-start
+second creation moved selected first circle instead; undone/discarded. Separate
+creation+Concentric is the verified fixture, not unconstrained duplicate creation.
+Native parked650250 coincident with Concentric+Tangent. Before regression0/1 with six downstream assertions failed at
+/tmp/os3d-qa36-initial-coincident-before-20260912.xcresult. Focused3/3 passed
+at /tmp/os3d-qa36-initial-coincident-focused-20260912.xcresult. No runner.
+Production removes only coincident-equal eligibility exclusion; new test asserts
+unchanged geometry, retained Concentric, added internal Tangent/history/archive.
+Next final combined regression, changed clone paired history/reopen/publication. Evidence
+constraint-types/qa36-initial-coincident-live-2026-09-12. Reports1005/master38;
+QA36partial26/0/1/29; iPad unchanged.
+
 ## Current — Equal-radius internal Tangent paired and published
 
 Source5ddba88 pushed; before0/1, focused3/3, final95/95 zero failures/skips,

@@ -1617,6 +1617,31 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testAlreadyConcentricEqualCirclesAcceptTangentWithoutGeometryChange() throws {
+        let vm = try makeViewModel()
+        let a = SketchEntity.circle(id: UUID(), center: SIMD2(2, 3), radius: 1)
+        let b = SketchEntity.circle(id: UUID(), center: SIMD2(2, 3), radius: 1)
+        let concentric = SketchConstraint(kind: .concentric, refs: [
+            .init(entityID: a.id, role: .whole), .init(entityID: b.id, role: .whole)])
+        var original = Sketch(plane: .ground, entities: [a, b])
+        original.constraints = [concentric]
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([a.id, b.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(applied.entities, original.entities)
+        XCTAssertTrue(applied.constraints.contains(concentric))
+        XCTAssertEqual(applied.constraints.count, 2)
+        XCTAssertEqual(applied.constraints.first { $0.kind == .tangent }?.circleTangency, .internalContact)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(applied), 1e-8)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
+    }
+
     func testEqualRadiusDeepOverlapTangentRetainsTwoCoincidentCircles() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected
