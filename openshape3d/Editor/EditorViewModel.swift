@@ -15533,7 +15533,8 @@ final class EditorViewModel {
     /// did nothing.
     @discardableResult
     func runCommandFromSearch(_ id: String) -> Bool {
-        guard runCommand(id) else { return false }
+        // Picking a result is an explicit command, not another bare key.
+        guard runCommand(id, honoringSingleKeyAction: false) else { return false }
         closeCommandSearch()
         return true
     }

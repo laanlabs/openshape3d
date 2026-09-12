@@ -1,5 +1,62 @@
 # Parity continuation checkpoint
 
+## Active — QA54 explicit-result dispatch correction, focused five running
+
+File trace proved row handler executes; runCommand reroutes result as bare key
+under Command Search, then caller closes Search without performing command.
+Corrected explicit Search execution to bypass Single Key Action gating.
+Removed row Button experiment and temporary tracing. Original row assertions
+retained; tests explicitly launch CommandSearch preference.
+Exclusive runner5951, /tmp/os3d-qa54-dispatch-focused-20260912.{log,xcresult}.
+No desktop until terminal. Dirty CommandDispatch, EditorViewModel, two Search
+views, Search UI tests and docs. Foreground Escape passes changed live;
+XCTest Escape remains delivery-limited. Next final combined regression, changed
+paired results/preferences/Escape/reopen, publication and checkpoint.
+Inventory31/0/1/24; reports1208/master38; iPad unchanged.
+
+## Active — QA54 Search row Button correction, focused five running
+
+Native Search→Chamfer/Fillet Auto enters tool, clone actual row tap merely
+dismisses. Corrected rows to plain Buttons; tests target those controls with
+unchanged tool/refusal assertions. Exclusive runner exec39132, result bundle
+/tmp/os3d-qa54-result-button-20260912.xcresult. No desktop until terminal.
+Source/tests/docs dirty; HEADc25e9d5. Earlier Search controls3/5 and isolated
+Fillet0/1 retained; actual foreground Escape passes, synthesized Escape fails.
+Next focused result, final combined keyboard gate, changed live Escape/result/
+preference/reopen, publication and push. Reports1208/master38;31/0/1/24;
+iPad unchanged. Native parked Chamfer/Fillet (no operation applied).
+
+## Active — QA54 result tap gap reproduced live, no runner
+
+HEAD c25e9d5; dirty two Search views, Search UI tests, receipt/checkpoint.
+Changed foreground Escape closes Search and preserves sketch; synthesized
+XCTest Escape remains unreliable. Search-control suite3/5: close/history,
+scrim and empty-results pass; Fillet and Circle result taps fail. Isolated
+Fillet0/1 confirms tap at actual row center516/241 with field fil; screenshot
+retained. Desktop tap at visible Fillet row also dismisses without arming tool.
+Native matching Fillet result comparison now active, no test runner.
+Receipts /tmp/os3d-qa54-search-controls-20260912 and result-hit-20260912.
+Next native result, confirmed hit-routing correction, focused/full gate,
+changed paired verification/publication/checkpoint. Inventory31/0/1/24;
+reports1208/master38; iPad unchanged. Native now exiting sketch for Search.
+
+## Active — QA54 Search Escape reproduced; before-source UI test running
+
+HEADc25e9d5 (QA37closed); only task source dirty is new UI regression in
+CommandSearchUITests.swift. Native Hotkeys→CommandSearch preference confirmed,
+letter l opens Search, foreground hotkey l activates Line after restoringHotkeys.
+Native foreground Escape closes Search while remaining in sketch. Clone same
+Escape exits sketch but leaves Search/keyboard up. Likely duplicate cancel
+shortcuts in CommandShortcutsView and CommandSearchView; no product fix yet.
+Before test exec85090, /tmp/os3d-qa54-escape-before-20260912.{log,xcresult}, sole
+simulator owner. Do not desktop-interact until terminal. QA54 evidence local
+keyboard/qa54-live-2026-09-12. Clone setting CommandSearch still active; native
+Hotkeys restored. Reclaimed5.5GB with18 hash-verified APFS COW duplicate DOCX
+replacements preserving every file path/content; receipt in QA37 lock-closure.
+Next inspect before result, fix confirmed shortcut priority, focused+combined,
+changed paired UI/reopen, publish. Inventory31/0/1/24; reports1208/master38;
+immutable05be744/iPad unchanged. No Mac/security changes.
+
 ## Active — QA37 closed, next QA54 native Single Key Action
 
 Source1cb2c54 final148/148, no runner. First/Last/reverse/whole-Lock/history/reopen

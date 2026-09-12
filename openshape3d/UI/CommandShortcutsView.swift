@@ -71,7 +71,14 @@ struct CommandShortcutsView: View {
                     .keyboardShortcut(.defaultAction)
                     .accessibilityHidden(true)
             }
-            if viewModel.editingDimension != nil {
+            if viewModel.commandSearchActive {
+                // The launcher's close button owns Escape while it is open.
+                // A competing editor command can otherwise exit the sketch
+                // (or cancel a tool) while leaving the search overlay visible.
+                Button { viewModel.closeCommandSearch() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
+            } else if viewModel.editingDimension != nil {
                 Button { viewModel.cancelDimensionEdit() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)

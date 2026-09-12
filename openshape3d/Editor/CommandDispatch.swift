@@ -108,7 +108,7 @@ extension EditorViewModel {
     /// palette's own `enabled` conditions, so a hotkey can never reach a state
     /// the equivalent button would have refused.
     @discardableResult
-    func runCommand(_ id: String) -> Bool {
+    func runCommand(_ id: String, honoringSingleKeyAction: Bool = true) -> Bool {
         guard let command = CommandRegistry.command(inCatalog: id) else { return false }
 
         // Honour the spec's Single Key Action setting. The registry is a pure
@@ -119,7 +119,7 @@ extension EditorViewModel {
         // Command Search: open it pre-typed instead of firing the hotkey.
         // (`CommandShortcutsView` also stops registering bare-key hotkeys in
         // that mode, so this is the belt to its braces.)
-        if command.chord?.isBareKey == true,
+        if honoringSingleKeyAction, command.chord?.isBareKey == true,
            commandRegistry.singleKeyAction == .commandSearch {
             openCommandSearch(seed: command.chord?.key ?? "")
             return true
