@@ -386,6 +386,13 @@ coverage; retain QA-39's verified refusal/rollback and point/entity Lock boundar
 
 Acceptance: No unexpected geometry jump or broken existing constraint; conflict identifies relevant controls; undo leaves one coherent prior state.
 
+September 11 Equal checkpoint: `696e8cd` fixes confirmed free-line direction
+drift during Equal sizing while preserving saved-constraint precedence. Final
+90/90 clean; paired exact sizing/history/gallery reopen verified, illustrated
+873/master38 publication verified. QA36 remains partial for Equal Radius,
+Symmetric and the remaining relation sweep. See the
+[constraint-types receipt](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
+
 ### DM-15 · Variables affordance is inconsistent across numeric fields
 
 **Queued — implementation needed** · P2

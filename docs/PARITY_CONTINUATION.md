@@ -1,5 +1,44 @@
 # Parity continuation checkpoint
 
+## Latest verified checkpoint — QA36 Equal live and publication complete
+
+HEAD696e8cd source pushed; final90/90 zero fail/skip. No runner. Native exact
+657.4091mm and clone3.0996mm Equal direction/history/gallery reopening verified.
+Illustrated873 unique images: all10 new hashes once, one heading/verdict, no
+loss from863. Master38 media, one note, no predecessor loss. Durable receipts:
+constraint-types/qa36-equal-live-2026-09-11/{illustrated,master}-verification.json.
+QA36 remains partial. Inventory26/0/1/29; iPad and immutable05be744 unchanged.
+Next fresh Equal Radius native/clone comparison, then Symmetric and remaining
+relation sweep. Native is Sketch11 Front after reopened lower-line selection;
+clone savedSketch1 Front, lower3.0996mm selected. Desktop idle, no build owner.
+Older execution entries below are historical and superseded.
+
+## Latest execution — QA36 Equal 90/90 and changed live verified
+
+HEAD696e8cd pushed. No test/build runner. Final serial90/90 zero fail/skip;
+changed clone retains10.79-degree direction, sizes lower to3.0996mm, Undo2.6502,
+Redo3.0996, and Items icon opens savedSketch1 with exact3.0996 readout after
+gallery reopen. Screens copied to durable qa36-equal-live-2026-09-11.
+Native Sketch11 Equal direction/value/history already verified; now Home click
+for native gallery reopen is active. No publication yet; reports863/38 baseline.
+Next inspect native gallery, reopen current project/Sketch11, preserve evidence,
+publish bounded Equal diagnosis/fix and master note, verify predecessor assets,
+commit docs. QA36 remains partial; inventory26/0/1/29, iPad unchanged.
+
+
+## Current execution — QA36 Equal combined gate active on696e8cd
+
+696e8cd WIP source checkpoint successfully pushed; focused3/3 clean. Broader
+ConstraintApply/AutoConstraintEngine/ConstraintPolish/LiveDimension plus both
+ConstraintRail UI workflows sole simulator owner, exec31852,
+/tmp/os3d-qa36-equal-final-20260911.xcresult and.log. No desktop interaction.
+UI fixtures reset disposable simulator store; preserved pre-fix Equal PNG/JSON
+remain durable, recreate same clone two-line fixture after gate for changed live
+direction/value/history/reopen. Native Sketch11 unchanged afterEqualRedo.
+Nextcollect exactcounts/failures, fix onlyconfirmedissues, finishchangedlivepair,
+publishreceipt/reportassets andcheckpoint. QA36stillpartial; inventory26/0/1/29,
+reports863/38; iPad/immutableIPAunchanged.
+
 ## Current execution — QA36 Equal tested WIP checkpoint
 
 HEAD334e491; source/tests/docs ready for WIP commit. Focused corrected3/3 clean

@@ -71,3 +71,38 @@ Focused corrected gate completed clean **3/3**, zero failures/skips, at
 `/tmp/os3d-qa36-equal-direction-fixed-20260911.xcresult`. The prior failed0/1
 receipt remains retained. No runner. This is a WIP source checkpoint: broader
 constraint/sizing regression and changed-build paired live remain pending.
+
+Final combined gate on `696e8cd` passed **90/90**, zero failures/skips, at
+`/tmp/os3d-qa36-equal-final-20260911.xcresult`: 88 model/integration checks
+(ConstraintApply, AutoConstraintEngine, ConstraintPolish, LiveDimension) and
+both portrait/landscape ConstraintRail UI workflows. No runner remains.
+Changed-build live recreation started afterward; no live-fix claim yet.
+
+### Changed-build live follow-through on 696e8cd
+
+The clone retained the 10.79-degree angle after Equal, with lower length
+3.0996 mm. Undo restored 2.6502 mm and removed Equal; Redo restored
+3.0996 mm and Equal. Gallery reopening followed by the Sketch 1 Items icon
+re-entered the saved sketch and displayed exact 3.0996 mm with Equal intact.
+The name field briefly opened its rename keyboard; no name or geometry was
+changed. Return dismissed it. General Line had opened a new-plane picker; that
+was cancelled, not counted as reopening.
+
+Native Recents reopened the same project. Sketch 11 selection showed two edges
+and total length 1314.8183 mm. Normal to Sketch and Items > Zoom to exposed
+both Equal glyphs; selecting the lower line displayed 657.4091 mm. Native and
+clone scales/order differ; no First/Last ordering claim is made.
+
+Ten distinct evidence images submitted to illustrated report under
+`QA-36 Equal direction correction — September 11, 2026`; exported publication
+verification pending. QA36 remains partial; inventory26/0/1/29 unchanged.
+
+### Equal publication verified
+
+Illustrated export873 unique media: ten source hashes each exactly once, one
+heading/verdict, and zero predecessor loss from863. Master export38 media, one
+dated note, zero predecessor loss. Durable `illustrated-verification.json` and
+`master-verification.json` accompany the source images and exported DOCX files
+in `constraint-types/qa36-equal-live-2026-09-11`. Equal fix is implemented,
+regression-tested, paired-live verified and documented; not device-tested.
+QA36 remains partial for the remaining relation matrix. Inventory26/0/1/29.
