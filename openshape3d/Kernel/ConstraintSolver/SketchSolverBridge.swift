@@ -810,10 +810,18 @@ nonisolated enum SketchSolverBridge {
                 }
             case .symmetric:
                 if c.refs.count == 3,
-                   let a = pointOperand(c.refs[0]),
-                   let b = pointOperand(c.refs[1]),
                    let (la, lb) = linePair(c.refs[2].entityID) {
-                    lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                    let r0 = c.refs[0], r1 = c.refs[1]
+                    if r0.role == .whole, r1.role == .whole,
+                       case .circle? = sketch.entities.first(where: { $0.id == r0.entityID }),
+                       case .circle? = sketch.entities.first(where: { $0.id == r1.entityID }),
+                       let a = pIdx(r0.entityID, .center), let b = pIdx(r1.entityID, .center),
+                       let ra = radiusVar[r0.entityID], let rb = radiusVar[r1.entityID] {
+                        lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                        lower(EqualRadiusConstraint(rVar1: ra, rVar2: rb))
+                    } else if let a = pointOperand(r0), let b = pointOperand(r1) {
+                        lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                    }
                 }
             case .tangent:
                 appendTangent(c.refs)

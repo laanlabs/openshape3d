@@ -16,6 +16,97 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testCircleSymmetryAxisPickGeometryHistoryAndArchive() throws {
+        let previous = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .firstSelected
+        defer { AppSettings.shared.anchoredSketchEntity = previous }
+        let vm = try makeViewModel()
+        let left = SketchEntity.circle(id: UUID(), center: SIMD2(-4, 3), radius: 2)
+        let right = SketchEntity.circle(id: UUID(), center: SIMD2(4, 1), radius: 2)
+        let axis = line(SIMD2(0, -5), SIMD2(0, 8))
+        let original = openSketch(vm, entities: [left, right, axis])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([left.id, right.id])
+        XCTAssertTrue(vm.canApplyConstraint(.symmetric))
+        vm.applyConstraint(.symmetric)
+        XCTAssertTrue(vm.isPickingSymmetryAxis)
+        XCTAssertEqual(vm.activeSketch, original)
+        let ray = Ray(origin: SIMD3<Float>(original.plane.toWorld(SIMD2(-4, 3)) + original.plane.normal * 10),
+                      direction: SIMD3<Float>(-original.plane.normal))
+        XCTAssertFalse(vm.beginSketchStroke(ray: ray), "Axis picking must not move selected geometry")
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.completeSymmetryAxisPick(left.id) // Not a line: keep waiting.
+        XCTAssertTrue(vm.isPickingSymmetryAxis)
+        vm.completeSymmetryAxisPick(axis.id)
+        XCTAssertFalse(vm.isPickingSymmetryAxis)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        let result = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(result.constraints.count, 1)
+        XCTAssertEqual(result.constraints[0].kind, .symmetric)
+        XCTAssertEqual(result.constraints[0].refs.map(\.entityID), [left.id, right.id, axis.id])
+        XCTAssertEqual(result.entities[0], left)
+        XCTAssertEqual(result.entities[2], axis)
+        guard case let .circle(_, center, radius) = result.entities[1] else { return XCTFail() }
+        XCTAssertEqual(center.x, 4, accuracy: 1e-8)
+        XCTAssertEqual(center.y, 3, accuracy: 1e-8)
+        XCTAssertEqual(radius, 2, accuracy: 1e-8)
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(result), 1e-8)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, result)
+        let restored = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(result))
+        XCTAssertEqual(restored, result)
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(restored), 1e-8)
+    }
+
+    func testCircleSymmetryRefusesConflictingLocksWithoutHistory() throws {
+        let vm = try makeViewModel()
+        let a = SketchEntity.circle(id: UUID(), center: SIMD2(-4, 3), radius: 2)
+        let b = SketchEntity.circle(id: UUID(), center: SIMD2(4, 1), radius: 2)
+        let axis = line(SIMD2(0, -5), SIMD2(0, 8))
+        var sketch = Sketch(plane: .ground, entities: [a, b, axis])
+        sketch.constraints = [SketchConstraint(kind: .fixed, refs:
+            sketch.entities.map { ConstraintRef(entityID: $0.id, role: .whole) })]
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([a.id, b.id])
+        let undoCount = vm.session.undoStack.undoCommands.count
+        vm.applyConstraint(.symmetric)
+        vm.completeSymmetryAxisPick(axis.id)
+        XCTAssertNotNil(vm.errorMessage)
+        XCTAssertTrue(vm.isPickingSymmetryAxis, "Refusal permits choosing another axis or cancelling")
+        XCTAssertEqual(vm.activeSketch, sketch)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, undoCount)
+        vm.cancelSymmetryAxisPick()
+        XCTAssertFalse(vm.isPickingSymmetryAxis)
+    }
+
+    func testCircleSymmetryCancellationDoesNotConsumeHistory() throws {
+        let vm = try makeViewModel()
+        let circles: [SketchEntity] = [.circle(id: UUID(), center: SIMD2(-3, 0), radius: 1),
+                                      .circle(id: UUID(), center: SIMD2(3, 2), radius: 1)]
+        let original = openSketch(vm, entities: circles)
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder(circles.map(\.id))
+        vm.applyConstraint(.symmetric)
+        vm.undo() // Cancel pending operation, not creation of the sketch.
+        XCTAssertFalse(vm.isPickingSymmetryAxis)
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.applyConstraint(.symmetric)
+        vm.cancelSymmetryAxisPick()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.applyConstraint(.symmetric)
+        vm.startSketch(tool: .line)
+        XCTAssertFalse(vm.isPickingSymmetryAxis)
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.applyConstraint(.symmetric)
+        vm.finishSketch()
+        XCTAssertFalse(vm.isPickingSymmetryAxis)
+        XCTAssertEqual(vm.session.document.sketches.first, original)
+    }
+
     func testUnchangedExpressionAcceptPreservesGeometryAndUndoStep() throws {
         let priorAlwaysShow = AppSettings.shared.alwaysShowDimensions
         AppSettings.shared.alwaysShowDimensions = true

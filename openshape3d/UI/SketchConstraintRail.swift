@@ -26,7 +26,7 @@ struct SketchConstraintRail: View {
         .init(title: "Equal Radius", kind: .equalRadius, prerequisite: "Select two circular entities"),
         .init(title: "Concentric", kind: .concentric, prerequisite: "Select two circular entities"),
         .init(title: "Midpoint", kind: .midpoint, prerequisite: "Select one point and one line"),
-        .init(title: "Symmetric", kind: .symmetric, prerequisite: "Select two points and an axis line"),
+        .init(title: "Symmetric", kind: .symmetric, prerequisite: "Select two circles, or two points and an axis line"),
         .init(title: "Collinear", kind: .colinear, prerequisite: "Select two lines")
     ]
 

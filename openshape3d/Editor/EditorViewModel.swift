@@ -2850,6 +2850,7 @@ final class EditorViewModel {
     /// sketching, import. Notably reverts the rotate preview, which mutates
     /// transforms outside the undo stack until committed.
     private func cancelTransientPicks() {
+        cancelSymmetryAxisPick()
         cancelRotateAxis()
         cancelTranslate()
         cancelAlign()
@@ -4962,6 +4963,7 @@ final class EditorViewModel {
     }
 
     func undo() {
+        if isPickingSymmetryAxis { cancelSymmetryAxisPick(); return }
         if hasPendingRectangle { clearRectanglePlacement(); return }
         // Native three-point construction leaves drawing mode when Undo
         // changes committed history. Pending-placement cancellation above
@@ -5060,6 +5062,7 @@ final class EditorViewModel {
     /// re-apply pre-change transforms the undo/rollback just removed
     /// (2026-08-25 review, finding C3).
     private func prepareForHistoryChange() {
+        cancelSymmetryAxisPick()
         retainedCircleCenterReadoutID = nil
         if selectedSketchPoints.count == 1,
            let point = selectedSketchPoints.first, point.role == .center,
@@ -9209,6 +9212,15 @@ final class EditorViewModel {
     /// entities to offset; other tools toggle entity selection, or finalize/
     /// clear pending state on empty space.
     private func handleSketchTap(ray: Ray, tool: SketchTool?) {
+        if isPickingSymmetryAxis {
+            if let raw = rawSketchPoint(from: ray), let sketch = activeSketch,
+               let hit = SketchHitTester.nearestEntity(to: raw, in: sketch.entities.filter {
+                   if case .line = $0 { return true }; return false
+               }, tolerance: entityPickTolerance) {
+                completeSymmetryAxisPick(hit.entity.id)
+            }
+            return
+        }
         // Native click-away accepts the value; the same tap must not also
         // place a point or trim geometry underneath the editor.
         if editingDimension != nil {
@@ -10367,6 +10379,7 @@ final class EditorViewModel {
     var sketchConflictAttribution = SketchSolverBridge.ConflictAttribution()
 
     func startSketch(tool: SketchTool) {
+        cancelSymmetryAxisPick()
         clearRectanglePlacement()
         if case .sketching(let id, _) = mode {
             commitPendingArc()
@@ -10399,6 +10412,7 @@ final class EditorViewModel {
     /// stay in the sketch with no drawing tool armed, so empty-space drags
     /// orbit the camera instead of drawing.
     func deselectSketchTool() {
+        cancelSymmetryAxisPick()
         guard case .sketching(let id, _) = mode else { return }
         clearRectanglePlacement()
         editingDimension = nil
@@ -10474,6 +10488,7 @@ final class EditorViewModel {
     static let grazingSketchAngle: Double = 80
 
     func finishSketch() {
+        cancelSymmetryAxisPick()
         clearRectanglePlacement()
         editingDimension = nil
         commitPendingArc()
@@ -10622,6 +10637,7 @@ final class EditorViewModel {
     }
 
     func beginSketchStroke(ray: Ray) -> Bool {
+        guard !isPickingSymmetryAxis else { return false }
         guard case .sketching(_, let tool) = mode,
               let raw = rawSketchPoint(from: ray)
         else { return false }
@@ -11482,8 +11498,49 @@ final class EditorViewModel {
         session.save()
     }
 
+    /// Two-circle Symmetry retains its operands while the user chooses an axis.
+    /// This is transient interaction state, never document geometry or history.
+    private(set) var pendingSymmetryCircleIDs: [UUID] = []
+    var isPickingSymmetryAxis: Bool { !pendingSymmetryCircleIDs.isEmpty }
+
+    private var selectedSymmetryCircles: [UUID] {
+        guard selectedSketchPoints.isEmpty, selectedSketchEntityIDs.count == 2,
+              let sketch = activeSketch else { return [] }
+        let ids = selectedSketchEntityOrder.filter { id in
+            selectedSketchEntityIDs.contains(id) && sketch.entities.contains {
+                if case .circle = $0 { return $0.id == id }; return false
+            }
+        }
+        return ids.count == 2 ? ids : []
+    }
+
+    func cancelSymmetryAxisPick() {
+        pendingSymmetryCircleIDs = []
+    }
+
+    func completeSymmetryAxisPick(_ axisID: UUID) {
+        guard isPickingSymmetryAxis, let sketch = activeSketch,
+              case let .line(_, a, b)? = sketch.entities.first(where: { $0.id == axisID }),
+              simd_distance(a, b) > 1e-8,
+              pendingSymmetryCircleIDs.allSatisfy({ id in
+                  sketch.entities.contains { if case .circle = $0 { return $0.id == id }; return false }
+              }) else { return }
+        let ids = pendingSymmetryCircleIDs
+        let constraint = SketchConstraint(kind: .symmetric, refs:
+            ids.map { ConstraintRef(entityID: $0, role: .whole) } +
+            [ConstraintRef(entityID: axisID, role: .whole)])
+        if commitAppliedConstraints(.symmetric, constraints: [constraint],
+                                    operandOrder: ids, axisAnchor: axisID) {
+            cancelSymmetryAxisPick()
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints.removeAll()
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+        }
+    }
+
     func canApplyConstraint(_ kind: SketchConstraintKind) -> Bool {
-        guard mode.isSketching else { return false }
+        guard mode.isSketching, !isPickingSymmetryAxis else { return false }
         // Derived rectangle centers currently support only a local Lock.
         // Do not advertise point relationships the solver cannot yet lower.
         if kind != .fixed, let sketch = activeSketch,
@@ -11516,7 +11573,7 @@ final class EditorViewModel {
         case .midpoint:
             return points == 1 && lines == 1
         case .symmetric:
-            return points == 2 && lines == 1
+            return (points == 2 && lines == 1) || selectedSymmetryCircles.count == 2
         case .fixed:
             return points >= 1 || !selectedSketchEntityIDs.isEmpty
         case .colinear:
@@ -11633,12 +11690,28 @@ final class EditorViewModel {
     /// the selected points/entities, append it, re-solve the sketch, and commit
     /// the constraint + any solver-moved geometry in ONE undoable command.
     func applyConstraint(_ kind: SketchConstraintKind) {
-        guard canApplyConstraint(kind),
-              case .sketching(let sketchID, _) = mode,
-              let sketch = activeSketch
-        else { return }
-        let newConstraints = constraintsToApply(kind, in: sketch)
-        guard !newConstraints.isEmpty else { return }
+        guard canApplyConstraint(kind), let sketch = activeSketch else { return }
+        if kind == .symmetric, selectedSymmetryCircles.count == 2 {
+            pendingSymmetryCircleIDs = selectedSymmetryCircles
+            editingDimension = nil
+            selectedDimensionID = nil
+            selectedConstraintID = nil
+            if case .sketching(let id, _) = mode { mode = .sketching(id, tool: nil) }
+            return
+        }
+        let orderedOperands = selectedSketchEntityOrder.filter { id in
+            selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains { $0.entityID == id }
+        }
+        _ = commitAppliedConstraints(kind, constraints: constraintsToApply(kind, in: sketch),
+                                     operandOrder: orderedOperands)
+    }
+
+    private func commitAppliedConstraints(
+        _ kind: SketchConstraintKind, constraints newConstraints: [SketchConstraint],
+        operandOrder orderedOperands: [UUID], axisAnchor: UUID? = nil
+    ) -> Bool {
+        guard case .sketching(let sketchID, _) = mode, let sketch = activeSketch,
+              !newConstraints.isEmpty else { return false }
 
         // Solve the sketch with the new constraint in place; the bridge welds
         // coincident points and pulls under-defined geometry to satisfy it.
@@ -11658,12 +11731,9 @@ final class EditorViewModel {
                 tolerance: Self.overConstraintTolerance)
             errorMessage = Self.conflictRefusalMessage(
                 adding: Self.constraintTitle(kind), partners: partners, in: proposed)
-            return
+            return false
         }
 
-        let orderedOperands = selectedSketchEntityOrder.filter { id in
-            selectedSketchEntityIDs.contains(id) || selectedSketchPoints.contains { $0.entityID == id }
-        }
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
         var solvedEntities: [SketchEntity]
@@ -11671,6 +11741,10 @@ final class EditorViewModel {
             var anchored = proposed
             anchored.constraints.append(.init(kind: .fixed,
                 refs: [.init(entityID: preferredAnchor, role: .whole)]))
+            if let axisAnchor {
+                anchored.constraints.append(.init(kind: .fixed,
+                    refs: [.init(entityID: axisAnchor, role: .whole)]))
+            }
             // Equal changes size, not a free line's direction. The preferred
             // operand is already fixed; preserve the other line's direction
             // transiently, just as for a numeric length edit. Never save an
@@ -11717,6 +11791,7 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
+        return true
     }
 
     /// Human name of a dimension, value included ("Distance 120.00 mm") —

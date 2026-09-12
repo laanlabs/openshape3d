@@ -75,6 +75,10 @@ struct CommandShortcutsView: View {
                 Button { viewModel.cancelDimensionEdit() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)
+            } else if viewModel.isPickingSymmetryAxis {
+                Button { viewModel.cancelSymmetryAxisPick() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
             } else if viewModel.mode.sketchTool == .line {
                 Button { viewModel.cancelLineInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)

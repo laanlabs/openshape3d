@@ -322,6 +322,7 @@ struct EditorView: View {
     }
 
     private func sketchStatusText(_ viewModel: EditorViewModel) -> String {
+        if viewModel.isPickingSymmetryAxis { return "Select a line for the axis of symmetry" }
         guard let sketch = viewModel.activeSketch else { return "Sketching" }
         if case .sketching(_, let tool) = viewModel.mode {
             switch tool {
@@ -947,6 +948,8 @@ struct EditorView: View {
                 // selecting the glyph (which is also deletable via the Items
                 // panel).
                 SketchConstraintOverlay(viewModel: viewModel)
+                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
+                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
             }
             .overlay {
                 // Informational point markers belong below numeric editors:
@@ -960,15 +963,23 @@ struct EditorView: View {
             .overlay {
                 // Sketch dimension annotations + inline editors (plan §C2).
                 SketchDimensionOverlay(viewModel: viewModel)
+                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
+                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
             }
             .overlay {
                 SketchTransformControlsOverlay(viewModel: viewModel)
+                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
+                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                 SketchRadialHandleOverlay(viewModel: viewModel)
+                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
+                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                 SketchRectangleEdgeHandleOverlay(viewModel: viewModel)
+                    .allowsHitTesting(!viewModel.isPickingSymmetryAxis)
+                    .opacity(viewModel.isPickingSymmetryAxis ? 0 : 1)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
             }
@@ -1021,7 +1032,7 @@ struct EditorView: View {
                     .padding(.bottom, bottomBarInset)
             }
             .overlay(alignment: settings.paletteOnRight ? .leading : .trailing) {
-                if viewModel.mode.isSketching, !viewModel.sketchTransformActive {
+                if viewModel.mode.isSketching, !viewModel.sketchTransformActive, !viewModel.isPickingSymmetryAxis {
                     SketchConstraintRail(viewModel: viewModel)
                         .padding(settings.paletteOnRight ? .leading : .trailing, 14)
                         .padding(.top, 100)
@@ -1217,6 +1228,10 @@ struct EditorView: View {
                                 }
                                 .controlSize(.small)
                                 .accessibilityIdentifier("LookAtSketch")
+                            }
+                            if viewModel.isPickingSymmetryAxis {
+                                Button("Cancel Symmetry") { viewModel.cancelSymmetryAxisPick() }
+                                    .accessibilityIdentifier("CancelSymmetry")
                             }
                             Button("Exit Sketching") {
                                 viewModel.finishSketch()

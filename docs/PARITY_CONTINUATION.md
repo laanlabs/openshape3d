@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active execution — QA36 Symmetry WIP checkpoint
+
+Source/test changes ready for checkpoint from2bc7595. Native circle→Symmetry→
+axis→apply/Undo proved; native parked afterUndo in Sketch11. New circle workflow
+model tests2/2 then broader61/61 clean; source includes pending-drag guard.
+UI test compiling/running exclusively: exec81632,
+/tmp/os3d-qa36-symmetry-ui-20260912.{log,xcresult}. Do not duplicate/interact.
+Next collect UI result, correct only confirmed failures, final combined gate,
+changed live clone/native history/reopen, native unequal-circle probe (current
+native pair had priorEqual Radius). Whole-circle radius coupling implemented
+but this particular native behavior not yet observed. No publication forSymmetry.
+Durable constraint-types/qa36-symmetry-live-2026-09-11 contains native/images/logs.
+Reports881/master38; inventory26/0/1/29; iPad/immutable05be744 unchanged.
+Unrelated IDENTITY/SOUL/USER/memory untracked and preserved. No competing runner.
+
 ## Latest checkpoint — Equal Radius paired/publication verified
 
 HEAD2940020 source696e8cd unchanged. No runner. Equal Radius nativeR65→43 and

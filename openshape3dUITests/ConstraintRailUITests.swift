@@ -12,6 +12,52 @@ final class ConstraintRailUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         verifyRail()
     }
+    func testCircleSymmetryChoosesAxisAfterOperandsAndCancels() {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2); lookAtSketch(app)
+        p(0.49, 0.35).press(forDuration: 0.15, thenDragTo: p(0.49, 0.73))
+        app.buttons["Circle"].firstMatch.tap()
+        p(0.34, 0.52).press(forDuration: 0.15, thenDragTo: p(0.40, 0.52))
+        p(0.64, 0.57).press(forDuration: 0.15, thenDragTo: p(0.70, 0.57))
+        app.buttons["Circle"].firstMatch.tap()
+        p(0.77, 0.78).tap() // Explicitly clear the release selection.
+        p(0.28, 0.52).tap()
+        p(0.70, 0.57).tap()
+        func invokeSymmetry() {
+            app.buttons["ConstraintRailMore"].tap()
+            let symmetry = app.buttons["Symmetric"].firstMatch
+            XCTAssertTrue(symmetry.waitForExistence(timeout: 3))
+            XCTAssertTrue(symmetry.isEnabled)
+            symmetry.tap()
+            XCTAssertTrue(app.buttons["CancelSymmetry"].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.staticTexts["Select a line for the axis of symmetry"].exists)
+        }
+        invokeSymmetry()
+        app.buttons["CancelSymmetry"].tap()
+        XCTAssertFalse(app.buttons["CancelSymmetry"].exists)
+        invokeSymmetry()
+        p(0.49, 0.40).tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["CancelSymmetry"])
+        waitForExpectations(timeout: 3)
+        // The axis participates in the saved relationship; selecting it exposes its glyph.
+        p(0.49, 0.40).tap()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format:
+            "identifier == 'ConstraintGlyph' AND label == '⧓'")).firstMatch.waitForExistence(timeout: 3))
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "circle-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
+    }
+
     private func verifyRail() {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

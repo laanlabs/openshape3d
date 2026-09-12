@@ -128,3 +128,30 @@ once, heading/verdict once, no predecessor loss from873. Master38 media, one
 new note and no predecessor loss. Export/hash receipts retained beside PNG/JSON.
 QA36 remains partial; inventory26/0/1/29; iPadunchanged. Next Symmetric native
 two-elements then axis-pick versus current clone point-pair-plus-line workflow.
+
+
+## September 12 — two-circle Symmetry WIP
+
+Native fresh Sketch11: select two circles, invoke Symmetry, then choose a line
+in a dedicated axis-pick state. The right center moves from local(850,330) to
+(850,300), reflecting left(600,300) across x725; radii R43 and the axis remain
+unchanged. Undo restores the prior center and retains/selects the axis. The
+pair already had Equal Radius, so this is not an unequal-radius comparison.
+Evidence retained in `constraint-types/qa36-symmetry-live-2026-09-11/` under the
+durable workspace report. No new publication yet; illustrated881/master38.
+
+Clone previously disabled Symmetric for two circles and accepted only explicit
+point+point+line preselection. Added a transient two-circle axis-pick flow,
+Cancel/Escape/tool/Exit/history cleanup, no geometry dragging while picking,
+atomic commit and whole-circle Symmetric solver lowering. Existing point-form
+Symmetric remains supported. Circle whole-form lowering couples reflected
+centers and equal radii; fresh native unequal-radius behavior remains pending.
+
+Focused geometry/cancellation/archive run: **2/2**, zero failures/skips.
+Broader application/merge/polish run: **61/61**, zero failures/skips, including
+conflicting Locks refusing without a history step and pending-drag suppression.
+Receipts `/tmp/os3d-qa36-symmetry-{focused,model}-20260912.xcresult`; model summary
+and logs copied durable. New delivered axis-pick/cancel UI test is currently
+running at `/tmp/os3d-qa36-symmetry-ui-20260912.xcresult` (not yet counted).
+Changed-build live/history/reopen and final combined regression still pending.
+This is WIP, not QA36 closure; inventory26/0/1/29, iPad/immutableIPA unchanged.
