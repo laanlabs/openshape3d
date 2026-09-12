@@ -809,7 +809,7 @@ nonisolated enum SketchSolverBridge {
                     lower(MidpointConstraint(p: p, lA: la, lB: lb))
                 }
             case .symmetric:
-                if c.refs.count == 3,
+                if c.refs.count == 3 || c.refs.count == 5,
                    let (la, lb) = linePair(c.refs[2].entityID) {
                     let r0 = c.refs[0], r1 = c.refs[1]
                     if r0.role == .whole, r1.role == .whole,
@@ -821,6 +821,10 @@ nonisolated enum SketchSolverBridge {
                         lower(EqualRadiusConstraint(rVar1: ra, rVar2: rb))
                     } else if let a = pointOperand(r0), let b = pointOperand(r1) {
                         lower(SymmetricConstraint(pA: a, pB: b, lA: la, lB: lb))
+                        if c.refs.count == 5,
+                           let p2 = pointOperand(c.refs[3]), let q2 = pointOperand(c.refs[4]) {
+                            lower(SymmetricConstraint(pA: p2, pB: q2, lA: la, lB: lb))
+                        }
                     }
                 }
             case .tangent:

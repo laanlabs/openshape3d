@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Current WIP — two-line Symmetry extension
+
+Native confirms two whole lines→Symmetry→axis. Correct additive separate boxes
+exclude axis endpoint; broad box incorrectly included endpoint and is retained
+as fixture error. Native reflects left57.9747mm to right81.9876mm acrossx725,
+right fixed. Clone two selected lines showed Symmetric disabled. Screens copied
+to durable Symmetry directory (os3d-sym-lines-*). Source extension accepts two
+lines and persists closest endpoint pairing as five refs in one relationship;
+shares cancel/axis-pick/anchoring/refusal/history, rejects operand as axis.
+Focused4-case model gate active exclusively: /tmp/os3d-qa36-line-sym-focused-
+20260912.xcresult/.log, exec session99148. No result yet. No desktop interaction
+until gate ends. Changed line UI/live/history/reopen and publication pending.
+Native parked afterlineSymmetry; clone parked priorbuild two linesselected.
+Source dirty EditorViewModel, SketchSolverBridge, SketchConstraintRail,
+ConstraintApplyTests; docs continuation updated. Reports895/38 verified,
+QA36partial; inventory26/0/1/29. iPad/immutableIPA unchanged.
+
 ## Current follow-up — native unequal radii verified
 
 Source5a3687e/final64/64 unchanged; docs8cbb8ca pushed. Native history axis

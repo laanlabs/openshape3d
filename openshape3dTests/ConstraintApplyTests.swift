@@ -16,6 +16,60 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testLineSymmetryAxisPairingHistoryAndArchive() throws {
+        let previous = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = previous }
+        for lastSelected in [false, true] {
+            AppSettings.shared.anchoredSketchEntity = lastSelected ? .lastSelected : .firstSelected
+            for reverseEndpoints in [false, true] {
+                let vm = try makeViewModel()
+                let left = line(SIMD2(-5, 1), SIMD2(-3, -1))
+                let right = reverseEndpoints ? line(SIMD2(6, 0), SIMD2(3, -1))
+                                             : line(SIMD2(3, -1), SIMD2(6, 0))
+                let axis = line(SIMD2(0, -5), SIMD2(0, 8))
+                let original = openSketch(vm, entities: [left, right, axis])
+                vm.mode = .sketching(original.id, tool: nil)
+                vm.selectSketchEntitiesInOrder([left.id, right.id])
+                vm.selectedSketchPoints = [.init(entityID: axis.id, role: .endpointB)]
+                XCTAssertFalse(vm.canApplyConstraint(.symmetric))
+                vm.selectedSketchPoints = [.init(entityID: right.id, role: .endpointB)]
+                XCTAssertTrue(vm.canApplyConstraint(.symmetric))
+                vm.applyConstraint(.symmetric)
+                XCTAssertTrue(vm.isPickingSymmetryAxis)
+                vm.completeSymmetryAxisPick(left.id)
+                XCTAssertTrue(vm.isPickingSymmetryAxis, "An operand cannot be its own axis")
+                XCTAssertEqual(vm.activeSketch, original)
+                vm.completeSymmetryAxisPick(axis.id)
+                XCTAssertFalse(vm.isPickingSymmetryAxis)
+                let result = try XCTUnwrap(vm.activeSketch)
+                XCTAssertEqual(result.constraints.count, 1)
+                let constraint = try XCTUnwrap(result.constraints.first)
+                XCTAssertEqual(constraint.kind, .symmetric)
+                XCTAssertEqual(constraint.refs.count, 5)
+                XCTAssertEqual(Set(constraint.refs.map(\.entityID)), Set([left.id, right.id, axis.id]))
+                XCTAssertEqual(result.entities[lastSelected ? 1 : 0], lastSelected ? right : left)
+                XCTAssertEqual(result.entities[2], axis)
+                func point(_ ref: ConstraintRef) throws -> SIMD2<Double> {
+                    guard case let .line(_, a, b)? = result.entities.first(where: { $0.id == ref.entityID })
+                    else { throw NSError(domain: "ExpectedLine", code: 1) }
+                    return ref.role == .endpointA ? a : b
+                }
+                for (a, b) in [(0, 1), (3, 4)] {
+                    let p = try point(constraint.refs[a]), q = try point(constraint.refs[b])
+                    XCTAssertEqual(p.x, -q.x, accuracy: 1e-8)
+                    XCTAssertEqual(p.y, q.y, accuracy: 1e-8)
+                }
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(result), 1e-8)
+                XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+                vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+                vm.redo(); XCTAssertEqual(vm.activeSketch, result)
+                let restored = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(result))
+                XCTAssertEqual(restored, result)
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(restored), 1e-8)
+            }
+        }
+    }
+
     func testCircleSymmetryAxisPickGeometryHistoryAndArchive() throws {
         let previous = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .firstSelected

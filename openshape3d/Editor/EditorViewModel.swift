@@ -11499,38 +11499,67 @@ final class EditorViewModel {
         session.save()
     }
 
-    /// Two-circle Symmetry retains its operands while the user chooses an axis.
+    /// Two similar entities retain their operands while the user chooses an axis.
     /// This is transient interaction state, never document geometry or history.
-    private(set) var pendingSymmetryCircleIDs: [UUID] = []
-    var isPickingSymmetryAxis: Bool { !pendingSymmetryCircleIDs.isEmpty }
+    private(set) var pendingSymmetryEntityIDs: [UUID] = []
+    var isPickingSymmetryAxis: Bool { !pendingSymmetryEntityIDs.isEmpty }
 
-    private var selectedSymmetryCircles: [UUID] {
-        guard selectedSketchEntityIDs.count == 2,
-              selectedSketchPoints.allSatisfy({ $0.role == .center && selectedSketchEntityIDs.contains($0.entityID) }),
-              let sketch = activeSketch else { return [] }
-        let ids = selectedSketchEntityOrder.filter { id in
-            selectedSketchEntityIDs.contains(id) && sketch.entities.contains {
-                if case .circle = $0 { return $0.id == id }; return false
-            }
+    private var selectedSymmetryEntities: [UUID] {
+        guard selectedSketchEntityIDs.count == 2, let sketch = activeSketch else { return [] }
+        let ids = selectedSketchEntityOrder.filter { selectedSketchEntityIDs.contains($0) }
+        guard ids.count == 2,
+              let first = sketch.entities.first(where: { $0.id == ids[0] }),
+              let second = sketch.entities.first(where: { $0.id == ids[1] }) else { return [] }
+        let roles: Set<PointRole>
+        switch (first, second) {
+        case (.circle, .circle): roles = [.center]
+        case let (.line(_, a, b), .line(_, c, d)):
+            guard simd_distance(a, b) > 1e-8, simd_distance(c, d) > 1e-8 else { return [] }
+            roles = [.endpointA, .endpointB]
+        default: return []
         }
-        return ids.count == 2 ? ids : []
+        return selectedSketchPoints.allSatisfy {
+            ids.contains($0.entityID) && roles.contains($0.role)
+        } ? ids : []
     }
 
     func cancelSymmetryAxisPick() {
-        pendingSymmetryCircleIDs = []
+        pendingSymmetryEntityIDs = []
     }
 
     func completeSymmetryAxisPick(_ axisID: UUID) {
         guard isPickingSymmetryAxis, let sketch = activeSketch,
+              !pendingSymmetryEntityIDs.contains(axisID),
               case let .line(_, a, b)? = sketch.entities.first(where: { $0.id == axisID }),
               simd_distance(a, b) > 1e-8,
-              pendingSymmetryCircleIDs.allSatisfy({ id in
-                  sketch.entities.contains { if case .circle = $0 { return $0.id == id }; return false }
-              }) else { return }
-        let ids = pendingSymmetryCircleIDs
-        let constraint = SketchConstraint(kind: .symmetric, refs:
-            ids.map { ConstraintRef(entityID: $0, role: .whole) } +
-            [ConstraintRef(entityID: axisID, role: .whole)])
+              pendingSymmetryEntityIDs.count == 2,
+              let first = sketch.entities.first(where: { $0.id == pendingSymmetryEntityIDs[0] }),
+              let second = sketch.entities.first(where: { $0.id == pendingSymmetryEntityIDs[1] }) else { return }
+        let ids = pendingSymmetryEntityIDs
+        let axisRef = ConstraintRef(entityID: axisID, role: .whole)
+        let refs: [ConstraintRef]
+        switch (first, second) {
+        case (.circle, .circle):
+            refs = ids.map { ConstraintRef(entityID: $0, role: .whole) } + [axisRef]
+        case let (.line(_, p, q), .line(_, r, s)):
+            guard simd_distance(p, q) > 1e-8, simd_distance(r, s) > 1e-8 else { return }
+            let direction = simd_normalize(b - a)
+            func reflected(_ point: SIMD2<Double>) -> SIMD2<Double> {
+                let foot = a + direction * simd_dot(point - a, direction)
+                return 2 * foot - point
+            }
+            let direct = simd_distance_squared(reflected(p), r) + simd_distance_squared(reflected(q), s)
+            let reversed = simd_distance_squared(reflected(p), s) + simd_distance_squared(reflected(q), r)
+            // Persist the closest endpoint correspondence, not a solve-time heuristic.
+            // Five refs encode two point pairs sharing the axis in one relationship.
+            let reverse = reversed < direct
+            refs = [ConstraintRef(entityID: ids[0], role: .endpointA),
+                    ConstraintRef(entityID: ids[1], role: reverse ? .endpointB : .endpointA), axisRef,
+                    ConstraintRef(entityID: ids[0], role: .endpointB),
+                    ConstraintRef(entityID: ids[1], role: reverse ? .endpointA : .endpointB)]
+        default: return
+        }
+        let constraint = SketchConstraint(kind: .symmetric, refs: refs)
         if commitAppliedConstraints(.symmetric, constraints: [constraint],
                                     operandOrder: ids, axisAnchor: axisID) {
             cancelSymmetryAxisPick()
@@ -11575,7 +11604,7 @@ final class EditorViewModel {
         case .midpoint:
             return points == 1 && lines == 1
         case .symmetric:
-            return (points == 2 && lines == 1) || selectedSymmetryCircles.count == 2
+            return (points == 2 && lines == 1) || selectedSymmetryEntities.count == 2
         case .fixed:
             return points >= 1 || !selectedSketchEntityIDs.isEmpty
         case .colinear:
@@ -11693,8 +11722,8 @@ final class EditorViewModel {
     /// the constraint + any solver-moved geometry in ONE undoable command.
     func applyConstraint(_ kind: SketchConstraintKind) {
         guard canApplyConstraint(kind), let sketch = activeSketch else { return }
-        if kind == .symmetric, selectedSymmetryCircles.count == 2 {
-            pendingSymmetryCircleIDs = selectedSymmetryCircles
+        if kind == .symmetric, selectedSymmetryEntities.count == 2 {
+            pendingSymmetryEntityIDs = selectedSymmetryEntities
             editingDimension = nil
             selectedDimensionID = nil
             selectedConstraintID = nil
