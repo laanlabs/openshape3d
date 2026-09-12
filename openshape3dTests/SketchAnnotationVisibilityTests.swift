@@ -401,6 +401,33 @@ final class SketchAnnotationVisibilityTests: XCTestCase {
 
     // MARK: - Constraint glyphs mirror dimensions
 
+    func testAlwaysShowDimensionsSuppressesOtherPlaneOnlyWhileEditing() throws {
+        let vm = try makeViewModel()
+        let ground = dimensionedLine(length: 50)
+        var front = dimensionedLine(length: 20)
+        front.plane = .worldXY
+        var hiddenFront = dimensionedLine(length: 30, hidden: true)
+        hiddenFront.plane = .worldXY
+        for sketch in [ground, front, hiddenFront] {
+            vm.session.perform(AddSketchCommand(sketch: sketch))
+        }
+        let original = vm.session.document.sketches
+        AppSettings.shared.alwaysShowDimensions = true
+        vm.mode = .sketching(front.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [front.id])
+        vm.mode = .idle
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [ground.id, front.id])
+        vm.mode = .sketching(ground.id, tool: nil)
+        XCTAssertEqual(Set(vm.sketchDimensionLabels.map(\.sketchID)), [ground.id])
+        vm.mode = .sketching(hiddenFront.id, tool: nil)
+        XCTAssertTrue(vm.sketchDimensionLabels.contains { $0.sketchID == hiddenFront.id })
+        XCTAssertFalse(vm.sketchDimensionLabels.contains { $0.sketchID == ground.id })
+        AppSettings.shared.alwaysShowDimensions = false
+        XCTAssertTrue(vm.sketchDimensionLabels.isEmpty)
+        XCTAssertEqual(vm.session.document.sketches, original,
+                       "visibility transitions must not alter geometry, dimensions or hidden flags")
+    }
+
     func testConstraintGlyphsFollowTheirOwnSetting() throws {
         let vm = try makeViewModel()
         let id = UUID()

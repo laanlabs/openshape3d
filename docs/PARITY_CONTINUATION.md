@@ -1,5 +1,39 @@
 # Parity continuation checkpoint
 
+## Current execution — September11 20:14 QA26 other-plane fix WIP
+
+HEAD18487f2; EditorViewModel + SketchAnnotationVisibilityTests and QA26 receipt
+changed. Confirmed paired other-plane dimension suppression gap; dimension-only
+coincident-active-plane filter implemented. No geometry/constraint-glyph change.
+Focused2-case gate active /tmp/os3d-qa26-plane-focused-20260911.xcresult and.log,
+sole simulator owner; no desktop until terminal. Collect, diagnose, broader
+annotation/plane gate, then changed-build live same Front/Top state and exit.
+Native parkedSketch06 active/on; clone beforetests was Front new sketch viewed
+Top with ground50 label wrongly visible. Coplanar native scope remains open.
+Durable QA26 live directory contains all pairedPNG/JSON and manifest. No new
+publication yet. Inventory23/0/1/32, QA27closed18487f2; device immutable unchanged.
+
+
+## Current execution — September 11 20:08 QA26 paired scope audit
+
+HEAD18487f2 QA27 closure pushed; inventory23/0/1/32. No runner.
+QA26 paired always-on unselected/exit/hide/explicit-hidden-reentry passed on
+existing50mm line in both apps. Clone direct switch drag succeeded; control
+and label clicks stayedoff (input receipts retained, not product failures).
+Cross-sketch unresolved: native Sketch05 (different plane) suppresses visible
+Sketch06's50mm label with Always Show on; clone newly drawn coplanar Sketch2
+retains Sketch1's50. Need matched different-plane clone before fixing scope.
+Native Sketch entry from Front resumed06, so not yet same-plane comparison.
+Native parked Sketch06 active, alwaysShow on, sketch visible; clone Sketch2
+Line armed with Items open, Sketch1 visible50 and new undriven10.9813 line.
+Next compare clone different-plane active state; inspect native same-plane
+identity entry if necessary. No source change justified yet. Latest54/54 already
+includes QA26 model test; its all-visible-sketch expectation may be too broad.
+Durable evidence: reports/openshape3d-core-sketch-milestone-2026-09-08/
+annotation-on-state/qa26-live-2026-09-11 under workspace, manifest and allPNG/JSON.
+QA26 still partial, publication pending. Immutable05be744/device unchanged.
+
+
 ## Current execution — September 11 QA27 closure verified
 
 HEAD3016ac6 source/tests pushed; documentation closure staged next. No runner.

@@ -12609,10 +12609,21 @@ final class EditorViewModel {
     /// that define it, and a second sketch's dimensions are never visible at all.
     /// The active sketch is included even when hidden, because `openItemSketch`
     /// renders a hidden sketch while it is being edited.
-    private func annotatedSketches(alwaysShow: Bool) -> [Sketch] {
+    private func annotatedSketches(alwaysShow: Bool,
+                                   restrictDimensionsToActivePlane: Bool = false) -> [Sketch] {
         let active = activeSketch
         if alwaysShow {
-            return session.document.sketches.filter { !$0.isHidden || $0.id == active?.id }
+            return session.document.sketches.filter { sketch in
+                guard !sketch.isHidden || sketch.id == active?.id else { return false }
+                // Native suppresses another plane's locked dimensions while
+                // editing a sketch, even when that reference geometry is visible.
+                // Outside sketch editing, Always Show still includes all visible
+                // sketches. Constraint glyph policy is intentionally unchanged.
+                if restrictDimensionsToActivePlane, let active {
+                    return sketch.plane.isCoincident(with: active.plane)
+                }
+                return true
+            }
         }
         // Keep the active sketch as a candidate; each annotation is filtered
         // below, including a selected glyph or an open dimension editor.
@@ -12805,7 +12816,8 @@ final class EditorViewModel {
             return label
         }
 
-        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions) {
+        for sketch in annotatedSketches(alwaysShow: AppSettings.shared.alwaysShowDimensions,
+                                       restrictDimensionsToActivePlane: true) {
             for d in sketch.dimensions {
                 guard annotationIsVisible(refs: d.refs,
                     alwaysShow: AppSettings.shared.alwaysShowDimensions,
