@@ -195,3 +195,20 @@ and final verification paragraph once, no predecessor loss. DOCX exports and
 verification JSON are retained in the durable Symmetry directory above.
 No runner. Inventory26 passed/0 failed/1 device-blocked/29 incomplete. Physical
 iPad build/install and immutable05be744 unchanged.
+
+
+### Native unequal-radius and hover follow-up
+
+Fresh post-reopen Undo/Redo leaves axis/circles deselected. Merely moving the
+pointer to the axis reproduces orange highlighting: prior selection concern
+was hover, not a confirmed product defect. No source change warranted.
+After undoing Symmetry, axis creation and Equal Radius, native R43/R65 circles
+were independently constrained by Symmetry alone across a recreated axis.
+Right R65 becomes R43 at reflected center, first center/axis remain fixed;
+Undo restores R65 and offset center, Redo R43. Only Symmetry badges remain.
+This supports whole-circle radius equality independently of Equal Radius.
+Source5a3687e and final64/64 reused; no new run. Four native images appended to
+illustrated report; export verified895 unique, four hashes once/no891 loss;
+master38, one follow-up heading/no loss. Files os3d-sym-follow-* and
+os3d-sym-unequal-* preserved in durable Symmetry directory. Remaining other
+element/relation sweep keeps QA36 partial. Inventory26/0/1/29, iPad unchanged.

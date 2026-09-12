@@ -1,5 +1,19 @@
 # Parity continuation checkpoint
 
+## Current follow-up — native unequal radii verified
+
+Source5a3687e/final64/64 unchanged; docs8cbb8ca pushed. Native history axis
+orange was reproduced by hover alone; settled Undo/Redo deselects matching clone.
+Independent native R43/R65 with Equal Radius removed: Symmetry alone produces
+reflected R43, Undo restores R65/offset and Redo R43. Illustrated895 unique,
+all4 new hashes once/no891 loss; master38, follow-up heading once/no loss.
+Verification and new images durable in same Symmetry directory.
+Next two-line Symmetry comparison: native Sketch11 Front now has fresh first
+line local480430→550470 (57.9747mm), axis725180→725450 and prior circles.
+Create second line920470→1030440, select only both small lines and invoke
+Symmetry→axis. Clone still circle-only axis-pick. No runner; native foreground.
+QA36partial, inventory26/0/1/29, iPad/immutable05be744unchanged.
+
 ## Current checkpoint — Symmetry paired and publication verified
 
 Source `5a3687e` pushed; final serial64/64 zero fail/skip. No runner.
