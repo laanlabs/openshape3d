@@ -1,5 +1,17 @@
 # Parity continuation checkpoint
 
+## Active — QA37 ordered-input blocked; QA38 next
+
+QA36 closed b4462ec, sourcec73f126/final114. Reports1129/master38 verified.
+No runner/source mutation. Fresh QA37 First Selected verified, upper800560→
+90055070,912.4119mm, lower800620→90064071,957.8636mm. Shiftbox/onepixel
+replace selection, stationary drag does nothing. No relation applied. Native
+parked selected upper; clone parked reopened Perpendicular285415. Evidence
+qa37-order-live-2026-09-12 retained; exact-order comparison input-blocked.
+Next QA38 midpoint Disconnect paired recipe; read current receipt/model rules
+before creating fresh connected line midpoint fixture. Inventory27/0/1/28;
+iPad/immutable05be744 unchanged.
+
 ## Active — QA36 finite family closed; QA37 next
 
 Sourcec73f126, paired3d734bb; final114/114 clean, zero failures/skips.

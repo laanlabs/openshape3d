@@ -93,3 +93,16 @@ this input diagnosis. No new report publication; verified baseline remains
 Native is parked after Last Selected Parallel; Undo restores the two-line fixture.
 Next independently actionable comparison: QA36 Equal on this two-line fixture,
 which needs membership but not explicit click ordering. iPad unchanged.
+
+## September12 explicit-order retry
+
+At b4462ec, fresh native upper800560→900550 length70,912.4119mm and
+lower800620→900640 length71,957.8636mm. AutoOFF and First Selected
+visually verified. Selecting upper then Shift-box containing only lower
+replaced selection; stationary Shift drags did nothing; one-pixel Shift drag
+selected upper alone. All observed as one edge, never two ordered operands.
+No constraint applied and no native/clone order conclusion. Exact-order route
+remains input-blocked, not a product failure. No source change or test rerun.
+Durable selection-anchor/qa37-order-live-2026-09-12 preserves PNG/actions/index.
+Next QA38 midpoint Disconnect, independent of ordered selection. Inventory
+27/0/1/28; reports1129/master38; no runner; iPad unchanged.
