@@ -30,7 +30,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-23 | Selection state | Core — PASSED (September 11 finite recipe) | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated publication verified at 796 unique placements with all ten new hashes once and no 786-asset predecessor loss; master roadmap note verified. |
 | QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
 | QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
-| QA-26 | Annotation on-state | Core — partial, live/publication blocked | Clean 16/16 automation covers active/other/hidden sketches, exit/re-entry and toggle persistence. Fresh paired walkthrough and publication remain blocked by simulator input delivery. |
+| QA-26 | Annotation on-state | Core — partial | Paired on/exit/hide/hidden-reentry; confirmed other-plane leak fixed6b89d01 with29/29 and changed live suppression/Exit restoration. Illustrated835/master38 verified. Independent coplanar native scope remains open. |
 | QA-27 | Dimension type | Core — passed | Exact paired H30/V40/Absolute50, plain numeric driver replacement, on-label menu, Undo/Redo and gallery reopen verified on3016ac6. Final54/54; illustrated827/master38 export verified with predecessor preservation. Variable-linked/multiple-driver variants remain separate and unverified. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
 | QA-29 | Badge layout | Core — partial live pass | Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open. |
@@ -233,9 +233,10 @@ Nothing selected, one entity, several entities, disjoint same-sketch geometry. I
 ### QA-26 — Annotation on-state
 
 Active/other/hidden sketches; exit and re-entry; toggle persistence. Issues:
-DM-01/02. Result: **PARTIAL** — the deterministic matrix passes clean 16/16,
-but fresh paired live capture and illustrated publication are blocked by
-simulator input delivery. See
+DM-01/02. Result: **PARTIAL** — paired on/exit/hide/hidden-reentry verified.
+Cross-plane leak corrected on6b89d01; final29/29, changed live suppression and
+Exit restoration verified. Illustrated835/master38 exports verified with no
+predecessor loss. Separate coplanar native annotation scope remains open. See
 [annotation on-state checkpoint](testing/sketch-parity-annotation-on-state-checkpoint-2026-09-11.md).
 
 ### QA-27 — Dimension type

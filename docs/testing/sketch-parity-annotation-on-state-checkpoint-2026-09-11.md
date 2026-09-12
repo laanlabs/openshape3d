@@ -42,3 +42,29 @@ claimed. Focused2-case gate running at
 `/tmp/os3d-qa26-plane-focused-20260911.xcresult`; changed live and publication
 pending. Durable PNG/JSON/manifest under workspace reports/core milestone/
 annotation-on-state/qa26-live-2026-09-11. Inventory23/0/1/32 unchanged.
+
+## Verified cross-plane correction checkpoint
+
+Implementation `6b89d01` pushed. Focused2/2 followed by one clean **29/29**
+combined result (26 annotation/identity tests and three UI workflows), zero
+failures/skips, at `/tmp/os3d-qa26-plane-final-20260911.xcresult`.
+Summary/log copied to durable QA26 live directory. No runner remains.
+
+Changed-build live uses the UI suite's saved two-sketch fixture and a2mm driver:
+AlwaysShow remainsON, Front-plane editing viewedTop hides the inactive ground
+label, and Exit immediately restores2mm without geometry change. Native50mm
+reference and pre-fix clone50mm leak are retained; size difference is explicit.
+The first changed-run plane tile tap missed at the new zoom and was not counted;
+confirmed tile entry/status preceded the verified suppression capture.
+
+Publication verified: illustrated835 unique media, eight new source hashes once,
+zero827 predecessor loss, heading once. Master38, zero media loss, one note.
+`publication-manifest.json`, `illustrated-verification.json`,
+`master-verification.json` and exports live in the durable directory.
+
+QA26 remains PARTIAL: independent coplanar native annotation scope remains
+unverified. Native Sketch entry resumedSketch06 instead of creating a separate
+item. Official plane documentation explains immediate same-plane continuation:
+https://support.shapr3d.com/hc/en-us/articles/7874240047388-Using-sketch-planes
+Next establish a separate same-plane item after an intervening creation, then
+compare its annotation scope. Inventory23/0/1/32; iPad/immutable05be744 unchanged.

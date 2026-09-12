@@ -1,5 +1,37 @@
 # Parity continuation checkpoint
 
+## Current execution — QA26 verified partial checkpoint
+
+HEAD6b89d01 source fix pushed; docs update ready to commit. Final29/29 zero
+fail/skip, no runner. Changed-clone Front editing viewedTop suppresses ground2mm
+dimension, Exit restores; native50mm and pre-fixclone50mm evidence retained.
+Illustrated835 unique media, eight new hashes once, no827 predecessor loss;
+master38, one note, no loss. QA26 partial, inventory23/0/1/32 unchanged.
+Next commit/push docs then resolve separate coplanar native scope. Official
+Using-sketch-planes doc explains immediate same-plane continuation; need an
+intervening new creation before returning toFront for an independent item.
+Native parkedSketch06 active/on. Clone idleTop afterExit, saved2mm driver in
+Sketch1, other same-planeSketch2 lines. Last Front entry was empty/discarded.
+Durable QA26 live directory contains manifests/exports/verification/receipts.
+No device/immutable05be744 changes. Unrelated identity/memory preserved.
+
+
+## Current execution — QA26 focused passed, combined gate active
+
+HEAD6b89d01 WIP pushed. Focused2/2 passed zero failures, receipt
+/tmp/os3d-qa26-plane-focused-20260911.xcresult; log copied durable.
+Combined annotation/identity plus both ConstraintRailUITests and coplanar
+Planes UI active /tmp/os3d-qa26-plane-final-20260911.xcresult and.log.
+Sole simulator owner, no desktop while running. Collect exact count then
+launch updatedclone without resetting savedproject. Recreate Front-plane
+editing viewedTop: inactive ground50 label must disappear; Exit must restore.
+Native different-plane suppression and AlwaysShowON already captured. Other
+live active/exit/hide/hidden-reentry verified before correction. Separate
+coplanar native annotation rule remains unverified; QA26 partial, no promotion.
+Publication queue is allQA26 diagnosis/changedresult, none inserted yet.
+Inventory23/0/1/32; QA27closed18487f2. Device/immutable05be744 unchanged.
+
+
 ## Current execution — September11 20:14 QA26 other-plane fix WIP
 
 HEAD18487f2; EditorViewModel + SketchAnnotationVisibilityTests and QA26 receipt
