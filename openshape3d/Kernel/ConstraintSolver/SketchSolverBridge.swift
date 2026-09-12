@@ -746,7 +746,7 @@ nonisolated enum SketchSolverBridge {
                 let distance = simd_length(delta)
                 let internalContact = branch == .internalContact
                 let target = internalContact ? abs(initial[ra] - initial[rb]) : initial[ra] + initial[rb]
-                if distance > 1e-12, target > 0, abs(distance - target) > 1e-10 {
+                if distance > 1e-12, target >= 0, abs(distance - target) > 1e-10 {
                     let direction = delta / distance
                     if !fixed.contains(2 * ca), !fixed.contains(2 * ca + 1) {
                         let seed = b - direction * target

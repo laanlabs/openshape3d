@@ -12031,7 +12031,7 @@ final class EditorViewModel {
            case let .circle(_, a, ra) = pair[0], case let .circle(_, b, rb) = pair[1] {
             // The midpoint between radius difference and sum is the larger radius.
             // Native deep overlap chooses internal contact; shallow overlap external.
-            constraint.circleTangency = abs(ra - rb) > 1e-9 && simd_length(b - a) < max(ra, rb)
+            constraint.circleTangency = simd_length(b - a) < max(ra, rb)
                 ? .internalContact : .externalContact
         }
         return [constraint]

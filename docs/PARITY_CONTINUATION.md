@@ -1,5 +1,21 @@
 # Parity continuation checkpoint
 
+## Current — Equal-radius internal-contact diagnosis
+
+Baseline098557f. Native Sketch12Top two R9000 circles centers550630/590630
+(distance7059.6428mm) Tangent moves first to590630: two edges retained,
+center distance0, same total length113097.3355mm, Tangent marker.
+Clone source currently forces external for equal radii. Before regression failed0/1, three assertions at
+/tmp/os3d-qa36-equal-contact-before-20260912.xcresult. Product removes
+equal-radius external exception and permits target0 geometric seed. Focused
+three-case gate running exclusively exec32048 at
+/tmp/os3d-qa36-equal-contact-focused-20260912.xcresult and .log.
+Evidence durable constraint-types/qa36-equal-contact-live-2026-09-12.
+Next collect focused result, combined gate, changed paired history/reopen/publication.
+Native parked coincident equal pair selected2edges; clone runner owns simulator.
+Reports996/master38; QA36partial26/0/1/29; iPad unchanged.
+
+
 ## Current — Intersecting Tangent paired and published
 
 Source76dd2b0 pushed; before0/1, focused3/3, final94/94 zero failures/skips

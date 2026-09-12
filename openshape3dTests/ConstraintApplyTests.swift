@@ -1617,6 +1617,42 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testEqualRadiusDeepOverlapTangentRetainsTwoCoincidentCircles() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let a = SketchEntity.circle(id: UUID(), center: .zero, radius: 1)
+        let b = SketchEntity.circle(id: UUID(), center: SIMD2(0.78, 0), radius: 1)
+        let original = openSketch(vm, entities: [a, b])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([a.id, b.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(applied.entities.map(\.id), [a.id, b.id])
+        XCTAssertEqual(applied.entities[1], b)
+        XCTAssertEqual(applied.constraints.first { $0.kind == .tangent }?.circleTangency, .internalContact)
+        guard case let .circle(_, ca, ra) = applied.entities[0],
+              case let .circle(_, cb, rb) = applied.entities[1] else { return XCTFail("Missing circles") }
+        XCTAssertEqual(ra, 1, accuracy: 1e-8)
+        XCTAssertEqual(rb, 1, accuracy: 1e-8)
+        XCTAssertEqual(simd_length(cb - ca), 0, accuracy: 1e-8)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        var repeated = applied
+        for _ in 0..<3 { repeated.entities = SketchSolverBridge.solve(repeated, movingEntity: nil, dragTarget: nil).entities }
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(repeated), 1e-7)
+        guard case let .circle(_, repeatedA, _) = repeated.entities[0],
+              case let .circle(_, repeatedB, _) = repeated.entities[1] else { return XCTFail("Missing circles") }
+        XCTAssertEqual(simd_length(repeatedB - repeatedA), 0, accuracy: 1e-8)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+    }
+
     func testIntersectingCircleTangentChoosesNearestContactAndRestoresHistory() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         defer { AppSettings.shared.anchoredSketchEntity = prior }
