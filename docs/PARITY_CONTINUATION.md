@@ -1,5 +1,21 @@
 # Parity continuation checkpoint
 
+## Active — Parallel correction focused gate
+
+Base27a86a2. Source/test changes uncommitted. Before0/1 six failures;
+first focused1/2 (anchor numerical noise); corrected focused2/2 passed.
+Placement scoped Last Selected two ordinary lines, moving line rotates about
+endpointA with original length, preferred line transiently fixed; saved
+relationships authoritative. Pair selection cleanup added. Lock/driver1/1 passed separately. No runner. Final combined gate next.
+Native lower600650→700670 becomes600650→700630, upper600600→700580
+unchanged, lower50871.8061mm retained, apply deselects. Clone before lower
+350700→450720 at1.2606mm shrinks/moves both ends, selection retained.
+Native history/reopen and changed clone still pending. Durable
+qa36-parallel-live-2026-09-12 preserves before evidence.
+Next collect locked check, checkpoint source, combined application/merge/
+polish/Trim/rail gate, paired history/reopen/publication.
+Reports1109/master38; QA36partial26/0/1/29; immutable05be744/iPad unchanged.
+
 ## Active — Vertical paired checkpoint
 
 Source9466502 pushed; before0/1, focused4/4, final110/110 clean
