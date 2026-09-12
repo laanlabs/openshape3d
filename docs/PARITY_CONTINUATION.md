@@ -1,25 +1,17 @@
 # Parity continuation checkpoint
 
-## Active — Horizontal alignment gap
+## Active — Horizontal paired checkpoint
 
-Baseline9c3551c/sourcee177ce1; final106/106 retained. Native fresh free
-line500300→600330, LastSelected and AutoOFF inherited explicitly verified
-from Midpoint. More→H/V aligns500300→604300, clears selection, exact
-48028.3119mm preserved. Clone fresh350700→450730, 1.2897mm,
-Horizontal aligns350715→450715 and shortens1.2361mm, selection retained.
-Confirmed geometry/selection gap. Before0/1 (six assertions), corrected focused1/1.
-Scoped Horizontal placement/cleanup implemented; saved endpoint/driver guard
-passed1/1 separately at /tmp/os3d-qa36-horizontal-locked-20260912.
-No runner. Next combined final gate then changed-build live/publication.
-Before log/xcresult
-/tmp/os3d-qa36-horizontal-before-20260912. Both apps parked selected aligned
-lines; native500300→604300, clone350715→450715. Durable
-qa36-axis-alignment-live-2026-09-12 has all PNG/action captures.
-Native Undo/Redo now verified restoring geometry and clearing line selection.
-Next collect locked-driver result, combined regression and changed live checks.
-Vertical native comparison remains untested.
-Scope only confirmed behavior, then focused/final/live/history/reopen/publication.
-Reports1089/master38; QA36partial26/0/1/29; iPad unchanged.
+Sourcef5d82e5 pushed; before0/1, focused1/1 and locked-driver1/1 separately,
+final108/108 clean (101model/integration+7UI), zero failures/skips; no runner.
+Changed clone350700→454700 retains1.2897mm and first endpoint; apply/history
+deselect, both gallery reopenings retain aligned geometry/value. Native
+48028.3119mm reopened535304→635304. Clone saved Horizontal/unrelatedParallel,
+dimensions0. Publication1099unique/master38, ten hashesonce/headingsonce/no loss.
+Durable qa36-axis-alignment-live-2026-09-12 contains all evidence/exports/JSON.
+Paired receipt ready to push. Next fresh Vertical native/clone comparison;
+Vertical has not been changed. Both apps parked selected reopened H lines.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Active — free-target Midpoint paired checkpoint
 

@@ -2356,3 +2356,11 @@ and Last-mode both gallery reopenings verified. Illustrated1089/master38,
 eleven hashesonce/no loss. Reverse-order/parallel/non-line forms not claimed;
 QA36partial26/0/1/29, iPad unchanged.
 [Paired receipt](testing/sketch-parity-midpoint-anchor-2026-09-12.md).
+
+## QA-36 ordinary-line Horizontal — September 12, 2026
+
+[Paired Horizontal receipt](testing/sketch-parity-horizontal-alignment-2026-09-12.md):
+sourcef5d82e5 preserves original length and first endpoint, projects against saved
+Locks/drivers, and clears selection on successful apply/history. Final108/108
+clean; changed live and both reopenings verified. Illustrated1099/master38,
+ten exact hashes once/no predecessor loss. QA36partial; Vertical next.
