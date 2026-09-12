@@ -1,5 +1,31 @@
 # Parity continuation checkpoint
 
+## Latest checkpoint — Equal Radius paired/publication verified
+
+HEAD2940020 source696e8cd unchanged. No runner. Equal Radius nativeR65→43 and
+clone diameter1.4887→0.9925 preserve centers; both exact history/gallery reopen
+verified. Reuse current-source90/90, no new run. Illustrated881/master38, all8
+new hashes once and no predecessor loss. Durable qa36-radius-live-2026-09-11.
+Next Symmetry: native two similar elements, invokeSymmetry, thenaxis; clone
+currently requires2points+1line. Reproduce freshnative beforefix. NativeSketch11
+Front, rightR43circle selected, circlecenters600300/850330, priorEquallines
+at y85 and545→710. CloneSketch1 Front rightØ0.9925selected, circlecenters
+200650/400680, priorlinesy350/457→503. No desktop/build owner. Inventory
+26/0/1/29; iPad/immutableIPAunchanged.
+
+## Current execution — QA36 Equal Radius native verified, clone next
+
+HEAD2940020 pushed Equal direction live/publication checkpoint. No runner.
+Native Sketch11 now contains circles R43/R65mm at local600300/850330,
+Equal reduces larger toR43 without center movement. Badges/exactR43/Undo
+restoration/Redo verified; native radius gallery reopen pending. Native parked
+afterRedo. Simulator foreground, savedSketch1 Front contains prior Equal lines;
+Circle click atlocal61,315 active, next circles at200650/400680 radii40/60px.
+Fresh radius evidence durable constraint-types/qa36-radius-live-2026-09-11.
+No product change/new test/publication for radius. Reports873/38, inventory
+26/0/1/29, iPadunchanged. Next clone pair/Equal Radius/history/reopen, thennative
+reopen and bounded publication ifmatching.
+
 ## Latest verified checkpoint — QA36 Equal live and publication complete
 
 HEAD696e8cd source pushed; final90/90 zero fail/skip. No runner. Native exact

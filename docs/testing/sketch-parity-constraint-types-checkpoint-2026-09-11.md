@@ -106,3 +106,25 @@ dated note, zero predecessor loss. Durable `illustrated-verification.json` and
 in `constraint-types/qa36-equal-live-2026-09-11`. Equal fix is implemented,
 regression-tested, paired-live verified and documented; not device-tested.
 QA36 remains partial for the remaining relation matrix. Inventory26/0/1/29.
+
+## Equal Radius paired checkpoint — September 11 late evening
+
+Source696e8cd/documentation2940020 unchanged. Native Sketch11 circles R43/R65mm:
+More > Equal reduces larger toR43 with both centers fixed. Equal badges, Undo
+restoration, Redo and exact gallery reopening atR43 verified. Clone Sketch1
+circles diameter0.9925/1.4887mm: smaller selected first under First Selected;
+More > Equal Radius reduces larger to0.9925 with centers fixed. Undo1.4887,
+Redo0.9925 and exact saved-sketch reopening with relation verified.
+
+No new product change or test run: reuse the clean90/90 current-source gate,
+including the 11-relation application/JSON/history matrix. Different scales,
+radius/diameter preferences and selection conventions are explicit; no pixel
+layout or First/Last order parity claim. This closes only the bounded two-circle
+Equal Radius workflow, not the complete QA36 relation matrix.
+
+Durable evidence: workspace reports milestone/constraint-types/
+qa36-radius-live-2026-09-11. Illustrated881 unique images: all8 new sourcehashes
+once, heading/verdict once, no predecessor loss from873. Master38 media, one
+new note and no predecessor loss. Export/hash receipts retained beside PNG/JSON.
+QA36 remains partial; inventory26/0/1/29; iPadunchanged. Next Symmetric native
+two-elements then axis-pick versus current clone point-pair-plus-line workflow.
