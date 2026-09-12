@@ -62,3 +62,34 @@ evidence, and Google Docs publication has no new screenshot pair to add.
 QA-37 remains partial. Acceptance inventory remains **15 passed / 0 failed /
 1 device-blocked / 40 incomplete**. The immutable `05be744` IPA is unchanged;
 no current-revision device installation or physical Pencil result is claimed.
+
+## Fresh native comparison attempt — September 11 evening
+
+At `d5fc3fe`, new Front-plane Sketch 11 contains two separate nonparallel
+lines. Auto-constraining OFF and both First Selected / Last Selected choices
+were directly inspected and the setting switched successfully. Body 04 remains
+visible behind the fixture; attempted body hiding did not take effect.
+
+The generic Sketch query matched a menu and failed. Targeting its observed AX
+control entered Sketch 11. App-targeted strokes and foreground Escape worked;
+untargeted strokes/background keys sometimes reported success without visible
+change. Shift-modified 1px and stationary drags replaced, rather than extended,
+the selected line. Native's documented multi-selection gesture remains
+Shift-click; these delivery attempts do not establish that gesture.
+
+A selection box acquired both lines. Parallel under First Selected preserved the
+lower line and rotated the upper; Undo restored the original pair. Repeating
+the same lower-line selection/box sequence under visibly selected Last Selected
+produced the same geometry. Therefore box selection does not establish the
+required ordered-selection semantics here. The intermediate interpretation that
+this proved First Selected is withdrawn. No clone defect or parity pass follows
+from these samples. Explicit order, reverse order and Lock override remain open.
+
+All native PNG/JSON and SHA-256 inventory are retained at
+`reports/openshape3d-core-sketch-milestone-2026-09-08/selection-anchor/qa37-live-2026-09-11`
+under the OpenClaw workspace. No new tests or product changes were needed for
+this input diagnosis. No new report publication; verified baseline remains
+863 illustrated / 38 master assets. QA37 remains partial, inventory26/0/1/29.
+Native is parked after Last Selected Parallel; Undo restores the two-line fixture.
+Next independently actionable comparison: QA36 Equal on this two-line fixture,
+which needs membership but not explicit click ordering. iPad unchanged.

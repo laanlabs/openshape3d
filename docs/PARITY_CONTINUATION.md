@@ -1,5 +1,35 @@
 # Parity continuation checkpoint
 
+## Current execution — QA37 input boundary retained; QA36 Equal next
+
+HEAD d5fc3fe, documentation checkpoint ready to commit. No runner or pending
+desktop operation. Native Sketch11 Front, two lines after Parallel with Last
+Selected; lower unchanged, upper rotated. First produced same geometry with
+box selection; explicit Shift-additive click delivery failed. Thus no ordered
+anchor verdict, no product fix. Settings controls themselves verified. Full PNG/
+JSON/hash evidence durable selection-anchor/qa37-live-2026-09-11.
+Next Undo once, verify two original lines, select both via box and compare QA36
+Equal length, history/reopen, then clone equivalent. QA37 remains partial.
+Inventory26/0/1/29, reports863/38, no new publication or tests. iPad unchanged.
+
+
+## Current execution — QA37 fresh native ordered-selection fixture
+
+HEAD `d5fc3fe` pushed. No test/build runner; native desktop exclusively owned.
+Native Sketch 11 is a new Front-plane sketch with two separate nonparallel lines,
+Auto-constraining OFF and First Selected verified in the Constraints popover.
+Body 04 remains visible behind it; previous hide attempts did not take effect.
+Line 1 screen endpoints approximately (549,348)→(850,350); line 2
+(550,480)→(807,527), window origin (99,79). Foreground Escape disarmed Line.
+Ordered selection (line 1 then Shift-line 2) is the current pending desktop action;
+inspect `/tmp/os3d-qa37-native-first-order.png` before applying Parallel.
+AX `elem_124` resolved Sketch entry; generic query matched a menu and failed.
+App-targeted drags and foreground key delivery worked; untargeted/background
+commands sometimes reported success without changing the screenshot.
+Next: First/Last and reverse-order native Parallel comparisons, Lock override,
+history/reopen, then equivalent clone verification/current regression/publication.
+QA37 remains partial. Inventory 26/0/1/29; reports 863/38. iPad unchanged.
+
 ## Current execution — QA19 inconclusive checkpoint; QA37 live next
 
 HEAD3c2538b. QA19docs-only diagnostic ready tocommit. Native side-face
