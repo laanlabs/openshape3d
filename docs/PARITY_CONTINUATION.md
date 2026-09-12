@@ -1,5 +1,44 @@
 # Parity continuation checkpoint
 
+## Current execution — QA36 Equal tested WIP checkpoint
+
+HEAD334e491; source/tests/docs ready for WIP commit. Focused corrected3/3 clean
+(zero fail/skip), previous0/1 retained. No runner. Next broader ConstraintApply,
+AutoConstraintEngine, ConstraintPolish, LiveDimension and ConstraintRail UI gate
+serially; then changed clone Equal direction/history/reopen live andpublication.
+Native remains Sketch11 EqualRedo. Clone Untitled2 saved pair predatesfix; rerun
+Equal from Undo on the updated app, do not claim old result corrected.
+Evidence durable constraint-types/qa36-equal-live-2026-09-11. Inventory26/0/1/29;
+reports863/38, no newlypublished screenshots, iPad/immutable05be744 untouched.
+
+## Current execution — QA36 Equal direction fix focused gate active
+
+HEAD334e491; dirty EditorViewModel.swift, ConstraintApplyTests.swift, QA36receipt
+and continuation. Native free-line Equal preserves directions; clone changed
+10.79°→28.90°. New regression failed0/1 before product change. Explicit Equal
+now tries transient direction preservation for nonanchored line; saved constraints
+win through fallback. Focused3 tests sole runner:
+/tmp/os3d-qa36-equal-direction-fixed-20260911.xcresult and.log, exec63583.
+Next collect exact result, fix only genuine failures, then broader constraint/
+sizing gate and changed live same clone pair/history/reopen; publish andpush.
+Native parked EqualRedo Sketch11; clone Untitled2 Front pair saved pretest. Unit
+runner owns simulator; no desktop interactions until finished. Evidence durable
+constraint-types/qa36-equal-live-2026-09-11. Inventory26/0/1/29, iPadunchanged.
+
+## Current execution — QA36 Equal native pass; clone pair active
+
+HEAD334e491 pushed QA37 limitation. No test/build runner; simulator now owns
+desktop. Native Sketch11 Front Equal applied: upper759.3439→657.4091mm,
+lower657.4091 unchanged, orientations retained. Equal badges, Undo restoration
+and Redo verified. No gallery reopen yet. Native parked after Redo.
+Clone new Untitled2 created through gallery (old project preserved), Front sketch,
+all acquisitionOFF/HintsON, Auto-ConstrainOFF, Last Selected verified. Lines
+3.0996mm and2.6502mm drawn, upper(200,350)→(450,350), lower(200,460)→(410,500)
+window-local. DisarmLine and addUpper pending: inspect os3d-qa36-clone-both.png.
+Next Equal via More; verify values/history/reopen, then relevant serial regression
+and publication. Equal Radius/Symmetry and remaining all-type sweep stillopen.
+QA36partial, inventory26/0/1/29; reports863/38; iPadunchanged.
+
 ## Current execution — QA37 input boundary retained; QA36 Equal next
 
 HEAD d5fc3fe, documentation checkpoint ready to commit. No runner or pending

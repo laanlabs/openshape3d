@@ -1185,6 +1185,76 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testEqualLengthPreservesFreeLineDirectionsAndHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for preference in [AnchoredSketchEntity.firstSelected, .lastSelected] {
+            AppSettings.shared.anchoredSketchEntity = preference
+            let vm = try makeViewModel()
+            let entities = [line(SIMD2(0, 0), SIMD2(3.1, 0)),
+                            line(SIMD2(0, -1.36), SIMD2(2.6, -1.86))]
+            let original = openSketch(vm, entities: entities)
+            vm.mode = .sketching(original.id, tool: nil)
+            vm.selectSketchEntitiesInOrder([entities[1].id, entities[0].id])
+            vm.applyConstraint(.equalLength)
+            let result = try XCTUnwrap(vm.activeSketch)
+            XCTAssertEqual(result.constraints.map(\.kind), [.equalLength])
+            let anchor = preference == .firstSelected ? 1 : 0
+            XCTAssertEqual(result.entities[anchor], entities[anchor])
+            var lengths: [Double] = []
+            for (before, after) in zip(entities, result.entities) {
+                guard case let .line(_, a, b) = before,
+                      case let .line(_, c, d) = after else { return XCTFail("Expected lines") }
+                let initialDirection = simd_normalize(b - a)
+                let finalDirection = simd_normalize(d - c)
+                XCTAssertEqual(finalDirection.x, initialDirection.x, accuracy: 1e-8)
+                XCTAssertEqual(finalDirection.y, initialDirection.y, accuracy: 1e-8)
+                lengths.append(simd_length(d - c))
+            }
+            XCTAssertEqual(lengths[0], lengths[1], accuracy: 1e-8)
+            vm.undo()
+            XCTAssertEqual(vm.activeSketch, original)
+            vm.redo()
+            XCTAssertEqual(vm.activeSketch, result)
+            XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                from: JSONEncoder().encode(result)), result)
+        }
+    }
+
+    func testEqualLengthDirectionPreferenceYieldsToSavedPointConstraints() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .firstSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let anchor = line(SIMD2(0, 5), SIMD2(3.1, 5))
+        let moving = line(SIMD2(0, 0), SIMD2(2, 1))
+        let guide = line(SIMD2(2, -10), SIMD2(2, 10))
+        let original = Sketch(plane: .ground, entities: [anchor, moving, guide], constraints: [
+            .init(kind: .fixed, refs: [.init(entityID: moving.id, role: .endpointA)]),
+            .init(kind: .fixed, refs: [.init(entityID: guide.id, role: .whole)]),
+            .init(kind: .coincident, refs: [.init(entityID: moving.id, role: .endpointB),
+                                           .init(entityID: guide.id, role: .whole)]),
+        ])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([anchor.id, moving.id])
+        vm.applyConstraint(.equalLength)
+        let result = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(result.entities[0], anchor)
+        XCTAssertEqual(result.entities[2], guide)
+        XCTAssertEqual(result.constraints.count, original.constraints.count + 1)
+        guard case let .line(_, a, b) = result.entities[1] else { return XCTFail("Expected line") }
+        XCTAssertEqual(a.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(a.y, 0, accuracy: 1e-8)
+        XCTAssertEqual(b.x, 2, accuracy: 1e-8)
+        XCTAssertEqual(simd_length(b - a), 3.1, accuracy: 1e-8)
+        XCTAssertGreaterThan(b.y, 2, "Saved point constraints require direction to change")
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, result)
+    }
+
     func testAnchoredSketchEntityPreferenceUsesSelectionOrderAndExistingLocksWin() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         defer { AppSettings.shared.anchoredSketchEntity = prior }

@@ -11671,8 +11671,24 @@ final class EditorViewModel {
             var anchored = proposed
             anchored.constraints.append(.init(kind: .fixed,
                 refs: [.init(entityID: preferredAnchor, role: .whole)]))
-            let outcome = SketchSolverBridge.solveOutcome(
-                anchored, movingEntity: nil, dragTarget: nil)
+            // Equal changes size, not a free line's direction. The preferred
+            // operand is already fixed; preserve the other line's direction
+            // transiently, just as for a numeric length edit. Never save an
+            // angle constraint, and let existing relationships override this.
+            let directionID = kind == .equalLength ? orderedOperands.first { id in
+                id != preferredAnchor && sketch.entities.contains {
+                    if case .line = $0 { return $0.id == id }
+                    return false
+                }
+            } : nil
+            var outcome = SketchSolverBridge.solveOutcome(
+                anchored, movingEntity: nil, dragTarget: nil,
+                preservingLineDirection: directionID)
+            if directionID != nil,
+               !outcome.converged || outcome.structuralResidual > Self.overConstraintTolerance {
+                outcome = SketchSolverBridge.solveOutcome(
+                    anchored, movingEntity: nil, dragTarget: nil)
+            }
             if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
                 solvedEntities = outcome.entities
             } else {
