@@ -138,7 +138,8 @@ nonisolated enum ProjectMergeKit {
                 isHidden: sketch.isHidden,
                 constructionEntityIDs: Set(sketch.constructionEntityIDs.map(newEntity)),
                 constraints: sketch.constraints.map {
-                    SketchConstraint(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap))
+                    SketchConstraint(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap),
+                                     circleTangency: $0.circleTangency)
                 },
                 dimensions: sketch.dimensions.map {
                     SketchDimension(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap),

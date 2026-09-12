@@ -418,16 +418,18 @@ nonisolated struct TangentLineCircleConstraint: ConstraintResidual {
     }
 }
 
-/// External contact between two circles; radius variables remain independently driven.
+/// Persisted external/internal circle contact; radii remain independently driven.
 nonisolated struct TangentCircleCircleConstraint: ConstraintResidual {
     let centerA: Int
     let centerB: Int
     let radiusA: Int
     let radiusB: Int
+    var internalContact: Bool = false
     var variableIndices: [Int] { pointIndices(centerA) + pointIndices(centerB) + [radiusA, radiusB] }
     var residualCount: Int { 1 }
     func residuals(_ vars: [Double]) -> [Double] {
-        [simd_length(point(vars, centerB) - point(vars, centerA)) - vars[radiusA] - vars[radiusB]]
+        let target = internalContact ? abs(vars[radiusA] - vars[radiusB]) : vars[radiusA] + vars[radiusB]
+        return [simd_length(point(vars, centerB) - point(vars, centerA)) - target]
     }
 }
 

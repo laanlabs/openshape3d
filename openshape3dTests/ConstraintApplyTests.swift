@@ -1630,7 +1630,7 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertTrue(vm.canApplyConstraint(.tangent))
         vm.applyConstraint(.tangent)
         let applied = try XCTUnwrap(vm.activeSketch)
-        XCTAssertTrue(applied.constraints.contains { $0.kind == .tangent })
+        XCTAssertEqual(applied.constraints.first { $0.kind == .tangent }?.circleTangency, .internalContact)
         guard case let .circle(_, ca, ra) = applied.entities[0],
               case let .circle(_, cb, rb) = applied.entities[1] else {
             return XCTFail("Missing circles")
@@ -1643,6 +1643,10 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(applied.dimensions, original.dimensions)
         XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
         XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        var repeated = applied
+        for _ in 0..<3 { repeated.entities = SketchSolverBridge.solve(repeated, movingEntity: nil, dragTarget: nil).entities }
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(repeated), 1e-7)
+        XCTAssertEqual(repeated.constraints, applied.constraints)
         vm.undo()
         XCTAssertEqual(vm.activeSketch, original)
         vm.redo()
@@ -1683,6 +1687,52 @@ final class ConstraintApplyTests: XCTestCase {
         let entities: [SketchEntity] = [
             .circle(id: UUID(), center: .zero, radius: 0.4),
             .circle(id: UUID(), center: SIMD2(2, 0), radius: 0.3)]
+        let locked = Sketch(plane: .ground, entities: entities, constraints: entities.map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        vm.session.perform(AddSketchCommand(sketch: locked))
+        vm.mode = .sketching(locked.id, tool: nil)
+        vm.selectSketchEntitiesInOrder(entities.map(\.id))
+        vm.applyConstraint(.tangent)
+        XCTAssertEqual(vm.activeSketch, locked)
+        XCTAssertNotNil(vm.errorMessage)
+        XCTAssertEqual(vm.selectedSketchEntityIDs, Set(entities.map(\.id)))
+    }
+
+    func testNestedCircleTangentAnchorOrdersAndLockedRefusal() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for first in [true, false] {
+            AppSettings.shared.anchoredSketchEntity = first ? .firstSelected : .lastSelected
+            for reversed in [false, true] {
+                let vm = try makeViewModel()
+                let entities: [SketchEntity] = [
+                    .circle(id: UUID(), center: SIMD2(0, 0), radius: 1.0),
+                    .circle(id: UUID(), center: SIMD2(0.2, -0.14), radius: 0.3)]
+                let original = openSketch(vm, entities: entities)
+                vm.mode = .sketching(original.id, tool: nil)
+                let ids = entities.map(\.id)
+                let order = reversed ? Array(ids.reversed()) : ids
+                vm.selectSketchEntitiesInOrder(order)
+                vm.applyConstraint(.tangent)
+                XCTAssertNil(vm.errorMessage, "Unexpected refusal: \(vm.errorMessage ?? "none")")
+                let applied = try XCTUnwrap(vm.activeSketch)
+                let anchor = first ? order[0] : order[1]
+                XCTAssertEqual(applied.entities.first { $0.id == anchor }, entities.first { $0.id == anchor })
+                guard case let .circle(_, a, ra) = applied.entities[0],
+                      case let .circle(_, b, rb) = applied.entities[1] else { return XCTFail("Missing circles") }
+                XCTAssertEqual(ra, 1.0, accuracy: 1e-8)
+                XCTAssertEqual(rb, 0.3, accuracy: 1e-8)
+                XCTAssertEqual(simd_length(b - a), 0.7, accuracy: 1e-8)
+                XCTAssertEqual(applied.constraints.filter { $0.kind == .tangent }.count, 1)
+                XCTAssertEqual(applied.dimensions, original.dimensions)
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(applied), 1e-7)
+            }
+        }
+        let vm = try makeViewModel()
+        let entities: [SketchEntity] = [
+            .circle(id: UUID(), center: .zero, radius: 1.0),
+            .circle(id: UUID(), center: SIMD2(0.2, -0.14), radius: 0.3)]
         let locked = Sketch(plane: .ground, entities: entities, constraints: entities.map {
             .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
         })

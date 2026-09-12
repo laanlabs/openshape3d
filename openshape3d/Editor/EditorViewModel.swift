@@ -11600,14 +11600,16 @@ final class EditorViewModel {
         }
     }
 
-    /// Only the paired separated-circle external branch is currently exposed.
-    /// Nested/overlapping circle and arc pairs need their own branch selection.
-    private var separatedCircleTangentOperands: [SketchEntity]? {
+    /// Paired separated/external and strictly nested/internal full-circle branches.
+    /// Intersecting circles and arc pairs remain unverified.
+    private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
         guard selected.count == 2,
               case let .circle(_, a, ra) = selected[0],
               case let .circle(_, b, rb) = selected[1],
-              simd_length(b - a) >= ra + rb - 1e-9 else { return nil }
+              simd_length(b - a) >= ra + rb - 1e-9 ||
+                (abs(ra - rb) > 1e-9 && simd_length(b - a) <= abs(ra - rb) + 1e-9)
+        else { return nil }
         return selected
     }
 
@@ -11643,7 +11645,7 @@ final class EditorViewModel {
         case .equalRadius, .concentric:
             return circles == 2
         case .tangent:
-            return (lines == 1 && circles == 1) || separatedCircleTangentOperands != nil
+            return (lines == 1 && circles == 1) || circleTangentOperands != nil
         case .midpoint:
             return points == 1 && lines == 1
         case .symmetric:
@@ -12025,7 +12027,13 @@ final class EditorViewModel {
             }
         }
         guard let refs = constraintRefs(for: kind, in: sketch) else { return [] }
-        return [SketchConstraint(kind: kind, refs: refs)]
+        var constraint = SketchConstraint(kind: kind, refs: refs)
+        if kind == .tangent, let pair = circleTangentOperands,
+           case let .circle(_, a, ra) = pair[0], case let .circle(_, b, rb) = pair[1] {
+            constraint.circleTangency = simd_length(b - a) < ra + rb - 1e-9
+                ? .internalContact : .externalContact
+        }
+        return [constraint]
     }
 
     private var pointAndDistinctLineRefs: [ConstraintRef]? {
@@ -12070,7 +12078,7 @@ final class EditorViewModel {
                 ConstraintRef(entityID: circles[1].id, role: .center),
             ]
         case .tangent:
-            if let pair = separatedCircleTangentOperands { return pair.map(whole) }
+            if let pair = circleTangentOperands { return pair.map(whole) }
             guard let line = lines.first, let circle = circles.first else { return nil }
             return [whole(line), whole(circle)]
         case .midpoint:

@@ -61,6 +61,30 @@ final class ProjectMergeTests: XCTestCase {
             naming: SignatureNaming(), nextRevision: RevisionSource().next)
     }
 
+    func testCircleTangencyBranchSurvivesArchiveAndImportWithLegacyExternalDefault() throws {
+        for branch: CircleTangency? in [nil, .externalContact, .internalContact] {
+            let internalContact = branch == .internalContact
+            let a = SketchEntity.circle(id: UUID(), center: .zero, radius: 1.0)
+            let b = SketchEntity.circle(id: UUID(), center: SIMD2(internalContact ? 0.7 : 1.3, 0), radius: 0.3)
+            let constraint = SketchConstraint(kind: .tangent, refs: [
+                .init(entityID: a.id, role: .whole), .init(entityID: b.id, role: .whole)],
+                circleTangency: branch)
+            var guest = DesignDocument()
+            guest.sketches = [Sketch(plane: .ground, entities: [a, b], constraints: [constraint])]
+            let restored = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(guest.sketches[0]))
+            XCTAssertEqual(restored.constraints[0].circleTangency, branch)
+            XCTAssertLessThan(SketchSolverBridge.residualNorm(restored), 1e-8)
+            guest.sketches = [restored]
+            let imported = ProjectMergeKit.insert(guest, into: DesignDocument()).document
+            let sketch = try XCTUnwrap(imported.sketches.first)
+            XCTAssertEqual(sketch.constraints[0].circleTangency, branch)
+            XCTAssertNotEqual(sketch.constraints[0].id, constraint.id)
+            XCTAssertTrue(Set(sketch.constraints[0].refs.map(\.entityID)).isDisjoint(with: [a.id, b.id]))
+            XCTAssertEqual(Set(sketch.constraints[0].refs.map(\.entityID)), Set(sketch.entities.map(\.id)))
+            XCTAssertLessThan(SketchSolverBridge.residualNorm(sketch), 1e-8)
+        }
+    }
+
     // MARK: History arrives intact
 
     func testInsertedStepsAppearIndividuallyInHistory() {

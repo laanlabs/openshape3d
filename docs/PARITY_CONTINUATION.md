@@ -8,9 +8,12 @@ verified; orange Redo highlight unresolved. OldSketch11 nested input failed;
 fresh sketch restores delivery, existing project retained. Clone nested pair
 250720 diameter1.7271 /265730 diameter0.4944 disables Tangent. Before0/1 six
 failures, no runner. New failing test and nested receipt dirty; evidence durable
-constraint-types/qa36-nested-tangent-live-2026-09-12. Next implement optional
-persisted circle contact branch, retaining legacy external and import remap;
-focused then combined gate, changed paired history/reopen/publication.
+constraint-types/qa36-nested-tangent-live-2026-09-12. Optional persisted circleTangency branch implemented locally, nil legacy external;
+internal residual uses absolute radius difference and import remap retains branch.
+First focused3/3 passed; expanded compile-only failure corrected from document
+Codable to Sketch archive/import. Focused3 five cases passed5/5, no runner.
+Combined93-case gate next (application51+merge19+polish6+Trim10+rail7),
+then changed paired history/reopen/publication. Source diff reviewed.
 Reports975/master38; QA36partial26/0/1/29; iPad unchanged.
 
 ## Current — External circle Tangent paired and published

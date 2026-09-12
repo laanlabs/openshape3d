@@ -56,17 +56,26 @@ nonisolated enum SketchConstraintKind: String, Codable, Equatable, Sendable {
     case fixed
 }
 
+/// Saved circle-circle Tangent branch; nil on legacy records means external.
+nonisolated enum CircleTangency: String, Codable, Equatable, Sendable {
+    case externalContact
+    case internalContact
+}
+
 /// A symbolic constraint on a sketch. `refs` layout is kind-specific and
 /// documented in `SketchSolverBridge` (which lowers each kind).
 nonisolated struct SketchConstraint: Identifiable, Codable, Equatable, Sendable {
     let id: UUID
     var kind: SketchConstraintKind
     var refs: [ConstraintRef]
+    var circleTangency: CircleTangency? = nil
 
-    init(id: UUID = UUID(), kind: SketchConstraintKind, refs: [ConstraintRef]) {
+    init(id: UUID = UUID(), kind: SketchConstraintKind, refs: [ConstraintRef],
+         circleTangency: CircleTangency? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
+        self.circleTangency = circleTangency
     }
 }
 

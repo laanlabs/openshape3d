@@ -732,11 +732,11 @@ nonisolated enum SketchSolverBridge {
                 lower(ColinearPointConstraint(p: p, lA: la, lB: lb))
             }
         }
-        func appendTangent(_ refs: [ConstraintRef]) {
+        func appendTangent(_ refs: [ConstraintRef], branch: CircleTangency?) {
             guard refs.count == 2 else { return }
             if let ra = radiusVar[refs[0].entityID], let rb = radiusVar[refs[1].entityID],
                let ca = pIdx(refs[0].entityID, .center), let cb = pIdx(refs[1].entityID, .center) {
-                // Seed the external-contact branch geometrically. The free
+                // Seed the persisted contact branch geometrically. The free
                 // six-variable LM solve otherwise stalls for some center rays.
                 // Never move a fixed coordinate; every saved residual still
                 // participates in the ensuing solve and conflict validation.
@@ -744,7 +744,8 @@ nonisolated enum SketchSolverBridge {
                 let b = SIMD2(initial[2 * cb], initial[2 * cb + 1])
                 let delta = b - a
                 let distance = simd_length(delta)
-                let target = initial[ra] + initial[rb]
+                let internalContact = branch == .internalContact
+                let target = internalContact ? abs(initial[ra] - initial[rb]) : initial[ra] + initial[rb]
                 if distance > 1e-12, target > 0, abs(distance - target) > 1e-10 {
                     let direction = delta / distance
                     if !fixed.contains(2 * ca), !fixed.contains(2 * ca + 1) {
@@ -755,7 +756,7 @@ nonisolated enum SketchSolverBridge {
                         initial[2 * cb] = seed.x; initial[2 * cb + 1] = seed.y
                     }
                 }
-                lower(TangentCircleCircleConstraint(centerA: ca, centerB: cb, radiusA: ra, radiusB: rb))
+                lower(TangentCircleCircleConstraint(centerA: ca, centerB: cb, radiusA: ra, radiusB: rb, internalContact: internalContact))
                 return
             }
             var lineRef: ConstraintRef?
@@ -870,7 +871,7 @@ nonisolated enum SketchSolverBridge {
                     }
                 }
             case .tangent:
-                appendTangent(c.refs)
+                appendTangent(c.refs, branch: c.circleTangency)
             case .colinear:
                 guard c.refs.count == 2 else { break }
                 let r0 = c.refs[0], r1 = c.refs[1]

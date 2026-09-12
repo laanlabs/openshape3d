@@ -15,3 +15,15 @@ Next persist optional internal/external circle contact branch (legacy nil stays
 external), lower internal distance=radius difference, preserve remap/history.
 Overlap and arc pairs remain unverified. Publication pending; reports975/master38;
 QA36partial26/0/1/29; iPad unchanged.
+
+## Implementation and focused gates
+
+Optional circleTangency persists internal/external; legacy nil remains external.
+Nested residual and geometric seed use absolute radius difference, fixed centers
+remain untouched; import remap preserves branch. Intersecting/arc pairs stay
+unverified. First corrected gate3/3 passed. Expanded focused2 stopped at compile
+because test attempted Codable DesignDocument; corrected Sketch round-trip and
+subsequent import passed focused3 clean5/5. Includes four First/Last/order cases,
+whole-Lock refusal, radii/center/history/repeated solving and legacy/new branch
+archive/import. No runner. Combined93-case gate next; changed live and publication
+still pending. No iPad change.
