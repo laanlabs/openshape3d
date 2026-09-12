@@ -1,22 +1,26 @@
 # Parity continuation checkpoint
 
-## Active — Two-circle Tangent diagnosis
+## Active — Two-circle Tangent external correction under test
 
-Basef7f8b16. Native external circle-circle Tangent apply/radii/Undo verified;
-Redo restores tangency with orange selection (detail unresolved). Clone same
-two-circle selection disables Tangent. New focused test0/1 reproduces gap,
-no runner/source change. Dirty test and diagnosis docs. Native nested-circle
-probe next: outer1000600 R70 exists; attempted inner drags added no circle.
-Circle armed; settle via Exit/reenter before retry. Clone two circles200320
-and400340 selected, Concentric fixture intact. Evidence durable in
-constraint-types/qa36-circle-tangent-live-2026-09-12. Publication pending.
-External-only correction now implemented: two separated full circles enabled,
-external residual plus transient radius preservation; nested/overlapping pairs
-remain disabled pending native evidence. Focused1/1 passed; expanded2-case run
-active at /tmp/os3d-qa36-circle-tangent-focused2-20260912.xcresult, exec79757.
-Exactly this simulator owner; no desktop interactions while running. Changed
-live/history/reopen/publication pending. Source/test WIP checkpoint next.
-No acceptance promotion;26/0/1/29, reports965/master38, iPad unchanged.
+SourceWIPc27449e pushed. Native external pair900430 R40/1000450 R30 applies,
+preserves second center/radii, clears apply. Undo separation verified; Redo
+restores orange first-circle selection (detail unresolved). Clone200320/400340
+pair disables before fix. Before0/1; first focused1/1. Expanded focused2 gives
+1pass/1fail: all four new anchor/order variants falsely refused before solving;
+locked refusal passes. Diagnostic confirms conflict-check refusal, not selection.
+Radius/anchor validation alternatives failed and were removed. Current dirty
+bridge correction geometrically seeds external contact along initial center ray,
+never changing fixed coordinates; all saved residuals remain validated.
+Focused5 passed2/2, no runner. Combined90-case regression next:
+application49+merge18+polish6+Trim10+rail7. Do not perform desktop input while
+the next serial gate owns the simulator. New support only separated full-circle
+external contact; nested/overlap/arc pairs remain disabled. Native nested fixture
+has outer1000600 R70 only; inner attempts added no geometry despite reentry.
+Circle armed. Changed build live/history/reopen and publication remain pending.
+Durable constraint-types/qa36-circle-tangent-live-2026-09-12 has all captures,
+before/focused/diagnostic logs. Next collect focused3; fix genuine failures,
+run combined gate, changed paired workflow. Inventory26/0/1/29, QA36partial;
+reports965/master38. iPad/immutable05be744 unchanged.
 
 ## Current — Concentric paired and publication verified
 

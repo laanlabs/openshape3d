@@ -1633,6 +1633,7 @@ final class ConstraintApplyTests: XCTestCase {
                 let order = reversed ? Array(ids.reversed()) : ids
                 vm.selectSketchEntitiesInOrder(order)
                 vm.applyConstraint(.tangent)
+                XCTAssertNil(vm.errorMessage, "Unexpected refusal: \(vm.errorMessage ?? "none")")
                 let applied = try XCTUnwrap(vm.activeSketch)
                 let anchor = first ? order[0] : order[1]
                 XCTAssertEqual(applied.entities.first { $0.id == anchor }, entities.first { $0.id == anchor })

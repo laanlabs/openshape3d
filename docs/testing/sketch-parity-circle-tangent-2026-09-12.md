@@ -35,3 +35,21 @@ Focused /tmp/os3d-qa36-circle-tangent-focused-20260912.xcresult passed1/1.
 Expanded First/Last/reversed-order and whole-Lock refusal two-case run active
 at /tmp/os3d-qa36-circle-tangent-focused2-20260912.xcresult.
 Changed live validation and combined regression pending.
+
+Expanded focused2: 1/2 passed; four First/Last/order variants refused by initial
+conflict check despite free geometry. Diagnostic run confirms errorMessage.
+Locked refusal remained valid. Dirty correction tests radius-preserving
+satisfiability as an alternative while retaining all saved constraints.
+Focused3 active; no success or broader regression claimed yet.
+
+The radius-only and radius+anchor validation alternatives still failed the same
+free-layout check (focused3/4). Diagnostic direct numeric solve confirmed
+residual0.1306119286621084 after200iterations. Those editor validation changes
+were removed. Current correction seeds external contact along the initial
+center ray in solver construction, moving only a center whose coordinates are
+not fixed; all saved residuals remain validated. Focused5 two-case run active.
+
+Focused5 passed2/2: exact radii/preferred center, all four anchor/order variants,
+locked refusal, application deselection, exact Undo/Redo and JSON. No runner.
+Combined90-case application/merge/polish/Trim/rail gate next. Changed live and
+publication remain pending; nested/overlapping circle scope still unsupported.
