@@ -2338,3 +2338,11 @@ clean; paired contact/history/both reopenings verified. Illustrated1069/master38
 nine hashesonce/no loss. Smaller-arc fully nested and exact boundaries remain
 unverified; QA36partial26/0/1/29. iPad unchanged.
 [Paired receipt](testing/sketch-parity-small-arc-tangent-2026-09-12.md).
+
+## Fully nested smaller arc Tangent — September 12, 2026
+
+Source7349e99, before0/1, focused6/6, final104/104 clean. Paired contact,
+opposite guide, history and both reopenings verified. Illustrated1078/master38,
+nine hashesonce/no predecessor loss. Exact boundaries/arc-arc unverified;
+QA36partial26/0/1/29. Next free-target Midpoint anchor comparison.
+[Paired receipt](testing/sketch-parity-small-nested-arc-tangent-2026-09-12.md).

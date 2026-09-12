@@ -1,17 +1,21 @@
 # Parity continuation checkpoint
 
-## Active — smaller arc fully nested diagnosis
+## Active — smaller arc fully nested paired checkpoint
 
-HEAD856cf71; dirty nested test and bounded nested enablement. Before0/1.
-Native arc800650
-R7140.419/180degrees with circle800660 R14000: Tangent moves arc up~800641,
-circle fixed and opposite guide. Clone arc250700 r20/circle250710 r40
-both selected, Tangent disabled before fix. Focused6/6 passed, no failures/skips.
-No runner. /tmp/os3d-qa36-small-nested-focused-20260912.xcresult/.log.
-Collect before editing source or desktop. Next bounded nested enablement,
-focused/final regression, changed paired history/reopen and publication.
-Durable qa36-small-nested-arc-tangent-live-2026-09-12 captures saved.
-Reports1069/master38; QA36partial26/0/1/29; iPad unchanged.
+Source7349e99 pushed; before0/1, focused6/6, final104/104 clean, no failures/skips.
+No runner. Changed clone arc250700→~250690 with fixed circle250710,
+R0.2473/179.62degrees and opposite guide/history/reopen verified. Saved
+internalContact residual2.8e-17, dimensions0. Native R7140.419/180degrees
+and fixedR14000 circle retain contact/history/reopen. Native parked reopened
+selectedarc800589/circle800607; clone reopened selectedarc250690/circle250710.
+Publication1078unique/master38, nine hashesonce/headingsonce/no1069/38loss.
+Durable qa36-small-nested-arc-tangent-live-2026-09-12 includes receipts,
+PNG, savedJSON/contactvalidation and publication exports/manifests/verification.
+Next push paired docs, then return to open free-target Midpoint anchor variant
+before expanding more Tangent exact-boundary/arc-arc probes. Read prior
+qa36-midpoint-live-2026-09-12 receipt: native free target reshapes, clone fixes
+it. Need matched First/Last settings, fresh unconstrained operands and values.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Active — smaller arc deep-contact paired checkpoint
 
