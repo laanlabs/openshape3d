@@ -129,15 +129,22 @@ final class ConstraintRailUITests: XCTestCase {
         p(0.32, 0.60).press(forDuration: 0.15, thenDragTo: p(0.58, 0.64))
         app.buttons["Line"].firstMatch.tap() // disarm to select/edit geometry
         if midpoint {
+            let horizontal = app.buttons["ConstraintRail-horizontal"]
             p(0.68, 0.75).tap() // Clear the last drawn line before mixed selection.
+            expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
+            waitForExpectations(timeout: 3)
             p(0.32, 0.60).tap()
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: app.buttons["ConstraintRail-fixed"])
+            waitForExpectations(timeout: 3)
+            XCTAssertFalse(horizontal.isEnabled) // One point, not its entire line.
             p(0.40, 0.42).tap() // Last Selected anchors the target line.
+            expectation(for: NSPredicate(format: "enabled == true"), evaluatedWith: horizontal)
+            waitForExpectations(timeout: 3)
             app.buttons["ConstraintRailMore"].tap()
             let control = app.buttons["Midpoint"].firstMatch
             XCTAssertTrue(control.waitForExistence(timeout: 3))
             XCTAssertTrue(control.isEnabled)
             control.tap()
-            let horizontal = app.buttons["ConstraintRail-horizontal"]
             expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
             waitForExpectations(timeout: 3)
             p(0.40, 0.42).tap()

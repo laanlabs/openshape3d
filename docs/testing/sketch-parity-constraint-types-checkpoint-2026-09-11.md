@@ -330,3 +330,11 @@ includes Midpoint alongside Perpendicular only. Focused4-case model/UI gate
 running; changed live/reopen and publication pending. Durable captures and
 before receipts in qa36-midpoint-live-2026-09-12. Initial focus errors and extra
 Escape exiting sketch are fixture-only attempts, not product evidence.
+
+
+Focused gate3/4: all model checks pass; UI stopped at disabled Midpoint before
+application. Video showed only the target line selected. Test-only state waits
+now require blank deselection, one selected point (Lock enabled/H disabled),
+then target line before opening the menu. Corrected UI1/1 passes application,
+Undo/Redo deselection and glyph reselection. No product/source change after
+9659fec. Final82-case combined gate active; changed live/reopen still pending.

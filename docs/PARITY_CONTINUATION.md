@@ -8,8 +8,13 @@ checks passed. Native selected-point apply/history clears; pointer-away Undo
 excludes hover. Clone retained point/ring/readout. Shared cleanup now recognizes
 only Perpendicular or Midpoint additions in active-sketch grouped history;
 refusal remains unchanged. No solve geometry change.
-Focused4-case model+real Midpoint menu/point-selection UI running exclusively:
-/tmp/os3d-qa36-midpoint-focused-20260912.xcresult/.log, exec34487. No result yet.
+Focused gate3/4: all3 model checks pass, UI disabled Midpoint before apply.
+Recording shows endpoint selection absent after rapid clear/point/line taps.
+UI now waits for cleared state and exactly one point before adding line; same
+enabled assertion retained. CorrectedUI2 passed1/1, zero fail/skip.
+Source9659fec pushed, test-only synchronization follows. Final combined82-case
+gate running exclusively, exec38626:
+/tmp/os3d-qa36-midpoint-final-20260912.xcresult/.log. No final result yet.
 No desktop actions until terminal. Source EditorViewModel plus ConstraintApply
 and ConstraintRail UI tests; documentation/evidence preserved. Next exact result,
 fix only confirmed issues, broader regression, changed live/history/reopen and
