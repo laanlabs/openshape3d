@@ -1,5 +1,18 @@
 # Parity continuation checkpoint
 
+## Active — scoped Perpendicular selection cleanup
+
+HEAD81e7b02 pushed length-fix paired publication911/38. New cleanup clears
+operands/readouts after successful Perpendicular and matching grouped history
+addition only; refusal retains selection. Model3/3 passed (cleanup/refusal and
+length/fallback regressions), /tmp/os3d-qa36-perpendicular-selection-20260912.
+New visible-rail UI apply/Undo/Redo/reselect workflow passed1/1 separately,
+/tmp/os3d-qa36-perpendicular-selection-ui-20260912.xcresult/.log, zero fail/skip.
+No runner. Next final combined gate, changed live application/history/reopen
+and publication. Source/tests checkpointed; only confirmed Perpendicular scoped.
+Native parked reopenedSketch11Front free line70.8204 selected, clone store
+reset by UI. No acceptance promotion; QA36partial26/0/1/29, iPad unchanged.
+
 ## Current — Perpendicular length fix paired and published
 
 Sourcefd16cee pushed; final78/78 zero fail/skip, no runner. Native preserves

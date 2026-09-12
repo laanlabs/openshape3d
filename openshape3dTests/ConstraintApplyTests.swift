@@ -1343,6 +1343,43 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testPerpendicularClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
+        let vm = try makeViewModel()
+        let entities = [line(SIMD2(0, 0), SIMD2(0.9, -0.4)),
+                        line(SIMD2(2.1, 0), SIMD2(2.9, -0.5))]
+        let original = openSketch(vm, entities: entities)
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder(entities.map(\.id))
+        vm.selectedSketchPoints = [.init(entityID: entities[0].id, role: .endpointA)]
+        vm.applyConstraint(.perpendicular)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertTrue(applied.constraints.contains { $0.kind == .perpendicular })
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        XCTAssertNil(vm.selectedConstraintID)
+        XCTAssertNil(vm.selectedDimensionID)
+        vm.selectSketchEntitiesInOrder([entities[0].id])
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        vm.selectSketchEntitiesInOrder([entities[1].id])
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+
+        let refusedVM = try makeViewModel()
+        let locked = Sketch(plane: .ground, entities: entities, constraints: entities.map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        refusedVM.session.perform(AddSketchCommand(sketch: locked))
+        refusedVM.mode = .sketching(locked.id, tool: nil)
+        refusedVM.selectSketchEntitiesInOrder(entities.map(\.id))
+        refusedVM.applyConstraint(.perpendicular)
+        XCTAssertEqual(refusedVM.activeSketch, locked)
+        XCTAssertEqual(refusedVM.selectedSketchEntityIDs, Set(entities.map(\.id)))
+        XCTAssertNotNil(refusedVM.errorMessage)
+    }
+
     func testPerpendicularPreservesFreeLineLengthsAndHistory() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         defer { AppSettings.shared.anchoredSketchEntity = prior }

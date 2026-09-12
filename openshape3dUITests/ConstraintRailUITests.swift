@@ -12,6 +12,9 @@ final class ConstraintRailUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         verifyRail()
     }
+    func testPerpendicularApplicationAndHistoryDeselectOperands() {
+        verifyRail(perpendicular: true)
+    }
     func testCircleSymmetryChoosesAxisAfterOperandsAndCancels() {
         verifySymmetryAxisPick(circles: true)
     }
@@ -73,7 +76,7 @@ final class ConstraintRailUITests: XCTestCase {
         shot.name = circles ? "circle-symmetry-axis-applied" : "line-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
     }
 
-    private func verifyRail() {
+    private func verifyRail(perpendicular: Bool = false) {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
@@ -126,6 +129,29 @@ final class ConstraintRailUITests: XCTestCase {
         let enabled = NSPredicate(format: "enabled == true")
         expectation(for: enabled, evaluatedWith: parallel)
         waitForExpectations(timeout: 3)
+        if perpendicular {
+            let control = app.buttons["ConstraintRail-perpendicular"]
+            XCTAssertTrue(control.isEnabled)
+            control.tap()
+            let horizontal = app.buttons["ConstraintRail-horizontal"]
+            expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
+            waitForExpectations(timeout: 3)
+            p(0.45, 0.42).tap() // First Selected keeps this operand stationary.
+            let glyph = app.buttons.matching(NSPredicate(format:
+                "identifier == 'ConstraintGlyph' AND label == '⊥'")).firstMatch
+            XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+            app.buttons["Undo"].firstMatch.tap()
+            XCTAssertFalse(horizontal.isEnabled)
+            XCTAssertFalse(glyph.exists)
+            p(0.45, 0.42).tap()
+            app.buttons["Redo"].firstMatch.tap()
+            XCTAssertFalse(horizontal.isEnabled)
+            p(0.45, 0.42).tap()
+            XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "perpendicular-history-reselected"; shot.lifetime = .keepAlways; add(shot)
+            return
+        }
         parallel.tap()
         XCTAssertTrue(app.buttons.matching(NSPredicate(format:
             "identifier == 'ConstraintGlyph' AND label == '∥'")).firstMatch.waitForExistence(timeout: 3))

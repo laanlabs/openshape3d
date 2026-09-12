@@ -4995,6 +4995,7 @@ final class EditorViewModel {
         }
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
+        clearPerpendicularSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
@@ -5003,6 +5004,7 @@ final class EditorViewModel {
     func redo() {
         clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
+        clearPerpendicularSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
@@ -5011,6 +5013,27 @@ final class EditorViewModel {
     private func clearLineDimensionSelection(for command: DocumentCommand?) {
         guard let change = command as? SetLineDimensionKindCommand,
               change.sketchID == activeSketch?.id else { return }
+        selectedSketchEntityIDs.removeAll()
+        selectedSketchPoints.removeAll()
+        selectedDimensionID = nil
+        selectedConstraintID = nil
+        editingDimension = nil
+    }
+
+    private func clearPerpendicularSelection(for command: DocumentCommand?) {
+        guard mode.isSketching, let sketchID = activeSketch?.id else { return }
+        func addsPerpendicular(_ command: DocumentCommand) -> Bool {
+            if let group = command as? CompositeCommand {
+                return group.commands.contains(where: addsPerpendicular)
+            }
+            guard let addition = command as? AddSketchConstraintCommand else { return false }
+            return addition.sketchID == sketchID && addition.constraint.kind == .perpendicular
+        }
+        guard let command, addsPerpendicular(command) else { return }
+        clearPerpendicularSelection()
+    }
+
+    private func clearPerpendicularSelection() {
         selectedSketchEntityIDs.removeAll()
         selectedSketchPoints.removeAll()
         selectedDimensionID = nil
@@ -11837,6 +11860,10 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
+        // Paired Perpendicular application/history clears the operands and
+        // readouts. Keep this scoped to the observed relation; refusal returns
+        // earlier and must retain the user's selection.
+        if kind == .perpendicular { clearPerpendicularSelection() }
         return true
     }
 

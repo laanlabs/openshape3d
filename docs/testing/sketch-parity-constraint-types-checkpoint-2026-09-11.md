@@ -287,3 +287,15 @@ not resolved by length fix. Clone postRedo tap opened unchanged keypad, no
 input; gallery reopening remains valid. Illustrated911/master38, eight new
 hashes once/heading once/no predecessor loss from903/38, verification durable.
 Next scoped Perpendicular selection cleanup; QA36partial26/0/1/29, iPad unchanged.
+
+
+## Scoped Perpendicular selection cleanup
+
+Native apply/history deselects; clone retained operands/readouts. Successful
+Perpendicular now clears entity/point/dimension/constraint/editor selection.
+Undo/Redo recursively recognize only an active-sketch Perpendicular addition
+inside grouped commands; unrelated history is unchanged. Refusal returns before
+cleanup. Model3/3 passed including retained refusal and length/fallback; separate
+visible-rail UI1/1 proves disabled single-line actions after apply/history and
+saved perpendicular glyph after deliberate reselection. No runner. Broader gate
+and changed-build paired repeat/publication pending; QA36partial26/0/1/29.
