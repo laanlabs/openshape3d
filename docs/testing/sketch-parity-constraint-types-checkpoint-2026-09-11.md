@@ -258,3 +258,19 @@ qa36-line-symmetry-live-2026-09-12. Illustrated export903 unique images,
 eight hashes once/heading once/no895 loss; master38/heading once/no loss.
 publication-verification.json and both DOCX exports retained. No runner.
 QA36partial pending remaining relation sweep; inventory26/0/1/29, iPad unchanged.
+
+
+## Perpendicular length-preservation correction — September 12
+
+Fresh native Last Selected free-line application preserves70.8204/67.8371mm
+lengths, rotating/relocating the first; Undo/Redo restores exact visible states.
+Clone1.2291/1.1735mm pair reaches90degrees but grows total2.40→8.63mm.
+Before-source model gate0/1 reproduces resizing across First/Last and order.
+Correction applies a temporary endpoint distance only while solving explicit
+Perpendicular; never persists a dimension and retries without preference when
+saved constraints require a different length. Focused4/4 zero fail/skip covers
+length/history/order, saved-point override and both Equal regressions.
+Broader gate and changed-build live/persistence/publication remain pending.
+Native's unconstrained positional choice is not claimed identical. No runner.
+Reports903/38; QA36partial26/0/1/29; iPad unchanged. All initial delivery errors
+(--from element IDs instead of --from-coords) retained as fixture failures.

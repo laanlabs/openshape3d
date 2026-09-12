@@ -11786,13 +11786,28 @@ final class EditorViewModel {
                     return false
                 }
             } : nil
+            // Native Perpendicular rotates a free line without resizing it.
+            // This is a solve preference only, never a persisted dimension;
+            // existing point/geometry constraints still take precedence.
+            let anchoredWithoutLengthPreference = anchored
+            if kind == .perpendicular {
+                for id in orderedOperands where id != preferredAnchor {
+                    guard let entity = sketch.entities.first(where: { $0.id == id }),
+                          case let .line(_, a, b) = entity,
+                          simd_length(b - a) > 1e-9 else { continue }
+                    anchored.dimensions.append(SketchDimension(kind: .distance, refs: [
+                        .init(entityID: id, role: .endpointA),
+                        .init(entityID: id, role: .endpointB)
+                    ], value: simd_length(b - a)))
+                }
+            }
             var outcome = SketchSolverBridge.solveOutcome(
                 anchored, movingEntity: nil, dragTarget: nil,
                 preservingLineDirection: directionID)
-            if directionID != nil,
+            if directionID != nil || anchored.dimensions.count != anchoredWithoutLengthPreference.dimensions.count,
                !outcome.converged || outcome.structuralResidual > Self.overConstraintTolerance {
                 outcome = SketchSolverBridge.solveOutcome(
-                    anchored, movingEntity: nil, dragTarget: nil)
+                    anchoredWithoutLengthPreference, movingEntity: nil, dragTarget: nil)
             }
             if outcome.converged && outcome.structuralResidual <= Self.overConstraintTolerance {
                 solvedEntities = outcome.entities
