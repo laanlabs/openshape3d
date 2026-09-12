@@ -1,26 +1,25 @@
 # Parity continuation checkpoint
 
-## Active — Two-circle Tangent external correction under test
+## Current — External circle Tangent paired and published
 
-SourceWIPc27449e pushed. Native external pair900430 R40/1000450 R30 applies,
-preserves second center/radii, clears apply. Undo separation verified; Redo
-restores orange first-circle selection (detail unresolved). Clone200320/400340
-pair disables before fix. Before0/1; first focused1/1. Expanded focused2 gives
-1pass/1fail: all four new anchor/order variants falsely refused before solving;
-locked refusal passes. Diagnostic confirms conflict-check refusal, not selection.
-Radius/anchor validation alternatives failed and were removed. Current dirty
-bridge correction geometrically seeds external contact along initial center ray,
-never changing fixed coordinates; all saved residuals remain validated.
-Focused5 passed2/2, no runner. Combined90-case regression next:
-application49+merge18+polish6+Trim10+rail7. Do not perform desktop input while
-the next serial gate owns the simulator. New support only separated full-circle
-external contact; nested/overlap/arc pairs remain disabled. Native nested fixture
-has outer1000600 R70 only; inner attempts added no geometry despite reentry.
-Circle armed. Changed build live/history/reopen and publication remain pending.
-Durable constraint-types/qa36-circle-tangent-live-2026-09-12 has all captures,
-before/focused/diagnostic logs. Next collect focused3; fix genuine failures,
-run combined gate, changed paired workflow. Inventory26/0/1/29, QA36partial;
-reports965/master38. iPad/immutable05be744 unchanged.
+Source `becd8ed` pushed. Final90/90 passed in one serial run, zero failures/skips:
+49application+18merge+6polish+10Trim+7rail UI. No runner. Earlier failed
+free-pair diagnostics retained; radius/anchor validation alternatives removed.
+Geometric external-contact seed moves no fixed center and validates all saved
+constraints. Changed clone diameters0.7501/0.4974 preserve second center400340;
+native R40/R30 preserves second center1000450. Apply, geometry Undo/Redo and
+both gallery reopenings verified. Native Redo orange highlight remains unresolved
+as hover versus selection; no history-selection equivalence claimed.
+Illustrated975 unique, ten hashes once, one heading/no965 predecessor loss;
+master38, one heading/no loss. Durable constraint-types/
+qa36-circle-tangent-live-2026-09-12 includes captures, failed/final receipts,
+publication-assets, verification and after DOCX exports.
+Native parked reopened Sketch11Front external B1000431 selected R30; large
+outerR70 at1000600 has no inner circle (creation attempts inconclusive).
+Clone parked reopened Sketch1Top B400320 selected, Items open with Tangent.
+Next fresh native nested/overlap circle contact probe and Redo highlight check;
+these remain unsupported/unverified, not inferred from external contact.
+QA36partial; inventory26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — Concentric paired and publication verified
 

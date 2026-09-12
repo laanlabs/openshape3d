@@ -53,3 +53,18 @@ Focused5 passed2/2: exact radii/preferred center, all four anchor/order variants
 locked refusal, application deselection, exact Undo/Redo and JSON. No runner.
 Combined90-case application/merge/polish/Trim/rail gate next. Changed live and
 publication remain pending; nested/overlapping circle scope still unsupported.
+
+## Final gate, changed live and publication verified
+
+Source `becd8ed`: final90/90, zero failures/skips, one serial run at
+/tmp/os3d-qa36-circle-tangent-final-20260912.xcresult (49 application, 18 merge,
+6 polish, 10 Trim, 7 rail UI). No runner. Earlier failures above are retained.
+Changed clone external pair preserves diameters0.7501/0.4974 and second center;
+apply deselects, geometry Undo/Redo and gallery reopen with Tangent in Items pass.
+Native external R40/R30 pair likewise preserves second center/radii and reopens
+at exactR30. Native Redo orange highlight remains unresolved (hover/selection),
+so no history-selection parity claim. Nested/overlap/arc pairs stay disabled.
+Illustrated975 unique: all ten source hashes once, one heading, no965 predecessor
+loss. Master38: one heading/no loss. publication-verification.json and both after
+DOCX exports retained beside the evidence manifest. QA36partial26/0/1/29;
+physical iPad and immutable05be744 unchanged.

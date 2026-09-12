@@ -2229,4 +2229,13 @@ refusal preserves selection. No geometry solver change. Final **88/88** in one
 serial run plus paired exact radii, selected history and both gallery reopenings.
 Illustrated965/master38 verified, ten new hashes once and no predecessor loss.
 [Concentric receipt](testing/sketch-parity-concentric-application-2026-09-12.md).
-QA36 remains partial; two-circle Tangent application is next, not yet verified.
+QA36 remains partial; external two-circle Tangent is recorded below.
+
+## External circle Tangent — September 12, 2026
+
+Source `becd8ed` adds separated full-circle external contact with fixed-center
+safe solver seeding and transient radius preservation. Final90/90 passes in one
+serial run. Fresh native/changed-clone application, exact radii, geometry history
+and both gallery reopenings pass. Illustrated975/master38 exports verified:
+ten new hashes once, no predecessor loss. Nested/overlap/arc pairs remain disabled;
+native Redo highlight detail unresolved. QA36partial26/0/1/29. [Receipt](testing/sketch-parity-circle-tangent-2026-09-12.md).
