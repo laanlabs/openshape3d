@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Active — deep arc/circle internal contact implemented
+
+Baseline5e7cd12. Native larger arc R11267.1795/180degrees and fixedR6000
+circle accept deep-overlap internal contact. Clone matching pair disabled Tangent.
+Before regression failed0/1 with six assertions; bounded eligibility and persisted
+internalContact branch now implemented. Focused4/4 clean, zero failures/skips:
+deep, shallow, off-span and boundary/refusal. No runner.
+Exact max-radius boundary, fully nested, smaller-arc deep pairs and arc-arc
+remain unverified and disabled. No solver changes.
+Next combined application/merge/polish/Trim/rail UI gate, then changed-build
+paired history/reopen and publication. Native parked selected deep arc760606,
+circle760625. Reports1042/master38; QA36partial26/0/1/29. iPad unchanged.
+Receipts /tmp/os3d-qa36-deep-arc-{before,focused}-20260912.xcresult and logs;
+durable constraint-types/qa36-deep-arc-tangent-live-2026-09-12.
+
 ## Active — shallow arc/circle paired checkpoint
 
 Source77365e3 pushed; final100/100 clean, no failures/skips, no runner.

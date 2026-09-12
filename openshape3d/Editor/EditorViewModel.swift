@@ -11641,9 +11641,13 @@ final class EditorViewModel {
               case let .arc(_, a, ra, _, _) = arc,
               case let .circle(_, b, rb) = circle else { return nil }
         let delta = b - a
-        // Native shallow overlap separates externally without changing the arc
-        // sweep. Keep the unverified deep/internal branch unavailable here.
-        guard simd_length(delta) > max(ra, rb) else { return nil }
+        // Native shallow overlap separates externally; a larger arc with a
+        // deeply intersecting smaller circle uses internal contact. Fully nested
+        // and smaller-arc deep pairs remain outside the verified boundary.
+        let distance = simd_length(delta)
+        let external = distance > max(ra, rb)
+        let internalOverlap = ra > rb && distance > ra - rb && distance < ra
+        guard external || internalOverlap else { return nil }
         return selected
     }
 
@@ -12074,8 +12078,13 @@ final class EditorViewModel {
             // Native deep overlap chooses internal contact; shallow overlap external.
             constraint.circleTangency = simd_length(b - a) < max(ra, rb)
                 ? .internalContact : .externalContact
-        } else if kind == .tangent, circleTangentOperands != nil {
-            constraint.circleTangency = .externalContact
+        } else if kind == .tangent, let pair = circleTangentOperands,
+                  let arc = pair.first(where: { if case .arc = $0 { return true }; return false }),
+                  let circle = pair.first(where: { if case .circle = $0 { return true }; return false }),
+                  case let .arc(_, a, ra, _, _) = arc,
+                  case let .circle(_, b, rb) = circle {
+            constraint.circleTangency = simd_length(b - a) < max(ra, rb)
+                ? .internalContact : .externalContact
         }
         return [constraint]
     }

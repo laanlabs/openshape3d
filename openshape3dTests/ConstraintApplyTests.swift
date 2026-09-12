@@ -1730,6 +1730,37 @@ final class ConstraintApplyTests: XCTestCase {
         vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testDeepOverlapArcCircleTangentUsesInternalContactAndHistory() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
+                                  startAngle: .pi, endAngle: 2 * .pi)
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, -0.625), radius: 0.5)
+        let original = openSketch(vm, entities: [arc, circle])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([arc.id, circle.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        guard case let .arc(_, center, radius, start, end) = applied.entities[0] else {
+            return XCTFail("Missing arc")
+        }
+        XCTAssertEqual(center.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(center.y, -0.125, accuracy: 1e-8)
+        XCTAssertEqual(radius, 1, accuracy: 1e-8)
+        XCTAssertEqual(start, .pi, accuracy: 1e-8)
+        XCTAssertEqual(end, 2 * .pi, accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], circle)
+        XCTAssertEqual(applied.constraints.last?.circleTangency, .internalContact)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
+    }
+
     func testArcCircleTangentSpanBoundaryAndLockedRefusal() throws {
         let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
                                   startAngle: .pi, endAngle: 2 * .pi)
