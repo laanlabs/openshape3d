@@ -63,3 +63,17 @@ unchanged. QA25partial pending focused/combined gate and publication verificatio
 Focused fitted UI rerun passed1/1 at
 `/tmp/os3d-qa25-fitted-ui-20260911.xcresult`; unchanged Exit/reselection/editor
 assertions passed. Corrected combined29 gate running separately, not yet counted.
+
+## Verified finite QA25 closure
+
+`db230f8` pushed. Corrected combined29/29 clean, zero fail/skip, at
+`/tmp/os3d-qa25-live-corrected-final-20260911.xcresult`:21annotation tests,
+7foundation tests,1real selection-afterExit/editor workflow. Separate focused1/1
+and original28/29 retained. Only viewport/preference fixture changed, no product
+source change. No runner. Freshpairednone/one/several/disconnected savedowners
+verified. Native/clone scale, angle and input-method differences explicit above.
+
+Illustrated852 unique images, all11newsourcehashesonce, zero841predecessorloss,
+oneheading/onefinalverdict. Master38, onenewnote, zeroloss. Exports, manifests,
+verificationJSON and testsummary/logs retained under durableQA25live directory.
+FiniteQA25 PASS; inventory25/0/1/30. QA05freshnativechainnext. iPadunchanged.

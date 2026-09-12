@@ -29,7 +29,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
 | QA-23 | Selection state | Core — PASSED (September 11 finite recipe) | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated publication verified at 796 unique placements with all ten new hashes once and no 786-asset predecessor loss; master roadmap note verified. |
 | QA-24 | Multi-selection | Core — partial, not passed | Exact-tree selection baseline is clean 19/19, including three-body marquee/Delete/Undo and Select Through UI workflows. Connected rectangle double-click is paired; native Shift/additive input and independent live seeded-state recovery remain open. |
-| QA-25 | Annotation off-state | Core — partial, live/publication blocked | Clean 23/23 current-tree gate covers none/one/several/disjoint saved-annotation ownership. Retained line/rectangle states are paired; fresh full live matrix is blocked by simulator input delivery and the illustrated append is not published. |
+| QA-25 | Annotation off-state | Core — passed | Fresh paired none/one/several/disconnected saved-label ownership. Clone first+third hides intervening driver; native area selection proves disconnected owners without unrelated labels. Corrected final29/29 ondb230f8; illustrated852/master38 verified, eleven new hashes once/no841 loss. |
 | QA-26 | Annotation on-state | Core — passed | Active/other/hidden scope, idle Exit, hidden re-entry and toggle persistence paired. Independent coplanar leak fixed2fdecd6; final29/29 plus changed live/gallery verification. Illustrated841/master38 export verified, six new hashes once and no predecessor loss. |
 | QA-27 | Dimension type | Core — passed | Exact paired H30/V40/Absolute50, plain numeric driver replacement, on-label menu, Undo/Redo and gallery reopen verified on3016ac6. Final54/54; illustrated827/master38 export verified with predecessor preservation. Variable-linked/multiple-driver variants remain separate and unverified. |
 | QA-28 | Dimension selection matrix | Explicitly deferred | Non-core multi-entity dimension coverage; remains in full audit, not passed. |
@@ -220,15 +220,17 @@ Shift/additive, connected double-tap, overlapping geometry, item selection. Issu
 
 ### QA-25 — Annotation off-state
 
-September 11 checkpoint: final clean 23/23 current-tree gate covers no selection,
-one entity, several entities and disjoint same-sketch saved dimensions. The
-initial radius/diameter fixture-state failure and the synthetic 0-degree
-selection candidate are retained and correctly separated from QA-25. Fresh
-paired screenshots remain blocked because resolved foreground clicks do not
-reach the simulator canvas even after scoped Peekaboo and simulator restarts;
-publication is therefore also pending. See [annotation off-state checkpoint](testing/sketch-parity-annotation-off-state-checkpoint-2026-09-11.md).
-
-Nothing selected, one entity, several entities, disjoint same-sketch geometry. Issues: DM-01/02. Result: NOT RUN. Evidence/owner: pending.
+Nothing selected, one entity, several entities, disjoint same-sketch geometry.
+Issues DM-01/02. Result: **PASS** for saved-annotation ownership on `db230f8`.
+Native10/12/8 and clone1/2/3 fixtures are deliberately separate scales/angles.
+Both none/one/twoDisconnected/allthree states are paired; clonefirst+third
+suppressesintervening2. Native narrowerwindow selectedmiddleendpoint too and
+is not counted as exclusion. Syntheticcandidate labels remain QA28.
+Initial28/29 UI failure had offscreen20mmfixture; FitView and explicitOFF
+preference preserve assertions. Focused1/1 then correctedcombined29/29 clean,
+zero failures/skips. Illustrated852 unique assets, elevennewhashesonce, no841
+predecessorloss; master38/onenote/noloss. Hardware input remainsQA52.
+See [annotation off-state checkpoint](testing/sketch-parity-annotation-off-state-checkpoint-2026-09-11.md).
 
 ### QA-26 — Annotation on-state
 
@@ -861,3 +863,9 @@ QA26 closes on2fdecd6 with clean29/29 and paired independent coplanar scope,
 saved reopen, Exit and retained toggle/hidden/re-entry evidence. Publication
 841/38 verified. Inventory: **24 passed / 0 failed / 1 device-blocked /
 31 incomplete**, total56. Updated physical iPad build/install remains pending.
+
+## September 11 QA-25 closure inventory
+
+QA25 finite off-state recipe closes after fresh paired selection evidence,
+corrected29/29 and852/38 publication verification. **25 passed / 0 failed /
+1 device-blocked / 30 incomplete**, total56. No updated physical installation.

@@ -228,6 +228,12 @@ idle visible-sketch labels plus active-hidden re-entry. Paired scope/Exit and
 gallery reopen verified; focused21/21 then final29/29, illustrated841/master38.
 QA25's broader off-state selection matrix remains separate and incomplete.
 
+September 11 QA25 off-state finite selection recipe now verified: none/one/
+several/disconnected saved owners paired, corrected29/29 ondb230f8, illustrated
+852/master38 verified. Native mouse replacement versus clone additive taps is
+recorded; area selection supplies native disconnected sets. Synthetic candidate
+measurements remain QA28; offscreen layout remains QA29, physical input QA52.
+
 ### DM-03 · Absolute/horizontal/vertical distance choice is missing
 
 **Finite QA-27 recipe verified; final54/54 plus paired exact-size/history/reopen** · P1

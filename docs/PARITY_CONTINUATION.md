@@ -1,5 +1,18 @@
 # Parity continuation checkpoint
 
+## Current execution — QA25 closed; QA05 fresh native next
+
+HEADdb230f8 fixture pushed; closure docs committing. Final corrected29/29 clean,
+focused1/1 separate; initial28/29 offscreenfixture retained. Freshpaired off-state
+none/one/several/disconnected verified. Illustrated852/master38, elevenhashesonce,
+no841predecessorloss. Inventory25/0/1/30. No runner. QA26alreadyclosedd62c25d.
+NextQA05 freshnative A→B→C, Return, resumeB→D→E→B, history/reopen; existing
+clone3/3/liveevidence is retained. GUIbridgeworking. NativeSketch08currently
+three10/12/8lines, AlwaysShowOFF, first/third+middleendpoint selected. Clone
+latesttest single20mmline fitted anddimensioneditoropen; testsresetpriorfixture.
+AllQA25evidence/export/summary/log durable underannotation-off-state/qa25-live.
+Deviceinstallationpending; immutable05be744 and unrelatedfiles untouched.
+
 ## Current execution — QA25 corrected combined gate active
 
 Focused fitted UI1/1 passed; combined29 now sole simulator owner at
