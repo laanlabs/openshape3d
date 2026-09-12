@@ -1,34 +1,25 @@
 # Parity continuation checkpoint
 
-## Active — native arc/circle Tangent diagnosis
+## Active — external arc/circle Tangent paired verification
 
-Baselinef40804a. No runner; no source/test changes for arcs. First native arc
-chord750600→852600 committed preview45degrees,R26706.8,center801475 on
-visible body reference; circle801680,R6000. Tangent enabled and applied but
-arc radius grew to34686.5471/angle39.6363,center stayed801475. Settings prove
-AutoOFF/LastSelected but 3DGuidePointsON (other acquisitionOFF). Thus not a
-clean free-arc comparison; no rigid-arc semantic inferred. 3DGuidePoints toggled
-OFF via observed checkbox, verified screenshot. Earlier circle comparisons did
-not verify this category OFF; their observed geometry remains valid, do not
-retroactively claim fully matched snapping.
-Controlled free semicircle confirmed: center550400, R10007.9041mm,180degrees;
-fixed circle550510,R5000. Native Tangent translates arc center to550435,
-preserves radius/180degrees, contacts at550485. Clone same screen-scale arc
-center250250/r50 and circle250360/r25: both selected, Tangent disabled.
-Before regression0/1 reproduced disabled eligibility. Source now admits separated
-arc/circle pairs only when the contact ray lies within arc span, persists external
-branch, and transiently preserves both radii. Focused3/3 clean: new geometry/history/
-archive test plus existing external and coincident-circle cases.
-Boundary/locked-refusal1/1 clean; no runner. Bundle/log
-/tmp/os3d-qa36-arc-circle-boundary-20260912. No desktop interactions during run.
-Dirty source EditorViewModel.swift and ConstraintApplyTests.swift; no solver edit.
-Native history/reopen and changed clone verification/publication still pending.
-One earlier focus-guard failure was followed by an unscoped drag on native blank
-area; excluded from clone evidence. Native state must be rechecked before history.
-Durable evidence constraint-types/qa36-arc-tangent-live-2026-09-12 includes PNGs.
-Next final combined regression then paired changed live,
-history/reopen, publication. No new screenshots published yet.
-Reports1014/master38; QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+Source108eec3 pushed; final98/98 clean, zero failures/skips, no runner.
+Native free arc R10007.9041/180degrees translates center550400→550435 toward
+fixed circle550510,R5000. Undo/Redo and gallery reopening verified, same values.
+Changed clone LastSelected visibly verified after an inherited FirstSelected
+attempt was undone. Arc center250250→250285; circle250360 fixed. Arc readout
+R0.6227mm/180.02degrees preserved in applied/Undo/reopen states. SavedJSON shows
+radius0.6226610672331411,sweep180.02350481696166,circle radius0.30801880359658884,
+external contact residual0.0. This is preservation, not exact180degree creation.
+Source supports separated arc/circle external contact only if ray inside span;
+off-span, overlapping/nested and arc–arc remain unsupported/unverified.
+Native earlier reference-snapped arc sample excluded; all acquisitionOFF for
+controlled sample. Failed focus/preview/anchor-setting attempts retained locally.
+Illustrated1023unique/master38 export verified: nine hashes once, headingsonce,
+zero1014/38 predecessor loss. No runner. Durable constraint-types/qa36-arc-tangent-live-2026-09-12.
+Native parked reopenedSketch12Top arc628388/circle628451 selectedarc; clone
+reopenedSketch1Top arc250285/circle250360 selectedarc,Itemsopen.
+Next controlled native off-span/arc variant after paired checkpoint push; then
+remaining constraint matrix. QA36partial26/0/1/29;iPad/05be744 unchanged.
 
 ## Current — Already-concentric equal-circle Tangent paired checkpoint
 

@@ -2279,3 +2279,13 @@ Illustrated1014/master38, nine hashes once/no predecessor loss. Clone uses
 Exit→Select marquee→Done→Items reopen to select both coincident edges; native
 uses in-sketch box. This UI-route difference remains open. QA36partial26/0/1/29.
 [Receipt](testing/sketch-parity-initial-coincident-2026-09-12.md).
+
+### September 12 — free arc/circle external Tangent
+
+Source108eec3; final98/98 clean, no failures/skips. Native/changed-clone
+visible-span external contact preserves arc radius/sweep and preferred circle;
+Undo/Redo and both gallery reopenings verified. Clone drawn180.02degrees stays
+180.02degrees; model test exact180. Saved external contact residual0.0.
+Illustrated1023/master38, nine hashes once/no predecessor loss. Off-span,
+overlapping/nested arc/circle and arc–arc remain unsupported/unverified.
+QA36partial26/0/1/29. [Receipt](testing/sketch-parity-arc-circle-tangent-2026-09-12.md).
