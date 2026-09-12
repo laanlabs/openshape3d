@@ -2160,3 +2160,13 @@ and gallery reopen preserve the fixed operand/axis and reflected line in both
 apps. Illustrated903/master38 verified, eight hashes once/no predecessor loss.
 QA36 remains partial for the remaining relation sweep; inventory26/0/1/29.
 See the constraint-types checkpoint for exact fixture values and evidence paths.
+
+
+### September 12 Perpendicular length correction
+
+`fd16cee` fixes paired free-line length blowup during Perpendicular. Before0/1
+reproduced; focused4/4 and final78/78 pass. Changed live90degree application,
+Undo/Redo and gallery reopening preserve1.2291mm; native preserves70.8204mm
+in its fixture. Illustrated911/master38 verified with eight hashes once/no loss.
+Selection cleanup and unconstrained placement remain explicit follow-ups;
+QA36partial26/0/1/29, iPad unchanged.

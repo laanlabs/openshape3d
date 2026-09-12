@@ -274,3 +274,16 @@ Broader gate and changed-build live/persistence/publication remain pending.
 Native's unconstrained positional choice is not claimed identical. No runner.
 Reports903/38; QA36partial26/0/1/29; iPad unchanged. All initial delivery errors
 (--from element IDs instead of --from-coords) retained as fixture failures.
+
+
+### Perpendicular final gate and changed live completion
+
+Sourcefd16cee final78/78, zero fail/skip, one serial run:40application,
+18merge,6polish,10Trim,4rail UI. Changed live clone now90degrees at total2.40mm,
+left remains1.2291/right1.1735; Undo restores slope, Redo rotation, gallery
+reopen confirms1.2291 and Perpendicular. Native history/reopen confirms70.8204.
+Native/clone positional choice and apply/history selection differ; explicitly
+not resolved by length fix. Clone postRedo tap opened unchanged keypad, no
+input; gallery reopening remains valid. Illustrated911/master38, eight new
+hashes once/heading once/no predecessor loss from903/38, verification durable.
+Next scoped Perpendicular selection cleanup; QA36partial26/0/1/29, iPad unchanged.

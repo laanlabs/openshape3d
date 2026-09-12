@@ -1,21 +1,23 @@
 # Parity continuation checkpoint
 
-## Current — Perpendicular WIP focused4/4 passed
+## Current — Perpendicular length fix paired and published
 
-Fresh native Last Selected Perpendicular preserves both70.8204/67.8371mm
-lengths; first line relocates far while rotating, Undo/Redo exact visually.
-Clone same slopes1.2291/1.1735mm reached90degrees but totalgrew2.40→8.63mm.
-Before-source model0/1 reproduces free-line length blowup. Explicit Perpendicular
-now adds only a transient length preference for unanchored ordinary lines;
-retry without it when saved constraints require resizing. No saved dimension.
-Focused4/4 zero fail/skip: length/history/order, saved-point override and Equal
-regression. Receipts /tmp/os3d-qa36-perpendicular-{before,fixed}-20260912.xcresult
-and durable constraint-types/qa36-perpendicular-live-2026-09-12.
-No runner. Next combined application/merge/polish/Trim +4rail UI gate, then
-changed-build paired application/history/gallery reopen and publication.
-Native parked fitted result; clone store retains before-fix result. Undo it
-before repeating on updated build. Reports903/master38 unchanged.
-QA36partial26/0/1/29; iPad/immutable05be744 unchanged. Unrelated files preserved.
+Sourcefd16cee pushed; final78/78 zero fail/skip, no runner. Native preserves
+70.8204/67.8371mm, changed clone1.2291/1.1735mm (total2.40 at90degrees),
+Undo/Redo and gallery reopening verified in both. Clone postRedo tap opened
+unchanged keypad, no value entered; reopen exact1.2291 and saved Perpendicular.
+Illustrated911 unique, eight hashes once/heading once/no903 loss; master38
+heading once/no loss. Durable constraint-types/qa36-perpendicular-live-2026-09-12
+contains all PNG/JSON, tests, exports and publication-verification.json.
+Remaining: native clears selection after Perpendicular apply/history, clone
+retains it; native free-line relocation differs from clone center-preserving
+rotation. Neither is claimed fixed. Next scoped Perpendicular selection cleanup:
+add successful-apply/Undo/Redo and refused-application retention tests; do not
+extend to other unverified constraint types. Changed live/publish afterward.
+Native parked reopenedSketch11 Front firstline70.8204 selected at874693;
+clone reopenedSketch1 Top firstline1.2291 selected near265270. LastSelected,
+snappingOFF/AutoConstrainOFF. No task source dirty; unrelated files preserved.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — two-line Symmetry paired and published
 
