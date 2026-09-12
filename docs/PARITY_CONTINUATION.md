@@ -1,5 +1,18 @@
 # Parity continuation checkpoint
 
+## Active — Nested-circle Tangent confirmed gap
+
+Native fresh Sketch12Top R10000/R3000 applies internal contact preserving inner
+center615560 and both radii; outer moves600550 to574533. Undo/Redo geometry
+verified; orange Redo highlight unresolved. OldSketch11 nested input failed;
+fresh sketch restores delivery, existing project retained. Clone nested pair
+250720 diameter1.7271 /265730 diameter0.4944 disables Tangent. Before0/1 six
+failures, no runner. New failing test and nested receipt dirty; evidence durable
+constraint-types/qa36-nested-tangent-live-2026-09-12. Next implement optional
+persisted circle contact branch, retaining legacy external and import remap;
+focused then combined gate, changed paired history/reopen/publication.
+Reports975/master38; QA36partial26/0/1/29; iPad unchanged.
+
 ## Current — External circle Tangent paired and published
 
 Source `becd8ed` pushed. Final90/90 passed in one serial run, zero failures/skips:
