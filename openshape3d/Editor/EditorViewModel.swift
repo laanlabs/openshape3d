@@ -914,6 +914,33 @@ final class EditorViewModel {
                     color: selectedColor
                 ))
             }
+            // Tangent may contact an arc's supporting circle outside its
+            // visible span. Native shows the complementary arc as a violet
+            // dashed guide, never as selectable/profile-producing geometry.
+            if activeSketchID == sketch.id {
+                var guided = Set<UUID>()
+                for constraint in sketch.constraints where constraint.kind == .tangent {
+                    let ids = Set(constraint.refs.map(\.entityID))
+                    let operands = sketch.entities.filter { ids.contains($0.id) }
+                    guard let arc = operands.first(where: { if case .arc = $0 { return true }; return false }),
+                          let circle = operands.first(where: { if case .circle = $0 { return true }; return false }),
+                          case let .arc(id, center, radius, start, end) = arc,
+                          case let .circle(_, otherCenter, _) = circle,
+                          !guided.contains(id) else { continue }
+                    let ray = otherCenter - center
+                    guard simd_length(ray) > 1e-9 else { continue }
+                    let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
+                    let offset = SketchEntity.arcSweep(startAngle: start, endAngle: atan2(ray.y, ray.x))
+                    guard sweep > 1e-9, offset > sweep + 1e-9 else { continue }
+                    guided.insert(id)
+                    let extensionArc = SketchEntity.arc(id: id, center: center, radius: radius,
+                                                       startAngle: end, endAngle: start)
+                    scene.sketchLines.append(SketchLineBatch(
+                        segments: SketchTessellator.dashedSegments(for: [extensionArc], on: sketch.plane,
+                                                                  worldUnitsPerPoint: worldPerPoint),
+                        color: SIMD4<Float>(0.55, 0.30, 0.95, 1)))
+                }
+            }
             // While sketching, native leaves unselected closed regions clear,
             // including reference profiles belonging to other sketch items.
             // An armed profile tool adds its explicit selection fill below;
@@ -11600,22 +11627,18 @@ final class EditorViewModel {
         }
     }
 
-    /// Full circles support both contact branches. The paired free-arc case
-    /// currently covers external contact along a ray inside the visible span.
+    /// Full circles support both contact branches. Paired separated arc/circle
+    /// contact uses the supporting circle, including beyond the visible span.
     private var circleTangentOperands: [SketchEntity]? {
         let selected = selectedRadiusEntities
         guard selected.count == 2 else { return nil }
         if case .circle = selected[0], case .circle = selected[1] { return selected }
         guard let arc = selected.first(where: { if case .arc = $0 { return true }; return false }),
               let circle = selected.first(where: { if case .circle = $0 { return true }; return false }),
-              case let .arc(_, a, ra, start, end) = arc,
+              case let .arc(_, a, ra, _, _) = arc,
               case let .circle(_, b, rb) = circle else { return nil }
         let delta = b - a
         guard simd_length(delta) >= ra + rb - 1e-9 else { return nil }
-        let direction = atan2(delta.y, delta.x)
-        let sweep = SketchEntity.arcSweep(startAngle: start, endAngle: end)
-        let offset = SketchEntity.arcSweep(startAngle: start, endAngle: direction)
-        guard sweep > 1e-9, offset <= sweep + 1e-9 else { return nil }
         return selected
     }
 

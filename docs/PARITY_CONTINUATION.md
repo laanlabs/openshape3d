@@ -1,6 +1,24 @@
 # Parity continuation checkpoint
 
-## Active — external arc/circle Tangent paired verification
+## Active — native off-span arc/circle Tangent confirmed
+
+Baselinefb8684f pushed, prior final98/98. Before0/1, corrected focused3/3 clean; no runner. Source enables separated
+arc/circle supporting contact and renders dashed complementary arc only in active sketch. Native free lower semicircle
+center540280/R9568.4738/180degrees and circle540200/R5000: Tangent accepted,
+arc translates center540261 preserving radius/sweep; dashed upper semicircle
+shows supporting-circle contact at540221. No arc rotation or span growth.
+Original forward selection boxes began in Drawings UI and did not select;
+reversebox590330→490170 selects exactly2edges. Native value inspected afterapply.
+Clone lowerarc450700/r40 and circle450620/r20 selectedboth, Tangent disabled.
+New testOffSpanArcCircleTangentUsesSupportingCircleAndGuide checks geometry,
+guide/history/archive. Before log/bundle /tmp/os3d-qa36-offspan-before-20260912.
+Focused scene guide/history checks passed; added explicit Exit suppression check
+for final combined regression. Next checkpoint source, final combined regression,
+changed live/history/reopen/publication. Other arc
+branches remain unverified. Evidence qa36-offspan-tangent-live-2026-09-12.
+No new publication; reports1023/master38. QA36partial26/0/1/29;iPad unchanged.
+
+## Current — external arc/circle Tangent paired verification
 
 Source108eec3 pushed; final98/98 clean, zero failures/skips, no runner.
 Native free arc R10007.9041/180degrees translates center550400→550435 toward

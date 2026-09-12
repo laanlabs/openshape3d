@@ -1649,12 +1649,48 @@ final class ConstraintApplyTests: XCTestCase {
         vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testOffSpanArcCircleTangentUsesSupportingCircleAndGuide() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
+                                  startAngle: .pi, endAngle: 2 * .pi)
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, 2.2), radius: 0.5)
+        let original = openSketch(vm, entities: [arc, circle])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([arc.id, circle.id])
+        XCTAssertTrue(vm.canApplyConstraint(.tangent))
+        vm.applyConstraint(.tangent)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        guard case let .arc(_, center, radius, start, end) = applied.entities[0] else {
+            return XCTFail("Missing arc")
+        }
+        XCTAssertEqual(center.y, 0.7, accuracy: 1e-8)
+        XCTAssertEqual(center.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(radius, 1, accuracy: 1e-8)
+        XCTAssertEqual(start, .pi, accuracy: 1e-8)
+        XCTAssertEqual(end, 2 * .pi, accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], circle)
+        XCTAssertEqual(applied.constraints.last?.circleTangency, .externalContact)
+        let guideColor = SIMD4<Float>(0.55, 0.30, 0.95, 1)
+        XCTAssertTrue(vm.scene.sketchLines.contains { $0.color == guideColor && !$0.segments.isEmpty })
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(applied)), applied)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+        vm.redo(); XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.scene.sketchLines.contains { $0.color == guideColor })
+        vm.finishSketch()
+        XCTAssertFalse(vm.scene.sketchLines.contains { $0.color == guideColor })
+    }
+
     func testArcCircleTangentSpanBoundaryAndLockedRefusal() throws {
         let arc = SketchEntity.arc(id: UUID(), center: SIMD2(0, 0), radius: 1,
                                   startAngle: .pi, endAngle: 2 * .pi)
         for other in [
-            SketchEntity.circle(id: UUID(), center: SIMD2(0, 2.2), radius: 0.5),
-            .circle(id: UUID(), center: SIMD2(0, -0.5), radius: 0.5),
+            SketchEntity.circle(id: UUID(), center: SIMD2(0, -0.5), radius: 0.5),
             .arc(id: UUID(), center: SIMD2(0, -2.2), radius: 0.5, startAngle: 0, endAngle: .pi)
         ] {
             let vm = try makeViewModel()
