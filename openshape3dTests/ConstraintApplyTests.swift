@@ -1343,6 +1343,59 @@ final class ConstraintApplyTests: XCTestCase {
         }
     }
 
+    func testMidpointClearsMixedSelectionOnSuccessAndHistoryButNotRefusal() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let source = line(SIMD2(0, -0.5), SIMD2(0.5, -0.8))
+        let target = line(.zero, SIMD2(1, 0))
+        let original = openSketch(vm, entities: [source, target])
+        vm.mode = .sketching(original.id, tool: nil)
+        func selectOperands(_ model: EditorViewModel) {
+            model.selectSketchEntitiesInOrder([])
+            model.selectedSketchPoints = [.init(entityID: source.id, role: .endpointA)]
+            model.selectedSketchEntityIDs = [target.id]
+        }
+        selectOperands(vm)
+        vm.applyConstraint(.midpoint)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(applied.constraints.map(\.kind), [.midpoint])
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        guard case let .line(_, point, _) = applied.entities[0],
+              case let .line(_, a, b) = applied.entities[1] else {
+            return XCTFail("Expected two lines")
+        }
+        XCTAssertLessThan(simd_distance(point, (a + b) / 2), 1e-8)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        selectOperands(vm)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        selectOperands(vm)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        XCTAssertTrue(vm.selectedSketchPoints.isEmpty)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+            from: JSONEncoder().encode(applied)), applied)
+
+        let refusedVM = try makeViewModel()
+        let locked = Sketch(plane: .ground, entities: [source, target], constraints: [source, target].map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        refusedVM.session.perform(AddSketchCommand(sketch: locked))
+        refusedVM.mode = .sketching(locked.id, tool: nil)
+        selectOperands(refusedVM)
+        refusedVM.applyConstraint(.midpoint)
+        XCTAssertEqual(refusedVM.activeSketch, locked)
+        XCTAssertEqual(refusedVM.selectedSketchEntityIDs, [target.id])
+        XCTAssertEqual(refusedVM.selectedSketchPoints, [.init(entityID: source.id, role: .endpointA)])
+        XCTAssertNotNil(refusedVM.errorMessage)
+    }
+
     func testPerpendicularClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let vm = try makeViewModel()
         let entities = [line(SIMD2(0, 0), SIMD2(0.9, -0.4)),

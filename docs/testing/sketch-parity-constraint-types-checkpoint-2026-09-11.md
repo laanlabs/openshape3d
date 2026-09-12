@@ -314,3 +314,19 @@ master38 heading once/no loss. Durable qa36-perpendicular-live-2026-09-12
 contains os3d-perp-clean-* and selection-assets/publication-verification JSON,
 selection-after exports and final test receipts. No runner. QA36partial,
 inventory26/0/1/29; physical iPad unchanged. Next Coincident/Midpoint sweep.
+
+
+## Midpoint mixed-selection cleanup WIP — September 12
+
+Fresh native target159.8845mm and source93.2286mm, Last Selected confirmed,
+point+line→More→Midpoint applies; selected-point Undo/Redo deselects. Pointer-
+away Undo removes hover ambiguity. Clone1.2371mm target/source0.723mm solves
+midpoint but retains point/ring/readout through application and history.
+Native free solve extends target left; clone anchors whole target. This
+unconstrained placement difference remains separately open, no geometry fix.
+Before-source unit0/1 fails only six cleanup assertions; exact history,
+midpoint residual, archive and locked-refusal checks pass. Scoped extension
+includes Midpoint alongside Perpendicular only. Focused4-case model/UI gate
+running; changed live/reopen and publication pending. Durable captures and
+before receipts in qa36-midpoint-live-2026-09-12. Initial focus errors and extra
+Escape exiting sketch are fixture-only attempts, not product evidence.

@@ -15,6 +15,9 @@ final class ConstraintRailUITests: XCTestCase {
     func testPerpendicularApplicationAndHistoryDeselectOperands() {
         verifyRail(perpendicular: true)
     }
+    func testMidpointApplicationAndHistoryDeselectMixedOperands() {
+        verifyRail(midpoint: true)
+    }
     func testCircleSymmetryChoosesAxisAfterOperandsAndCancels() {
         verifySymmetryAxisPick(circles: true)
     }
@@ -76,7 +79,7 @@ final class ConstraintRailUITests: XCTestCase {
         shot.name = circles ? "circle-symmetry-axis-applied" : "line-symmetry-axis-applied"; shot.lifetime = .keepAlways; add(shot)
     }
 
-    private func verifyRail(perpendicular: Bool = false) {
+    private func verifyRail(perpendicular: Bool = false, midpoint: Bool = false) {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
@@ -117,12 +120,42 @@ final class ConstraintRailUITests: XCTestCase {
         XCTAssertTrue(anchorPicker.buttons["Last Selected"].exists)
         anchorPicker.buttons["Last Selected"].tap()
         XCTAssertTrue(anchorPicker.buttons["Last Selected"].isSelected)
-        anchorPicker.buttons["First Selected"].tap()
-        XCTAssertTrue(anchorPicker.buttons["First Selected"].isSelected)
+        if !midpoint {
+            anchorPicker.buttons["First Selected"].tap()
+            XCTAssertTrue(anchorPicker.buttons["First Selected"].isSelected)
+        }
         app.buttons["ConstraintSettingsDone"].tap()
         p(0.32, 0.42).press(forDuration: 0.15, thenDragTo: p(0.58, 0.42))
         p(0.32, 0.60).press(forDuration: 0.15, thenDragTo: p(0.58, 0.64))
         app.buttons["Line"].firstMatch.tap() // disarm to select/edit geometry
+        if midpoint {
+            p(0.68, 0.75).tap() // Clear the last drawn line before mixed selection.
+            p(0.32, 0.60).tap()
+            p(0.40, 0.42).tap() // Last Selected anchors the target line.
+            app.buttons["ConstraintRailMore"].tap()
+            let control = app.buttons["Midpoint"].firstMatch
+            XCTAssertTrue(control.waitForExistence(timeout: 3))
+            XCTAssertTrue(control.isEnabled)
+            control.tap()
+            let horizontal = app.buttons["ConstraintRail-horizontal"]
+            expectation(for: NSPredicate(format: "enabled == false"), evaluatedWith: horizontal)
+            waitForExpectations(timeout: 3)
+            p(0.40, 0.42).tap()
+            let glyph = app.buttons.matching(NSPredicate(format:
+                "identifier == 'ConstraintGlyph' AND label == 'M'")).firstMatch
+            XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+            app.buttons["Undo"].firstMatch.tap()
+            XCTAssertFalse(horizontal.isEnabled)
+            XCTAssertFalse(glyph.exists)
+            p(0.40, 0.42).tap()
+            app.buttons["Redo"].firstMatch.tap()
+            XCTAssertFalse(horizontal.isEnabled)
+            p(0.40, 0.42).tap()
+            XCTAssertTrue(glyph.waitForExistence(timeout: 3))
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "midpoint-history-reselected"; shot.lifetime = .keepAlways; add(shot)
+            return
+        }
         // The last drawn segment is already selected; select only the first
         // to form the pair, rather than toggling the second off again.
         p(0.45, 0.42).tap()

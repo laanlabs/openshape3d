@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Active WIP — scoped Midpoint selection cleanup
+
+HEAD360c204 before this WIP commit. Before-fix unit0/1 fails only six selected
+entity/point assertions after apply/Undo/Redo; geometry/history/archive/refusal
+checks passed. Native selected-point apply/history clears; pointer-away Undo
+excludes hover. Clone retained point/ring/readout. Shared cleanup now recognizes
+only Perpendicular or Midpoint additions in active-sketch grouped history;
+refusal remains unchanged. No solve geometry change.
+Focused4-case model+real Midpoint menu/point-selection UI running exclusively:
+/tmp/os3d-qa36-midpoint-focused-20260912.xcresult/.log, exec34487. No result yet.
+No desktop actions until terminal. Source EditorViewModel plus ConstraintApply
+and ConstraintRail UI tests; documentation/evidence preserved. Next exact result,
+fix only confirmed issues, broader regression, changed live/history/reopen and
+publication. Native parked afterUndo; clone reset by UI when it runs.
+Free native target resizes/repositions while clone target stays fixed; retained
+separate anchor variant, not fixed. All captures durable qa36-midpoint-live-
+2026-09-12. Reports915/38; inventory26/0/1/29; QA36partial, iPad unchanged.
+
 ## Current — Perpendicular selection paired and published
 
 Source3a337c2 pushed, final80/80 zero fail/skip in one serial run:

@@ -4995,7 +4995,7 @@ final class EditorViewModel {
         }
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
-        clearPerpendicularSelection(for: session.undoStack.undoCommands.last)
+        clearAppliedRelationSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
@@ -5004,7 +5004,7 @@ final class EditorViewModel {
     func redo() {
         clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
-        clearPerpendicularSelection(for: session.undoStack.redoCommands.last)
+        clearAppliedRelationSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
@@ -5020,20 +5020,21 @@ final class EditorViewModel {
         editingDimension = nil
     }
 
-    private func clearPerpendicularSelection(for command: DocumentCommand?) {
+    private func clearAppliedRelationSelection(for command: DocumentCommand?) {
         guard mode.isSketching, let sketchID = activeSketch?.id else { return }
-        func addsPerpendicular(_ command: DocumentCommand) -> Bool {
+        func addsDeselectingRelation(_ command: DocumentCommand) -> Bool {
             if let group = command as? CompositeCommand {
-                return group.commands.contains(where: addsPerpendicular)
+                return group.commands.contains(where: addsDeselectingRelation)
             }
             guard let addition = command as? AddSketchConstraintCommand else { return false }
-            return addition.sketchID == sketchID && addition.constraint.kind == .perpendicular
+            return addition.sketchID == sketchID &&
+                (addition.constraint.kind == .perpendicular || addition.constraint.kind == .midpoint)
         }
-        guard let command, addsPerpendicular(command) else { return }
-        clearPerpendicularSelection()
+        guard let command, addsDeselectingRelation(command) else { return }
+        clearAppliedRelationSelection()
     }
 
-    private func clearPerpendicularSelection() {
+    private func clearAppliedRelationSelection() {
         selectedSketchEntityIDs.removeAll()
         selectedSketchPoints.removeAll()
         selectedDimensionID = nil
@@ -11860,10 +11861,10 @@ final class EditorViewModel {
             ? commands[0]
             : CompositeCommand(title: title, commands: commands), sketchID: sketchID)
         session.save()
-        // Paired Perpendicular application/history clears the operands and
+        // Paired Perpendicular and Midpoint application/history clear the operands and
         // readouts. Keep this scoped to the observed relation; refusal returns
         // earlier and must retain the user's selection.
-        if kind == .perpendicular { clearPerpendicularSelection() }
+        if kind == .perpendicular || kind == .midpoint { clearAppliedRelationSelection() }
         return true
     }
 
