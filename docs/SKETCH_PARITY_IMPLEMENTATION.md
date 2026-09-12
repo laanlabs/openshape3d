@@ -2329,3 +2329,12 @@ contact. Before0/1, focused5/5, final102/102 clean; paired application/history/
 both reopenings verified. Illustrated1060/master38, nine hashesonce/no loss.
 Exact centers/boundaries, smaller-arc deep/nested and arc-arc remain unverified.
 QA36partial26/0/1/29. [Paired receipt](testing/sketch-parity-nested-arc-tangent-2026-09-12.md).
+
+## Smaller arc deep internal Tangent — September 12, 2026
+
+Source5076e32 enables the confirmed smaller-arc deep-overlap interval and
+corrects the internal-contact guide ray. Before0/1, focused5/5, final103/103
+clean; paired contact/history/both reopenings verified. Illustrated1069/master38,
+nine hashesonce/no loss. Smaller-arc fully nested and exact boundaries remain
+unverified; QA36partial26/0/1/29. iPad unchanged.
+[Paired receipt](testing/sketch-parity-small-arc-tangent-2026-09-12.md).

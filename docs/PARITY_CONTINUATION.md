@@ -1,19 +1,19 @@
 # Parity continuation checkpoint
 
-## Active — smaller arc / larger circle deep contact
+## Active — smaller arc deep-contact paired checkpoint
 
-HEAD dab3ba4; dirty EditorViewModel.swift + ConstraintApplyTests.swift.
-Before0/1 retained. Fix enables smaller-arc deep overlap and reverses guide
-ray for internal contact when arc radius is smaller.
-Native arc1000600 R6708.725/180degrees and circle1000625 R13000:
-Tangent moves arc down to~1000606, circle fixed, opposite-side dashed guide.
-Clone arc450700 r20/circle450725 r40 both selected, Tangent disabled.
-Focused five-case test passed5/5, zero failures/skips; no runner.
-/tmp/os3d-qa36-small-arc-focused-20260912.xcresult and .log.
-Next final
-regression, changed live/history/reopen/publication.
-Durable constraint-types/qa36-small-arc-tangent-live-2026-09-12 PNGs saved.
-Reports1060/master38; QA36partial26/0/1/29; iPad unchanged.
+Source5076e32 pushed; before0/1, focused5/5, final103/103 clean,
+zero failures/skips; no runner. Changed clone arc450700→~450705, fixed
+circle450725, R0.2473/179.62degrees and opposite guide/history/reopen verified.
+Saved internalContact residual1.4e-16, dimensions0. Native exactR6708.725/180
+and fixedR13000 circle retain contact/history/reopen. Native parked selected
+reopenedarc981572/circle981589; clone reopenedselectedarc450705/circle450725.
+Publication1069unique/master38 verified: nine hashesonce/headingsonce/no loss.
+Next push paired docs and native fully nested smaller-arc/larger-circle probe.
+Smaller-arc nested, exact centers/boundaries and arc-arc remain unverified.
+Durable qa36-small-arc-tangent-live-2026-09-12 includes source/test receipts,
+PNG, savedJSON/contactvalidation, publicationmanifest/exports/verification.
+QA36partial26/0/1/29; iPad and immutable05be744 unchanged.
 
 ## Active — fully nested arc/circle paired verification
 
