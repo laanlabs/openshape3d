@@ -2239,3 +2239,13 @@ serial run. Fresh native/changed-clone application, exact radii, geometry histor
 and both gallery reopenings pass. Illustrated975/master38 exports verified:
 ten new hashes once, no predecessor loss. Nested/overlap/arc pairs remain disabled;
 native Redo highlight detail unresolved. QA36partial26/0/1/29. [Receipt](testing/sketch-parity-circle-tangent-2026-09-12.md).
+
+## Nested circle Tangent — September 12, 2026
+
+Source5f4ab54 persists the internal/external circle contact branch, with legacy
+nil preserving external behavior and import remap retaining metadata. Native and
+changed clone preserve radii/inner center, apply internal contact, and pass
+geometry Undo/Redo and both gallery reopenings. Final93/93 clean in one serial
+run. Illustrated985/master38 verified, ten hashes once/no predecessor loss.
+Native Redo highlight and intersecting/arc variants remain open; QA36partial.
+[Receipt](testing/sketch-parity-nested-tangent-2026-09-12.md).

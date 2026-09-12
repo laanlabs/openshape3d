@@ -27,3 +27,17 @@ subsequent import passed focused3 clean5/5. Includes four First/Last/order cases
 whole-Lock refusal, radii/center/history/repeated solving and legacy/new branch
 archive/import. No runner. Combined93-case gate next; changed live and publication
 still pending. No iPad change.
+
+## Final paired verification and publication
+
+Source5f4ab54 final93/93 passed, zero failures/skips, one serial run:
+51application+19merge+6polish+10Trim+7rail UI. No runner or later source edit.
+Changed clone preserves diameters1.7271/0.4944 and inner265730, moves outer
+250720 to224702, clears apply; geometry Undo/Redo and gallery reopening retain
+internal contact and Tangent in Items. Native gallery reopening retains inner
+R3000 and center distance7000 (radius difference), same internal contact.
+Reopened native centers643519/680544 reflect camera fit, not geometry change.
+Illustrated985/master38 export-verified: ten source hashes once, headings once,
+zero predecessor loss. See publication-verification.json in durable evidence.
+Native Redo orange highlight remains unresolved; intersecting/arc pairs remain
+unverified. QA36partial26/0/1/29; iPad unchanged.

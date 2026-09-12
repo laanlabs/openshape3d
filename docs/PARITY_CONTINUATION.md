@@ -1,20 +1,27 @@
 # Parity continuation checkpoint
 
-## Active — Nested-circle Tangent confirmed gap
+## Current — Nested circle Tangent paired and published
 
-Native fresh Sketch12Top R10000/R3000 applies internal contact preserving inner
-center615560 and both radii; outer moves600550 to574533. Undo/Redo geometry
-verified; orange Redo highlight unresolved. OldSketch11 nested input failed;
-fresh sketch restores delivery, existing project retained. Clone nested pair
-250720 diameter1.7271 /265730 diameter0.4944 disables Tangent. Before0/1 six
-failures, no runner. New failing test and nested receipt dirty; evidence durable
-constraint-types/qa36-nested-tangent-live-2026-09-12. Optional persisted circleTangency branch implemented locally, nil legacy external;
-internal residual uses absolute radius difference and import remap retains branch.
-First focused3/3 passed; expanded compile-only failure corrected from document
-Codable to Sketch archive/import. Focused3 five cases passed5/5, no runner.
-Combined93-case gate next (application51+merge19+polish6+Trim10+rail7),
-then changed paired history/reopen/publication. Source diff reviewed.
-Reports975/master38; QA36partial26/0/1/29; iPad unchanged.
+Source5f4ab54 pushed. Final93/93 passed, zero failures/skips, one serial run:
+51application+19merge+6polish+10Trim+7rail UI. No runner. Optional circleTangency
+persists internal/external, legacy nil external; import remap retains branch.
+Native fresh Sketch12Top R10000/R3000 internal contact preserves inner615560,
+moves outer600550 to574533. Changed clone diameters1.7271/0.4944 preserves
+inner265730 and moves outer250720 to224702. Apply, geometry Undo/Redo and
+both gallery reopenings verified. Native reopened pair center distance7000,
+innerR3000; clone inner0.4944 and Tangent Items record retained.
+Native Redo orange highlight unresolved as selection versus hover; no matching
+history-selection claim. Intersecting circles/arc pairs disabled and unverified.
+Illustrated985 unique: ten new hashes once, one heading, no975 predecessor loss;
+master38, one heading/no loss. Durable constraint-types/
+qa36-nested-tangent-live-2026-09-12 includes all probes, before0/1, corrected3/3,
+expanded compile-only fixture error, corrected5/5, final93 summary and logs,
+publication manifests/verification and after DOCX exports.
+Native parked reopened Sketch12Top inner680544 R3000 selected; outer643519R10000.
+Clone parked reopened Sketch1Top inner265730 selected, Items open. LastSelected
+matched, acquisition/Auto off. No source change after final gate.
+Next fresh intersecting-circle native Tangent comparison (not infer from nesting).
+QA36partial; inventory26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Current — External circle Tangent paired and published
 

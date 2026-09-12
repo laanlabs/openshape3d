@@ -335,8 +335,11 @@ final82/82; its free-target anchor variant remains open. Coincident point-on-lin
 extension application/history/reopen is now paired, final84/84. Tangent now has
 paired free-circle and fixed-circle/free-line history/reopen, final86/86 and87/87,
 with illustrated955/master38 publication verified. Manual Concentric selection
-cleanup is paired with final88/88, illustrated965/master38 verified; native two-circle Tangent application is a new
-follow-up, not covered by line-circle Tangent. Remaining all-type live sweep
+cleanup is paired with final88/88, illustrated965/master38 verified. External
+two-circle Tangent is paired with final90/90, illustrated975/master38 verified
+at1969350. Nested internal contact is paired on source5f4ab54 with final93/93,
+geometry history and both gallery reopenings; illustrated985/master38 verified.
+Native Redo highlight and intersecting/arc contact variants remain unverified. Remaining all-type live sweep
 is still incomplete. See
 [constraint types checkpoint](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).
 
