@@ -10,6 +10,12 @@ probe next: outer1000600 R70 exists; attempted inner drags added no circle.
 Circle armed; settle via Exit/reenter before retry. Clone two circles200320
 and400340 selected, Concentric fixture intact. Evidence durable in
 constraint-types/qa36-circle-tangent-live-2026-09-12. Publication pending.
+External-only correction now implemented: two separated full circles enabled,
+external residual plus transient radius preservation; nested/overlapping pairs
+remain disabled pending native evidence. Focused1/1 passed; expanded2-case run
+active at /tmp/os3d-qa36-circle-tangent-focused2-20260912.xcresult, exec79757.
+Exactly this simulator owner; no desktop interactions while running. Changed
+live/history/reopen/publication pending. Source/test WIP checkpoint next.
 No acceptance promotion;26/0/1/29, reports965/master38, iPad unchanged.
 
 ## Current — Concentric paired and publication verified

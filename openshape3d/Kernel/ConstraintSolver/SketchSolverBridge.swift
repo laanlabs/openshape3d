@@ -734,6 +734,11 @@ nonisolated enum SketchSolverBridge {
         }
         func appendTangent(_ refs: [ConstraintRef]) {
             guard refs.count == 2 else { return }
+            if let ra = radiusVar[refs[0].entityID], let rb = radiusVar[refs[1].entityID],
+               let ca = pIdx(refs[0].entityID, .center), let cb = pIdx(refs[1].entityID, .center) {
+                lower(TangentCircleCircleConstraint(centerA: ca, centerB: cb, radiusA: ra, radiusB: rb))
+                return
+            }
             var lineRef: ConstraintRef?
             var circleRef: ConstraintRef?
             for r in refs {

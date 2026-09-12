@@ -1617,6 +1617,51 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(vm.activeSketch, applied)
     }
 
+    func testTwoCircleExternalTangentAnchorOrdersAndLockedRefusal() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        for first in [true, false] {
+            AppSettings.shared.anchoredSketchEntity = first ? .firstSelected : .lastSelected
+            for reversed in [false, true] {
+                let vm = try makeViewModel()
+                let entities: [SketchEntity] = [
+                    .circle(id: UUID(), center: SIMD2(-1, 0.3), radius: 0.4),
+                    .circle(id: UUID(), center: SIMD2(0.6, -0.5), radius: 0.3)]
+                let original = openSketch(vm, entities: entities)
+                vm.mode = .sketching(original.id, tool: nil)
+                let ids = entities.map(\.id)
+                let order = reversed ? Array(ids.reversed()) : ids
+                vm.selectSketchEntitiesInOrder(order)
+                vm.applyConstraint(.tangent)
+                let applied = try XCTUnwrap(vm.activeSketch)
+                let anchor = first ? order[0] : order[1]
+                XCTAssertEqual(applied.entities.first { $0.id == anchor }, entities.first { $0.id == anchor })
+                guard case let .circle(_, a, ra) = applied.entities[0],
+                      case let .circle(_, b, rb) = applied.entities[1] else { return XCTFail("Missing circles") }
+                XCTAssertEqual(ra, 0.4, accuracy: 1e-8)
+                XCTAssertEqual(rb, 0.3, accuracy: 1e-8)
+                XCTAssertEqual(simd_length(b - a), 0.7, accuracy: 1e-8)
+                XCTAssertEqual(applied.constraints.filter { $0.kind == .tangent }.count, 1)
+                XCTAssertEqual(applied.dimensions, original.dimensions)
+                XCTAssertLessThan(SketchSolverBridge.residualNorm(applied), 1e-7)
+            }
+        }
+        let vm = try makeViewModel()
+        let entities: [SketchEntity] = [
+            .circle(id: UUID(), center: .zero, radius: 0.4),
+            .circle(id: UUID(), center: SIMD2(2, 0), radius: 0.3)]
+        let locked = Sketch(plane: .ground, entities: entities, constraints: entities.map {
+            .init(kind: .fixed, refs: [.init(entityID: $0.id, role: .whole)])
+        })
+        vm.session.perform(AddSketchCommand(sketch: locked))
+        vm.mode = .sketching(locked.id, tool: nil)
+        vm.selectSketchEntitiesInOrder(entities.map(\.id))
+        vm.applyConstraint(.tangent)
+        XCTAssertEqual(vm.activeSketch, locked)
+        XCTAssertNotNil(vm.errorMessage)
+        XCTAssertEqual(vm.selectedSketchEntityIDs, Set(entities.map(\.id)))
+    }
+
     func testConcentricPreservesRadiiAndClearsSelectionOnSuccessAndHistoryButNotRefusal() throws {
         let vm = try makeViewModel()
         let prior = AppSettings.shared.anchoredSketchEntity

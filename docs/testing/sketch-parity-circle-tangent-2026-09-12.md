@@ -21,3 +21,17 @@ Native existing external Tangent and Concentric fixtures preserved.
 Durable evidence: constraint-types/qa36-circle-tangent-live-2026-09-12 under
 workspace reports/openshape3d-core-sketch-milestone-2026-09-08.
 Publication pending. Reports965/master38; QA36partial26/0/1/29;iPad unchanged.
+
+## Bounded external implementation under test
+
+Nested-circle creation remains input-inconclusive after reentry and settled
+menu/blank checks. Only separated full-circle pairs are newly enabled; nested,
+overlapping and arc pairs remain unsupported explicitly, not forced external.
+External circle-circle residual equates center distance to sum of radius variables.
+Transient application radius preferences preserve both radii and yield to saved
+relationships; existing First/Last whole-anchor logic remains in force.
+No new stored dimension/Lock or schema property. Line-circle lowering unchanged.
+Focused /tmp/os3d-qa36-circle-tangent-focused-20260912.xcresult passed1/1.
+Expanded First/Last/reversed-order and whole-Lock refusal two-case run active
+at /tmp/os3d-qa36-circle-tangent-focused2-20260912.xcresult.
+Changed live validation and combined regression pending.

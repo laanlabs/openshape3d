@@ -11600,6 +11600,17 @@ final class EditorViewModel {
         }
     }
 
+    /// Only the paired separated-circle external branch is currently exposed.
+    /// Nested/overlapping circle and arc pairs need their own branch selection.
+    private var separatedCircleTangentOperands: [SketchEntity]? {
+        let selected = selectedRadiusEntities
+        guard selected.count == 2,
+              case let .circle(_, a, ra) = selected[0],
+              case let .circle(_, b, rb) = selected[1],
+              simd_length(b - a) >= ra + rb - 1e-9 else { return nil }
+        return selected
+    }
+
     func canApplyConstraint(_ kind: SketchConstraintKind) -> Bool {
         guard mode.isSketching, !isPickingSymmetryAxis else { return false }
         // Derived rectangle centers currently support only a local Lock.
@@ -11632,7 +11643,7 @@ final class EditorViewModel {
         case .equalRadius, .concentric:
             return circles == 2
         case .tangent:
-            return lines == 1 && circles == 1
+            return (lines == 1 && circles == 1) || separatedCircleTangentOperands != nil
         case .midpoint:
             return points == 1 && lines == 1
         case .symmetric:
@@ -11803,6 +11814,24 @@ final class EditorViewModel {
         // relationship makes either incompatible. In particular, retry here
         // after an incompatible preferred whole-line anchor is removed.
         func solveWithTangentLinePreferences(_ candidate: Sketch) -> SketchSolverBridge.Outcome {
+            if kind == .tangent {
+                let ids = Set(newConstraints.flatMap(\.refs).map(\.entityID))
+                let circles = sketch.entities.filter { entity in
+                    if case .circle = entity { return ids.contains(entity.id) }
+                    return false
+                }
+                if circles.count == 2 {
+                    var preferred = candidate
+                    for circle in circles {
+                        guard case let .circle(id, _, radius) = circle else { continue }
+                        preferred.dimensions.append(.init(kind: .radius,
+                            refs: [.init(entityID: id, role: .center)], value: radius))
+                    }
+                    let result = SketchSolverBridge.solveOutcome(preferred, movingEntity: nil, dragTarget: nil)
+                    if result.converged && result.structuralResidual <= Self.overConstraintTolerance { return result }
+                    return SketchSolverBridge.solveOutcome(candidate, movingEntity: nil, dragTarget: nil)
+                }
+            }
             guard kind == .tangent,
                   let lineID = newConstraints.flatMap(\.refs).map(\.entityID).first(where: { id in
                       sketch.entities.contains { entity in
@@ -12041,6 +12070,7 @@ final class EditorViewModel {
                 ConstraintRef(entityID: circles[1].id, role: .center),
             ]
         case .tangent:
+            if let pair = separatedCircleTangentOperands { return pair.map(whole) }
             guard let line = lines.first, let circle = circles.first else { return nil }
             return [whole(line), whole(circle)]
         case .midpoint:

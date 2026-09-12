@@ -418,6 +418,19 @@ nonisolated struct TangentLineCircleConstraint: ConstraintResidual {
     }
 }
 
+/// External contact between two circles; radius variables remain independently driven.
+nonisolated struct TangentCircleCircleConstraint: ConstraintResidual {
+    let centerA: Int
+    let centerB: Int
+    let radiusA: Int
+    let radiusB: Int
+    var variableIndices: [Int] { pointIndices(centerA) + pointIndices(centerB) + [radiusA, radiusB] }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        [simd_length(point(vars, centerB) - point(vars, centerA)) - vars[radiusA] - vars[radiusB]]
+    }
+}
+
 /// A persisted arc angle drives the CCW sweep in radians, not its radius.
 nonisolated struct ArcSweepConstraint: ConstraintResidual {
     let sweepVar: Int
