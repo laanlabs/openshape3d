@@ -2346,3 +2346,13 @@ opposite guide, history and both reopenings verified. Illustrated1078/master38,
 nine hashesonce/no predecessor loss. Exact boundaries/arc-arc unverified;
 QA36partial26/0/1/29. Next free-target Midpoint anchor comparison.
 [Paired receipt](testing/sketch-parity-small-nested-arc-tangent-2026-09-12.md).
+
+## Free-target Midpoint anchor modes — September 12, 2026
+
+Sourcee177ce1 corrects paired point-first/line-second placement in both anchor
+modes using original-system constrained projection. Before0/1, focused2/2 plus
+locked-driver1/1 separately; final106/106 clean. Changed First/Last live history
+and Last-mode both gallery reopenings verified. Illustrated1089/master38,
+eleven hashesonce/no loss. Reverse-order/parallel/non-line forms not claimed;
+QA36partial26/0/1/29, iPad unchanged.
+[Paired receipt](testing/sketch-parity-midpoint-anchor-2026-09-12.md).

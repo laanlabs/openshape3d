@@ -1,32 +1,21 @@
 # Parity continuation checkpoint
 
-## Active — free-target Midpoint anchor diagnosis
+## Active — free-target Midpoint paired checkpoint
 
-HEAD1a80d46 pushed; source7349e99 final104/104 retained, no runner.
-Fresh native Sketch12Top target500600→600600 (38419.426mm), source500500→500570
-(26893.5852mm), AutoConstrainOFF. Settled sourcepoint selection then Shift-box
-GLOBAL584664→714694 retains mixed operands; More→Midpoint enabled.
-LastSelected applies target400600→600600 (76838.8519mm), source500500→500600.
-Undo restores both. FirstSelected visibly confirmed, same selection route
-applies target unchanged500600→600600 and translates source550530→550600.
-Native currently FirstSelected applied, no operands selected. Clone remains
-reopened smallnested arc250690/circle250710; no new clone Midpoint comparison yet.
-Clone paired fixture target350300→450300 (1.2444mm), source350200→350270
-(0.8737mm), settings visually matched and mixed operands enabled Midpoint.
-LastSelected keeps target and stretches source350200→400300 diagonally;
-FirstSelected keeps source and translates target300270→400270. Both differ
-from native. Captures copied durable. New endpoint/history/archive regression
-added; first invocation compile-only failed SIMD2<Int> inference, fixed to
-Double. Before2 gate0/1: six geometry assertions failed, history/archive passed.
-Scoped point-first/line-second application preference implemented using
-solvePointTransform against original saved constraints (no schema additions).
-Focused2/2 passed clean. Locked-target/driving-length additional gate running
-exclusively session63193, /tmp/os3d-qa36-mid-anchor-locked-20260912.
-Source/tests WIP, changed live/final gate/publication pending.
-Next collect before gate, implement scoped endpoint-line preference against
-original saved constraints, focused regression then changed live both modes.
-Reports1078/master38 unchanged; publication pending. QA36partial26/0/1/29;
-iPad/immutable05be744 unchanged.
+Sourcee177ce1 pushed. Corrected before0/1 (six geometry failures), focused2/2,
+locked-driver1/1 separately; final106/106 clean, zero failures/skips, no runner.
+Changed clone First translates source350200→350270 to400230→400300 with
+unchanged target; Last extends target250300→450300/source350200→350300.
+Both modes live history verified. Native both modes/history match; Last gallery
+reopens76838.8519mm (target545567→712567, midpoint628567), clone2.4887mm.
+Clone saved JSON dimensions0, Midpoint plus unrelated Parallel intact.
+Both apps parked reopened selected Last-mode target, Last Selected preference.
+Publication1089unique/master38, eleven hashesonce/headingsonce/no1078/38loss.
+Durable qa36-midpoint-anchor-live-2026-09-12 contains all evidence and exports.
+Next push paired docs then reconcile remaining finite QA36 family evidence;
+do not expand tangency boundary probes merely because they are untested.
+Reverse selection order/parallel/degenerate/non-line Midpoint not claimed.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
 
 ## Active — smaller arc fully nested paired checkpoint
 

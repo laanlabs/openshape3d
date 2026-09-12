@@ -331,7 +331,10 @@ Equal Length/Radius and circle/two-line Symmetry now have fresh paired
 application/history/reopen evidence. Final gates90/90,64/64 and76/76 support
 those checkpoints. Perpendicular length and selection cleanup has paired
 application/history/reopen evidence and final80/80. Midpoint selection cleanup now has paired application/history/reopen and
-final82/82; its free-target anchor variant remains open. Coincident point-on-line
+final82/82. Free-target point-first/line-second anchor modes now match paired
+application/history and Last-mode both-app reopen, final106/106 on e177ce1;
+illustrated1089/master38 verified. Reverse-order/parallel variants unclaimed.
+See [Midpoint anchor receipt](testing/sketch-parity-midpoint-anchor-2026-09-12.md). Coincident point-on-line
 extension application/history/reopen is now paired, final84/84. Tangent now has
 paired free-circle and fixed-circle/free-line history/reopen, final86/86 and87/87,
 with illustrated955/master38 publication verified. Manual Concentric selection
