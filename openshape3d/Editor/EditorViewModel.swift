@@ -920,6 +920,9 @@ final class EditorViewModel {
             if activeSketchID == sketch.id {
                 var guided = Set<UUID>()
                 for constraint in sketch.constraints where constraint.kind == .tangent {
+                    guard annotationIsVisible(refs: constraint.refs,
+                        alwaysShow: AppSettings.shared.alwaysShowConstraints,
+                        explicitlySelected: selectedConstraintID == constraint.id) else { continue }
                     let ids = Set(constraint.refs.map(\.entityID))
                     let operands = sketch.entities.filter { ids.contains($0.id) }
                     guard let arc = operands.first(where: { if case .arc = $0 { return true }; return false }),
