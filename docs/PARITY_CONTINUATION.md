@@ -1,5 +1,23 @@
 # Parity continuation checkpoint
 
+## Current checkpoint — Symmetry paired and publication verified
+
+Source `5a3687e` pushed; final serial64/64 zero fail/skip. No runner.
+Changed clone two-circle→Symmetric→axis application, Cancel, fixed first center/axis,
+Undo/Redo and gallery reopening verified against native. Native already had
+Equal Radius (R43); clone Ø0.8638/0.8634 becomes Ø0.8638 at reflected centers.
+Illustrated891 unique media: ten new hashes once, heading/verdict once, no loss
+from881. Master38: heading and final verification paragraph once, no loss.
+Durable evidence: constraint-types/qa36-symmetry-live-2026-09-11 under workspace
+reports/openshape3d-core-sketch-milestone-2026-09-08.
+Next reproduce settled native axis selection after application/history; clone
+history deselects while native history highlighted axis. Then independent unequal
+native radii and remaining line/arc Symmetry variants. Do not call QA36 closed.
+Native Sketch11 Front reopened right R43 selected; simulator Sketch1 Top reopened
+right Ø0.8638 selected. No competing desktop/build owner. Inventory26/0/1/29;
+iPad and immutable05be744 unchanged. Unrelated identity/memory files preserved.
+Older running/pending entries below are superseded historical receipts.
+
 ## Latest checkpoint — QA36 Symmetry final64/64
 
 Source fixes from006bf4b verified in one final **64/64** run, zero fail/skip

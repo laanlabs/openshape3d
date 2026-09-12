@@ -2139,3 +2139,14 @@ clone evidence. Current1fdb6a3 serialLineChain gate3/3; no new product change.
 Illustrated863/master38 verified, ten source hashes plus one visuallyverified
 Google-downsampled clone reopen and no852 predecessorloss. QA05 finite PASS;
 inventory26/0/1/29. Physical/hover remain separate. See line-chain receipt.
+
+
+### September 12 QA36 Symmetry paired checkpoint
+
+`5a3687e`: circle operands→Symmetry→axis selection, cancellation, atomic solve,
+history and gallery persistence verified in changed clone and native. Final
+serial64/64 zero failures/skips; illustrated891/master38 publication verified
+with ten hashes once and no predecessor loss. QA36 remains partial: settled
+native history-axis selection, independently unequal native radii and other
+Symmetry element types remain open. Inventory26/0/1/29; iPad unchanged. See
+[constraint receipt](testing/sketch-parity-constraint-types-checkpoint-2026-09-11.md).

@@ -177,3 +177,21 @@ Final corrected combined Symmetry gate: **64/64**, zero failures/skips,
 copied durable; xcresult `/tmp/os3d-qa36-symmetry-final-20260912.xcresult`.
 This supersedes only automated status; native/changed-clone live and publication
 remain pending. Earlier failures are retained, not counted as clean passes.
+
+
+## September 12 — changed-build paired Symmetry checkpoint
+
+Source `5a3687e`, final **64/64** one serial run (zero fail/skip). Both apps
+complete two-circle selection→Symmetry→axis, preserve first center/axis, reflect
+second center, Undo/Redo and gallery reopen. Native R43 pair already had Equal
+Radius; clone Ø0.8638/0.8634 becomes Ø0.8638. Native history highlighted the axis
+where clone history deselects; settled application/history selection remains an
+explicit follow-up, not a claimed match. Independent unequal native radii and
+other similar-element types remain unverified. QA36 stays partial.
+
+Illustrated export891 unique media, all ten new source hashes exactly once,
+heading/verdict once, no loss from881. Master38 unique media, checkpoint heading
+and final verification paragraph once, no predecessor loss. DOCX exports and
+verification JSON are retained in the durable Symmetry directory above.
+No runner. Inventory26 passed/0 failed/1 device-blocked/29 incomplete. Physical
+iPad build/install and immutable05be744 unchanged.
