@@ -9869,6 +9869,12 @@ final class EditorViewModel {
             selectedSketchEntityIDs.removeAll()
             selectedSketchPoints = [.init(entityID: entity.id,
                 role: control?.kind == .lineStart ? .endpointA : .endpointB)]
+        } else if control?.kind == .center, case .circle = entity,
+                  selectedSketchPoints.contains(.init(entityID: entity.id, role: .center)) {
+            // A selected center remains a point selection while translating
+            // its circle, including after an explicit Disconnect.
+            selectedSketchEntityIDs.removeAll()
+            selectedSketchPoints = [.init(entityID: entity.id, role: .center)]
         } else if control?.kind == .center, case .rect = entity {
             selectedSketchEntityIDs.removeAll()
             selectedAxisRectangleEdge = nil

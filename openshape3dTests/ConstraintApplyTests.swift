@@ -1151,6 +1151,57 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(moved)), moved)
     }
 
+    func testDisconnectedSelectedCircleCenterDragKeepsPointOnlyAndRadius() throws {
+        let settings = AppSettings.shared
+        let prior = (settings.snapToGrid, settings.snapToSketchGuidelines,
+                     settings.snapToSketchGuidepoints, settings.snapToFaceGuidepoints)
+        settings.snapToGrid = false; settings.snapToSketchGuidelines = false
+        settings.snapToSketchGuidepoints = false; settings.snapToFaceGuidepoints = false
+        defer {
+            settings.snapToGrid = prior.0; settings.snapToSketchGuidelines = prior.1
+            settings.snapToSketchGuidepoints = prior.2; settings.snapToFaceGuidepoints = prior.3
+        }
+        let vm = try makeViewModel()
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(0, 0), radius: 3)
+        let target = line(SIMD2(0, 0), SIMD2(8, -4))
+        let point = EditorViewModel.SketchPointSelection(entityID: circle.id, role: .center)
+        let joined = SketchConstraint(kind: .coincident, refs: [
+            .init(entityID: circle.id, role: .center),
+            .init(entityID: target.id, role: .endpointA)])
+        let radius = SketchDimension(kind: .radius,
+            refs: [.init(entityID: circle.id, role: .whole)], value: 3)
+        let sketch = Sketch(plane: .ground, entities: [circle, target],
+                            constraints: [joined], dimensions: [radius])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchPoints = [point]
+        vm.disconnectSketchSelection()
+        let detached = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(detached.entities, sketch.entities)
+        XCTAssertFalse(detached.constraints.contains(joined))
+        vm.selectedSketchPoints = [point]
+        func ray(_ p: SIMD2<Double>) -> Ray {
+            Ray(origin: SIMD3<Float>(sketch.plane.toWorld(p) + sketch.plane.normal * 10),
+                direction: SIMD3<Float>(-sketch.plane.normal))
+        }
+        XCTAssertTrue(vm.beginSketchStroke(ray: ray(SIMD2(0, 0))))
+        vm.updateSketchStroke(ray: ray(SIMD2(-2, 0)))
+        vm.endSketchStroke(ray: ray(SIMD2(-2, 0)))
+        let moved = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(moved.entities[1], target)
+        guard case let .circle(_, center, r) = moved.entities[0] else { return XCTFail("Circle missing") }
+        XCTAssertEqual(simd_distance(center, SIMD2(-2, 0)), 0, accuracy: 1e-8)
+        XCTAssertEqual(r, 3, accuracy: 1e-8)
+        XCTAssertEqual(moved.dimensions, [radius])
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty, "Selected center drag must not promote the whole circle")
+        XCTAssertEqual(vm.selectedSketchPoints, [point])
+        vm.undo(); XCTAssertEqual(vm.activeSketch, detached)
+        vm.undo(); XCTAssertEqual(vm.activeSketch, sketch)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, detached)
+        vm.redo(); XCTAssertEqual(vm.activeSketch, moved)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(moved)), moved)
+    }
+
     func testDisconnectCoversMidpointNonLineAndPrimitiveConnectionsWithoutDataLoss() throws {
         // Midpoint is a connection relationship, but Equal Length is not.
         let midpointVM = try makeViewModel()

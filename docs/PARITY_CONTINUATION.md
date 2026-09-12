@@ -1,5 +1,19 @@
 # Parity continuation checkpoint
 
+## Active — QA38 circle-center drag selection correction
+
+Baseline db56d29/source96b1368. Before0/1 confirms circle-center drag promotes
+whole circle; independent geometry/radius/history/JSON pass. Scoped selected
+circle-center branch implemented; focused3/3 clean, no runner. Checkpointing
+source/tests/receipt; next relevant combined application/merge/polish/Trim plus
+rail UI and circle-center workflows. Then changed live/history/reopen/publication.
+Native detached R18000 center470550, line500550→600650 fixed; overlap chooser
+Circle Center route works. Clone before circle220315, Ø0.6168, line250315→350350;
+whole-circle promotion is fixed in source, not yet repeated live. Separate
+initial two-point Coincident average movement/selection issue retained, not fixed.
+Durable qa38-center-live-2026-09-12. QA38partial27/0/1/28, reports1138/master38;
+iPad/immutable05be744 unchanged. No desktop while upcoming runner active.
+
 ## Active — QA38 midpoint paired; circle-center next
 
 Source96b1368 pushed; final116/116 clean, zero failures/skips (108model+8UI).
