@@ -1210,6 +1210,7 @@ final class DimensionUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchArguments += ["-os3d.alwaysShowDimensions", "NO"]
         app.launch()
         let window = app.windows.firstMatch
         startGroundSketch(app, window: window, tool: "Line")
@@ -1221,6 +1222,9 @@ final class DimensionUITests: XCTestCase {
         p(0.34, 0.50).press(forDuration: 0.15, thenDragTo: p(0.62, 0.50))
         sleep(1)
         setDimension(app, to: "20")
+        // The exact-size edit may extend beyond the initial drawing viewport.
+        // This is a selection-ownership test, not an offscreen-label layout test.
+        app.buttons["Fit View"].tap()
         sleep(1)
 
         let badge = app.buttons["DimensionLabel"].firstMatch

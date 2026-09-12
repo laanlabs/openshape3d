@@ -42,3 +42,24 @@ none/one/several/disjoint screenshots are captured and the illustrated report is
 saved and export-verified. QA-28 owns synthetic dimension candidates. Physical
 Pencil/touch remains QA-52. Inventory stays 13 passed / 0 failed /
 1 device-blocked / 42 incomplete, and the immutable `05be744` IPA is unchanged.
+
+## Fresh paired matrix and viewport fixture diagnosis
+
+On2fdecd6/d62c25d, nativeSketch08 saved10/12/8mm and cloneSketch1 saved1/2/3mm
+show correct none/one/two disconnected/all-three ownership withAlwaysShowOFF.
+Clonefirst+third excludesintervening2. Native narrowfirst/third window includes
+middleendpoint, so12legitimatelyshows; notcountedasexclusion. Modifier-onlyShift
+wasrejectedbybridge. Syntheticangle/transformcandidates are separateQA28.
+Differentfixtureangles/scales areexplicit; no numeric-resize-direction claim.
+ElevenPNG staged/inserted; illustratedexport verification stillpending841baseline.
+
+Currentgate:28modelpasses/1UI failure. The20mmline extended outsideinitialviewport;
+XCTest couldnotreachlabelx1675 on1032ptwindow. Savedownershipassertions passed.
+Screenshotandfailurebundle retained. UIfixture now invokesFitView after exact20
+edit and launchesAlwaysShowOFF explicitly; visibility/editorassertions unchanged.
+Focused rerun active /tmp/os3d-qa25-fitted-ui-20260911.xcresult. Productsource
+unchanged. QA25partial pending focused/combined gate and publication verification.
+
+Focused fitted UI rerun passed1/1 at
+`/tmp/os3d-qa25-fitted-ui-20260911.xcresult`; unchanged Exit/reselection/editor
+assertions passed. Corrected combined29 gate running separately, not yet counted.

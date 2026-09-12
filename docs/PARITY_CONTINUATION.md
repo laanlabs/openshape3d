@@ -1,5 +1,56 @@
 # Parity continuation checkpoint
 
+## Current execution — QA25 corrected combined gate active
+
+Focused fitted UI1/1 passed; combined29 now sole simulator owner at
+/tmp/os3d-qa25-live-corrected-final-20260911.xcresult and.log. Initial28/29failed
+receipt retained (20mm extendsviewport); FitView+explicitOFF fixture onlychange.
+Paired off-state PNG complete; eleven inserted intoillustrated SavedtoDrive,
+exportverification/finalverdict/master pending. Baselines841/38 copied durable.
+Nextcollectcombined, publishresult ifclean, verifyhashes/predecessors, updateledger
+andpush. QA25partial inventory24/0/1/31. NextafterclosureQA05freshnativechain.
+NativeSketch08 parkedselectedfirst/third+middleendpoint; cloneownedbyUIrunner.
+No iPad/immutable05be744 changes; unrelatedfilespreserved.
+
+## Current execution — QA25 focused viewport-fixture rerun active
+
+HEADd62c25d. Dirty DimensionUITests + QA25receipt/continuation. Pairednone/one/
+twoDisconnected/allthree captured inbothapps; clonefirst+thirdhidesmiddle2.
+Initialgate28pass/1UIfail:20mmoffscreenlabelx1675, ownershipassertionspassed.
+Fixture nowFitView after20edit and explicitOFFlaunchoverride; no sourcechange.
+Focusedsole runner /tmp/os3d-qa25-fitted-ui-20260911.xcresult and.log.
+Nextcollectthencombined29, verifyeleveninsertedimages against841/38predecessors,
+appendfinalverdict/master, closeonlyifverified. AllQA25PNG andfailedsummary/log/
+UIattachments durable. Nativeparkedfirst+third+middleendpoint (notexclusion).
+CloneUItestsown/resetfixture. Inventory24/0/1/31;deviceunchanged.
+
+## Current execution — QA25 paired off-state selection captured
+
+HEADd62c25d tasksource clean. NativeSketch08 saved10/12/8, AlwaysShowOFF:
+none/no labels, one10, two disconnected10+12 hide8, allthree10/12/8 verified.
+Narrower native first/third window also selected middle endpoint, so12visible
+is expected and not an exclusion case. Modifier-onlyShift rejected bybridge;
+no stuckmodifier. CloneSketch1 saved1/2/3, AlwaysShowOFF: none, one1, two1+2
+hide3, allthree, then first+third1+3 hideintervening2 verified. Different fixture
+scales/angles recorded; synthetic angle/transformcandidate is not savedlabel.
+No productchange forQA25. Native parked selectedfirst/third+middleendpoint;
+clone parkedfirst/third. Need final current annotation/foundation/dimensionUI
+gate, publication against841/38, closureledger ifverified. No runner currently.
+DurableQA25live PNG/JSON copied. Inventory24/0/1/31; iPadunchanged.
+
+## Current execution — QA25 native off-state fixture
+
+HEADd62c25d QA26closure pushed; inventory24/0/1/31. No test runner.
+NativeSketch08 has three independent lines with saved10/12/8mm lengths.
+AlwaysShowDimensions nowOFF; none hides all, one top shows10, replacementbottom
+shows8. Plainclick replaces selection. BoundedShift-hold plus globalclick probe
+active /tmp/os3d-qa25-native-shift-*.json; collect before desktop input.
+Next confirm disjointtop+bottom selection hidesmiddle12, then matchedclone and
+current regression/publication. NativeFront view endpoints top650250→790320,
+middle650400→838400, bottom650550→772578; windoworigin99,79.
+DurableQA25live dir annotation-off-state/qa25-live-2026-09-11 undercoremilestone.
+Clone latest final29 UI fixture, not yet QA25setup. Device/immutable unchanged.
+
 ## Current execution — QA26 closed; QA25 off-state next
 
 HEAD2fdecd6 source pushed; closure docs being committed. Final29/29 clean,
