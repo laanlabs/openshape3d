@@ -144,7 +144,8 @@ nonisolated enum ProjectMergeKit {
                 dimensions: sketch.dimensions.map {
                     SketchDimension(id: UUID(), kind: $0.kind, refs: $0.refs.map(remap),
                                     value: $0.value, formula: $0.formula, labelOffset: $0.labelOffset,
-                                    displayExpression: $0.displayExpression, rectangleLabelEdges: $0.rectangleLabelEdges)
+                                    displayExpression: $0.displayExpression, rectangleLabelEdges: $0.rectangleLabelEdges,
+                                    rectangleDrivingEdge: $0.rectangleDrivingEdge)
                 },
                 patternLinks: sketch.patternLinks.map {
                     SketchPatternLink(

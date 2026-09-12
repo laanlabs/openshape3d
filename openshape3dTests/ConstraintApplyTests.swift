@@ -16,6 +16,66 @@ import simd
 @MainActor
 final class ConstraintApplyTests: XCTestCase {
 
+    func testTrimRectangleDropsOnlyRemovedSideDriverAndUndoRestoresBoth() throws {
+        for typed in [false, true] {
+            for removedSide in 0..<4 {
+                let vm = try makeViewModel()
+                let rectangle = SketchEntity.rect(id: UUID(), min: .zero, max: SIMD2(8, 6))
+                let source = openSketch(vm, entities: [rectangle])
+                vm.mode = .sketching(source.id, tool: nil)
+                let survivingSide = (removedSide + 1) % 4
+                for side in [removedSide, survivingSide] {
+                    let kind: DimensionKind = side % 2 == 0 ? .horizontal : .vertical
+                    vm.selectedSketchEntityIDs = [rectangle.id]
+                    vm.selectedAxisRectangleEdge = (rectangle.id, side)
+                    let label = try XCTUnwrap(vm.sketchDimensionLabels.first {
+                        $0.kind == kind && $0.axisRectangleEdge == side
+                    })
+                    vm.beginDimensionEdit(label)
+                    let seed = try XCTUnwrap(vm.editingDimension?.text)
+                    if typed { vm.commitDimensionEdit(seed) }
+                    else { vm.toggleDimensionLock(seed) }
+                }
+                let before = try XCTUnwrap(vm.activeSketch)
+                XCTAssertEqual(before.dimensions.count, 2)
+                XCTAssertEqual(before.dimensions.compactMap(\.rectangleDrivingEdge),
+                               [removedSide, survivingSide])
+                let decoded = try JSONDecoder().decode(Sketch.self,
+                    from: JSONEncoder().encode(before))
+                XCTAssertEqual(decoded, before)
+                var guest = DesignDocument()
+                guest.sketches = [before]
+                let imported = try XCTUnwrap(ProjectMergeKit.insert(guest,
+                    into: DesignDocument()).document.sketches.first)
+                XCTAssertEqual(imported.dimensions.compactMap(\.rectangleDrivingEdge),
+                               [removedSide, survivingSide])
+                XCTAssertTrue(imported.validateConstraintRefs())
+                let mids: [SIMD2<Double>] = [SIMD2(4, 0), SIMD2(8, 3),
+                                            SIMD2(4, 6), SIMD2(0, 3)]
+                let fragments = try XCTUnwrap(SketchTrimmer.trim(entity: rectangle,
+                    at: mids[removedSide], in: decoded))
+                let command = TrimCommand(sketch: decoded, index: 0,
+                    removed: rectangle, fragments: fragments)
+                var document = DesignDocument()
+                document.sketches = [decoded]
+                command.apply(to: &document)
+                let after = document.sketches[0]
+                XCTAssertEqual(after.dimensions.map(\.id), [before.dimensions[1].id],
+                    "The removed edge driver must not migrate to an opposite edge")
+                XCTAssertEqual(after.dimensions.first?.value, before.dimensions[1].value)
+                XCTAssertEqual(Set(after.dimensions.flatMap { $0.refs.map(\.entityID) }).count, 1)
+                XCTAssertTrue(after.validateConstraintRefs())
+                XCTAssertTrue(ProfileDetector.detectProfiles(in: after).isEmpty)
+                XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+                    from: JSONEncoder().encode(after)), after)
+                command.revert(in: &document)
+                XCTAssertEqual(document.sketches[0], before)
+                command.apply(to: &document)
+                XCTAssertEqual(document.sketches[0], after)
+            }
+        }
+    }
+
     func testTrimSuppressesSelectedReadoutsAndRestoresThemOnExit() throws {
         let vm = try makeViewModel()
         let polygon = SketchEntity.polygon(id: UUID(), center: .zero,

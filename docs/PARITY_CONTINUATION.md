@@ -1,5 +1,26 @@
 # Parity continuation checkpoint
 
+## Active — QA43 primitive rectangle side-driver gap
+
+HEAD0c1f170/source2016713; QA41 closed, inventory29/0/1/26.
+Native top100000/right70000 drivers locked. Trim top drops width driver,
+preserves height (native accessibility Unlock); Undo restores top driver,
+Redo then bottom editor offers Lock (not a surviving width driver).
+Clone rectangle200250→320320, width1.4946754/height0.8723702 locked; Trim top
+retains BOTH drivers, mapped to surviving diagonal endpoints. Confirmed gap.
+Initial Escape injection did not disarm clone Trim, extra right-edge deletion
+was undone; explicit Trim toggle then clean right selection verified. Excluded
+input attempt retained. Native parked bottom editor of open U; clone right
+selected open U. No live input during runner.
+Before-source test active exclusively: exec88838, /tmp/os3d-qa43-side-before-20260912.{log,xcresult}.
+New ConstraintApplyTests/testTrimRectangleDropsOnlyRemovedSideDriverAndUndoRestoresBoth.
+Before0/1 failed extra-width-driver assertion only. Product fix now implemented; focused21/21 passed; expanded all-four-side Lock/typed matrix1/1 passed, JSON/import/history included. No runner. Combined gate next after source checkpoint. Confirmed missing persisted owning-side provenance:
+rectangleLabelEdges is presentation only; toggleDimensionLock does not set it.
+Consider separate optional driving-edge field, preserved import/JSON; Trim
+should drop missing owner edge and retarget surviving owner endpoints.
+New rectangleDrivingEdge optional stored by Lock/numeric creation, imported; Trim drops removed owner or retargets surviving full edge. Legacy nil unchanged. Dirty source/tests/docs; no changed live yet. Fresh PNG/actions/JSON durable trim/qa43-live-2026-09-12.
+Reports1174/master38. iPad/immutable05be744 unchanged.
+
 ## Active — QA41 finite closure verified; QA43 next
 
 Source2016713 pushed; final123/123 clean, no failures/skips, no runner.
@@ -14,7 +35,7 @@ Next QA43 fresh driven dimension/constraint Trim, surviving reference/profile,
 Undo/Redo and reopen comparison. Existing123 includes lifecycle/reference test;
 do not repeat unless source or assertions change. Native normal Sketch12 at
 reopened open pentagon, clone reopened open pentagon+unrelated hex/ellipse.
-No runner or desktop process. No source dirty; closure docs ready to commit.
+QA41 closure0c1f170 pushed. Native QA43 rectangle top width100000 and right height70000 locked through keypad; Trim top removed edge. Surviving height70000 editor accessibility identifies expressionNumpad.unlock, proving retained driver. Native editor Escape then Edit Undo currently executing (exec95210); collect before desktop action. Next inspect restored top driver, then clone equivalent fixture. No test runner/source dirty. Fresh evidence trim/qa43-live-2026-09-12.
 
 ## Active — QA38 closed; point-pair Coincident next
 

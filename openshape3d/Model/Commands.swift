@@ -701,6 +701,32 @@ struct TrimCommand: DocumentCommand {
         var droppedD: [(Int, SketchDimension)] = []
         for (i, dimension) in sketch.dimensions.enumerated()
         where dimension.refs.contains(where: { $0.entityID == removed.id }) {
+            if case let .rect(_, lo, hi) = removed,
+               let edge = dimension.rectangleDrivingEdge,
+               (0..<4).contains(edge),
+               dimension.refs.allSatisfy({ $0.entityID == removed.id }) {
+                // A rectangle size is solved through diagonal points, but its
+                // owning edge must survive in full. Do not transfer a removed
+                // top-edge driver to the bottom just because both corners live.
+                let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+                let a = corners[edge], b = corners[(edge + 1) % 4]
+                let survivor = fragments.first {
+                    guard case let .line(_, p, q) = $0 else { return false }
+                    return (simd_length(p - a) < 1e-6 && simd_length(q - b) < 1e-6)
+                        || (simd_length(p - b) < 1e-6 && simd_length(q - a) < 1e-6)
+                }
+                if let survivor {
+                    var after = dimension
+                    after.refs = [.init(entityID: survivor.id, role: .endpointA),
+                                  .init(entityID: survivor.id, role: .endpointB)]
+                    after.rectangleDrivingEdge = nil
+                    after.rectangleLabelEdges = nil
+                    retargetedD.append((i, dimension, after))
+                } else {
+                    droppedD.append((i, dimension))
+                }
+                continue
+            }
             let newRefs = dimension.refs.compactMap(retarget)
             if newRefs.count == dimension.refs.count {
                 var after = dimension

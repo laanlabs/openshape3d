@@ -13627,7 +13627,7 @@ final class EditorViewModel {
                 ? edit.refs.first.flatMap { temporaryDiameterLabelOffsets[$0.entityID] } : nil
             let dimension = SketchDimension(kind: edit.kind, refs: edit.refs,
                 value: edit.kind == .angle ? measured * .pi / 180 : measured,
-                labelOffset: offset)
+                labelOffset: offset, rectangleDrivingEdge: edit.axisRectangleEdge)
             // Freeze the actual measured size without solving or moving geometry.
             session.perform(AddSketchDimensionCommand(sketchID: sketch.id, dimension: dimension))
             session.save()
@@ -13820,7 +13820,8 @@ final class EditorViewModel {
             let dim = SketchDimension(kind: edit.kind, refs: edit.refs, value: stored,
                                       formula: formula, labelOffset: offset,
                                       displayExpression: displayExpression,
-                                      rectangleLabelEdges: edit.axisRectangleEdge.map { [$0] })
+                                      rectangleLabelEdges: edit.axisRectangleEdge.map { [$0] },
+                                      rectangleDrivingEdge: edit.axisRectangleEdge)
             proposed.dimensions.append(dim)
             candidateDimensionID = dim.id
             setup = AddSketchDimensionCommand(sketchID: sketchID, dimension: dim)

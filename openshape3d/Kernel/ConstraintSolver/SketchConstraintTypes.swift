@@ -115,6 +115,10 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
     /// Committed axis-rectangle annotation sides, presentation only. Legacy nil
     /// retains existing placement; never adds dimensions or solver references.
     var rectangleLabelEdges: [Int]? = nil
+    /// The primitive rectangle edge whose size was made driving. Unlike label
+    /// aliases, this provenance determines whether Trim removes the driver.
+    /// Legacy nil retains the existing point-reference transfer behavior.
+    var rectangleDrivingEdge: Int? = nil
 
     init(id: UUID = UUID(),
          kind: DimensionKind,
@@ -123,7 +127,8 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
          formula: String? = nil,
          labelOffset: SIMD2<Double>? = nil,
          displayExpression: String? = nil,
-         rectangleLabelEdges: [Int]? = nil) {
+         rectangleLabelEdges: [Int]? = nil,
+         rectangleDrivingEdge: Int? = nil) {
         self.id = id
         self.kind = kind
         self.refs = refs
@@ -132,5 +137,6 @@ nonisolated struct SketchDimension: Identifiable, Codable, Equatable, Sendable {
         self.displayExpression = displayExpression
         self.labelOffset = labelOffset
         self.rectangleLabelEdges = rectangleLabelEdges
+        self.rectangleDrivingEdge = rectangleDrivingEdge
     }
 }
