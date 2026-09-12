@@ -12003,10 +12003,43 @@ final class EditorViewModel {
             ], preservingLineID: anchorID)
         }()
 
+        // For the paired nonparallel free-line case, native Perpendicular
+        // rotates about the intersection of the supporting lines, not the
+        // moving segment's midpoint. Saved constraints remain authoritative.
+        let perpendicularPlacement: [SketchEntity]? = {
+            guard kind == .perpendicular, newConstraints.count == 1,
+                  orderedOperands.count == 2,
+                  AppSettings.shared.anchoredSketchEntity == .lastSelected,
+                  case let .line(id, a, b)? = sketch.entities.first(where: { $0.id == orderedOperands[0] }),
+                  case let .line(anchorID, c, d)? = sketch.entities.first(where: { $0.id == orderedOperands[1] })
+            else { return nil }
+            let moving = b - a, fixed = d - c
+            let movingLength = simd_length(moving), fixedLength = simd_length(fixed)
+            guard movingLength > 1e-9, fixedLength > 1e-9 else { return nil }
+            let determinant = moving.x * fixed.y - moving.y * fixed.x
+            guard abs(determinant) > 1e-9 * movingLength * fixedLength else { return nil }
+            let offset = c - a
+            let pivot = a + moving * ((offset.x * fixed.y - offset.y * fixed.x) / determinant)
+            let originalDirection = moving / movingLength
+            var targetDirection = SIMD2<Double>(fixed.y, -fixed.x) / fixedLength
+            if simd_dot(originalDirection, targetDirection) < 0 { targetDirection = -targetDirection }
+            let cosine = simd_dot(originalDirection, targetDirection)
+            let sine = originalDirection.x * targetDirection.y - originalDirection.y * targetDirection.x
+            func rotate(_ point: SIMD2<Double>) -> SIMD2<Double> {
+                let v = point - pivot
+                return pivot + SIMD2(cosine * v.x - sine * v.y, sine * v.x + cosine * v.y)
+            }
+            return SketchSolverBridge.solvePointTransform(proposed, targets: [
+                .line(id: id, a: rotate(a), b: rotate(b)), .line(id: anchorID, a: c, b: d)
+            ], preservingLineID: anchorID)
+        }()
+
         let preferredAnchor = AppSettings.shared.anchoredSketchEntity == .firstSelected
             ? orderedOperands.first : orderedOperands.last
         var solvedEntities: [SketchEntity]
-        if let parallelPlacement {
+        if let perpendicularPlacement {
+            solvedEntities = perpendicularPlacement
+        } else if let parallelPlacement {
             solvedEntities = parallelPlacement
         } else if let axisAlignmentPlacement {
             solvedEntities = axisAlignmentPlacement

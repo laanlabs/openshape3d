@@ -1,5 +1,30 @@
 # Parity continuation checkpoint
 
+## Active — Perpendicular supporting-intersection pivot regression
+
+HEAD63bcf12/source33f7358; Parallel final112/112,1119/master38 verified.
+Perpendicular placement source fix uncommitted. New ConstraintApplyTests method
+ testPerpendicularRotatesFreeLineAboutSupportingLineIntersection.
+Before-source0/1, only two endpoint-position assertions failed. Focused4/4 passed; no runner. Source checkpoint and final combined next.
+Source scoped LastSelected nonparallel ordinary pair: rotate about supporting
+intersection, nearest perpendicular direction, preferred anchor transientlyfixed;
+saved constraints authoritative. Added Last-mode saved-point override guard.
+Native fresh lower500650→580670 / upper500600→580580 each43805.7842mm.
+Explicit lower then upper (ready2.png) LastSelected. Perpendicular moves lower
+about supporting intersection400625, predicted425725→445805; settled Zoom to
+reveals477630→498711 with upper554502→636481, consistent same transform.
+Native value43805.7842 confirmed and guide intersection visible. No new
+centered fixture created: Line briefly armed then disarmed. Initial narrow
+box lost lower selection; settled wider box verifies2edges. Scroll invocations
+failed foreground CLI; Zoom to eventually settled and exposed endpoints.
+Clone lower350300→4303201.026mm / upper350250→4302301.0275mm, LastSelected;
+Perpendicular instead380270→400350, pivot midpoint390310. Deselect/length
+already match. Geometry difference confirmed, before PNG/actions durable in
+qa36-perpendicular-placement-live-2026-09-12. Both histories/reopen pending
+for this pivot variant. Next collect before failure, scoped LastSelected
+intersection rotation, saved-relationship guard, focused/final/changed live.
+Inventory26/0/1/29; iPad/immutable05be744 unchanged.
+
 ## Active — Parallel paired checkpoint
 
 Source33f7358, UIe834525 pushed. Final corrected112/112 clean, zero failures/

@@ -1532,6 +1532,34 @@ final class ConstraintApplyTests: XCTestCase {
         XCTAssertFalse(refused.canApplyConstraint(.coincident), "A point on its own line is not a new relation")
     }
 
+    func testPerpendicularRotatesFreeLineAboutSupportingLineIntersection() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let entity = line(SIMD2(0, 0), SIMD2(0.8, -0.2))
+        let anchor = line(SIMD2(0, 0.5), SIMD2(0.8, 0.7))
+        let original = openSketch(vm, entities: [entity, anchor])
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([entity.id, anchor.id])
+        vm.applyConstraint(.perpendicular)
+        let applied = try XCTUnwrap(vm.activeSketch)
+        guard case let .line(_, a, b) = applied.entities[0] else { return XCTFail("Expected line") }
+        XCTAssertLessThan(simd_distance(a, SIMD2(-0.75, -0.75)), 1e-8)
+        XCTAssertLessThan(simd_distance(b, SIMD2(-0.55, -1.55)), 1e-8)
+        XCTAssertEqual(simd_distance(a, b), sqrt(0.68), accuracy: 1e-8)
+        XCTAssertEqual(applied.entities[1], anchor)
+        XCTAssertEqual(applied.dimensions, original.dimensions)
+        XCTAssertEqual(applied.constraints.map(\.kind), [.perpendicular])
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, applied)
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self,
+            from: JSONEncoder().encode(applied)), applied)
+    }
+
     func testParallelPreservesFreeLineLengthFirstEndpointAndClearsSelection() throws {
         let prior = AppSettings.shared.anchoredSketchEntity
         AppSettings.shared.anchoredSketchEntity = .lastSelected
@@ -2563,6 +2591,41 @@ final class ConstraintApplyTests: XCTestCase {
         vm.session.perform(AddSketchCommand(sketch: original))
         vm.mode = .sketching(original.id, tool: nil)
         vm.selectSketchEntitiesInOrder([anchor.id, moving.id])
+        vm.applyConstraint(.perpendicular)
+        let result = try XCTUnwrap(vm.activeSketch)
+        XCTAssertEqual(result.entities[0], anchor)
+        XCTAssertEqual(result.entities[2], guide)
+        XCTAssertEqual(result.constraints.count, original.constraints.count + 1)
+        XCTAssertEqual(result.dimensions, original.dimensions)
+        guard case let .line(_, a, b) = result.entities[1] else { return XCTFail("Expected line") }
+        XCTAssertEqual(a.x, 0, accuracy: 1e-8)
+        XCTAssertEqual(a.y, 0, accuracy: 1e-8)
+        XCTAssertEqual(b.x, 2, accuracy: 1e-8)
+        XCTAssertEqual(b.y, -2, accuracy: 1e-8)
+        XCTAssertLessThan(SketchSolverBridge.residualNorm(result), 1e-8)
+        vm.undo()
+        XCTAssertEqual(vm.activeSketch, original)
+        vm.redo()
+        XCTAssertEqual(vm.activeSketch, result)
+    }
+
+    func testPerpendicularIntersectionPlacementYieldsToSavedPointConstraints() throws {
+        let prior = AppSettings.shared.anchoredSketchEntity
+        AppSettings.shared.anchoredSketchEntity = .lastSelected
+        defer { AppSettings.shared.anchoredSketchEntity = prior }
+        let vm = try makeViewModel()
+        let anchor = line(SIMD2(3, 2), SIMD2(5, 4))
+        let moving = line(SIMD2(0, 0), SIMD2(2, 1))
+        let guide = line(SIMD2(2, -10), SIMD2(2, 10))
+        let original = Sketch(plane: .ground, entities: [anchor, moving, guide], constraints: [
+            .init(kind: .fixed, refs: [.init(entityID: moving.id, role: .endpointA)]),
+            .init(kind: .fixed, refs: [.init(entityID: guide.id, role: .whole)]),
+            .init(kind: .coincident, refs: [.init(entityID: moving.id, role: .endpointB),
+                                           .init(entityID: guide.id, role: .whole)]),
+        ])
+        vm.session.perform(AddSketchCommand(sketch: original))
+        vm.mode = .sketching(original.id, tool: nil)
+        vm.selectSketchEntitiesInOrder([moving.id, anchor.id])
         vm.applyConstraint(.perpendicular)
         let result = try XCTUnwrap(vm.activeSketch)
         XCTAssertEqual(result.entities[0], anchor)
