@@ -2532,3 +2532,8 @@ QA24 Items selection0cc5d6c final52/52 and changed paired whole-sketch entry,
 untouched Exit retention, Rename Undo/Redo deselection and gallery reopen verified.
 Illustrated1292unique/1295placements, eight hashes once/no loss; master38.
 Model-mode gizmo/transform dispatch and curved overlap remain open;32/0/1/23.
+
+QA24 model-mode count/length605511b plus fixture0e86c6b: final47/47, fresh native
+blank/entry/Exit and changed clone single/two-edge/history/reopen verified.
+Illustrated1302unique1305placements, ten hashesonce/no loss;master38.
+Full 3D sketch transform/gizmo remains open.32/0/1/23;iPadunchanged.

@@ -229,7 +229,8 @@ now paired on b5bff74; final46/46, illustrated1271unique/1274placements/master38
 Sketch-name routing05bed51 final47/47 and paired Rename/history/reopen verified;
 illustrated1284unique/1287placements/master38. Items all-edge entry/untouched Exit and Rename history/reopen now paired on
 0cc5d6c, final52/52; illustrated1292unique/1295placements/master38 verified.
-Model-mode gizmo/transform dispatch remains open. Other item classes remain unverified. See [body-name receipt](testing/sketch-parity-body-item-name-2026-09-12.md).
+Model-mode count/length605511b final47/47 is now paired and published at
+1302unique/1305placements/master38. Gizmo/3D transform dispatch remains open. Other item classes remain unverified. See [body-name receipt](testing/sketch-parity-body-item-name-2026-09-12.md).
 
 Shift/additive, connected double-tap, overlapping geometry, item selection.
 Issue ED-07. Result: **PARTIAL**. Physical input remains QA-52.

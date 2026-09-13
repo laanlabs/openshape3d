@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-12, 23:18 EDT paired checkpoint**. Source checkpoint: **0cc5d6c**.
+Last reconciled: **2026-09-12, 23:37 EDT paired checkpoint**. Source checkpoint: **605511b**, fixture **0e86c6b**.
 Owner: dedicated OpenShape3D parity / PR #29 session. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -9,10 +9,11 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 
 ## Current work — not yet complete
 
-- **QA-24 Items selection:** source 0cc5d6c is pushed; final 52/52 (43 model + 9 UI) passed. Changed-build named-sketch all-entity selection, untouched Exit retention, Rename Undo/Redo deselection, gallery reopening and publication are verified. Fresh native model-mode summary/gizmo comparison confirms both missing in clone. Selection count/length before test failed; corrected focused17/17 passed after a retained compile error. Real UI summary/blank-deselection check is running exclusively. Full 3D transform dispatch remains open. Do not count this as a completed QA-24 case.
-- **QA-24 broader selection:** curved-face/edge overlap and remaining multi-selection coverage remain open even when the Items fix passes.
-- Latest checkpoint: model-summary UI test is the exclusive simulator owner; this is a snapshot, not a claim about current process activity.
-- Latest verified report baseline: illustrated 1,292 unique images / 1,295 placements; master 38 media. Eight Items assets verified exactly once with no predecessor loss; master note verified.
+- **QA-24 Items selection:** 0cc5d6c final52/52 and paired owned-selection/Exit/Rename/history/reopen are published.
+- **QA-24 model-mode summary:** source605511b plus fixture0e86c6b final47/47; fresh native and changed clone count/length/blank comparisons, clone history/reopen verified. Ten assets published; source and tests pushed.
+- **Next:** native model-mode 3D sketch Move/Rotate numeric/dispatch semantics. Clone summary now works, but gizmo and 3D transform dispatch remain absent. Curved-face/edge overlap and remaining item classes remain open.
+- **Actual owner:** no test runner; dedicated parity session owns the next desktop comparison. Native selectedsix sketch24; clone selectedtwo Sketch1.
+- **Reports:** illustrated1,302 unique media/1,305 placements; ten new hashes once, no predecessor loss. Master38, one new note/no loss. Current batch is published, not queued.
 
 ## Every unfinished original acceptance case
 
@@ -81,6 +82,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-24 — Multi-selection
 
 - **Status:** Core — partial, not passed.
+- **Latest:** owned Items selection/history and model-mode count/length now paired and published at1302unique1305placements/master38. Full model-mode 3D transform dispatch/gizmo remains open.
 - **Evidence / remaining work:** Typed planar-face/body/profile chooser on ab6fb2d passed 26/26; changed live face/profile dispatch, Cancel and gallery recovery of three boxes plus circle verified. Body-name/Rename correction b5bff74 final46/46 plus paired history/reopen; illustrated1271unique/1274placements/master38 verified. Connected rectangle and later constraint additive routes retained; native Profile identity confirmed by accessibility selection; broader curved-face/edge selection remains open.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
@@ -199,7 +201,7 @@ These are not additional acceptance-count rows. They must not disappear because 
 - **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
 - **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
 - **QA-33 polygon bound:** native 10,001-side processing did not establish a safe native upper limit. Clone 10,000 ceiling is defensive, not parity evidence.
-- **Publication:** Items selection batch is published and verified; new model-mode summary correction awaits changed live/export evidence. Older queue entries include recovered material and require reconciliation, not blind duplication.
+- **Publication:** Items selection batch is published and verified; model-mode summary correction is also paired and publication-verified. Older queue entries include recovered material and require reconciliation, not blind duplication.
 
 ## Update contract
 

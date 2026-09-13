@@ -1,5 +1,38 @@
 # Parity continuation checkpoint
 
+## Current — QA24 model summary paired publication verified
+
+605511b + fixture0e86c6b final47/47. Changed live and publication verified:
+illustrated1302unique1305placements, ten new hashes once/no1292predecessorloss;
+master38/one heading/no loss. model-summary-verification.json durable. No runner.
+Next native model-mode sketch 3D transform dispatch comparison; source gap is
+known, full transform semantics still require paired numeric/history investigation.
+Native selectedsix sketch24 in modelmode, clone selectedtwo Sketch1 in modelmode.
+QA24partial32/0/1/23; iPadunchanged. Current documentation being checkpointed.
+
+
+## Current — QA24 summary final47/47 and changed live verified
+
+605511b + fixture0e86c6b pushed. Corrected final47/47,zero failures/skips; no runner.
+Changed single/two-edge summary, blank clearing, history partial/full selection,
+gallery reopen/reselection verified. Native blank/reselect/Exit fresh repeat.
+Ten new images and master note inserted; export audit exec74164 running,
+/tmp/os3d-qa24-model-summary-audit.py. Expect1302unique1305placements/master38
+from1292unique1295baseline; do not claim before exact hashes/no loss verified.
+Next finish publication/checkpoint then model-mode sketch transform dispatch.
+Native selectedsix modelmode; clone selectedtwo modelmode.32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 summary final gate active
+
+605511b pushed; test-only min/max fixture-label correction dirty after final1
+compile failure (no tests). Final measurement/selection/identity classes +SelectionUITests
+serial gate owns simulator exclusively exec82752 at
+/tmp/os3d-qa24-model-summary-final2-20260912.{log,xcresult}. Collect exact count
+and terminal before desktop. Changed live count/length/deselect/history/reopen
+then publication; 3D transform remainsopen.32/0/1/23;iPadunchanged.
+
+
 ## Current — QA24 summary source checkpoint, final gate next
 
 Focused17/17 and corrected UI1/1 passed separately; initial compile failure
