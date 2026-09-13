@@ -108,6 +108,26 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
     }
 
+    /// UI tests override snapping with launch arguments (`-os3d.snapToGrid
+    /// NO`), which land in the argument domain as strings. Those must read
+    /// as booleans, and an unrelated string must not turn a default off.
+    func testLaunchArgumentStringsOverrideSnapDefaults() {
+        let defaults = freshDefaults()
+        defaults.set("NO", forKey: "os3d.snapToGrid")
+        defaults.set("YES", forKey: "os3d.snapToSketchGuidelines")
+        defaults.set("0", forKey: "os3d.snapToSketchGuidepoints")
+        defaults.set("1", forKey: "os3d.showSnapHints")
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertFalse(settings.snapToGrid)
+        XCTAssertTrue(settings.snapToSketchGuidelines)
+        XCTAssertFalse(settings.snapToSketchGuidepoints)
+        XCTAssertTrue(settings.showSnapHints)
+        XCTAssertTrue(settings.snapToFaceGuidepoints, "unset keeps the default")
+        // A real Bool written by the app still round-trips as before.
+        settings.snapToGrid = true
+        XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
+    }
+
     func testSettingsPersistAcrossReload() {
         let defaults = freshDefaults()
         let first = AppSettings(defaults: defaults)

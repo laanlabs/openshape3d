@@ -158,6 +158,12 @@ final class DimensionUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        // Grid snapping (default on) moves the drawn endpoints to the 0.5 mm
+        // grid — about 35 pt at this zoom — so the midpoint re-taps below
+        // landed 18.7 pt off the line, past the 16 pt pick tolerance
+        // (measured from the 2026-09-13 recording). The badge does not
+        // depend on the grid; draw where the coordinates say.
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
         app.launch()
         let window = app.windows.firstMatch
         startGroundSketch(app, window: window, tool: "Line")
@@ -559,6 +565,11 @@ final class DimensionUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        // The centre drag below is 60×30 pt; with grid snapping on the 30 pt
+        // (0.22 mm) rounds back to the original row and the Y assertion
+        // fails (measured 2026-09-13). Guidepoint snapping is what this
+        // test is about, and is switched on explicitly below.
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
         app.launch()
         let window = app.windows.firstMatch
         startGroundSketch(app, window: window, tool: "Circle")
@@ -1192,6 +1203,11 @@ final class DimensionUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        // The rim re-taps are computed from the drag coordinates; grid
+        // snapping moved the drawn centre ~19 pt (measured 2026-09-13), so the
+        // tap fell outside the 16 pt pick tolerance. Rail clearance does not
+        // depend on the grid.
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
         app.launch()
         let window = app.windows.firstMatch
         startGroundSketch(app, window: window, tool: "Circle")

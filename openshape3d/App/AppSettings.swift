@@ -218,17 +218,30 @@ final class AppSettings {
         return [1, 2, 4].contains(stored) ? stored : 4
     }
 
+    /// A stored Bool, or nil when the key was never set. Launch arguments
+    /// (`-os3d.snapToGrid NO`, the UI tests' override route) reach the
+    /// argument domain as strings, which `object(forKey:) as? Bool` would
+    /// silently drop back to the default — read those the way `bool(forKey:)`
+    /// does. Unlike `bool(forKey:)`, unset stays distinguishable from false.
+    private static func storedBool(_ defaults: UserDefaults, _ key: String) -> Bool? {
+        switch defaults.object(forKey: key) {
+        case let number as NSNumber: return number.boolValue
+        case let text as NSString: return text.boolValue
+        default: return nil
+        }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         circularAnnotations = defaults.string(forKey: Key.circularAnnotations)
             .flatMap(CircularAnnotations.init) ?? .radiusAndDiameter
-        snapToGrid = defaults.object(forKey: Key.snapToGrid) as? Bool ?? true
-        snapToSketchGuidelines = defaults.object(forKey: Key.snapToSketchGuidelines) as? Bool ?? true
-        snapToSketchGuidepoints = defaults.object(forKey: Key.snapToSketchGuidepoints) as? Bool ?? true
-        snapToFaceGuidepoints = defaults.object(forKey: Key.snapToFaceGuidepoints) as? Bool ?? true
-        showSnapHints = defaults.object(forKey: Key.showSnapHints) as? Bool ?? true
+        snapToGrid = Self.storedBool(defaults, Key.snapToGrid) ?? true
+        snapToSketchGuidelines = Self.storedBool(defaults, Key.snapToSketchGuidelines) ?? true
+        snapToSketchGuidepoints = Self.storedBool(defaults, Key.snapToSketchGuidepoints) ?? true
+        snapToFaceGuidepoints = Self.storedBool(defaults, Key.snapToFaceGuidepoints) ?? true
+        showSnapHints = Self.storedBool(defaults, Key.showSnapHints) ?? true
         unit = defaults.string(forKey: Key.unit).flatMap(DisplayUnit.init) ?? .millimeters
         theme = defaults.string(forKey: Key.theme).flatMap(AppTheme.init) ?? .system
         paletteOnRight = defaults.bool(forKey: Key.paletteOnRight)
