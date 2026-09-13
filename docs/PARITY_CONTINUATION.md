@@ -1,5 +1,17 @@
 # Parity continuation checkpoint
 
+## Current — QA24 3D transform diagnostic retained; QA01 next
+
+ccb0cfa summary paired checkpoint pushed. Native5000 axis submission accepted,
+Undo/Redo invoked, finalUndo restored probe; exact downstream ownership not
+proven. Clone selected-sketch Transform>Move no-op; body-only guard confirmed.
+No transform source change; do not equate ChangeSketchPlane with native behavior.
+Diagnostic receipt/local model-transform-* evidence preserved; publication queued.
+Next oldest core QA01 plane-picker miss/face recipe. Native no selection; clone
+selectedtwo Sketch1/Transform menu open. No runner;32/0/1/23;iPadunchanged.
+Reports1302unique1305placements/master38. Disk~350MiB; preserve artifacts.
+
+
 ## Current — QA24 model summary paired publication verified
 
 605511b + fixture0e86c6b final47/47. Changed live and publication verified:
