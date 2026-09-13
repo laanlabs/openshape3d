@@ -453,7 +453,15 @@ Palm, finger navigation during drawing, Pencil handles, no ghost strokes. Issues
 
 ### QA-53 — Layout
 
-Portrait/landscape, left-handed, Items/History open, large text, screen edges. Issues: SK-14. Result: **PARTIAL**. A clean current-tree 51/51 gate covers both orientations, left/right toolbar and constraint-rail placement, Items/History panels, accessibility-extra-extra-extra-large text, lower keyboard and side-rail editor clearance, diameter target reachability, and compact landscape controls. Retained paired label/keypad/radial evidence covers previously compared states; fresh handedness, large-text, and panel permutations remain automated-only because both Peekaboo window capture and direct window capture are blocked. Evidence: `testing/sketch-parity-layout-checkpoint-2026-09-11.md`.
+Portrait/landscape, left-handed, Items/History open, large text, screen edges.
+Result: **PARTIAL**. September12 panel fix4b6a78f final50/50 clean: same-side
+palette inset and inward Right flyouts preserve dispatch with both panels.
+Fresh native modeling panels preserve toolbar; changed clone Left/Right dispatch
+and Left panel-close restoration verified. Four-state portrait/landscape tests
+supplement live proof. Illustrated1247/master38 verified, ten hashes once/no loss.
+Native Mac preferences do not expose physical iPad handedness/large-text controls;
+these remain unverified, not capture-blocked. Retained51/51 and prior edge/rail
+samples remain separate. See [panel receipt](testing/sketch-parity-panel-palette-2026-09-12.md).
 
 ### QA-54 — Keyboard
 

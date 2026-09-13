@@ -28,8 +28,21 @@ panels; Right toolbar opens flyouts inward instead of into Items.
 Logs/xcresults: /tmp/os3d-qa53-panels-{before,fixed,matrix,matrix2}-20260912.*.
 Durable screenshot/command evidence:
 /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/keyboard/qa53-panels-live-2026-09-12.
-Changed-build live comparison, broader regression and Google Docs publication
-remain pending. Reports remain1237/master38. Immutable05be744IPA/iPad unchanged.
+Final combined **50/50** on4b6a78f, zero failures/skips, one serial run: four
+settings/layout model classes plus seven Settings UI workflows. Exact receipt:
+/tmp/os3d-qa53-panels-final-20260912-summary.json.
+
+Changed live Left and Right both-panel Sketch→Line dispatch enters plane
+selection; closing History restores Left palette edge placement. Right flyout
+opens inward over History and remains usable. The live project contains an
+extruded body from the preceding test, unlike the earlier sketch-only fixture;
+no geometry edit or geometry-history comparison is claimed. Right preference
+is currently retained; native modeling still has both panels open.
+
+Illustrated **1247** unique assets: all ten hashes once, no loss from1237.
+Master38, one dated note, no predecessor loss. Exact export inventories and XML
+are in the durable evidence directory. QA53 remains partial; physical/native
+handedness and large-text comparisons remain open. Immutable05be744IPA unchanged.
 
 ## Separate QA40 pan delivery boundary
 

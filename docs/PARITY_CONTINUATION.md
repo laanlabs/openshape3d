@@ -1,5 +1,30 @@
 # Parity continuation checkpoint
 
+## Active — QA53 panel publication verified, QA24 next
+
+Source4b6a78f pushed; final50/50 zero failures/skips. Changed live Left/Right
+both-panel Sketch→Line and Left panel-close restoration verified. Illustrated1247/
+master38, ten hashes once/no1237 loss. QA53 partial32/0/1/23; no runner.
+Next QA24 outstanding connected/overlap/additive selection; inspect actual native
+and clone states first. Native modeling both panels open; clone modeling both
+panels open, Right palette preference retained, extruded-body project. Evidence
+keyboard/qa53-panels-live-2026-09-12. Immutable05be744/iPad unchanged.
+Task docs checkpoint now; do not repeat completed panel gates. QA40 pan delivery
+still blocked at CLI/bridge foreground mismatch, not native behavior evidence.
+
+
+## Active — QA53 final settings/layout gate on4b6a78f
+
+4b6a78f pushed. Focused four-state1/1 passes; final broad gate exec32944
+exclusively owns simulator, /tmp/os3d-qa53-panels-final-20260912.log/xcresult.
+Selectors AppSettingsTests, SketchLinearDimensionLayoutTests,
+SketchDiameterDimensionLayoutTests, GizmoScreenLayoutTests, all SettingsUITests.
+Collect terminal/count/failures before desktop. Next changed live both panels,
+Sketch→Line dispatch and panel toggle restoration; publication then next case.
+QA53 partial32/0/1/23; reports1237/master38. iPad/immutable05be744 unchanged.
+No other runner. Native modeling with both panels remains untouched.
+
+
 ## Active — QA53 four-state focused passed, checkpoint ready
 
 Corrected matrix1/1, all four Left/Right portrait/landscape variants dispatch
