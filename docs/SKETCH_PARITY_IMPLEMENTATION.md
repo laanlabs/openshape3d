@@ -2657,3 +2657,19 @@ through `storedBool` so launch-argument strings take effect (previously
 `object(forKey:) as? Bool` dropped them). 3/3 green plus AppSettingsTests. See
 testing/sketch-parity-reselect-gridsnap-2026-09-13.md. Closed, no defect.
 
+## September 13 — QA24 model-mode Move/Rotate of sketch geometry
+
+Native (Untitled Project, sketch24, twice): Items row → Exit keeps the six
+edges selected with the Move/Rotate gizmo up; a distance typed on the up
+arrow (5000) moves them, the selection and its length are unchanged, the
+sketch keeps its identity, History gains no step, an offset plane built
+downstream and its sketch flag warnings (the plane leaves Items), and Undo
+restores everything. Clone: the gizmo now attaches to sketch entities
+selected in model mode; arrows/tiles/rings and typed distance/angle all work;
+a whole sketch moves as a rigid frame (ChangeSketchPlane) with dependents
+rebuilt in the same undo step, a subset moves inside its plane through the
+solver, and a subset taken off its plane is refused with a notice (native
+unobserved for that case). ModelSketchTransformTests added. Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2).
+See testing/sketch-parity-model-sketch-move-2026-09-13.md. Partial (curved
+face/edge selection breadth and the off-plane subset remain).
+

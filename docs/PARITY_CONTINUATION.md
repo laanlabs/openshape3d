@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA29 badge/keypad fixed; the three Dimension failures were grid snapping, tests green (2026-09-13 17:05 EDT)
+## Current — QA24 model-mode sketch Move/Rotate implemented from a native probe (2026-09-13 17:45 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -73,8 +73,16 @@ tolerance and the 30 pt drag snapped back to its row. A paced real tap on the
 clone reselects after a type switch. Tests launch with grid snap off (9e4b2cc),
 AppSettings honours launch-argument strings for the snap booleans (unit test);
 3/3 green, /tmp/os3d-qa23-gridsnap-20260913.xcresult. QA53 compact
-sketch-transform check closed (compact suite 5/5). Next: QA24 remaining
-classes (model-mode 3D transform of a sketch; curved-face/edge selection).
+sketch-transform check closed (compact suite 5/5). QA24 model-mode sketch
+transform: native sketch24 probe (twice) — typed 5000 on the up arrow moves
+the six selected edges, identity/selection kept, no History step, Plane -
+Offset 01 and Sketch 13 flag warnings and Plane 01 leaves Items, Undo
+restores; part24 is Extrusion 05 from Sketch 04 and stays put. Clone: gizmo
+on model-mode sketch selections, whole sketch = rigid frame move with
+dependents rebuilt in one step, subset = in-plane solver move, off-plane
+subset refused. Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2). paired on the clone at 4347508 (sim AC2FD923): P24 row → Exit keeps 4 edges / 14.00 mm selected with the gizmo up; up arrow → keypad 5 → plane origin (0,5,0), local geometry unchanged, selection kept, undo title "Move", the dependent Extrude rebuilt to y 5..7 in the same step; bridge Undo/Redo restore/reapply. Twenty assets local (selection/qa24-model-sketch-move-live-2026-09-13). Native doc left as found
+(Undo twice, Plane 01 back). Next: QA24 curved-face/edge selection breadth,
+or QA29's dense values / manual reposition / camera zoom.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
