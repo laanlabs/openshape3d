@@ -2527,3 +2527,8 @@ other item classes and curved-face/edge overlap remain open. Inventory32/0/1/23.
 QA24 sketch-name05bed51 final47/47 and paired direct Rename/history/bothreopenings
 verified. Illustrated1284unique/1287placements, thirteen hashesonce/no loss;
 master38. All-edge item selection/Exit retention remains open, no promotion.
+
+QA24 Items selection0cc5d6c final52/52 and changed paired whole-sketch entry,
+untouched Exit retention, Rename Undo/Redo deselection and gallery reopen verified.
+Illustrated1292unique/1295placements, eight hashes once/no loss; master38.
+Model-mode gizmo/transform dispatch and curved overlap remain open;32/0/1/23.

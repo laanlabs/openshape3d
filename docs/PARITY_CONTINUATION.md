@@ -1,5 +1,43 @@
 # Parity continuation checkpoint
 
+## Current — QA24 Items paired checkpoint verified
+
+Source0cc5d6c final52/52; changed live two-line owned selection, untouched Exit,
+direct sketch24 Rename, Undo/Redo deselection after reselection, and saved name/
+both-line gallery reopen verified. Illustrated1292unique/1295placements, eight
+new hashes once/no1284predecessorloss; master38/one note/no loss. Durable
+selection/qa24-through-live-2026-09-12/item-selection-verification.json.
+No runner. Native cleanreopened sketch24/part24; clone reopened sketch24 two lines.
+Next paired model-mode gizmo/transform dispatch after named-sketch Exit; not
+claimed fixed by selection retention. QA24 partial32/0/1/23; iPad unchanged.
+HEAD441ee45 includes parent unfinished-work register; preserve it and all evidence.
+Current documentation checkpoint being committed.
+
+
+## Current — QA24 Items final52/52, changed live next
+
+0cc5d6c pushed. Final52/52 (43model+9UI),zero failures/skips,terminal0.
+/tmp/os3d-qa24-sketch-item-selection-final-20260912.{log,xcresult},summaryJSON.
+No runner. Next ordinary clone launch/gallery→Items sketch name→all-entity
+selection→Exit retention→Rename original/new UndoRedo deselection→galleryreopen.
+Native prior six-edge entry/Exit + sketch24 Rename/history/reopen is retained
+in published sketch-name batch; native currently cleanreopen sketch24/part24.
+Clone testfixture likely singlelineSketch1, inspect afterordinarylaunch.
+Publication pending, baseline1284unique1287placements/master38;32/0/1/23.
+iPadunchanged. Dirtyreceipt/continuation only. Preserve artifacts/immutableIPA.
+
+## Current — QA24 Items selection final regression
+
+0cc5d6c pushed. Focused7/7 history and prior8/8 identity/UI separately pass.
+Final five model classes + Selection/Planes/Items UI classes now running
+exclusively exec6637 at /tmp/os3d-qa24-sketch-item-selection-final-20260912
+.{log,xcresult}. Collect exact terminal/count before desktop. Items UI has known
+60second context-menu animation waits that eventually complete; do not duplicate
+runner. Next changed live named sketch all-edge selection/Exit retainedselection,
+RenameUndo/Redo cleanup, galleryreopen, then publication. Native reference
+retained, parked cleanreopened sketch24/part24; clone testowned. Reports1284unique
+1287placements/master38.32/0/1/23;iPadunchanged. Only documentation dirty.
+
 ## Current — QA24 Items selection/history focused7/7 passed
 
 Corrected history focused7/7, terminal0; preceding identity+UI8/8 separately

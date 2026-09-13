@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-12, 23:01 EDT user request**. Source checkpoint: **0cc5d6c**.
+Last reconciled: **2026-09-12, 23:18 EDT paired checkpoint**. Source checkpoint: **0cc5d6c**.
 Owner: dedicated OpenShape3D parity / PR #29 session. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -9,10 +9,10 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 
 ## Current work — not yet complete
 
-- **QA-24 Items selection:** source 0cc5d6c is pushed; final 52/52 (43 model + 9 UI) passed. Changed-build ordinary launch, named-sketch all-entity selection, untouched Exit retention, Rename Undo/Redo deselection, gallery reopening and publication are still being verified. Do not count this as a completed QA-24 case.
+- **QA-24 Items selection:** source 0cc5d6c is pushed; final 52/52 (43 model + 9 UI) passed. Changed-build named-sketch all-entity selection, untouched Exit retention, Rename Undo/Redo deselection, gallery reopening and publication are verified. Native model-mode gizmo/transform dispatch remains the next paired comparison. Do not count this as a completed QA-24 case.
 - **QA-24 broader selection:** curved-face/edge overlap and remaining multi-selection coverage remain open even when the Items fix passes.
-- Latest checkpoint reported no test runner and live verification next; this is a snapshot, not a claim about current process activity.
-- Latest verified report baseline: illustrated 1,284 unique images / 1,287 placements; master 38 media. Current Items final evidence still needs publication verification.
+- Latest checkpoint verified no test runner; next is the model-mode gizmo comparison; this is a snapshot, not a claim about current process activity.
+- Latest verified report baseline: illustrated 1,292 unique images / 1,295 placements; master 38 media. Eight Items assets verified exactly once with no predecessor loss; master note verified.
 
 ## Every unfinished original acceptance case
 

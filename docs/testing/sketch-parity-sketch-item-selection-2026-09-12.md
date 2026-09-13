@@ -21,3 +21,30 @@ HEAD27cc8db; source uncommitted; inventory32/0/1/23;iPad unchanged.
 
 Corrected history focused7/7 passed, terminal0. No runner. Source checkpoint
 being committed before broad final gate; changed live/publication pending.
+
+Source0cc5d6c pushed. Final combined five model classes +Selection/Planes/Items
+UI classes active exclusively exec6637 at sketch-item-selection-final receipt.
+No final or changed-live claim yet.
+
+Final52/52 passed on0cc5d6c (43model+9UI), zero failures/skips, terminal0.
+No runner; changed live Items all-edge selection/Exit/history/reopen next.
+
+## Changed-build paired verification and publication
+
+On0cc5d6c, two disconnected lines are selected by their named Items sketch;
+untouched Exit retains both. Direct whole-name replacement yields sketch24.
+Undo restores Sketch1 and clears both selected lines; Items reselection/Exit
+then Redo restores sketch24 and again clears selection. Gallery reopen visibly
+retains sketch24 and both lines. Native six-edge entry/Exit and Rename/history/
+reopen are retained reference evidence; fixture counts/scales differ.
+
+Illustrated1292 unique media/1295 placements; eight new hashes exactly once,
+no loss from1284 unique/1287 predecessor. Master38 with one new dated note and
+no loss. Evidence/verification: workspace/reports/openshape3d-core-sketch-milestone-
+2026-09-08/selection/qa24-through-live-2026-09-12/item-selection-verification.json.
+All final live PNG/JSON files copied to that directory. No runner.
+
+QA24 remains partial32/0/1/23. Native model-mode gizmo and transform dispatch
+are not matched merely by retaining orange clone geometry; this is the next
+paired comparison. Curved face/edge overlap and other item classes remain open.
+Physical iPad unchanged.

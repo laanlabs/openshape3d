@@ -227,8 +227,9 @@ See [typed selection receipt](testing/sketch-parity-select-through-targets-2026-
 Body-name tap, explicit Rename seed replacement and Rename history deselection
 now paired on b5bff74; final46/46, illustrated1271unique/1274placements/master38.
 Sketch-name routing05bed51 final47/47 and paired Rename/history/reopen verified;
-illustrated1284unique/1287placements/master38. Native all-edge item-entry/Exit
-selection remains open. Other item classes remain unverified. See [body-name receipt](testing/sketch-parity-body-item-name-2026-09-12.md).
+illustrated1284unique/1287placements/master38. Items all-edge entry/untouched Exit and Rename history/reopen now paired on
+0cc5d6c, final52/52; illustrated1292unique/1295placements/master38 verified.
+Model-mode gizmo/transform dispatch remains open. Other item classes remain unverified. See [body-name receipt](testing/sketch-parity-body-item-name-2026-09-12.md).
 
 Shift/additive, connected double-tap, overlapping geometry, item selection.
 Issue ED-07. Result: **PARTIAL**. Physical input remains QA-52.
