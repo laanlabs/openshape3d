@@ -93,7 +93,9 @@ driving one — and the clone gained the same for linear labels
 a new "Sketch 14" natively; the clone now splits an off-plane subset into a
 new sketch (97f320a). Gates: Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923. Native doc
 left as found (three undos verified), Default View; clone fresh on the sim.
-Next: QA24 curved-face/edge selection breadth.
+Native circle label re-checked (measured: radial drag, reverts on reselect);
+native parked Default View. QA29 remaining: label overlaps, clone zoom on a
+device. Next: QA24 curved-face/edge selection breadth.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

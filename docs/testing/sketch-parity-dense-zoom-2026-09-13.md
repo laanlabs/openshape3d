@@ -16,8 +16,13 @@ The three items QA-29 still listed after the badge/keypad layout fixes.
   measured label the placement lasts for the selection (deselect/reselect
   returns it to the default); for a driving dimension (100,000 typed) the
   dragged placement survives deselect/reselect and one Undo reverts it.
-  The circle-label drag with correct coordinates was not repeated; its
-  measured/driving rule is assumed to match.
+  Circle label re-checked with correct coordinates: the measured radius
+  label (on its outside leader) drags radially around the circle — the
+  leader swings with it, the radius stays 50,000 mm — and reverts to the
+  default leader on reselect, the same selection-lived rule. (Its first
+  placement after drawing sits inside the circle; after a reselect it moves
+  outside onto a leader.) A driving circle label was not dragged; the line
+  rule is assumed to carry over.
 - **Camera zoom.** Scroll up zooms out (grid 5,000 → 10,000 mm), scroll down
   in. Geometry scales; labels keep their screen size and follow their
   geometry, leaving the viewport with it — native does not clamp a label
