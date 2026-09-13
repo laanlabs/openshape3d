@@ -4878,6 +4878,20 @@ final class EditorViewModel {
     }
 
     /// Distance from a point to a segment (both body-local).
+    /// Screen-sized edge target for a plain tap: within `edgeTapPoints` of
+    /// a selectable edge the tap means that edge, not the face beside it.
+    static let edgeTapPoints: Double = 8
+
+    private func tapIsNearBodyEdge(hit: PickHit, body: Body) -> Bool {
+        let inverse = simd_inverse(body.transform.matrixFloat)
+        let local4 = inverse * SIMD4(hit.worldPoint, 1)
+        let local = SIMD3<Float>(local4.x, local4.y, local4.z)
+        let tolerance = Float(Self.edgeTapPoints * worldPerPoint / max(body.transform.scale, 1e-9))
+        return EdgeTopology.selectableEdges(from: body.render).contains {
+            Self.pointSegmentDistance(local, $0.start, $0.end) <= tolerance
+        }
+    }
+
     private static func pointSegmentDistance(
         _ p: SIMD3<Float>, _ a: SIMD3<Float>, _ b: SIMD3<Float>
     ) -> Float {
@@ -6097,6 +6111,17 @@ final class EditorViewModel {
                 return
             }
 
+            // An EDGE under the finger selects the edge and offers
+            // Chamfer/Fillet — Shapr3D's adaptive tool for an edge selection
+            // (observed 2026-09-13: "1 edge", length and radius readouts,
+            // "Chamfer/Fillet (F)"). Here that is the blend pick with the edge
+            // already chosen; the info bar reads the edge count and length.
+            if tapIsNearBodyEdge(hit: hit, body: body) {
+                beginBlend(.fillet)
+                handleBlendEdgeTap(ray: ray, kind: .fillet)
+                return
+            }
+
             // Curved side surface? A plain cylinder's wall push/pulls radially
             // (edits the diameter); other curved surfaces just select the body,
             // so a single tessellation facet can never be extruded into a tab.
@@ -6388,14 +6413,18 @@ final class EditorViewModel {
         var candidates: [SelectThroughCandidate] = []
         var seenFaces: Set<String> = []
         for hit in HitTester.pickAllSurfaces(ray: ray, in: scene) {
-            guard let body = session.document.body(with: hit.bodyID),
-                  let face = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex),
-                  let representative = face.triangles.min() else { continue }
-            // A curved wall is not a collection of independently editable flat
-            // facets. Keep its body choice until whole curved-face picking is covered.
-            if FaceTopology.smoothRegion(in: body.render, seedTriangle: hit.triangleIndex)?.isCurved == true {
-                continue
-            }
+            guard let body = session.document.body(with: hit.bodyID) else { continue }
+            // A curved wall is one smooth face (Shapr3D lists each wall hit as
+            // "Face - Extrusion N"; observed 2026-09-13 on a cylinder), not a
+            // collection of flat facets: key it by its whole smooth region.
+            let representative: Int
+            if let smooth = FaceTopology.smoothRegion(in: body.render, seedTriangle: hit.triangleIndex),
+               smooth.isCurved, let seed = smooth.triangles.min() {
+                representative = seed
+            } else if let face = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex),
+                      let seed = face.triangles.min() {
+                representative = seed
+            } else { continue }
             let id = "face-\(body.id.raw)-\(representative)"
             guard seenFaces.insert(id).inserted else { continue }
             candidates.append(SelectThroughCandidate(id: id, name: "Face — \(body.name)",
@@ -6434,12 +6463,29 @@ final class EditorViewModel {
             startExtrude(with: (profile, holes, sketch.plane, sketch.id, 0))
         case .face(let hit):
             selectThroughCandidates = nil
-            guard let body = session.document.body(with: hit.bodyID),
-                  let face = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex) else { return }
+            guard let body = session.document.body(with: hit.bodyID) else { return }
             cancelTool()
             selection = [body.id]
             selectedImageID = nil
-            toolContext = faceContext(body: body, face: face)
+            // A curved choice lands where a direct tap on that wall lands: a
+            // plain cylinder's wall arms the radial push/pull, any other
+            // curved smooth region selects as a face.
+            if let cyl = FaceTopology.cylindricalFace(in: body.render, seedTriangle: hit.triangleIndex),
+               cyl.matchesWholeBody {
+                beginCylinderRadial(body: body, cylinder: cyl, hit: hit)
+                return
+            }
+            let planar = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex)
+            if let smooth = FaceTopology.smoothRegion(in: body.render, seedTriangle: hit.triangleIndex),
+               smooth.isCurved, planar.map({ $0.triangles.count < smooth.triangles.count }) ?? true {
+                toolContext = curvedFaceContext(body: body, triangles: smooth.triangles,
+                                                seedTriangle: hit.triangleIndex)
+            } else if let planar {
+                toolContext = faceContext(body: body, face: planar)
+            } else {
+                mode = .selected(body.id)
+                return
+            }
             faceMoveActive = false
             faceScaleActive = false
             faceRotateActive = false
