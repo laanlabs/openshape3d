@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA40 pan-while-keypad closed to QA-52; QA33 ceiling accepted (2026-09-13 15:15 EDT)
+## Current — QA29 badge/keypad layout fixed; three pre-existing Dimension failures logged (2026-09-13 16:30 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -61,7 +61,14 @@ accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1
 inventory; clone cube-block paired, tap click-away, one-finger drag / two-finger
 pan not gated (native unobserved). Native parked (Default View); clone fresh.
 QA33 promoted to passed (ceiling exception accepted; published). Totals 33/0/1/22.
-Next: QA29 badge layout (right palette / compact) or QA24 remaining classes.
+QA29 at 273f0c4: linear badges clamp between rail and palette (right-palette
+badge was under the palette); size-class rail inset fixes the compact keypad
+overlap; forced-right iPad test + compact suite 4/4. Simulator plist had
+paletteOnRight=true persisted (cleared; backup in scratchpad). Three
+DimensionUITests fail on the branch independent of today's changes (also at
+0e86c6b): tap-to-reselect after a type switch / after a commit, and a short
+connected-circle centre drag — logged, not fixed. Next: QA53 compact
+sketch-transform check (choreography understood), then QA24 remaining classes.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

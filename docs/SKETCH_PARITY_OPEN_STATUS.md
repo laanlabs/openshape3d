@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 15:15 EDT QA-40 keypad-pan checkpoint**. Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 16:30 EDT QA-29 badge-layout checkpoint**. Source checkpoint: **273f0c4** (badge/keypad clear of side controls; d2ff046 exec ceiling). Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **33 passed / 0 failed / 22 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -95,7 +95,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-29 — Badge layout
 
 - **Status:** Core — partial live pass.
-- **Evidence / remaining work:** Portrait and landscape edge keypad usable; resize alignment fixed; right-palette/compact open.
+- **Evidence / remaining work:** Portrait and landscape edge keypad usable; resize alignment fixed. 2026-09-13 at 273f0c4: right-palette badge-under-palette fixed (linear badges clamp between rail and palette) and compact keypad overlap fixed (size-class rail inset); regression on both (iPad forced-right test; compact suite 4/4). Open: dense values, manual reposition, camera zoom, and three pre-existing DimensionUITests failures (below). See testing/sketch-parity-badge-layout-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-31 — Unit conversion
@@ -197,6 +197,7 @@ These are not additional acceptance-count rows. They must not disappear because 
 ## Blockers and next actions
 
 - **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
+- **Simulator baseline:** the parity iPad's app-container plist persisted paletteOnRight=true and alwaysRadius (Sept 11 handedness runs) until 2026-09-13 16:00 — layout evidence captured before then shows the palette on the right for that reason; check the plist before trusting layout captures.
 - **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
 - **QA-33 polygon bound:** resolved 2026-09-13 — native has no limit and degrades quadratically (3,000 sides ≈ 2 min); the clone's 10,000 ceiling is a deliberate guard, accepted by Jason 2026-09-13 as a scope exception.
 - **Publication:** Items selection batch is published and verified; model-mode summary correction is also paired and publication-verified. Older queue entries include recovered material and require reconciliation, not blind duplication.
@@ -228,6 +229,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (16:30): QA-29 right-palette badge and compact keypad overlaps fixed at 273f0c4 (iPad forced-right test green; compact suite 4/4). **Confirmed pre-existing bugs (not from today's changes; fail at 0e86c6b too):** DimensionUITests testLineDistanceTypeBadgeChangesReadoutWithoutOpeningKeypad, testNearRailCircleDiameterTargetRemainsReachable, testConnectedCircleGlyphDoesNotInterceptCenterDrag — tap-to-reselect after an edit / short centre drag; owner Claude Code session, next: reproduce tap-to-reselect live. Simulator carried a persisted paletteOnRight=true from Sept 11; cleared. 6 assets local.
 - 2026-09-13 (15:45): **QA-33 promoted to passed** — finite recipe complete, native bound measured, 10,000-side ceiling accepted by Jason as a scope exception (kept in the excluded-limitations list), appendix doc published. Totals 33/0/22/1.
 - 2026-09-13 (15:15): QA-40 pan-while-keypad: native pan not deliverable (seven input classes tried, inventory in the receipt) — moved to QA-52; clone rule inventory recorded; no source change.
 - 2026-09-13 (15:00): QA-33 native side-count bound measured to completion (1,000/2,000/3,000 sides: ~10/47/119 s, no refusal, quadratic); clone ceiling kept and extended to the exec path (10,001 was accepted there). Divergence recorded for acceptance. 6 assets local.

@@ -2615,6 +2615,16 @@ wedged the app; the keypad's 3…10,000 ceiling is kept and now enforced in the
 exec parser (bad_sides; unit case 10,001). Deliberate divergence awaiting
 acceptance; QA33 partial. 6 assets local.
 
+## September 13 — QA29 badge layout: right palette and compact
+
+273f0c4: linear badges clamp between the constraint rail and the palette on
+whichever side each sits (a line under the right-hand palette had its badge
+unreachable); the overlay's rail inset is size-class aware (72 pt at compact)
+so the keypad no longer centres over the left palette on a phone. Forced-right
+DimensionUITests case and compact keypad case added; compact suite 4/4. Three
+pre-existing DimensionUITests failures logged (fail identically without the
+change and at 0e86c6b). Simulator's persisted paletteOnRight cleared. Partial.
+
 ## September 13 — QA40 pan while keypad open
 
 No source change. Native pan cannot be posted from here (plain/modifier drags,
