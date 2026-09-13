@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 14:30 EDT QA-33 polygon-bound checkpoint**. Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 15:15 EDT QA-40 keypad-pan checkpoint**. Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -119,7 +119,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-40 — Keypad transitions
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Retained click-away/tool/toggle/Exit/Escape/history evidence plus paired blocked/unblocked cube drag on5676bd0 with final57/57 and illustrated1237/master38. Native pan delivery remains unresolved; physical input is QA52.
+- **Evidence / remaining work:** Retained click-away/tool/toggle/Exit/Escape/history evidence plus paired blocked/unblocked cube drag on5676bd0 with final57/57 and illustrated1237/master38. Native pan: seven input classes tried 2026-09-13 (plain/⇧/⌘/⌥ drags, wheel and trackpad-style scrolls, arrows) — none pans through Peekaboo (⌘+arrow rotates 15°); Shapr3D pans on the middle button / two-finger gesture, neither postable here — moved to QA-52 with the inventory. Clone rule inventory recorded (cube blocked, tap = click-away, one-finger drag and two-finger pan not gated; native unobserved). See testing/sketch-parity-keypad-pan-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-42 — Trim curves
@@ -234,6 +234,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (15:15): QA-40 pan-while-keypad: native pan not deliverable (seven input classes tried, inventory in the receipt) — moved to QA-52; clone rule inventory recorded; no source change.
 - 2026-09-13 (15:00): QA-33 native side-count bound measured to completion (1,000/2,000/3,000 sides: ~10/47/119 s, no refusal, quadratic); clone ceiling kept and extended to the exec path (10,001 was accepted there). Divergence recorded for acceptance. 6 assets local.
 - 2026-09-13 (14:00): Published the session's five evidence folders (70 images) as Google Docs via the user's Drive plus an index doc; receipts and evidence indexes carry the links. Roadmap doc not edited (other owner). Twelve Sept 12 offset assets still unpublished. No promotion.
 - 2026-09-13 (13:30): QA-53 compact extrude-bar failure measured and resolved (palette scrolls; tighter column; test asserts reachability), compact suite 3/3; receipt added. No promotion.

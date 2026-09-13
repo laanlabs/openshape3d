@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA33 native polygon bound measured; exec ceiling aligned (2026-09-13 15:00 EDT)
+## Current — QA40 pan-while-keypad closed to QA-52; QA33 ceiling accepted (2026-09-13 15:15 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -56,8 +56,11 @@ carries content inline only — too large for images). Roadmap doc not edited
 (other owner); Sept 12 offset assets (12) still unpublished. QA33: native accepts any side count, quadratic cost (1,000/2,000/3,000 →
 ~10/47/119 s); clone ceiling 10,000 kept (a million-gon wedged the app) and
 applied to exec at d2ff046 (84/84; live 10,000 ok / 10,001 refused). Divergence
-accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. Native parked (sketch undone); clone
-relaunched fresh. Next: QA40 keypad transitions or QA29 badge layout.
+accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. QA40: native pan not deliverable
+(seven input classes, canvas diff; ⌘+arrow = rotate 15°), moved to QA-52 with the
+inventory; clone cube-block paired, tap click-away, one-finger drag / two-finger
+pan not gated (native unobserved). Native parked (Default View); clone fresh.
+Next: QA29 badge layout (right palette / compact) or QA24 remaining classes.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

@@ -2615,6 +2615,14 @@ wedged the app; the keypad's 3…10,000 ceiling is kept and now enforced in the
 exec parser (bad_sides; unit case 10,001). Deliberate divergence awaiting
 acceptance; QA33 partial. 6 assets local.
 
+## September 13 — QA40 pan while keypad open
+
+No source change. Native pan cannot be posted from here (plain/modifier drags,
+wheel and smooth scrolls, arrows all left the camera unchanged; ⌘+arrow is the
+15° rotate chord); moved to QA-52 with the attempt inventory. Clone: cube drag
+blocked (paired), canvas tap click-away, one-finger drag and two-finger pan
+not gated. See testing/sketch-parity-keypad-pan-2026-09-13.md. Partial.
+
 ## September 13 — QA53 compact palette
 
 Measured on iPhone 17 Pro: the extrude bar no longer covers the palette; nine
