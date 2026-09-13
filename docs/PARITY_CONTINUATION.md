@@ -56,7 +56,7 @@ carries content inline only — too large for images). Roadmap doc not edited
 (other owner); Sept 12 offset assets (12) still unpublished. QA33: native accepts any side count, quadratic cost (1,000/2,000/3,000 →
 ~10/47/119 s); clone ceiling 10,000 kept (a million-gon wedged the app) and
 applied to exec at d2ff046 (84/84; live 10,000 ok / 10,001 refused). Divergence
-needs Jason's acceptance. Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. Native parked (sketch undone); clone
+accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. Native parked (sketch undone); clone
 relaunched fresh. Next: QA40 keypad transitions or QA29 badge layout.
 32/0/1/23; iPad unchanged.
 

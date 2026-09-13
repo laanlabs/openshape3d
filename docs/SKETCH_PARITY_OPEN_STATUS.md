@@ -113,7 +113,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-33 — Invalid numeric input
 
 - **Status:** Core — partial live pass.
-- **Evidence / remaining work:** Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Upper bound resolved 2026-09-13: native has **no** side-count refusal — 1,000/2,000/3,000 sides complete in ~10/47/119 s at 100% CPU (quadratic; 10,001 ≈ 22 min, the Sept 11 "hang"). Clone builds 10,000 in ~40 ms; a million-sided polygon wedged it, so the 10,000 ceiling stays as a guard and is now also enforced on the exec path at d2ff046 (it accepted 10,001; 84/84 gate, live 10,000 ok / 10,001 refused). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. **Deliberate divergence — needs Jason's acceptance as a scope exception.** See testing/sketch-parity-polygon-upper-bound-2026-09-13.md.
+- **Evidence / remaining work:** Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Upper bound resolved 2026-09-13: native has **no** side-count refusal — 1,000/2,000/3,000 sides complete in ~10/47/119 s at 100% CPU (quadratic; 10,001 ≈ 22 min, the Sept 11 "hang"). Clone builds 10,000 in ~40 ms; a million-sided polygon wedged it, so the 10,000 ceiling stays as a guard and is now also enforced on the exec path at d2ff046 (it accepted 10,001; 84/84 gate, live 10,000 ok / 10,001 refused). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. **Deliberate divergence — accepted by Jason 2026-09-13 as a scope exception (keep the 10,000 ceiling).** See testing/sketch-parity-polygon-upper-bound-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-40 — Keypad transitions
@@ -185,6 +185,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 
 These are not additional acceptance-count rows. They must not disappear because their related finite case is passed.
 
+- QA-33: polygon side count is capped at 10,000 on both the keypad and exec paths while native has no cap (quadratic slowdown, 10,001 ≈ 22 min). **Accepted scope exception, Jason 2026-09-13.**
 - QA-01: the clone keeps the picker armed after a refused curved-face tap by its own Section View rule; native's response to that tap is unobserved (audit document has no curved body in view).
 - QA-02: hover + Space is unit-proven only — the simulator delivers no pointer hover from Peekaboo moves or "Send Pointer to Device"; live proof needs a physical trackpad/Pencil (QA-52). The native face selection in native-05 is inferred from the missing plane prompt, not a visible highlight.
 - QA-03: 85° entry/orbit unreachable by command on either side (45°/isometric and 90° used); native edge-on drawing unobserved; gesture orbit not driven through Peekaboo (physical input stays QA-52).
@@ -203,7 +204,7 @@ These are not additional acceptance-count rows. They must not disappear because 
 
 - **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
 - **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
-- **QA-33 polygon bound:** resolved 2026-09-13 — native has no limit and degrades quadratically (3,000 sides ≈ 2 min); the clone's 10,000 ceiling is a deliberate guard awaiting Jason's acceptance as a scope exception.
+- **QA-33 polygon bound:** resolved 2026-09-13 — native has no limit and degrades quadratically (3,000 sides ≈ 2 min); the clone's 10,000 ceiling is a deliberate guard, accepted by Jason 2026-09-13 as a scope exception.
 - **Publication:** Items selection batch is published and verified; model-mode summary correction is also paired and publication-verified. Older queue entries include recovered material and require reconciliation, not blind duplication.
 
 ## Update contract

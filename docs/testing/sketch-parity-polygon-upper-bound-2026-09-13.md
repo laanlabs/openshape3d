@@ -38,8 +38,9 @@ accepted and 10,001 refused with "must be a whole number from 3 to 10000".
 The native "upper bound" is resolved: there is none — Shapr3D accepts any
 count and degrades quadratically. The clone's 10,000 ceiling is a deliberate
 divergence (native would take ~22 min at 10,001; the clone would render
-instantly up to its bound and wedge far beyond it). Recording it as a
-**scope exception for Jason to accept**; until then QA-33 stays partial.
+instantly up to its bound and wedge far beyond it). Recorded as a
+**scope exception, accepted by Jason 2026-09-13 (keep the 10,000 ceiling)**;
+QA-33 stays partial on its remaining scope only.
 Evidence: …/numeric-recovery/qa33-upper-bound-2026-09-13/ — 6 assets,
 evidence-index.json. **Published 2026-09-13 18:24 UTC:** https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit.
 32/0/1/23; iPad unchanged.
