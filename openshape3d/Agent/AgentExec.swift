@@ -775,8 +775,13 @@ nonisolated enum AgentExec {
                 guard r > 1e-12 else { return fail("bad_radius", "radius must be > 0.") }
                 let sidesValue = try double(a, "sides")
                 let sides = Int(sidesValue.rounded())
-                guard sides >= 3, Double(sides) == sidesValue else {
-                    return fail("bad_sides", "\"sides\" must be a whole number ≥ 3.")
+                // Same ceiling as the keypad's side-count edit. The reference
+                // app accepts any count but its cost grows with the square of
+                // it (3000 sides ≈ 2 min there); here the command returns in
+                // ~40 ms at any count, but a million-sided polygon then pinned
+                // the app for minutes — the bound is a guard, not parity.
+                guard sides >= 3, sides <= 10_000, Double(sides) == sidesValue else {
+                    return fail("bad_sides", "\"sides\" must be a whole number from 3 to 10000.")
                 }
                 // `radius` is the circumscribed-circle radius (vertices lie on
                 // it); `rotation` (optional, radians, like arc angles) places

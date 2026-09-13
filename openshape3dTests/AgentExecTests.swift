@@ -317,6 +317,8 @@ final class AgentExecTests: XCTestCase {
     func testClosedPrimitivesRejectDegenerateArgs() {
         let head = #"{"op":"sketch.addEntities","args":{"sketchID":"\#(sketchUUID)","entities":["#
         XCTAssertEqual(code(head + #"{"kind":"rect","min":[0,0],"max":[0,5]}]}}"#), "degenerate_rect")
+        XCTAssertEqual(code(head + #"{"kind":"polygon","center":[0,0],"radius":2,"sides":10001}]}}"#),
+                       "bad_sides", "The exec path shares the keypad's 10,000-side ceiling")
         XCTAssertEqual(code(head + #"{"kind":"polygon","center":[0,0],"radius":2,"sides":2}]}}"#), "bad_sides")
         XCTAssertEqual(code(head + #"{"kind":"polygon","center":[0,0],"radius":2,"sides":5.5}]}}"#), "bad_sides")
         XCTAssertEqual(code(head + #"{"kind":"ellipse","center":[0,0],"radiusX":0,"radiusY":3}]}}"#), "bad_radius")
