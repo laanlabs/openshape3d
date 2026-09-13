@@ -135,6 +135,25 @@ nonisolated enum StandardView: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
+    /// The world axis this view looks along — the normal a sketch plane must
+    /// have for this to be its head-on (or underside) view. Isometric looks
+    /// along no axis. Y is up: Top/Bottom look along Y, Front/Back along Z,
+    /// Right/Left along X.
+    var viewAxis: SIMD3<Double>? {
+        switch self {
+        case .isometric: return nil
+        case .top, .bottom: return SIMD3(0, 1, 0)
+        case .front, .back: return SIMD3(0, 0, 1)
+        case .right, .left: return SIMD3(1, 0, 0)
+        }
+    }
+
+    /// Whether this view looks straight at `plane` from either side.
+    func isHeadOn(to plane: SketchPlane) -> Bool {
+        guard let axis = viewAxis else { return false }
+        return abs(simd_dot(axis, simd_normalize(plane.normal))) > 0.999
+    }
+
     /// The pose for this view, keeping target/distance/projection. Top and
     /// Bottom clamp to ±89° (TurntableCamera.elevationLimit) — 1° short of a
     /// true plan view, because the turntable's fixed Y-up degenerates at ±90°.

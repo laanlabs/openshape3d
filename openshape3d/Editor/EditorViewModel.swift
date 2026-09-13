@@ -5340,6 +5340,16 @@ final class EditorViewModel {
     static let lookAtSketchThresholdDegrees: Double = 10
 
     func applyStandardView(_ view: StandardView) {
+        // Shapr3D (observed 2026-09-13, seven trials): a named view that is
+        // not the active sketch's head-on view or its underside ends the
+        // sketch — Front, Right and the oblique home view all did; Top and
+        // Bottom on a ground sketch did not, and free rotation never does.
+        // Without this the sketch stayed open edge-on, where taps place
+        // nothing. Free orbit keeps the sketch and offers Look at Sketch.
+        if case .sketching = mode, let plane = activeSketch?.plane,
+           !view.isHeadOn(to: plane) {
+            finishSketch()
+        }
         cameraControl?.animateToStandardView(view)
     }
 

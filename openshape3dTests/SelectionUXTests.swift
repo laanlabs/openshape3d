@@ -326,6 +326,45 @@ final class SelectionUXTests: XCTestCase {
         XCTAssertNil(vm.selectedPlaneID)
     }
 
+    // MARK: - Named views while sketching (QA-03)
+
+    /// Shapr3D: a named view that is not the sketch's head-on view (or its
+    /// underside) ends the sketch; its own head-on views keep it.
+    func testNamedViewEndsSketchUnlessHeadOn() throws {
+        let vm = try makeViewModel()
+
+        // Ground sketch: Top/Bottom keep it, Front/Isometric end it.
+        vm.startSketch(tool: .line)
+        vm.handle(.tap(ray: Ray(origin: SIMD3(50, 10, 50), direction: SIMD3(0, -1, 0))))
+        XCTAssertEqual(vm.activeSketch?.plane, .ground)
+        vm.applyStandardView(.top)
+        XCTAssertTrue(vm.mode.isSketching, "Top is the ground sketch's own view")
+        vm.applyStandardView(.bottom)
+        XCTAssertTrue(vm.mode.isSketching, "Bottom looks at the ground sketch from beneath")
+        vm.applyStandardView(.front)
+        XCTAssertEqual(vm.mode, .idle, "Front is edge-on to a ground sketch: the sketch ends")
+        XCTAssertTrue(vm.session.document.sketches.isEmpty, "The empty sketch is discarded")
+
+        vm.startSketch(tool: .line)
+        vm.handle(.tap(ray: Ray(origin: SIMD3(50, 10, 50), direction: SIMD3(0, -1, 0))))
+        vm.applyStandardView(.isometric)
+        XCTAssertEqual(vm.mode, .idle, "The oblique home view ends the sketch")
+
+        // Front-plane sketch: Front/Back keep it, Top ends it.
+        vm.session.perform(AddConstructionPlaneCommand(
+            plane: ConstructionPlane(plane: .worldXY, size: 20)))
+        let planeID = try XCTUnwrap(vm.session.document.planes.first?.id)
+        vm.selectItemPlane(planeID)
+        vm.startSketch(tool: .line)
+        XCTAssertEqual(vm.activeSketch?.plane, .worldXY)
+        vm.applyStandardView(.front)
+        XCTAssertTrue(vm.mode.isSketching)
+        vm.applyStandardView(.back)
+        XCTAssertTrue(vm.mode.isSketching)
+        vm.applyStandardView(.top)
+        XCTAssertEqual(vm.mode, .idle)
+    }
+
     // MARK: - Sketch plane picker: face / curved face / miss (QA-01)
 
     /// With a sketch tool armed and no plane chosen: a planar cap is the
