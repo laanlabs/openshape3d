@@ -38,7 +38,7 @@ extension CommandRegistry {
         // Sketch tools — the tutorial's C / A / L / R / T / G.
         "sketch.line", "sketch.rectangle", "sketch.circle", "sketch.arc",
         "sketch.ellipse", "sketch.polygon", "sketch.text", "sketch.trim",
-        "sketch.offset", "sketch.construction",
+        "sketch.offset", "sketch.construction", "sketch.onHoveredPlane",
 
         // Modeling.
         "model.extrude", "model.revolve", "model.sweep", "model.loft",
@@ -135,6 +135,7 @@ extension EditorViewModel {
 
         // MARK: Sketch tools (only while a sketch is open)
         case "sketch.line":         return armSketchTool(.line)
+        case "sketch.onHoveredPlane": return sketchOnHoveredPlane()
         case "sketch.rectangle":    return armSketchTool(.rect)
         case "sketch.circle":       return armSketchTool(.circle)
         case "sketch.arc":          return armSketchTool(.arc)

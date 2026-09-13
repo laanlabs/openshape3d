@@ -10322,6 +10322,28 @@ final class EditorViewModel {
         _ = clearLinePreviewIfNeeded()
     }
 
+    /// The viewport's last reported pointer/Pencil hover, nil once it leaves.
+    var hoverRay: Ray?
+
+    /// Space (Shapr3D): start a Line sketch on the plane or face under the
+    /// pointer — the origin tiles, a construction plane, a planar body face
+    /// or the bare grid. Outside a sketch only; nothing hovered, or a hover
+    /// that is not a sketch plane (a curved wall), is a no-op.
+    func sketchOnHoveredPlane() -> Bool {
+        guard let ray = hoverRay else { return false }
+        switch mode {
+        case .sketching, .pickingSketchPlane: return false
+        default: break
+        }
+        startSketch(tool: .line)
+        if case .pickingSketchPlane(let tool) = mode {
+            handlePlanePick(ray: ray, tool: tool)
+        }
+        if mode.isSketching { return true }
+        cancelPlanePicking()
+        return false
+    }
+
     /// Pointer/Pencil-hover previews for tap-built sketch tools. An arc's third
     /// point is the hovered point after its two endpoints; Line and Rectangle
     /// retain their existing rubber-band previews below. A nil ray keeps an

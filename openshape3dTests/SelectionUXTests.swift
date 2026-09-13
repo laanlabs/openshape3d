@@ -365,6 +365,49 @@ final class SelectionUXTests: XCTestCase {
         XCTAssertEqual(vm.mode, .idle)
     }
 
+    // MARK: - Space: sketch on the hovered plane (QA-02)
+
+    /// Shapr3D: Space with the pointer over a plane or face starts a sketch
+    /// there. Nothing hovered, or a curved wall, does nothing.
+    func testSpaceStartsSketchOnHoveredPlaneOrFace() throws {
+        let vm = try makeViewModel()
+        var document = vm.session.document
+        let spec = PrimitiveSpec.cylinder(radius: 3, height: 5)
+        let cylinder = Body(
+            name: "Cylinder", transform: .identity, primitive: spec,
+            euclidMesh: .primitive(spec), revision: document.nextRevision()
+        )
+        vm.session.perform(AddBodyCommand(body: cylinder))
+        let box = try XCTUnwrap(MeasureKit.boundingBox(bodies: [cylinder]))
+
+        // Nothing hovered: no-op.
+        XCTAssertFalse(vm.sketchOnHoveredPlane())
+        XCTAssertEqual(vm.mode, .idle)
+
+        // Hover the flat cap: sketch on it.
+        vm.hoverRay = Ray(origin: SIMD3(0.5, Float(box.max.y) + 10, 0.5), direction: SIMD3(0, -1, 0))
+        XCTAssertTrue(vm.sketchOnHoveredPlane())
+        XCTAssertTrue(vm.mode.isSketching)
+        XCTAssertEqual(vm.mode.sketchTool, .line)
+        XCTAssertEqual(vm.activeSketch?.plane.origin.y ?? -1, Double(box.max.y), accuracy: 1e-3)
+        // Already sketching: Space does nothing more.
+        XCTAssertFalse(vm.sketchOnHoveredPlane())
+        vm.finishSketch()
+
+        // Hover the bare grid: ground sketch.
+        vm.hoverRay = Ray(origin: SIMD3(50, 10, 50), direction: SIMD3(0, -1, 0))
+        XCTAssertTrue(vm.sketchOnHoveredPlane())
+        XCTAssertEqual(vm.activeSketch?.plane, .ground)
+        vm.finishSketch()
+
+        // Hover the curved wall: refused, and no picker left behind.
+        let midY = Float((box.min.y + box.max.y) / 2)
+        vm.hoverRay = Ray(origin: SIMD3(10, midY, 0.5), direction: SIMD3(-1, 0, 0))
+        XCTAssertFalse(vm.sketchOnHoveredPlane())
+        XCTAssertEqual(vm.mode, .idle)
+        XCTAssertTrue(vm.session.document.sketches.isEmpty)
+    }
+
     // MARK: - Sketch plane picker: face / curved face / miss (QA-01)
 
     /// With a sketch tool armed and no plane chosen: a planar cap is the

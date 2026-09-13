@@ -711,6 +711,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     func gestureHovered(at point: CGPoint?) {
         var hoverRay: Ray?
         if let point { hoverRay = ray(at: point) }
+        viewModel.hoverRay = hoverRay
         if viewModel.updateLinePreview(ray: hoverRay) {
             sceneDidChange()
         }
