@@ -100,6 +100,30 @@ nonisolated enum HitTester {
         return hits.sorted { $0.distance < $1.distance }
     }
 
+    /// Every surface intersection, including the far side of the same body.
+    /// Callers group triangles into topology faces before presenting choices.
+    static func pickAllSurfaces(ray: Ray, in scene: ViewportScene) -> [PickHit] {
+        var hits: [PickHit] = []
+        for drawable in scene.bodies where !drawable.isTranslucent {
+            let localRay = ray.transformed(by: simd_inverse(drawable.modelMatrix))
+            let mesh = drawable.renderMesh
+            let bounds = mesh.localAABB
+            guard slabTest(ray: localRay, min: bounds.min, max: bounds.max) else { continue }
+            for triangle in 0..<mesh.triangleCount {
+                let indices = (0..<3).map { Int(mesh.indices[triangle * 3 + $0]) }
+                guard let distance = intersectTriangle(ray: localRay,
+                    v0: mesh.positions[indices[0]], v1: mesh.positions[indices[1]],
+                    v2: mesh.positions[indices[2]]) else { continue }
+                let world = drawable.modelMatrix * SIMD4(localRay.point(at: distance), 1)
+                let point = SIMD3(world.x, world.y, world.z)
+                hits.append(PickHit(bodyID: drawable.id,
+                    distance: simd_length(point - ray.origin), worldPoint: point,
+                    triangleIndex: triangle))
+            }
+        }
+        return hits.sorted { $0.distance < $1.distance }
+    }
+
     // MARK: - Primitives
 
     static func slabTest(ray: Ray, min lo: SIMD3<Float>, max hi: SIMD3<Float>) -> Bool {

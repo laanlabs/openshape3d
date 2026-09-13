@@ -1870,7 +1870,7 @@ struct EditorView: View {
                 // choosing an occluded body selects it (Select Through).
                 ForEach(viewModel.selectThroughCandidates ?? []) { candidate in
                     Button(candidate.name) {
-                        viewModel.chooseSelectThrough(candidate.id)
+                        viewModel.chooseSelectThrough(candidate)
                     }
                 }
                 Button("Cancel", role: .cancel) {

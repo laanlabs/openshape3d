@@ -1,5 +1,88 @@
 # Parity continuation checkpoint
 
+## Active — QA24 typed selection final26/26, live next
+
+Final26/26 zero failures/skips, terminal0, no runner. Typed planar face/body/
+visible occluded profile chooser implemented and model dispatch verified.
+Next checkpoint/push then changed live front/back/body/profile choices and
+native exact identity. Native Profile click identity caveat remains; curved
+face/edge breadth unverified. QA24partial32/0/1/23; reports1247/master38.
+All task changes ready to checkpoint; preserve unrelated identity/memory.
+Native selected profile/extrude state, clone test terminated; Right preference
+retained. Immutable05be744/iPad unchanged. No duplicate runner.
+
+
+## Active — QA24 broadened typed selection gate
+
+Focused9/9 after face-only8/8 and before0/1. Added hidden/stale profile check
+and curved-wall facet suppression. Final selection/identity/twoUI gate exec57984
+running exclusively, /tmp/os3d-qa24-through-final-20260912.log/xcresult.
+Selectors SelectionTests, SelectionUXTests, SketchIdentityTests, SelectionUITests.
+Collect terminal then inspect any failures, checkpoint safe source, changed live
+front/back/body/profile choices. Exact native Profile-row identity remains
+unverified (extrusion controls observed, apparent region mismatch). Do not close.
+Dirty HitTester, EditorViewModel, EditorView, SelectionUXTests, continuation,
+new select-through-targets receipt. HEAD89dbafc,32/0/1/23;1247/master38.
+Native parked selected profile/extrusion controls; clone runner-owned. Right
+palette retained. Immutable05be744/iPad unchanged; no duplicate runner.
+
+
+## Active — QA24 face/profile typed focused suite
+
+Face-only SelectionUX8/8 passed after before0/1. Added visible occluded sketch
+profile candidates (one innermost fill per visible sketch) and zero-distance
+existing startExtrude dispatch. New test verifies front/back planes y2/y0,
+source body/profile identity and no geometry mutation/cancel. Current exec7890
+running all SelectionUXTests exclusively:
+/tmp/os3d-qa24-through-typed-20260912.log/xcresult. Collect terminal first.
+No broad gate/changed live/publication yet. Native after Profile-row click shows
+one face and extrusion arrows, but screen selection appears different from the
+menu's Sketch05 label; do NOT claim exact candidate identity until verified.
+Native currently body zoom with selected profile/extrusion controls; clone testowned.
+HEAD89dbafc; dirty HitTester, EditorViewModel, EditorView, SelectionUXTests,
+continuation. Planar faces only; audit curved facet suppression and candidate
+order/hidden/stale behavior before broad gate. Preserve body/additive API.
+Evidence selection/qa24-through-live-2026-09-12. QA24partial32/0/1/23;
+reports1247/master38; iPad immutable05be744 unchanged. Right palette retained.
+
+
+## Active — QA24 typed face candidates under focused test
+
+Before0/1 confirms0faces expected2. Implemented HitTester.pickAllSurfaces,
+planar topology dedup front/back, typed body/face candidates; face choice sets
+existing faceContext and faceSelected without geometry edit. Body overload/
+additive path preserved; UI chooses typed candidate. Existing body order test
+filters body candidates explicitly. All SelectionUXTests running exec19880,
+/tmp/os3d-qa24-through-faces-20260912.log/xcresult, exclusive simulator owner.
+Profile candidates still missing; no changed live/publication yet. Need face
+choice assertions beyond counts, profile support then broad/regression/live.
+Dirty HitTester, EditorViewModel, EditorView, SelectionUXTests, continuation.
+HEAD89dbafc;32/0/1/23; reports1247/master38; iPad unchanged.
+Native parked Select Through chooser; clone test-owned. Earlier right palette
+preference retained. Do not duplicate runners or count incomplete fix as parity.
+
+
+## Active — QA24 Select Through missing target types, before test
+
+HEAD89dbafc pushed (QA53 panel final50/50, live and1247/master38 verified).
+Native right-click at visible sketch/body overlap→Select Through This Point
+(menu coordinate click only highlighted; foreground Return activated) lists
+two Face - Extrusion05, Body05 and Sketch05 Profile. Clone visible extruded-body/
+shown source sketch long-press lists only Extrude. Code SelectThroughCandidate
+and presentSelectThrough are body-only. Need face/profile target support;
+no source fix yet. New SelectionUXTests testSelectThroughIncludesFrontAndBackFacesAlongsideBody
+before run exec9159 owns simulator exclusively, /tmp/os3d-qa24-through-before-20260912.log/xcresult.
+Collect terminal before source changes/desktop. Native parked chooser open,
+body zoomed using Items Body05→Zoom to; clone owned by test. Right palette
+preference retained. Dirty SelectionUXTests and continuation only.
+Evidence durable selection/qa24-through-live-2026-09-12. Earlier long-press
+native probes merely hover-highlighted and are not chooser evidence.
+Official Selecting geometry and Create sketches docs confirm context route;
+URLs in transcript. Existing SelectionUX body-only expected names must be
+updated only when typed candidates implemented, preserving body order/additive.
+QA24 partial32/0/1/23; iPad/immutable05be744 unchanged. No duplicate runner.
+
+
 ## Active — QA53 panel publication verified, QA24 next
 
 Source4b6a78f pushed; final50/50 zero failures/skips. Changed live Left/Right

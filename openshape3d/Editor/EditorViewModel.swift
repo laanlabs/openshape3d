@@ -5957,8 +5957,15 @@ final class EditorViewModel {
     // MARK: - Select Through (plan §B13, spec §8.3)
 
     struct SelectThroughCandidate: Identifiable {
-        let id: BodyID
+        enum Target {
+            case body(BodyID)
+            case face(PickHit)
+            case profile(SketchID, SIMD2<Double>)
+        }
+        let id: String
         let name: String
+        let target: Target
+        var isBody: Bool { if case .body = target { return true }; return false }
     }
 
     /// Long-press hit list (front→back); non-nil presents the popup menu.
@@ -5974,13 +5981,66 @@ final class EditorViewModel {
         default:
             return
         }
-        let candidates = HitTester.pickAllBodies(ray: ray, in: scene).compactMap { hit in
-            session.document.body(with: hit.bodyID).map {
-                SelectThroughCandidate(id: $0.id, name: $0.name)
+        var candidates: [SelectThroughCandidate] = []
+        var seenFaces: Set<String> = []
+        for hit in HitTester.pickAllSurfaces(ray: ray, in: scene) {
+            guard let body = session.document.body(with: hit.bodyID),
+                  let face = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex),
+                  let representative = face.triangles.min() else { continue }
+            // A curved wall is not a collection of independently editable flat
+            // facets. Keep its body choice until whole curved-face picking is covered.
+            if FaceTopology.smoothRegion(in: body.render, seedTriangle: hit.triangleIndex)?.isCurved == true {
+                continue
             }
+            let id = "face-\(body.id.raw)-\(representative)"
+            guard seenFaces.insert(id).inserted else { continue }
+            candidates.append(SelectThroughCandidate(id: id, name: "Face — \(body.name)",
+                                                      target: .face(hit)))
+        }
+        candidates += HitTester.pickAllBodies(ray: ray, in: scene).compactMap { hit in
+            session.document.body(with: hit.bodyID).map {
+                SelectThroughCandidate(id: "body-\($0.id.raw)", name: $0.name, target: .body($0.id))
+            }
+        }
+        // Visible sketch fills remain selectable behind body surfaces.
+        for sketch in session.document.sketches where !sketch.isHidden {
+            let plane = sketch.plane
+            let origin = SIMD3<Float>(plane.origin)
+            let normal = SIMD3<Float>(plane.normal)
+            guard let distance = ray.intersect(planePoint: origin, planeNormal: normal) else { continue }
+            let local = plane.toLocal(SIMD3<Double>(ray.point(at: distance)))
+            guard !ProfileDetector.profiles(at: local, in: sketch).isEmpty else { continue }
+            candidates.append(SelectThroughCandidate(id: "profile-\(sketch.id.raw)",
+                name: "Profile — \(sketch.name)", target: .profile(sketch.id, local)))
         }
         guard !candidates.isEmpty else { return }
         selectThroughCandidates = candidates
+    }
+
+    func chooseSelectThrough(_ candidate: SelectThroughCandidate) {
+        switch candidate.target {
+        case .body(let id): chooseSelectThrough(id)
+        case .profile(let id, let point):
+            selectThroughCandidates = nil
+            guard let sketch = session.document.sketches.first(where: { $0.id == id && !$0.isHidden }),
+                  let profile = ProfileDetector.profiles(at: point, in: sketch).first else { return }
+            let holes = ProfileDetector.holes(of: profile, among: ProfileDetector.detectProfiles(in: sketch))
+            cancelTool()
+            selectedImageID = nil
+            startExtrude(with: (profile, holes, sketch.plane, sketch.id, 0))
+        case .face(let hit):
+            selectThroughCandidates = nil
+            guard let body = session.document.body(with: hit.bodyID),
+                  let face = FaceTopology.planarFace(in: body.render, seedTriangle: hit.triangleIndex) else { return }
+            cancelTool()
+            selection = [body.id]
+            selectedImageID = nil
+            toolContext = faceContext(body: body, face: face)
+            faceMoveActive = false
+            faceScaleActive = false
+            faceRotateActive = false
+            mode = .faceSelected(body.id)
+        }
     }
 
     /// Popup choice: select that body (additively while in select mode).

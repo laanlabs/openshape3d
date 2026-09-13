@@ -164,6 +164,54 @@ final class SelectionUXTests: XCTestCase {
 
     // MARK: - Select Through
 
+    func testSelectThroughIncludesFrontAndBackFacesAlongsideBody() throws {
+        let viewModel = try makeViewModel()
+        addBox(to: viewModel, name: "Layered Box", at: .zero)
+        viewModel.presentSelectThrough(ray: Ray(
+            origin: SIMD3(0.2, 20, 0.3), direction: SIMD3(0, -1, 0)))
+        let candidates = try XCTUnwrap(viewModel.selectThroughCandidates)
+        XCTAssertEqual(candidates.filter { $0.name == "Layered Box" }.count, 1)
+        XCTAssertEqual(candidates.filter { $0.name.hasPrefix("Face") }.count, 2,
+                       "Select Through must expose front and back faces, not only the body")
+    }
+
+    func testSelectThroughFaceAndOccludedProfileChoicesDoNotEditGeometry() throws {
+        let vm = try makeViewModel()
+        let body = addBox(to: vm, name: "Solid", at: .zero)
+        let sketch = Sketch(name: "Base", plane: .ground,
+                            entities: [.circle(id: UUID(), center: .zero, radius: 0.8)])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        let ray = Ray(origin: SIMD3(0.2, 20, 0.3), direction: SIMD3(0, -1, 0))
+        vm.presentSelectThrough(ray: ray)
+        let choices = try XCTUnwrap(vm.selectThroughCandidates)
+        let faces = choices.filter { if case .face = $0.target { return true }; return false }
+        XCTAssertEqual(faces.count, 2)
+        for (index, face) in faces.enumerated() {
+            vm.chooseSelectThrough(face)
+            XCTAssertEqual(vm.mode, .faceSelected(body.id))
+            XCTAssertEqual(vm.toolContext?.sourceBody, body.id)
+            XCTAssertEqual(try XCTUnwrap(vm.toolContext).plane.origin.y,
+                           index == 0 ? 2 : 0, accuracy: 1e-6)
+        }
+        let profile = try XCTUnwrap(choices.first { if case .profile = $0.target { return true }; return false })
+        vm.chooseSelectThrough(profile)
+        XCTAssertEqual(vm.mode, .extruding)
+        XCTAssertEqual(vm.toolContext?.sketchID, sketch.id)
+        XCTAssertNil(vm.toolContext?.sourceBody)
+        XCTAssertEqual(vm.session.document.bodies.count, 1)
+        XCTAssertEqual(vm.session.document.sketches.first?.entities, sketch.entities)
+        vm.cancelTool()
+        XCTAssertEqual(vm.session.document.bodies.count, 1)
+        vm.setItemHidden(.sketch(sketch.id), hidden: true)
+        vm.presentSelectThrough(ray: ray)
+        XCTAssertFalse(try XCTUnwrap(vm.selectThroughCandidates).contains {
+            if case .profile = $0.target { return true }; return false
+        })
+        vm.chooseSelectThrough(profile) // stale hidden profile cannot arm extrusion
+        XCTAssertNotEqual(vm.mode, .extruding)
+        XCTAssertEqual(vm.session.document.bodies.count, 1)
+    }
+
     func testSelectThroughListsHitsFrontToBackAndChoosingSelects() throws {
         let viewModel = try makeViewModel()
         let near = addBox(to: viewModel, name: "Near", at: SIMD3(0, 5, 0)) // y 5…7
@@ -173,7 +221,7 @@ final class SelectionUXTests: XCTestCase {
         let ray = Ray(origin: SIMD3(0, 20, 0), direction: SIMD3(0, -1, 0))
         viewModel.presentSelectThrough(ray: ray)
         let candidates = try XCTUnwrap(viewModel.selectThroughCandidates)
-        XCTAssertEqual(candidates.map(\.name), ["Near", "Far"])
+        XCTAssertEqual(candidates.filter(\.isBody).map(\.name), ["Near", "Far"])
 
         viewModel.chooseSelectThrough(far.id)
         XCTAssertNil(viewModel.selectThroughCandidates)
