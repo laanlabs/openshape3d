@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — native drags corrected: linear-label reposition and off-plane subset split implemented (2026-09-13 19:10 EDT)
+## Current — QA24 curved-face/edge breadth probed and matched (2026-09-13 19:50 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -95,7 +95,13 @@ new sketch (97f320a). Gates: Gate: ModelSketchTransformTests 7/7, ConstraintAppl
 left as found (three undos verified), Default View; clone fresh on the sim.
 Native circle label re-checked (measured: radial drag, reverts on reselect);
 native parked Default View. QA29 remaining: label overlaps, clone zoom on a
-device. Next: QA24 curved-face/edge selection breadth.
+device. QA24 curved-face/edge: native cylinder probe (wall → face, radius, Offset
+Face; rim → edge, length/radius, Chamfer/Fillet; Select Through → wall
+faces, body, profile; undone, Default View). Clone 637a24d:
+curved faces in Select Through, edge tap arms Chamfer/Fillet with the edge.
+Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. Native parked; clone fresh on the sim. Next: publish
+the four new evidence folders (Chrome route), or QA-45's native mixed
+selection if the input harness allows shift-click.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

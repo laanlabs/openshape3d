@@ -2705,3 +2705,17 @@ mode enters its sketch); the clone's refusal is replaced by the same split
 found. Partial (curved-face/edge selection breadth; circle-label drag
 re-check).
 
+## September 13 — QA24 curved-face and edge selection breadth
+
+Native, on a probe cylinder built and undone in the audit document: a
+curved-wall click selects the face with a radius readout and the Offset
+Face tool; a rim click selects the edge with length and radius readouts and
+the Chamfer/Fillet tool; Select Through This Point on the wall lists both
+wall faces, the body and the sketch profile behind. Clone (637a24d):
+Select Through now offers curved faces (keyed by the whole smooth region;
+choosing lands on the radial push/pull for a plain cylinder, a face
+otherwise), and a tap within 8 pt of a body edge arms the blend pick with
+that edge chosen (info bar "Edges 1 / Length"). Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. See
+testing/sketch-parity-curved-edge-selection-2026-09-13.md. Partial (native's
+edge-only selection state and circular-edge radius readout not matched).
+
