@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 14:00 EDT publication checkpoint**. Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 14:30 EDT QA-33 polygon-bound checkpoint**. Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -113,7 +113,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-33 — Invalid numeric input
 
 - **Status:** Core — partial live pass.
-- **Evidence / remaining work:** Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Native10001 enters unresolved busy processing, so clone10000 is defensive, not verified parity. Diagnosis illustrated803/master38 published; upper bound stays open.
+- **Evidence / remaining work:** Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Upper bound resolved 2026-09-13: native has **no** side-count refusal — 1,000/2,000/3,000 sides complete in ~10/47/119 s at 100% CPU (quadratic; 10,001 ≈ 22 min, the Sept 11 "hang"). Clone builds 10,000 in ~40 ms; a million-sided polygon wedged it, so the 10,000 ceiling stays as a guard and is now also enforced on the exec path at d2ff046 (it accepted 10,001; 84/84 gate, live 10,000 ok / 10,001 refused). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. **Deliberate divergence — needs Jason's acceptance as a scope exception.** See testing/sketch-parity-polygon-upper-bound-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-40 — Keypad transitions
@@ -203,7 +203,7 @@ These are not additional acceptance-count rows. They must not disappear because 
 
 - **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
 - **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
-- **QA-33 polygon bound:** native 10,001-side processing did not establish a safe native upper limit. Clone 10,000 ceiling is defensive, not parity evidence.
+- **QA-33 polygon bound:** resolved 2026-09-13 — native has no limit and degrades quadratically (3,000 sides ≈ 2 min); the clone's 10,000 ceiling is a deliberate guard awaiting Jason's acceptance as a scope exception.
 - **Publication:** Items selection batch is published and verified; model-mode summary correction is also paired and publication-verified. Older queue entries include recovered material and require reconciliation, not blind duplication.
 
 ## Update contract
@@ -228,10 +228,12 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 - [Device checklist and historical artifact](SKETCH_PARITY_DEVICE_AB.md)
 - [Publication recovery queue](testing/sketch-parity-publication-pending-2026-09-10.md)
 - [PR #29](https://github.com/laanlabs/openshape3d/pull/29)
+- [QA-33 polygon-bound appendix, 2026-09-13](https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit)
 - [Evidence Appendix index, 2026-09-13](https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit)
 
 ## Change log
 
+- 2026-09-13 (15:00): QA-33 native side-count bound measured to completion (1,000/2,000/3,000 sides: ~10/47/119 s, no refusal, quadratic); clone ceiling kept and extended to the exec path (10,001 was accepted there). Divergence recorded for acceptance. 6 assets local.
 - 2026-09-13 (14:00): Published the session's five evidence folders (70 images) as Google Docs via the user's Drive plus an index doc; receipts and evidence indexes carry the links. Roadmap doc not edited (other owner). Twelve Sept 12 offset assets still unpublished. No promotion.
 - 2026-09-13 (13:30): QA-53 compact extrude-bar failure measured and resolved (palette scrolls; tighter column; test asserts reachability), compact suite 3/3; receipt added. No promotion.
 - 2026-09-13 (13:10): QA-45 mixed selection had no exact-value route — fixed at d790646, 84/84, live typed move + Undo/Redo verified; native mixed selection input-blocked. Compact: extrude bar covers Delete on iPhone 17 Pro (confirmed, QA-53); sketch-transform compact check open. 11 assets local. No promotion.

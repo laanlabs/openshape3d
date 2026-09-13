@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — session evidence published; QA53 compact palette at 0cb0a2a (2026-09-13 14:00 EDT)
+## Current — QA33 native polygon bound measured; exec ceiling aligned (2026-09-13 15:00 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -53,8 +53,11 @@ Evidence planes/qa45-mixed-transform-live-2026-09-13 (11 assets, local); five
 folders / 64 assets unpublished. Publication: the five 2026-09-13 evidence folders are Google Docs in Jason's
 Drive (index https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit), uploaded through his Chrome (the Drive connector
 carries content inline only — too large for images). Roadmap doc not edited
-(other owner); Sept 12 offset assets (12) still unpublished. Next: QA33
-invalid-input / QA40 keypad lanes, or QA29 badge layout.
+(other owner); Sept 12 offset assets (12) still unpublished. QA33: native accepts any side count, quadratic cost (1,000/2,000/3,000 →
+~10/47/119 s); clone ceiling 10,000 kept (a million-gon wedged the app) and
+applied to exec at d2ff046 (84/84; live 10,000 ok / 10,001 refused). Divergence
+needs Jason's acceptance. Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. Native parked (sketch undone); clone
+relaunched fresh. Next: QA40 keypad transitions or QA29 badge layout.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

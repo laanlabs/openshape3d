@@ -2606,6 +2606,15 @@ and circle together, Undo/Redo verified. Native mixed selection input-blocked.
 Compact: extrude bar covers Delete (confirmed, QA53); sketch-transform compact
 check open. Partial, no promotion. 32/0/1/23.
 
+## September 13 — QA33 polygon upper bound
+
+Native measured to completion: 1,000/2,000/3,000 sides in ~10/47/119 s at 100%
+CPU, rendered, no refusal — quadratic, so 10,001 ≈ 22 min (the Sept 11 hang).
+Clone: any count returns in ~40 ms over the bridge, but 1,000,000 sides then
+wedged the app; the keypad's 3…10,000 ceiling is kept and now enforced in the
+exec parser (bad_sides; unit case 10,001). Deliberate divergence awaiting
+acceptance; QA33 partial. 6 assets local.
+
 ## September 13 — QA53 compact palette
 
 Measured on iPhone 17 Pro: the extrude bar no longer covers the palette; nine
