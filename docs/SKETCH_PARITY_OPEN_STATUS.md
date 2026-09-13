@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 09:30 EDT QA-01 plane-row highlight checkpoint**. Source checkpoint: **cf0fbd0** (plane row highlight + "1 plane" readout, on cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 10:00 EDT QA-01 curved-face checkpoint**. Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -12,7 +12,7 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 - **QA-24 Items selection:** 0cc5d6c final52/52 and paired owned-selection/Exit/Rename/history/reopen are published.
 - **QA-24 model-mode summary:** source605511b plus fixture0e86c6b final47/47; fresh native and changed clone count/length/blank comparisons, clone history/reopen verified. Ten assets published; source and tests pushed.
 - **Next core:** QA-01 plane-picker miss/face recipe. Native model-mode 3D sketch Move/Rotate diagnostic remains open:5000 submission accepted, clone Move no-op, ownership/downstream semantics unverified; local evidence queued for publication. Clone summary now works, but gizmo and 3D transform dispatch remain absent. Curved-face/edge overlap and remaining item classes remain open.
-- **Actual owner:** Claude Code session; no test runner active; OpenClaw paused. Native500mm and clone0.5mm planes and offset-line creation/history/reopen verified. Serial PlaneTests + four PlanesUITests gate collected: **11/11 passed, 0 skipped, one clean run** at 0e86c6b source (`/tmp/os3d-qa01-plane-gate-20260913.xcresult`). Plane Items click fixed at **cf3b875** (`selectItemPlane`: highlight, Sketch-on-plane, Delete, yields to other selection/tap/undo); regression 24/24, one clean serial run (`/tmp/os3d-plane-select-gate-20260913.xcresult`). Paired live check done 09:10 EDT (native Plane 01 row → Sketch enters Sketch 13 on the plane; clone Plane 1 row → Line enters Sketch 1 on the y=6 offset plane, no picker; ten assets, local only — see testing/sketch-parity-plane-item-selection-2026-09-13.md). Row highlight + "1 plane" readout gap closed at **cf0fbd0** (25/25, one clean serial run; paired re-run 09:28 EDT, 18 assets local). Remaining difference: native one-sketch-per-plane vs clone new sketch (coplanar-identity lane). Publication pending; twelve earlier QA-01 assets still unpublished.
+- **Actual owner:** Claude Code session; no test runner active; OpenClaw paused. Native500mm and clone0.5mm planes and offset-line creation/history/reopen verified. Serial PlaneTests + four PlanesUITests gate collected: **11/11 passed, 0 skipped, one clean run** at 0e86c6b source (`/tmp/os3d-qa01-plane-gate-20260913.xcresult`). Plane Items click fixed at **cf3b875** (`selectItemPlane`: highlight, Sketch-on-plane, Delete, yields to other selection/tap/undo); regression 24/24, one clean serial run (`/tmp/os3d-plane-select-gate-20260913.xcresult`). Paired live check done 09:10 EDT (native Plane 01 row → Sketch enters Sketch 13 on the plane; clone Plane 1 row → Line enters Sketch 1 on the y=6 offset plane, no picker; ten assets, local only — see testing/sketch-parity-plane-item-selection-2026-09-13.md). Row highlight + "1 plane" readout gap closed at **cf0fbd0** (25/25, one clean serial run; paired re-run 09:28 EDT, 18 assets local). Remaining difference: native one-sketch-per-plane vs clone new sketch (coplanar-identity lane). Curved-face pick refused at **3f7080c** (picker stays armed; 25/25 one clean serial run; clone live wall/cap/miss on the build, 11 assets local — see testing/sketch-parity-plane-picker-curved-miss-2026-09-13.md). **Native curved-face and planar-face picks not observed live this session** (audit doc shows only boxes); miss paired Sept 12. Publication pending; twelve earlier QA-01 assets still unpublished.
 - **Reports:** illustrated1,302 unique media/1,305 placements; ten new hashes once, no predecessor loss. Master38, one new note/no loss. Current batch is published, not queued.
 
 ## Every unfinished original acceptance case
@@ -22,7 +22,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-01 — Plane selection
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation, offset sketch entry, line history and both reopenings paired at differing scales; plane regression 11/11 passed (0e86c6b), publication pending. Plane Items selection implemented at cf3b875 (regression 24/24; paired live 2026-09-13) and its row highlight/"1 plane" readout at cf0fbd0 (25/25; paired re-run); curved face and controlled miss matrix remain open.
+- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation, offset sketch entry, line history and both reopenings paired at differing scales; plane regression 11/11 passed (0e86c6b), publication pending. Plane Items selection implemented at cf3b875 (regression 24/24; paired live 2026-09-13) and its row highlight/"1 plane" readout at cf0fbd0 (25/25; paired re-run); curved face refused at 3f7080c (clone live; native response not observed), bare-grid miss paired Sept 12 (ground; one-sketch-per-plane difference). Open before promotion: native curved/planar-face pick observation in one session, and publication.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-02 — Entry method
@@ -185,6 +185,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 
 These are not additional acceptance-count rows. They must not disappear because their related finite case is passed.
 
+- QA-01: the clone keeps the picker armed after a refused curved-face tap by its own Section View rule; native's response to that tap is unobserved (audit document has no curved body in view).
 - QA-27: variable-linked and multiple-driver dimension-type variants remain unverified (also related to QA-28/32).
 - QA-43: legacy nil reference ownership retains old behavior; duplicate-label styling was excluded from closure.
 - QA-49: exhaustive curved intersections/topology are outside the bounded pass (related QA-42).
@@ -228,6 +229,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.
 - 2026-09-13 (09:30): Items plane row highlight + "1 plane" readout at cf0fbd0; 25/25 one clean serial run; paired re-run in both apps, 18 assets local/unpublished. Gap closed; no promotion; totals unchanged.
 - 2026-09-13 (09:15): QA-01 plane-row selection → Sketch paired live in both apps; ten assets indexed locally, unpublished. New gap: clone has no Items row highlight or "1 plane" readout. No promotion; totals unchanged.
 - 2026-09-13 (09:00): QA-01 Items plane-row selection fixed at cf3b875 (was an empty handler); regression 24/24 one clean serial run; paired live check and publication still pending, no row promotion. Totals unchanged.

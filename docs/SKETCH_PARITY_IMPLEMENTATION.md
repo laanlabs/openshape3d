@@ -2560,3 +2560,10 @@ isSelected trait) on the plane row; selectionMeasurements "Selected 1 plane".
 25/25 one clean serial run; paired re-run 09:28 EDT — native solid row/"1 plane"
 vs clone tinted row/"Selected 1 plane". Gap closed; one-sketch-per-plane
 difference remains; 18 assets local, unpublished. 32/0/1/23; iPad unchanged.
+
+Curved-face pick 3f7080c: worldFacePlane declines a curved smooth region and a
+refused body tap keeps the plane picker armed (Section View rule); previously a
+cylinder wall started a sketch on a facet sliver. 25/25 one clean serial run
+(new unit cap/wall/miss test, new PlanesUITests curved-wall test); clone live
+wall/cap/miss on the build, 11 assets local. Native curved/planar-face pick not
+observed live — open. QA01 recipe evidenced, no promotion. 32/0/1/23.

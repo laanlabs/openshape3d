@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA01 plane row highlight/readout paired (2026-09-13 09:30 EDT)
+## Current — QA01 curved-face pick refused; recipe evidenced, native observation open (2026-09-13 10:00 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -8,12 +8,12 @@ after 10 consecutive agent-runner failures; no next wake), heartbeat off,
 dashboard session "OpenShape3D parity — PR #29" idle. Do not resume it. See the
 PAUSED notice in AGENTS.md.
 
-HEAD cf0fbd0: plane row highlight + "Selected 1 plane" readout, on cf3b875
-(`selectItemPlane`: accent quad, Sketch enters a new sketch on the plane, Delete,
-yields to other selection / viewport tap / undo). Regression PlaneTests +
-SelectionUXTests + ItemsUITests (new row test) + PlanesUITests: **25/25, 0
-skipped**, one clean serial run on sim AC2FD923,
-/tmp/os3d-plane-row-gate-20260913.xcresult (prior 24/24 at cf3b875).
+HEAD 3f7080c: plane picker refuses a curved face and keeps the picker armed
+(worldFacePlane smooth-region check), on cf0fbd0 (row highlight/readout) and
+cf3b875 (Items plane selection). Regression PlaneTests + SelectionUXTests +
+PlanesUITests: **25/25, 0 skipped**, one clean serial run on sim AC2FD923,
+/tmp/os3d-plane-curved-gate-20260913.xcresult (prior gates 25/25 cf0fbd0,
+24/24 cf3b875).
 Prior QA01 plane gate at 0e86c6b: 11/11, /tmp/os3d-qa01-plane-gate-20260913.xcresult.
 No runner active; Simulator, Shapr3D and Peekaboo open, idle. Docs dirty only.
 Paired live 09:10 EDT: native Plane 01 row → Sketch enters Sketch 13 on the
@@ -23,7 +23,12 @@ planes/qa01-plane-item-live-2026-09-13 (evidence-index.json), local only; twelve
 earlier QA01 offset assets also unpublished. Row highlight/readout paired 09:28 EDT.
 Remaining difference: native one-sketch-per-plane vs clone new sketch.
 Clone parked idle in Untitled 2 (box + Plane 1), bridge 8899; native parked
-Sketch 13/Top. Next: QA01 curved-face/miss recipe; publish the QA01 evidence batches.
+Sketch 13/Top. Clone live on 3f7080c: wall refused, cap → Sketch at y=5, bare-grid miss →
+ground (planes/qa01-curved-miss-live-2026-09-13, 11 assets). Native curved/
+planar-face pick NOT observed this session (audit doc shows only boxes; blind
+profile clicks caught sketch edges). Next: QA03 camera-angle recipe (0/45/85°,
+Normal to Sketch, orbit while active; native View > Rotate View 45°), then
+publish the QA01 batches.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
