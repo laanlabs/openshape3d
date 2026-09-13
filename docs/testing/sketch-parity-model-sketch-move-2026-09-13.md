@@ -21,7 +21,14 @@ arrow → distance editor at 0 → type 5000, Return.
   not through an extrusion.
 - Edit > Undo restores Plane 01 and clears the selection; the probe was run
   twice with identical results, and the document was left as found.
-- Not observed: moving a *subset* of a sketch off its plane.
+- Subset, observed later the same day: a single edge of sketch24 selected in
+  model mode (clicking an edge in model mode enters its sketch; Exit keeps
+  the edge selected with the gizmo up). In the head-on view the diagonal
+  handle is a ring — 5000° rotated the edge in-plane about its midpoint and
+  sketch24 kept it. With the view tilted 45°, 5000 typed on the up (normal)
+  arrow moved the edge off the plane and Items gained a new "Sketch 14"
+  owning it (History related: Sketch 14); sketch24 kept the rest; Undo
+  removed Sketch 14 and returned the edge.
 
 Thirteen captures with SHA-256s in workspace reports
 selection/qa24-model-sketch-move-live-2026-09-13/evidence-index.json (local).
@@ -35,9 +42,12 @@ selection/qa24-model-sketch-move-live-2026-09-13/evidence-index.json (local).
   geometry, constraints and dimensions untouched). A subset moves inside its
   plane through the constraint solver (locked/constrained parts refuse with
   the usual notice; a rectangle can't be turned by a non-right angle here).
-  Taking a subset off its plane is refused with "Select the whole sketch to
-  move it off its plane" — native's behaviour for that case is unobserved and
-  a guessed sketch split would be worse than saying so.
+  A subset taken off its plane (moved along the normal or tilted) splits
+  off into a new sketch on the moved frame — the native rule observed above
+  — carrying the constraints and dimensions that stay within it; the source
+  sketch keeps the rest (RemoveSketchEntities + AddSketch in one step). The
+  split previews live during a drag and goes away if the drag returns to
+  the plane. Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923
 - Commits are one undo step including the rebuild of dependents
   (`performWithSketchRebuild`), matching the observed downstream
   re-evaluation; the selection stays, as native's did.

@@ -2688,3 +2688,20 @@ Gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and Dimens
 testing/sketch-parity-dense-zoom-2026-09-13.md. Partial (native circle-label
 reposition unobserved).
 
+## September 13 — corrected native drags: linear-label reposition, off-plane subset split
+
+`peekaboo drag` takes screen coordinates; the earlier "a drag on the label
+deselects" readings had landed on empty canvas. Re-run: native drags a
+linear label's leader without moving geometry — a measured label's
+placement lasts for the selection, a driving dimension's is kept across
+deselect/reselect and one Undo reverts it (the same rule the clone already
+had for diameter labels). Clone: linear labels now drag through the
+generalised `moveDimensionLabel` (97f320a). QA24 subset:
+native moved one edge of sketch24 along its normal into a new "Sketch 14"
+(in-plane rotation kept it in sketch24; clicking a sketch edge in model
+mode enters its sketch); the clone's refusal is replaced by the same split
+(RemoveSketchEntities + AddSketch in one step, live during a drag) at
+97f320a. Gates: Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923. Native document left as
+found. Partial (curved-face/edge selection breadth; circle-label drag
+re-check).
+

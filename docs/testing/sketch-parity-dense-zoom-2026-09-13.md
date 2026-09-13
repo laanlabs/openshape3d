@@ -9,11 +9,15 @@ The three items QA-29 still listed after the badge/keypad layout fixes.
   "123,456.7891 mm": every decimal kept, thousands grouped, the text centred
   above the dimension line at constant size even where it is wider than the
   witness span. The info bar reads the same digits.
-- **Manual reposition.** A plain drag on the selected line's label (55 pt
-  up) deselected the line; nothing was repositioned. Linear labels have no
-  drag-to-reposition in native (one observation). A circle's radius label
-  sits outside the circle on a leader; its drag was not observed (the label
-  left the viewport during the zoom probe).
+- **Manual reposition.** Corrected later the same day (the first drags had
+  used window coordinates where `peekaboo drag` takes screen coordinates,
+  so they landed on empty canvas and merely deselected): dragging a line's
+  label DOES move its dimension leader, with the geometry untouched. For a
+  measured label the placement lasts for the selection (deselect/reselect
+  returns it to the default); for a driving dimension (100,000 typed) the
+  dragged placement survives deselect/reselect and one Undo reverts it.
+  The circle-label drag with correct coordinates was not repeated; its
+  measured/driving rule is assumed to match.
 - **Camera zoom.** Scroll up zooms out (grid 5,000 → 10,000 mm), scroll down
   in. Geometry scales; labels keep their screen size and follow their
   geometry, leaving the viewport with it — native does not clamp a label
@@ -31,9 +35,14 @@ The three items QA-29 still listed after the badge/keypad layout fixes.
   "123,456.7891 mm", "R 50,000 mm". Unit test
   AppSettingsTests.testCompactLengthKeepsDenseValuesAndGroupsThousands; the
   existing compact-length expectations are unchanged.
-- **Manual reposition:** linear labels have no drag in the clone either —
-  parity with the observation. Diameter labels keep their existing drag
-  (DM-06 lineage); native's circle-label drag remains unobserved.
+- **Manual reposition (defect found and fixed):** the clone had drag-to-
+  reposition only for diameter labels; linear labels had none. Linear labels
+  now drag the same way (`moveDimensionLabel`, the diameter path generalised):
+  measured placement lasts for the selection, a driving dimension's placement
+  is saved and undoable (`labelOffset`), geometry never moves. Unit test
+  ConstraintApplyTests.testLinearLabelPlacementTransientThenSavedUndoableWithoutGeometryChange;
+  UI test DimensionUITests.testLinearLabelDragMovesLeaderOnlyAndPersistsOnceDriving.
+  Gate: ConstraintApplyTests 81/81 and DimensionUITests testLinearLabelDragMovesLeaderOnlyAndPersistsOnceDriving + testNearRailCircleDiameterTargetRemainsReachable 2/2 (/tmp/os3d-split-label-20260913.xcresult, unit re-run /tmp/os3d-split-label2-20260913.xcresult).
 - **Camera zoom:** labels are screen-sized SwiftUI text and follow their
   geometry; the clone additionally clamps a linear badge inside the canvas
   (badgeWithinCanvas, the right-palette fix) where native lets it leave —
