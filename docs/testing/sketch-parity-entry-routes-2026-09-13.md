@@ -44,4 +44,4 @@ the route is unit-proven here and needs a physical trackpad/Pencil hover
 All four routes have evidence; three are paired live, the fourth is native-
 observed and clone-unit-proven with live delivery blocked by the environment.
 Partial; no promotion. Evidence: …/planes/qa02-entry-routes-live-2026-09-13/
-— 8 assets, evidence-index.json. Local only. 32/0/1/23; iPad unchanged.
+— 8 assets, evidence-index.json. **Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/1NEY0MdGsrW1dRMJA_Kg81_k_R6WP9twuV0IK-Wl-WkA/edit. 32/0/1/23; iPad unchanged.

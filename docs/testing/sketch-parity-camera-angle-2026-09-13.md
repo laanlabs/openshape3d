@@ -86,4 +86,5 @@ native's response to a cube tap — open.
 QA-03 finite recipe: entry alignment, orbit-while-active and normal-view action
 are paired; edge-on is clone-only; 85° substituted. Partial; no promotion.
 Evidence: …/planes/qa03-camera-angle-live-2026-09-13/ — 13 assets,
-evidence-index.json. Local only; publication pending. 32/0/1/23; iPad unchanged.
+evidence-index.json (24 assets after the trials and the dcee869 re-check).
+**Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/1V1VX8Bivj-Xwj3FxhFxXYf_Kx-_dvRvk9a3dXLwNdDU/edit. 32/0/1/23; iPad unchanged.

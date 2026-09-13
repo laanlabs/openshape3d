@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA53 compact palette reachability at 0cb0a2a (2026-09-13 13:45 EDT)
+## Current — session evidence published; QA53 compact palette at 0cb0a2a (2026-09-13 14:00 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -50,8 +50,11 @@ available, so the palette scrolls — fixed with a tighter column before scrolli
 and a reachability assertion (compact suite 3/3); sketch-transform compact
 check open (line not selectable by tap at compact width in XCUITest).
 Evidence planes/qa45-mixed-transform-live-2026-09-13 (11 assets, local); five
-folders / 64 assets unpublished. Next: QA33 invalid-input / QA40 keypad lanes, or QA29 badge layout; publication
-set-up with Jason (proposal sent).
+folders / 64 assets unpublished. Publication: the five 2026-09-13 evidence folders are Google Docs in Jason's
+Drive (index https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit), uploaded through his Chrome (the Drive connector
+carries content inline only — too large for images). Roadmap doc not edited
+(other owner); Sept 12 offset assets (12) still unpublished. Next: QA33
+invalid-input / QA40 keypad lanes, or QA29 badge layout.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

@@ -57,4 +57,4 @@ native comparison still input-blocked. Compact layout: transform-control check
 open (line not selectable at compact width in XCUITest — diagnose); extrude-bar
 defect logged. Partial; no promotion. Evidence:
 …/planes/qa45-mixed-transform-live-2026-09-13/ — 11 assets,
-evidence-index.json. Local only. 32/0/1/23; iPad unchanged.
+evidence-index.json. **Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/1VE2Yq2sPpUiHWFY5U2OdQnWtaXiFYkh0-0oygXDqNys/edit. 32/0/1/23; iPad unchanged.

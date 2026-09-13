@@ -49,4 +49,4 @@ one session, and publication of the QA-01 batches. Not a row promotion.
 
 Evidence: ~/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/
 planes/qa01-curved-miss-live-2026-09-13/ — 11 assets, evidence-index.json.
-Local only; publication pending. Acceptance 32/0/1/23; iPad unchanged.
+**Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/1vYOerMVwnegDJRUa2xy2qh2pU04GTQO8DDWIQdcndZU/edit. Acceptance 32/0/1/23; iPad unchanged.
