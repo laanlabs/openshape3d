@@ -62,3 +62,6 @@ regression; QA-29 remains partial on the audit's other items (dense values,
 manual reposition, camera zoom) and the three pre-existing failures.
 Evidence: …/layout/qa29-right-palette-compact-2026-09-13/ — 6 assets,
 evidence-index.json. Local only. 33/0/1/22; iPad unchanged.
+
+Published 2026-09-13 (six captures): https://docs.google.com/document/d/12Y6HVHnkAHQFTkTp-qrqk4KW1sxkr0IFkfWyQ3g4ASs/edit
+(batch-2 index: https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).

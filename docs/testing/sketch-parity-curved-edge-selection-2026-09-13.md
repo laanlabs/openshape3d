@@ -9,7 +9,9 @@ Built a cylinder to probe with: circle in sketch24 → Exit → click the fill
 ("1 face", Extrude - One-Sided) → view rotated up 45° → 20,000 typed on the
 pull arrow → "Body 06" (R 50,000 mm). Undone afterwards (two Undo steps
 verified, Default View); nine captures with SHA-256s in workspace reports
-selection/qa24-curved-edge-live-2026-09-13/evidence-index.json (local).
+selection/qa24-curved-edge-live-2026-09-13/evidence-index.json.
+Published 2026-09-13: https://docs.google.com/document/d/19yLQpR2RjzDdT50oopKaH2ZzGiUkw0tXJTvihn8zjY4/edit
+(batch-2 index: https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
 
 - **Curved wall click:** "1 face  50,000 mm" (the radius) and the adaptive
   tool chip "Offset Face — drag the arrow to offset the faces inward or

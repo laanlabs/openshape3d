@@ -99,9 +99,10 @@ device. QA24 curved-face/edge: native cylinder probe (wall → face, radius, Off
 Face; rim → edge, length/radius, Chamfer/Fillet; Select Through → wall
 faces, body, profile; undone, Default View). Clone 637a24d:
 curved faces in Select Through, edge tap arms Chamfer/Fillet with the edge.
-Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. Native parked; clone fresh on the sim. Next: publish
-the four new evidence folders (Chrome route), or QA-45's native mixed
-selection if the input harness allows shift-click.
+Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. Native parked; clone fresh on the sim. Evidence batch 2
+published (four docs, 75 images; index https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
+Next: QA-45's native mixed selection if the input harness allows shift-click,
+or the twelve Sept 12 offset-plane assets.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

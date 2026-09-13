@@ -31,7 +31,9 @@ arrow → distance editor at 0 → type 5000, Return.
   removed Sketch 14 and returned the edge.
 
 Thirteen captures with SHA-256s in workspace reports
-selection/qa24-model-sketch-move-live-2026-09-13/evidence-index.json (local).
+selection/qa24-model-sketch-move-live-2026-09-13/evidence-index.json.
+Published 2026-09-13 (31 images, whole folder): https://docs.google.com/document/d/1Anay7gulA34xo7sPWbLjWzM2PsO-ajrvlAu-LC5wZug/edit
+(batch-2 index: https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
 
 ## Clone change
 

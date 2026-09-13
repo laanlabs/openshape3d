@@ -29,7 +29,9 @@ The three items QA-29 still listed after the badge/keypad layout fixes.
   into view.
 - Probe geometry undone (Edit > Undo ×3), sketch exited, Default View; the
   document is as found. Fifteen captures with SHA-256s in workspace reports
-  layout/qa29-dense-zoom-live-2026-09-13/evidence-index.json (local).
+  layout/qa29-dense-zoom-live-2026-09-13/evidence-index.json.
+Published 2026-09-13 (29 images): https://docs.google.com/document/d/1NYgcIrQwGedpbmiy1cMy5OM4UiwuWpyzUak47OWZKKg/edit
+(batch-2 index: https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
 
 ## Clone
 
