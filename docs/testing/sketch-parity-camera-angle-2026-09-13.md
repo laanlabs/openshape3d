@@ -36,9 +36,11 @@ selected; it was pressed through its accessibility action.
 
 ## Not observed / limitations
 
-- Native edge-on drawing: after View > Front the run was back in model mode
-  with the empty Sketch 14 discarded (native-13/14); whether the view command
-  itself ended the sketch was not isolated, and no Line was placed. Open.
+- Native edge-on drawing: not reachable — native-13, captured immediately after
+  View > Front with no other input, is already in model mode with the empty
+  Sketch 14 discarded: a **standard view command ends the sketch in native**,
+  whereas the clone's `view.front` keeps the sketch active (clone-08). One
+  observation; recorded as a difference to confirm, not fixed. No Line placed.
 - 85° is unreachable by command on either side (native rotates in 15°/45°
   steps, the clone only has standard views); 45° (native) / isometric (clone)
   and 90° (clone) were used instead.

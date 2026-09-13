@@ -2575,5 +2575,8 @@ change while sketching (clone view.isometric, native Rotate Up 45°) keeps the
 sketch active and offers Look at Sketch / Normal to Sketch; the action realigns.
 Clone edge-on (view.front) places nothing on Line taps; native edge-on drawing
 not observed (View > Front run ended in model mode). 85° unreachable by command.
-13 assets local; see testing/sketch-parity-camera-angle-2026-09-13.md. Partial,
-no promotion. 32/0/1/23; iPad unchanged.
+13 assets local; see testing/sketch-parity-camera-angle-2026-09-13.md. Regression
+PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch added: PlaneTests +
+PlanesUITests 13/13, one clean serial run (/tmp/os3d-camera-gate-20260913.xcresult).
+One observation: native View > Front while sketching ended the sketch; clone
+view.front keeps it — difference to confirm. Partial, no promotion. 32/0/1/23.

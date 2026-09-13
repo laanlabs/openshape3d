@@ -31,8 +31,12 @@ View > Rotate View 45°); clone edge-on places nothing; native edge-on
 unobserved; 85° unreachable (planes/qa03-camera-angle-live-2026-09-13, 13
 assets). Peekaboo drag/swipe does not reach the Simulator; native model-mode
 Sketch needs an AX press (`peekaboo click --on`). Both apps parked idle.
-Next: QA03 Look-at-Sketch UI regression (Views > Isometric while sketching),
-then QA02 entry routes or publish the QA01/QA03 batches.
+QA03 Look-at-Sketch UI regression added (PlaneTests + PlanesUITests 13/13, one
+clean serial run, /tmp/os3d-camera-gate-20260913.xcresult). Difference to
+confirm: native View > Front while sketching ended the sketch (one observation).
+Next: confirm that native standard-view behaviour, then QA02 entry routes
+(Sketch menu, selected face, existing item, keyboard hover/Space) or publish
+the QA01/QA03 batches (three folders, 42 assets, all local).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

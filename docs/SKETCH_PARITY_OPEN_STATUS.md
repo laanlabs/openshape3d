@@ -34,7 +34,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-03 — Camera angle
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Open: native edge-on drawing not observed, 85° unreachable by command, gesture orbit not driven (QA-52). See testing/sketch-parity-camera-angle-2026-09-13.md.
+- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Open: native edge-on drawing unreachable — one observation shows a native standard-view command (View > Front) ending the sketch while the clone keeps it active (difference to confirm); 85° unreachable by command; gesture orbit not driven (QA-52). Regression: PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch (Views > Isometric mid-sketch offers Look at Sketch, sketch stays active, tap realigns), PlaneTests + PlanesUITests 13/13 one clean serial run. See testing/sketch-parity-camera-angle-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-14 — Ellipse dimensions
@@ -230,7 +230,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
-- 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. No source change; no promotion.
+- 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. New Look-at-Sketch UI regression, 13/13 one clean serial run. No source change; no promotion. Difference to confirm: native View > Front ended the sketch (one observation).
 - 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.
 - 2026-09-13 (09:30): Items plane row highlight + "1 plane" readout at cf0fbd0; 25/25 one clean serial run; paired re-run in both apps, 18 assets local/unpublished. Gap closed; no promotion; totals unchanged.
 - 2026-09-13 (09:15): QA-01 plane-row selection → Sketch paired live in both apps; ten assets indexed locally, unpublished. New gap: clone has no Items row highlight or "1 plane" readout. No promotion; totals unchanged.

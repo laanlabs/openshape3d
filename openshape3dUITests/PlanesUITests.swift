@@ -146,6 +146,39 @@ final class PlanesUITests: XCTestCase {
         app.buttons["Exit Sketching"].tap()
     }
 
+    /// Orbit while sketching (QA-03): a standard view chosen mid-sketch keeps
+    /// the sketch active and offers Look at Sketch; tapping it returns
+    /// head-on and the offer goes away.
+    func testStandardViewWhileSketchingOffersLookAtSketch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2) // head-on camera flight
+        XCTAssertFalse(app.buttons["Look at Sketch"].exists,
+                       "Entry is head-on, so Look at Sketch is not offered yet")
+
+        app.buttons["ViewsMenu"].tap()
+        let isometric = app.buttons["Isometric"].firstMatch
+        XCTAssertTrue(isometric.waitForExistence(timeout: 3))
+        isometric.tap()
+        XCTAssertTrue(app.buttons["Look at Sketch"].waitForExistence(timeout: 4),
+                      "An off-axis view while sketching should offer Look at Sketch")
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists, "The sketch stays active")
+
+        app.buttons["Look at Sketch"].tap()
+        sleep(2) // camera flight back
+        XCTAssertFalse(app.buttons["Look at Sketch"].exists)
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists)
+        app.buttons["Exit Sketching"].tap()
+    }
+
     func testSketchOnFaceThenExtrudeNewBody() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
