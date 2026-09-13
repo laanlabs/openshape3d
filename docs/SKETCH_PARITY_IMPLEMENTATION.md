@@ -2673,3 +2673,18 @@ unobserved for that case). ModelSketchTransformTests added. Gate: ModelSketchTra
 See testing/sketch-parity-model-sketch-move-2026-09-13.md. Partial (curved
 face/edge selection breadth and the off-plane subset remain).
 
+## September 13 — QA29 dense values, manual reposition, camera zoom
+
+Native sketch24 probe: a typed 123456.7891 reads "123,456.7891 mm" on canvas
+(all decimals, grouped thousands, constant size); a plain drag on a linear
+label deselects rather than repositions; scroll up zooms out, labels keep
+their screen size and leave the viewport with their geometry. Clone defect:
+`DisplayUnit.compactLengthString` used `%g`, capping canvas labels at six
+significant digits ("123457 mm"); fixed at f27e277 — up to four
+decimals (three for cm/m) with grouped thousands, existing compact-length
+expectations unchanged. Linear labels have no drag on either side; the
+clone's canvas clamp for linear badges stays (native unclamped, recorded).
+Gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and DimensionUITests.testDenseValueReadsInFullOnCanvas 1/1 (/tmp/os3d-qa29-dense3-20260913.xcresult), serial on sim AC2FD923. Fifteen native captures local. See
+testing/sketch-parity-dense-zoom-2026-09-13.md. Partial (native circle-label
+reposition unobserved).
+

@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA24 model-mode sketch Move/Rotate implemented from a native probe (2026-09-13 17:45 EDT)
+## Current — QA29 dense/reposition/zoom paired, label format fixed (2026-09-13 18:20 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -81,8 +81,13 @@ restores; part24 is Extrusion 05 from Sketch 04 and stays put. Clone: gizmo
 on model-mode sketch selections, whole sketch = rigid frame move with
 dependents rebuilt in one step, subset = in-plane solver move, off-plane
 subset refused. Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2). paired on the clone at 4347508 (sim AC2FD923): P24 row → Exit keeps 4 edges / 14.00 mm selected with the gizmo up; up arrow → keypad 5 → plane origin (0,5,0), local geometry unchanged, selection kept, undo title "Move", the dependent Extrude rebuilt to y 5..7 in the same step; bridge Undo/Redo restore/reapply. Twenty assets local (selection/qa24-model-sketch-move-live-2026-09-13). Native doc left as found
-(Undo twice, Plane 01 back). Next: QA24 curved-face/edge selection breadth,
-or QA29's dense values / manual reposition / camera zoom.
+(Undo twice, Plane 01 back). QA29: native sketch24 probe — dense label "123,456.7891 mm" reads in
+full; a linear-label drag deselects (no reposition); labels keep screen size
+across zoom, unclamped. Clone label format used `%g` (six significant
+digits) — fixed at f27e277 with grouping; Gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and DimensionUITests.testDenseValueReadsInFullOnCanvas 1/1 (/tmp/os3d-qa29-dense3-20260913.xcresult), serial on sim AC2FD923. Probe
+geometry undone, native parked Default View; clone fresh on the sim. Next:
+QA24 curved-face/edge selection breadth, or the native circle-label drag
+observation to finish QA29.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
