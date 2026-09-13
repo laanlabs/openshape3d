@@ -74,7 +74,9 @@ length unchanged, "50,000 mm" pill — and one Undo returned them. That is the
 same rule the clone applies to a mixed selection (line a.x −3→−1 and circle
 centre 0→2 in one "Move" step, Undo/Redo), so the native comparison is no
 longer input-blocked. Twelve captures with SHA-256s in workspace reports
-planes/qa45-native-mixed-live-2026-09-13/evidence-index.json (local).
+planes/qa45-native-mixed-live-2026-09-13/evidence-index.json.
+Published 2026-09-13: https://docs.google.com/document/d/1nnzMWO7LzOVrYl9V6gcJ8EBgm1auAL2EkOVG31u3s8s/edit
+(batch-3 index: https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit).
 Differences recorded, not changed: native's marquee route (the clone's
 Select mode marquee gathers sketch entities too, untested here for a mixed
 pair) and native's Rotate Around Axis default for a selection containing a

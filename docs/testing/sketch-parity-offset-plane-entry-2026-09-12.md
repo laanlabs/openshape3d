@@ -47,3 +47,6 @@ Current-source PlaneTests plus all four PlanesUITests workflows ran serially at
 **11/11 passed, 0 failed, 0 skipped**, one clean run, finished 00:12 EDT Sept 13.
 Twelve distinct unpublished screenshots are prepared in offset-assets.json.
 Plane-item selection and curved-face/miss boundaries remain open.
+
+Published 2026-09-13 (the twelve curated assets of offset-assets.json): https://docs.google.com/document/d/1tVCDQJ0gxEnbaxNrQwuXATGFwbBLUiBLobQOV7EZPOM/edit
+(batch-3 index: https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit).

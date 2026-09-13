@@ -2732,3 +2732,16 @@ deleted from sketch24; History and Items rows verified as at the session
 start. See testing/sketch-parity-mixed-transform-2026-09-13.md. Partial
 (publication; Rotate Around Axis default and marquee route recorded).
 
+## September 13 — evidence batches 2 and 3 published
+
+Docx-per-folder through the Chrome file-upload route, auto-converted to Google
+Docs, renamed, each linked from its folder's index and receipt. Batch 2:
+QA-24 model-mode sketch move (31 images), QA-24 curved-face/edge (9), QA-29
+dense/reposition/zoom (29), QA-29 right-palette/compact (6) — index
+https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit.
+Batch 3: QA-45 native mixed selection (12) and the twelve curated Sept 12
+offset-plane assets — index
+https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit. Every hashed
+evidence folder in the milestone reports tree is now published. No row
+promoted.
+

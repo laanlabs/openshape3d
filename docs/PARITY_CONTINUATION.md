@@ -104,8 +104,10 @@ published (four docs, 75 images; index https://docs.google.com/document/d/1hv2ua
 QA-45 native mixed selection reached by a marquee drag (plain/shift/cmd clicks
 replace); typed 50,000 on X moved line + circles together, one Undo — paired
 with the clone. Leftover probe circle deleted from sketch24; History/Items
-rows verified. Next: publish the QA-45 evidence with the twelve Sept 12
-offset-plane assets.
+rows verified. Evidence batch 3 published (QA-45 native mixed, Sept 12 offset assets;
+index https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit) — every
+hashed evidence folder is published. Next: QA-29 label overlaps (crowded
+labels), or the device-only lanes (QA-52) when an iPad is at hand.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
