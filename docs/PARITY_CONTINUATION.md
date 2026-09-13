@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA01 Items plane selection fixed and paired live (2026-09-13 09:15 EDT)
+## Current — QA01 plane row highlight/readout paired (2026-09-13 09:30 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -8,21 +8,22 @@ after 10 consecutive agent-runner failures; no next wake), heartbeat off,
 dashboard session "OpenShape3D parity — PR #29" idle. Do not resume it. See the
 PAUSED notice in AGENTS.md.
 
-HEAD cf3b875: Items plane row selects the plane (`selectItemPlane` — accent
-highlight while idle, Sketch enters a new sketch on it directly, Delete removes
-it, yields to other selection / viewport tap / undo). Regression PlaneTests +
-SelectionUXTests (two new) + ItemsUITests + PlanesUITests: **24/24, 0 skipped**,
-one clean serial run on sim AC2FD923, /tmp/os3d-plane-select-gate-20260913.xcresult.
+HEAD cf0fbd0: plane row highlight + "Selected 1 plane" readout, on cf3b875
+(`selectItemPlane`: accent quad, Sketch enters a new sketch on the plane, Delete,
+yields to other selection / viewport tap / undo). Regression PlaneTests +
+SelectionUXTests + ItemsUITests (new row test) + PlanesUITests: **25/25, 0
+skipped**, one clean serial run on sim AC2FD923,
+/tmp/os3d-plane-row-gate-20260913.xcresult (prior 24/24 at cf3b875).
 Prior QA01 plane gate at 0e86c6b: 11/11, /tmp/os3d-qa01-plane-gate-20260913.xcresult.
 No runner active; Simulator, Shapr3D and Peekaboo open, idle. Docs dirty only.
 Paired live 09:10 EDT: native Plane 01 row → Sketch enters Sketch 13 on the
 plane; clone Plane 1 row → Line enters Sketch 1 on the y=6 offset plane,
-head-on, no picker. Ten assets in workspace reports
+head-on, no picker. Eighteen assets in workspace reports
 planes/qa01-plane-item-live-2026-09-13 (evidence-index.json), local only; twelve
-earlier QA01 offset assets also unpublished. Gaps: clone lacks the Items row
-highlight and "1 plane" readout; native one-sketch-per-plane vs clone new sketch.
+earlier QA01 offset assets also unpublished. Row highlight/readout paired 09:28 EDT.
+Remaining difference: native one-sketch-per-plane vs clone new sketch.
 Clone parked idle in Untitled 2 (box + Plane 1), bridge 8899; native parked
-Sketch 13/Top. Next: row highlight/readout, then QA01 curved-face/miss recipe.
+Sketch 13/Top. Next: QA01 curved-face/miss recipe; publish the QA01 evidence batches.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

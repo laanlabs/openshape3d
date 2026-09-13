@@ -58,3 +58,27 @@ planes/qa01-plane-item-live-2026-09-13/ — 10 assets, evidence-index.json
 (sha256 per asset). Local only; publication pending. QA-01 stays partial:
 curved-face and controlled-miss matrix open; the twelve earlier offset assets
 also remain unpublished. Acceptance 32/0/1/23; iPad unchanged.
+
+## Re-run after cf0fbd0 — row highlight and "1 plane" readout (09:28 EDT)
+
+Same sequence on the 09:19 branch build (cf0fbd0). Regression before the
+re-run: PlaneTests + SelectionUXTests + ItemsUITests (new
+testPlaneRowSelectsPlaneReadsOnePlaneAndSketchStartsOnIt) + PlanesUITests
+25/25, 0 skipped, one clean serial run
+(/tmp/os3d-plane-row-gate-20260913.xcresult).
+
+- Clone: Plane 1 row → row tinted with the accent (blue text, the
+  constraint-row idiom), plane quad accent, info bar "Selected 1 plane";
+  bridge measurements [("Selected", "1 plane")] (clone-r05-planeselected.png,
+  clone-r05-viewport.png). Sketch → Line → sketching on Sketch 1 at [0,6,0],
+  readout cleared (clone-r07-sketch.png); Exit discards the empty sketch
+  (clone-r08-exit-items.png).
+- Native: Plane 01 row → solid accent row, "1 plane" (native-r02-plane.png);
+  Sketch → Sketch 13 on the plane (native-r03-sketch.png).
+
+Row highlight and readout gap closed. Remaining styling nuance, recorded but
+not tracked as a gap: native paints the row solid accent with white text and
+the bare "1 plane"; the clone uses its light-tint/blue-text row idiom and the
+labelled "Selected 1 plane". The one-sketch-per-plane difference is unchanged.
+Evidence appended to the same folder (index regenerated, 18 assets), local
+only; publication pending.

@@ -2554,3 +2554,9 @@ testing/sketch-parity-plane-item-selection-2026-09-13.md. Gaps: clone lacks the
 Items row highlight and "1 plane" readout; native one-sketch-per-plane vs clone
 new sketch (coplanar rule). Curved-face/miss recipe remains open; no QA01
 promotion. 32/0/1/23; iPad unchanged.
+
+Row highlight/readout cf0fbd0: ItemRowView isSelected (constraint-row tint +
+isSelected trait) on the plane row; selectionMeasurements "Selected 1 plane".
+25/25 one clean serial run; paired re-run 09:28 EDT — native solid row/"1 plane"
+vs clone tinted row/"Selected 1 plane". Gap closed; one-sketch-per-plane
+difference remains; 18 assets local, unpublished. 32/0/1/23; iPad unchanged.
