@@ -106,8 +106,12 @@ replace); typed 50,000 on X moved line + circles together, one Undo — paired
 with the clone. Leftover probe circle deleted from sketch24; History/Items
 rows verified. Evidence batch 3 published (QA-45 native mixed, Sept 12 offset assets;
 index https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit) — every
-hashed evidence folder is published. Next: QA-29 label overlaps (crowded
-labels), or the device-only lanes (QA-52) when an iPad is at hand.
+hashed evidence folder is published. QA-29 overlaps paired (no per-entity labels for a multi-selection on
+either side; parallel-distance info-bar row added at 93df1d3). Every
+simulator-feasible core item is now closed or recorded; the rest is
+device-only (QA-19/20/21 hover, QA-40/52 physical input, QA-29 device zoom).
+Next: a physical iPad session for QA-52, or the full UI suite as a
+branch-wide regression before merge.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
