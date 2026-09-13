@@ -1019,18 +1019,6 @@ struct EditorView: View {
                     CommandSearchView(viewModel: viewModel)
                 }
             }
-            .overlay(alignment: settings.paletteOnRight ? .trailing : .leading) {
-                ToolPaletteView(viewModel: viewModel)
-                    // Interface side (spec §17): palette flips to the right
-                    // for left-handed sketching.
-                    .padding(settings.paletteOnRight ? .trailing : .leading, 14)
-                    // Keep the (scrollable) palette clear of the top bar and
-                    // the bottom info/input bars, which span the full width:
-                    // without the inset the last tools (Delete) can sit under
-                    // the numeric bar and become untappable in portrait.
-                    .padding(.top, 8)
-                    .padding(.bottom, bottomBarInset)
-            }
             .overlay(alignment: settings.paletteOnRight ? .leading : .trailing) {
                 if viewModel.mode.isSketching, !viewModel.sketchTransformActive, !viewModel.isPickingSymmetryAxis {
                     SketchConstraintRail(viewModel: viewModel)
@@ -1085,6 +1073,21 @@ struct EditorView: View {
                         .padding(.leading, 14)
                         .padding(.top, 8)
                 }
+            }
+            // Keep palette flyouts above the panels they temporarily overlap.
+            .overlay(alignment: settings.paletteOnRight ? .trailing : .leading) {
+                ToolPaletteView(viewModel: viewModel)
+                    // Interface side (spec §17): palette flips to the right
+                    // for left-handed sketching.
+                    .padding(settings.paletteOnRight ? .trailing : .leading,
+                             (settings.paletteOnRight ? showItemsPanel : viewModel.showHistoryPanel)
+                             ? 318 : 14)
+                    // Keep the (scrollable) palette clear of the top bar and
+                    // the bottom info/input bars, which span the full width:
+                    // without the inset the last tools (Delete) can sit under
+                    // the numeric bar and become untappable in portrait.
+                    .padding(.top, 8)
+                    .padding(.bottom, bottomBarInset)
             }
             .overlay(alignment: .bottomLeading) {
                 // Variables panel (Phase D, Task B3). Anchored bottom-leading so

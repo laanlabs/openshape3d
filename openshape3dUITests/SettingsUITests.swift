@@ -102,6 +102,39 @@ final class SettingsUITests: XCTestCase {
         setPaletteSide("Left")
     }
 
+    func testOpenHistoryAndItemsKeepModelingPaletteReachable() throws {
+        for right in [false, true] {
+            for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+                XCUIDevice.shared.orientation = orientation
+                let app = XCUIApplication()
+                app.launchEnvironment["OS3D_FRESH"] = "1"
+                app.launchArguments += ["-os3d.paletteOnRight", right ? "YES" : "NO"]
+                app.launch()
+                XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+                app.buttons["ItemsButton"].tap()
+                app.buttons["HistoryButton"].tap()
+                for identifier in ["ItemsPanel", "HistoryPanel"] {
+                    let panel = app.descendants(matching: .any)
+                        .matching(identifier: identifier).firstMatch
+                    XCTAssertTrue(panel.waitForExistence(timeout: 3))
+                    XCTAssertFalse(panel.frame.intersects(app.buttons["SketchGroup"].frame),
+                                   "Panels must not obscure the modeling palette")
+                }
+                let shot = XCTAttachment(screenshot: app.screenshot())
+                shot.name = "both-panels-\(right)-\(orientation.rawValue)"
+                shot.lifetime = .keepAlways
+                add(shot)
+                app.buttons["SketchGroup"].tap()
+                let line = app.buttons["Line"].firstMatch
+                XCTAssertTrue(line.waitForExistence(timeout: 3))
+                line.tap()
+                XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+                app.terminate()
+            }
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
     func testAccessibilityTextKeepsPanelsAndSketchExitReachable() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

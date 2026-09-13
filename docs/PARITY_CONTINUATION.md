@@ -1,5 +1,70 @@
 # Parity continuation checkpoint
 
+## Active — QA53 four-state focused passed, checkpoint ready
+
+Corrected matrix1/1, all four Left/Right portrait/landscape variants dispatch
+Line with both panels open. Before0/1 and intermediate right failure retained.
+No runner. Source EditorView panel inset/layering and ToolPalette inward Right
+flyout; tests SettingsUITests. Receipt panel-palette-2026-09-12.
+Next checkpoint then broader settings/layout gate and changed live verification/
+publication. QA53 partial32/0/1/23; reports1237/master38; iPad unchanged.
+
+
+## Active — QA53 right-flyout corrected matrix running
+
+Initial panel before0/1, left portrait fix1/1. Expanded matrix then passed both
+left orientations but right portrait Line tap failed to enter plane selection.
+Code confirms flyout always extended right beneath Items. ToolPalette now opens
+inward for Right; palette overlay ordered above panel overlays, same-side318pt
+inset retained. Corrected matrix exec14086 running exclusively:
+/tmp/os3d-qa53-panels-matrix2-20260912.log/xcresult. Collect terminal first.
+No changed live proof yet; last capture was SpringBoard after test termination,
+not flyout evidence. Native panel comparison preserved. Dirty EditorView,
+ToolPaletteView, SettingsUITests, matrix historical restoration, continuation.
+HEAD5676bd0, inventory32/0/1/23, reports1237/master38; iPad unchanged.
+Next focused result, broader layout/settings gate, changed live panels/dispatch,
+durable receipt/publication/checkpoint. No acceptance closure claim.
+
+
+## Active — QA53 panel correction focused runner
+
+Before0/1: Sketch reported hittable but tap did not open Line while History
+covered palette. Product EditorView now insets palette318 instead of14 when
+its same-side panel is open. Focused corrected exec48182 exclusively owns sim:
+/tmp/os3d-qa53-panels-fixed-20260912.log/xcresult. Collect before further edits
+or desktop. Dirty EditorView, SettingsUITests, continuation and historical
+matrix restoration. HEAD5676bd0. No acceptance promotion;32/0/1/23.
+Next inspect focused result, guard right-side/orientation and panel clearance,
+regression then changed live/publication. Native model both panels; immutable
+IPA/iPad unchanged. QA40 pan still delivery-blocked, cube57/57 verified.
+
+
+## Active — QA53 panel before-source gate
+
+HEAD5676bd0. Native Items/History in modeling leave toolbar visible; clone
+portrait History overlays Sketch/Modify/Transform. New SettingsUITests
+/testOpenHistoryAndItemsKeepModelingPaletteReachable running exclusively:
+/tmp/os3d-qa53-panels-before-20260912.log and xcresult, exec session28049.
+No product source fix yet. Collect terminal before desktop or source mutation.
+Next diagnose actual assertion, reserve palette space if confirmed, focused/
+regression/changed paired check and publication. Evidence retained under
+keyboard/qa53-panels-live-2026-09-12. Native parked modeling with both panels;
+Simulator owned by test. Dirty SettingsUITests, matrix historical supplement,
+this continuation. Inventory32/0/1/23; reports1237/master38; iPad unchanged.
+QA40 pan input blocked at CLI/bridge foreground mismatch; no pan claim.
+
+
+## Active — QA40 pan delivery blocked; QA53 fresh layout next
+
+Cube checkpoint5676bd0 pushed; final57/57 and1237/master38 verified.
+Native horizontal scroll was not delivered: both default focus and no-auto-focus
+return foreground=true required; CLI rejects --foreground for scroll. Screenshot
+is unchanged and is not pan evidence. No source change justified. QA40 partial.
+Historical QA40 September10 supplement restored in matrix. No runner active.
+Next fresh native layout settings/panel inspection via working click/capture,
+then matched clone QA53 sample. Inventory32/0/1/23; immutable IPA/iPad unchanged.
+Pan diagnostic JSONs retained in /tmp/os3d-qa40-native-scroll*.json.
+
 ## Active — QA40 cube checkpoint publication verified
 
 5f1bf94 source pushed; final57/57 and changed live cube block/restored orbit/

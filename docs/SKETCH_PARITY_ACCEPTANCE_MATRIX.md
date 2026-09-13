@@ -364,6 +364,14 @@ history/reopen. Illustrated1237/master38, ten hashes once/no1227 loss. Pan and
 broader camera/input permutations remain unverified. See
 [keypad camera receipt](testing/sketch-parity-keypad-camera-transitions-2026-09-12.md).
 
+September10 supplement: `1d28849` fixes software-keyboard occlusion with clean2/2
+UI tests asserting field/commit above actual keyboard. Live portrait invalid draft,
+landscape recovery/commit and saved-source reopen verified. Native Mac keyboard-only
+field remains visible; no native-iPad equivalence claim. `ef27d62` corrects dark-UI
+annotation contrast and pending material/font; three builds and live paired style
+checks, not new automated tests. Illustrated353/master38 verified. Pan/compact and
+physical routes remain open, so QA40 is not closed.
+
 ### QA-41 — Trim primitives
 
 Line/circle/arc/rect/polygon, boundary versus whole deletion. Issues: ED-03/04.

@@ -58,6 +58,8 @@ private struct GroupFrameKey: PreferenceKey {
 struct ToolPaletteView: View {
     @Bindable var viewModel: EditorViewModel
 
+    private var paletteOnRight: Bool { AppSettings.shared.paletteOnRight }
+
     @State private var expandedGroupID: String?
     @State private var groupFrames: [String: CGRect] = [:]
 
@@ -70,7 +72,7 @@ struct ToolPaletteView: View {
         .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
         .coordinateSpace(name: "palette")
         .onPreferenceChange(GroupFrameKey.self) { groupFrames = $0 }
-        .overlay(alignment: .topLeading) { flyoutOverlay }
+        .overlay(alignment: paletteOnRight ? .topTrailing : .topLeading) { flyoutOverlay }
         // A context flip (enter/leave sketch) closes any open flyout.
         .onChange(of: viewModel.mode.isSketching) { _, _ in expandedGroupID = nil }
     }
@@ -368,7 +370,7 @@ struct ToolPaletteView: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
             .shadow(color: .black.opacity(0.18), radius: 8, y: 2)
             .fixedSize()
-            .offset(x: frame.maxX + 10, y: frame.minY)
+            .offset(x: paletteOnRight ? -(frame.width + 10) : frame.maxX + 10, y: frame.minY)
             .transition(.move(edge: .leading).combined(with: .opacity))
         }
     }
