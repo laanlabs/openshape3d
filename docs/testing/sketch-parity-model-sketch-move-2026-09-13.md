@@ -47,7 +47,12 @@ selection/qa24-model-sketch-move-live-2026-09-13/evidence-index.json (local).
   — carrying the constraints and dimensions that stay within it; the source
   sketch keeps the rest (RemoveSketchEntities + AddSketch in one step). The
   split previews live during a drag and goes away if the drag returns to
-  the plane. Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923
+  the plane. Clone live at 97f320a (sim AC2FD923): one P24 edge tapped in model
+  mode, up arrow, keypad 5 — /v1/sketches shows P24 with three lines and a
+  new "Sketch 1" holding the moved line at (0,5,0); selection kept; bridge
+  Undo/Redo restore/reapply (four captures, 31 assets in the folder). Note:
+  the clone keeps model mode when an edge is tapped, where native enters the
+  sketch — recorded, not changed. Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923
 - Commits are one undo step including the rebuild of dependents
   (`performWithSketchRebuild`), matching the observed downstream
   re-evaluation; the selection stays, as native's did.
