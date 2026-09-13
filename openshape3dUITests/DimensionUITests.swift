@@ -1146,6 +1146,48 @@ final class DimensionUITests: XCTestCase {
         attach(app, "dimension-unlocked-free-resize-undo")
     }
 
+    /// QA-29 with the toolbar on the RIGHT: a line drawn against that side
+    /// opens its keypad clear of the palette (the editor clamps between the
+    /// constraint rail and the palette whichever side each is on), and the
+    /// pad commits.
+    func testEdgeKeypadStaysClearOfRightHandPalette() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchArguments += ["-os3d.paletteOnRight", "YES"]
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        let palette = app.buttons["Line"].firstMatch
+        XCTAssertTrue(palette.waitForExistence(timeout: 3))
+        XCTAssertGreaterThan(palette.frame.midX, window.frame.midX, "The palette should sit on the right")
+
+        // A line running from mid-canvas to under the right-hand palette, so
+        // its midpoint — where the badge wants to sit — is beneath the palette.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.60, dy: 0.45))
+            .press(forDuration: 0.15, thenDragTo: window.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.45)))
+        // A completed line keeps its readout selected — no selection tap.
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3), "A completed line should show its length label")
+        sleep(1)
+        attach(app, "right-palette-edge-label")
+        XCTAssertLessThanOrEqual(label.frame.maxX, palette.frame.minX,
+                                 "The length badge must not sit under the right-hand palette")
+        XCTAssertTrue(label.isHittable, "The badge must be tappable beside the palette")
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let keypad = app.otherElements["NumericKeypad"].firstMatch
+        XCTAssertTrue(keypad.waitForExistence(timeout: 3), "The badge tap should open the keypad")
+        XCTAssertLessThanOrEqual(keypad.frame.maxX, palette.frame.minX,
+                                 "The keypad must stay clear of the right-hand palette")
+        XCTAssertGreaterThanOrEqual(keypad.frame.minX, 0)
+        let commit = app.buttons["KeypadCommit"].firstMatch
+        XCTAssertTrue(commit.isHittable, "The commit key must be reachable")
+        attach(app, "right-palette-edge-keypad")
+        setDimension(app, to: "5")
+        XCTAssertTrue(app.staticTexts["5.00 mm"].waitForExistence(timeout: 3),
+                      "The keypad commit beside the right-hand palette should drive the line to 5 mm")
+    }
+
     func testNearRailCircleDiameterTargetRemainsReachable() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

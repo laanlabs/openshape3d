@@ -17,6 +17,7 @@ import UIKit
 // Annotation ink follows that canvas, not the system foreground (white in dark mode).
 struct SketchDimensionOverlay: View {
     @Bindable var viewModel: EditorViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var diameterDragStarts: [String: CGPoint] = [:]
     @State private var diameterDragPreviews: [String: CGPoint] = [:]
     @State private var editorSize = CGSize(width: 280, height: 250)
@@ -77,12 +78,36 @@ struct SketchDimensionOverlay: View {
         }
     }
 
+    /// The constraint rail's horizontal footprint: the full rail on regular
+    /// widths, its 44-pt menu button (plus margin) at compact width, and the
+    /// bare margin outside a sketch.
+    private var railInset: CGFloat {
+        guard viewModel.mode.isSketching else { return 16 }
+        return horizontalSizeClass == .compact ? 72 : 184
+    }
+
+    /// Keep a linear badge out from under the side controls: a line whose
+    /// midpoint runs beneath the palette (either side) or the constraint rail
+    /// used to put its badge there too, unreachable (QA-29, right-hand
+    /// palette). The badge slides along its dimension line instead.
+    private func badgeWithinCanvas(_ anchor: CGPoint, in size: CGSize) -> CGPoint {
+        let palette: CGFloat = 96
+        let rail = railInset
+        let left = AppSettings.shared.paletteOnRight ? rail : palette
+        let right = AppSettings.shared.paletteOnRight ? palette : rail
+        let halfWidth: CGFloat = 40
+        let low = left + halfWidth, high = size.width - right - halfWidth
+        let x = high >= low ? min(max(anchor.x, low), high) : (low + high) / 2
+        let y = min(max(anchor.y, 140), max(140, size.height - 110))
+        return CGPoint(x: x, y: y)
+    }
+
     /// Fit the entire editor between the drawing palette and constraint rail,
     /// not just its anchor. The old keyboard-era clamp hid the pad behind the
     /// rail and pulled bottom dimensions to the upper half of the canvas.
     private func editorPosition(_ anchor: CGPoint, in size: CGSize) -> CGPoint {
         let palette: CGFloat = 96
-        let rail: CGFloat = viewModel.mode.isSketching ? 184 : 16
+        let rail = railInset
         let left = AppSettings.shared.paletteOnRight ? rail : palette
         let right = AppSettings.shared.paletteOnRight ? palette : rail
         func fit(_ value: CGFloat, low: CGFloat, high: CGFloat) -> CGFloat {
@@ -362,7 +387,9 @@ struct SketchDimensionOverlay: View {
                     including: diameter != nil ? .all : .none)
                 .position(label.isPolygonSideCount
                     ? polygonCountAnchor(start: start, end: end, in: size)
-                    : arc?.anchor ?? radial?.anchor ?? diameter?.anchor ?? linear?.anchor ?? clearOfGizmo(anchor, along: start, end))
+                    : arc?.anchor ?? radial?.anchor ?? diameter?.anchor
+                        ?? linear.map { badgeWithinCanvas($0.anchor, in: size) }
+                        ?? clearOfGizmo(anchor, along: start, end))
                 .accessibilityIdentifier(
                     conflicting ? "DimensionLabelConflict" : "DimensionLabel")
                 if let linear, viewModel.canChooseLineDimensionKind(label) {
@@ -418,7 +445,7 @@ struct SketchDimensionOverlay: View {
                                  y: (center.y + tip.y) / 2 - CGFloat(cos(angle)) * 20), angle)
         }
         var extensionLength: CGFloat = 220
-        let rail: CGFloat = viewModel.mode.isSketching && !viewModel.sketchTransformActive ? 184 : 16
+        let rail: CGFloat = viewModel.sketchTransformActive ? 16 : railInset
         let left: CGFloat = AppSettings.shared.paletteOnRight ? rail : 96
         let right: CGFloat = AppSettings.shared.paletteOnRight ? 96 : rail
         let textWidth = (text as NSString).size(withAttributes: [
