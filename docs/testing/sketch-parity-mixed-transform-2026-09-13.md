@@ -58,3 +58,25 @@ open (line not selectable at compact width in XCUITest — diagnose); extrude-ba
 defect logged. Partial; no promotion. Evidence:
 …/planes/qa45-mixed-transform-live-2026-09-13/ — 11 assets,
 evidence-index.json. **Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/1VE2Yq2sPpUiHWFY5U2OdQnWtaXiFYkh0-0oygXDqNys/edit. 32/0/1/23; iPad unchanged.
+
+## Native — mixed selection reached later the same day (marquee)
+
+Re-run in sketch24 with a fresh line and circle. Plain, shift and cmd clicks
+(1-pt drags with the modifier, since the click command has no modifier
+flag) all REPLACE the selection; a plain marquee drag on empty sketch canvas
+enclosing the entities selects all of them — "3 edges 771,869.9681 mm"
+(the line, the circle, and a leftover circle from the earlier cylinder probe,
+deleted afterwards). Exit Sketching keeps the selection; the adaptive tool
+offered for a line-plus-circles selection is Rotate Around Axis (the line as
+the axis), and the M hotkey switches to Move/Rotate (M). A typed 50,000 on
+the X arrow moved all three together in one step — selection kept, total
+length unchanged, "50,000 mm" pill — and one Undo returned them. That is the
+same rule the clone applies to a mixed selection (line a.x −3→−1 and circle
+centre 0→2 in one "Move" step, Undo/Redo), so the native comparison is no
+longer input-blocked. Twelve captures with SHA-256s in workspace reports
+planes/qa45-native-mixed-live-2026-09-13/evidence-index.json (local).
+Differences recorded, not changed: native's marquee route (the clone's
+Select mode marquee gathers sketch entities too, untested here for a mixed
+pair) and native's Rotate Around Axis default for a selection containing a
+line.
+

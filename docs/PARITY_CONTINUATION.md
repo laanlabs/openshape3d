@@ -101,8 +101,11 @@ faces, body, profile; undone, Default View). Clone 637a24d:
 curved faces in Select Through, edge tap arms Chamfer/Fillet with the edge.
 Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. Native parked; clone fresh on the sim. Evidence batch 2
 published (four docs, 75 images; index https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
-Next: QA-45's native mixed selection if the input harness allows shift-click,
-or the twelve Sept 12 offset-plane assets.
+QA-45 native mixed selection reached by a marquee drag (plain/shift/cmd clicks
+replace); typed 50,000 on X moved line + circles together, one Undo — paired
+with the clone. Leftover probe circle deleted from sketch24; History/Items
+rows verified. Next: publish the QA-45 evidence with the twelve Sept 12
+offset-plane assets.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

@@ -2719,3 +2719,16 @@ that edge chosen (info bar "Edges 1 / Length"). Gate: SelectionTests 12/12, Sele
 testing/sketch-parity-curved-edge-selection-2026-09-13.md. Partial (native's
 edge-only selection state and circular-edge radius readout not matched).
 
+## September 13 — QA45 native mixed selection paired
+
+No source change. Native multi-select is reached by a marquee drag on empty
+sketch canvas (plain, shift and cmd clicks replace the selection); Exit
+keeps the mixed set; the adaptive tool for a line-plus-circles selection is
+Rotate Around Axis, and M switches to Move/Rotate; a typed 50,000 on X
+moved the three entities together in one undoable step with lengths
+unchanged — matching the clone's typed mixed move (d790646). Twelve
+captures local. A leftover circle from the earlier cylinder probe was
+deleted from sketch24; History and Items rows verified as at the session
+start. See testing/sketch-parity-mixed-transform-2026-09-13.md. Partial
+(publication; Rotate Around Axis default and marquee route recorded).
+
