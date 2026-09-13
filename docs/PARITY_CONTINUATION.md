@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA01 curved-face pick refused; recipe evidenced, native observation open (2026-09-13 10:00 EDT)
+## Current — QA03 camera angle paired by view command (2026-09-13 10:45 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -23,12 +23,16 @@ planes/qa01-plane-item-live-2026-09-13 (evidence-index.json), local only; twelve
 earlier QA01 offset assets also unpublished. Row highlight/readout paired 09:28 EDT.
 Remaining difference: native one-sketch-per-plane vs clone new sketch.
 Clone parked idle in Untitled 2 (box + Plane 1), bridge 8899; native parked
-Sketch 13/Top. Clone live on 3f7080c: wall refused, cap → Sketch at y=5, bare-grid miss →
-ground (planes/qa01-curved-miss-live-2026-09-13, 11 assets). Native curved/
-planar-face pick NOT observed this session (audit doc shows only boxes; blind
-profile clicks caught sketch edges). Next: QA03 camera-angle recipe (0/45/85°,
-Normal to Sketch, orbit while active; native View > Rotate View 45°), then
-publish the QA01 batches.
+Sketch 13/Top. QA01 clone live on 3f7080c: wall refused, cap → Sketch at y=5, miss → ground
+(planes/qa01-curved-miss-live-2026-09-13, 11 assets); native curved/planar-face
+pick not observed. QA03 (no source change): entry alignment, orbit-while-active
+and normal-view action paired by view command (clone bridge view.*, native
+View > Rotate View 45°); clone edge-on places nothing; native edge-on
+unobserved; 85° unreachable (planes/qa03-camera-angle-live-2026-09-13, 13
+assets). Peekaboo drag/swipe does not reach the Simulator; native model-mode
+Sketch needs an AX press (`peekaboo click --on`). Both apps parked idle.
+Next: QA03 Look-at-Sketch UI regression (Views > Isometric while sketching),
+then QA02 entry routes or publish the QA01/QA03 batches.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

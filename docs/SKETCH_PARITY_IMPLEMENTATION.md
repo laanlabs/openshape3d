@@ -2567,3 +2567,13 @@ cylinder wall started a sketch on a facet sliver. 25/25 one clean serial run
 (new unit cap/wall/miss test, new PlanesUITests curved-wall test); clone live
 wall/cap/miss on the build, 11 assets local. Native curved/planar-face pick not
 observed live — open. QA01 recipe evidenced, no promotion. 32/0/1/23.
+
+## September 13 — QA03 camera angle by view command
+
+No source change. Paired: entry aligns to the plane normal in both apps; a view
+change while sketching (clone view.isometric, native Rotate Up 45°) keeps the
+sketch active and offers Look at Sketch / Normal to Sketch; the action realigns.
+Clone edge-on (view.front) places nothing on Line taps; native edge-on drawing
+not observed (View > Front run ended in model mode). 85° unreachable by command.
+13 assets local; see testing/sketch-parity-camera-angle-2026-09-13.md. Partial,
+no promotion. 32/0/1/23; iPad unchanged.

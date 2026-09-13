@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 10:00 EDT QA-01 curved-face checkpoint**. Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 10:45 EDT QA-03 camera-angle checkpoint**. Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -34,7 +34,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-03 — Camera angle
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked; full orbit/angle matrix open.
+- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Open: native edge-on drawing not observed, 85° unreachable by command, gesture orbit not driven (QA-52). See testing/sketch-parity-camera-angle-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-14 — Ellipse dimensions
@@ -186,6 +186,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 These are not additional acceptance-count rows. They must not disappear because their related finite case is passed.
 
 - QA-01: the clone keeps the picker armed after a refused curved-face tap by its own Section View rule; native's response to that tap is unobserved (audit document has no curved body in view).
+- QA-03: 85° entry/orbit unreachable by command on either side (45°/isometric and 90° used); native edge-on drawing unobserved; gesture orbit not driven through Peekaboo (physical input stays QA-52).
 - QA-27: variable-linked and multiple-driver dimension-type variants remain unverified (also related to QA-28/32).
 - QA-43: legacy nil reference ownership retains old behavior; duplicate-label styling was excluded from closure.
 - QA-49: exhaustive curved intersections/topology are outside the bounded pass (related QA-42).
@@ -229,6 +230,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. No source change; no promotion.
 - 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.
 - 2026-09-13 (09:30): Items plane row highlight + "1 plane" readout at cf0fbd0; 25/25 one clean serial run; paired re-run in both apps, 18 assets local/unpublished. Gap closed; no promotion; totals unchanged.
 - 2026-09-13 (09:15): QA-01 plane-row selection → Sketch paired live in both apps; ten assets indexed locally, unpublished. New gap: clone has no Items row highlight or "1 plane" readout. No promotion; totals unchanged.
