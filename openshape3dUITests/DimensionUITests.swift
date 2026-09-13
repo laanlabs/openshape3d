@@ -1339,6 +1339,69 @@ final class DimensionUITests: XCTestCase {
         // in testing/sketch-parity-dense-zoom-2026-09-13.md.
     }
 
+    /// Paired 2026-09-13 (sketch24): dragging a line's dimension label moves
+    /// the leader without touching the geometry; a measured label's placement
+    /// lasts for the selection, a driving dimension keeps it and Undo reverts.
+    func testLinearLabelDragMovesLeaderOnlyAndPersistsOnceDriving() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)))
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        let markers = app.descendants(matching: .any).matching(identifier: "SketchPointMarker")
+        XCTAssertEqual(markers.count, 2)
+        let endpointsBefore = markers.allElementsBoundByIndex.map(\.frame)
+        let defaultFrame = label.frame
+
+        let grab = label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab.press(forDuration: 0.15, thenDragTo: grab.withOffset(CGVector(dx: 0, dy: -70)))
+        sleep(1)
+        XCTAssertFalse(app.textFields["DimensionField"].exists, "a drag must not open the editor")
+        XCTAssertLessThan(label.frame.midY, defaultFrame.midY - 40, "the label followed the drag")
+        XCTAssertEqual(markers.allElementsBoundByIndex.map(\.frame), endpointsBefore, "geometry stays put")
+        attach(app, "linear-label-dragged")
+
+        // Measured: the placement lasts for the selection.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8)).tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.475, dy: 0.5)).tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertEqual(label.frame.midY, defaultFrame.midY, accuracy: 3, "back at the default leader")
+
+        // Driving: the placement is kept and undoable.
+        setDimension(app, to: "5")
+        if !label.waitForExistence(timeout: 2) {
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.5)).tap()
+            XCTAssertTrue(label.waitForExistence(timeout: 3))
+        }
+        let drivenDefault = label.frame
+        let grab2 = label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        grab2.press(forDuration: 0.15, thenDragTo: grab2.withOffset(CGVector(dx: 0, dy: -70)))
+        sleep(1)
+        XCTAssertLessThan(label.frame.midY, drivenDefault.midY - 40)
+        let dragged = label.frame
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8)).tap()
+        XCTAssertTrue(label.waitForNonExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.5)).tap()
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        XCTAssertEqual(label.frame.midY, dragged.midY, accuracy: 3, "a driving label keeps its placement")
+        attach(app, "linear-label-driven-kept")
+        app.buttons["UndoButton"].tap()
+        if !label.waitForExistence(timeout: 2) {
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.5)).tap()
+            XCTAssertTrue(label.waitForExistence(timeout: 3))
+        }
+        XCTAssertEqual(label.frame.midY, drivenDefault.midY, accuracy: 3, "Undo reverts the placement")
+    }
+
     // MARK: - Dimensions survive leaving the sketch
 
     /// What Shapr3D actually does, verified by driving it on 2026-09-06: with

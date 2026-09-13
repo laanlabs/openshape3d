@@ -563,16 +563,22 @@ struct RemoveSketchEntitiesCommand: DocumentCommand {
 
     func apply(to document: inout DesignDocument) {
         guard let index = document.sketches.firstIndex(where: { $0.id == sketchID }) else { return }
+        apply(toSketch: &document.sketches[index])
+    }
+
+    /// The same removal on a sketch value — what a live preview of a
+    /// split-off subset needs before the command is performed.
+    func apply(toSketch sketch: inout Sketch) {
         let ids = Set(removed.map(\.entity.id))
-        document.sketches[index].lineDimensionKinds = document.sketches[index].lineDimensionKinds.filter { !ids.contains($0.key) }
-        document.sketches[index].rectangleSizingAnchors = document.sketches[index].rectangleSizingAnchors.filter { removedRectangleAnchors[$0.key] == nil }
-        document.sketches[index].rotatedRectangleEdges = document.sketches[index].rotatedRectangleEdges.filter { removedRectangleGroups[$0.key] == nil }
-        document.sketches[index].disconnectedEndpoints.removeAll { ids.contains($0.entityID) }
-        document.sketches[index].entities.removeAll { ids.contains($0.id) }
+        sketch.lineDimensionKinds = sketch.lineDimensionKinds.filter { !ids.contains($0.key) }
+        sketch.rectangleSizingAnchors = sketch.rectangleSizingAnchors.filter { removedRectangleAnchors[$0.key] == nil }
+        sketch.rotatedRectangleEdges = sketch.rotatedRectangleEdges.filter { removedRectangleGroups[$0.key] == nil }
+        sketch.disconnectedEndpoints.removeAll { ids.contains($0.entityID) }
+        sketch.entities.removeAll { ids.contains($0.id) }
         let constraintIDs = Set(removedConstraints.map(\.constraint.id))
-        document.sketches[index].constraints.removeAll { constraintIDs.contains($0.id) }
+        sketch.constraints.removeAll { constraintIDs.contains($0.id) }
         let dimensionIDs = Set(removedDimensions.map(\.dimension.id))
-        document.sketches[index].dimensions.removeAll { dimensionIDs.contains($0.id) }
+        sketch.dimensions.removeAll { dimensionIDs.contains($0.id) }
     }
 
     func revert(in document: inout DesignDocument) {

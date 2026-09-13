@@ -103,17 +103,60 @@ final class ModelSketchTransformTests: XCTestCase {
         XCTAssertEqual(try sketch(vm, seeded.id).entities, seeded.entities)
     }
 
-    func testSubsetCannotLeaveItsPlane() throws {
+    /// Native (sketch24, 2026-09-13): one edge moved along the sketch normal
+    /// left its sketch and became "Sketch 14" on the moved plane; Undo put it
+    /// back. The subset takes the constraints and dimensions that stay
+    /// within it; the rest of the sketch keeps its own.
+    func testSubsetTakenOffItsPlaneBecomesANewSketch() throws {
         let vm = try makeViewModel()
         let seeded = seedSelectedSquare(vm)
-        vm.selectedSketchEntityIDs = [seeded.entities[0].id]
+        let bottom = seeded.entities[0]
+        vm.selectedSketchEntityIDs = [bottom.id]
         let steps = vm.session.undoStack.undoCommands.count
         vm.beginAxisDistanceEntry(.yAxis)
         vm.commitAxisMove(distance: 5)
-        XCTAssertEqual(try sketch(vm, seeded.id), seeded, "nothing moved")
-        XCTAssertEqual(vm.notice, "Select the whole sketch to move it off its plane")
-        XCTAssertEqual(vm.session.undoStack.undoCommands.count, steps,
-                       "a refused move is not a history step")
+
+        let sketches = vm.session.document.sketches
+        XCTAssertEqual(sketches.count, 2)
+        let remainder = try sketch(vm, seeded.id)
+        XCTAssertEqual(remainder.entities.map(\.id), Array(seeded.entities[1...]).map(\.id))
+        XCTAssertEqual(remainder.plane, .ground)
+        let split = try XCTUnwrap(sketches.first { $0.id != seeded.id })
+        XCTAssertEqual(split.name, "Sketch 1")
+        XCTAssertEqual(split.plane.origin, SIMD3(0, 5, 0))
+        XCTAssertEqual(split.plane.xAxis, SketchPlane.ground.xAxis)
+        XCTAssertEqual(split.entities, [bottom], "same entity, same id, same local coordinates")
+        XCTAssertEqual(vm.selectedSketchEntityIDs, [bottom.id], "the selection follows the edge")
+        XCTAssertNotNil(vm.gizmoOrigin)
+        XCTAssertEqual(vm.session.undoStack.undoCommands.count, steps + 1, "one step")
+
+        vm.undo()
+        XCTAssertEqual(vm.session.document.sketches.count, 1)
+        XCTAssertEqual(try sketch(vm, seeded.id).entities, seeded.entities)
+        vm.redo()
+        XCTAssertEqual(vm.session.document.sketches.count, 2)
+    }
+
+    func testDraggedSubsetSplitsOnlyWhenItLeavesThePlane() throws {
+        let vm = try makeViewModel()
+        let seeded = seedSelectedSquare(vm)
+        vm.selectedSketchEntityIDs = [seeded.entities[0].id]
+        vm.beginMove()
+        vm.updateMove(delta: SIMD3<Float>(1, 0, 0))     // in-plane preview: no split
+        XCTAssertEqual(vm.session.document.sketches.count, 1)
+        vm.updateMove(delta: SIMD3<Float>(1, 2, 0))     // off-plane preview: split shown live
+        XCTAssertEqual(vm.session.document.sketches.count, 2)
+        vm.updateMove(delta: SIMD3<Float>(1, 0, 0))     // back in plane: the preview split is gone
+        XCTAssertEqual(vm.session.document.sketches.count, 1)
+        vm.updateMove(delta: SIMD3<Float>(0, 4, 0))
+        vm.endMove()
+        XCTAssertEqual(vm.session.document.sketches.count, 2, "committed as one step")
+        XCTAssertEqual(vm.session.undoStack.undoTitle, "Move")
+        let split = try XCTUnwrap(vm.session.document.sketches.first { $0.id != seeded.id })
+        XCTAssertEqual(split.plane.origin.y, 4, accuracy: 1e-9)
+        vm.undo()
+        XCTAssertEqual(vm.session.document.sketches.count, 1)
+        XCTAssertEqual(try sketch(vm, seeded.id).entities, seeded.entities)
     }
 
     func testTypedRotationAboutTheNormalTurnsTheSubsetAboutTheGizmo() throws {

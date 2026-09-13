@@ -2521,9 +2521,10 @@ final class EditorViewModel {
             let pivot = SIMD3(Double(origin.x), Double(origin.y), Double(origin.z))
             switch transformedModelSketches(
                 ModelSketchMotion(translation: axis * distance, pivot: pivot), baselines: targets) {
-            case .sketches(let sketches):
-                commitModelSketchTransform(sketches, baselines: targets, title: "Move")
+            case let .sketches(updated, added):
+                commitModelSketchTransform(updated: updated, added: added, baselines: targets, title: "Move")
             case .refused(let reason):
+                modelSketchSplitIdentities.removeAll()
                 showNotice(reason)
             }
             return
@@ -2610,7 +2611,11 @@ final class EditorViewModel {
     }
 
     private enum ModelSketchTransformOutcome {
-        case sketches([SketchID: Sketch])
+        /// `updated`: sketches whose frame or entities changed, by id.
+        /// `added`: sketches split off for a subset taken off its plane —
+        /// Shapr3D makes a new sketch for it (observed 2026-09-13: one edge
+        /// of sketch24 moved along the normal became "Sketch 14").
+        case sketches(updated: [SketchID: Sketch], added: [Sketch])
         case refused(String)
     }
 
@@ -2618,6 +2623,7 @@ final class EditorViewModel {
         _ motion: ModelSketchMotion, baselines: [(sketch: Sketch, ids: Set<UUID>)]
     ) -> ModelSketchTransformOutcome {
         var result: [SketchID: Sketch] = [:]
+        var added: [Sketch] = []
         for (sketch, ids) in baselines {
             let plane = sketch.plane
             if ids.count == sketch.entities.count {
@@ -2630,13 +2636,32 @@ final class EditorViewModel {
                 result[sketch.id] = moved
                 continue
             }
-            // A subset has to stay in its plane: the motion must map the
-            // plane onto itself (no tilt, no travel along the normal).
+            // A subset taken off its plane (tilted, or moved along the
+            // normal) becomes a new sketch on the moved frame, as native does;
+            // its constraints and dimensions that stay within the subset
+            // travel with it, the rest are dropped with the entities.
             let normal = simd_normalize(plane.normal)
             let tilts = abs(simd_dot(motion.applyDirection(normal), normal)) < 1 - 1e-9
             let leaves = abs(simd_dot(motion.apply(plane.origin) - plane.origin, normal)) > 1e-9
             if tilts || leaves {
-                return .refused("Select the whole sketch to move it off its plane")
+                let moved = sketch.entities.filter { ids.contains($0.id) }
+                let inside: (ConstraintRef) -> Bool = { ids.contains($0.entityID) }
+                let split = Sketch(
+                    id: splitSketchID(for: sketch.id),
+                    name: splitSketchName(for: sketch.id),
+                    plane: SketchPlane(origin: motion.apply(plane.origin),
+                                       xAxis: motion.applyDirection(plane.xAxis),
+                                       yAxis: motion.applyDirection(plane.yAxis)),
+                    entities: moved,
+                    constructionEntityIDs: sketch.constructionEntityIDs.intersection(ids),
+                    constraints: sketch.constraints.filter { $0.refs.allSatisfy(inside) },
+                    dimensions: sketch.dimensions.filter { $0.refs.allSatisfy(inside) },
+                    lineDimensionKinds: sketch.lineDimensionKinds.filter { ids.contains($0.key) })
+                var remainder = sketch
+                RemoveSketchEntitiesCommand(ids: ids, sketch: sketch).apply(toSketch: &remainder)
+                result[sketch.id] = remainder
+                added.append(split)
+                continue
             }
             let xImage = motion.applyDirection(plane.xAxis)
             let angle = atan2(simd_dot(simd_cross(plane.xAxis, xImage), normal),
@@ -2669,28 +2694,54 @@ final class EditorViewModel {
             }
             result[sketch.id] = moved
         }
-        return .sketches(result)
+        return .sketches(updated: result, added: added)
+    }
+
+    /// A split-off sketch keeps one identity and name for the whole drag, so
+    /// the live preview and the committed result are the same sketch.
+    private var modelSketchSplitIdentities: [SketchID: (id: SketchID, name: String)] = [:]
+
+    private func splitSketchID(for source: SketchID) -> SketchID {
+        if let existing = modelSketchSplitIdentities[source] { return existing.id }
+        let identity = (id: SketchID(), name: session.document.uniqueSketchName())
+        modelSketchSplitIdentities[source] = identity
+        return identity.id
+    }
+
+    private func splitSketchName(for source: SketchID) -> String {
+        _ = splitSketchID(for: source)
+        return modelSketchSplitIdentities[source]!.name
     }
 
     /// One undo step — the sketch change plus the rebuild of whatever depends
     /// on it (what the native probe showed: dependents re-evaluate).
     private func commitModelSketchTransform(
-        _ sketches: [SketchID: Sketch], baselines: [(sketch: Sketch, ids: Set<UUID>)], title: String
+        updated sketches: [SketchID: Sketch], added: [Sketch],
+        baselines: [(sketch: Sketch, ids: Set<UUID>)], title: String
     ) {
         var commands: [DocumentCommand] = []
         var ids = Set<SketchID>()
-        for (sketch, _) in baselines {
+        for (sketch, selected) in baselines {
             guard let after = sketches[sketch.id], after != sketch else { continue }
-            if after.plane != sketch.plane {
-                commands.append(ChangeSketchPlaneCommand(
-                    sketchID: sketch.id, before: sketch.plane, after: after.plane))
-            }
-            if after.entities != sketch.entities {
-                commands.append(UpdateSketchEntitiesCommand(
-                    sketchID: sketch.id, before: sketch.entities, after: after.entities))
+            if after.entities.count < sketch.entities.count {
+                // The subset left for a new sketch (appended below).
+                commands.append(RemoveSketchEntitiesCommand(ids: selected, sketch: sketch))
+            } else {
+                if after.plane != sketch.plane {
+                    commands.append(ChangeSketchPlaneCommand(
+                        sketchID: sketch.id, before: sketch.plane, after: after.plane))
+                }
+                if after.entities != sketch.entities {
+                    commands.append(UpdateSketchEntitiesCommand(
+                        sketchID: sketch.id, before: sketch.entities, after: after.entities))
+                }
             }
             ids.insert(sketch.id)
         }
+        for sketch in added {
+            commands.append(AddSketchCommand(sketch: sketch, title: title))
+        }
+        modelSketchSplitIdentities.removeAll()
         guard !commands.isEmpty else { return }
         session.performWithSketchRebuild(
             CompositeCommand(title: title, commands: commands), sketchIDs: ids)
@@ -2700,7 +2751,7 @@ final class EditorViewModel {
     private struct ModelSketchMove {
         var baselines: [(sketch: Sketch, ids: Set<UUID>)]
         var pivot: SIMD3<Double>
-        var result: [SketchID: Sketch]?
+        var result: (updated: [SketchID: Sketch], added: [Sketch])?
         var title = "Move"
         var noticeShown = false
     }
@@ -2716,7 +2767,9 @@ final class EditorViewModel {
     }
 
     private func restoreModelSketchBaselines(_ baselines: [(sketch: Sketch, ids: Set<UUID>)]) {
+        let previewIDs = Set(modelSketchSplitIdentities.values.map(\.id))
         session.preview { document in
+            document.sketches.removeAll { previewIDs.contains($0.id) }
             for (sketch, _) in baselines {
                 if let index = document.sketches.firstIndex(where: { $0.id == sketch.id }) {
                     document.sketches[index] = sketch
@@ -2730,12 +2783,24 @@ final class EditorViewModel {
         guard var move = modelSketchMove else { return }
         move.title = title
         switch transformedModelSketches(motion, baselines: move.baselines) {
-        case .sketches(let sketches):
-            move.result = sketches
+        case let .sketches(updated, added):
+            move.result = (updated, added)
+            // A split previewed earlier in the drag goes away once the
+            // motion is back in the plane.
+            let addedIDs = Set(added.map(\.id))
+            let stale = Set(modelSketchSplitIdentities.values.map(\.id)).subtracting(addedIDs)
             session.preview { document in
-                for (id, sketch) in sketches {
+                document.sketches.removeAll { stale.contains($0.id) }
+                for (id, sketch) in updated {
                     if let index = document.sketches.firstIndex(where: { $0.id == id }) {
                         document.sketches[index] = sketch
+                    }
+                }
+                for sketch in added {
+                    if let index = document.sketches.firstIndex(where: { $0.id == sketch.id }) {
+                        document.sketches[index] = sketch
+                    } else {
+                        document.sketches.append(sketch)
                     }
                 }
             }
@@ -2758,8 +2823,12 @@ final class EditorViewModel {
         // The preview mutated the sketches in place; put the baselines back
         // so the command's before/after are the truth and undo lands home.
         restoreModelSketchBaselines(move.baselines)
-        guard let result = move.result else { return }
-        commitModelSketchTransform(result, baselines: move.baselines, title: move.title)
+        guard let result = move.result else {
+            modelSketchSplitIdentities.removeAll()
+            return
+        }
+        commitModelSketchTransform(updated: result.updated, added: result.added,
+                                   baselines: move.baselines, title: move.title)
     }
 
     // MARK: - Scale (uniform, about the body pivot — spec §5.4 v1)
@@ -13079,9 +13148,13 @@ final class EditorViewModel {
     private var temporaryDiameterLabelOffsets: [UUID: SIMD2<Double>] = [:]
 
     /// Native free readout placement lasts for the selection; driving dimension
-    /// placement is a separate undoable, saved presentation edit.
-    func moveDiameterLabel(_ label: SketchDimensionLabel, offset: SIMD2<Double>) {
-        guard label.kind == .diameter, offset.x.isFinite, offset.y.isFinite,
+    /// placement is a separate undoable, saved presentation edit. Paired
+    /// 2026-09-13 for linear labels too: a measured line's dragged label
+    /// returns to its default on reselect, a driving one keeps the drag and
+    /// Undo reverts it.
+    func moveDimensionLabel(_ label: SketchDimensionLabel, offset: SIMD2<Double>) {
+        guard label.kind == .diameter || label.isStandaloneLineLength || label.isRectangleSize,
+              offset.x.isFinite, offset.y.isFinite,
               let entityID = label.refs.first?.entityID,
               let sketch = session.document.sketches.first(where: { $0.id == label.sketchID })
         else { return }
@@ -13113,6 +13186,8 @@ final class EditorViewModel {
         // Arc sweep annotations follow the actual sweep, including major arcs.
         // World points keep the leader aligned when the camera/plane changes.
         var worldDiameterLabelAnchor: SIMD3<Double>? = nil
+        /// Where a dragged linear label's text sits (nil = the default leader).
+        var worldLinearLabelAnchor: SIMD3<Double>? = nil
         var isPolygonSideCount = false
         var hasExpression = false
         var isStandaloneLineLength = false
@@ -13751,6 +13826,17 @@ final class EditorViewModel {
                 if let offset = stored ?? temporaryDiameterLabelOffsets[entityID] {
                     let center = (g.start + g.end) / 2
                     label.worldDiameterLabelAnchor = sketch.plane.toWorld(center + offset)
+                }
+            }
+            // A dragged linear label: the saved (driving) or selection-lived
+            // (measured) offset of its text from the line's midpoint.
+            if kind == .distance, let entityID = refs.first?.entityID, refs.count == 2,
+               refs.allSatisfy({ $0.entityID == entityID }) {
+                let stored = dimensionID.flatMap { id in
+                    sketch.dimensions.first(where: { $0.id == id })?.labelOffset
+                }
+                if let offset = stored ?? temporaryDiameterLabelOffsets[entityID] {
+                    label.worldLinearLabelAnchor = sketch.plane.toWorld((g.start + g.end) / 2 + offset)
                 }
             }
             if kind == .distance, let first = refs.first,

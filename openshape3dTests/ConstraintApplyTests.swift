@@ -761,7 +761,7 @@ final class ConstraintApplyTests: XCTestCase {
         vm.selectedSketchEntityIDs = [id]
         let label = try XCTUnwrap(vm.sketchDimensionLabels.first)
         let firstOffset = SIMD2<Double>(-5, 3)
-        vm.moveDiameterLabel(label, offset: firstOffset)
+        vm.moveDimensionLabel(label, offset: firstOffset)
         XCTAssertEqual(vm.sketchDimensionLabels.first?.worldDiameterLabelAnchor,
                        sketch.plane.toWorld(SIMD2(-2, 7)))
         XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
@@ -769,14 +769,14 @@ final class ConstraintApplyTests: XCTestCase {
         vm.selectedSketchEntityIDs = []
         vm.selectedSketchEntityIDs = [id]
         XCTAssertNil(vm.sketchDimensionLabels.first?.worldDiameterLabelAnchor)
-        vm.moveDiameterLabel(label, offset: firstOffset)
+        vm.moveDimensionLabel(label, offset: firstOffset)
         vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
         vm.commitDimensionEdit("4 mm")
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.labelOffset, firstOffset)
         let geometry = vm.activeSketch!.entities
         let driven = try XCTUnwrap(vm.sketchDimensionLabels.first)
         let secondOffset = SIMD2<Double>(-3, 6)
-        vm.moveDiameterLabel(driven, offset: secondOffset)
+        vm.moveDimensionLabel(driven, offset: secondOffset)
         XCTAssertEqual(vm.activeSketch?.dimensions.first?.value, 4)
         XCTAssertEqual(vm.activeSketch?.entities, geometry)
         vm.session.undo()
@@ -797,6 +797,49 @@ final class ConstraintApplyTests: XCTestCase {
         let decoded = try JSONDecoder().decode(SketchDimension.self, from: JSONSerialization.data(withJSONObject: legacy))
         XCTAssertNil(decoded.labelOffset)
         XCTAssertEqual(decoded.value, 4)
+    }
+
+    /// Paired 2026-09-13 (sketch24): dragging a measured line's label moves
+    /// its leader for the selection only; once the dimension drives, the
+    /// dragged placement is kept, saved, and undoable. Geometry never moves.
+    func testLinearLabelPlacementTransientThenSavedUndoableWithoutGeometryChange() throws {
+        let vm = try makeViewModel(), id = UUID()
+        let entity = SketchEntity.line(id: id, a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let sketch = openSketch(vm, entities: [entity])
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [id]
+        let label = try XCTUnwrap(vm.sketchDimensionLabels.first)
+        XCTAssertTrue(label.isStandaloneLineLength)
+        XCTAssertNil(label.worldLinearLabelAnchor)
+        let firstOffset = SIMD2<Double>(0, 2)
+        vm.moveDimensionLabel(label, offset: firstOffset)
+        XCTAssertEqual(vm.sketchDimensionLabels.first?.worldLinearLabelAnchor,
+                       sketch.plane.toWorld(SIMD2(2, 2)))
+        XCTAssertTrue(vm.activeSketch!.dimensions.isEmpty)
+        XCTAssertEqual(vm.activeSketch!.entities, [entity])
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchEntityIDs = [id]
+        XCTAssertNil(vm.sketchDimensionLabels.first?.worldLinearLabelAnchor,
+                     "a measured label's placement lasts for the selection")
+
+        vm.beginDimensionEdit(try XCTUnwrap(vm.sketchDimensionLabels.first))
+        vm.commitDimensionEdit("5 mm")
+        let geometry = vm.activeSketch!.entities
+        let driven = try XCTUnwrap(vm.sketchDimensionLabels.first)
+        XCTAssertNotNil(driven.dimensionID)
+        let secondOffset = SIMD2<Double>(0, 3)
+        vm.moveDimensionLabel(driven, offset: secondOffset)
+        XCTAssertEqual(vm.activeSketch?.dimensions.first?.labelOffset, secondOffset)
+        XCTAssertEqual(vm.activeSketch?.entities, geometry, "placement never moves geometry")
+        vm.selectedSketchEntityIDs = []
+        vm.selectedSketchEntityIDs = [id]
+        guard case let .line(_, a, b)? = vm.activeSketch?.entities.first else { return XCTFail("line expected") }
+        let anchor = try XCTUnwrap(vm.sketchDimensionLabels.first?.worldLinearLabelAnchor)
+        XCTAssertEqual(simd_length(anchor - sketch.plane.toWorld((a + b) / 2 + secondOffset)), 0,
+                       accuracy: 1e-6, "a driving label keeps its placement")
+        vm.session.undo()
+        XCTAssertNil(vm.activeSketch?.dimensions.first?.labelOffset, "the drag is one undo step")
+        XCTAssertEqual(vm.activeSketch?.entities, geometry)
     }
 
     func testCircularTransformHidesTemporaryReadoutsButKeepsDrivenDimensions() throws {

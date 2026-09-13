@@ -160,10 +160,18 @@ struct SketchDimensionOverlay: View {
            let start = project(label.worldStart),
            let end = project(label.worldEnd) {
             let arc = arcLeader(label)
-            let linear = (label.isStandaloneLineLength || label.isRectangleSize)
+            let isLinear = label.isStandaloneLineLength || label.isRectangleSize
+            let interior = label.worldRectangleCenter.flatMap(project)
+            // A dragged label (live preview, or a saved/selection-lived
+            // placement) moves the whole leader, as native's does.
+            let draggedLeader: CGFloat? = isLinear
+                ? (diameterDragPreviews[label.id] ?? label.worldLinearLabelAnchor.flatMap(project)).flatMap {
+                    SketchLinearDimensionLayout.leaderOffset(start: start, end: end, textAnchor: $0, awayFrom: interior)
+                } : nil
+            let linear = isLinear
                 ? SketchLinearDimensionLayout.make(start: start, end: end,
-                    leaderOffset: label.isProjectedLineLength ? 0 : label.isRectangleSize ? 100 : 60,
-                    awayFrom: label.worldRectangleCenter.flatMap(project)) : nil
+                    leaderOffset: draggedLeader ?? (label.isProjectedLineLength ? 0 : label.isRectangleSize ? 100 : 60),
+                    awayFrom: interior) : nil
             let radial = label.isArcRadius ? radiusLeader(start, end, text: label.text, compact: label.isCircleRadius && ((label.dimensionID != nil && (label.hasCircleRadiusDirection || viewModel.mode.sketchTool == .circle)) || (viewModel.mode.sketchTool == .circle && viewModel.selectedCircleCenterID == label.refs.first?.entityID)), in: size) : nil
             let diameter = label.kind == .diameter ? diameterLayout(start, end, anchor: anchor, text: label.text, sketchID: label.sketchID,
                 manualAnchor: diameterDragPreviews[label.id] ?? label.worldDiameterLabelAnchor.flatMap(project), in: size) : nil
@@ -383,8 +391,8 @@ struct SketchDimensionOverlay: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .highPriorityGesture(diameterDrag(label, anchor: diameter?.anchor ?? anchor),
-                    including: diameter != nil ? .all : .none)
+                .highPriorityGesture(diameterDrag(label, anchor: diameter?.anchor ?? linear?.anchor ?? anchor),
+                    including: diameter != nil || linear != nil ? .all : .none)
                 .position(label.isPolygonSideCount
                     ? polygonCountAnchor(start: start, end: end, in: size)
                     : arc?.anchor ?? radial?.anchor ?? diameter?.anchor
@@ -524,7 +532,7 @@ struct SketchDimensionOverlay: View {
                 let dx = point.x - center.x, dy = point.y - center.y
                 let offset = SIMD2(Double((dx * by - dy * bx) / determinant),
                                    Double((ax * dy - ay * dx) / determinant))
-                viewModel.moveDiameterLabel(label, offset: offset)
+                viewModel.moveDimensionLabel(label, offset: offset)
             }
     }
 
