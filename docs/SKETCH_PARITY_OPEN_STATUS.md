@@ -3,8 +3,8 @@
 Last reconciled: **2026-09-13, 15:15 EDT QA-40 keypad-pan checkpoint**. Source checkpoint: **d2ff046** (exec side-count ceiling). Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
-**32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
-The 23 incomplete cases comprise 12 partial core cases and 11 explicitly deferred cases.
+**33 passed / 0 failed / 22 incomplete / 1 device-blocked = 56 acceptance cases.**
+The 22 incomplete cases comprise 11 partial core cases and 11 explicitly deferred cases.
 A passed finite recipe is not full feature parity. Automated passes do not replace paired live checks or physical-device proof.
 
 ## Current work — not yet complete
@@ -109,12 +109,6 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 - **Status:** Explicitly deferred.
 - **Evidence / remaining work:** Comprehensive variables/expression semantics; remains in full audit, not passed.
 - **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
-
-### QA-33 — Invalid numeric input
-
-- **Status:** Core — partial live pass.
-- **Evidence / remaining work:** Paired zero/negative, empty/division/syntax, correction, click-away/Escape and history sampled Sept9. Selected polygon count2 refusal/3.5 recovery live; current invalid-input/history gate19/19. Upper bound resolved 2026-09-13: native has **no** side-count refusal — 1,000/2,000/3,000 sides complete in ~10/47/119 s at 100% CPU (quadratic; 10,001 ≈ 22 min, the Sept 11 "hang"). Clone builds 10,000 in ~40 ms; a million-sided polygon wedged it, so the 10,000 ceiling stays as a guard and is now also enforced on the exec path at d2ff046 (it accepted 10,001; 84/84 gate, live 10,000 ok / 10,001 refused). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. **Deliberate divergence — accepted by Jason 2026-09-13 as a scope exception (keep the 10,000 ceiling).** See testing/sketch-parity-polygon-upper-bound-2026-09-13.md.
-- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-40 — Keypad transitions
 
@@ -234,6 +228,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (15:45): **QA-33 promoted to passed** — finite recipe complete, native bound measured, 10,000-side ceiling accepted by Jason as a scope exception (kept in the excluded-limitations list), appendix doc published. Totals 33/0/22/1.
 - 2026-09-13 (15:15): QA-40 pan-while-keypad: native pan not deliverable (seven input classes tried, inventory in the receipt) — moved to QA-52; clone rule inventory recorded; no source change.
 - 2026-09-13 (15:00): QA-33 native side-count bound measured to completion (1,000/2,000/3,000 sides: ~10/47/119 s, no refusal, quadratic); clone ceiling kept and extended to the exec path (10,001 was accepted there). Divergence recorded for acceptance. 6 assets local.
 - 2026-09-13 (14:00): Published the session's five evidence folders (70 images) as Google Docs via the user's Drive plus an index doc; receipts and evidence indexes carry the links. Roadmap doc not edited (other owner). Twelve Sept 12 offset assets still unpublished. No promotion.

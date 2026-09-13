@@ -60,6 +60,7 @@ accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1
 (seven input classes, canvas diff; ⌘+arrow = rotate 15°), moved to QA-52 with the
 inventory; clone cube-block paired, tap click-away, one-finger drag / two-finger
 pan not gated (native unobserved). Native parked (Default View); clone fresh.
+QA33 promoted to passed (ceiling exception accepted; published). Totals 33/0/1/22.
 Next: QA29 badge layout (right palette / compact) or QA24 remaining classes.
 32/0/1/23; iPad unchanged.
 
