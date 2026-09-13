@@ -41,6 +41,31 @@ final class SelectionUITests: XCTestCase {
                       "The named body must be selected, not merely focused for typing")
     }
 
+    func testSketchNameSingleTapEntersSketchWithoutRenameKeyboard() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        let window = app.windows.firstMatch
+        startSketchTool(app, "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        lookAtSketch(app)
+        sleep(1)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.40, dy: 0.45))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.60, dy: 0.45)))
+        app.buttons["Exit Sketching"].tap()
+        app.buttons["ItemsButton"].tap()
+        let name = app.descendants(matching: .any)["ItemName-Sketch 1"].firstMatch
+        XCTAssertTrue(name.waitForExistence(timeout: 3))
+        name.tap()
+        XCTAssertFalse(app.keyboards.firstMatch.waitForExistence(timeout: 2),
+                       "Sketch name entry must not begin Rename")
+        XCTAssertTrue(app.buttons["Exit Sketching"].waitForExistence(timeout: 3),
+                      "The named sketch must be opened for editing")
+    }
+
     func testMarqueeSelectsPatternBodiesAndDeleteRemovesAll() throws {
         let app = launchSeeded()
         let window = app.windows.firstMatch

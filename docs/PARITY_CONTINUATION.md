@@ -1,5 +1,20 @@
 # Parity continuation checkpoint
 
+## Current — QA24 sketch-name gap before regression
+
+HEAD5c0c142 pushed body Rename publication. Native Sketch05 single-name click
+enters sketching and selects six edges, no Rename keyboard. Clone fresh Sketch1
+circle name click opens caret/keyboard and stays out of sketching. Paired images
+retained under selection/qa24-through-live-2026-09-12. Before0/1 reproduced unwanted keyboard, terminal65: /tmp/os3d-qa24-sketch-name-before-20260912
+.{log,xcresult}. Scoped sketch nameTapSelects now true; PlanesUI name-existence assertions use
+stable IDs. Focused3 workflows running exclusively exec30688 at
+/tmp/os3d-qa24-sketch-name-focused-20260912.{log,xcresult}. Dirty ItemsPanelView,
+SelectionUITests, PlanesUITests and this checkpoint.
+Next collect focused result, broader regression and changed live;
+native all-edges selection is an additional observed behavior, not yet matched.
+Then focused/regression/changed live/history/reopen/publication. No desktop
+interaction while test owns simulator. Inventory32/0/1/23;iPad unchanged.
+
 ## Current — QA24 body Rename paired and published
 
 b5bff74 source pushed. Final46/46 zero failures/skips; prior48/48 separately

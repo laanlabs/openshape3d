@@ -251,6 +251,7 @@ struct ItemsPanelView: View {
             guard let sketch = document.sketches.first(where: { $0.id == id }) else { return nil }
             return ItemRowView(
                 icon: "pencil.and.outline", name: sketch.name, isHidden: sketch.isHidden, renameable: true,
+                nameTapSelects: true,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
                 onSelect: { viewModel.openItemSketch(id) },

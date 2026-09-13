@@ -98,8 +98,8 @@ final class PlanesUITests: XCTestCase {
             app.buttons["Exit Sketching"].tap()
         }
         app.buttons["ItemsButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Sketch 1"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.textFields["ItemName-Sketch 2"].exists,
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 1"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 2"].firstMatch.exists,
                       "Starting on the same plane must not silently append to Sketch 1")
         attach(app, "independent-coplanar-items")
         let first = app.otherElements["ItemRow-Sketch 1"].firstMatch
@@ -111,8 +111,8 @@ final class PlanesUITests: XCTestCase {
         p(0.40, 0.55).press(forDuration: 0.15, thenDragTo: p(0.60, 0.55))
         app.buttons["Exit Sketching"].tap()
         app.buttons["ItemsButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Sketch 2"].exists)
-        XCTAssertFalse(app.textFields["ItemName-Sketch 3"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 2"].firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Sketch 3"].firstMatch.exists)
         attach(app, "named-continuation-keeps-two-items")
     }
 
