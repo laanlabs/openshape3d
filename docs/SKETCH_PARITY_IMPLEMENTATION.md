@@ -2546,6 +2546,11 @@ a new sketch on the selected plane directly (sketch-on-face route), Delete remov
 it, and the selection yields to a body/image selection, a viewport tap, or an
 undo that removes the plane. Regression PlaneTests + SelectionUXTests (two new)
 + ItemsUITests + PlanesUITests: 24/24, 0 skipped, one clean serial run on sim
-AC2FD923 (/tmp/os3d-plane-select-gate-20260913.xcresult). Paired live check
-against native and publication not yet done. Curved-face/miss recipe remains
-open; no QA01 promotion. 32/0/1/23; iPad unchanged.
+AC2FD923 (/tmp/os3d-plane-select-gate-20260913.xcresult). Paired live 09:10 EDT:
+native Plane 01 row → Sketch enters Sketch 13 on the plane; clone Plane 1 row →
+Line enters Sketch 1 on the y=6 offset plane, head-on, no picker. Ten assets in
+workspace reports planes/qa01-plane-item-live-2026-09-13, local only; see
+testing/sketch-parity-plane-item-selection-2026-09-13.md. Gaps: clone lacks the
+Items row highlight and "1 plane" readout; native one-sketch-per-plane vs clone
+new sketch (coplanar rule). Curved-face/miss recipe remains open; no QA01
+promotion. 32/0/1/23; iPad unchanged.

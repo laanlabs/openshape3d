@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA01 Items plane selection fixed; paired live check pending (2026-09-13 09:00 EDT)
+## Current — QA01 Items plane selection fixed and paired live (2026-09-13 09:15 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -15,10 +15,15 @@ SelectionUXTests (two new) + ItemsUITests + PlanesUITests: **24/24, 0 skipped**,
 one clean serial run on sim AC2FD923, /tmp/os3d-plane-select-gate-20260913.xcresult.
 Prior QA01 plane gate at 0e86c6b: 11/11, /tmp/os3d-qa01-plane-gate-20260913.xcresult.
 No runner active; Simulator, Shapr3D and Peekaboo open, idle. Docs dirty only.
-Twelve QA01 assets (offset-assets.json) prepared, unpublished; the plane-row fix
-has no live evidence yet.
-Next: paired live check of plane-row selection then Sketch in both apps; then
-QA01 curved-face/miss recipe. 32/0/1/23; iPad unchanged.
+Paired live 09:10 EDT: native Plane 01 row → Sketch enters Sketch 13 on the
+plane; clone Plane 1 row → Line enters Sketch 1 on the y=6 offset plane,
+head-on, no picker. Ten assets in workspace reports
+planes/qa01-plane-item-live-2026-09-13 (evidence-index.json), local only; twelve
+earlier QA01 offset assets also unpublished. Gaps: clone lacks the Items row
+highlight and "1 plane" readout; native one-sketch-per-plane vs clone new sketch.
+Clone parked idle in Untitled 2 (box + Plane 1), bridge 8899; native parked
+Sketch 13/Top. Next: row highlight/readout, then QA01 curved-face/miss recipe.
+32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
 
