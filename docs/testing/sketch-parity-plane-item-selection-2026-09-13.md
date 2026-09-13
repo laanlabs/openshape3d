@@ -81,4 +81,4 @@ not tracked as a gap: native paints the row solid accent with white text and
 the bare "1 plane"; the clone uses its light-tint/blue-text row idiom and the
 labelled "Selected 1 plane". The one-sketch-per-plane difference is unchanged.
 Evidence appended to the same folder (index regenerated, 18 assets).
-**Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/192lJUc0-2Nr8tJUIrtHJeu0Oue2UzhjZws91cwbkOks/edit (15 images, captioned, SHA-256 per original).
+**Published 2026-09-13 17:51 UTC:** https://docs.google.com/document/d/192lJUc0-2Nr8tJUIrtHJeu0Oue2UzhjZws91cwbkOks/edit (16 images, captioned, SHA-256 per original).
