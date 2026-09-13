@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA02 entry routes evidenced; Space on hovered plane at 6ac3250 (2026-09-13 12:15 EDT)
+## Current — QA45 mixed-selection exact values at d790646 (2026-09-13 13:10 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -41,10 +41,15 @@ the simulator app (Peekaboo move, Send Pointer to Device). Face → Sketch paire
 natively. Open: orientation-cube taps bypass applyStandardView; hover-dependent
 routes need a physical device. Publication: four evidence folders (53 assets)
 local; the prior browser-driven Google Docs pipeline is not reproduced here.
-Next: remaining partial cores (QA19 snap categories, QA20 snap zoom, QA21 snap
-feedback are hover-bound → device; QA29 badge layout, QA33 invalid input, QA40
-keypad, QA45 move/rotate/copy, QA53 layout are simulator-feasible), or set up
-publication with Jason.
+HEAD d790646: Move/Rotate pill for any sketch selection (mixed selections had
+no exact-value route); 84/84 one clean serial run; live typed X on line+circle
+with Undo/Redo over the bridge. Native mixed selection input-blocked (click
+replaces, shift-drag clears). Compact (iPhone 17 Pro): extrude bar covers Delete
+— confirmed bug under QA53, not fixed; sketch-transform compact check open (line
+not selectable by tap at compact width in XCUITest, three runs — diagnose).
+Evidence planes/qa45-mixed-transform-live-2026-09-13 (11 assets, local); five
+folders / 64 assets unpublished. Next: fix the compact extrude bar (QA53) or
+QA33/QA40 keypad lanes; publication set-up with Jason (proposal sent).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

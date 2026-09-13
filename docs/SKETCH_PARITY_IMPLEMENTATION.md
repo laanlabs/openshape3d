@@ -2595,3 +2595,13 @@ SelectionUXTests Space test; CommandDispatch/Registry tests updated; bridge
 advertises 38 commands). Live Space blocked: no pointer hover reaches the
 simulator app. Menu/face/item routes cited from QA01/QA24/41 evidence. Partial,
 no promotion. 32/0/1/23; iPad unchanged.
+
+## September 13 — QA45 mixed selection exact values
+
+d790646: the Move/Rotate pill shows for any non-empty sketch selection; a mixed
+selection previously had only the drag gizmo (typed path was already
+selection-generic). 84/84 one clean serial run (new SketchTransformUITests
+mixed test). Live: Items-row mixed selection, X=2 via the app keypad moved line
+and circle together, Undo/Redo verified. Native mixed selection input-blocked.
+Compact: extrude bar covers Delete (confirmed, QA53); sketch-transform compact
+check open. Partial, no promotion. 32/0/1/23.
