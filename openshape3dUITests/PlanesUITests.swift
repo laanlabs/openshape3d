@@ -116,6 +116,36 @@ final class PlanesUITests: XCTestCase {
         attach(app, "named-continuation-keeps-two-items")
     }
 
+    /// A curved wall is not a sketch plane: with the picker up, tapping the
+    /// cylinder's side keeps "Choose a sketch plane"; its flat cap starts
+    /// the sketch (QA-01, Shapr3D sketches on planar faces only).
+    func testPlanePickerRefusesCurvedWallAndAcceptsCap() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchEnvironment["OS3D_DEBUG_SEED_CYLINDER"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        sleep(1) // camera fit settles
+        let window = app.windows.firstMatch
+
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+
+        // The front-right wall, nearer the camera than the origin tiles.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.70, dy: 0.60)).tap()
+        sleep(1)
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].exists,
+                      "A curved wall should be refused and leave the picker up")
+        XCTAssertFalse(app.staticTexts["Sketching on plane"].exists)
+
+        // The flat top cap is a sketch plane.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.34)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on plane"].waitForExistence(timeout: 3),
+                      "The planar cap should start the sketch")
+        app.buttons["Exit Sketching"].tap()
+    }
+
     func testSketchOnFaceThenExtrudeNewBody() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

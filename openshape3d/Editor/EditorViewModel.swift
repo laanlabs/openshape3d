@@ -10652,8 +10652,13 @@ final class EditorViewModel {
             beginSketch(on: tileHit.tile.plane, tool: tool)
             return
         }
-        if let bodyHit, let plane = worldFacePlane(bodyID: bodyHit.bodyID, triangleIndex: bodyHit.triangleIndex) {
-            beginSketch(on: plane, tool: tool)
+        if let bodyHit {
+            if let plane = worldFacePlane(bodyID: bodyHit.bodyID, triangleIndex: bodyHit.triangleIndex) {
+                beginSketch(on: plane, tool: tool)
+            }
+            // A body was tapped, not the grid: a refused face (curved) keeps
+            // the picker armed rather than sketching on the ground behind it
+            // — the same rule as the Section View picker.
             return
         }
         // Ground fallback: tapping the bare grid sketches on the ground plane.
@@ -10664,11 +10669,19 @@ final class EditorViewModel {
         mode = .idle
     }
 
-    /// A body's tapped planar face as a world-space sketch plane.
+    /// A body's tapped planar face as a world-space sketch plane. A CURVED
+    /// face (a cylinder wall, a blend) is not a sketch plane — `planarFace`
+    /// would hand back the single facet under the finger, and a sketch on
+    /// that sliver is never what was meant (Shapr3D refuses it) — so the
+    /// pick is declined and the caller decides what a refused tap does.
     private func worldFacePlane(bodyID: BodyID, triangleIndex: Int) -> SketchPlane? {
         guard let body = session.document.body(with: bodyID),
               let face = FaceTopology.planarFace(in: body.render, seedTriangle: triangleIndex)
         else { return nil }
+        if let smooth = FaceTopology.smoothRegion(in: body.render, seedTriangle: triangleIndex),
+           smooth.isCurved, face.triangles.count < smooth.triangles.count {
+            return nil
+        }
         let transform = body.transform
         return SketchPlane(
             origin: transform.applying(to: face.origin),

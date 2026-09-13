@@ -325,4 +325,49 @@ final class SelectionUXTests: XCTestCase {
         XCTAssertTrue(vm.session.document.planes.isEmpty)
         XCTAssertNil(vm.selectedPlaneID)
     }
+
+    // MARK: - Sketch plane picker: face / curved face / miss (QA-01)
+
+    /// With a sketch tool armed and no plane chosen: a planar cap is the
+    /// sketch plane, a curved wall is refused and keeps the picker up
+    /// (Shapr3D sketches on planar faces only), and a bare-grid miss falls
+    /// back to the ground plane.
+    func testPlanePickerAcceptsCapRefusesCurvedWallAndFallsBackToGround() throws {
+        let vm = try makeViewModel()
+        var document = vm.session.document
+        let spec = PrimitiveSpec.cylinder(radius: 3, height: 5)
+        let cylinder = Body(
+            name: "Cylinder", transform: .identity, primitive: spec,
+            euclidMesh: .primitive(spec), revision: document.nextRevision()
+        )
+        vm.session.perform(AddBodyCommand(body: cylinder))
+        let box = try XCTUnwrap(MeasureKit.boundingBox(bodies: [cylinder]))
+        let midY = Float((box.min.y + box.max.y) / 2)
+
+        // Curved wall: refused, picker stays armed, nothing created.
+        vm.startSketch(tool: .line)
+        XCTAssertEqual(vm.mode, .pickingSketchPlane(tool: .line))
+        vm.handle(.tap(ray: Ray(origin: SIMD3(10, midY, 0.5), direction: SIMD3(-1, 0, 0))))
+        XCTAssertEqual(vm.mode, .pickingSketchPlane(tool: .line),
+                       "A curved wall is not a sketch plane; the picker should stay up")
+        XCTAssertTrue(vm.session.document.sketches.isEmpty)
+
+        // Planar top cap: sketch on it.
+        vm.handle(.tap(ray: Ray(origin: SIMD3(0.5, Float(box.max.y) + 10, 0.5), direction: SIMD3(0, -1, 0))))
+        guard case .sketching = vm.mode else {
+            return XCTFail("Tapping the planar cap should start a sketch, got \(vm.mode)")
+        }
+        let cap = try XCTUnwrap(vm.activeSketch?.plane)
+        XCTAssertEqual(cap.origin.y, Double(box.max.y), accuracy: 1e-3)
+        XCTAssertEqual(abs(cap.normal.y), 1, accuracy: 1e-4)
+        vm.finishSketch()
+
+        // Bare-grid miss: ground fallback.
+        vm.startSketch(tool: .line)
+        vm.handle(.tap(ray: Ray(origin: SIMD3(50, 10, 50), direction: SIMD3(0, -1, 0))))
+        guard case .sketching = vm.mode else {
+            return XCTFail("A bare-grid tap should sketch on the ground, got \(vm.mode)")
+        }
+        XCTAssertEqual(vm.activeSketch?.plane, .ground)
+    }
 }
