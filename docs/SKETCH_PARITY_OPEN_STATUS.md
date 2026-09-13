@@ -9,9 +9,9 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 
 ## Current work — not yet complete
 
-- **QA-24 Items selection:** source 0cc5d6c is pushed; final 52/52 (43 model + 9 UI) passed. Changed-build named-sketch all-entity selection, untouched Exit retention, Rename Undo/Redo deselection, gallery reopening and publication are verified. Native model-mode gizmo/transform dispatch remains the next paired comparison. Do not count this as a completed QA-24 case.
+- **QA-24 Items selection:** source 0cc5d6c is pushed; final 52/52 (43 model + 9 UI) passed. Changed-build named-sketch all-entity selection, untouched Exit retention, Rename Undo/Redo deselection, gallery reopening and publication are verified. Fresh native model-mode summary/gizmo comparison confirms both missing in clone. Selection count/length before test failed; corrected focused17/17 passed after a retained compile error. Real UI summary/blank-deselection check is running exclusively. Full 3D transform dispatch remains open. Do not count this as a completed QA-24 case.
 - **QA-24 broader selection:** curved-face/edge overlap and remaining multi-selection coverage remain open even when the Items fix passes.
-- Latest checkpoint verified no test runner; next is the model-mode gizmo comparison; this is a snapshot, not a claim about current process activity.
+- Latest checkpoint: model-summary UI test is the exclusive simulator owner; this is a snapshot, not a claim about current process activity.
 - Latest verified report baseline: illustrated 1,292 unique images / 1,295 placements; master 38 media. Eight Items assets verified exactly once with no predecessor loss; master note verified.
 
 ## Every unfinished original acceptance case
@@ -199,7 +199,7 @@ These are not additional acceptance-count rows. They must not disappear because 
 - **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
 - **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
 - **QA-33 polygon bound:** native 10,001-side processing did not establish a safe native upper limit. Clone 10,000 ceiling is defensive, not parity evidence.
-- **Publication:** current Items batch awaits final live/export evidence. Older queue entries include recovered material and require reconciliation, not blind duplication.
+- **Publication:** Items selection batch is published and verified; new model-mode summary correction awaits changed live/export evidence. Older queue entries include recovered material and require reconciliation, not blind duplication.
 
 ## Update contract
 

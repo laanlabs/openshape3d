@@ -64,6 +64,20 @@ final class SelectionUITests: XCTestCase {
                        "Sketch name entry must not begin Rename")
         XCTAssertTrue(app.buttons["Exit Sketching"].waitForExistence(timeout: 3),
                       "The named sketch must be opened for editing")
+        // SwiftUI forwards this container identifier to its static-text leaves.
+        let lengthValue = app.staticTexts.matching(identifier: "SelectionInfoBar")
+            .matching(NSPredicate(format: "label != 'Length'")).firstMatch
+        XCTAssertTrue(lengthValue.waitForExistence(timeout: 3))
+        let selectedLength = lengthValue.label
+        app.buttons["Exit Sketching"].tap()
+        XCTAssertTrue(app.staticTexts["Edges"].waitForExistence(timeout: 3),
+                      "Model-mode Items selection retains its edge-count feedback")
+        XCTAssertTrue(app.staticTexts[selectedLength].exists,
+                      "Exit preserves the selected geometry's measured length")
+        app.buttons["ItemsButton"].tap()
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.75)).tap()
+        XCTAssertFalse(app.staticTexts["Edges"].waitForExistence(timeout: 2),
+                       "Blank deselection clears the retained summary")
     }
 
     func testMarqueeSelectsPatternBodiesAndDeleteRemovesAll() throws {

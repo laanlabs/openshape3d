@@ -14159,6 +14159,25 @@ final class EditorViewModel {
     var selectionMeasurements: [MeasurementRow] {
         _ = session.changeCount
         switch mode {
+        case .idle where selection.isEmpty && selectedImage == nil:
+            // Items selection survives Exit. Resolve its IDs against their
+            // owners rather than activeSketch (which is nil in model mode).
+            let entities = session.document.sketches.flatMap(\.entities).filter {
+                selectedSketchEntityIDs.contains($0.id)
+            }
+            guard !entities.isEmpty else { return [] }
+            let edges = entities.reduce(0) { count, entity in
+                switch entity {
+                case .rect: return count + 4
+                case .polygon(_, _, _, let sides, _): return count + sides
+                default: return count + 1
+                }
+            }
+            return [
+                MeasurementRow(label: "Edges", value: "\(edges)"),
+                MeasurementRow(label: entities.count == 1 ? "Length" : "Total Length",
+                    value: Self.formattedLength(entities.reduce(0.0) { $0 + MeasureKit.length(of: $1) })),
+            ]
         case .faceSelected(let id):
             guard let body = session.document.body(with: id),
                   let context = toolContext

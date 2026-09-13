@@ -1,5 +1,27 @@
 # Parity continuation checkpoint
 
+## Current — QA24 summary source checkpoint, final gate next
+
+Focused17/17 and corrected UI1/1 passed separately; initial compile failure
+and initial UI leaf-query error retained. Added primitive nine-edge guard and
+removed mm-only UI query assumption. No runner. Source is being committed before
+final measurement/selection/identity +SelectionUI gate. Changed live/publication
+pending. Full 3D sketch transform still open; reports1292unique1295placements/
+master38,32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 model-mode selection summary focused gate
+
+36920fb paired Items checkpoint pushed; illustrated1292unique1295placements/master38.
+Fresh native named entry/Exit shows six-edge count/length and 3D MoveRotate;
+clone two-lines Exit has neither summary nor gizmo. Before summary0/1 reproduces
+missing rows. Scoped idle-only count/length resolves owned IDs, ignores stale IDs.
+Focused SketchIdentity+SelectionUX running exclusively exec28859 at
+/tmp/os3d-qa24-model-summary-focused-20260912.{log,xcresult}. Source/test dirty;
+collect before any desktop. 3D transform controls remain separate open work.
+Native parked selectedsix modelmode; clone testowned.32/0/1/23;iPadunchanged.
+
+
 ## Current — QA24 Items paired checkpoint verified
 
 Source0cc5d6c final52/52; changed live two-line owned selection, untouched Exit,

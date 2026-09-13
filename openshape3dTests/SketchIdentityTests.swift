@@ -121,6 +121,40 @@ final class SketchIdentityTests: XCTestCase {
         XCTAssertEqual(vm.session.document.sketches.first { $0.id == named.id }?.name, "Renamed")
     }
 
+    func testItemsExitRetainsSelectionMeasurementsWithoutUnrelatedGeometry() throws {
+        let vm = try makeViewModel()
+        let first = SketchEntity.line(id: UUID(), a: .zero, b: SIMD2(3, 0))
+        let second = SketchEntity.line(id: UUID(), a: SIMD2(0, 2), b: SIMD2(4, 2))
+        let named = Sketch(name: "Named", plane: .ground, entities: [first, second])
+        let other = Sketch(name: "Other", plane: .ground,
+            entities: [.circle(id: UUID(), center: .zero, radius: 100)])
+        vm.session.perform(AddSketchCommand(sketch: named))
+        vm.session.perform(AddSketchCommand(sketch: other))
+        vm.selectItemSketch(named.id)
+        let activeLength = vm.selectionMeasurements.first { $0.label == "Total Length" }?.value
+        XCTAssertEqual(activeLength, EditorViewModel.formattedLength(7))
+        vm.finishSketch()
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Total Length" }?.value, activeLength)
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Edges" }?.value, "2")
+        vm.selectedSketchEntityIDs = [first.id, UUID()]
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Length" }?.value,
+                       EditorViewModel.formattedLength(3))
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Edges" }?.value, "1")
+        vm.selectedSketchEntityIDs.removeAll()
+        XCTAssertTrue(vm.selectionMeasurements.isEmpty)
+        XCTAssertEqual(vm.session.document.sketches, [named, other])
+        let rectangle = SketchEntity.rect(id: UUID(), lo: .zero, hi: SIMD2(3, 4))
+        let polygon = SketchEntity.polygon(id: UUID(), center: SIMD2(8, 0), radius: 2, sides: 5, rotation: 0)
+        let loops = Sketch(name: "Loops", plane: .ground, entities: [rectangle, polygon])
+        vm.session.perform(AddSketchCommand(sketch: loops))
+        vm.selectItemSketch(loops.id)
+        vm.finishSketch()
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Edges" }?.value, "9",
+                       "Primitive loops count their actual edges, not storage records")
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Total Length" }?.value,
+                       EditorViewModel.formattedLength(14 + 20 * sin(.pi / 5)))
+    }
+
     func testExplicitNamedContinuationKeepsIdentityAcrossToolSwitches() throws {
         let vm = try makeViewModel()
         let first = Sketch(name: "First", plane: .ground)
