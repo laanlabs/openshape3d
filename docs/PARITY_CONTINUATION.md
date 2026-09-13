@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA29 badge/keypad layout fixed; three pre-existing Dimension failures logged (2026-09-13 16:30 EDT)
+## Current — QA29 badge/keypad fixed; the three Dimension failures were grid snapping, tests green (2026-09-13 17:05 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -64,11 +64,17 @@ QA33 promoted to passed (ceiling exception accepted; published). Totals 33/0/1/2
 QA29 at 273f0c4: linear badges clamp between rail and palette (right-palette
 badge was under the palette); size-class rail inset fixes the compact keypad
 overlap; forced-right iPad test + compact suite 4/4. Simulator plist had
-paletteOnRight=true persisted (cleared; backup in scratchpad). Three
-DimensionUITests fail on the branch independent of today's changes (also at
-0e86c6b): tap-to-reselect after a type switch / after a commit, and a short
-connected-circle centre drag — logged, not fixed. QA53 compact sketch-transform check closed (compact suite 5/5). Next:
-reproduce the tap-to-reselect failures live, then QA24 remaining classes.
+paletteOnRight=true persisted (cleared; backup in scratchpad). The three
+DimensionUITests that failed independent of today's changes (also at 0e86c6b)
+were root-caused from the result bundle's recordings: grid snapping (on by
+default) moved the touch-drawn line, circle centre and centre drag by up to
+~35 pt, so the tests' coordinate-derived re-taps missed the 16 pt pick
+tolerance and the 30 pt drag snapped back to its row. A paced real tap on the
+clone reselects after a type switch. Tests launch with grid snap off (9e4b2cc),
+AppSettings honours launch-argument strings for the snap booleans (unit test);
+3/3 green, /tmp/os3d-qa23-gridsnap-20260913.xcresult. QA53 compact
+sketch-transform check closed (compact suite 5/5). Next: QA24 remaining
+classes (model-mode 3D transform of a sketch; curved-face/edge selection).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

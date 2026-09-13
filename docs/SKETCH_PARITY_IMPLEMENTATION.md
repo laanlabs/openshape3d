@@ -2642,3 +2642,18 @@ clip edge. ToolPaletteView tries a tighter column before scrolling and carries
 the ToolPalette identifier; the compact test asserts Delete is reachable
 directly or after one palette scroll. CompactWidthBarUITests 3/3; iPad smoke
 clean. Clone-only lane (native has no phone layout). Partial, no promotion.
+
+## September 13 — the three "tap-to-reselect" failures were grid snapping
+
+No parity change. The DimensionUITests failures logged under QA29 (line badge
+type switch, near-rail rim after a Ø1 commit, connected-circle centre drag)
+were measured from the result bundle's screen recordings and touch events:
+grid snapping quantised the drawn endpoints/centre to the 0.5 mm grid (~69 pt
+at Look-at-Sketch zoom), so the tests' re-taps computed from the drag inputs
+landed 18–19 pt off the geometry (16 pt pick tolerance) and the 30 pt centre
+drag rounded back to its row. Live paced re-tap on the clone works. The three
+tests launch with grid snap off; AppSettings reads the snap/hint booleans
+through `storedBool` so launch-argument strings take effect (previously
+`object(forKey:) as? Bool` dropped them). 3/3 green plus AppSettingsTests. See
+testing/sketch-parity-reselect-gridsnap-2026-09-13.md. Closed, no defect.
+

@@ -51,6 +51,10 @@ the handoff commit 0e86c6b), three DimensionUITests fail on the branch:
 Two share a pattern — tap-to-reselect sketch geometry after an edit — worth
 one investigation. Logged under QA-23/QA-29 with owner and next action.
 
+Resolved later the same day: all three were grid snapping quantising the
+drawn geometry away from the tests' hard-coded coordinates, not a reselect
+defect — see sketch-parity-reselect-gridsnap-2026-09-13.md (3/3 green).
+
 ## Result
 
 Right-palette and compact badge/keypad layout are fixed and covered by
