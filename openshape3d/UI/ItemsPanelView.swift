@@ -278,7 +278,7 @@ struct ItemsPanelView: View {
                 renameable: false,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
-                onSelect: {},
+                onSelect: { viewModel.selectItemPlane(id) },
                 onToggleVisibility: { viewModel.setItemHidden(.plane(id), hidden: !plane.isHidden) },
                 onRename: { _ in },
                 onZoom: { viewModel.zoomToItem(.plane(id)) },

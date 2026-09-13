@@ -58,6 +58,8 @@ final class EditorViewModel {
     var mode: EditorMode = .idle {
         didSet {
             if !mode.isSketching || mode.sketchTool != nil { sketchTransformActive = false }
+            // An Items plane selection lives only while idle.
+            if mode != .idle { selectedPlaneID = nil }
         }
     }
     var selection: Set<BodyID> = []
@@ -1087,11 +1089,14 @@ final class EditorViewModel {
         }
 
         // Construction planes: translucent bordered quads (spec §6.1).
+        // An Items-selected plane takes the accent colour.
+        let selectedPlaneID = selectedPlane?.id
         for plane in session.document.planes where !plane.isHidden {
+            let selected = plane.id == selectedPlaneID
             appendPlaneQuad(
                 plane.plane, size: plane.size,
-                fill: SIMD4(0.45, 0.58, 0.80, 0.16),
-                border: SIMD4(0.45, 0.58, 0.80, 0.85),
+                fill: selected ? SIMD4(0.0, 0.52, 1.0, 0.22) : SIMD4(0.45, 0.58, 0.80, 0.16),
+                border: selected ? SIMD4(0.0, 0.52, 1.0, 1) : SIMD4(0.45, 0.58, 0.80, 0.85),
                 into: &scene
             )
         }
@@ -4954,6 +4959,11 @@ final class EditorViewModel {
             deleteImage(image.id)
             return
         }
+        if let plane = selectedPlane {
+            selectedPlaneID = nil
+            deleteItem(.plane(plane.id))
+            return
+        }
         // Sketch entities picked with the Select tool (tap or marquee) delete
         // OUTSIDE sketch mode too — one undo step across their owning sketches.
         if !selectedSketchEntityIDs.isEmpty {
@@ -5251,6 +5261,9 @@ final class EditorViewModel {
         if let imageID = selectedImageID, session.document.imageIndex(of: imageID) == nil {
             selectedImageID = nil
         }
+        if let planeID = selectedPlaneID, !session.document.planes.contains(where: { $0.id == planeID }) {
+            selectedPlaneID = nil
+        }
         // Isolation over undone-away bodies would blank the scene — drop the
         // dead ids, and the whole override once nothing is left isolated.
         if let isolated = isolatedBodyIDs {
@@ -5532,8 +5545,10 @@ final class EditorViewModel {
     }
 
     private func handleTap(ray: Ray) {
-        // Any viewport tap dismisses pending gizmo numeric entry.
+        // Any viewport tap dismisses pending gizmo numeric entry and an
+        // Items plane selection.
         axisEntryPart = nil
+        selectedPlaneID = nil
         // A Modify-group operation armed from the palette consumes the next tap.
         if let tool = pendingCreateTool {
             applyPendingCreate(tool, ray: ray)
@@ -10579,6 +10594,15 @@ final class EditorViewModel {
         }
         cancelTransientPicks()
         selectedImageID = nil
+        // Sketch-on-plane: a construction plane selected in Items IS the
+        // sketch plane (Shapr3D: select the plane, then Sketch).
+        if let plane = selectedPlane {
+            selectedPlaneID = nil
+            cancelTool()
+            selection.removeAll()
+            beginSketch(on: plane.plane, tool: tool)
+            return
+        }
         // Sketch-on-face: a selected planar face IS the sketch plane
         // (spec §2.3); read it before cancelTool clears the context.
         if case .faceSelected = mode, let plane = toolContext?.plane {
@@ -14535,6 +14559,7 @@ final class EditorViewModel {
         cancelTransientPicks()
         cancelTool()
         selection.removeAll()
+        selectedPlaneID = nil
         selectedImageID = id
         mode = .idle
     }
@@ -14754,6 +14779,31 @@ final class EditorViewModel {
         selectedSketchPoints.removeAll()
         selectedSketchEntityIDs = Set(sketch.entities.map(\.id))
         itemSelectedSketchID = id
+    }
+
+    /// Construction plane selected from its Items row. Highlighted while
+    /// idle; the next sketch tool starts on it (see `startSketch`).
+    var selectedPlaneID: ConstructionPlaneID?
+
+    /// The selected construction plane, while the editor is idle.
+    var selectedPlane: ConstructionPlane? {
+        guard mode == .idle, let id = selectedPlaneID else { return nil }
+        _ = session.changeCount
+        return session.document.planes.first { $0.id == id }
+    }
+
+    /// Plane row tap: select the plane (Shapr3D) rather than doing nothing;
+    /// Sketch then enters a new sketch on it.
+    func selectItemPlane(_ id: ConstructionPlaneID) {
+        guard session.document.planes.contains(where: { $0.id == id }) else { return }
+        if case .sketching = mode { finishSketch() }
+        cancelTransientPicks()
+        cancelTool()
+        selection.removeAll()
+        selectedImageID = nil
+        selectedSketchEntityIDs.removeAll()
+        mode = .idle
+        selectedPlaneID = id
     }
 
     /// Sketch row tap: enter sketch mode on it (hidden sketches render while

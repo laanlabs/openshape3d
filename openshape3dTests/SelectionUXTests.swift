@@ -264,4 +264,61 @@ final class SelectionUXTests: XCTestCase {
         )
         XCTAssertNil(viewModel.selectThroughCandidates)
     }
+
+    // MARK: - Items plane selection
+
+    /// Shapr3D: a plane's Items row selects the plane and Sketch then starts
+    /// on it directly (QA-01; the row used to be a no-op).
+    func testItemsPlaneRowSelectsPlaneAndSketchStartsOnIt() throws {
+        let vm = try makeViewModel()
+        let plane = ConstructionPlane(plane: .offsetGround(y: 5), size: 20)
+        vm.session.perform(AddConstructionPlaneCommand(plane: plane))
+
+        vm.selectItemPlane(plane.id)
+        XCTAssertEqual(vm.selectedPlane?.id, plane.id)
+        XCTAssertEqual(vm.mode, .idle)
+
+        vm.startSketch(tool: .line)
+        guard case .sketching(_, let tool) = vm.mode else {
+            return XCTFail("Sketch with a selected plane should enter a sketch, got \(vm.mode)")
+        }
+        XCTAssertEqual(tool, .line)
+        XCTAssertEqual(vm.activeSketch?.plane, plane.plane)
+        XCTAssertNil(vm.selectedPlaneID)
+    }
+
+    func testItemsPlaneSelectionYieldsToBodiesDeleteAndUndo() throws {
+        let vm = try makeViewModel()
+        let body = addBox(to: vm, name: "Box", at: .zero)
+        let plane = ConstructionPlane(plane: .offsetGround(y: 5), size: 20)
+        vm.session.perform(AddConstructionPlaneCommand(plane: plane))
+
+        // Selecting a body replaces the plane selection, and a later Sketch
+        // falls back to the plane picker.
+        vm.selectItemPlane(plane.id)
+        vm.selectItemBody(body.id)
+        XCTAssertNil(vm.selectedPlaneID)
+        vm.cancelTool()
+        vm.selection.removeAll()
+        vm.mode = .idle
+        vm.startSketch(tool: .line)
+        XCTAssertEqual(vm.mode, .pickingSketchPlane(tool: .line))
+        vm.cancelPlanePicking()
+
+        // Delete removes only the selected plane; undo restores it unselected.
+        vm.selectItemPlane(plane.id)
+        vm.deleteSelection()
+        XCTAssertTrue(vm.session.document.planes.isEmpty)
+        XCTAssertEqual(vm.session.document.bodies.map(\.id), [body.id])
+        XCTAssertNil(vm.selectedPlaneID)
+        vm.undo()
+        XCTAssertEqual(vm.session.document.planes.map(\.id), [plane.id])
+        XCTAssertNil(vm.selectedPlane)
+
+        // Undoing the plane away drops a stale selection.
+        vm.selectItemPlane(plane.id)
+        vm.undo()
+        XCTAssertTrue(vm.session.document.planes.isEmpty)
+        XCTAssertNil(vm.selectedPlaneID)
+    }
 }
