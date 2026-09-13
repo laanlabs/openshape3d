@@ -1,5 +1,36 @@
 # Parity continuation checkpoint
 
+## Active — QA40 cube checkpoint publication verified
+
+5f1bf94 source pushed; final57/57 and changed live cube block/restored orbit/
+history/reopen verified. Illustrated1237/master38, ten hashes once/no1227 loss.
+Only five task docs dirty, checkpoint next; no runner. QA40partial32/0/1/23.
+Next native pan input with keypad open; Peekaboo drag has no mouse-button
+option, so verify any scroll/trackpad route before counting camera motion.
+Native parked tilted Sketch12, selected70912.4119mmline, no keypad. Simulator
+parked reopened line+rectangle in modeling, selectedline, no keypad.
+Immutable IPA/iPad unchanged; no restart/security changes.
+
+## Active — QA40 cube final57/57 and changed live verified
+
+Source5f1bf94 pushed, final57/57 zero failures/skips; no runner. Changedclone
+open1.4932mm line editor blocks cube drag, unchanged field/camera. Dismiss then
+settled repeat restores cube orbit. Undo removes only line; Redo restores;
+gallery reopen retains1.4932mm. Immediate post-dismiss orbit attempt preceded
+settling and did not move; excluded, settled repeat verifies. Native blocked/
+unblocked cube drag comparison retained. Publication next against1227/master38;
+QA40partial32/0/1/23, pan untested. Evidence keyboard/qa40-camera-live-2026-09-12.
+Only docs dirty, simulator parked reopened selected line; iPad unchanged.
+
+## Active — QA40 final combined runner36549 on5f1bf94
+
+5f1bf94 pushed, cube-only numeric input fix. Focused1/1 afterbefore0/1.
+Combined five model classes/five UI workflow gate running exclusively at
+/tmp/os3d-qa40-camera-final-20260912 log/xcresult. Exact selectors in log.
+No desktop untilterminal; collect count then changed live cube block/recovery/
+history/reopen and publication. Pan stilluntested; QA40partial32/0/1/23.
+QA54ed46642 closed; reports1227/master38; iPad unchanged.
+
 ## Active — QA40 cube focused1/1 passed, checkpoint ready
 
 Source cube-only block and UI guard verified1/1 after before0/1. No runner.

@@ -357,20 +357,12 @@ QA-52. See [conflict and point states closure](testing/sketch-parity-conflict-po
 ### QA-40 — Keypad transitions
 
 Another/same tool, off, blank tap, Escape, undo, exit, rotate, pan. Issues: SK-12;
-DM-12. Result: **PARTIAL**. Retained paired tool/blank/Escape/history and
-keyboard/keypad-mode evidence is supplemented by a clean 56/56 current-tree gate.
-The initial 54-pass/2-fail run exposed two preference-contaminated model fixtures;
-the prerequisites were isolated and the complete set reran clean. Fresh paired
-rotation/pan, compact and physical/system-keyboard input remain open. See
-[keypad transition checkpoint](testing/sketch-parity-keypad-transitions-checkpoint-2026-09-11.md).
-
-September10 supplement: `1d28849` fixes software-keyboard occlusion with clean2/2
-UI tests asserting field/commit above actual keyboard. Live portrait invalid draft,
-landscape recovery/commit and saved-source reopen verified. Native Mac keyboard-only
-field remains visible; no native-iPad equivalence claim. `ef27d62` corrects dark-UI
-annotation contrast and pending material/font; three builds and live paired style
-checks, not new automated tests. Illustrated353/master38 verified. Pan/compact and
-physical routes remain open, so QA40 is not closed.
+DM-12. Result: **PARTIAL**. Retained paired tool/blank/Escape/history and keyboard
+mode evidence plus clean56/56 earlier. September12 cube-drag correction5f1bf94
+has final57/57 and changed paired numeric-editor input blocking, restored orbit,
+history/reopen. Illustrated1237/master38, ten hashes once/no1227 loss. Pan and
+broader camera/input permutations remain unverified. See
+[keypad camera receipt](testing/sketch-parity-keypad-camera-transitions-2026-09-12.md).
 
 ### QA-41 — Trim primitives
 

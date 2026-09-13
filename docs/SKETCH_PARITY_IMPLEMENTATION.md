@@ -2492,3 +2492,10 @@ recovery/history/reopen; illustrated1227/master38 export-verified, nineteen
 hashes once/no predecessor loss. QA54 finite desktop PASS; inventory32/0/1/23.
 See `testing/sketch-parity-command-search-escape-2026-09-12.md` for failed gates,
 input exclusions and physicalQA52 boundary. No runner; iPad unchanged.
+
+## September12 — QA40 cube/keypad partial checkpoint
+
+5f1bf94 blocks cube drag while dimension editor owns input; native/changedclone
+paired, final57/57, history/reopen. Illustrated1237/master38 verified, ten hashes
+once/no predecessor loss. Pan remains open, inventory32/0/1/23 unchanged.
+See `testing/sketch-parity-keypad-camera-transitions-2026-09-12.md`.

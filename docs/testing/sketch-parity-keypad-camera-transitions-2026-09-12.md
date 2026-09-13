@@ -32,3 +32,21 @@ Screens retained under workspace report `keyboard/qa40-camera-live-2026-09-12`.
 Focused corrected UI1/1 passed, 32.162seconds, terminalexit0. It preserves
 invalid12+ draft/field position while blocked, then accepts12 and verifies
 LookAtSketch appears after a normal cube orbit. Broader gate/live stillpending.
+
+## Final current-source and live verification
+
+Final57/57 on5f1bf94, zero failures/skips, one serial gate:
+`/tmp/os3d-qa40-camera-final-20260912.xcresult`, summary/log retained.
+Changed live editor1.4932mm and camera stay fixed during cube drag. After
+blank dismissal and settling, the same drag rotates. Immediate post-dismiss
+attempt before settling did not rotate, excluded; settled repeat suppliesproof.
+Undo removes only newly created line; Redo restores. Reopened line/rectangle
+visible, saved line length1.493231177330036mm. There is no visible dimension
+badge on the uncommitted reopened line, so value is a saved JSON readback.
+
+Ten illustrated images inserted and one master note; export verification pending
+against1227/master38. QA40 partial, inventory32/0/1/23. Pan stilluntested.
+
+Publication verified: illustrated1237 unique, ten hashes each once, no1227
+predecessor loss; master38, one heading each. Verification JSON/XML retained
+under the durable QA40 folder. No acceptance promotion; pan next.
