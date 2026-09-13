@@ -14735,6 +14735,11 @@ final class EditorViewModel {
                     label: "Radius", value: Self.formattedLength(radius)
                 ))
             }
+            // Two parallel lines: Shapr3D adds the distance between them
+            // (observed 2026-09-13: "2 edges  279,925.293 mm  22,558.0444 mm").
+            if let distance = Self.parallelLineDistance(entities) {
+                rows.append(MeasurementRow(label: "Distance", value: Self.formattedLength(distance)))
+            }
             return rows
         case .pickingBlendEdges:
             // Chamfer/Fillet pick (Phase E): edge count + total world length.
@@ -14780,6 +14785,22 @@ final class EditorViewModel {
     // Unit-aware readouts (spec §17): the document stays mm; only display
     // converts. Reading `AppSettings.shared.unit` inside a view body is
     // Observation-tracked, so switching units re-renders every readout.
+    /// The perpendicular distance between exactly two parallel (within 0.5°)
+    /// lines; nil for any other selection.
+    nonisolated static func parallelLineDistance(_ entities: [SketchEntity]) -> Double? {
+        guard entities.count == 2,
+              case let .line(_, a1, b1) = entities[0],
+              case let .line(_, a2, b2) = entities[1] else { return nil }
+        let d1 = b1 - a1, d2 = b2 - a2
+        let l1 = simd_length(d1), l2 = simd_length(d2)
+        guard l1 > 1e-9, l2 > 1e-9 else { return nil }
+        let u = d1 / l1
+        let cross = abs(u.x * d2.y - u.y * d2.x) / l2
+        guard cross < sin(0.5 * .pi / 180) else { return nil }
+        let w = a2 - a1
+        return abs(w.x * u.y - w.y * u.x)
+    }
+
     static func formattedLength(_ mm: Double) -> String {
         AppSettings.shared.unit.lengthString(fromMM: mm)
     }

@@ -326,6 +326,37 @@ final class SelectionUXTests: XCTestCase {
         XCTAssertNil(vm.selectedPlaneID)
     }
 
+    // MARK: - Two parallel lines read their distance (QA-29)
+
+    /// Shapr3D's info bar for two selected parallel lines adds the distance
+    /// between them ("2 edges  279,925.293 mm  22,558.0444 mm", 2026-09-13);
+    /// no per-entity dimension labels are drawn for a multi-selection there
+    /// or here, so crowded labels cannot occur.
+    func testTwoParallelLinesReadTheirDistance() throws {
+        let vm = try makeViewModel()
+        let a = UUID(), b = UUID(), c = UUID()
+        let sketch = Sketch(name: "Crowd", plane: .ground, entities: [
+            .line(id: a, a: SIMD2(-3, 0), b: SIMD2(3, 0)),
+            .line(id: b, a: SIMD2(-3, -0.3), b: SIMD2(3, -0.3)),
+            .line(id: c, a: SIMD2(0, 1), b: SIMD2(2, 3)),
+        ])
+        vm.session.perform(AddSketchCommand(sketch: sketch))
+        vm.mode = .sketching(sketch.id, tool: nil)
+        vm.selectedSketchEntityIDs = [a, b]
+        let rows = vm.selectionMeasurements
+        XCTAssertEqual(rows.first { $0.label == "Total Length" }?.value, "12.00 mm")
+        XCTAssertEqual(rows.first { $0.label == "Distance" }?.value, "0.30 mm")
+        let labels = vm.sketchDimensionLabels
+        XCTAssertFalse(labels.contains { $0.isStandaloneLineLength },
+                       "no per-entity length labels for a multi-selection: \(labels.map { ($0.kind, $0.text) })")
+        XCTAssertLessThanOrEqual(labels.count, 1, "at most the pair's own distance candidate")
+        vm.selectedSketchEntityIDs = [a, c]
+        XCTAssertNil(vm.selectionMeasurements.first { $0.label == "Distance" }, "not parallel")
+        vm.selectedSketchEntityIDs = [a]
+        XCTAssertEqual(vm.selectionMeasurements.first { $0.label == "Length" }?.value, "6.00 mm")
+        XCTAssertNil(vm.selectionMeasurements.first { $0.label == "Distance" })
+    }
+
     // MARK: - Named views while sketching (QA-03)
 
     /// Shapr3D: a named view that is not the sketch's head-on view (or its
