@@ -1,5 +1,64 @@
 # Parity continuation checkpoint
 
+## Active — QA24 Rename semantics scoped fix focused gate
+
+Before0/2 confirmed: initial name not selected (UI appends), bodyRenameUndo/Redo
+retains selection/mode. Scoped fixes now implemented: first untouched Rename
+focus selects all via existing UITextField notification/deferred-caret pattern;
+body RenameItemCommand history clears selected/editingPrimitive/idle selection,
+other tool/sketch history untouched. Focused3checks exec79717 owns simulator:
+/tmp/os3d-qa24-rename-semantics-focused-20260912.{log,xcresult}.
+Collectterminal before new source or desktop. Then broadgate (previous48/48
+was before these additions), changed live exactreplacement/history/reopen and
+publication. Native part24 deselected afterRedo; nativeRename auto-selectedseed
+and Undo/Redo deselection verified. Clone testowned. CurrentHEAD8fbcac5 pushed;
+new source ItemsPanelView+EditorViewModel, SelectionUXTests/ItemsUITests anddocs
+dirty. QA24partial32/0/1/23;1259unique1262placements/master38;iPadunchanged.
+
+
+## Active — QA24 Rename selection/history additional gaps
+
+8fbcac5 source final48/48 passes; changed live name tap selects no keyboard,
+explicitRename/commit/history/reopen preserves single4mmBox. First bridge clear
+miss retained; explicit20Delete thenpart24 gives exactname. TwoUndo restoreBox,
+twoRedo restorepart24; galleryreopen preservespart24. No geometry change.
+Native explicitRename selects entire oldname; typingpart24 replacesBody05 exactly.
+Native Undo→Body05 clearsselection, Redo→part24 staysdeselected. Clone keeps
+selection and initializescaret at end: confirmed additional gaps. New before
+model+UI run exec32396 owns simulator exclusively:
+/tmp/os3d-qa24-rename-semantics-before-20260912.{log,xcresult}.
+Model asserts scoped bodyRenameUndo/Redo selectioncleanup; existingItemsUI now
+uses directtype without helperclear to assert initial all-selected name.
+No source correction yet. Next collectbefore, scopedUITextFieldseedselection
+(pattern inSketchDimensionOverlay704) and RenameItemCommand body historycleanup;
+focused/broad/changedlive/publication. Native parkedpart24 deselected, no runner
+exceptabove. Dirtytests/continuation/receipt/implementation/matrix documentation.
+QA24partial32/0/1/23;1259unique1262placements/master38;iPadunchanged.
+
+
+## Current — QA24 body-name final48/48, changed live next
+
+Final48/48 (41model+7UI),zero failure/skip,terminal0 on8fbcac5; no runner.
+/tmp/os3d-qa24-itemname-final-20260912.{log,xcresult}, summaryJSON retained.
+Changed app launched, capture /tmp/os3d-qa24-itemname-fixed-launch.png pending
+inspection. Next live bodyname select/Rename/Undo/Redo/galleryreopen, native
+same rename/history. Native parkedBody05 contextRename menu. No geometry edits
+for name workflow. QA24partial32/0/1/23; reports1259unique1262placements/master38.
+Dirtydocumentation only; source8fbcac5 pushed. Disklimited, preserveevidence/IPA.
+
+
+## Active — QA24 item-name final combined gate
+
+8fbcac5 pushed. Focused2/2 clean, terminal0: no-keyboard bodyname selection and
+explicitRename/Delete/Undo pass. Contextmenu animation notifications time out60s
+but workflow continues; no assertion failure. Final combined selection/identity/
+Items/folder/pattern model+UI run owns simulator exclusively:
+/tmp/os3d-qa24-itemname-final-20260912.{log,xcresult}. Collectterminal/exactcount.
+Next changed-build paired bodyname selection/Rename/history/reopen, publication.
+No additional product changes after focusedpass. QA24partial32/0/1/23;
+reports1259unique1262placements/master38. iPad/immutable05be744 unchanged.
+
+
 ## Active — QA24 body-name selection fix under focused test
 
 HEADf1e6ebb pushed,1259 unique/1262placements/master38 identitypublication verified.

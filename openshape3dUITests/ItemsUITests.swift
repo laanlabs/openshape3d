@@ -74,7 +74,7 @@ final class ItemsUITests: XCTestCase {
         rename.tap()
         let renameField = app.textFields["ItemName-Extrude"]
         XCTAssertTrue(renameField.waitForExistence(timeout: 3))
-        replaceText(renameField, with: "MyPart")
+        renameField.typeText("MyPart\n") // native Rename selects the original name
         let renamedField = app.descendants(matching: .any)["ItemName-MyPart"].firstMatch
         XCTAssertTrue(renamedField.waitForExistence(timeout: 3),
                       "Submitting the field should rename the body")

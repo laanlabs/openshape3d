@@ -5029,6 +5029,7 @@ final class EditorViewModel {
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
         clearAppliedRelationSelection(for: session.undoStack.undoCommands.last)
+        clearBodyRenameSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
@@ -5038,9 +5039,23 @@ final class EditorViewModel {
         clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
         clearAppliedRelationSelection(for: session.undoStack.redoCommands.last)
+        clearBodyRenameSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
+    }
+
+    private func clearBodyRenameSelection(for command: DocumentCommand?) {
+        guard let rename = command as? RenameItemCommand,
+              let item = rename.item, case .body = item else { return }
+        // Native body-name history deselects; do not change sketch/tool history.
+        switch mode {
+        case .selected, .editingPrimitive, .idle:
+            selection.removeAll()
+            mode = .idle
+        default:
+            break
+        }
     }
 
     private func clearLineDimensionSelection(for command: DocumentCommand?) {

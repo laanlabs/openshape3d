@@ -164,6 +164,25 @@ final class SelectionUXTests: XCTestCase {
 
     // MARK: - Select Through
 
+    func testBodyRenameHistoryClearsSelectionWithoutChangingGeometry() throws {
+        let vm = try makeViewModel()
+        let body = addBox(to: vm, name: "Original", at: .zero)
+        vm.selectItemBody(body.id)
+        vm.renameItem(.body(body.id), to: "part24")
+        XCTAssertEqual(vm.selection, [body.id])
+        vm.undo()
+        XCTAssertEqual(vm.session.document.body(with: body.id)?.name, "Original")
+        XCTAssertTrue(vm.selection.isEmpty)
+        XCTAssertEqual(vm.mode, .idle)
+        vm.selectItemBody(body.id)
+        vm.redo()
+        XCTAssertEqual(vm.session.document.body(with: body.id)?.name, "part24")
+        XCTAssertTrue(vm.selection.isEmpty)
+        XCTAssertEqual(vm.mode, .idle)
+        XCTAssertEqual(vm.session.document.bodies.count, 1)
+        XCTAssertEqual(vm.session.document.body(with: body.id)?.transform, body.transform)
+    }
+
     func testSelectThroughIncludesFrontAndBackFacesAlongsideBody() throws {
         let viewModel = try makeViewModel()
         addBox(to: viewModel, name: "Layered Box", at: .zero)

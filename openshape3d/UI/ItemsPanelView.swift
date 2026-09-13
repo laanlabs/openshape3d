@@ -596,6 +596,7 @@ private struct ItemRowView: View {
 
     @State private var draft = ""
     @State private var isRenaming = false
+    @State private var initialRenameSelectionPending = false
     @FocusState private var renameFocused: Bool
 
     var body: some View {
@@ -632,6 +633,20 @@ private struct ItemRowView: View {
                         renameFocused = false
                     }
                     .onAppear { if isRenaming { renameFocused = true } }
+                    .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                        guard nameTapSelects, isRenaming, initialRenameSelectionPending,
+                              let field = notification.object as? UITextField,
+                              field.text == name, draft == name else { return }
+                        // Match native Rename: replace the untouched seed on first typing.
+                        // Defer until SwiftUI has established this field's caret.
+                        DispatchQueue.main.async {
+                            guard field.isFirstResponder, isRenaming,
+                                  initialRenameSelectionPending,
+                                  field.text == name, draft == name else { return }
+                            field.selectAll(nil)
+                            initialRenameSelectionPending = false
+                        }
+                    }
                     .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
                     .accessibilityIdentifier("ItemName-\(name)")
             } else {
@@ -658,6 +673,7 @@ private struct ItemRowView: View {
             if renameable && nameTapSelects {
                 Button {
                     draft = name
+                    initialRenameSelectionPending = true
                     isRenaming = true
                 } label: {
                     Label("Rename", systemImage: "pencil")

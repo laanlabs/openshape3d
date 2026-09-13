@@ -2499,3 +2499,22 @@ input exclusions and physicalQA52 boundary. No runner; iPad unchanged.
 paired, final57/57, history/reopen. Illustrated1237/master38 verified, ten hashes
 once/no predecessor loss. Pan remains open, inventory32/0/1/23 unchanged.
 See `testing/sketch-parity-keypad-camera-transitions-2026-09-12.md`.
+
+## September 12 — QA24 typed chooser and body-name selection
+
+Typed Select Through on ab6fb2d adds planar faces and visible sketch profiles
+alongside bodies. Final26/26 and changed live face/profile/Cancel/gallery paths
+passed; native Sketch05 Profile identity is now verified through accessibility
+selection. Earlier coordinate-only selection of Sketch12 is excluded as input
+routing. Illustrated1259 unique media/1262 placements and master38 are verified,
+with one new identity image and no predecessor loss. Curved-face/edge breadth
+remains open; this is not full QA24 closure.
+
+Next paired discrepancy: native Items body-name tap selects the body and Rename
+is explicit in its context menu; clone's inline TextField intercepted selection.
+Body-only nameTapSelects correction at8fbcac5 passed focused2/2 (selection without
+keyboard, explicit Rename/Delete/Undo), after before0/1. Combined selection,
+identity, Items/folder/pattern regression is active; changed-build live and
+publication remain pending. Other item-type rename routes are unchanged.
+See testing/sketch-parity-body-item-name-2026-09-12.md. Inventory32/0/1/23;
+iPad unchanged.
