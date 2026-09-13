@@ -71,6 +71,40 @@ final class CompactWidthBarUITests: XCTestCase {
                              file: file, line: line)
     }
 
+    /// QA-53 at compact width: the sketch Move/Rotate and Copy pills read
+    /// horizontally and the X control stays reachable. A completed line keeps
+    /// its selection; turning the tool off exposes the pills.
+    func testSketchTransformControlsAreUsableAtCompactWidth() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        try skipUnlessCompact(app)
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        p(0.30, 0.45).press(forDuration: 0.15, thenDragTo: p(0.70, 0.45))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        app.buttons["Line"].firstMatch.tap() // tool off; the selection stays
+        XCTAssertTrue(app.staticTexts["Drag to orbit — pick a tool to draw"].waitForExistence(timeout: 3))
+
+        assertReadsHorizontally(app.buttons["SketchTransformMode"], minimumWidth: 70, "Move/Rotate pill")
+        assertReadsHorizontally(app.buttons["SketchCopyBadge"], minimumWidth: 44, "Copy pill")
+        app.buttons["SketchTransformMode"].tap()
+        let xControl = app.descendants(matching: .any)
+            .matching(identifier: "SketchTransform-x").firstMatch
+        XCTAssertTrue(xControl.waitForExistence(timeout: 3))
+        XCTAssertTrue(xControl.isHittable, "The X control must not be covered at compact width")
+        app.buttons["SketchTransformMode"].tap()
+    }
+
     /// QA-29 at compact width: a line against the (left) palette opens its
     /// keypad clear of the palette, on screen, with the commit key reachable.
     func testEdgeKeypadIsUsableAtCompactWidth() throws {

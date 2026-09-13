@@ -43,8 +43,9 @@ ItemsUITests 8/8 before the identifier, PlanesUITests + SketchTransformUITests
 
 ## Open
 
-- A compact check of the sketch Move/Rotate pills stays open: the drawn line
-  could not be selected at compact width in XCUITest (QA-45 receipt).
+- The compact check of the sketch Move/Rotate pills is now in place
+  (testSketchTransformControlsAreUsableAtCompactWidth, 5/5): the earlier
+  failures were the test's own extra tap deselecting the freshly drawn line.
 - Native has no compact (phone) layout; this lane is clone-only by nature.
 - Whether nine entries should instead reflow (two columns) on phones is a
   design choice not taken here.

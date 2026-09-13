@@ -67,8 +67,8 @@ overlap; forced-right iPad test + compact suite 4/4. Simulator plist had
 paletteOnRight=true persisted (cleared; backup in scratchpad). Three
 DimensionUITests fail on the branch independent of today's changes (also at
 0e86c6b): tap-to-reselect after a type switch / after a commit, and a short
-connected-circle centre drag — logged, not fixed. Next: QA53 compact
-sketch-transform check (choreography understood), then QA24 remaining classes.
+connected-circle centre drag — logged, not fixed. QA53 compact sketch-transform check closed (compact suite 5/5). Next:
+reproduce the tap-to-reselect failures live, then QA24 remaining classes.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
