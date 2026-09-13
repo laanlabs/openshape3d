@@ -50,6 +50,10 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
     }
 
     /// Compact length for labels/pills: trims trailing zeros ("12.7 mm").
+    /// Native canvas labels keep every decimal of a dense value and group
+    /// thousands — "123,456.7891 mm", "164,058.8074 mm", "R 50,000 mm"
+    /// (paired 2026-09-13). `%g` used to cap this at six significant digits,
+    /// so the same value read "123457 mm" here.
     func compactLengthString(fromMM value: Double) -> String {
         let v = display(fromMM: value)
         // Native on-canvas imperial dimensions use quote marks rather than
@@ -57,11 +61,29 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
         // unchanged, and retain the fourth decimal used by decimal feet.
         let imperial = self == .inches || self == .feet
         // Paired native millimetre input 0.869/2 retains 0.4345 on canvas.
-        let scale = imperial || self == .millimeters ? 10000.0 : 1000.0
-        let rounded = (v * scale).rounded() / scale
-        if self == .inches { return String(format: "%g", rounded) + "\"" }
-        if self == .feet { return String(format: "%g", rounded) + "'" }
-        return String(format: "%g %@", rounded, symbol)
+        let decimals = imperial || self == .millimeters ? 4 : 3
+        let text = Self.groupedNumber(v, maxFractionDigits: decimals)
+        if self == .inches { return text + "\"" }
+        if self == .feet { return text + "'" }
+        return "\(text) \(symbol)"
+    }
+
+    /// Schoolbook rounding to `maxFractionDigits`, trailing zeros trimmed,
+    /// thousands grouped with a comma whatever the locale (the canvas is
+    /// read against native's, which groups the same way).
+    static func groupedNumber(_ value: Double, maxFractionDigits: Int) -> String {
+        let scale = pow(10.0, Double(maxFractionDigits))
+        var rounded = (value * scale).rounded() / scale
+        if rounded == 0 { rounded = 0 } // never "-0"
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = true
+        formatter.groupingSeparator = ","
+        formatter.decimalSeparator = "."
+        formatter.maximumFractionDigits = maxFractionDigits
+        formatter.minimumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: rounded)) ?? String(rounded)
     }
 
     /// "161.29 cm²" — an area readout (factor squared).

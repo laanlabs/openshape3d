@@ -1293,6 +1293,52 @@ final class DimensionUITests: XCTestCase {
         XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
     }
 
+    /// Native (sketch24, 2026-09-13): a dense typed length reads in full on
+    /// canvas — "123,456.7891 mm". The clone's label format used to cap at
+    /// six significant digits ("123457 mm"). The badge also stays inside the
+    /// canvas and clear of the palette and rail.
+    func testDenseValueReadsInFullOnCanvas() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
+        app.launch()
+        let window = app.windows.firstMatch
+        startGroundSketch(app, window: window, tool: "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)))
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3))
+        setDimension(app, to: "123456.7891")
+        // A driven line keeps its selection after the commit; if it did not,
+        // its body still passes under this point (the start stays put and
+        // the line now runs far off screen to the right).
+        if !label.waitForExistence(timeout: 2) {
+            window.coordinate(withNormalizedOffset: CGVector(dx: 0.45, dy: 0.5)).tap()
+            XCTAssertTrue(label.waitForExistence(timeout: 3))
+        }
+        XCTAssertEqual(label.label, "123,456.7891 mm", "every decimal survives on canvas, thousands grouped")
+        XCTAssertTrue(window.frame.contains(label.frame), "the dense badge stays on the canvas")
+        let palette = app.scrollViews["ToolPalette"].firstMatch.exists
+            ? app.scrollViews["ToolPalette"].firstMatch : app.otherElements["ToolPalette"].firstMatch
+        if palette.exists {
+            XCTAssertFalse(label.frame.intersects(palette.frame), "the badge does not sit under the palette")
+        }
+        let rail = app.buttons["ConstraintRailDisconnect"]
+        if rail.exists {
+            XCTAssertLessThan(label.frame.maxX, rail.frame.minX, "the badge clears the constraint rail")
+        }
+        attach(app, "dense-value-label")
+        // Camera zoom is not exercised here: XCUITest's synthesized pinch
+        // lands as a one-finger orbit on this viewport (the recording of the
+        // 2026-09-13 attempt shows the sketch tilting), which is a harness
+        // artefact — the orbit recognizer is capped at one touch. Labels are
+        // screen-sized text by construction; the paired zoom observation is
+        // in testing/sketch-parity-dense-zoom-2026-09-13.md.
+    }
+
     // MARK: - Dimensions survive leaving the sketch
 
     /// What Shapr3D actually does, verified by driving it on 2026-09-06: with

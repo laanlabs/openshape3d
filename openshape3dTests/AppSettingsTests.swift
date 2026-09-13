@@ -71,6 +71,20 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(DisplayUnit.feet.symbol, "ft")
     }
 
+    /// Native canvas labels paired 2026-09-13: "123,456.7891 mm",
+    /// "164,058.8074 mm", "R 50,000 mm" — every decimal kept, thousands
+    /// grouped. `%g` had capped labels at six significant digits.
+    func testCompactLengthKeepsDenseValuesAndGroupsThousands() {
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 123456.7891), "123,456.7891 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 164058.8074), "164,058.8074 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 50000), "50,000 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 1234.5678), "1,234.5678 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 1234.56785), "1,234.5679 mm")
+        XCTAssertEqual(DisplayUnit.centimeters.compactLengthString(fromMM: 12345.6789), "1,234.568 cm")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 1234.56789 * 25.4), "1,234.5679\"")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: -0.00001), "0 mm")
+    }
+
     // MARK: Persistence
 
     private func freshDefaults() -> UserDefaults {
