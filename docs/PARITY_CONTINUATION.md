@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA03 named-view rule matched at dcee869 (2026-09-13 11:30 EDT)
+## Current — QA02 entry routes evidenced; Space on hovered plane at 6ac3250 (2026-09-13 12:15 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -35,11 +35,16 @@ HEAD dcee869: a named view off the sketch plane ends the sketch (seven native
 trials: Front/Right/Default View end, Top/Bottom/Rotate keep). Gate PlaneTests +
 CameraTests + SelectionUXTests + PlanesUITests 38/38, one clean serial run,
 /tmp/os3d-namedview-gate-20260913.xcresult; clone live re-check on the build.
-Open: orientation-cube taps bypass applyStandardView. Publication: browser-driven
-Google Docs pipeline of prior sessions not reproduced here — three QA01/QA03
-folders (45 assets) remain local. Next: QA02 entry routes (Sketch menu, selected
-face, existing item, keyboard hover/Space) starting with a native hover/Space
-probe.
+HEAD 6ac3250: Space starts a sketch on the hovered plane/face (native observed
+grid + face); gate 81/81 one clean run; live blocked — no pointer hover reaches
+the simulator app (Peekaboo move, Send Pointer to Device). Face → Sketch paired
+natively. Open: orientation-cube taps bypass applyStandardView; hover-dependent
+routes need a physical device. Publication: four evidence folders (53 assets)
+local; the prior browser-driven Google Docs pipeline is not reproduced here.
+Next: remaining partial cores (QA19 snap categories, QA20 snap zoom, QA21 snap
+feedback are hover-bound → device; QA29 badge layout, QA33 invalid input, QA40
+keypad, QA45 move/rotate/copy, QA53 layout are simulator-feasible), or set up
+publication with Jason.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

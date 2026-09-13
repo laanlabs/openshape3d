@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 11:30 EDT QA-03 named-view checkpoint**. Source checkpoint: **dcee869** (named view off the plane ends the sketch). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 12:15 EDT QA-02 entry-routes checkpoint**. Source checkpoint: **6ac3250** (Space = sketch on hovered plane; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -28,7 +28,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-02 — Entry method
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Ground menu entry only; remaining routes open.
+- **Evidence / remaining work:** 2026-09-13: Sketch menu → plane paired (QA-01 lanes); selected face → Sketch paired (native face click then Sketch entered directly, no plane prompt; clone PlanesUITests + live cap); existing item paired/published under QA-24/41; hover + Space native-observed (grid and face) and implemented at 6ac3250 (81/81) — live clone delivery blocked: the simulator produces no pointer hover from synthetic moves (QA-21 limitation; physical device QA-52). See testing/sketch-parity-entry-routes-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-03 — Camera angle
@@ -186,6 +186,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 These are not additional acceptance-count rows. They must not disappear because their related finite case is passed.
 
 - QA-01: the clone keeps the picker armed after a refused curved-face tap by its own Section View rule; native's response to that tap is unobserved (audit document has no curved body in view).
+- QA-02: hover + Space is unit-proven only — the simulator delivers no pointer hover from Peekaboo moves or "Send Pointer to Device"; live proof needs a physical trackpad/Pencil (QA-52). The native face selection in native-05 is inferred from the missing plane prompt, not a visible highlight.
 - QA-03: 85° entry/orbit unreachable by command on either side (45°/isometric and 90° used); native edge-on drawing unobserved; gesture orbit not driven through Peekaboo (physical input stays QA-52).
 - QA-27: variable-linked and multiple-driver dimension-type variants remain unverified (also related to QA-28/32).
 - QA-43: legacy nil reference ownership retains old behavior; duplicate-label styling was excluded from closure.
@@ -230,6 +231,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (12:15): QA-02 entry routes: Space = sketch on hovered plane implemented at 6ac3250 after native observation (grid and face); face → Sketch paired; menu and item routes cited. 81/81 one clean run. Live Space blocked by simulator hover delivery — recorded. 8 assets local. No promotion.
 - 2026-09-13 (11:30): Native named-view rule confirmed over seven isolated trials (Front/Right/Default View end the sketch; Top/Bottom and Rotate View keep it) and matched in the clone at dcee869; 38/38 one clean serial run; clone live re-check on the build. 24 QA-03 assets local/unpublished. No promotion.
 - 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. New Look-at-Sketch UI regression, 13/13 one clean serial run. No source change; no promotion. Difference to confirm: native View > Front ended the sketch (one observation).
 - 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.

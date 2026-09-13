@@ -2584,3 +2584,14 @@ viewAxis/isHeadOn, applyStandardView finishes a sketch the view is not head-on
 to. 38/38 one clean serial run; clone live Top/Bottom keep, Front/Isometric end.
 Open: orientation-cube taps bypass applyStandardView; native cube-tap response
 unobserved. Partial, no promotion. 32/0/1/23.
+
+## September 13 — QA02 entry routes; Space on hovered plane
+
+Native: Space with the pointer over the grid or a box face starts a sketch with
+Line armed; a clicked face then Sketch enters directly. Clone 6ac3250: viewport
+keeps hoverRay; routed sketch.onHoveredPlane (chord Space) runs the plane
+picker on it; Zoom to Selection loses its chord. 81/81 one clean run (new
+SelectionUXTests Space test; CommandDispatch/Registry tests updated; bridge
+advertises 38 commands). Live Space blocked: no pointer hover reaches the
+simulator app. Menu/face/item routes cited from QA01/QA24/41 evidence. Partial,
+no promotion. 32/0/1/23; iPad unchanged.

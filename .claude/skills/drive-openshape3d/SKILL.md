@@ -89,7 +89,7 @@ equivalent for a device launch.
 curl -s http://127.0.0.1:8787/v1/commands | jq '.commands[] | {id, title}'
 ```
 
-This lists only commands that actually reach the editor (37 of a wider ~60-entry
+This lists only commands that actually reach the editor (38 of a wider ~60-entry
 catalog). Ids you invent, or ids from the catalog that have no entry point yet,
 are refused with distinct errors — see below.
 
