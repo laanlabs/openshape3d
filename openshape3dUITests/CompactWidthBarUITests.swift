@@ -92,6 +92,16 @@ final class CompactWidthBarUITests: XCTestCase {
         // and was unreachable under the old layout.
         let delete = app.buttons.containing(.staticText, identifier: "Delete").firstMatch
         XCTAssertTrue(delete.waitForExistence(timeout: 3))
+        // Nine entries do not fit an iPhone portrait screen above the info
+        // strip and the bar, so the palette scrolls there (ViewThatFits); the
+        // requirement is that Delete is reachable — directly or by scrolling
+        // the palette — rather than sitting under the bar where no scroll
+        // could reveal it (the original defect).
+        if !delete.isHittable {
+            let palette = app.scrollViews["ToolPalette"]
+            XCTAssertTrue(palette.exists, "A palette that does not fit should scroll")
+            palette.swipeUp()
+        }
         XCTAssertTrue(delete.isHittable,
                       "The extrude bar is covering the tool palette's last entry")
 

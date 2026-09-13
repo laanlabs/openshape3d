@@ -65,8 +65,18 @@ struct ToolPaletteView: View {
 
     var body: some View {
         ViewThatFits(in: .vertical) {
-            paletteColumn
-            ScrollView(.vertical, showsIndicators: false) { paletteColumn }
+            paletteColumn(spacing: 12, verticalPadding: 16)
+            // Compact height (an iPhone in portrait under the extrude bar):
+            // a tighter column keeps every entry on screen — with the wide
+            // spacing the last one, Delete, scrolled off and was untappable.
+            paletteColumn(spacing: 6, verticalPadding: 10)
+            // The identifier lives on the scroll view only: on the plain
+            // column it would make the VStack one accessibility element and
+            // hide every tool button from the UI tests.
+            ScrollView(.vertical, showsIndicators: false) {
+                paletteColumn(spacing: 12, verticalPadding: 16)
+            }
+            .accessibilityIdentifier("ToolPalette")
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
@@ -77,8 +87,8 @@ struct ToolPaletteView: View {
         .onChange(of: viewModel.mode.isSketching) { _, _ in expandedGroupID = nil }
     }
 
-    private var paletteColumn: some View {
-        VStack(spacing: 12) {
+    private func paletteColumn(spacing: CGFloat, verticalPadding: CGFloat) -> some View {
+        VStack(spacing: spacing) {
             ForEach(entries) { entry in
                 switch entry {
                 case .item(let item): toolView(item)
@@ -86,7 +96,7 @@ struct ToolPaletteView: View {
                 }
             }
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, verticalPadding)
         .padding(.horizontal, 10)
     }
 
