@@ -2578,5 +2578,9 @@ not observed (View > Front run ended in model mode). 85° unreachable by command
 13 assets local; see testing/sketch-parity-camera-angle-2026-09-13.md. Regression
 PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch added: PlaneTests +
 PlanesUITests 13/13, one clean serial run (/tmp/os3d-camera-gate-20260913.xcresult).
-One observation: native View > Front while sketching ended the sketch; clone
-view.front keeps it — difference to confirm. Partial, no promotion. 32/0/1/23.
+Confirmed over seven isolated trials (Front/Right/Default View end a ground
+sketch; Top/Bottom/Rotate View keep it) and matched at dcee869: StandardView
+viewAxis/isHeadOn, applyStandardView finishes a sketch the view is not head-on
+to. 38/38 one clean serial run; clone live Top/Bottom keep, Front/Isometric end.
+Open: orientation-cube taps bypass applyStandardView; native cube-tap response
+unobserved. Partial, no promotion. 32/0/1/23.

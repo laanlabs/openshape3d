@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA03 camera angle paired by view command (2026-09-13 10:45 EDT)
+## Current — QA03 named-view rule matched at dcee869 (2026-09-13 11:30 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -31,12 +31,15 @@ View > Rotate View 45°); clone edge-on places nothing; native edge-on
 unobserved; 85° unreachable (planes/qa03-camera-angle-live-2026-09-13, 13
 assets). Peekaboo drag/swipe does not reach the Simulator; native model-mode
 Sketch needs an AX press (`peekaboo click --on`). Both apps parked idle.
-QA03 Look-at-Sketch UI regression added (PlaneTests + PlanesUITests 13/13, one
-clean serial run, /tmp/os3d-camera-gate-20260913.xcresult). Difference to
-confirm: native View > Front while sketching ended the sketch (one observation).
-Next: confirm that native standard-view behaviour, then QA02 entry routes
-(Sketch menu, selected face, existing item, keyboard hover/Space) or publish
-the QA01/QA03 batches (three folders, 42 assets, all local).
+HEAD dcee869: a named view off the sketch plane ends the sketch (seven native
+trials: Front/Right/Default View end, Top/Bottom/Rotate keep). Gate PlaneTests +
+CameraTests + SelectionUXTests + PlanesUITests 38/38, one clean serial run,
+/tmp/os3d-namedview-gate-20260913.xcresult; clone live re-check on the build.
+Open: orientation-cube taps bypass applyStandardView. Publication: browser-driven
+Google Docs pipeline of prior sessions not reproduced here — three QA01/QA03
+folders (45 assets) remain local. Next: QA02 entry routes (Sketch menu, selected
+face, existing item, keyboard hover/Space) starting with a native hover/Space
+probe.
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

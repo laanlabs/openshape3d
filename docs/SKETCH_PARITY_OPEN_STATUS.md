@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 10:45 EDT QA-03 camera-angle checkpoint**. Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 11:30 EDT QA-03 named-view checkpoint**. Source checkpoint: **dcee869** (named view off the plane ends the sketch). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -34,7 +34,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-03 — Camera angle
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Open: native edge-on drawing unreachable — one observation shows a native standard-view command (View > Front) ending the sketch while the clone keeps it active (difference to confirm); 85° unreachable by command; gesture orbit not driven (QA-52). Regression: PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch (Views > Isometric mid-sketch offers Look at Sketch, sketch stays active, tap realigns), PlaneTests + PlanesUITests 13/13 one clean serial run. See testing/sketch-parity-camera-angle-2026-09-13.md.
+- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Confirmed 11:05 EDT over seven isolated trials: a native named view that is not the sketch's head-on view or its underside (Front, Right, Default View) ends the sketch; Top/Bottom and any Rotate View keep it. Clone matched at **dcee869** (`applyStandardView` ends the sketch unless the view is head-on/underside; 38/38 one clean serial run; live re-check Top/Bottom keep, Front/Isometric end). Open: orientation-cube taps do not route through it and native's cube-tap response is unobserved. 85° unreachable by command; gesture orbit not driven (QA-52). Regression: PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch (Views > Isometric mid-sketch offers Look at Sketch, sketch stays active, tap realigns), PlaneTests + PlanesUITests 13/13 one clean serial run. See testing/sketch-parity-camera-angle-2026-09-13.md.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-14 — Ellipse dimensions
@@ -230,6 +230,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (11:30): Native named-view rule confirmed over seven isolated trials (Front/Right/Default View end the sketch; Top/Bottom and Rotate View keep it) and matched in the clone at dcee869; 38/38 one clean serial run; clone live re-check on the build. 24 QA-03 assets local/unpublished. No promotion.
 - 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. New Look-at-Sketch UI regression, 13/13 one clean serial run. No source change; no promotion. Difference to confirm: native View > Front ended the sketch (one observation).
 - 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.
 - 2026-09-13 (09:30): Items plane row highlight + "1 plane" readout at cf0fbd0; 25/25 one clean serial run; paired re-run in both apps, 18 assets local/unpublished. Gap closed; no promotion; totals unchanged.
