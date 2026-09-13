@@ -1120,7 +1120,10 @@ struct EditorView: View {
                     // Sketch Copy chip (spec §1.10): the next selection-gizmo
                     // drag moves/rotates duplicates.
                     HStack {
-                    if viewModel.usesExplicitSketchTransform || viewModel.sketchTransformActive {
+                    // Any selection can opt into exact values (Shapr3D: Move/Rotate
+                    // offers arrows plus a keypad for whatever is selected); a
+                    // mixed selection used to have only the drag gizmo.
+                    if !viewModel.selectedSketchEntityIDs.isEmpty || viewModel.sketchTransformActive {
                         Button(viewModel.sketchTransformActive ? "Done" : "Move/Rotate") {
                             viewModel.sketchTransformActive.toggle()
                         }

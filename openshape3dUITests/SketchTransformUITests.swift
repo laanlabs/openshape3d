@@ -114,6 +114,60 @@ final class SketchTransformUITests: XCTestCase {
         app.buttons["Exit Sketching"].tap()
     }
 
+    /// A mixed selection (line + circle) offers Move/Rotate for exact values
+    /// (Shapr3D: Move/Rotate gives arrows plus a keypad for any selection);
+    /// it used to have only the drag gizmo.
+    func testMixedSelectionOffersExactMoveRotate() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2) // head-on camera flight
+
+        // A line and a circle, both by drag (Circle drags centre → radius).
+        p(0.30, 0.40).press(forDuration: 0.15, thenDragTo: p(0.60, 0.40))
+        app.buttons["Circle"].firstMatch.tap()
+        p(0.45, 0.62).press(forDuration: 0.2, thenDragTo: p(0.53, 0.62))
+        sleep(1)
+        app.buttons["Circle"].firstMatch.tap() // tool off
+
+        // The sketch's Items row selects everything in it: a mixed selection.
+        app.buttons["ItemsButton"].tap()
+        let row = app.otherElements["ItemRow-Sketch 1"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 3))
+        row.tap()
+        XCTAssertTrue(app.staticTexts["Total Length"].waitForExistence(timeout: 3),
+                      "Both entities should be selected (a combined length readout)")
+
+        let mode = app.buttons["SketchTransformMode"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 3),
+                      "A mixed selection should offer Move/Rotate")
+        XCTAssertEqual(mode.label, "Move/Rotate")
+        mode.tap()
+        XCTAssertEqual(mode.label, "Done")
+        let xControl = app.descendants(matching: .any)
+            .matching(identifier: "SketchTransform-x").firstMatch
+        XCTAssertTrue(xControl.waitForExistence(timeout: 3))
+        xControl.tap()
+        let field = app.textFields["SketchTransformField"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3),
+                      "Tapping an axis control should open exact entry")
+        replaceText(field, with: "2")
+        XCTAssertTrue(app.buttons["UndoButton"].isEnabled,
+                      "The typed move should commit an undoable step")
+        mode.tap()
+        XCTAssertEqual(mode.label, "Move/Rotate")
+    }
+
     func testSingleLineRequiresExplicitTransformAndCopyStillMoves() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
