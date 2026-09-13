@@ -14182,6 +14182,10 @@ final class EditorViewModel {
     /// Measurements for the current selection, shown in the bottom info strip.
     var selectionMeasurements: [MeasurementRow] {
         _ = session.changeCount
+        // An Items-selected construction plane reads "1 plane" (Shapr3D).
+        if selectedPlane != nil {
+            return [MeasurementRow(label: "Selected", value: "1 plane")]
+        }
         switch mode {
         case .idle where selection.isEmpty && selectedImage == nil:
             // Items selection survives Exit. Resolve its IDs against their

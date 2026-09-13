@@ -31,6 +31,49 @@ final class ItemsUITests: XCTestCase {
         app.buttons["Exit Sketching"].tap()
     }
 
+    /// Shapr3D: a plane's Items row selects the plane — the row highlights,
+    /// the info bar reads "1 plane" — and Sketch then starts on that plane
+    /// with no plane picker (QA-01).
+    func testPlaneRowSelectsPlaneReadsOnePlaneAndSketchStartsOnIt() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchEnvironment["OS3D_DEBUG_SEED"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        sleep(1) // camera fit settles
+        let window = app.windows.firstMatch
+
+        // Deselect the seeded box, tap its top face, offset a plane from it.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.85)).tap()
+        sleep(1) // stay clear of the double-tap window
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35)).tap()
+        XCTAssertTrue(
+            app.staticTexts["Face selected — drag it to push or pull"].waitForExistence(timeout: 3)
+        )
+        app.buttons["Offset Plane"].tap()
+        let addPlane = app.buttons["Add Plane"]
+        XCTAssertTrue(addPlane.waitForExistence(timeout: 3))
+        addPlane.tap()
+
+        app.buttons["ItemsButton"].tap()
+        let row = app.otherElements["ItemRow-Plane 1"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 3))
+        XCTAssertFalse(row.isSelected)
+        XCTAssertFalse(app.staticTexts["1 plane"].exists)
+        row.tap()
+        XCTAssertTrue(row.isSelected, "Tapping the plane row should highlight it")
+        XCTAssertTrue(app.staticTexts["1 plane"].waitForExistence(timeout: 3),
+                      "The info bar should read '1 plane' for a selected plane")
+
+        // Sketch with the plane selected starts on it — no plane picker.
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Sketching on plane"].waitForExistence(timeout: 3),
+                      "Sketch should start on the selected plane")
+        XCTAssertFalse(app.staticTexts["Choose a sketch plane"].exists)
+        XCTAssertFalse(app.staticTexts["1 plane"].exists)
+    }
+
     func testItemsPanelVisibilityRenameAndDelete() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"

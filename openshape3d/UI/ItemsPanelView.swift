@@ -275,7 +275,7 @@ struct ItemsPanelView: View {
             let plane = document.planes[index]
             return ItemRowView(
                 icon: "square.3.layers.3d", name: "Plane \(index + 1)", isHidden: plane.isHidden,
-                renameable: false,
+                renameable: false, isSelected: viewModel.selectedPlane?.id == id,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
                 onSelect: { viewModel.selectItemPlane(id) },
@@ -578,6 +578,8 @@ private struct ItemRowView: View {
     let name: String
     let isHidden: Bool
     let renameable: Bool
+    /// Highlighted like a selected constraint row (a plane picked from Items).
+    var isSelected = false
     /// Body names select on tap; Rename is an explicit context-menu action.
     var nameTapSelects = false
     /// Symbols aren't scene items: no eye toggle or Zoom for them.
@@ -608,10 +610,15 @@ private struct ItemRowView: View {
             .padding(.vertical, 7)
             .padding(.horizontal, 8)
             .padding(.leading, CGFloat(depth) * 14 + (depth > 0 ? 20 : 0))
+            .background(
+                isSelected ? Color.blue.opacity(0.12) : Color.clear,
+                in: RoundedRectangle(cornerRadius: 6)
+            )
             .contentShape(Rectangle())
             .onTapGesture(perform: onSelect)
             .contextMenu { menuItems }
             .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("ItemRow-\(name)")
             .onAppear { draft = name }
             .onChange(of: name) { _, updated in draft = updated }
@@ -652,7 +659,7 @@ private struct ItemRowView: View {
                     .accessibilityIdentifier("ItemName-\(name)")
             } else {
                 Text(name)
-                    .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
+                    .foregroundStyle(isHidden ? Color.barLabel : (isSelected ? Color.blue : Color.primary))
                     .accessibilityIdentifier("ItemName-\(name)")
             }
             Spacer(minLength: 4)

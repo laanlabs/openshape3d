@@ -277,6 +277,9 @@ final class SelectionUXTests: XCTestCase {
         vm.selectItemPlane(plane.id)
         XCTAssertEqual(vm.selectedPlane?.id, plane.id)
         XCTAssertEqual(vm.mode, .idle)
+        // Info bar reads "1 plane" (Shapr3D) while the plane is selected.
+        XCTAssertEqual(vm.selectionMeasurements.map { "\($0.label): \($0.value)" },
+                       ["Selected: 1 plane"])
 
         vm.startSketch(tool: .line)
         guard case .sketching(_, let tool) = vm.mode else {
@@ -285,6 +288,7 @@ final class SelectionUXTests: XCTestCase {
         XCTAssertEqual(tool, .line)
         XCTAssertEqual(vm.activeSketch?.plane, plane.plane)
         XCTAssertNil(vm.selectedPlaneID)
+        XCTAssertFalse(vm.selectionMeasurements.contains { $0.value == "1 plane" })
     }
 
     func testItemsPlaneSelectionYieldsToBodiesDeleteAndUndo() throws {
