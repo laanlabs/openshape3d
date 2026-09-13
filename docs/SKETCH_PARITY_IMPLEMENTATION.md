@@ -2537,3 +2537,15 @@ QA24 model-mode count/length605511b plus fixture0e86c6b: final47/47, fresh nativ
 blank/entry/Exit and changed clone single/two-edge/history/reopen verified.
 Illustrated1302unique1305placements, ten hashesonce/no loss;master38.
 Full 3D sketch transform/gizmo remains open.32/0/1/23;iPadunchanged.
+
+## September 13 — QA01 Items plane selection
+
+Plane Items row was a no-op (`ItemsPanelView` onSelect empty); native selects the
+plane. cf3b875 adds `selectItemPlane`: accent highlight while idle, Sketch enters
+a new sketch on the selected plane directly (sketch-on-face route), Delete removes
+it, and the selection yields to a body/image selection, a viewport tap, or an
+undo that removes the plane. Regression PlaneTests + SelectionUXTests (two new)
++ ItemsUITests + PlanesUITests: 24/24, 0 skipped, one clean serial run on sim
+AC2FD923 (/tmp/os3d-plane-select-gate-20260913.xcresult). Paired live check
+against native and publication not yet done. Curved-face/miss recipe remains
+open; no QA01 promotion. 32/0/1/23; iPad unchanged.

@@ -1,20 +1,24 @@
 # Parity continuation checkpoint
 
-## Current — OpenClaw parity work PAUSED; handed to Claude Code (2026-09-13 08:45 EDT)
+## Current — QA01 Items plane selection fixed; paired live check pending (2026-09-13 09:00 EDT)
 
-Jason paused OpenClaw work on this project. Automation `3eced82f` ("OpenShape3D
-30-minute parity continuation") is disabled (auto-disabled after 10 consecutive
-agent-runner failures; scheduler has no next wake) and heartbeat is off. Dashboard
-session "OpenShape3D parity — PR #29" is idle; do not resume it. See AGENTS.md.
+Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
+`3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
+after 10 consecutive agent-runner failures; no next wake), heartbeat off,
+dashboard session "OpenShape3D parity — PR #29" idle. Do not resume it. See the
+PAUSED notice in AGENTS.md.
 
-Gate collected: /tmp/os3d-qa01-plane-gate-20260913.xcresult finished 00:12 EDT,
-**11/11 passed, 0 failed, 0 skipped** (PlaneTests 7 + PlanesUITests 4), one clean
-serial run on sim AC2FD923 (os3d-parity-sept7, iPad Pro 13" M5, iOS 26.5).
-Revision: HEAD ef09333, source/tests unchanged since 0e86c6b; docs dirty only.
-No runner active. Simulator, Shapr3D and Peekaboo apps remain open, idle.
-Twelve QA01 assets (offset-assets.json) remain prepared and unpublished.
-Next (Claude Code owner): commit this docs checkpoint; then QA01 plane-item
-selection (ItemsPanelView onSelect empty) and curved-face/miss recipe.
+HEAD cf3b875: Items plane row selects the plane (`selectItemPlane` — accent
+highlight while idle, Sketch enters a new sketch on it directly, Delete removes
+it, yields to other selection / viewport tap / undo). Regression PlaneTests +
+SelectionUXTests (two new) + ItemsUITests + PlanesUITests: **24/24, 0 skipped**,
+one clean serial run on sim AC2FD923, /tmp/os3d-plane-select-gate-20260913.xcresult.
+Prior QA01 plane gate at 0e86c6b: 11/11, /tmp/os3d-qa01-plane-gate-20260913.xcresult.
+No runner active; Simulator, Shapr3D and Peekaboo open, idle. Docs dirty only.
+Twelve QA01 assets (offset-assets.json) prepared, unpublished; the plane-row fix
+has no live evidence yet.
+Next: paired live check of plane-row selection then Sketch in both apps; then
+QA01 curved-face/miss recipe. 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running
 
