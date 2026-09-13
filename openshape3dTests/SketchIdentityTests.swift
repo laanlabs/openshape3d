@@ -143,7 +143,7 @@ final class SketchIdentityTests: XCTestCase {
         vm.selectedSketchEntityIDs.removeAll()
         XCTAssertTrue(vm.selectionMeasurements.isEmpty)
         XCTAssertEqual(vm.session.document.sketches, [named, other])
-        let rectangle = SketchEntity.rect(id: UUID(), lo: .zero, hi: SIMD2(3, 4))
+        let rectangle = SketchEntity.rect(id: UUID(), min: .zero, max: SIMD2(3, 4))
         let polygon = SketchEntity.polygon(id: UUID(), center: SIMD2(8, 0), radius: 2, sides: 5, rotation: 0)
         let loops = Sketch(name: "Loops", plane: .ground, entities: [rectangle, polygon])
         vm.session.perform(AddSketchCommand(sketch: loops))
