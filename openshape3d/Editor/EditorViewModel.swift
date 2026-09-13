@@ -5029,7 +5029,7 @@ final class EditorViewModel {
         clearCircleNumericSelection(for: session.undoStack.undoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.undoCommands.last)
         clearAppliedRelationSelection(for: session.undoStack.undoCommands.last)
-        clearBodyRenameSelection(for: session.undoStack.undoCommands.last)
+        clearItemRenameSelection(for: session.undoStack.undoCommands.last)
         prepareForHistoryChange()
         session.undo()
         sanitizeAfterHistoryChange()
@@ -5039,16 +5039,27 @@ final class EditorViewModel {
         clearCircleNumericSelection(for: session.undoStack.redoCommands.last)
         clearLineDimensionSelection(for: session.undoStack.redoCommands.last)
         clearAppliedRelationSelection(for: session.undoStack.redoCommands.last)
-        clearBodyRenameSelection(for: session.undoStack.redoCommands.last)
+        clearItemRenameSelection(for: session.undoStack.redoCommands.last)
         prepareForHistoryChange()
         session.redo()
         sanitizeAfterHistoryChange()
     }
 
-    private func clearBodyRenameSelection(for command: DocumentCommand?) {
+    private func clearItemRenameSelection(for command: DocumentCommand?) {
         guard let rename = command as? RenameItemCommand,
-              let item = rename.item, case .body = item else { return }
-        // Native body-name history deselects; do not change sketch/tool history.
+              let item = rename.item else { return }
+        if case .sketch = item {
+            // Native model-mode sketch-name history drops its item selection.
+            // Active sketch/tool history retains its existing semantics.
+            if case .idle = mode {
+                itemSelectedSketchID = nil
+                selectedSketchEntityIDs.removeAll()
+                selectedSketchPoints.removeAll()
+            }
+            return
+        }
+        guard case .body = item else { return }
+        // Native body-name history deselects; do not change active tool history.
         switch mode {
         case .selected, .editingPrimitive, .idle:
             selection.removeAll()
@@ -8587,11 +8598,13 @@ final class EditorViewModel {
     /// preserves the tap order required by the First/Last anchored-entity
     /// constraint preference.
     private(set) var selectedSketchEntityOrder: [UUID] = []
+    private var itemSelectedSketchID: SketchID?
     var selectedSketchEntityIDs: Set<UUID> = [] {
         didSet {
             reconcileSketchSelectionOrder(added: selectedSketchEntityIDs.subtracting(oldValue))
             retainedCircleCenterReadoutID = nil
             if oldValue != selectedSketchEntityIDs {
+                itemSelectedSketchID = nil
                 retainedSketchTransform = nil
                 temporaryDiameterLabelOffsets.removeAll()
                 if mode.sketchTool != nil { sketchTransformActive = false }
@@ -10662,6 +10675,13 @@ final class EditorViewModel {
     static let grazingSketchAngle: Double = 80
 
     func finishSketch() {
+        let itemSelectionToRetain: Set<UUID> = {
+            guard let sketch = activeSketch, itemSelectedSketchID == sketch.id,
+                  selectedSketchPoints.isEmpty,
+                  selectedSketchEntityIDs == Set(sketch.entities.map(\.id)) else { return [] }
+            return selectedSketchEntityIDs
+        }()
+        itemSelectedSketchID = nil
         cancelSymmetryAxisPick()
         clearRectanglePlacement()
         editingDimension = nil
@@ -10692,6 +10712,9 @@ final class EditorViewModel {
             session.rebuildForSketchChange(sketchID)
             mode = .idle
             removeSketchIfEmpty(sketchID)
+        }
+        if !itemSelectionToRetain.isEmpty {
+            selectedSketchEntityIDs = itemSelectionToRetain
         }
         session.save()
     }
@@ -14704,12 +14727,24 @@ final class EditorViewModel {
         mode = body.primitive != nil ? .editingPrimitive(id) : .selected(id)
     }
 
+    /// Items entry is distinct from dimension/history-driven sketch reopening.
+    func selectItemSketch(_ id: SketchID) {
+        guard session.document.sketches.contains(where: { $0.id == id }) else { return }
+        openItemSketch(id)
+        guard let sketch = activeSketch, sketch.id == id else { return }
+        selectedSketchPoints.removeAll()
+        selectedSketchEntityIDs = Set(sketch.entities.map(\.id))
+        itemSelectedSketchID = id
+    }
+
     /// Sketch row tap: enter sketch mode on it (hidden sketches render while
     /// active).
     func openItemSketch(_ id: SketchID) {
         guard let sketch = session.document.sketches.first(where: { $0.id == id }) else { return }
         if case .sketching(let current, _) = mode, current == id { return }
         if case .sketching = mode { finishSketch() }
+        itemSelectedSketchID = nil
+        selectedSketchEntityIDs.removeAll()
         cancelTransientPicks()
         cancelTool()
         selectedImageID = nil

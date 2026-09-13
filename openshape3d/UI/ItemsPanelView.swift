@@ -254,7 +254,7 @@ struct ItemsPanelView: View {
                 nameTapSelects: true,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
-                onSelect: { viewModel.openItemSketch(id) },
+                onSelect: { viewModel.selectItemSketch(id) },
                 onToggleVisibility: { viewModel.setItemHidden(.sketch(id), hidden: !sketch.isHidden) },
                 onRename: { viewModel.renameItem(.sketch(id), to: $0) },
                 onZoom: { viewModel.zoomToItem(.sketch(id)) },

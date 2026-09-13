@@ -82,6 +82,45 @@ final class SketchIdentityTests: XCTestCase {
         XCTAssertEqual(vm.itemSketches.last?.entities, [line])
     }
 
+    func testItemsEntrySelectsOnlyNamedSketchAndRetainsUntouchedSelectionOnExit() throws {
+        let vm = try makeViewModel()
+        let line = SketchEntity.line(id: UUID(), a: .zero, b: SIMD2(3, 0))
+        let circle = SketchEntity.circle(id: UUID(), center: SIMD2(5, 2), radius: 1)
+        let named = Sketch(name: "Named", plane: .ground, entities: [line, circle])
+        let other = Sketch(name: "Other", plane: .ground,
+            entities: [.circle(id: UUID(), center: .zero, radius: 7)])
+        vm.session.perform(AddSketchCommand(sketch: named))
+        vm.session.perform(AddSketchCommand(sketch: other))
+        let original = vm.session.document.sketches
+        vm.selectItemSketch(named.id)
+        XCTAssertEqual(vm.activeSketch?.id, named.id)
+        XCTAssertEqual(vm.selectedSketchEntityIDs, Set([line.id, circle.id]))
+        vm.finishSketch()
+        XCTAssertEqual(vm.selectedSketchEntityIDs, Set([line.id, circle.id]))
+        XCTAssertEqual(vm.session.document.sketches, original)
+        vm.openItemSketch(other.id)
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                      "Non-Items entry must retain its existing passive semantics")
+        vm.finishSketch()
+        vm.selectItemSketch(named.id)
+        vm.selectedSketchEntityIDs.removeAll()
+        vm.finishSketch()
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                      "Explicit deselection must not be resurrected on Exit")
+        vm.selectItemSketch(named.id)
+        vm.finishSketch()
+        vm.renameItem(.sketch(named.id), to: "Renamed")
+        vm.undo()
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                      "Native sketch Rename Undo clears retained item selection")
+        vm.selectItemSketch(named.id)
+        vm.finishSketch()
+        vm.redo()
+        XCTAssertTrue(vm.selectedSketchEntityIDs.isEmpty,
+                      "Native sketch Rename Redo clears retained item selection")
+        XCTAssertEqual(vm.session.document.sketches.first { $0.id == named.id }?.name, "Renamed")
+    }
+
     func testExplicitNamedContinuationKeepsIdentityAcrossToolSwitches() throws {
         let vm = try makeViewModel()
         let first = Sketch(name: "First", plane: .ground)

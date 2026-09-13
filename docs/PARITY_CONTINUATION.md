@@ -1,5 +1,61 @@
 # Parity continuation checkpoint
 
+## Current — QA24 Items selection/history focused7/7 passed
+
+Corrected history focused7/7, terminal0; preceding identity+UI8/8 separately
+passed. No runner. Source/test changes being checkpointed, then broad final
+selection/identity/Items/UI gate. Changed live/publication pending; native
+reference retained. No desktop until finalgate finishes.32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items selection/history focused gate
+
+BeforeItems0/1 failed entry/Exit; scoped fix focused8/8 passed. Added Rename
+Undo/Redo assertions then before0/1 failed both. Scoped model-mode sketchRename
+history clears retained IDs; active sketch/tool history unchanged. Focused
+SketchIdentity6+bodyRename1 now running exclusively exec7188 at /tmp/os3d-qa24-
+sketch-item-history-focused-20260912.{log,xcresult}. No sourcepush yet.
+Collectterminal; broad combined regression, changed live item selection/Exit/
+history/reopen and publication. Native all-edge entry/Exit and Rename history
+retained in published sketch-name batch. HEAD27cc8db; source/tests/checkpoint
+dirty. No other runner;1284unique1287placements/master38;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items focused8/8, Rename history before
+
+Scoped Items selection/untouchedExit focused8/8 passed, terminal0; no sourcepush.
+Added native-observed RenameUndo/Redo deselection assertions to same identity
+test; before run exec70336 owns simulator exclusively at /tmp/os3d-qa24-sketch-
+item-history-before-20260912.{log,xcresult}. Collect before, then extend scoped
+Rename cleanup only if failure confirms; broadgate/changedlive/publication next.
+HEAD27cc8db; dirty EditorViewModel, ItemsPanelView, SketchIdentityTests, checkpoint.
+Native/clone last saved names sketch24;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items scoped selection focused gate
+
+Before0/1 reproduced emptyselection on entry and Exit (two assertions), terminal65.
+Items-only selectItemSketch now selects namedentity IDs; untouched all-entity
+selection survives Exit. Explicit changes invalidate scope; passive other-entry
+clears it. No sourcepush yet; focused SketchIdentity class+two UI workflows
+running exclusively exec70767 at /tmp/os3d-qa24-sketch-item-selection-focused-
+20260912.{log,xcresult}. Collectterminal before mutations/desktop, then broaden,
+changed live select/Exit/history/reopen and publication. Source EditorViewModel,
+ItemsPanelView, SketchIdentityTests dirty; documentation dirty. HEAD27cc8db.
+No other runner. Reports1284unique1287placements/master38;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items all-edge selection before regression
+
+HEAD27cc8db pushed sketch-name paired publication. Native all-edge selection/
+Exit retention observed; clone enters without selection and clears on Exit.
+Added behavior-neutral selectItemSketch wrapper and routed Items row to it,
+leaving other openItemSketch callers untouched. New before model test asserts
+named-only selection, untouched Exit retention, geometry preservation, passive
+non-Items entry and no resurrection after explicit deselection. Running
+exclusively exec96053 at /tmp/os3d-qa24-sketch-item-selection-before-20260912
+.{log,xcresult}. No selection fix yet. Dirty EditorViewModel, ItemsPanelView,
+SketchIdentityTests and checkpoint. Collect before, then scoped retention state
+only for untouched Items selection; focused/broad/live/history/reopen/publication.
+Native parked cleanreopen sketch24/part24; clone testowned. Reports1284unique/
+1287placements/master38. Inventory32/0/1/23;iPad unchanged.
+
 ## Current — QA24 sketch-name paired publication complete
 
 Source05bed51 pushed; final47/47 zero failures/skips. Both apps direct sketch24
