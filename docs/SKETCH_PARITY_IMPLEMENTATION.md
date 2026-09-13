@@ -2518,3 +2518,8 @@ identity, Items/folder/pattern regression is active; changed-build live and
 publication remain pending. Other item-type rename routes are unchanged.
 See testing/sketch-parity-body-item-name-2026-09-12.md. Inventory32/0/1/23;
 iPad unchanged.
+
+QA24 body-name follow-up b5bff74: final46/46, paired direct Rename replacement,
+Undo/Redo deselection and both gallery reopenings. Illustrated1271 unique media/
+1274 placements, twelve new hashes once/no loss; master38. Body-only scope;
+other item classes and curved-face/edge overlap remain open. Inventory32/0/1/23.

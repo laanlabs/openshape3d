@@ -1,5 +1,32 @@
 # Parity continuation checkpoint
 
+## Current — QA24 body Rename paired and published
+
+b5bff74 source pushed. Final46/46 zero failures/skips; prior48/48 separately
+retains unchanged folder/split/pattern UI. No runner or desktop owner active.
+Both apps direct part24 replacement, Undo/Redo deselection, gallery reopen
+verified. Clone three boxes preserved. Native clean reopen part24 visible.
+Illustrated1271unique/1274placements, twelve hashes once/no predecessor loss;
+master38/one heading/no loss. Durable body-rename-verification.json in
+selection/qa24-through-live-2026-09-12. Documentation checkpoint being committed.
+Next paired QA24 sketch Items name interaction audit; body-only fix intentionally
+leaves other item types unchanged. Native Items open part24 belowSketch05; clone
+Items open three boxes (part24,Box2,Box3). No speculative source change. Curved
+face/edge overlap also remains open. Inventory32/0/1/23; iPad unchanged; preserve
+all evidence, unrelated identity/memory files and immutable05be744.
+
+## Active — QA24 Rename final combined gate
+
+b5bff74 pushed; focused3/3 passes,terminal0 (seed replacement, scopedbodyRename
+history, no-keyboardselect). Final combined selection/identity/Items/foldermodel
+plusSelectionUI+ItemsUI now owns simulator exclusively:
+/tmp/os3d-qa24-rename-semantics-final-20260912.{log,xcresult}. Collectterminal
+and exactcount first. Prior48/48 includes unchangedfolder/pattern/splitUI paths;
+not relabeled as current-source final. Next changedlive directreplacement,
+Undo/Redo deselection/reselection andbothreopenings, publication. Nativepart24
+parkeddeselected; clone testowned. No other sourcechanges.32/0/1/23;iPadunchanged.
+
+
 ## Active — QA24 Rename semantics scoped fix focused gate
 
 Before0/2 confirmed: initial name not selected (UI appends), bodyRenameUndo/Redo

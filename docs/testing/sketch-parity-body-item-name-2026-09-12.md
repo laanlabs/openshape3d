@@ -43,3 +43,30 @@ existing deferred UITextField notification pattern; body RenameItemCommand Undo/
 Redo clears selected/primitive modes without changing other tool history.
 Focused3 tests running at /tmp/os3d-qa24-rename-semantics-focused-20260912;
 no post-fix result/live claim yet. Native Redo also remains deselected.
+
+Corrected Rename-semantics focused3/3 passed onb5bff74, terminal0. Final combined
+selection/identity/Items and folder models plus Selection/Items UI workflows
+running at /tmp/os3d-qa24-rename-semantics-final-20260912. Unchanged folder and
+split/pattern UI results remain from the earlier48/48; not relabeled as new.
+
+## Final paired and publication checkpoint
+
+Source b5bff74: final 46/46 in one serial run (42 model/integration + 4 UI),
+zero failures/skips, terminal 0. Earlier 48/48 separately retains unchanged
+folder/split/pattern UI coverage. No runner remains.
+
+Changed clone name tap selects a whole box without a keyboard. Explicit Rename
+selects the full seed; direct part24 replacement commits exactly. Undo restores
+Box and deselects; Redo restores part24 and deselects. Gallery reopen preserves
+part24 and all three boxes. Native Body05 follows the same replacement/history
+sequence and reopens with part24; the subscription overlay was dismissed before
+the clean final capture. Earlier clear-field input miss is excluded.
+
+Publication verified: illustrated 1271 unique media / 1274 image placements,
+twelve new hashes exactly once, one section heading, no predecessor loss from
+1259 media / 1262 placements. Master 38 media, one new heading, no loss.
+Durable selection/qa24-through-live-2026-09-12/body-rename-assets.json and
+body-rename-verification.json record exact hashes and exports. Final images use
+os3d-qa24-rename-final-* and native rename counterparts, including clean reopen.
+QA24 remains partial for curved-face/edge overlap and broader item classes.
+Inventory 32/0/1/23; iPad and immutable05be744 unchanged.
