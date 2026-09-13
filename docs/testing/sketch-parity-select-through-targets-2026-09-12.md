@@ -22,8 +22,17 @@ suppression; legacy body order remains separately asserted.
 
 Evidence: durable selection/qa24-through-live-2026-09-12 under core-sketch reports.
 /tmp/os3d-qa24-through-{before,faces,typed,final}-20260912 logs/xcresults.
-Changed-build live, exact native candidate identity, publication and closure
-remain pending. QA24partial32/0/1/23; reports1247/master38; iPad unchanged.
+Changed-build live on ab6fb2d verified first/top and second/occluded planar face
+selection at 0 mm. A fresh 2 mm circle on the middle box appears as Profile—Sketch1;
+choosing it arms zero-distance extrusion on that exact circle. Cancel and gallery
+reopen preserve all three boxes and the circle, with no extra extrusion. An initial
+back-face retry hit a readout rather than opening the chooser and is excluded.
+
+Publication verified: illustrated 1258 unique images, eleven new hashes each once,
+no loss from the 1247 predecessor; master 38 media, one checkpoint heading and no
+loss. Durable publication-verification.json records exact inventories and export
+hashes. Exact native Profile identity and curved-face/edge breadth remain open.
+QA24 partial; inventory 32/0/1/23; iPad unchanged.
 
 Reference routes: https://support.shapr3d.com/hc/en-us/articles/7770768736924-Selecting-geometry
 and https://support.shapr3d.com/hc/en-us/articles/12469688911516-Create-sketches .

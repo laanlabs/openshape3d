@@ -1,5 +1,34 @@
 # Parity continuation checkpoint
 
+## Current — QA24 typed chooser publication verified
+
+Source ab6fb2d pushed; final26/26, zero failures/skips. No test runner.
+Illustrated1258/master38 verified: eleven new hashes once, headings once, no
+predecessor loss. Changed clone faces/profile dispatch, Cancel and gallery
+reopen preserve3boxes+circle. QA24partial32/0/1/23; iPad/05be744 unchanged.
+Next fresh native exact Profile candidate identity; broader curved-face/edge
+selection remains open. Native capture resumed; clone parked reopened fixture,
+Right palette retained. Documentation checkpoint ready; unrelated identity/memory
+untouched. Evidence selection/qa24-through-live-2026-09-12.
+
+
+## Active — QA24 changed chooser live verified, publication next
+
+ab6fb2d pushed; final26/26 zero fail/skip, no runner. Changed live saved three
+boxes: chooser offers twofaces+Box2; first selects topface at0mm, second selects
+occluded side at0mm (initial retry hit readout, excluded; Done then303431 long
+press opens real chooser). Created2mm circle on topface viaCircle, exited,
+chooser offers Profile—Sketch1 alongsidefaces/body. Profile selection arms0mm
+extrusion on exactcircle;Cancel then gallery/reopen preserves3boxes+circle.
+Native chooser shows2faces/body/profile; exact Profile identity caveat remains.
+Next publish bounded typed-choice fix with native chooser/before/changed assets,
+then native exact face/profile identity and QA24 remaining connected/additive.
+Evidence selection/qa24-through-live-2026-09-12 updated. Reports1247/master38;
+QA24partial32/0/1/23. Native selected profile/extrudecontrols, clone reopened
+3boxes+circle,Rightpalette retained. No geometry extruded by chooser. Immutable
+05be744/iPad unchanged. Only continuation dirty; source/test checkpoint safe.
+
+
 ## Active — QA24 typed selection final26/26, live next
 
 Final26/26 zero failures/skips, terminal0, no runner. Typed planar face/body/
