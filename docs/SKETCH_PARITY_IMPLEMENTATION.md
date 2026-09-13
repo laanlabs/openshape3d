@@ -2523,3 +2523,7 @@ QA24 body-name follow-up b5bff74: final46/46, paired direct Rename replacement,
 Undo/Redo deselection and both gallery reopenings. Illustrated1271 unique media/
 1274 placements, twelve new hashes once/no loss; master38. Body-only scope;
 other item classes and curved-face/edge overlap remain open. Inventory32/0/1/23.
+
+QA24 sketch-name05bed51 final47/47 and paired direct Rename/history/bothreopenings
+verified. Illustrated1284unique/1287placements, thirteen hashesonce/no loss;
+master38. All-edge item selection/Exit retention remains open, no promotion.

@@ -1,5 +1,44 @@
 # Parity continuation checkpoint
 
+## Current — QA24 sketch-name paired publication complete
+
+Source05bed51 pushed; final47/47 zero failures/skips. Both apps direct sketch24
+Rename, Undo/Redo original/new name and both gallery reopenings verified.
+Illustrated1284unique/1287placements, thirteen hashesonce/no1271predecessorloss;
+master38/one heading/no loss. sketch-name-verification.json durable. No runner.
+Next QA24 Items sketch all-edge selection/Exit retention scoped comparison and
+regression. Native sketch24 (formerlySketch05) single click selects sixedges and
+enters sketching; Exit retains sixedges. Clone name handler enters with no
+selectedentity IDs, finishSketch clearsall. Do not change unrelated openItemSketch
+callers or general history blindly. Native parked clean reopened sketch24/part24;
+clone Items sketch24 singleline, no bodies. Inventory32/0/1/23;iPadunchanged.
+Documentation being checkpointed; preserve all evidence and immutable05be744.
+
+## Current — QA24 sketch-name final47/47 and changed live verified
+
+05bed51 pushed. Final47/47 (42 model +5 UI), zero failures/skips, terminal0.
+No runner. Changed clone ordinary launch/gallery entry→Sketch1 name tap enters
+sketching without keyboard. Exit→contextRename selects whole seed; direct
+sketch24 replacement exact. UndoSketch1/Redo sketch24 preserve line; gallery
+reopen retains sketch24. Images final-entry/field/committed/undone/redone/reopened
+retained under durable selection/qa24-through-live-2026-09-12. Native Sketch05
+parked in sketching with sixedges selected. NEXT native explicit sketch Rename
+replacement/history/reopen, then bounded publication. Native all-edge selection
+remains separate observed gap; handler unchanged. Clone parked Itemsopen
+sketch24 singleline, no bodies. No runner. Reports1271unique1274placements/master38;
+32/0/1/23;iPadunchanged. Dirty receipt/continuation only.
+
+## Current — QA24 sketch-name final regression
+
+05bed51 pushed. Corrected focused3/3 passed, terminal0. Final combined five model
+classes plus SelectionUI4 and coplanar identityUI now owns simulator exclusively,
+exec60233: /tmp/os3d-qa24-sketch-name-final-20260912.{log,xcresult}. No desktop
+interaction until terminal. Next exact count, changed live name entry/explicit
+Rename/history/reopen and publication. Native Sketch05 parked in sketching with
+six edges selected; that selection-all difference remains open, source handler
+unchanged. Body publication 5c0c142 verified1271unique1274placements/master38.
+Inventory32/0/1/23;iPad unchanged. Only checkpoint/receipt dirty aftersourcepush.
+
 ## Current — QA24 sketch-name gap before regression
 
 HEAD5c0c142 pushed body Rename publication. Native Sketch05 single-name click
