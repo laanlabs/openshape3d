@@ -1,5 +1,33 @@
 # Parity continuation checkpoint
 
+## Current — OpenClaw parity work PAUSED; handed to Claude Code (2026-09-13 08:45 EDT)
+
+Jason paused OpenClaw work on this project. Automation `3eced82f` ("OpenShape3D
+30-minute parity continuation") is disabled (auto-disabled after 10 consecutive
+agent-runner failures; scheduler has no next wake) and heartbeat is off. Dashboard
+session "OpenShape3D parity — PR #29" is idle; do not resume it. See AGENTS.md.
+
+Gate collected: /tmp/os3d-qa01-plane-gate-20260913.xcresult finished 00:12 EDT,
+**11/11 passed, 0 failed, 0 skipped** (PlaneTests 7 + PlanesUITests 4), one clean
+serial run on sim AC2FD923 (os3d-parity-sept7, iPad Pro 13" M5, iOS 26.5).
+Revision: HEAD ef09333, source/tests unchanged since 0e86c6b; docs dirty only.
+No runner active. Simulator, Shapr3D and Peekaboo apps remain open, idle.
+Twelve QA01 assets (offset-assets.json) remain prepared and unpublished.
+Next (Claude Code owner): commit this docs checkpoint; then QA01 plane-item
+selection (ItemsPanelView onSelect empty) and curved-face/miss recipe.
+
+## Superseded — QA01 paired offset history/reopen; gate running
+
+HEAD ef09333; docs dirty only. Native500mm plane/7761.9858mm line and clone0.5mm
+plane/1.5mm line creation, line Undo/Redo and named gallery reopen verified.
+Native initial Undo disabled; later model menu passed. No source change.
+Serial PlaneTests + all four PlanesUITests owns simulator exec44966 at
+/tmp/os3d-qa01-plane-gate-20260913.{log,xcresult}; collect terminal before desktop.
+Twelve assets prepared, unpublished. Next finish gate, publish paired partial
+receipt; then curved-face/miss and plane-item no-op scoped work. Native parked
+Sketch13 selected/Top; clone test-owned.32/0/1/23;iPadunchanged.
+
+
 ## Current — QA01 offset creation and canvas entry paired
 
 HEAD fd254e9; documentation checkpoint in progress, no source/test changes. No runner.

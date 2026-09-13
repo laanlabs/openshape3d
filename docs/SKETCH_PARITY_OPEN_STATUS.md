@@ -1,7 +1,7 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-12, 23:59 EDT QA01 diagnostic checkpoint**. Source checkpoint: **605511b**, fixture **0e86c6b**.
-Owner: dedicated OpenShape3D parity / PR #29 session. This is the current open-work register, not the historical mission log.
+Last reconciled: **2026-09-13, 08:45 EDT handoff checkpoint**. Source checkpoint: **605511b**, fixture **0e86c6b** (HEAD ef09333, docs-only after).
+Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
 The 23 incomplete cases comprise 12 partial core cases and 11 explicitly deferred cases.
@@ -12,7 +12,7 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 - **QA-24 Items selection:** 0cc5d6c final52/52 and paired owned-selection/Exit/Rename/history/reopen are published.
 - **QA-24 model-mode summary:** source605511b plus fixture0e86c6b final47/47; fresh native and changed clone count/length/blank comparisons, clone history/reopen verified. Ten assets published; source and tests pushed.
 - **Next core:** QA-01 plane-picker miss/face recipe. Native model-mode 3D sketch Move/Rotate diagnostic remains open:5000 submission accepted, clone Move no-op, ownership/downstream semantics unverified; local evidence queued for publication. Clone summary now works, but gizmo and 3D transform dispatch remain absent. Curved-face/edge overlap and remaining item classes remain open.
-- **Actual owner:** no test runner; dedicated parity session owns desktop. Both apps are in empty offset-plane sketches with Line armed. Native500mm and clone0.5mm planes created and canvas entry verified; history/reopen next. Plane Items click is a confirmed clone no-op (empty handler); native selects its plane. No source fix yet; local evidence queued.
+- **Actual owner:** Claude Code session; no test runner active; OpenClaw paused. Native500mm and clone0.5mm planes and offset-line creation/history/reopen verified. Serial PlaneTests + four PlanesUITests gate collected: **11/11 passed, 0 skipped, one clean run** at 0e86c6b source (`/tmp/os3d-qa01-plane-gate-20260913.xcresult`). Plane Items click is a confirmed clone no-op (empty `ItemsPanelView` onSelect); native selects its plane. No source fix yet; twelve QA-01 assets prepared, unpublished.
 - **Reports:** illustrated1,302 unique media/1,305 placements; ten new hashes once, no predecessor loss. Master38, one new note/no loss. Current batch is published, not queued.
 
 ## Every unfinished original acceptance case
@@ -22,7 +22,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-01 — Plane selection
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation and offset sketch entry now paired at differing scales; history/reopen/publication remain. Plane Items selection no-op confirmed; curved face and controlled miss matrix remain open.
+- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation, offset sketch entry, line history and both reopenings paired at differing scales; plane regression 11/11 passed (0e86c6b), publication pending. Plane Items selection no-op confirmed; curved face and controlled miss matrix remain open.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-02 — Entry method
@@ -228,4 +228,5 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13: Handoff to Claude Code. Collected the pending QA-01 plane gate (11/11, clean serial run); re-tallied the matrix (32 passed / 12 partial / 11 deferred / 1 device = 56, unchanged). OpenClaw parity work paused at Jason's request (automation `3eced82f` disabled, heartbeat off, dashboard session idle since 00:14 EDT).
 - 2026-09-12: Created from all 56 matrix rows and current 0cc5d6c checkpoint; enumerated all 24 not-passed cases, current Items WIP, release/device/publication gates and finite-pass exclusions. Owner reconciliation of any additional receipt-level caveats is ongoing.

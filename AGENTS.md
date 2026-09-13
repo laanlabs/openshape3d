@@ -1,5 +1,12 @@
 # OpenShape3D: sustained parity-work rules
 
+> **PAUSED — 2026-09-13, by Jason.** OpenClaw / Codex parity sessions must not
+> work on this project, drive the simulator, Shapr3D or Peekaboo, run builds or
+> tests, or commit/push, until Jason explicitly resumes them. The 30-minute
+> continuation automation (`3eced82f`) is disabled; do not re-enable it. The
+> project is currently owned by a Claude Code session. If woken, reply that the
+> project is paused and take no action. This notice overrides every rule below.
+
 ## Goal and authorization
 
 Jason has authorized ongoing OpenShape3D sketch/UI parity work against native
