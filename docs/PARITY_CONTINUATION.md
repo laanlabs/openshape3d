@@ -1,6 +1,6 @@
 # Parity continuation checkpoint
 
-## Current — QA45 mixed-selection exact values at d790646 (2026-09-13 13:10 EDT)
+## Current — QA53 compact palette reachability at 0cb0a2a (2026-09-13 13:45 EDT)
 
 Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
 `3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
@@ -44,12 +44,14 @@ local; the prior browser-driven Google Docs pipeline is not reproduced here.
 HEAD d790646: Move/Rotate pill for any sketch selection (mixed selections had
 no exact-value route); 84/84 one clean serial run; live typed X on line+circle
 with Undo/Redo over the bridge. Native mixed selection input-blocked (click
-replaces, shift-drag clears). Compact (iPhone 17 Pro): extrude bar covers Delete
-— confirmed bug under QA53, not fixed; sketch-transform compact check open (line
-not selectable by tap at compact width in XCUITest, three runs — diagnose).
+replaces, shift-drag clears). Compact (iPhone 17 Pro): the extrude-bar failure
+was measured — bar no longer covers the palette; nine entries exceed the ~487 pt
+available, so the palette scrolls — fixed with a tighter column before scrolling
+and a reachability assertion (compact suite 3/3); sketch-transform compact
+check open (line not selectable by tap at compact width in XCUITest).
 Evidence planes/qa45-mixed-transform-live-2026-09-13 (11 assets, local); five
-folders / 64 assets unpublished. Next: fix the compact extrude bar (QA53) or
-QA33/QA40 keypad lanes; publication set-up with Jason (proposal sent).
+folders / 64 assets unpublished. Next: QA33 invalid-input / QA40 keypad lanes, or QA29 badge layout; publication
+set-up with Jason (proposal sent).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

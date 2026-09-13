@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-13, 13:10 EDT QA-45 mixed-selection checkpoint**. Source checkpoint: **d790646** (Move/Rotate for any sketch selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-13, 13:45 EDT QA-53 compact-palette checkpoint**. Source checkpoint: **0cb0a2a** (compact palette reachability; d790646 Move/Rotate for any selection; 6ac3250 Space; dcee869 named views; 3f7080c curved face). Source checkpoint: **3f7080c** (curved face refused by the plane picker; cf0fbd0 row highlight/readout; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
 Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -161,7 +161,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-53 — Layout
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** **Confirmed bug 2026-09-13 (compact, iPhone 17 Pro):** CompactWidthBarUITests.testExtrudeBarIsUsableAtCompactWidth fails on the branch — the extrude bar covers the tool palette's Delete entry (not hittable). Pre-existing, not fixed; owner Claude Code session, next action: re-layout the compact extrude bar. Panel/palette correction4b6a78f passed final50/50 and changed live both-panel/inward-flyout/plane-choice checks; illustrated1247/master38 published89dbafc. Retained51/51 layout baseline remains valid. Native Mac lacks the same handedness/large-text controls; physical iPad variants remain unverified.
+- **Evidence / remaining work:** 2026-09-13 compact (iPhone 17 Pro): testExtrudeBarIsUsableAtCompactWidth failed on the branch — measured, the bar no longer covers the palette; nine entries (Axis and Material were added) exceed the ~487 pt available above the info strip + bar, so the palette scrolls and Delete sat below the clip edge. Fixed at 0cb0a2a: tighter column tried before scrolling, palette identifier on the scrolling variant, test requires Delete reachable directly or by one palette scroll; compact suite 3/3, iPad Planes + SketchTransform 10/10. See testing/sketch-parity-compact-palette-2026-09-13.md. Compact sketch Move/Rotate check still open. Panel/palette correction4b6a78f passed final50/50 and changed live both-panel/inward-flyout/plane-choice checks; illustrated1247/master38 published89dbafc. Retained51/51 layout baseline remains valid. Native Mac lacks the same handedness/large-text controls; physical iPad variants remain unverified.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ## Cross-cutting build, device, and handoff work
@@ -231,6 +231,7 @@ At **every meaningful checkpoint**, and before a checkpoint commit/push or hando
 
 ## Change log
 
+- 2026-09-13 (13:30): QA-53 compact extrude-bar failure measured and resolved (palette scrolls; tighter column; test asserts reachability), compact suite 3/3; receipt added. No promotion.
 - 2026-09-13 (13:10): QA-45 mixed selection had no exact-value route — fixed at d790646, 84/84, live typed move + Undo/Redo verified; native mixed selection input-blocked. Compact: extrude bar covers Delete on iPhone 17 Pro (confirmed, QA-53); sketch-transform compact check open. 11 assets local. No promotion.
 - 2026-09-13 (12:15): QA-02 entry routes: Space = sketch on hovered plane implemented at 6ac3250 after native observation (grid and face); face → Sketch paired; menu and item routes cited. 81/81 one clean run. Live Space blocked by simulator hover delivery — recorded. 8 assets local. No promotion.
 - 2026-09-13 (11:30): Native named-view rule confirmed over seven isolated trials (Front/Right/Default View end the sketch; Top/Bottom and Rotate View keep it) and matched in the clone at dcee869; 38/38 one clean serial run; clone live re-check on the build. 24 QA-03 assets local/unpublished. No promotion.

@@ -2605,3 +2605,13 @@ mixed test). Live: Items-row mixed selection, X=2 via the app keypad moved line
 and circle together, Undo/Redo verified. Native mixed selection input-blocked.
 Compact: extrude bar covers Delete (confirmed, QA53); sketch-transform compact
 check open. Partial, no promotion. 32/0/1/23.
+
+## September 13 — QA53 compact palette
+
+Measured on iPhone 17 Pro: the extrude bar no longer covers the palette; nine
+model-mode entries (Axis, Material added on the branch) exceed the ~487 pt
+above the info strip + bar, so the palette scrolls and Delete sat below the
+clip edge. ToolPaletteView tries a tighter column before scrolling and carries
+the ToolPalette identifier; the compact test asserts Delete is reachable
+directly or after one palette scroll. CompactWidthBarUITests 3/3; iPad smoke
+clean. Clone-only lane (native has no phone layout). Partial, no promotion.
