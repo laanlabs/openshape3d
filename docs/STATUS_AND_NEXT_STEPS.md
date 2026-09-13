@@ -1,5 +1,7 @@
 # Status & Next Steps — Handoff Notes
 
+> **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
+
 Last updated: 2026-09-07 — rectangle construction and constraint discoverability; see the new mission log and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems

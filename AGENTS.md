@@ -80,3 +80,13 @@ issues are resolved, relevant regressions pass, and an identified installable
 build plus a short device A/B checklist are available. Include known differences.
 This is readiness for Pencil/touch testing, not a claim of full parity. Physical
 Pencil behavior remains unverified until tested on a physical device.
+
+## Living unfinished-work register (Jason request, September 12)
+
+Maintain `docs/SKETCH_PARITY_OPEN_STATUS.md` at every meaningful checkpoint and
+before checkpoint commit/push or handoff. Reconcile every not-passed acceptance
+case, deferred item, newly discovered bug, unfinished verification/publication,
+finite-pass exclusion and build/install/device gate. Update counts together with
+the acceptance matrix; never let a passing subtest hide unfinished work. Parent
+status checks consult this register. Preserve clear owner, next action, revision
+and evidence status. This document is the current status, not an append-only log.
