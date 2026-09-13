@@ -187,7 +187,7 @@ extension EditorViewModel {
 
         // MARK: Transform
         case "model.move":
-            guard !selection.isEmpty else { return false }
+            guard !selection.isEmpty || hasModelSketchSelection else { return false }
             beginMoveTool()
             return true
         case "transform.scaleUniform":

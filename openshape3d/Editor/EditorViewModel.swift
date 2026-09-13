@@ -1307,6 +1307,11 @@ final class EditorViewModel {
             let c = context.plane.toWorld(context.profile.centroid)
             return SIMD3(Float(c.x), Float(c.y), Float(c.z))
         }
+        // Sketch entities selected in model mode (QA-24): Shapr3D puts its
+        // Move/Rotate gizmo on them too, at the selection's centre.
+        if let centroid = modelSketchSelectionCentroid {
+            return SIMD3(Float(centroid.x), Float(centroid.y), Float(centroid.z))
+        }
         switch mode {
         case .selected, .editingPrimitive:
             break
@@ -1334,12 +1339,14 @@ final class EditorViewModel {
         var bodies: Set<BodyID>
         var face: Bool
         var image: Bool
+        var sketchEntities: Set<UUID>
     }
 
     private var currentGizmoPivotOwner: GizmoPivotOwner {
         var face = false
         if case .faceSelected = mode { face = true }
-        return GizmoPivotOwner(bodies: selection, face: face, image: selectedImage != nil)
+        return GizmoPivotOwner(bodies: selection, face: face, image: selectedImage != nil,
+                               sketchEntities: selectedSketchEntityIDs)
     }
 
     /// Where the user dropped the gizmo, as an offset from `gizmoBaseOrigin`.
@@ -2041,6 +2048,15 @@ final class EditorViewModel {
             _ = beginFaceMove()
             return
         }
+        // Sketch entities selected in model mode: the gizmo moves them
+        // (QA-24). Copy-on-drag is a whole-body affordance here too.
+        if selection.isEmpty, beginModelSketchMove() {
+            axisEntryPart = nil
+            scaleEntryActive = false
+            moveDragDelta = nil
+            copyOnDrag = false
+            return
+        }
         guard !selection.isEmpty else { return }
         axisEntryPart = nil
         scaleEntryActive = false
@@ -2136,6 +2152,12 @@ final class EditorViewModel {
             }
             return
         }
+        if let move = modelSketchMove {
+            let worldDelta = SIMD3<Double>(Double(delta.x), Double(delta.y), Double(delta.z))
+            previewModelSketchMotion(
+                ModelSketchMotion(translation: worldDelta, pivot: move.pivot), title: "Move")
+            return
+        }
         guard let moveBefore else { return }
         let worldDelta = SIMD3<Double>(Double(delta.x), Double(delta.y), Double(delta.z))
         session.preview { document in
@@ -2163,7 +2185,16 @@ final class EditorViewModel {
 
     /// Rotate the captured selection by an exact angle about `part`'s axis.
     private func applyRotation(part: GizmoPart, degrees: Double) {
-        guard let moveBefore, part.isRing else { return }
+        guard part.isRing else { return }
+        if let move = modelSketchMove {
+            let axis = part.axisDirection
+            let q = simd_quatd(angle: degrees * .pi / 180,
+                               axis: SIMD3(Double(axis.x), Double(axis.y), Double(axis.z)))
+            previewModelSketchMotion(
+                ModelSketchMotion(rotation: q, pivot: move.pivot), title: "Rotate")
+            return
+        }
+        guard let moveBefore else { return }
         let axis = part.axisDirection
         let q = simd_quatd(
             angle: degrees * .pi / 180,
@@ -2236,6 +2267,10 @@ final class EditorViewModel {
     func endMove() {
         moveDragDelta = nil
         endRotationOrbit()
+        if modelSketchMove != nil {
+            endModelSketchMove()
+            return
+        }
         if imageInteractionBaseline != nil {
             endImageInteraction()
             return
@@ -2298,6 +2333,13 @@ final class EditorViewModel {
                     (i & 2) == 0 ? bounds.min.y : bounds.max.y,
                     (i & 4) == 0 ? bounds.min.z : bounds.max.z)
                 radius = max(radius, simd_length(corner - pivot))
+            }
+        }
+        for (sketch, ids) in modelSketchSelection {
+            for entity in sketch.entities where ids.contains(entity.id) {
+                for (_, point) in SketchHitTester.controlPoints(of: entity) {
+                    radius = max(radius, simd_length(sketch.plane.toWorld(point) - pivot))
+                }
             }
         }
         let gizmoWorld = Double(cameraControl?.gizmoWorldScale(at: origin) ?? 1)
@@ -2471,6 +2513,21 @@ final class EditorViewModel {
             commitFaceMove(worldDelta: delta)
             return
         }
+        // Sketch entities selected in model mode (QA-24): the typed distance
+        // moves them along the arrow, the way the native probe did.
+        if selection.isEmpty, let origin = gizmoOrigin {
+            let targets = modelSketchSelection
+            guard !targets.isEmpty else { return }
+            let pivot = SIMD3(Double(origin.x), Double(origin.y), Double(origin.z))
+            switch transformedModelSketches(
+                ModelSketchMotion(translation: axis * distance, pivot: pivot), baselines: targets) {
+            case .sketches(let sketches):
+                commitModelSketchTransform(sketches, baselines: targets, title: "Move")
+            case .refused(let reason):
+                showNotice(reason)
+            }
+            return
+        }
         var before = [BodyID: Transform3D]()
         var after = [BodyID: Transform3D]()
         for id in selection {
@@ -2483,6 +2540,226 @@ final class EditorViewModel {
         guard !after.isEmpty else { return }
         commitTransforms(title: "Move", before: before, after: after)
         session.save()
+    }
+
+    // MARK: - Model-mode sketch Move/Rotate (QA-24)
+    //
+    // Shapr3D offers its Move/Rotate gizmo for sketch edges selected in model
+    // mode. Observed 2026-09-13 on sketch24 (six edges, all of the sketch):
+    // a distance typed on the up arrow moved the edges along it, the sketch
+    // kept its identity and selection, History gained no step, an offset
+    // plane built downstream re-evaluated (and failed), and Undo restored
+    // everything. This is that path: a whole sketch moves as a rigid frame
+    // (plane origin/axes; local geometry, constraints and dimensions are
+    // untouched) and dependents rebuild in the same undo step. A subset of a
+    // sketch moves within its plane through the constraint solver; taking a
+    // subset off its plane is refused — native's behaviour for that case has
+    // not been observed, and guessing at a sketch split would be worse than
+    // saying so.
+
+    /// Sketch entities selected while idle in model mode, by owning sketch.
+    private var modelSketchSelection: [(sketch: Sketch, ids: Set<UUID>)] {
+        guard mode == .idle, selection.isEmpty, selectedImage == nil,
+              !selectedSketchEntityIDs.isEmpty else { return [] }
+        return session.document.sketches.compactMap { sketch in
+            let ids = Set(sketch.entities.map(\.id)).intersection(selectedSketchEntityIDs)
+            return ids.isEmpty ? nil : (sketch, ids)
+        }
+    }
+
+    /// True when the Move/Rotate gizmo is up for sketch entities in model mode.
+    var hasModelSketchSelection: Bool { !modelSketchSelection.isEmpty }
+
+    /// Where the gizmo attaches: the mean of the selected entities' anchors
+    /// (line midpoint, rect centre, the centre of the circular kinds, the
+    /// mean of a spline's points), in world.
+    var modelSketchSelectionCentroid: SIMD3<Double>? {
+        var sum = SIMD3<Double>.zero
+        var count = 0
+        for (sketch, ids) in modelSketchSelection {
+            for entity in sketch.entities where ids.contains(entity.id) {
+                sum += sketch.plane.toWorld(Self.entityAnchor(entity))
+                count += 1
+            }
+        }
+        return count > 0 ? sum / Double(count) : nil
+    }
+
+    private static func entityAnchor(_ entity: SketchEntity) -> SIMD2<Double> {
+        switch entity {
+        case let .line(_, a, b): return (a + b) / 2
+        case let .rect(_, lo, hi): return (lo + hi) / 2
+        case let .circle(_, c, _), let .arc(_, c, _, _, _),
+             let .ellipse(_, c, _, _, _), let .polygon(_, c, _, _, _): return c
+        case let .spline(_, points, _):
+            guard !points.isEmpty else { return .zero }
+            return points.reduce(SIMD2<Double>.zero, +) / Double(points.count)
+        }
+    }
+
+    /// A rigid motion in world: rotate about `pivot`, then translate.
+    private struct ModelSketchMotion {
+        var translation: SIMD3<Double> = .zero
+        var rotation = simd_quatd(ix: 0, iy: 0, iz: 0, r: 1)
+        var pivot: SIMD3<Double>
+
+        func apply(_ p: SIMD3<Double>) -> SIMD3<Double> {
+            pivot + rotation.act(p - pivot) + translation
+        }
+        func applyDirection(_ d: SIMD3<Double>) -> SIMD3<Double> { rotation.act(d) }
+    }
+
+    private enum ModelSketchTransformOutcome {
+        case sketches([SketchID: Sketch])
+        case refused(String)
+    }
+
+    private func transformedModelSketches(
+        _ motion: ModelSketchMotion, baselines: [(sketch: Sketch, ids: Set<UUID>)]
+    ) -> ModelSketchTransformOutcome {
+        var result: [SketchID: Sketch] = [:]
+        for (sketch, ids) in baselines {
+            let plane = sketch.plane
+            if ids.count == sketch.entities.count {
+                // The whole sketch: move its frame. Local geometry, constraints
+                // and dimensions are exactly what they were, somewhere else.
+                var moved = sketch
+                moved.plane = SketchPlane(origin: motion.apply(plane.origin),
+                                          xAxis: motion.applyDirection(plane.xAxis),
+                                          yAxis: motion.applyDirection(plane.yAxis))
+                result[sketch.id] = moved
+                continue
+            }
+            // A subset has to stay in its plane: the motion must map the
+            // plane onto itself (no tilt, no travel along the normal).
+            let normal = simd_normalize(plane.normal)
+            let tilts = abs(simd_dot(motion.applyDirection(normal), normal)) < 1 - 1e-9
+            let leaves = abs(simd_dot(motion.apply(plane.origin) - plane.origin, normal)) > 1e-9
+            if tilts || leaves {
+                return .refused("Select the whole sketch to move it off its plane")
+            }
+            let xImage = motion.applyDirection(plane.xAxis)
+            let angle = atan2(simd_dot(simd_cross(plane.xAxis, xImage), normal),
+                              simd_dot(plane.xAxis, xImage))
+            let localPivot = plane.toLocal(motion.pivot)
+            let localShift = SIMD2(simd_dot(motion.translation, plane.xAxis),
+                                   simd_dot(motion.translation, plane.yAxis))
+            let originals = sketch.entities.filter { ids.contains($0.id) }
+            var targets = abs(angle) > 1e-12
+                ? SketchTransform.rotate(entities: originals, about: localPivot, angle: angle)
+                : originals
+            guard targets.count == originals.count else {
+                return .refused("Rotate a rectangle inside its sketch")
+            }
+            targets = SketchTransform.translate(entities: targets, by: localShift)
+            var moved = sketch
+            let solvable = originals.allSatisfy {
+                switch $0 { case .line, .circle, .arc: return true; default: return false }
+            }
+            if solvable {
+                guard let solved = SketchSolverBridge.solvePointTransform(sketch, targets: targets),
+                      solved != sketch.entities || targets == originals else {
+                    return .refused("Locked or constrained sketch parts can't be moved.")
+                }
+                moved.entities = solved
+            } else {
+                var byID = [UUID: SketchEntity]()
+                for entity in targets { byID[entity.id] = entity }
+                moved.entities = sketch.entities.map { byID[$0.id] ?? $0 }
+            }
+            result[sketch.id] = moved
+        }
+        return .sketches(result)
+    }
+
+    /// One undo step — the sketch change plus the rebuild of whatever depends
+    /// on it (what the native probe showed: dependents re-evaluate).
+    private func commitModelSketchTransform(
+        _ sketches: [SketchID: Sketch], baselines: [(sketch: Sketch, ids: Set<UUID>)], title: String
+    ) {
+        var commands: [DocumentCommand] = []
+        var ids = Set<SketchID>()
+        for (sketch, _) in baselines {
+            guard let after = sketches[sketch.id], after != sketch else { continue }
+            if after.plane != sketch.plane {
+                commands.append(ChangeSketchPlaneCommand(
+                    sketchID: sketch.id, before: sketch.plane, after: after.plane))
+            }
+            if after.entities != sketch.entities {
+                commands.append(UpdateSketchEntitiesCommand(
+                    sketchID: sketch.id, before: sketch.entities, after: after.entities))
+            }
+            ids.insert(sketch.id)
+        }
+        guard !commands.isEmpty else { return }
+        session.performWithSketchRebuild(
+            CompositeCommand(title: title, commands: commands), sketchIDs: ids)
+        session.save()
+    }
+
+    private struct ModelSketchMove {
+        var baselines: [(sketch: Sketch, ids: Set<UUID>)]
+        var pivot: SIMD3<Double>
+        var result: [SketchID: Sketch]?
+        var title = "Move"
+        var noticeShown = false
+    }
+    private var modelSketchMove: ModelSketchMove?
+
+    private func beginModelSketchMove() -> Bool {
+        let targets = modelSketchSelection
+        guard !targets.isEmpty, let origin = gizmoOrigin else { return false }
+        modelSketchMove = ModelSketchMove(
+            baselines: targets,
+            pivot: SIMD3(Double(origin.x), Double(origin.y), Double(origin.z)))
+        return true
+    }
+
+    private func restoreModelSketchBaselines(_ baselines: [(sketch: Sketch, ids: Set<UUID>)]) {
+        session.preview { document in
+            for (sketch, _) in baselines {
+                if let index = document.sketches.firstIndex(where: { $0.id == sketch.id }) {
+                    document.sketches[index] = sketch
+                }
+            }
+        }
+    }
+
+    /// Live drag preview, outside the undo stack like the body gizmo's.
+    private func previewModelSketchMotion(_ motion: ModelSketchMotion, title: String) {
+        guard var move = modelSketchMove else { return }
+        move.title = title
+        switch transformedModelSketches(motion, baselines: move.baselines) {
+        case .sketches(let sketches):
+            move.result = sketches
+            session.preview { document in
+                for (id, sketch) in sketches {
+                    if let index = document.sketches.firstIndex(where: { $0.id == id }) {
+                        document.sketches[index] = sketch
+                    }
+                }
+            }
+        case .refused(let reason):
+            if !move.noticeShown {
+                showNotice(reason)
+                move.noticeShown = true
+            }
+            if move.result != nil {
+                restoreModelSketchBaselines(move.baselines)
+                move.result = nil
+            }
+        }
+        modelSketchMove = move
+    }
+
+    private func endModelSketchMove() {
+        guard let move = modelSketchMove else { return }
+        modelSketchMove = nil
+        // The preview mutated the sketches in place; put the baselines back
+        // so the command's before/after are the truth and undo lands home.
+        restoreModelSketchBaselines(move.baselines)
+        guard let result = move.result else { return }
+        commitModelSketchTransform(result, baselines: move.baselines, title: move.title)
     }
 
     // MARK: - Scale (uniform, about the body pivot — spec §5.4 v1)
@@ -2764,6 +3041,13 @@ final class EditorViewModel {
     /// only the extrude arrow until Move is chosen). On any other selection it
     /// falls back to the point-to-point Translate.
     func beginMoveTool() {
+        // Sketch entities in model mode already show the Move/Rotate gizmo
+        // (QA-24); the menu entry just makes sure nothing else is armed.
+        if selection.isEmpty, hasModelSketchSelection {
+            axisEntryPart = nil
+            scaleEntryActive = false
+            return
+        }
         // A curved face has no plane to shear along. Say so rather than silently
         // falling through to the whole-BODY translate, which is a different edit
         // than the one the user asked for.
