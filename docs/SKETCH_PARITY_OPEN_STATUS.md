@@ -1,6 +1,6 @@
 # OpenShape3D — unfinished-work status
 
-Last reconciled: **2026-09-12, 23:37 EDT paired checkpoint**. Source checkpoint: **605511b**, fixture **0e86c6b**.
+Last reconciled: **2026-09-12, 23:59 EDT QA01 diagnostic checkpoint**. Source checkpoint: **605511b**, fixture **0e86c6b**.
 Owner: dedicated OpenShape3D parity / PR #29 session. This is the current open-work register, not the historical mission log.
 
 **32 passed / 0 failed / 23 incomplete / 1 device-blocked = 56 acceptance cases.**
@@ -12,7 +12,7 @@ A passed finite recipe is not full feature parity. Automated passes do not repla
 - **QA-24 Items selection:** 0cc5d6c final52/52 and paired owned-selection/Exit/Rename/history/reopen are published.
 - **QA-24 model-mode summary:** source605511b plus fixture0e86c6b final47/47; fresh native and changed clone count/length/blank comparisons, clone history/reopen verified. Ten assets published; source and tests pushed.
 - **Next core:** QA-01 plane-picker miss/face recipe. Native model-mode 3D sketch Move/Rotate diagnostic remains open:5000 submission accepted, clone Move no-op, ownership/downstream semantics unverified; local evidence queued for publication. Clone summary now works, but gizmo and 3D transform dispatch remain absent. Curved-face/edge overlap and remaining item classes remain open.
-- **Actual owner:** no test runner; dedicated parity session owns the next desktop comparison. Native5000 probe restored with Undo, no selection; clone selectedtwo Sketch1 with Transform menu open.
+- **Actual owner:** no test runner; dedicated parity session owns desktop. Both apps are in empty offset-plane sketches with Line armed. Native500mm and clone0.5mm planes created and canvas entry verified; history/reopen next. Plane Items click is a confirmed clone no-op (empty handler); native selects its plane. No source fix yet; local evidence queued.
 - **Reports:** illustrated1,302 unique media/1,305 placements; ten new hashes once, no predecessor loss. Master38, one new note/no loss. Current batch is published, not queued.
 
 ## Every unfinished original acceptance case
@@ -22,7 +22,7 @@ Each entry preserves the matrix's current evidence and remaining scope. Deferred
 ### QA-01 — Plane selection
 
 - **Status:** Core — partial, not passed.
-- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired; offset/face/miss matrix open.
+- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation and offset sketch entry now paired at differing scales; history/reopen/publication remain. Plane Items selection no-op confirmed; curved face and controlled miss matrix remain open.
 - **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
 
 ### QA-02 — Entry method

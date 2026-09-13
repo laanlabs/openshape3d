@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Current — QA01 offset creation and canvas entry paired
+
+HEAD fd254e9; documentation checkpoint in progress, no source/test changes. No runner.
+Native face offset500mm committed Plane01, Items selection then Sketch enters Sketch13
+and alignsTop. Clone box1mm extrusion then face offset0.5mm committed Plane1;
+Sketch>Line>canvas plane enters correctly. Both currently empty offset-plane sketches
+with Line armed. Native/clone scales differ; no equal-size claim.
+Clone Plane Items row click has no effect; ItemsPanelView onSelect is empty, unlike
+native plane selection. Track separate Items/entry gap; no fix yet. Blank grid
+picker probes accepted a plane in both, but native existingSketch12 versus clone
+newground/tool state differs, so full miss recipe not closed.
+Evidence copied to workspace reports milestone/planes/qa01-offset-live-2026-09-12,
+evidence-index.json. Next create offset-plane line, paired history/reopen; then
+scoped plane-item selection investigation. Publication queued. Reports1302/1305
+placements/master38 unchanged;32/0/1/23;iPadunchanged. Disk1.9GiB observed.
+
+
 ## Current — QA24 3D transform diagnostic retained; QA01 next
 
 ccb0cfa summary paired checkpoint pushed. Native5000 axis submission accepted,
