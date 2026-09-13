@@ -36,3 +36,16 @@ QA24 partial; inventory 32/0/1/23; iPad unchanged.
 
 Reference routes: https://support.shapr3d.com/hc/en-us/articles/7770768736924-Selecting-geometry
 and https://support.shapr3d.com/hc/en-us/articles/12469688911516-Create-sketches .
+
+## Native identity follow-up
+
+Fresh chooser again names Sketch05 Profile. Selecting its current accessibility
+node elem_24 highlights the pentagon at the original probe, with Sketch05 selected
+in Items and Sketch05/Extrusion05 in filtered History. Exact native identity is
+now verified. Earlier coordinate-only click selected unrelated Sketch12 geometry;
+retain that failed input receipt, not a product discrepancy. Publication follow-up verified: 1259 unique media and 1262 placements, versus
+1258 unique/1261 placements before; master38. Fresh chooser was byte-identical
+to retained evidence, so the initial two-image upload was undone and only the
+new correct pentagon selection inserted. Both hashes exist once as media; one
+net placement added, no predecessor loss, each follow-up heading once. No extrusion
+was committed. Curved-face/edge and remaining selection breadth still open.

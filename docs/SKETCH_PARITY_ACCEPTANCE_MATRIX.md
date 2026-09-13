@@ -28,7 +28,7 @@ Partial evidence is **not** a case pass. No complete case is promoted to covered
 | QA-21 | Snap feedback | Core — partial, not passed | Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved. |
 | QA-22 | 3D references | Explicitly deferred | Off-plane reference coverage; remains in full audit, not passed. |
 | QA-23 | Selection state | Core — PASSED (September 11 finite recipe) | Paired exact endpoint versus short-edge midpoint, outline/profile highlight and blank deselection are reconciled; selected-outline Delete, one-step Undo and clone gallery reopen pass on the current tree. Clean 19/19 baseline. Illustrated publication verified at 796 unique placements with all ten new hashes once and no 786-asset predecessor loss; master roadmap note verified. |
-| QA-24 | Multi-selection | Core — partial, not passed | Typed planar-face/body/profile chooser on ab6fb2d passed 26/26; changed live face/profile dispatch, Cancel and gallery recovery of three boxes plus circle verified. Illustrated1258/master38 publication verified. Connected rectangle and later constraint additive routes retained; exact native Profile identity and broader curved-face/edge selection remain open. |
+| QA-24 | Multi-selection | Core — partial, not passed | Typed planar-face/body/profile chooser on ab6fb2d passed 26/26; changed live face/profile dispatch, Cancel and gallery recovery of three boxes plus circle verified. Illustrated1258/master38 publication verified. Connected rectangle and later constraint additive routes retained; native Profile identity confirmed by accessibility selection; broader curved-face/edge selection remains open. |
 | QA-25 | Annotation off-state | Core — passed | Fresh paired none/one/several/disconnected saved-label ownership. Clone first+third hides intervening driver; native area selection proves disconnected owners without unrelated labels. Corrected final29/29 ondb230f8; illustrated852/master38 verified, eleven new hashes once/no841 loss. |
 | QA-26 | Annotation on-state | Core — passed | Active/other/hidden scope, idle Exit, hidden re-entry and toggle persistence paired. Independent coplanar leak fixed2fdecd6; final29/29 plus changed live/gallery verification. Illustrated841/master38 export verified, six new hashes once and no predecessor loss. |
 | QA-27 | Dimension type | Core — passed | Exact paired H30/V40/Absolute50, plain numeric driver replacement, on-label menu, Undo/Redo and gallery reopen verified on3016ac6. Final54/54; illustrated827/master38 export verified with predecessor preservation. Variable-linked/multiple-driver variants remain separate and unverified. |
@@ -215,13 +215,17 @@ QA-21, QA-28 and QA-52 respectively.
 
 ### QA-24 — Multi-selection
 
-September 11 checkpoint: clean 19/19 current-tree baseline covers additive model
-routing, window/crossing selection, filters, three-body atomic Delete/Undo, and
-Select Through. The test seed did not persist for independent live inspection,
-and native Shift/additive input is still unverified, so the case remains partial.
-See [multi-selection checkpoint](testing/sketch-parity-multiselection-checkpoint-2026-09-11.md).
+September 12: typed planar-face/body/profile chooser on ab6fb2d passes26/26.
+Changed live candidate dispatch, Cancel and gallery reopen preserve three bodies
+and the new circle. Native Profile identity is confirmed by accessibility selection
+of Sketch05's pentagon; earlier coordinate-only attempt selected Sketch12 and is
+excluded. Later paired constraint receipts cover ordered additive sketch selection;
+retained connected rectangle double-click remains valid. Curved-face/edge overlap
+and remaining item-selection breadth are still open, not an automated-only pass.
+See [typed selection receipt](testing/sketch-parity-select-through-targets-2026-09-12.md).
 
-Shift/additive, connected double-tap, overlapping geometry, item selection. Issues: ED-07. Result: NOT RUN. Evidence/owner: pending.
+Shift/additive, connected double-tap, overlapping geometry, item selection.
+Issue ED-07. Result: **PARTIAL**. Physical input remains QA-52.
 
 ### QA-25 — Annotation off-state
 

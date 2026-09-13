@@ -1,6 +1,26 @@
 # Parity continuation checkpoint
 
-## Current — QA24 typed chooser publication verified
+## Current — QA24 identity publication verified, Items comparison active
+
+Sourceab6fb2d, prior docs02dd7a3 pushed. Final26/26 reused, no runner.
+Identity follow-up verified1259 unique/1262 placements (one new placement),
+master38, headings once/no loss. Duplicate chooser upload undone; retained
+chooser reused, only new correct pentagon selection added. No acceptance change.
+Next paired Items body selection/replacement/deselection. Native Body05 selected
+from Items, whole body highlighted; clone Items panel opened, inspect current
+screenshot. No geometry edits. QA24partial32/0/1/23; iPad unchanged.
+Dirty receipt/matrix/continuation ready to checkpoint. Reports selection/qa24-through-live-2026-09-12.
+
+## Previous — QA24 native identity resolved, follow-up publication next
+
+02dd7a3 pushed. Native fresh chooser AX elem_24 correctly selects pentagon,
+Items Sketch05 and filtered History Sketch05/Extrusion05. Earlier coordinate
+click hit unrelated Sketch12; input miss, not native defect. Local native-through2
+and native-profile-ax evidence retained; publish two-image correction next without
+repeating eleven-image batch. Reports1258/master38. No runner;32/0/1/23.
+Native selectedpentagon, clone3boxes+circle. iPad unchanged. Dirtyreceipt/continuation.
+
+## Previous — QA24 typed chooser publication verified
 
 Source ab6fb2d pushed; final26/26, zero failures/skips. No test runner.
 Illustrated1258/master38 verified: eleven new hashes once, headings once, no
