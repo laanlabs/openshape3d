@@ -239,6 +239,7 @@ struct ItemsPanelView: View {
             guard let body = document.body(with: id) else { return nil }
             return ItemRowView(
                 icon: "cube", name: body.name, isHidden: body.isHidden, renameable: true,
+                nameTapSelects: true,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
                 onSelect: { viewModel.selectItemBody(id) },
@@ -576,6 +577,8 @@ private struct ItemRowView: View {
     let name: String
     let isHidden: Bool
     let renameable: Bool
+    /// Body names select on tap; Rename is an explicit context-menu action.
+    var nameTapSelects = false
     /// Symbols aren't scene items: no eye toggle or Zoom for them.
     var showsVisibility = true
     var showsZoom = true
@@ -592,6 +595,8 @@ private struct ItemRowView: View {
     let onDelete: () -> Void
 
     @State private var draft = ""
+    @State private var isRenaming = false
+    @FocusState private var renameFocused: Bool
 
     var body: some View {
         // Draggable on the inner content, context menu on the wrapper — see
@@ -616,16 +621,23 @@ private struct ItemRowView: View {
                 .font(.system(size: 15))
                 .frame(width: 24)
                 .foregroundStyle(isHidden ? Color.barLabelDim : Color.barLabel)
-            if renameable {
+            if renameable && (!nameTapSelects || isRenaming) {
                 TextField("Name", text: $draft)
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
-                    .onSubmit { onRename(draft) }
+                    .focused($renameFocused)
+                    .onSubmit {
+                        onRename(draft)
+                        isRenaming = false
+                        renameFocused = false
+                    }
+                    .onAppear { if isRenaming { renameFocused = true } }
                     .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
                     .accessibilityIdentifier("ItemName-\(name)")
             } else {
                 Text(name)
                     .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
+                    .accessibilityIdentifier("ItemName-\(name)")
             }
             Spacer(minLength: 4)
             if showsVisibility {
@@ -643,6 +655,14 @@ private struct ItemRowView: View {
 
     @ViewBuilder
     private var menuItems: some View {
+            if renameable && nameTapSelects {
+                Button {
+                    draft = name
+                    isRenaming = true
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+            }
             if showsZoom {
                 Button {
                     onZoom()

@@ -28,6 +28,19 @@ final class SelectionUITests: XCTestCase {
         return app
     }
 
+    func testItemsNameSingleTapSelectsWithoutOpeningRenameKeyboard() throws {
+        let app = launchSeeded()
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.85)).tap()
+        app.buttons["ItemsButton"].tap()
+        let name = app.descendants(matching: .any)["ItemName-Box"].firstMatch
+        XCTAssertTrue(name.waitForExistence(timeout: 3))
+        name.tap()
+        XCTAssertFalse(app.keyboards.firstMatch.waitForExistence(timeout: 2),
+                       "A single item-name tap selects; renaming is a separate action")
+        XCTAssertTrue(app.buttons["CopyBadge"].waitForExistence(timeout: 3),
+                      "The named body must be selected, not merely focused for typing")
+    }
+
     func testMarqueeSelectsPatternBodiesAndDeleteRemovesAll() throws {
         let app = launchSeeded()
         let window = app.windows.firstMatch
@@ -62,16 +75,16 @@ final class SelectionUITests: XCTestCase {
         // Delete removes all three bodies at once…
         app.buttons["DeleteButton"].tap()
         app.buttons["ItemsButton"].tap()
-        XCTAssertFalse(app.textFields["ItemName-Box"].waitForExistence(timeout: 2),
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 2),
                        "Delete should remove every selected body")
-        XCTAssertFalse(app.textFields["ItemName-Box 2"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.exists)
 
         // …and a single undo restores them (one DeleteBodiesCommand).
         app.buttons["UndoButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 3),
                       "Undo should restore the deleted bodies")
-        XCTAssertTrue(app.textFields["ItemName-Box 2"].exists)
-        XCTAssertTrue(app.textFields["ItemName-Box 3"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 3"].firstMatch.exists)
     }
 
     func testLongPressShowsSelectThroughPopup() throws {

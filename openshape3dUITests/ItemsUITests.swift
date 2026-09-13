@@ -65,11 +65,17 @@ final class ItemsUITests: XCTestCase {
         XCTAssertEqual(sketchEye.value as? String, "hidden")
 
         // Rename the extruded body.
-        let nameField = app.textFields["ItemName-Extrude"]
+        let nameField = app.descendants(matching: .any)["ItemName-Extrude"].firstMatch
         XCTAssertTrue(nameField.waitForExistence(timeout: 3),
                       "The extruded body should be listed")
-        replaceText(nameField, with: "MyPart")
-        let renamedField = app.textFields["ItemName-MyPart"]
+        nameField.press(forDuration: 1.0)
+        let rename = app.buttons["Rename"].firstMatch
+        XCTAssertTrue(rename.waitForExistence(timeout: 3))
+        rename.tap()
+        let renameField = app.textFields["ItemName-Extrude"]
+        XCTAssertTrue(renameField.waitForExistence(timeout: 3))
+        replaceText(renameField, with: "MyPart")
+        let renamedField = app.descendants(matching: .any)["ItemName-MyPart"].firstMatch
         XCTAssertTrue(renamedField.waitForExistence(timeout: 3),
                       "Submitting the field should rename the body")
 
@@ -83,12 +89,12 @@ final class ItemsUITests: XCTestCase {
         XCTAssertTrue(deleteItem.waitForExistence(timeout: 3),
                       "Long-pressing the row should show the context menu")
         deleteItem.tap()
-        XCTAssertFalse(app.textFields["ItemName-MyPart"].waitForExistence(timeout: 2),
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-MyPart"].firstMatch.waitForExistence(timeout: 2),
                        "Deleting should remove the body row")
 
         // Undo restores the body (name included).
         app.buttons["UndoButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-MyPart"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-MyPart"].firstMatch.waitForExistence(timeout: 3),
                       "Undo should restore the deleted body")
     }
 }

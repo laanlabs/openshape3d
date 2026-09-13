@@ -1,5 +1,22 @@
 # Parity continuation checkpoint
 
+## Active — QA24 body-name selection fix under focused test
+
+HEADf1e6ebb pushed,1259 unique/1262placements/master38 identitypublication verified.
+Native Items Body05 name click selects wholebody; contextmenu offersRename.
+Clone Box2 name tap opens keyboard without selecting. Before UI0/1 reproduces.
+Scoped ItemRow body-only nameTapSelects: plainlabel selects, explicit contextmenu
+Rename enters inlineediting. Other itemclasses unchanged. Body row existence tests
+use type-independent ItemName IDs; Items rename workflow uses explicitRename.
+Focused2UI run exec48324 owns simulator exclusively:
+/tmp/os3d-qa24-itemname-focused-20260912.{log,xcresult}. Collectterminal first.
+Dirty ItemsPanelView,SelectionUITests,SplitPatternUITests,ItemsFolderUITests,
+ItemsUITests,continuation. No changedlive/finalgate/publication yet. Native parked
+Body05 contextmenu; clone testowned. Disk2GB; preserveevidence/IPA. QA24partial
+32/0/1/23;iPadunchanged. Next focusedresult, exactrename/history guard, broadgate,
+checkpoint/push, changed pairedlive and publication. No duplicateworker.
+
+
 ## Current — QA24 identity publication verified, Items comparison active
 
 Sourceab6fb2d, prior docs02dd7a3 pushed. Final26/26 reused, no runner.
