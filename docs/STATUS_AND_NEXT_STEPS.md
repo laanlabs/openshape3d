@@ -26,6 +26,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   the replay runs detached now and only its error map is adopted. DEBUG
   `OpenTiming` marks print with `OS3D_OPEN_TIMING=1`
   (`testing/perf-open-path-2026-09-13.md`).
+- **iPad session feedback (2026-09-14):** plane picker tiles sized to the
+  screen (3004c48); rotation ring typed entry with the app keypad and lit
+  handles (ba42c5b). `testing/ipad-feedback-2026-09-14.md`.
 - **Gotchas added:** UI tests share the app's UserDefaults across launches
   (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
   test drags (launch with `-os3d.snapToGrid NO` where the recipe is

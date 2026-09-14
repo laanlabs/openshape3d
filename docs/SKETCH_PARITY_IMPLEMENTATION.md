@@ -2787,3 +2787,13 @@ testing/sketch-parity-branch-regression-2026-09-13.md and
 testing/perf-open-path-2026-09-13.md. Full run on the final tree green
 (unit 1613/1613, UI 185/185 with 4 skipped); PR #29 ready, merge awaits
 Jason.
+
+## September 14 — iPad session feedback: plane picker size, gizmo typed entry
+
+Origin plane pickers now keep a constant on-screen size (unit tiles
+resolved per frame and per tap from the gizmo unit at the origin,
+3004c48; the 2026-09-05 scene-extent rule is gone). The rotation ring's
+typed entry brings up the app keypad like the arrow's distance field, and
+the handle whose entry is open (or which is dragged) draws lit (ba42c5b).
+Gates: PlanesUITests 6/6 with 33 unit tests; GizmoFlowUITests 3/3 with
+two new tests. See testing/ipad-feedback-2026-09-14.md.

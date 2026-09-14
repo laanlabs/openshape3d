@@ -129,7 +129,11 @@ to capture on the unlocked iPad (testing/perf-open-path-2026-09-13.md).
 PR #29 refreshed and marked ready; full run on the final tree green
 (unit 1613/1613, UI 185 executed, 4 skipped, 0 failures); the merge to
 main awaits Jason (the session's push was refused by its permission
-policy). Next: the merge; the iPad after-fix timing; then a physical iPad
+policy). Jason's first iPad session found two more (2026-09-14): plane picker
+size (3004c48) and the rotation ring's typed entry without a keypad,
+handles never lit (ba42c5b) — testing/ipad-feedback-2026-09-14.md; both on
+the PR #29 branch and installed on the iPad.
+Next: the merge; the iPad after-fix timing; then a physical iPad
 session for QA-52 (hover, pan, pinch, Pencil).
 32/0/1/23; iPad unchanged.
 
