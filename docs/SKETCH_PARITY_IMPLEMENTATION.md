@@ -2784,4 +2784,6 @@ takes seconds to open — measured with DEBUG open-path marks over the device
 console: 130 ms to load, 5.7 s in the load-time badge replay (on main since
 2026-08-31); the replay now runs detached (7b80282). See
 testing/sketch-parity-branch-regression-2026-09-13.md and
-testing/perf-open-path-2026-09-13.md. PR #29 merged to main.
+testing/perf-open-path-2026-09-13.md. Full run on the final tree green
+(unit 1613/1613, UI 185/185 with 4 skipped); PR #29 ready, merge awaits
+Jason.

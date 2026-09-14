@@ -126,9 +126,11 @@ routing 3985340, rectangle grid capture 2dc2dfc), each fixed and gated green.
 Jason's iPad open-time report measured and fixed (7b80282: the load-time badge
 replay, 5.7 s of a 6.2 s open, now runs detached) — after-fix numbers still
 to capture on the unlocked iPad (testing/perf-open-path-2026-09-13.md).
-PR #29 refreshed, marked ready and merged to main on Jason's instruction.
-Next: post-merge full run on main; the iPad after-fix timing; then a
-physical iPad session for QA-52 (hover, pan, pinch, Pencil).
+PR #29 refreshed and marked ready; full run on the final tree green
+(unit 1613/1613, UI 185 executed, 4 skipped, 0 failures); the merge to
+main awaits Jason (the session's push was refused by its permission
+policy). Next: the merge; the iPad after-fix timing; then a physical iPad
+session for QA-52 (hover, pan, pinch, Pencil).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

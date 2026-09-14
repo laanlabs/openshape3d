@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-13 — sketch-parity branch (PR #29) merged; iPad open-time fix; see the newest mission log, the register above, and
+Last updated: 2026-09-13 — sketch-parity branch (PR #29) ready to merge; iPad open-time fix; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -14,9 +14,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 
-- **Merged `fix/sketch-parity-foundations` (PR #29)** after a full serial
-  run at the final state (unit 1612/1612; UI 185 executed, 4 skipped, 3
-  failures, each fixed and gated). Per-case receipts under `docs/testing/`,
+- **`fix/sketch-parity-foundations` (PR #29) is ready to merge** after full
+  serial runs at the final state (last, on the final tree: unit 1613/1613
+  with 1 skipped; UI 185 executed, 4 skipped, 0 failures). Per-case receipts under `docs/testing/`,
   the register `SKETCH_PARITY_OPEN_STATUS.md`, and published evidence
   (Google Docs linked from the register). Remaining partial-core scope is
   device-only (hover, pan, pinch, Pencil).

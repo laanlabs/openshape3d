@@ -122,5 +122,8 @@ testing/perf-open-path-2026-09-13.md.
 
 Gate after the three fixes: /tmp/os3d-gate3-20260913.xcresult — SelectionTests 14/14; PlanesUITests 6/6, CylinderGrowShotUITests 1/1, BlendUITests 4/4, BugReportUITests 1/1, RectangleWorkflow centre drag 1/1 (7b80282, 3985340, 2dc2dfc).
 
-Merged to main on Jason's instruction after this gate; a post-merge full
-run on main is the next receipt.
+Full serial run on the final tree (616fd16,
+/tmp/os3d-full-suite3-20260913.xcresult, 114 min): **unit 1613 executed,
+0 failures, 1 skipped; UI 185 executed, 4 skipped, 0 failures.** PR #29 is
+ready for review; the merge to main is Jason's click (the session's push
+to main and its `gh pr merge` were refused by its permission policy).
