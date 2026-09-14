@@ -197,6 +197,23 @@ final class SelectionTests: XCTestCase {
         XCTAssertEqual(vm.mode, .faceSelected(box.id))
     }
 
+    /// A tap on the middle of a cylinder wall is the wall (the radial
+    /// diameter edit), never a rim edge — CylinderGrowShotUITests caught the
+    /// edge target firing on a 2 mm-tall wall.
+    func testTapOnACylinderWallMidHeightArmsTheRadialEditNotAFillet() throws {
+        let vm = try makeViewModel()
+        let spec = PrimitiveSpec.cylinder(radius: 1.5, height: 2)
+        var document = vm.session.document
+        let drum = Body(name: "Drum", transform: .identity, primitive: spec,
+                        euclidMesh: .primitive(spec), revision: document.nextRevision())
+        vm.session.perform(AddBodyCommand(body: drum))
+        // Sideways into the wall at mid-height (the wall spans y 0…2).
+        vm.handle(.tap(ray: Ray(origin: SIMD3(10, 1, 0), direction: SIMD3(-1, 0, 0))))
+        XCTAssertEqual(vm.mode, .faceSelected(drum.id), "\(vm.mode)")
+        XCTAssertNotNil(vm.toolContext?.cylinderFace)
+        XCTAssertNil(vm.blendBodyID)
+    }
+
     /// Shapr3D's Select Through on a curved wall lists the wall faces, the
     /// body and the sketch profile behind (observed 2026-09-13). The clone
     /// used to keep only the body for a curved hit; choosing the wall now

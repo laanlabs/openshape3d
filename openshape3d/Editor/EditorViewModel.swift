@@ -4879,17 +4879,50 @@ final class EditorViewModel {
 
     /// Distance from a point to a segment (both body-local).
     /// Screen-sized edge target for a plain tap: within `edgeTapPoints` of
-    /// a selectable edge the tap means that edge, not the face beside it.
-    static let edgeTapPoints: Double = 8
+    /// a sharp edge the tap means that edge, not the face beside it. Kept
+    /// tight (a thin wall at model-mode zoom is only a few points tall, and
+    /// its centre must still read as the wall — CylinderGrowShotUITests),
+    /// and limited to sharp dihedrals so tessellation seams never count.
+    static let edgeTapPoints: Double = 5
+    static let edgeTapMinimumDihedralDegrees: Float = 45
 
     private func tapIsNearBodyEdge(hit: PickHit, body: Body) -> Bool {
+        // Only from a flat face: a tap on a curved wall is the wall (its
+        // rims are exactly where an edge-on view puts a wall tap, and the
+        // radial edit is what the wall means — CylinderGrowShotUITests).
+        // The native rim click observed 2026-09-13 was from the cap side.
+        if FaceTopology.smoothRegion(in: body.render, seedTriangle: hit.triangleIndex)?.isCurved == true {
+            return false
+        }
+        let flattest = cos(Self.edgeTapMinimumDihedralDegrees * .pi / 180)
+        let sharp = EdgeTopology.selectableEdges(from: body.render).filter {
+            simd_dot($0.normalA, $0.normalB) <= flattest
+        }
+        guard !sharp.isEmpty else { return false }
+        // Measure on screen through the live camera: a world-unit tolerance
+        // from `worldUnitsPerPoint` balloons in the orthographic named views
+        // (CylinderGrowShotUITests' Front view), turning a mid-wall tap into
+        // a rim hit. The unit-test path has no camera and keeps world units.
+        if let camera = cameraControl,
+           let tap = camera.worldToScreenPoint(SIMD3<Double>(hit.worldPoint)) {
+            let transform = body.transform
+            for edge in sharp {
+                guard let a = camera.worldToScreenPoint(transform.applying(to: SIMD3<Double>(edge.start))),
+                      let b = camera.worldToScreenPoint(transform.applying(to: SIMD3<Double>(edge.end)))
+                else { continue }
+                let ab = SIMD2(Double(b.x - a.x), Double(b.y - a.y))
+                let ap = SIMD2(Double(tap.x - a.x), Double(tap.y - a.y))
+                let len2 = simd_dot(ab, ab)
+                let t = len2 > 1e-9 ? max(0, min(1, simd_dot(ap, ab) / len2)) : 0
+                if simd_length(ap - ab * t) <= Self.edgeTapPoints { return true }
+            }
+            return false
+        }
         let inverse = simd_inverse(body.transform.matrixFloat)
         let local4 = inverse * SIMD4(hit.worldPoint, 1)
         let local = SIMD3<Float>(local4.x, local4.y, local4.z)
         let tolerance = Float(Self.edgeTapPoints * worldPerPoint / max(body.transform.scale, 1e-9))
-        return EdgeTopology.selectableEdges(from: body.render).contains {
-            Self.pointSegmentDistance(local, $0.start, $0.end) <= tolerance
-        }
+        return sharp.contains { Self.pointSegmentDistance(local, $0.start, $0.end) <= tolerance }
     }
 
     private static func pointSegmentDistance(
