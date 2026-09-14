@@ -1112,7 +1112,7 @@ struct EditorView: View {
                     // "Move the gizmo" mode (tap the pivot): say what a touch
                     // does now, and how to leave (iPad, 2026-09-14).
                     if viewModel.gizmoRepositionArmed {
-                        Text("Moving the gizmo — tap or drag where it should sit; tap the crosshair when done")
+                        Text("Tap or drag where the gizmo should sit")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 10)
@@ -1120,6 +1120,21 @@ struct EditorView: View {
                             .background(Color.orange, in: Capsule())
                             .accessibilityIdentifier("GizmoRepositionHint")
                     }
+                    // Reposition badge: the same mode a tap on the pivot
+                    // enters, from a button that is easy to hit (the pivot
+                    // dot was still too small a target — Jason, iPad,
+                    // 2026-09-14). Reads "Done" while the mode is on.
+                    Button {
+                        viewModel.toggleGizmoReposition()
+                    } label: {
+                        Label(viewModel.gizmoRepositionArmed ? "Done" : "Reposition",
+                              systemImage: viewModel.gizmoRepositionArmed ? "checkmark" : "scope")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(viewModel.gizmoRepositionArmed ? Color.orange : Color.secondary)
+                    .background(.regularMaterial, in: Capsule())
+                    .accessibilityIdentifier("RepositionBadge")
                     Button {
                         viewModel.copyOnDrag.toggle()
                     } label: {
