@@ -47,13 +47,22 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
             return
         }
         context.configure(view: view)
+        #if DEBUG
+        OpenTiming.mark("render context ready")
+        #endif
         let renderer = Renderer(context: context)
         renderer.scene = viewModel.scene
+        #if DEBUG
+        OpenTiming.mark("renderer + scene built")
+        #endif
         view.delegate = renderer
         self.renderer = renderer
         self.view = view
         cameraAnimator = CameraAnimator(renderer: renderer, view: view)
         gestures.attach(to: view, renderer: renderer)
+        #if DEBUG
+        OpenTiming.mark("viewport attached")
+        #endif
         gestures.delegate = self
 
         // Keep the Look-at-Sketch affordance in sync with camera motion

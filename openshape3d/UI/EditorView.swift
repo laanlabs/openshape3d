@@ -263,9 +263,15 @@ struct EditorView: View {
             }
         }
         .task {
+            #if DEBUG
+            OpenTiming.mark("editor task start")
+            #endif
             if viewModel == nil {
                 viewModel = EditorViewModel(project: project, modelContext: modelContext)
                 viewModel?.debugSeedIfRequested()
+                #if DEBUG
+                OpenTiming.mark("view model built")
+                #endif
             }
             #if DEBUG
             // Hand the live editor to the agent bridge. Costs nothing unless

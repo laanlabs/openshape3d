@@ -23,6 +23,9 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let quadTextures = ImageQuadTextureCache()
     private let bodyTextures = BodyTextureCache()
     private let gizmoRenderer = GizmoRenderer()
+    #if DEBUG
+    private var didMarkFirstDraw = false
+    #endif
     private let orientationCubeRenderer = OrientationCubeRenderer()
     private var viewportSize = CGSize(width: 1, height: 1)
 
@@ -59,6 +62,9 @@ final class Renderer: NSObject, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
+        #if DEBUG
+        if !didMarkFirstDraw { didMarkFirstDraw = true; OpenTiming.mark("first draw") }
+        #endif
         guard
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = context.commandQueue.makeCommandBuffer()

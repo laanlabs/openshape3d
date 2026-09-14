@@ -133,3 +133,26 @@ private struct ThemedRoot: View {
             .preferredColorScheme(settings.theme.colorScheme)
     }
 }
+
+#if DEBUG
+/// Wall-clock marks for the document-open path (2026-09-13 iPad report:
+/// "any drawing takes a second or two to open"). Prints only; read them
+/// over `devicectl device process launch --console`.
+enum OpenTiming {
+    nonisolated(unsafe) static var t0: CFAbsoluteTime = 0
+    /// Quiet unless OS3D_OPEN_TIMING is set, so ordinary Debug runs and the
+    /// UI suite's logs stay as they were.
+    nonisolated(unsafe) static let enabled = ProcessInfo.processInfo.environment["OS3D_OPEN_TIMING"] != nil
+    static func reset(_ label: String) {
+        guard enabled else { return }
+        t0 = CFAbsoluteTimeGetCurrent()
+        print("[OS3D][open]     0.0 ms  \(label)")
+    }
+    static func mark(_ label: String) {
+        guard enabled else { return }
+        let now = CFAbsoluteTimeGetCurrent()
+        if t0 == 0 { t0 = now }
+        print(String(format: "[OS3D][open] %7.1f ms  %@", (now - t0) * 1000, label))
+    }
+}
+#endif
