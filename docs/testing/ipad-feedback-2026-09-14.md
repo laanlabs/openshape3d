@@ -66,5 +66,7 @@ Move; Copy off unchanged; typed rotation with Copy on duplicates), with
 ModelSketchTransformTests 7/7 and SelectionTests 14/14 on the iPad (A16)
 simulator (/tmp/os3d-typedcopy-20260914.xcresult). UI test
 GizmoFlowUITests.testCopyBadgeThenTypedDistanceMovesADuplicate written;
-runs with the suite on the parity simulator.
+runs with the suite on the parity simulator. **On device:** Jason tested
+the a282de6 build on the iPad — Copy then a typed distance moves the copy
+and leaves the original ("it works", 2026-09-14).
 
