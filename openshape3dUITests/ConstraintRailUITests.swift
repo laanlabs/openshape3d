@@ -31,6 +31,13 @@ final class ConstraintRailUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        // The operands are drawn with 62 pt drags on a 0.5 mm grid that is
+        // 67.5 pt at this zoom: with grid snapping on, the first circle's
+        // centre and rim snap to the same grid point (no circle), and the
+        // lines land where the "add the first operand" tap misses them
+        // (measured from the 2026-09-13 recordings). Symmetry does not
+        // depend on the grid; draw where the coordinates say.
+        app.launchArguments += ["-os3d.snapToGrid", "NO"]
         app.launch()
         XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
         startSketchTool(app, "Line")
