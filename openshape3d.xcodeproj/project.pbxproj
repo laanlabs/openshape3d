@@ -469,6 +469,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = YES;
 				"EXCLUDED_ARCHS[sdk=macosx*]" = x86_64;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -523,6 +525,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = YES;
 				"EXCLUDED_ARCHS[sdk=macosx*]" = x86_64;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
