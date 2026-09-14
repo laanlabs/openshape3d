@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-07 — rectangle construction and constraint discoverability; see the new mission log and
+Last updated: 2026-09-13 — sketch-parity branch (PR #29) merged; iPad open-time fix; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,25 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
+
+- **Merged `fix/sketch-parity-foundations` (PR #29)** after a full serial
+  run at the final state (unit 1612/1612; UI 185 executed, 4 skipped, 3
+  failures, each fixed and gated). Per-case receipts under `docs/testing/`,
+  the register `SKETCH_PARITY_OPEN_STATUS.md`, and published evidence
+  (Google Docs linked from the register). Remaining partial-core scope is
+  device-only (hover, pan, pinch, Pencil).
+- **Opening a drawing no longer replays the feature graph on the main
+  thread** (7b80282). Measured on Jason's iPad: 130 ms to load, then 5.7 s in
+  `refreshEvalErrors()` replaying every feature for badges on every open;
+  the replay runs detached now and only its error map is adopted. DEBUG
+  `OpenTiming` marks print with `OS3D_OPEN_TIMING=1`
+  (`testing/perf-open-path-2026-09-13.md`).
+- **Gotchas added:** UI tests share the app's UserDefaults across launches
+  (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
+  test drags (launch with `-os3d.snapToGrid NO` where the recipe is
+  sub-grid); a locked iPad denies every launch and hangs `xctrace`.
 
 ## Mission log — 2026-09-09, arc endpoint tangent transition
 

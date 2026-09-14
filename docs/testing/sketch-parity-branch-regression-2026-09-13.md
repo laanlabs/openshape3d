@@ -98,4 +98,29 @@ its result is recorded below when it completes.
 
 ## Full-suite re-run at the final state
 
-FULLSUITE2_PLACEHOLDER
+Full serial run at b398adc (every fix above in): **unit 1612 executed,
+0 failures, 1 skipped; UI 185 executed, 4 skipped, 3 failures**, 113 min.
+None of the ten reappeared. The three new ones, each reproduced on a
+targeted re-run, then fixed:
+
+- BugReportUITests.testBugReportSheetOpensValidatesAndCancels — the swipe
+  scrolled the title field out of the Form's realised rows; the summary
+  is typed before scrolling (2dc2dfc).
+- PlanesUITests.testSketchOnFaceThenExtrudeNewBody — the screen-space edge
+  target from b4a1bb0 has no depth: a tap 0.47 mm inside a box's top face
+  lay 3.8 pt from the projection of the hidden bottom edge that
+  perspective draws underneath, and armed Fillet. World-unit target again
+  (3985340), with a unit test for the hidden-edge case.
+- RectangleWorkflowUITests.testRectangleCenterDragTranslatesWithoutOrbitAndRestoresHistory
+  — a 60 pt centre drag captured to the 0.5 mm grid (67.5 pt) once the
+  defaults reset stopped a leaked "grid off" from masking it; the test
+  draws without grid snapping (2dc2dfc).
+
+While this ran, Jason's iPad report ("any drawing takes a second or two to
+open") was measured and fixed on the same branch (7b80282) — see
+testing/perf-open-path-2026-09-13.md.
+
+Gate after the three fixes: /tmp/os3d-gate3-20260913.xcresult — SelectionTests 14/14; PlanesUITests 6/6, CylinderGrowShotUITests 1/1, BlendUITests 4/4, BugReportUITests 1/1, RectangleWorkflow centre drag 1/1 (7b80282, 3985340, 2dc2dfc).
+
+Merged to main on Jason's instruction after this gate; a post-merge full
+run on main is the next receipt.

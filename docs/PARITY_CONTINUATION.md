@@ -120,11 +120,15 @@ the ten; the two QA-36 symmetry rail tests (006bf4b) and the mesh-unit
 prompt test failed identically at 0e86c6b — pre-existing, then fixed: grid
 snapping collapsed the symmetry operands (ad135ba, tests draw without it) and
 the Imported size row sat below the form-sheet fold (05bbf71). All ten pass in
-targeted gates; the full serial suite is re-running at the final state
-(/tmp/os3d-full-suite2-20260913.xcresult) — record its result in
-testing/sketch-parity-branch-regression-2026-09-13.md before merge.
-Next: that result, then a physical iPad session for QA-52 (hover, pan,
-pinch, Pencil).
+targeted gates; the full serial re-run at b398adc = unit 1612/1612, UI
+185 with 3 new failures (bug-report scroll 2dc2dfc, hidden-bottom-edge tap
+routing 3985340, rectangle grid capture 2dc2dfc), each fixed and gated green.
+Jason's iPad open-time report measured and fixed (7b80282: the load-time badge
+replay, 5.7 s of a 6.2 s open, now runs detached) — after-fix numbers still
+to capture on the unlocked iPad (testing/perf-open-path-2026-09-13.md).
+PR #29 refreshed, marked ready and merged to main on Jason's instruction.
+Next: post-merge full run on main; the iPad after-fix timing; then a
+physical iPad session for QA-52 (hover, pan, pinch, Pencil).
 32/0/1/23; iPad unchanged.
 
 ## Superseded — QA01 paired offset history/reopen; gate running

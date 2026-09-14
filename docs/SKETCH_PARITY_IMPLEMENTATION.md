@@ -2771,3 +2771,17 @@ pre-existing; fixed by drawing the operands without grid snapping (ad135ba)
 and moving the Imported size row above the form-sheet fold (05bbf71), 3/3.
 Full suite re-running at the final state. See
 testing/sketch-parity-branch-regression-2026-09-13.md.
+
+## September 13 — final-state re-run, iPad open time, merge
+
+Full serial suite at b398adc: unit 1612/1612 (1 skipped), UI 185 executed
+with 4 skipped and 3 failures, each reproduced and fixed — the bug-report
+title field scrolled out of the realised rows (2dc2dfc), the screen-space edge
+target claimed a box's hidden bottom edge under a top-face tap (world-unit
+again, 3985340, unit-tested), a 60 pt rectangle centre drag captured to the
+grid (test without grid, 2dc2dfc); gate green. Jason's iPad report — any drawing
+takes seconds to open — measured with DEBUG open-path marks over the device
+console: 130 ms to load, 5.7 s in the load-time badge replay (on main since
+2026-08-31); the replay now runs detached (7b80282). See
+testing/sketch-parity-branch-regression-2026-09-13.md and
+testing/perf-open-path-2026-09-13.md. PR #29 merged to main.
