@@ -2765,5 +2765,8 @@ edge-tap slice catching a 2 mm cylinder wall's rim in the Front view, fixed
 by applying the plain-tap edge target only from flat faces, measured on
 screen, sharp dihedrals only (b4a1bb0; SelectionTests 13/13,
 CylinderGrowShot 1/1, Blend 4/4). The two QA-36 symmetry rail tests
-(006bf4b) and the mesh-unit prompt test fail identically at 0e86c6b —
-pre-existing, open. See testing/sketch-parity-branch-regression-2026-09-13.md.
+(006bf4b) and the mesh-unit prompt test failed identically at 0e86c6b —
+pre-existing; fixed by drawing the operands without grid snapping (ad135ba)
+and moving the Imported size row above the form-sheet fold (05bbf71), 3/3.
+Full suite re-running at the final state. See
+testing/sketch-parity-branch-regression-2026-09-13.md.

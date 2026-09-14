@@ -116,9 +116,13 @@ OS3D_RESET_STORE also resets defaults), one from the edge-tap slice on a
 thin cylinder wall (fixed at b4a1bb0: edge target only from flat faces,
 measured on screen, sharp edges only). Targeted gates green for seven of
 the ten; the two QA-36 symmetry rail tests (006bf4b) and the mesh-unit
-prompt test fail identically at 0e86c6b — pre-existing, open. See
-testing/sketch-parity-branch-regression-2026-09-13.md.
-Next: fix those three, then a physical iPad session for QA-52 (hover, pan,
+prompt test failed identically at 0e86c6b — pre-existing, then fixed: grid
+snapping collapsed the symmetry operands (ad135ba, tests draw without it) and
+the Imported size row sat below the form-sheet fold (05bbf71). All ten pass in
+targeted gates; the full serial suite is re-running at the final state
+(/tmp/os3d-full-suite2-20260913.xcresult) — record its result in
+testing/sketch-parity-branch-regression-2026-09-13.md before merge.
+Next: that result, then a physical iPad session for QA-52 (hover, pan,
 pinch, Pencil).
 32/0/1/23; iPad unchanged.
 

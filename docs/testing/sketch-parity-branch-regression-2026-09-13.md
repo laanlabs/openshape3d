@@ -56,6 +56,24 @@ the three ConstraintRail tests and the mesh-unit prompt were not — they fail
 identically at 0e86c6b (the branch before today's slices, "test: correct
 primitive selection fixture labels", 2026-09-12), so they are pre-existing.
 
+## The three pre-existing failures
+
+- **Symmetry rail ×2 (WIP QA-36, 006bf4b):** grid snapping, the same cause
+  as the three DimensionUITests fixed earlier today. The recordings show
+  the circle test's first 62 pt drag snapping its centre and its rim to
+  the same 0.5 mm grid point (67.5 pt at this zoom) — no circle — and the
+  line test's two drags snapping onto the grid so the "add the first
+  operand" tap at the intended midpoint missed the line; the Symmetric
+  button then stayed disabled with one operand selected. Fix (ad135ba): the
+  tests launch with `-os3d.snapToGrid NO`; the axis pick, cancel, apply
+  and glyph assertions are unchanged.
+- **Mesh unit prompt:** the "Imported size" row sat below the fold of the
+  iPad form sheet — the list shows the five unit rows and nothing under
+  them without scrolling (the hierarchy reports two scroll pages), so the
+  off-screen row was not in the hierarchy. Fix (05bbf71): the row moved into
+  the top section with the file facts, where the consequence of the
+  choice stays in view.
+
 ## Result
 
 Targeted serial re-runs on the same simulator after the fixes (the full
@@ -69,8 +87,15 @@ relaunch and the plain-tap edge routing, whose owning suites are below):
 | Cylinder + BlendUITests + SelectionTests after the flat-face guard (b4a1bb0) | /tmp/os3d-cyl-fix2-20260913.xcresult | CylinderGrowShotUITests 1/1, BlendUITests 4/4, SelectionTests 13/13 |
 | Attribution at 0e86c6b (detached worktree /tmp/os3d-attrib-wt, since removed) | run on the same simulator | testCircleSymmetryChoosesAxisAfterOperandsAndCancels, testLineSymmetryChoosesAxisAfterOperandsAndCancels (added by the WIP QA-36 commit 006bf4b; the recording shows the first circle drag drawing nothing) and MeshUnitPromptUITests.testPromptPreviewsAndAppliesChosenUnit (result row not found within 2 s, line 60) fail identically; the cylinder test passes there, which is what marked it as today's regression |
 
-Net: of the ten, **seven fixed and verified** (six by the defaults reset,
-the cylinder by the edge-routing fix) and **three pre-existing** on the
-branch, still open: the two QA-36 symmetry rail tests and the mesh-unit
-prompt. They are the next slice before merge; nothing else in the run
-regressed.
+| The three pre-existing after 05bbf71 / ad135ba | /tmp/os3d-preexist-20260913.xcresult | 3/3: both symmetry tests and the mesh-unit prompt pass |
+
+Net: **all ten fixed and verified** — six by the defaults reset, the
+cylinder by the edge-routing fix, two by drawing without grid snapping,
+one by the sheet layout. Because the defaults reset changes every UI
+launch, the full serial suite is re-run at the final state
+(/tmp/os3d-full-suite2-20260913.xcresult, started 2026-09-14 ~00:20);
+its result is recorded below when it completes.
+
+## Full-suite re-run at the final state
+
+FULLSUITE2_PLACEHOLDER
