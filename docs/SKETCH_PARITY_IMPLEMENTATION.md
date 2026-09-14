@@ -2755,3 +2755,15 @@ the parallel-distance row (93df1d3, SelectionUXTests 16/16). Four captures
 local. See testing/sketch-parity-label-overlap-2026-09-13.md. QA-29 remains
 partial only on a device zoom check.
 
+## September 13 — branch-wide regression before merge
+
+Full serial unit + UI run at dbbbc0a: unit 1611/1611 (1 skipped), UI
+171/185 with ten failures (111 min). Nine looked like one cause — UI
+launches sharing the app's UserDefaults — and `OS3D_RESET_STORE` now also
+resets the defaults domain (fa7f22b), which fixed six; the tenth was the
+edge-tap slice catching a 2 mm cylinder wall's rim in the Front view, fixed
+by applying the plain-tap edge target only from flat faces, measured on
+screen, sharp dihedrals only (b4a1bb0; SelectionTests 13/13,
+CylinderGrowShot 1/1, Blend 4/4). The two QA-36 symmetry rail tests
+(006bf4b) and the mesh-unit prompt test fail identically at 0e86c6b —
+pre-existing, open. See testing/sketch-parity-branch-regression-2026-09-13.md.
