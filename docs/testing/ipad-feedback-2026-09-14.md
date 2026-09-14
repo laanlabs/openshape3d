@@ -94,5 +94,11 @@ it while the gizmo is off its centre and puts it back.
 Gate: GizmoPivotTests 4/4 (with Recenter), SelectionTests 14/14 (multi-selection origin
 = combined bounding-box centre), ModelSketchTransformTests 7/7
 (/tmp/os3d-pivot-20260914.xcresult). GizmoFlowUITests' coordinates
-re-derived for the raised gizmo: PIVOT_UI_PLACEHOLDER
+re-derived for the raised gizmo (from a portrait frame of a UI-test
+recording — the simulator had been left in landscape): 5/5 including the
+new testRepositionBadgeMovesTheGizmoAndRecenterReturnsIt (Reposition →
+hint + crosshair; a tap on the top face moves the crosshair and offers
+Recenter; Recenter puts it back; Done leaves the mode)
+(/tmp/os3d-gizmo3-20260914.xcresult). On device: Jason verified
+Recenter ("it works"); PRs #30 and #31 merged at 2c89dcd.
 
