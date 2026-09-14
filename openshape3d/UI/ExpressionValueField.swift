@@ -43,7 +43,7 @@ struct ExpressionValueField: View {
     @State private var padOpen = false
     /// Set once the person asks for the real keyboard (a variable name or a
     /// function is not something a ten-key can express).
-    @State private var usingSystemKeyboard = false
+    @State private var usingSystemKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var focused: Bool
 
     private var unit: DisplayUnit { AppSettings.shared.unit }

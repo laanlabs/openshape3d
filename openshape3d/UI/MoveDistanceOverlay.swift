@@ -107,7 +107,7 @@ private struct MoveDistanceField: View {
     let part: GizmoPart
     @State private var text = ""
     @State private var padOpen = false
-    @State private var usingSystemKeyboard = false
+    @State private var usingSystemKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -167,8 +167,9 @@ private struct MoveDistanceField: View {
         .onAppear {
             text = ""
             // The pad comes up with the field — this overlay exists precisely
-            // because the user is entering a distance.
-            padOpen = true
+            // because the user is entering a distance. On a desktop the
+            // field itself takes focus instead.
+            if usingSystemKeyboard { focused = true } else { padOpen = true }
         }
     }
 }

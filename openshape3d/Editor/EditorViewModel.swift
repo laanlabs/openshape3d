@@ -13333,7 +13333,7 @@ final class EditorViewModel {
         var hardwareInitiated = false
     }
     // Input-mode preference survives individual dimension edit sessions.
-    var dimensionUsesSystemKeyboard = false
+    var dimensionUsesSystemKeyboard = AppSettings.prefersSystemKeyboard
     var editingDimension: DimensionEdit?
 
     // The field keeps its own SwiftUI text state. Mirror drafts without

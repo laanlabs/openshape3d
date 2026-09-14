@@ -174,7 +174,7 @@ private struct RotationAngleField: View {
     let part: GizmoPart
     @State private var text = ""
     @State private var padOpen = false
-    @State private var usingSystemKeyboard = false
+    @State private var usingSystemKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -233,7 +233,7 @@ private struct RotationAngleField: View {
         .onTapGesture { if !usingSystemKeyboard { padOpen = true } }
         .onAppear {
             text = ""
-            padOpen = true
+            if usingSystemKeyboard { focused = true } else { padOpen = true }
         }
     }
 }

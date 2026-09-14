@@ -153,6 +153,19 @@ nonisolated enum AppTheme: String, CaseIterable, Codable, Sendable {
 /// flips the palette, or re-themes the window.
 @Observable
 final class AppSettings {
+    /// Numeric fields on a desktop start with the real keyboard, focused,
+    /// and never raise the on-screen keypad: on the Mac (Catalyst) a click
+    /// on the extrude distance opened the ten-key and typed digits went
+    /// nowhere (Release smoke test, 2026-09-14). iPad keeps the keypad, with
+    /// its keyboard key handing over to the system keyboard.
+    nonisolated static let prefersSystemKeyboard: Bool = {
+        #if targetEnvironment(macCatalyst)
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     static let shared = AppSettings()
 
     private enum Key {

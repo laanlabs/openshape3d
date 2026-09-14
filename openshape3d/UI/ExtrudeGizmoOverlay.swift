@@ -174,7 +174,7 @@ private struct ExtrudeArrowField: View {
     @Bindable var viewModel: EditorViewModel
     @State private var text = ""
     @State private var padOpen = false
-    @State private var usingSystemKeyboard = false
+    @State private var usingSystemKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -226,7 +226,7 @@ private struct ExtrudeArrowField: View {
                     .replacingOccurrences(of: "⌀ ", with: "")
                     .replacingOccurrences(
                         of: " " + AppSettings.shared.unit.symbol, with: "")
-                padOpen = true
+                if usingSystemKeyboard { focused = true } else { padOpen = true }
             }
     }
 }

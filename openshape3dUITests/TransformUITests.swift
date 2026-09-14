@@ -34,8 +34,9 @@ final class TransformUITests: XCTestCase {
         // and 240° points — a quarter-turn drag. (Radius 0.5 in gizmo units
         // after the compact-gizmo restyle.)
         let window = app.windows.firstMatch
-        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.4445, dy: 0.6385))
-        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.4689, dy: 0.7131))
+        // Along the left (X) ring's arc, gizmo at the box's centre (2026-09-14).
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.441, dy: 0.432))
+        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.419, dy: 0.469))
         start.press(forDuration: 0.1, thenDragTo: end)
 
         // Two commands undoable: seed Add and the ring rotation (Move).
@@ -57,8 +58,10 @@ final class TransformUITests: XCTestCase {
         XCTAssertTrue(copyBadge.waitForExistence(timeout: 5))
         copyBadge.tap()
 
-        let arrowStart = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.66))
-        let arrowEnd = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45))
+        // The gizmo sits at the box's centre since 2026-09-14 (see
+        // GizmoFlowUITests for the seed layout in portrait).
+        let arrowStart = window.coordinate(withNormalizedOffset: CGVector(dx: 0.499, dy: 0.44))
+        let arrowEnd = window.coordinate(withNormalizedOffset: CGVector(dx: 0.499, dy: 0.25))
         arrowStart.press(forDuration: 0.1, thenDragTo: arrowEnd)
 
         // The moved copy is selected: delete it.
