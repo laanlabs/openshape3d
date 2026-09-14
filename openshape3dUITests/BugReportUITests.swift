@@ -31,7 +31,19 @@ final class BugReportUITests: XCTestCase {
         let send = app.buttons["BugReportSend"]
         XCTAssertTrue(send.waitForExistence(timeout: 3))
         XCTAssertFalse(send.isEnabled, "Send needs a summary")
-        // In portrait the attachment section is now below the Form's realised
+        // Type the summary while the first section is still on screen: a
+        // Form only realises rows on screen, and how far a swipe scrolls
+        // varies from run to run (2026-09-13: the title field was gone
+        // after the swipe below once in a full-suite run).
+        let title = app.textFields["BugTitleField"]
+        XCTAssertTrue(title.waitForExistence(timeout: 3))
+        title.tap()
+        title.typeText("Fillet closes the app")
+        let configured = !app.staticTexts["BugReportNotConfigured"].exists
+        XCTAssertEqual(send.isEnabled, configured,
+                       "Send enables with a summary when the build carries a Firebase config")
+
+        // In portrait the attachment section is below the Form's realised
         // rows. Scroll before querying it, and use its stable identifier rather
         // than depending on how SwiftUI folds a Toggle label into a switch.
         app.swipeUp()
@@ -39,15 +51,8 @@ final class BugReportUITests: XCTestCase {
         XCTAssertTrue(attach.waitForExistence(timeout: 3),
                       "In the editor the design can be attached")
 
-        let title = app.textFields["BugTitleField"]
-        title.tap()
-        title.typeText("Fillet closes the app")
-        let configured = !app.staticTexts["BugReportNotConfigured"].exists
-        XCTAssertEqual(send.isEnabled, configured,
-                       "Send enables with a summary when the build carries a Firebase config")
-
-        // The "what goes along" section sits below the fold in portrait; a
-        // Form only realises rows on screen, so scroll before asserting.
+        // The "what goes along" section sits further down; scroll again
+        // before asserting.
         app.swipeUp()
         XCTAssertTrue(app.staticTexts["Included with your report"].waitForExistence(timeout: 3),
                       "The form lists what is sent automatically")

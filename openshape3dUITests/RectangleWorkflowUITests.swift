@@ -5,10 +5,11 @@ final class RectangleWorkflowUITests: XCTestCase {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
     }
-    private func start() -> XCUIApplication {
+    private func start(gridSnap: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        if !gridSnap { app.launchArguments += ["-os3d.snapToGrid", "NO"] }
         app.launch()
         XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
         startSketchTool(app, "Rect")
@@ -169,7 +170,11 @@ final class RectangleWorkflowUITests: XCTestCase {
     }
 
     func testRectangleCenterDragTranslatesWithoutOrbitAndRestoresHistory() throws {
-        let app = start()
+        // A 60 x 35 pt centre drag is measured against itself; with the
+        // 0.5 mm grid (67.5 pt at this zoom) the translation captures to a
+        // grid step instead (2026-09-13 full run: 67.5 for 60). The test is
+        // about translate-not-orbit, not about grid capture.
+        let app = start(gridSnap: false)
         type(app, "diagonal")
         p(app, 0.35, 0.35).press(forDuration: 0.15, thenDragTo: p(app, 0.60, 0.52))
         app.buttons["Rect"].tap()
