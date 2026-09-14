@@ -70,3 +70,29 @@ runs with the suite on the parity simulator. **On device:** Jason tested
 the a282de6 build on the iPad — Copy then a typed distance moves the copy
 and leaves the original ("it works", 2026-09-14).
 
+## 4. Rotation centre, and moving the gizmo
+
+"When rotating a solid how is it choosing the centre of rotation — should
+it not be the centre of the solid?" It was each body's local origin: the
+sketch-plane origin an extruded body was born with, the base of a
+primitive. The gizmo sat there and rotation spun the body about it.
+And repositioning the gizmo was hard: the drag had to start on the small
+crosshair.
+
+Fix (cbfd123): the gizmo attaches at the centre of the selection's world
+bounding box (combined for several bodies) and rotation spins about the
+gizmo — the centre, or a dropped pivot — captured when the move begins.
+Tapping the pivot — or, since the dot was still too small a target, the
+**Reposition** badge beside Copy (382ea77) — enters a "move the gizmo"
+mode (orange hint chip): any one-finger drag moves the gizmo (from the
+crosshair with its grab offset; from anywhere else it comes under the
+finger and follows the model surface, snapping to a corner of the touched
+triangle within 18 pt), a tap anywhere drops it there. The badge reads
+Done while the mode is on; a **Recenter** badge (a2c0d6c) appears beside
+it while the gizmo is off its centre and puts it back.
+
+Gate: GizmoPivotTests 4/4 (with Recenter), SelectionTests 14/14 (multi-selection origin
+= combined bounding-box centre), ModelSketchTransformTests 7/7
+(/tmp/os3d-pivot-20260914.xcresult). GizmoFlowUITests' coordinates
+re-derived for the raised gizmo: PIVOT_UI_PLACEHOLDER
+

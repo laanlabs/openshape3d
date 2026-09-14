@@ -152,6 +152,11 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     /// Pivot-reposition drag: moving the gizmo, not the model. The grab point
     /// and the camera-facing plane it slides on are captured at drag start.
     private var pivotDragActive = false
+    /// The drag started away from the crosshair: the gizmo follows the
+    /// model surface under the finger instead of sliding with a grab offset.
+    private var pivotDragOnSurface = false
+    /// Snap radius, in points, to a corner of the triangle under the finger.
+    private static let pivotSnapPoints: CGFloat = 18
     private var pivotDragOrigin = SIMD3<Float>.zero
     private var pivotDragGrab = SIMD3<Float>.zero
     private var pivotDragNormal = SIMD3<Float>(0, 0, 1)
@@ -182,6 +187,16 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         // put). Tapping it again puts the dot back.
         if hitsGizmoPivot(point) {
             viewModel.toggleGizmoReposition()
+            sceneDidChange()
+            return
+        }
+        // Armed pivot — "move the gizmo" mode: a tap anywhere drops the
+        // gizmo there (on the model under the finger, snapped to a nearby
+        // corner, else on the plane facing the camera). Dragging the small
+        // crosshair alone was too hard on the iPad (Jason, 2026-09-14).
+        if viewModel.gizmoRepositionArmed, let ray = ray(at: point),
+           let world = gizmoPlacement(at: point, ray: ray) {
+            viewModel.setGizmoPivot(world: world)
             sceneDidChange()
             return
         }
@@ -248,6 +263,41 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     private static let gizmoDebugEnabled =
         ProcessInfo.processInfo.environment["OS3D_GIZMO_DEBUG"] != nil
     #endif
+
+    /// Where an armed gizmo goes for a touch at `point`: the model surface
+    /// under it — snapped to the nearest corner of the hit triangle when one
+    /// is within `pivotSnapPoints` on screen, so a box corner is easy to
+    /// land on — else the plane facing the camera through the gizmo's
+    /// current position.
+    private func gizmoPlacement(at point: CGPoint, ray: Ray) -> SIMD3<Float>? {
+        guard let renderer else { return nil }
+        if let hit = HitTester.pickBody(ray: ray, in: renderer.scene),
+           let drawable = renderer.scene.bodies.first(where: { $0.id == hit.bodyID }) {
+            var best = hit.worldPoint
+            var bestDistance = Self.pivotSnapPoints
+            let mesh = drawable.renderMesh
+            let base = hit.triangleIndex * 3
+            if base >= 0, base + 2 < mesh.indices.count {
+                for k in 0..<3 {
+                    let index = Int(mesh.indices[base + k])
+                    guard index < mesh.positions.count else { continue }
+                    let w4 = drawable.modelMatrix * SIMD4(mesh.positions[index], 1)
+                    let world = SIMD3(w4.x, w4.y, w4.z)
+                    guard let s = worldToScreenPoint(
+                        SIMD3(Double(world.x), Double(world.y), Double(world.z))) else { continue }
+                    let d = hypot(s.x - point.x, s.y - point.y)
+                    if d < bestDistance {
+                        bestDistance = d
+                        best = world
+                    }
+                }
+            }
+            return best
+        }
+        guard let origin = viewModel.gizmoOrigin else { return nil }
+        let normal = simd_normalize(ray.direction)
+        return ray.intersect(planePoint: origin, planeNormal: normal).map { ray.point(at: $0) }
+    }
 
     /// True when `point` lands on the gizmo's centre pivot. The target grows
     /// once the pivot is armed — at that point dragging the control IS the
@@ -339,17 +389,24 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
 
         guard let ray = ray(at: point) else { return false }
 
-        // Armed pivot: this drag repositions the gizmo itself. Gated on the
-        // arming tap, so an ordinary drag near the centre is untouched.
-        if viewModel.gizmoRepositionArmed, let origin = viewModel.gizmoOrigin,
-           hitsGizmoPivot(point) {
+        // Armed pivot ("move the gizmo" mode): ANY one-finger drag moves the
+        // gizmo, not the model or the camera. Starting on the crosshair
+        // slides it with the grab offset kept (fine adjustment, no jump);
+        // starting anywhere else brings the gizmo under the finger and it
+        // follows the model surface from there (`gizmoPlacement`).
+        if viewModel.gizmoRepositionArmed, let origin = viewModel.gizmoOrigin {
             pivotDragActive = true
+            pivotDragOnSurface = !hitsGizmoPivot(point)
             pivotDragOrigin = origin
             // Slide the pivot on the plane facing the camera through where it
             // sits now — the plain "drag it around on screen" behaviour.
             pivotDragNormal = simd_normalize(ray.direction)
             pivotDragGrab = ray.intersect(planePoint: origin, planeNormal: pivotDragNormal)
                 .map { ray.point(at: $0) } ?? origin
+            if pivotDragOnSurface, let world = gizmoPlacement(at: point, ray: ray) {
+                viewModel.setGizmoPivot(world: world)
+                sceneDidChange()
+            }
             return true
         }
 
@@ -538,6 +595,13 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     func gestureDragChanged(at point: CGPoint) {
         if numericEditorBlockedCubeDrag { return }
         if pivotDragActive {
+            if pivotDragOnSurface {
+                if let ray = ray(at: point), let world = gizmoPlacement(at: point, ray: ray) {
+                    viewModel.setGizmoPivot(world: world)
+                    sceneDidChange()
+                }
+                return
+            }
             if let ray = ray(at: point),
                let t = ray.intersect(planePoint: pivotDragOrigin, planeNormal: pivotDragNormal) {
                 // Carry the grab offset so the crosshair doesn't jump to the

@@ -299,7 +299,10 @@ final class SelectionTests: XCTestCase {
         XCTAssertEqual(viewModel.selection, [b.id])
     }
 
-    func testGizmoOriginIsSharedCentroidForMultiSelection() throws {
+    /// The gizmo sits at the centre of the selection's combined bounding
+    /// box (2026-09-14): boxes spanning y 0…2 at (0,0,0) and (4,2,0) make a
+    /// box from (−1,0,−1) to (5,4,1), centred at (2,2,0).
+    func testGizmoOriginIsSharedBoundingBoxCentreForMultiSelection() throws {
         let viewModel = try makeViewModel()
         let a = addBox(to: viewModel, name: "A", at: .zero)
         let b = addBox(to: viewModel, name: "B", at: SIMD3(4, 2, 0))
@@ -308,7 +311,7 @@ final class SelectionTests: XCTestCase {
         viewModel.toggleSelection(of: b.id)
         let origin = try XCTUnwrap(viewModel.gizmoOrigin)
         XCTAssertEqual(origin.x, 2, accuracy: 1e-5)
-        XCTAssertEqual(origin.y, 1, accuracy: 1e-5)
+        XCTAssertEqual(origin.y, 2, accuracy: 1e-5)
         XCTAssertEqual(origin.z, 0, accuracy: 1e-5)
     }
 

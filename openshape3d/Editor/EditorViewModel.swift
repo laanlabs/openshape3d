@@ -1326,16 +1326,25 @@ final class EditorViewModel {
         default:
             return nil
         }
-        var sum = SIMD3<Double>.zero
+        // The centre of the selection's world bounding box (combined for
+        // several bodies) — where Shapr3D puts its gizmo, and what a
+        // rotation spins about. It used to be each body's local origin, the
+        // sketch-plane origin an extruded body was born with: the gizmo sat
+        // at the base of a box and a rotation swung the box around its
+        // base (Jason, iPad, 2026-09-14).
+        var lo = SIMD3<Double>(.infinity, .infinity, .infinity)
+        var hi = -lo
         var count = 0
         for id in selection {
             guard let body = session.document.body(with: id) else { continue }
-            sum += body.transform.translation
+            let b = Self.worldBounds(of: body)
+            lo = simd_min(lo, SIMD3(b.min.x, b.min.y, b.min.z))
+            hi = simd_max(hi, SIMD3(b.max.x, b.max.y, b.max.z))
             count += 1
         }
         guard count > 0 else { return nil }
-        let centroid = sum / Double(count)
-        return SIMD3(Float(centroid.x), Float(centroid.y), Float(centroid.z))
+        let centre = (lo + hi) / 2
+        return SIMD3(Float(centre.x), Float(centre.y), Float(centre.z))
     }
 
     // MARK: - Gizmo pivot (tap the centre to reposition the control)
@@ -1387,6 +1396,13 @@ final class EditorViewModel {
         gizmoPivotArmed = !armed
     }
 
+    /// Put the gizmo back at its natural attach point — the centre of the
+    /// selection — after it was dropped somewhere else (Recenter badge).
+    func recenterGizmoPivot() {
+        claimGizmoPivot()
+        gizmoPivotOffset = .zero
+    }
+
     /// Drop the gizmo at `world` (the pivot drag; nothing else moves).
     func setGizmoPivot(world: SIMD3<Float>) {
         claimGizmoPivot()
@@ -1413,6 +1429,10 @@ final class EditorViewModel {
     // MARK: - Move drags (gizmo)
 
     private var moveBefore: [BodyID: Transform3D]?
+    /// The rotation centre for the move in flight: the gizmo's position when
+    /// the move began. Captured once, because the gizmo follows the bounding
+    /// box, which itself shifts as an asymmetric body turns.
+    private var moveRotationPivot: SIMD3<Double>?
 
     /// Copy badge (spec §5.1): when on, the next gizmo drag duplicates the
     /// selection and moves the copy. Resets after each drag.
@@ -2080,6 +2100,7 @@ final class EditorViewModel {
             }
         }
         moveBefore = before
+        moveRotationPivot = gizmoOrigin.map { SIMD3(Double($0.x), Double($0.y), Double($0.z)) }
     }
 
     /// Copy badge: clone each selected body in place (AddBodyCommand, new id,
@@ -2208,13 +2229,13 @@ final class EditorViewModel {
             angle: degrees * .pi / 180,
             axis: SIMD3(Double(axis.x), Double(axis.y), Double(axis.z))
         )
-        // A repositioned pivot is a rotation CENTRE too: dropping the gizmo on
-        // a corner and spinning turns the body about that corner. Left alone
-        // (the usual case) each body still spins about its own pivot, which is
-        // where the gizmo sits anyway.
-        let pivot: SIMD3<Double>? = gizmoPivotIsOffset ? gizmoOrigin.map {
+        // The body spins about the gizmo: the centre of its bounding box, or
+        // wherever the pivot was dropped (a corner, say). Captured when the
+        // move began (`moveRotationPivot`), so the centre does not creep as
+        // the box of a turning asymmetric body shifts frame to frame.
+        let pivot: SIMD3<Double>? = moveRotationPivot ?? gizmoOrigin.map {
             SIMD3(Double($0.x), Double($0.y), Double($0.z))
-        } : nil
+        }
         session.preview { document in
             for (id, original) in moveBefore {
                 if let index = document.bodyIndex(of: id) {
@@ -2289,6 +2310,7 @@ final class EditorViewModel {
         }
         guard let before = moveBefore else { return }
         moveBefore = nil
+        moveRotationPivot = nil
         var after = [BodyID: Transform3D]()
         var changed = false
         for (id, original) in before {
