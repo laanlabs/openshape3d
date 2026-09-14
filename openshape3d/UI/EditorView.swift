@@ -1108,6 +1108,18 @@ struct EditorView: View {
             .overlay(alignment: .bottomTrailing) {
                 // Copy badge (spec §5.1): next gizmo drag moves a duplicate.
                 if viewModel.gizmoOrigin != nil {
+                  HStack(spacing: 10) {
+                    // "Move the gizmo" mode (tap the pivot): say what a touch
+                    // does now, and how to leave (iPad, 2026-09-14).
+                    if viewModel.gizmoRepositionArmed {
+                        Text("Moving the gizmo — tap or drag where it should sit; tap the crosshair when done")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.orange, in: Capsule())
+                            .accessibilityIdentifier("GizmoRepositionHint")
+                    }
                     Button {
                         viewModel.copyOnDrag.toggle()
                     } label: {
@@ -1118,6 +1130,7 @@ struct EditorView: View {
                     .tint(viewModel.copyOnDrag ? Color.blue : Color.secondary)
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityIdentifier("CopyBadge")
+                  }
                     .padding(.trailing, 16)
                     .padding(.bottom, bottomBarInset)
                 } else if viewModel.mode.isSketching, viewModel.mode.sketchTool == nil,
