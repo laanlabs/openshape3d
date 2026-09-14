@@ -32,9 +32,11 @@ future submission — a build setting that was right once is not right forever.
   bridge (`sketch.create` / `sketch.addEntities` / `feature.extrude` /
   `feature.fillet`), sizing the window to 1440 × 900 with AppleScript and
   capturing it with `peekaboo see --app openshape3d` (this Mac's display is
-  1×, so 2880 × 1800 would need a Retina Mac). Known Mac quirk seen on the
-  way: the window title stays "Settings" after the Settings sheet closes
-  (Catalyst adopts the sheet's navigation title); a relaunch resets it.
+  1×, so 2880 × 1800 would need a Retina Mac). A Mac quirk seen on the way —
+  the window title stayed "Settings" after the Settings sheet closed
+  (Catalyst adopts a sheet's navigation title) — is fixed: the gallery and
+  the editor own the window title (`MacWindowTitle`) and every sheet puts
+  it back as it disappears.
 - **Still to do by hand:** the App Store Connect listing (screenshots at the
   required sizes for iPad and Mac, what's new, privacy label = no tracking,
   no collection); the Mac upload needs a Mac App Store distribution

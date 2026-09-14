@@ -115,6 +115,7 @@ struct BugReportSheet: View {
                 }
             }
             .navigationTitle("Report a Bug")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

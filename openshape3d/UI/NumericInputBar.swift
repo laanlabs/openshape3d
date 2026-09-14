@@ -923,6 +923,7 @@ struct HelixOptionsSheet: View {
                 }
             }
             .navigationTitle("Helix")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

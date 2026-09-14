@@ -105,6 +105,7 @@ struct ProjectGalleryView: View {
                 }
             }
             .navigationTitle(navigationTitle)
+            .onChange(of: navigationTitle) { _, title in MacWindowTitle.want(title) }
             // Inline: a large title would sit over the sidebar column.
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
@@ -169,6 +170,7 @@ struct ProjectGalleryView: View {
                 }
             }
             .task {
+                MacWindowTitle.want(navigationTitle)
                 // Debug hooks for automated verification (once per launch —
                 // .task refires when navigation pops back to the gallery).
                 guard !didHandleLaunchHooks else { return }
@@ -1050,6 +1052,7 @@ private struct FolderPickerSheet: View {
                 }
             }
             .navigationTitle("Move to Folder")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

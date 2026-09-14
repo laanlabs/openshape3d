@@ -43,6 +43,7 @@ struct TextToolSheet: View {
                 .accessibilityIdentifier("TextFontPicker")
             }
             .navigationTitle("Text")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
