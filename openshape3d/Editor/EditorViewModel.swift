@@ -90,6 +90,12 @@ final class EditorViewModel {
     /// Highlighted gizmo part during hover/drag (set by the coordinator).
     var gizmoHighlight: GizmoPart?
 
+    /// The part the gizmo overlay draws lit: the one being dragged or
+    /// hovered, else the one whose typed entry is open — a tapped arrow or
+    /// ring stayed white while its field waited for a value (iPad,
+    /// 2026-09-14).
+    var litGizmoPart: GizmoPart? { gizmoHighlight ?? axisEntryPart ?? angleEntryPart }
+
     /// Set once an Apple Pencil has drawn this session. After that, a FINGER
     /// drag in sketch mode navigates (orbits) instead of drawing — the Shapr3D
     /// split where the Pencil creates and the finger manipulates the view. It
@@ -1165,7 +1171,9 @@ final class EditorViewModel {
         // its plane, or while Insert Image waits for its target plane.
         switch mode {
         case .pickingSketchPlane, .pickingSplitCutter, .pickingSectionPlane, .pickingImagePlane:
-            scene.planePickers = worldPlaneTiles + constructionPlaneTiles
+            // Origin tiles go in unscaled: the renderer resolves their size
+            // per frame from its camera (see `worldPlaneTiles`).
+            scene.planePickers = PlanePicking.originTiles + constructionPlaneTiles
         default:
             break
         }
@@ -1256,16 +1264,16 @@ final class EditorViewModel {
         ))
     }
 
-    /// Origin plane pickers sized to what is in the scene (see
-    /// `PlanePicking.worldTiles(sceneExtent:)`): the largest visible body
-    /// extent, so a metre-scale scan gets metre-scale tiles.
+    /// Origin plane pickers resolved for hit-testing at the camera's current
+    /// scale — the same `gizmoWorldScale(at:)` the renderer applies per frame
+    /// (`Renderer.draw`), so what is tapped is what is drawn. Constant on
+    /// screen, whatever the zoom (iPad, 2026-09-14); this replaces the
+    /// 2026-09-05 rule that sized them to 60 % of the largest body. Without
+    /// a viewport (unit tests) they are the 2.3 mm default.
     private var worldPlaneTiles: [PlanePickerTile] {
-        var extent = 0.0
-        for body in session.document.bodies where !body.isHidden {
-            let b = Self.worldBounds(of: body)
-            extent = max(extent, b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z)
-        }
-        return PlanePicking.worldTiles(sceneExtent: extent)
+        guard let camera = cameraControl else { return PlanePicking.worldTiles }
+        let scale = PlanePicking.originTileScale(gizmoUnit: Double(camera.gizmoWorldScale(at: .zero)))
+        return PlanePicking.originTiles.map { $0.scaled(by: scale) }
     }
 
     /// Tappable quads for the document's visible construction planes.

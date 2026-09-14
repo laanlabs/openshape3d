@@ -126,11 +126,20 @@ final class Renderer: NSObject, MTKViewDelegate {
                     )
                 }
                 if !scene.planePickers.isEmpty {
+                    // Origin tiles keep a constant on-screen size: resolve
+                    // them here with the same gizmo unit the hit test uses.
+                    let tiles = scene.planePickers.map { tile -> PlanePickerTile in
+                        guard tile.screenProportional else { return tile }
+                        let o = tile.plane.origin
+                        let origin = SIMD3<Float>(Float(o.x), Float(o.y), Float(o.z))
+                        return tile.scaled(by: PlanePicking.originTileScale(
+                            gizmoUnit: Double(gizmoScale(origin: origin))))
+                    }
                     gizmoRenderer.drawPlaneTiles(
                         encoder: overlayEncoder,
                         pipelines: context.pipelines,
                         frame: &frame,
-                        tiles: scene.planePickers
+                        tiles: tiles
                     )
                 }
                 // The pull handle is drawn as an always-on-top SwiftUI SF Symbol

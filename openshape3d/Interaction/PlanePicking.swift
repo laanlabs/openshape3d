@@ -19,6 +19,18 @@ nonisolated struct PlanePickerTile {
     var localMin: SIMD2<Double>
     var localMax: SIMD2<Double>
     var color: SIMD4<Float>
+    /// Origin tiles keep a constant on-screen size (Shapr3D's plane picker):
+    /// `localMin`/`localMax` are then fractions of the outer edge, and the
+    /// renderer (per frame) and the hit test (per tap) both resolve them with
+    /// `scaled(by:)` at the camera's world-per-gizmo-unit at the origin.
+    var screenProportional = false
+
+    func scaled(by scale: Double) -> PlanePickerTile {
+        var tile = self
+        tile.localMin *= scale
+        tile.localMax *= scale
+        return tile
+    }
 
     /// Quad corners in world space (CCW in plane space), for rendering.
     var worldCorners: [SIMD3<Float>] {
@@ -39,33 +51,43 @@ nonisolated enum PlanePicking {
     static let worldTileMin = 0.3
     static let worldTileMax = 2.3
 
-    /// The three origin plane pickers at their smallest (an empty scene).
-    static let worldTiles: [PlanePickerTile] = worldTiles(sceneExtent: 0)
+    /// Outer edge of an origin tile in gizmo units (`gizmoWorldScale(at:)`,
+    /// the scale that keeps the gizmo the same size on screen), so the
+    /// picker reads the same zoomed way out or in — on the iPad it was a
+    /// speck when zoomed out and a wall when zoomed in (2026-09-14). 1.5
+    /// gizmo units is about a third of the view's half height per tile.
+    static let originTileGizmoUnits = 1.5
 
     /// The three origin plane pickers (colors keyed like the gizmo axes by
-    /// normal: +Y green, +Z blue, +X red), sized to the scene: the outer
-    /// edge is 60 % of the largest body extent, never under the 2.3 mm
-    /// default. Fixed 2 mm tiles were a speck beside a metre-scale scan and
-    /// buried inside anything big centred on the origin (2026-09-05).
-    static func worldTiles(sceneExtent: Double) -> [PlanePickerTile] {
-        let outer = max(worldTileMax, sceneExtent * 0.6)
-        let inner = outer * (worldTileMin / worldTileMax)
-        let lo = SIMD2(inner, inner)
-        let hi = SIMD2(outer, outer)
+    /// normal: +Y green, +Z blue, +X red) as fractions of the outer edge —
+    /// see `PlanePickerTile.screenProportional`. The inner corner gap keeps
+    /// the three quads from overlapping.
+    static let originTiles: [PlanePickerTile] = {
+        let lo = SIMD2(worldTileMin / worldTileMax, worldTileMin / worldTileMax)
+        let hi = SIMD2(1.0, 1.0)
         return [
             PlanePickerTile(
                 planeID: nil, plane: .ground, localMin: lo, localMax: hi,
-                color: SIMD4(0.35, 0.72, 0.28, 0.35)
+                color: SIMD4(0.35, 0.72, 0.28, 0.35), screenProportional: true
             ),
             PlanePickerTile(
                 planeID: nil, plane: .worldXY, localMin: lo, localMax: hi,
-                color: SIMD4(0.26, 0.47, 0.90, 0.35)
+                color: SIMD4(0.26, 0.47, 0.90, 0.35), screenProportional: true
             ),
             PlanePickerTile(
                 planeID: nil, plane: .worldYZ, localMin: lo, localMax: hi,
-                color: SIMD4(0.88, 0.26, 0.26, 0.35)
+                color: SIMD4(0.88, 0.26, 0.26, 0.35), screenProportional: true
             ),
         ]
+    }()
+
+    /// The origin tiles at their camera-less size — the 2.3 mm default a
+    /// unit test without a viewport sees.
+    static let worldTiles: [PlanePickerTile] = originTiles.map { $0.scaled(by: worldTileMax) }
+
+    /// World units of an origin tile's outer edge for a gizmo unit.
+    static func originTileScale(gizmoUnit: Double) -> Double {
+        max(gizmoUnit, 1e-9) * originTileGizmoUnits
     }
 
     /// Nearest tile hit by the ray, with its world-space distance.
