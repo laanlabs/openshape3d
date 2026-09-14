@@ -148,4 +148,7 @@ to main and its `gh pr merge` were refused by its permission policy).
   Catalyst archives and a Mac smoke test on the same machine. All six
   pass together (/tmp/os3d-six-20260914.xcresult). A clean full run on
   the final tree follows.
+- On 7717bdc (the final tree: main plus PR #34), machine otherwise idle:
+  **unit 1620 executed, 0 failures, 1 skipped; UI Executed 189 tests, with 4 tests skipped and 0 failures (0 unexpected) in 6894.911 (6895.094) seconds**
+  (/tmp/os3d-full-suite6-20260914.xcresult). Clean.
 
