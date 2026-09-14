@@ -25,6 +25,16 @@ future submission — a build setting that was right once is not right forever.
   typing 3 + Return → a 15 mm³ body. Numeric fields on the Mac now start
   with the real keyboard, focused, and never raise the on-screen keypad
   (`AppSettings.prefersSystemKeyboard`).
+- **Mac screenshots (2026-09-14):** three 1440 × 900 captures of the Debug
+  Catalyst app (UI identical to Release) in `marketing/mac-screenshots/`
+  (gitignored): the plate with its History panel, its dimensioned sketch
+  head-on, and an extrude preview. Made by scripting the geometry over the
+  bridge (`sketch.create` / `sketch.addEntities` / `feature.extrude` /
+  `feature.fillet`), sizing the window to 1440 × 900 with AppleScript and
+  capturing it with `peekaboo see --app openshape3d` (this Mac's display is
+  1×, so 2880 × 1800 would need a Retina Mac). Known Mac quirk seen on the
+  way: the window title stays "Settings" after the Settings sheet closes
+  (Catalyst adopts the sheet's navigation title); a relaunch resets it.
 - **Still to do by hand:** the App Store Connect listing (screenshots at the
   required sizes for iPad and Mac, what's new, privacy label = no tracking,
   no collection); the Mac upload needs a Mac App Store distribution
