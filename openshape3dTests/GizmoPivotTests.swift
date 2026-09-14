@@ -78,6 +78,25 @@ final class GizmoPivotTests: XCTestCase {
         XCTAssertEqual(origin.z, 0, accuracy: 1e-4)
     }
 
+    /// Recenter puts a dropped gizmo back at the selection's centre.
+    func testRecenterReturnsADroppedGizmoToTheCentre() throws {
+        let vm = try makeViewModel()
+        let box = addBox(to: vm, at: SIMD3(3, 0, 0))
+        vm.selection = [box.id]
+        vm.mode = .selected(box.id)
+        vm.toggleGizmoReposition()
+        vm.setGizmoPivot(world: SIMD3(4, 2, 1))
+        XCTAssertTrue(vm.gizmoPivotIsOffset)
+        XCTAssertEqual(try XCTUnwrap(vm.gizmoOrigin).x, 4, accuracy: 1e-5)
+        vm.recenterGizmoPivot()
+        XCTAssertFalse(vm.gizmoPivotIsOffset)
+        let origin = try XCTUnwrap(vm.gizmoOrigin)
+        XCTAssertEqual(origin.x, 3, accuracy: 1e-5)
+        XCTAssertEqual(origin.y, 1, accuracy: 1e-5)
+        XCTAssertEqual(origin.z, 0, accuracy: 1e-5)
+        XCTAssertTrue(vm.gizmoRepositionArmed, "recentring keeps the mode on until Done")
+    }
+
     /// A dropped pivot is the rotation centre instead (unchanged behaviour).
     func testADroppedPivotIsTheRotationCentre() throws {
         let vm = try makeViewModel()

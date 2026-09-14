@@ -1396,6 +1396,13 @@ final class EditorViewModel {
         gizmoPivotArmed = !armed
     }
 
+    /// Put the gizmo back at its natural attach point — the centre of the
+    /// selection — after it was dropped somewhere else (Recenter badge).
+    func recenterGizmoPivot() {
+        claimGizmoPivot()
+        gizmoPivotOffset = .zero
+    }
+
     /// Drop the gizmo at `world` (the pivot drag; nothing else moves).
     func setGizmoPivot(world: SIMD3<Float>) {
         claimGizmoPivot()

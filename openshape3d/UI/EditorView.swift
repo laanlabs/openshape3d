@@ -1120,6 +1120,20 @@ struct EditorView: View {
                             .background(Color.orange, in: Capsule())
                             .accessibilityIdentifier("GizmoRepositionHint")
                     }
+                    // Recenter: back to the selection's centre once the gizmo
+                    // has been dropped elsewhere (Jason, iPad, 2026-09-14).
+                    if viewModel.gizmoRepositionArmed, viewModel.gizmoPivotIsOffset {
+                        Button {
+                            viewModel.recenterGizmoPivot()
+                        } label: {
+                            Label("Recenter", systemImage: "arrow.counterclockwise")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(Color.secondary)
+                        .background(.regularMaterial, in: Capsule())
+                        .accessibilityIdentifier("RecenterBadge")
+                    }
                     // Reposition badge: the same mode a tap on the pivot
                     // enters, from a button that is easy to hit (the pivot
                     // dot was still too small a target — Jason, iPad,
