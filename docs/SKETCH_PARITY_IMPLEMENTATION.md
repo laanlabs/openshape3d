@@ -2797,3 +2797,10 @@ typed entry brings up the app keypad like the arrow's distance field, and
 the handle whose entry is open (or which is dragged) draws lit (ba42c5b).
 Gates: PlanesUITests 6/6 with 33 unit tests; GizmoFlowUITests 3/3 with
 two new tests. See testing/ipad-feedback-2026-09-14.md.
+
+## September 14 — Copy badge for typed gizmo moves
+
+A typed distance on a move arrow now honours the Copy badge exactly as a
+drag does (duplicate, move the duplicate, badge resets); face and
+model-sketch typed moves clear the badge as whole-body affordances.
+GizmoTypedCopyTests 3/3. See testing/ipad-feedback-2026-09-14.md §3.

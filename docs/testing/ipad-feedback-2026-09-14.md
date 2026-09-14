@@ -45,3 +45,28 @@ Gate (ba42c5b, /tmp/os3d-gizmo2-20260914.xcresult): GizmoFlowUITests 3/3 —
 testTappingARingOpensTheAngleKeypadAndLightsTheRing,
 testTappingAnArrowOpensTheDistanceKeypadAndLightsTheArrow, and the
 existing drag test. On-device look: Jason's next iPad session.
+
+## 3. Copy badge ignored by a typed distance
+
+With the Copy badge on, tapping a move arrow and typing a distance moved
+the original body; only a dragged move honoured the badge (the drag path
+duplicates in `beginMove`, the typed path built its transforms directly).
+Shapr3D's Copy applies to either.
+
+Fix: `commitAxisMove` duplicates first when the badge is on (the same
+`duplicateSelectionForDrag` / image duplicate the drag uses), moves the
+duplicate, resets the badge and leaves the copy selected; a face move or
+a model-mode sketch move clears the badge, as the drag path does (Copy is
+a whole-body affordance). A typed rotation already went through
+`beginMove` and honoured it.
+
+Gate: GizmoTypedCopyTests 3/3 (typed distance with Copy on: two bodies,
+the original at rest, the copy moved, the badge reset, history = Copy +
+Move; Copy off unchanged; typed rotation with Copy on duplicates), with
+ModelSketchTransformTests 7/7 and SelectionTests 14/14 on the iPad (A16)
+simulator (/tmp/os3d-typedcopy-20260914.xcresult). UI test
+GizmoFlowUITests.testCopyBadgeThenTypedDistanceMovesADuplicate written;
+runs with the suite on the parity simulator. **On device:** Jason tested
+the a282de6 build on the iPad — Copy then a typed distance moves the copy
+and leaves the original ("it works", 2026-09-14).
+
