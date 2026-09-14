@@ -137,4 +137,15 @@ to main and its `gh pr merge` were refused by its permission policy).
   #31 (gizmo centre, Reposition, Recenter) merged at 2c89dcd. The gizmo UI
   tests' coordinates for the raised gizmo travel with PR #32; the next full
   run is on that tree.
+- On eddce99 (main after #31 plus the gizmo-test coordinates): **unit
+  1613/1613 (1 skipped); UI 189 executed, 4 skipped, 6 failures**
+  (/tmp/os3d-full-suite5-20260914.xcresult, 115 min). Two were the
+  TransformUITests gizmo drags still aimed at the old gizmo position —
+  coordinates re-derived for the centred gizmo. Four (two DimensionUITests,
+  ExtrudeFlow boolean badge, FaceFlow push inward) ended with "Application
+  is not running" or a 3 s wait; no crash report exists for any of them,
+  and all four pass on a quiet re-run — that run overlapped two Mac
+  Catalyst archives and a Mac smoke test on the same machine. All six
+  pass together (/tmp/os3d-six-20260914.xcresult). A clean full run on
+  the final tree follows.
 
