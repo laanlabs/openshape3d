@@ -2502,6 +2502,12 @@ final class EditorViewModel {
         let a = part.axisDirection
         let axis = SIMD3(Double(a.x), Double(a.y), Double(a.z))
         // Selected image (plan §B10): exact in-plane move along the axis.
+        // The Copy badge applies to a typed move as it does to a drag
+        // (iPad, 2026-09-14): duplicate first, then move the duplicate.
+        if selectedImage != nil, copyOnDrag {
+            copyOnDrag = false
+            duplicateSelectedImageForDrag()
+        }
         if let image = selectedImage {
             let plane = image.plane
             let delta = axis * distance
@@ -2515,6 +2521,7 @@ final class EditorViewModel {
         // Selected face: move the face by exactly `distance` along the axis,
         // deforming the solid (the typed-distance twin of the gizmo drag).
         if case .faceSelected = mode {
+            copyOnDrag = false // Copy is a whole-body affordance (as for drags).
             guard beginFaceMove() else { return }
             let delta = SIMD3<Float>(
                 Float(axis.x * distance), Float(axis.y * distance), Float(axis.z * distance))
@@ -2526,6 +2533,7 @@ final class EditorViewModel {
         if selection.isEmpty, let origin = gizmoOrigin {
             let targets = modelSketchSelection
             guard !targets.isEmpty else { return }
+            copyOnDrag = false // whole-body affordance, as for drags
             let pivot = SIMD3(Double(origin.x), Double(origin.y), Double(origin.z))
             switch transformedModelSketches(
                 ModelSketchMotion(translation: axis * distance, pivot: pivot), baselines: targets) {
@@ -2536,6 +2544,13 @@ final class EditorViewModel {
                 showNotice(reason)
             }
             return
+        }
+        // Copy badge on: the typed distance moves a duplicate, exactly as
+        // a drag would (beginMove) — the original stays put. The badge
+        // resets, and the selection is the copy from here on.
+        if copyOnDrag {
+            copyOnDrag = false
+            duplicateSelectionForDrag()
         }
         var before = [BodyID: Transform3D]()
         var after = [BodyID: Transform3D]()
