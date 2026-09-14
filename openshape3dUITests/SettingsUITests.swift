@@ -264,6 +264,9 @@ final class SettingsUITests: XCTestCase {
         }
         app.buttons["SettingsDone"].tap()
         app.terminate()
+        // Relaunch WITHOUT the reset flag: it now also resets the app's
+        // defaults, and this test is about what survives an ordinary relaunch.
+        app.launchEnvironment.removeValue(forKey: "OS3D_RESET_STORE")
         app.launch()
         XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
         app.buttons["SettingsButton"].tap()
