@@ -25,7 +25,9 @@ entities are close enough for their labels to crowd.
   /tmp/os3d-qa29-overlap2-20260913.xcresult).
 
 Four captures with SHA-256s in workspace reports
-layout/qa29-label-overlap-live-2026-09-13/evidence-index.json (local).
+layout/qa29-label-overlap-live-2026-09-13/evidence-index.json, published
+2026-09-13 as a Google Doc (image + caption + SHA-256 per asset):
+https://docs.google.com/document/d/1MXH2uA56Daun114CpaDuYDVxCH3wXAG1L2SdEwKzQ88/edit
 
 ## Result
 

@@ -2752,7 +2752,8 @@ parallel lines selected by marquee: only the info bar's total length and
 the distance between the lines); the clone matches that rule, so crowded
 labels cannot occur in this recipe. The clone's sketching info bar now adds
 the parallel-distance row (93df1d3, SelectionUXTests 16/16). Four captures
-local. See testing/sketch-parity-label-overlap-2026-09-13.md. QA-29 remains
+published (https://docs.google.com/document/d/1MXH2uA56Daun114CpaDuYDVxCH3wXAG1L2SdEwKzQ88/edit).
+See testing/sketch-parity-label-overlap-2026-09-13.md. QA-29 remains
 partial only on a device zoom check.
 
 ## September 13 — branch-wide regression before merge

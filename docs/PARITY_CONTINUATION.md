@@ -107,7 +107,8 @@ with the clone. Leftover probe circle deleted from sketch24; History/Items
 rows verified. Evidence batch 3 published (QA-45 native mixed, Sept 12 offset assets;
 index https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit) — every
 hashed evidence folder is published. QA-29 overlaps paired (no per-entity labels for a multi-selection on
-either side; parallel-distance info-bar row added at 93df1d3). Every
+either side; parallel-distance info-bar row added at 93df1d3; four captures published,
+https://docs.google.com/document/d/1MXH2uA56Daun114CpaDuYDVxCH3wXAG1L2SdEwKzQ88/edit). Every
 simulator-feasible core item is now closed or recorded; the rest is
 device-only (QA-19/20/21 hover, QA-40/52 physical input, QA-29 device zoom).
 Branch-wide regression run at dbbbc0a: unit 1611/1611, UI 171/185 with ten

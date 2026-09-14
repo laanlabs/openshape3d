@@ -93,7 +93,7 @@ Net: **all ten fixed and verified** — six by the defaults reset, the
 cylinder by the edge-routing fix, two by drawing without grid snapping,
 one by the sheet layout. Because the defaults reset changes every UI
 launch, the full serial suite is re-run at the final state
-(/tmp/os3d-full-suite2-20260913.xcresult, started 2026-09-14 ~00:20);
+(/tmp/os3d-full-suite2-20260913.xcresult, started 2026-09-13 20:40);
 its result is recorded below when it completes.
 
 ## Full-suite re-run at the final state
