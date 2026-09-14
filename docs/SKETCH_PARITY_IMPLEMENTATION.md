@@ -2804,3 +2804,11 @@ A typed distance on a move arrow now honours the Copy badge exactly as a
 drag does (duplicate, move the duplicate, badge resets); face and
 model-sketch typed moves clear the badge as whole-body affordances.
 GizmoTypedCopyTests 3/3. See testing/ipad-feedback-2026-09-14.md §3.
+
+## September 14 — gizmo centre and "move the gizmo" mode
+
+The move gizmo attaches at the centre of the selection's world bounding
+box and rotation spins about the gizmo (captured at move start); tapping
+the pivot enters a mode where any drag or tap places the gizmo, snapping
+to nearby corners (cbfd123). GizmoPivotTests 3/3. See
+testing/ipad-feedback-2026-09-14.md §4.
