@@ -180,6 +180,21 @@ final class ConstructionProjectFlowTests: XCTestCase {
         }
     }
 
+    func testConstructionDashesKeepScreenSizeAcrossModelScales() {
+        for scale in [0.001, 0.01, 1.0, 100.0] {
+            let entity = SketchEntity.line(id: UUID(), a: .zero, b: SIMD2(100 * scale, 0))
+            let points = SketchTessellator.dashedSegments(
+                for: [entity], on: .ground, worldUnitsPerPoint: scale)
+            XCTAssertGreaterThan(points.count, 10, "A visible construction line must not become one solid stroke")
+            for index in stride(from: 0, to: points.count, by: 2) {
+                let length = Double(simd_distance(points[index], points[index + 1])) / scale
+                XCTAssertLessThanOrEqual(length, 8.001, "Dash length is bounded in screen points")
+            }
+            XCTAssertEqual(Double(simd_distance(points[1], points[2])) / scale, 4, accuracy: 0.001)
+            XCTAssertEqual(Double(points.last!.x) / scale, 100, accuracy: 0.001)
+        }
+    }
+
     func testDashedShortSegmentKeepsDutyCycle() {
         // Shorter than one dash+gap period: the leading fraction is drawn.
         let dash: Float = 0.5

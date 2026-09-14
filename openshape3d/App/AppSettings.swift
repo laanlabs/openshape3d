@@ -50,10 +50,40 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
     }
 
     /// Compact length for labels/pills: trims trailing zeros ("12.7 mm").
+    /// Native canvas labels keep every decimal of a dense value and group
+    /// thousands — "123,456.7891 mm", "164,058.8074 mm", "R 50,000 mm"
+    /// (paired 2026-09-13). `%g` used to cap this at six significant digits,
+    /// so the same value read "123457 mm" here.
     func compactLengthString(fromMM value: Double) -> String {
         let v = display(fromMM: value)
-        let rounded = (v * 1000).rounded() / 1000
-        return String(format: "%g %@", rounded, symbol)
+        // Native on-canvas imperial dimensions use quote marks rather than
+        // the input suffixes shown in the unit picker. Keep those input tokens
+        // unchanged, and retain the fourth decimal used by decimal feet.
+        let imperial = self == .inches || self == .feet
+        // Paired native millimetre input 0.869/2 retains 0.4345 on canvas.
+        let decimals = imperial || self == .millimeters ? 4 : 3
+        let text = Self.groupedNumber(v, maxFractionDigits: decimals)
+        if self == .inches { return text + "\"" }
+        if self == .feet { return text + "'" }
+        return "\(text) \(symbol)"
+    }
+
+    /// Schoolbook rounding to `maxFractionDigits`, trailing zeros trimmed,
+    /// thousands grouped with a comma whatever the locale (the canvas is
+    /// read against native's, which groups the same way).
+    static func groupedNumber(_ value: Double, maxFractionDigits: Int) -> String {
+        let scale = pow(10.0, Double(maxFractionDigits))
+        var rounded = (value * scale).rounded() / scale
+        if rounded == 0 { rounded = 0 } // never "-0"
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = true
+        formatter.groupingSeparator = ","
+        formatter.decimalSeparator = "."
+        formatter.maximumFractionDigits = maxFractionDigits
+        formatter.minimumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: rounded)) ?? String(rounded)
     }
 
     /// "161.29 cm²" — an area readout (factor squared).
@@ -75,6 +105,27 @@ nonisolated enum DisplayUnit: String, CaseIterable, Codable, Sendable {
             get: { self.display(fromMM: mm.wrappedValue) },
             set: { mm.wrappedValue = self.mm(fromDisplay: $0) }
         )
+    }
+}
+
+nonisolated enum CircularAnnotations: String, CaseIterable, Codable, Sendable {
+    case radiusAndDiameter, alwaysRadius
+    var title: String {
+        self == .alwaysRadius ? "Always Radius" : "Radius and Diameter"
+    }
+}
+
+/// Which selected sketch entity stays in place when a new relationship is
+/// solved. This is a solve-time preference, not a persisted geometry Lock;
+/// existing sketch constraints retain priority.
+nonisolated enum AnchoredSketchEntity: String, CaseIterable, Codable, Sendable {
+    case firstSelected, lastSelected
+
+    var title: String {
+        switch self {
+        case .firstSelected: "First Selected"
+        case .lastSelected: "Last Selected"
+        }
     }
 }
 
@@ -106,14 +157,24 @@ final class AppSettings {
 
     private enum Key {
         static let unit = "os3d.displayUnit"
+        static let circularAnnotations = "os3d.circularAnnotations"
         static let theme = "os3d.theme"
         static let paletteOnRight = "os3d.paletteOnRight"
         static let antiAliasing = "os3d.antiAliasing"
         static let singleKeyAction = "os3d.singleKeyAction"
         static let alwaysShowDimensions = "os3d.alwaysShowDimensions"
         static let alwaysShowConstraints = "os3d.alwaysShowConstraints"
+        static let anchoredSketchEntity = "os3d.anchoredSketchEntity"
+        static let snapToGrid = "os3d.snapToGrid"
+        static let snapToSketchGuidelines = "os3d.snapToSketchGuidelines"
+        static let snapToSketchGuidepoints = "os3d.snapToSketchGuidepoints"
+        static let snapToFaceGuidepoints = "os3d.snapToFaceGuidepoints"
+        static let showSnapHints = "os3d.showSnapHints"
     }
 
+    var circularAnnotations: CircularAnnotations {
+        didSet { defaults.set(circularAnnotations.rawValue, forKey: Key.circularAnnotations) }
+    }
     var unit: DisplayUnit {
         didSet { defaults.set(unit.rawValue, forKey: Key.unit) }
     }
@@ -148,6 +209,30 @@ final class AppSettings {
     var alwaysShowConstraints: Bool {
         didSet { defaults.set(alwaysShowConstraints, forKey: Key.alwaysShowConstraints) }
     }
+    var anchoredSketchEntity: AnchoredSketchEntity {
+        didSet { defaults.set(anchoredSketchEntity.rawValue, forKey: Key.anchoredSketchEntity) }
+    }
+
+    var snapToGrid: Bool {
+        didSet { defaults.set(snapToGrid, forKey: Key.snapToGrid) }
+    }
+    var snapToSketchGuidelines: Bool {
+        didSet { defaults.set(snapToSketchGuidelines, forKey: Key.snapToSketchGuidelines) }
+    }
+    var snapToSketchGuidepoints: Bool {
+        didSet { defaults.set(snapToSketchGuidepoints, forKey: Key.snapToSketchGuidepoints) }
+    }
+    var snapToFaceGuidepoints: Bool {
+        didSet { defaults.set(snapToFaceGuidepoints, forKey: Key.snapToFaceGuidepoints) }
+    }
+    var showSnapHints: Bool {
+        didSet { defaults.set(showSnapHints, forKey: Key.showSnapHints) }
+    }
+
+    var snapOptions: SnapOptions {
+        SnapOptions(grid: snapToGrid, sketchGuidepoints: snapToSketchGuidepoints,
+                    faceGuidepoints: snapToFaceGuidepoints)
+    }
 
     /// The sample count pipelines were actually built with this launch.
     static func launchSampleCount(defaults: UserDefaults = .standard) -> Int {
@@ -155,10 +240,30 @@ final class AppSettings {
         return [1, 2, 4].contains(stored) ? stored : 4
     }
 
+    /// A stored Bool, or nil when the key was never set. Launch arguments
+    /// (`-os3d.snapToGrid NO`, the UI tests' override route) reach the
+    /// argument domain as strings, which `object(forKey:) as? Bool` would
+    /// silently drop back to the default — read those the way `bool(forKey:)`
+    /// does. Unlike `bool(forKey:)`, unset stays distinguishable from false.
+    private static func storedBool(_ defaults: UserDefaults, _ key: String) -> Bool? {
+        switch defaults.object(forKey: key) {
+        case let number as NSNumber: return number.boolValue
+        case let text as NSString: return text.boolValue
+        default: return nil
+        }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        circularAnnotations = defaults.string(forKey: Key.circularAnnotations)
+            .flatMap(CircularAnnotations.init) ?? .radiusAndDiameter
+        snapToGrid = Self.storedBool(defaults, Key.snapToGrid) ?? true
+        snapToSketchGuidelines = Self.storedBool(defaults, Key.snapToSketchGuidelines) ?? true
+        snapToSketchGuidepoints = Self.storedBool(defaults, Key.snapToSketchGuidepoints) ?? true
+        snapToFaceGuidepoints = Self.storedBool(defaults, Key.snapToFaceGuidepoints) ?? true
+        showSnapHints = Self.storedBool(defaults, Key.showSnapHints) ?? true
         unit = defaults.string(forKey: Key.unit).flatMap(DisplayUnit.init) ?? .millimeters
         theme = defaults.string(forKey: Key.theme).flatMap(AppTheme.init) ?? .system
         paletteOnRight = defaults.bool(forKey: Key.paletteOnRight)
@@ -169,16 +274,18 @@ final class AppSettings {
         // Constraint Settings ship "Always Show Constraints" and "Always Show
         // Dimensions" off, with the footer "Logical constraints and locked
         // dimensions are shown based on your current selection." Off is NOT
-        // hidden here either — `annotatedSketches` shows a selected sketch's
-        // annotations. `object(forKey:)` so an explicit choice survives a
+        // hidden here either — individual annotations follow selected geometry.
+        // `object(forKey:)` so an explicit choice survives a
         // relaunch (`bool(forKey:)` cannot tell false from unset).
         alwaysShowDimensions =
             defaults.object(forKey: Key.alwaysShowDimensions) as? Bool ?? false
         // Constraints default OFF: a canvas of ⌖ ∥ ⊥ ◎ badges over every visible
         // sketch while you are modelling is noise, and Shapr3D does not do it by
-        // default either. Off still shows them for a SELECTED sketch.
+        // default either. Off still shows annotations referring to selected geometry.
         alwaysShowConstraints =
             defaults.object(forKey: Key.alwaysShowConstraints) as? Bool ?? false
+        anchoredSketchEntity = defaults.string(forKey: Key.anchoredSketchEntity)
+            .flatMap(AnchoredSketchEntity.init) ?? .firstSelected
     }
 
     // Under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, this class is

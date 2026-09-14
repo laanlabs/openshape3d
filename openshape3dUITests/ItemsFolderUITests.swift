@@ -54,7 +54,7 @@ final class ItemsFolderUITests: XCTestCase {
 
         app.buttons["ItemsButton"].tap()
         XCTAssertTrue(app.staticTexts["Bodies"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.textFields["ItemName-Extrude"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Extrude"].firstMatch.waitForExistence(timeout: 3))
 
         // New Folder → "Folder 1" row appears under a Folders header.
         app.buttons["ItemsNewFolderButton"].tap()
@@ -70,7 +70,7 @@ final class ItemsFolderUITests: XCTestCase {
         let target = app.collectionViews.buttons["Folder 1"]
         XCTAssertTrue(target.waitForExistence(timeout: 3), "Submenu should list the folder")
         if target.isEnabled { target.tap() } else { app.tap() }
-        XCTAssertTrue(app.textFields["ItemName-Extrude"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Extrude"].firstMatch.waitForExistence(timeout: 3))
 
         // The folder eye hides its child; the body's own eye reports it.
         let folderEye = app.buttons["ItemEye-Folder 1"]
@@ -93,7 +93,7 @@ final class ItemsFolderUITests: XCTestCase {
         XCTAssertTrue(remove.waitForExistence(timeout: 3))
         remove.tap()
         XCTAssertFalse(app.otherElements["ItemFolderRow-Parts"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.textFields["ItemName-Extrude"].exists, "The body survives removing its folder")
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Extrude"].firstMatch.exists, "The body survives removing its folder")
         app.buttons["UndoButton"].tap()
         XCTAssertTrue(app.otherElements["ItemFolderRow-Parts"].waitForExistence(timeout: 3),
                       "Undo should restore the folder")

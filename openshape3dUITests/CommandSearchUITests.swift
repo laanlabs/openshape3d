@@ -25,6 +25,8 @@ final class CommandSearchUITests: XCTestCase {
         app.launchEnvironment["OS3D_FRESH"] = "1"
         app.launchEnvironment["OS3D_RESET_STORE"] = "1"
         app.launchEnvironment["OS3D_DEBUG_SEED"] = "1"
+        // Explicit results must execute even when bare letters open Search.
+        app.launchArguments += ["-os3d.singleKeyAction", "commandSearch"]
         app.launch()
         XCTAssertTrue(app.buttons["CommandSearchButton"].waitForExistence(timeout: 15))
         return app
@@ -95,5 +97,35 @@ final class CommandSearchUITests: XCTestCase {
 
         app.otherElements["CommandSearchScrim"].tap()
         XCTAssertTrue(app.textFields["CommandSearchField"].waitForNonExistence(timeout: 5))
+    }
+
+    // Foreground Escape delivery is paired live; XCTest's synthesized Escape
+    // is not delivered reliably to this focused field (retained QA54 receipts).
+    // The close control invokes the same dismissal while proving state/history.
+    func testClosingSearchPreservesSketchAndGeometryHistory() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        let window = app.windows.firstMatch
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        XCTAssertTrue(app.buttons["Exit Sketching"].waitForExistence(timeout: 5))
+        lookAtSketch(app)
+        let a = window.coordinate(withNormalizedOffset: CGVector(dx: 0.40, dy: 0.42))
+        let b = window.coordinate(withNormalizedOffset: CGVector(dx: 0.58, dy: 0.48))
+        a.press(forDuration: 0.15, thenDragTo: b)
+        startSketchTool(app, "Line") // toggle the armed tool off, remain in the sketch
+        let undo = app.buttons["UndoButton"]
+        XCTAssertTrue(undo.isEnabled)
+        let field = openLauncher(app)
+        field.typeText("l")
+        app.buttons["CommandSearchClose"].tap()
+        XCTAssertTrue(field.waitForNonExistence(timeout: 5), "Close dismisses only the search overlay")
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists, "Closing Search must not exit the sketch")
+        XCTAssertTrue(undo.isEnabled, "Closing search does not consume geometry history")
+        undo.tap()
+        XCTAssertFalse(undo.isEnabled, "The original line remains the only undoable edit")
     }
 }

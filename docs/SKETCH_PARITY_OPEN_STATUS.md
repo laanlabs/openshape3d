@@ -1,0 +1,261 @@
+# OpenShape3D — unfinished-work status
+
+Last reconciled: **2026-09-13, 23:20 EDT merge checkpoint**. Source checkpoint: **2dc2dfc** (final-state suite fixes; 3985340 plain-tap edge target world-unit again; 7b80282 drawing opens without the main-thread graph replay; ad135ba symmetry rail tests draw without grid snapping; 05bbf71 Imported size row in view; b4a1bb0 plain-tap edge target only from flat faces; fa7f22b OS3D_RESET_STORE also resets defaults; 93df1d3 parallel-distance info-bar row; c35008d/0723f9d linear-label drag and off-plane subset split; 97f320a model-mode sketch Move/Rotate; 838dca9 dense-value grouping; 273f0c4 badge/keypad clear of side controls; d2ff046 exec ceiling; 0cb0a2a compact palette; 6ac3250 Space; dcee869 named views; 3f7080c curved face; cf3b875 plane selection); prior **605511b**, fixture **0e86c6b**.
+Owner: **Claude Code session** (handed over 2026-09-13). OpenClaw parity work is **paused** by Jason — automation `3eced82f` disabled, dashboard parity session idle; see AGENTS.md. This is the current open-work register, not the historical mission log.
+
+**33 passed / 0 failed / 22 incomplete / 1 device-blocked = 56 acceptance cases.**
+The 22 incomplete cases comprise 11 partial core cases and 11 explicitly deferred cases.
+A passed finite recipe is not full feature parity. Automated passes do not replace paired live checks or physical-device proof.
+
+## Current work — not yet complete
+
+- **Branch-wide regression before merge — done:** full serial suite at dbbbc0a = 171/185 with ten failures, all fixed; re-run at the final state (b398adc) = unit 1612/1612 (1 skipped), UI 185 executed, 4 skipped, 3 new failures (bug-report scroll, a hidden-edge tap routing from b4a1bb0, a grid-capture test), each fixed and gated green (3985340, 2dc2dfc; SelectionTests 14/14, Planes 6/6, Cylinder 1/1, Blend 4/4, BugReport 1/1, rectangle centre drag 1/1). Full run on the final tree (616fd16) green: unit 1613/1613 (1 skipped), UI 185 executed, 4 skipped, 0 failures. PR #29 ready for review; the merge to main awaits Jason. See testing/sketch-parity-branch-regression-2026-09-13.md.
+- **iPad open time (Jason, 2026-09-13 evening):** measured on the device — 130 ms to load, then 5.7 s replaying the feature graph for error badges on every open (on main since 2026-08-31). Fixed at 7b80282: the replay runs detached and only its error map is adopted. After-fix numbers still to capture (the iPad auto-locked). See testing/perf-open-path-2026-09-13.md.
+- **Every simulator-feasible core item is closed or recorded.** The remaining partial-core scope is device-only: QA-19/20/21 hover (Space on the hovered plane, snap feedback), QA-40/52 physical input (pan while the keypad is open, Pencil/pinch), QA-29 device zoom, QA-24 native edge-only selection state and circular-edge radius readout.
+- **iPad session feedback (2026-09-14):** plane picker tiles were a speck zoomed out and a wall zoomed in — now a constant on-screen size from the gizmo unit (3004c48; PlanesUITests 6/6, 33 unit tests); a rotation ring tap opened an empty field with no keypad and no handle lit — the angle field now has the app keypad and the tapped handle draws lit (ba42c5b; GizmoFlowUITests 3/3). See testing/ipad-feedback-2026-09-14.md. Both on the PR #29 branch, installed on the iPad.
+- **Next:** Jason merges PR #29; capture the after-fix open timings on the unlocked iPad; then a physical iPad session for QA-52 (needs Jason).
+- **Reports:** illustrated1,302 unique media/1,305 placements; ten new hashes once, no predecessor loss. Master38, one new note/no loss. **2026-09-13 session evidence published as a separate Evidence Appendix** (five Google Docs, 70 captioned images with per-original SHA-256, plus an index: https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit; batch 2 of 2026-09-13, four more docs / 75 images, index https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit); the appendix is not inserted into the illustrated report (that document is owned by another account and the connector cannot edit it) — link it from the roadmap doc manually. The twelve Sept 12 offset-plane assets were published in batch 3 on 2026-09-13 (https://docs.google.com/document/d/1tVCDQJ0gxEnbaxNrQwuXATGFwbBLUiBLobQOV7EZPOM/edit). Batches 2–4 (2026-09-13 evening): six more Google Docs — QA-24 sketch move, QA-24 curved/edge, QA-29 dense, QA-29 right-palette, QA-45 native mixed, Sept 12 offset assets, QA-29 overlaps (indexes 1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU and 10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA); every hashed evidence folder is published.
+
+## Every unfinished original acceptance case
+
+Each entry preserves the matrix's current evidence and remaining scope. Deferred means unfinished, not passed or silently removed. Owner is the dedicated parity session unless stated otherwise.
+
+### QA-01 — Plane selection
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Origin Front/Right/Top grid availability paired. Face-offset creation, offset sketch entry, line history and both reopenings paired at differing scales; plane regression 11/11 passed (0e86c6b), publication pending. Plane Items selection implemented at cf3b875 (regression 24/24; paired live 2026-09-13) and its row highlight/"1 plane" readout at cf0fbd0 (25/25; paired re-run); curved face refused at 3f7080c (clone live; native response not observed), bare-grid miss paired Sept 12 (ground; one-sketch-per-plane difference). Open before promotion: native curved/planar-face pick observation in one session, and publication.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-02 — Entry method
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** 2026-09-13: Sketch menu → plane paired (QA-01 lanes); selected face → Sketch paired (native face click then Sketch entered directly, no plane prompt; clone PlanesUITests + live cap); existing item paired/published under QA-24/41; hover + Space native-observed (grid and face) and implemented at 6ac3250 (81/81) — live clone delivery blocked: the simulator produces no pointer hover from synthetic moves (QA-21 limitation; physical device QA-52). See testing/sketch-parity-entry-routes-2026-09-13.md.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-03 — Camera angle
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Origin Front/Right/Top normal entry/grid checked. 2026-09-13 paired: entry alignment (both align to the plane normal), orbit while sketching by view command (clone Look at Sketch / native Normal to Sketch, sketch stays active), normal-view action realigns. Clone-only: edge-on 90° places nothing (implicit; `grazingSketchAngle` unused). Confirmed 11:05 EDT over seven isolated trials: a native named view that is not the sketch's head-on view or its underside (Front, Right, Default View) ends the sketch; Top/Bottom and any Rotate View keep it. Clone matched at **dcee869** (`applyStandardView` ends the sketch unless the view is head-on/underside; 38/38 one clean serial run; live re-check Top/Bottom keep, Front/Isometric end). Open: orientation-cube taps do not route through it and native's cube-tap response is unobserved. 85° unreachable by command; gesture orbit not driven (QA-52). Regression: PlanesUITests.testStandardViewWhileSketchingOffersLookAtSketch (Views > Isometric mid-sketch offers Look at Sketch, sketch stays active, tap realigns), PlaneTests + PlanesUITests 13/13 one clean serial run. See testing/sketch-parity-camera-angle-2026-09-13.md.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-14 — Ellipse dimensions
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Advanced ellipse-axis coverage; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-16 — Spline
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Spline creation/editing; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-17 — Text sketch
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Text sketch; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-19 — Snap categories
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Raw acquisition-off and Grid-only paired; guidepoint combinations open.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-20 — Snap zoom
+
+- **Status:** Core — partial.
+- **Evidence / remaining work:** Screen-relative acquisition corrected; native near/far reference + two clone scales, clean37/37. Full zoom/grid matrix open.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-21 — Snap feedback
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Native Endpoint hover captured; clone idle feedback automated-only, live pointer delivery unresolved.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-22 — 3D references
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Off-plane reference coverage; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-24 — Multi-selection
+
+- **Status:** Core — partial, not passed.
+- **Latest:** 2026-09-13: model-mode Move/Rotate of selected sketch geometry implemented from a native observation (sketch24: typed 5000 on the up arrow moves the six edges, identity/selection kept, no History step, downstream offset plane re-evaluates, Undo restores) — clone shows the gizmo on model-mode sketch selections; whole sketch moves as a rigid frame with dependents rebuilt in one undo step, subsets move in-plane through the solver; off-plane subsets split into a new sketch on the moved frame — the native rule observed later the same day (one edge of sketch24 moved along the normal became "Sketch 14"; Undo restored) — implemented at 97f320a (Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923; clone live paired: one edge → "Sketch 1" at (0,5,0), Undo/Redo). Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2). Owned Items selection/history and model-mode count/length paired and published earlier (1302/1305/master38).
+- **Evidence / remaining work:** Typed planar-face/body/profile chooser on ab6fb2d passed 26/26; changed live face/profile dispatch, Cancel and gallery recovery of three boxes plus circle verified. Body-name/Rename correction b5bff74 final46/46 plus paired history/reopen; illustrated1271unique/1274placements/master38 verified. Connected rectangle and later constraint additive routes retained; native Profile identity confirmed by accessibility selection; broader curved-face/edge selection remains open. 2026-09-13 model-mode sketch transform: thirteen native captures (selection/qa24-model-sketch-move-live-2026-09-13, published batch 2); clone live check paired on the clone at 4347508 (sim AC2FD923): P24 row → Exit keeps 4 edges / 14.00 mm selected with the gizmo up; up arrow → keypad 5 → plane origin (0,5,0), local geometry unchanged, selection kept, undo title "Move", the dependent Extrude rebuilt to y 5..7 in the same step; bridge Undo/Redo restore/reapply. Thirty-one assets published in batch 2 (selection/qa24-model-sketch-move-live-2026-09-13); see testing/sketch-parity-model-sketch-move-2026-09-13.md. Curved-face/edge breadth probed natively on a cylinder later the same day (wall click → face with radius readout and Offset Face; rim click → edge with length/radius and Chamfer/Fillet; Select Through on the wall → both wall faces, body, profile; selection/qa24-curved-edge-live-2026-09-13, 9 assets, published batch 2) and matched at 637a24d: Select Through offers curved faces (choosing arms the radial edit / face), a tap near a body edge arms Chamfer/Fillet with that edge (Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923). Remaining: native's edge-only selection state and circular-edge radius readout; QA-45's native mixed selection (input-blocked).
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-28 — Dimension selection matrix
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Non-core multi-entity dimension coverage; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-29 — Badge layout
+
+- **Status:** Core — partial live pass.
+- **Evidence / remaining work:** Portrait and landscape edge keypad usable; resize alignment fixed. 2026-09-13 at 273f0c4: right-palette badge-under-palette fixed (linear badges clamp between rail and palette) and compact keypad overlap fixed (size-class rail inset); regression on both (iPad forced-right test; compact suite 4/4). 2026-09-13 dense/reposition/zoom paired on native sketch24 (layout/qa29-dense-zoom-live-2026-09-13, 29 assets, published batch 2): dense values read in full with grouped thousands ("123,456.7891 mm") — the clone's `%g` label format capped labels at six significant digits ("123457 mm"), fixed at f27e277 with grouping; manual reposition corrected with screen-coordinate drags: native drags a linear label's leader (measured: for the selection; driving: kept, undoable) — the clone had this only for diameter labels, linear-label drag added at 97f320a (Gate: ConstraintApplyTests 81/81 and DimensionUITests testLinearLabelDragMovesLeaderOnlyAndPersistsOnceDriving + testNearRailCircleDiameterTargetRemainsReachable 2/2 (/tmp/os3d-split-label-20260913.xcresult, unit re-run /tmp/os3d-split-label2-20260913.xcresult).); native labels keep screen size across zoom and are not clamped into view, the clone keeps its canvas clamp (deliberate, recorded). Dense-value gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and DimensionUITests.testDenseValueReadsInFullOnCanvas 1/1 (/tmp/os3d-qa29-dense3-20260913.xcresult), serial on sim AC2FD923. Circle label re-checked (measured: drags radially, reverts on reselect). Overlaps paired 2026-09-13: neither app draws per-entity labels for a multi-selection (no crowding case); native's parallel-distance info-bar readout matched at 93df1d3 (layout/qa29-label-overlap-live-2026-09-13, 4 assets local). Remaining: clone zoom live on a device. The three DimensionUITests failures logged the same day were grid snapping moving touch-drawn geometry off the tests' hard-coded re-tap/drag coordinates (measured from the run's recordings), not a reselect defect; the tests now launch with grid snap off and pass 3/3 — see testing/sketch-parity-reselect-gridsnap-2026-09-13.md and testing/sketch-parity-badge-layout-2026-09-13.md.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-31 — Unit conversion
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Comprehensive unit formats; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-32 — Expression evaluation
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Comprehensive variables/expression semantics; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-40 — Keypad transitions
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Retained click-away/tool/toggle/Exit/Escape/history evidence plus paired blocked/unblocked cube drag on5676bd0 with final57/57 and illustrated1237/master38. Native pan: seven input classes tried 2026-09-13 (plain/⇧/⌘/⌥ drags, wheel and trackpad-style scrolls, arrows) — none pans through Peekaboo (⌘+arrow rotates 15°); Shapr3D pans on the middle button / two-finger gesture, neither postable here — moved to QA-52 with the inventory. Clone rule inventory recorded (cube blocked, tap = click-away, one-finger drag and two-finger pan not gated; native unobserved). See testing/sketch-parity-keypad-pan-2026-09-13.md.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-42 — Trim curves
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Ellipse/spline trim; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-44 — Offset
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Offset completeness; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-45 — Move/rotate/copy
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** Extensive paired exact-value/local-frame/Copy/Escape/history evidence plus clean 50/50 current-tree direct line/circle/rectangle and mixed line+circle Copy matrix. 2026-09-13: mixed selection had no exact-value route in the clone (drag gizmo only) — fixed at d790646 (Move/Rotate pill for any selection; 84/84 one clean serial run), typed X on line+circle verified live with Undo/Redo; native mixed selection reached later on 2026-09-13 by a marquee drag in sketch mode (plain/shift/cmd clicks replace): a typed 50,000 on X moved the mixed selection in one step with lengths unchanged and one Undo returned it — the same rule as the clone (planes/qa45-native-mixed-live-2026-09-13, published batch 3). Native offers Rotate Around Axis first for a line-plus-circles selection (M switches to Move/Rotate) — recorded. Compact layout: the transform-control check closed later on 2026-09-13 under QA-53 (CompactWidthBarUITests.testSketchTransformControlsAreUsableAtCompactWidth, compact suite 5/5 — the earlier failures were the test's own extra tap deselecting the fresh line); see testing/sketch-parity-mixed-transform-2026-09-13.md and testing/sketch-parity-compact-palette-2026-09-13.md.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+### QA-46 — Pattern
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Advanced linked patterns; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-47 — Projection
+
+- **Status:** Explicitly deferred.
+- **Evidence / remaining work:** Projection linking; remains in full audit, not passed.
+- **Closure required:** Retain in the full-parity backlog; define and execute the complete feature acceptance recipe when this deferred lane is taken up. No completion claim.
+
+### QA-52 — Touch and Pencil
+
+- **Status:** Device-only pending.
+- **Evidence / remaining work:** Physical Pencil/touch requires Jason’s actual device comparison; no simulator substitute.
+- **Closure required:** Updated-build physical iPad/Pencil/touch comparison with recorded results; owner: parity session for build/install preparation, Jason for physical input verification.
+
+### QA-53 — Layout
+
+- **Status:** Core — partial, not passed.
+- **Evidence / remaining work:** 2026-09-13 compact (iPhone 17 Pro): testExtrudeBarIsUsableAtCompactWidth failed on the branch — measured, the bar no longer covers the palette; nine entries (Axis and Material were added) exceed the ~487 pt available above the info strip + bar, so the palette scrolls and Delete sat below the clip edge. Fixed at 0cb0a2a: tighter column tried before scrolling, palette identifier on the scrolling variant, test requires Delete reachable directly or by one palette scroll; compact suite 3/3, iPad Planes + SketchTransform 10/10. See testing/sketch-parity-compact-palette-2026-09-13.md. Compact sketch Move/Rotate check closed 2026-09-13: CompactWidthBarUITests.testSketchTransformControlsAreUsableAtCompactWidth (pills read horizontally, X control hittable) — compact suite 5/5. Panel/palette correction4b6a78f passed final50/50 and changed live both-panel/inward-flyout/plane-choice checks; illustrated1247/master38 published89dbafc. Retained51/51 layout baseline remains valid. Native Mac lacks the same handedness/large-text controls; physical iPad variants remain unverified.
+- **Closure required:** Complete the stated remaining recipe, retain regression and paired live/history/reopen evidence where applicable, and verify publication before promoting the matrix row.
+
+## Cross-cutting build, device, and handoff work
+
+- [ ] Finish all remaining core acceptance and blocking visual/interaction differences, or record an explicit user-accepted scope exception. Do not drop deferred full-parity work.
+- [ ] Reconcile current WIP and preserve all project changes in reviewable commits/pushes, with incomplete testing explicitly labeled. Exclude unrelated identity/memory files and secrets.
+- [ ] Run and record final relevant **same-revision** regression for the refreshed candidate, including unresolved failures/skips. Old 05be744 results do not validate newer changes.
+- [ ] Produce a new signed iPad archive/IPA including the newer fixes. Record source revision, size/hash, platform, signature and provisioning verification.
+- [ ] Verify present device connection and eligibility at installation time. Jason previously reported the iPad connected, and prior read-only profile matching succeeded; neither proves a current connection or installation.
+- [ ] Install and launch the updated build on the actual iPad through the supported device workflow; retain evidence. **Updated installation is not verified.**
+- [ ] Refresh the short [device A/B checklist](SKETCH_PARITY_DEVICE_AB.md) against the new candidate and known differences.
+- [ ] Complete physical Pencil, touch, gesture, hardware-keyboard, orientation/handedness/accessibility layout and lifecycle checks (QA-52). Simulator mouse/keyboard evidence is insufficient.
+- [ ] Resolve device findings, repeat affected regression and refresh the artifact as necessary.
+- [ ] Verify outstanding screenshot/report uploads by export, matching hashes and preserving predecessor text/media. Reconcile the historical publication queue rather than re-uploading already recovered evidence.
+- [ ] Publish a final readiness summary identifying the exact tested build, completed scope, deferred scope, known limitations and device results. No full-parity/release claim from a comparison build.
+- [ ] PR review/merge/release remains a separate disposition; do not merge or release merely because this checklist exists.
+
+**Existing artifact:** immutable `05be744` development IPA is retained. It excludes the many subsequent fixes. Its historical 1,595-pass/3-skip regression and signing receipts are not current-build readiness evidence.
+
+## Limitations excluded from finite passes — still tracked
+
+These are not additional acceptance-count rows. They must not disappear because their related finite case is passed.
+
+- QA-33: polygon side count is capped at 10,000 on both the keypad and exec paths while native has no cap (quadratic slowdown, 10,001 ≈ 22 min). **Accepted scope exception, Jason 2026-09-13.**
+- QA-01: the clone keeps the picker armed after a refused curved-face tap by its own Section View rule; native's response to that tap is unobserved (audit document has no curved body in view).
+- QA-02: hover + Space is unit-proven only — the simulator delivers no pointer hover from Peekaboo moves or "Send Pointer to Device"; live proof needs a physical trackpad/Pencil (QA-52). The native face selection in native-05 is inferred from the missing plane prompt, not a visible highlight.
+- QA-03: 85° entry/orbit unreachable by command on either side (45°/isometric and 90° used); native edge-on drawing unobserved; gesture orbit not driven through Peekaboo (physical input stays QA-52).
+- QA-27: variable-linked and multiple-driver dimension-type variants remain unverified (also related to QA-28/32).
+- QA-43: legacy nil reference ownership retains old behavior; duplicate-label styling was excluded from closure.
+- QA-49: exhaustive curved intersections/topology are outside the bounded pass (related QA-42).
+- QA-50/56: advanced downstream Sweep/Loft breadth is outside the simple sketch-to-solid smoke closure.
+- QA-54: synthetic XCTest Escape delivery has a retained limitation; physical hardware delivery remains QA-52, not proven by foreground desktop input.
+- QA-41: the historical immediate-native-reopen discrepancy is distinct from the verified explicit Exit/save route.
+- QA-10 legacy recovery: controlled production-import diagnostic/gallery validation did not establish the system-file-picker import route; retain that route as unverified until explicitly tested.
+- Manual label placement outside the sampled head-on circle case, oblique placement, other dimension kinds and rapid successive-input variants require coverage in the remaining annotation/layout/dimension lanes.
+- Full UI parity still requires the outstanding drawing/selected/unselected/editor states, leaders, handles, highlights, icons and keypad matrix; geometry-only passes do not close those visual requirements.
+- Historical receipt caveats not yet independently reconciled stay **unverified**, not assumed fixed. The owning session must reconcile additional exclusions into this section when reading a receipt.
+
+## Blockers and next actions
+
+- **Device evidence:** build/install work is still outstanding; do not repeatedly attribute this solely to Jason. He already reported the iPad connected.
+- **Simulator baseline:** the parity iPad's app-container plist persisted paletteOnRight=true and alwaysRadius (Sept 11 handedness runs) until 2026-09-13 16:00 — layout evidence captured before then shows the palette on the right for that reason; check the plist before trusting layout captures.
+- **Input/capture:** several historical cases were blocked by supported input/capture delivery. GUI work has subsequently recovered in parts. Re-test each remaining route; do not propagate a global stale blocker or infer an app failure from tool delivery.
+- **QA-33 polygon bound:** resolved 2026-09-13 — native has no limit and degrades quadratically (3,000 sides ≈ 2 min); the clone's 10,000 ceiling is a deliberate guard, accepted by Jason 2026-09-13 as a scope exception.
+- **Publication:** Items selection batch is published and verified; model-mode summary correction is also paired and publication-verified. Older queue entries include recovered material and require reconciliation, not blind duplication.
+
+## Update contract
+
+Requested by Jason on September 12: keep a full unfinished-work list updated.
+
+At **every meaningful checkpoint**, and before a checkpoint commit/push or handoff:
+
+1. Reconcile this document with the acceptance matrix, latest continuation entry, current diff and new receipts.
+2. Add each newly confirmed bug, incomplete test/live check, publication step and blocker immediately, including owner and next action.
+3. Distinguish implementation, regression, paired live, publication and physical-device completion. Record source revision and exact final results; do not sum separate runs into one clean gate.
+4. On closure, update the matrix and totals together; move the case out of the unfinished list only when its finite evidence is verified. Keep exclusions here or in their explicit open lane.
+5. Update candidate/build/install status independently. Link receipts instead of copying the historical log into this current register.
+6. Preserve a brief change log below. The dedicated parity session owns routine maintenance; parent status/heartbeat checks should consult this file and flag stale or inconsistent entries.
+
+## Sources
+
+- [All 56 acceptance cases](SKETCH_PARITY_ACCEPTANCE_MATRIX.md)
+- [Latest operational checkpoint](PARITY_CONTINUATION.md)
+- [Milestone requirements](SKETCH_PARITY_NEXT_MILESTONE.md)
+- [Implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md)
+- [Device checklist and historical artifact](SKETCH_PARITY_DEVICE_AB.md)
+- [Publication recovery queue](testing/sketch-parity-publication-pending-2026-09-10.md)
+- [PR #29](https://github.com/laanlabs/openshape3d/pull/29)
+- [QA-33 polygon-bound appendix, 2026-09-13](https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit)
+- [Evidence Appendix index, 2026-09-13](https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit)
+
+## Change log
+
+- 2026-09-13 (23:30): **Branch-wide regression** at dbbbc0a: unit 1611/1611 (1 skipped); UI 171/185 passed, 10 failed, 4 skipped (111 min). Nine failures were the shared-UserDefaults leak between UI launches (constraint-rail tests leave lastSelected / snapToGrid off / alwaysRadius behind) — `OS3D_RESET_STORE` now also resets the app's defaults; one was today's edge-tap slice catching a thin cylinder wall's rim — the plain-tap edge target now applies only from flat faces, measured on screen, sharp dihedrals only (b4a1bb0; defaults reset fa7f22b). Targeted gates: seven of the ten fixed and verified (SelectionTests 13/13, CylinderGrowShot 1/1, Blend 4/4, snapping persistence); the two QA-36 symmetry rail tests (006bf4b) and the mesh-unit prompt test fail identically at 0e86c6b — pre-existing; fixed next: symmetry = grid snapping collapsing the drawn operands (tests draw without it, ad135ba), mesh prompt = the Imported size row below the form-sheet fold (row moved up, 05bbf71); 3/3. Full suite re-running at the final state — result pending. See testing/sketch-parity-branch-regression-2026-09-13.md.
+- 2026-09-13 (21:30): QA-29 overlaps paired — no per-entity labels for a multi-selection on either side; native's distance-between-parallel-lines readout added to the clone's info bar at 93df1d3 (SelectionUXTests 16/16). QA-29 now waits only on a device zoom check; the four overlap captures are published (https://docs.google.com/document/d/1MXH2uA56Daun114CpaDuYDVxCH3wXAG1L2SdEwKzQ88/edit). Disk: pre-today /tmp result bundles removed after an ENOSPC during a run.
+- 2026-09-13 (21:00): **Evidence batch 3 published** — QA-45 native mixed selection (12 images, https://docs.google.com/document/d/1nnzMWO7LzOVrYl9V6gcJ8EBgm1auAL2EkOVG31u3s8s/edit) and the twelve Sept 12 offset-plane assets (https://docs.google.com/document/d/1tVCDQJ0gxEnbaxNrQwuXATGFwbBLUiBLobQOV7EZPOM/edit); batch-3 index https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit. Every hashed evidence folder is now published. No promotion.
+- 2026-09-13 (20:45): QA-45 native mixed selection no longer input-blocked — a marquee drag in sketch mode selects a mixed set; typed 50,000 moves all in one undoable step, lengths unchanged (paired with the clone's d790646 behaviour). A leftover probe circle from the cylinder probe was found in sketch24 and deleted; History and Items rows verified unchanged. 12 assets, published batch 3. See testing/sketch-parity-mixed-transform-2026-09-13.md.
+- 2026-09-13 (20:15): **Evidence batch 2 published** — four Google Docs (QA-24 model-mode sketch move 31 images; QA-24 curved-face/edge 9; QA-29 dense/reposition/zoom 29; QA-29 right-palette/compact 6) through the docx→Chrome route, batch-2 index https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit; each folder's evidence-index.json carries its link. No promotion. Still unpublished: the twelve Sept 12 offset-plane assets.
+- 2026-09-13 (19:50): QA-24 curved-face/edge breadth: native cylinder probe (curved wall = face + Offset Face + radius; rim = edge + Chamfer/Fillet + length/radius; Select Through lists wall faces, body, profile; document restored). Clone at 637a24d: curved faces in Select Through, edge tap arms Chamfer/Fillet with the edge. Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. See testing/sketch-parity-curved-edge-selection-2026-09-13.md.
+- 2026-09-13 (19:10): Corrections from screen-coordinate native drags: linear labels DO reposition (measured: selection-lived; driving: saved, undoable) — clone linear-label drag added at 97f320a; QA-24 subset off-plane observed (new sketch "Sketch 14", Undo restores) — clone split implemented at 97f320a; clicking a sketch edge in model mode enters its sketch natively (recorded). Gates: Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923. Native document left as found (three undos verified, Default View).
+- 2026-09-13 (18:20): QA-29 dense values / manual reposition / camera zoom paired on native; clone label format defect (`%g` six-significant-digit cap) fixed at f27e277 ("123,456.7891 mm", thousands grouped); Gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and DimensionUITests.testDenseValueReadsInFullOnCanvas 1/1 (/tmp/os3d-qa29-dense3-20260913.xcresult), serial on sim AC2FD923. Native leaves labels unclamped under zoom, clone keeps its canvas clamp (recorded). QA-45 register line reconciled (compact check closed under QA-53); matrix rows QA-24/29/45 reconciled. See testing/sketch-parity-dense-zoom-2026-09-13.md.
+- 2026-09-13 (17:45): QA-24 model-mode 3D transform of sketch geometry: native probed twice (typed 5000 moves the whole selected sketch, no History step, dependents re-evaluate, Undo restores; part24 is from Sketch 04 and stays), clone implemented (gizmo on model-mode sketch selections; frame move for a whole sketch, in-plane solver move for subsets, off-plane subsets refused). Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2). Evidence local. See testing/sketch-parity-model-sketch-move-2026-09-13.md.
+- 2026-09-13 (17:05): The three "pre-existing" DimensionUITests failures root-caused from the result-bundle recordings: grid snapping (default on) quantised the drawn line/circle/centre drag by up to ~35 pt, so the tests' coordinate-derived re-taps missed the 16 pt pick tolerance and the 30 pt centre drag snapped back to its row. Live paced re-tap on the clone reselects fine. Tests launch with `-os3d.snapToGrid NO` (9e4b2cc); AppSettings now honours launch-argument strings for the snap/hint booleans (unit-tested). 3/3 green (/tmp/os3d-qa23-gridsnap-20260913.xcresult). No app defect; QA-29 open items unchanged otherwise. See testing/sketch-parity-reselect-gridsnap-2026-09-13.md.
+- 2026-09-13 (16:45): QA-53 compact sketch-transform check closed (new compact test; suite 5/5) — the earlier failure was my own selection choreography, not the layout.
+- 2026-09-13 (16:30): QA-29 right-palette badge and compact keypad overlaps fixed at 273f0c4 (iPad forced-right test green; compact suite 4/4). **Confirmed pre-existing bugs (not from today's changes; fail at 0e86c6b too):** DimensionUITests testLineDistanceTypeBadgeChangesReadoutWithoutOpeningKeypad, testNearRailCircleDiameterTargetRemainsReachable, testConnectedCircleGlyphDoesNotInterceptCenterDrag — tap-to-reselect after an edit / short centre drag; owner Claude Code session, next: reproduce tap-to-reselect live. Simulator carried a persisted paletteOnRight=true from Sept 11; cleared. 6 assets local.
+- 2026-09-13 (15:45): **QA-33 promoted to passed** — finite recipe complete, native bound measured, 10,000-side ceiling accepted by Jason as a scope exception (kept in the excluded-limitations list), appendix doc published. Totals 33/0/22/1.
+- 2026-09-13 (15:15): QA-40 pan-while-keypad: native pan not deliverable (seven input classes tried, inventory in the receipt) — moved to QA-52; clone rule inventory recorded; no source change.
+- 2026-09-13 (15:00): QA-33 native side-count bound measured to completion (1,000/2,000/3,000 sides: ~10/47/119 s, no refusal, quadratic); clone ceiling kept and extended to the exec path (10,001 was accepted there). Divergence recorded for acceptance. 6 assets local.
+- 2026-09-13 (14:00): Published the session's five evidence folders (70 images) as Google Docs via the user's Drive plus an index doc; receipts and evidence indexes carry the links. Roadmap doc not edited (other owner). Twelve Sept 12 offset assets still unpublished. No promotion.
+- 2026-09-13 (13:30): QA-53 compact extrude-bar failure measured and resolved (palette scrolls; tighter column; test asserts reachability), compact suite 3/3; receipt added. No promotion.
+- 2026-09-13 (13:10): QA-45 mixed selection had no exact-value route — fixed at d790646, 84/84, live typed move + Undo/Redo verified; native mixed selection input-blocked. Compact: extrude bar covers Delete on iPhone 17 Pro (confirmed, QA-53); sketch-transform compact check open. 11 assets local. No promotion.
+- 2026-09-13 (12:15): QA-02 entry routes: Space = sketch on hovered plane implemented at 6ac3250 after native observation (grid and face); face → Sketch paired; menu and item routes cited. 81/81 one clean run. Live Space blocked by simulator hover delivery — recorded. 8 assets local. No promotion.
+- 2026-09-13 (11:30): Native named-view rule confirmed over seven isolated trials (Front/Right/Default View end the sketch; Top/Bottom and Rotate View keep it) and matched in the clone at dcee869; 38/38 one clean serial run; clone live re-check on the build. 24 QA-03 assets local/unpublished. No promotion.
+- 2026-09-13 (10:45): QA-03 camera angle paired by view command in both apps (entry alignment, orbit-while-active, normal-view action); edge-on clone-only; 13 assets local/unpublished. New Look-at-Sketch UI regression, 13/13 one clean serial run. No source change; no promotion. Difference to confirm: native View > Front ended the sketch (one observation).
+- 2026-09-13 (10:00): Plane picker refuses curved faces at 3f7080c (was sketching on a facet sliver); 25/25 one clean serial run; clone live wall/cap/miss re-verified, 11 assets local. Native curved/planar-face pick not observed — recorded as open. QA-01 finite recipe now has evidence for every element; no promotion; totals unchanged.
+- 2026-09-13 (09:30): Items plane row highlight + "1 plane" readout at cf0fbd0; 25/25 one clean serial run; paired re-run in both apps, 18 assets local/unpublished. Gap closed; no promotion; totals unchanged.
+- 2026-09-13 (09:15): QA-01 plane-row selection → Sketch paired live in both apps; ten assets indexed locally, unpublished. New gap: clone has no Items row highlight or "1 plane" readout. No promotion; totals unchanged.
+- 2026-09-13 (09:00): QA-01 Items plane-row selection fixed at cf3b875 (was an empty handler); regression 24/24 one clean serial run; paired live check and publication still pending, no row promotion. Totals unchanged.
+- 2026-09-13: Handoff to Claude Code. Collected the pending QA-01 plane gate (11/11, clean serial run); re-tallied the matrix (32 passed / 12 partial / 11 deferred / 1 device = 56, unchanged). OpenClaw parity work paused at Jason's request (automation `3eced82f` disabled, heartbeat off, dashboard session idle since 00:14 EDT).
+- 2026-09-12: Created from all 56 matrix rows and current 0cc5d6c checkpoint; enumerated all 24 not-passed cases, current Items WIP, release/device/publication gates and finite-pass exclusions. Owner reconciliation of any additional receipt-level caveats is ongoing.
+- 2026-09-13 (23:20): **Final-state re-run and merge.** Full suite at b398adc: unit 1612/1612 (1 skipped); UI 185 executed, 4 skipped, 3 failures — bug-report scroll (test reordered, 2dc2dfc), hidden-bottom-edge tap routing (edge target world-unit again, 3985340), rectangle centre-drag grid capture (test without grid, 2dc2dfc); gate green. iPad open time measured: 5.7 s of a 6.2 s open was the load-time badge replay — moved off the open path at 7b80282. PR #29 description refreshed, marked ready; full run on the final tree green (unit 1613/1613, UI 185/185 with 4 skipped); merge awaits Jason.
+- 2026-09-14 (07:30): **iPad feedback** — plane picker screen-proportional (3004c48), rotation ring keypad + lit handle (ba42c5b); gates green. See testing/ipad-feedback-2026-09-14.md.

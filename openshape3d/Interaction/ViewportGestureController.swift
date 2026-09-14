@@ -29,8 +29,8 @@ protocol ViewportGestureDelegate: AnyObject {
     /// Long-press (plan §B13, spec §8.3): Select Through popup listing every
     /// body under the point through depth.
     func gestureLongPressed(at point: CGPoint)
-    /// Pointer / Apple-Pencil hover moved to `point` (no touch down). Drives the
-    /// line tool's rubber-band preview between taps. `nil` point = hover ended.
+    /// Pointer / Apple-Pencil hover moved to `point` (no touch down). Drives
+    /// tap-built Line/Rectangle/Arc previews. `nil` point = hover ended.
     func gestureHovered(at point: CGPoint?)
     /// The Apple Pencil's double-tap (or squeeze) gesture fired.
     func gesturePencilDoubleTapped()
@@ -93,8 +93,8 @@ final class ViewportGestureController: NSObject {
         )
         view.addGestureRecognizer(longPress)
 
-        // Pointer / Pencil hover: rubber-band preview for the line tool between
-        // taps (trackpad, mouse, or M2+ Pencil hover). Touch-only devices simply
+        // Pointer / Pencil hover: tap-built Line/Rectangle/Arc previews
+        // (trackpad, mouse, or M2+ Pencil hover). Touch-only devices simply
         // never fire it — tap-to-place still works without a preview.
         let hover = UIHoverGestureRecognizer(target: self, action: #selector(handleHover(_:)))
         view.addGestureRecognizer(hover)

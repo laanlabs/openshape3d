@@ -116,6 +116,8 @@ struct PullArrowState: Equatable {
 
 struct ViewportScene {
     var bodies: [BodyDrawable] = []
+    /// Active sketch grid; nil keeps the modeling view's ground grid.
+    var gridPlane: SketchPlane?
     /// Move gizmo, when a body is selected. `scale` is finalized by the
     /// renderer each frame for constant screen size.
     var gizmo: GizmoState?
@@ -179,4 +181,3 @@ struct ViewportScene {
         return result
     }
 }
-

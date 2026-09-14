@@ -1,0 +1,3434 @@
+# Parity continuation checkpoint
+
+## Current — QA24 curved-face/edge breadth probed and matched (2026-09-13 19:50 EDT)
+
+Owner: Claude Code session. OpenClaw parity work is paused by Jason: automation
+`3eced82f` ("OpenShape3D 30-minute parity continuation") disabled (auto-disabled
+after 10 consecutive agent-runner failures; no next wake), heartbeat off,
+dashboard session "OpenShape3D parity — PR #29" idle. Do not resume it. See the
+PAUSED notice in AGENTS.md.
+
+HEAD 3f7080c: plane picker refuses a curved face and keeps the picker armed
+(worldFacePlane smooth-region check), on cf0fbd0 (row highlight/readout) and
+cf3b875 (Items plane selection). Regression PlaneTests + SelectionUXTests +
+PlanesUITests: **25/25, 0 skipped**, one clean serial run on sim AC2FD923,
+/tmp/os3d-plane-curved-gate-20260913.xcresult (prior gates 25/25 cf0fbd0,
+24/24 cf3b875).
+Prior QA01 plane gate at 0e86c6b: 11/11, /tmp/os3d-qa01-plane-gate-20260913.xcresult.
+No runner active; Simulator, Shapr3D and Peekaboo open, idle. Docs dirty only.
+Paired live 09:10 EDT: native Plane 01 row → Sketch enters Sketch 13 on the
+plane; clone Plane 1 row → Line enters Sketch 1 on the y=6 offset plane,
+head-on, no picker. Eighteen assets in workspace reports
+planes/qa01-plane-item-live-2026-09-13 (evidence-index.json), local only; twelve
+earlier QA01 offset assets also unpublished. Row highlight/readout paired 09:28 EDT.
+Remaining difference: native one-sketch-per-plane vs clone new sketch.
+Clone parked idle in Untitled 2 (box + Plane 1), bridge 8899; native parked
+Sketch 13/Top. QA01 clone live on 3f7080c: wall refused, cap → Sketch at y=5, miss → ground
+(planes/qa01-curved-miss-live-2026-09-13, 11 assets); native curved/planar-face
+pick not observed. QA03 (no source change): entry alignment, orbit-while-active
+and normal-view action paired by view command (clone bridge view.*, native
+View > Rotate View 45°); clone edge-on places nothing; native edge-on
+unobserved; 85° unreachable (planes/qa03-camera-angle-live-2026-09-13, 13
+assets). Peekaboo drag/swipe does not reach the Simulator; native model-mode
+Sketch needs an AX press (`peekaboo click --on`). Both apps parked idle.
+HEAD dcee869: a named view off the sketch plane ends the sketch (seven native
+trials: Front/Right/Default View end, Top/Bottom/Rotate keep). Gate PlaneTests +
+CameraTests + SelectionUXTests + PlanesUITests 38/38, one clean serial run,
+/tmp/os3d-namedview-gate-20260913.xcresult; clone live re-check on the build.
+HEAD 6ac3250: Space starts a sketch on the hovered plane/face (native observed
+grid + face); gate 81/81 one clean run; live blocked — no pointer hover reaches
+the simulator app (Peekaboo move, Send Pointer to Device). Face → Sketch paired
+natively. Open: orientation-cube taps bypass applyStandardView; hover-dependent
+routes need a physical device. Publication: four evidence folders (53 assets)
+local; the prior browser-driven Google Docs pipeline is not reproduced here.
+HEAD d790646: Move/Rotate pill for any sketch selection (mixed selections had
+no exact-value route); 84/84 one clean serial run; live typed X on line+circle
+with Undo/Redo over the bridge. Native mixed selection input-blocked (click
+replaces, shift-drag clears). Compact (iPhone 17 Pro): the extrude-bar failure
+was measured — bar no longer covers the palette; nine entries exceed the ~487 pt
+available, so the palette scrolls — fixed with a tighter column before scrolling
+and a reachability assertion (compact suite 3/3); sketch-transform compact
+check open (line not selectable by tap at compact width in XCUITest).
+Evidence planes/qa45-mixed-transform-live-2026-09-13 (11 assets, local); five
+folders / 64 assets unpublished. Publication: the five 2026-09-13 evidence folders are Google Docs in Jason's
+Drive (index https://docs.google.com/document/d/1OMSu149SkUIDJLCFyifQtRQ9_A40e9zonxq57qh1TJw/edit), uploaded through his Chrome (the Drive connector
+carries content inline only — too large for images). Roadmap doc not edited
+(other owner); Sept 12 offset assets (12) still unpublished. QA33: native accepts any side count, quadratic cost (1,000/2,000/3,000 →
+~10/47/119 s); clone ceiling 10,000 kept (a million-gon wedged the app) and
+applied to exec at d2ff046 (84/84; live 10,000 ok / 10,001 refused). Divergence
+accepted by Jason (keep 10,000). Published: https://docs.google.com/document/d/1oplNFZXivCEu3pKEFR3VTM8vEvGUsDHTZjeVmMUYhzI/edit. QA40: native pan not deliverable
+(seven input classes, canvas diff; ⌘+arrow = rotate 15°), moved to QA-52 with the
+inventory; clone cube-block paired, tap click-away, one-finger drag / two-finger
+pan not gated (native unobserved). Native parked (Default View); clone fresh.
+QA33 promoted to passed (ceiling exception accepted; published). Totals 33/0/1/22.
+QA29 at 273f0c4: linear badges clamp between rail and palette (right-palette
+badge was under the palette); size-class rail inset fixes the compact keypad
+overlap; forced-right iPad test + compact suite 4/4. Simulator plist had
+paletteOnRight=true persisted (cleared; backup in scratchpad). The three
+DimensionUITests that failed independent of today's changes (also at 0e86c6b)
+were root-caused from the result bundle's recordings: grid snapping (on by
+default) moved the touch-drawn line, circle centre and centre drag by up to
+~35 pt, so the tests' coordinate-derived re-taps missed the 16 pt pick
+tolerance and the 30 pt drag snapped back to its row. A paced real tap on the
+clone reselects after a type switch. Tests launch with grid snap off (9e4b2cc),
+AppSettings honours launch-argument strings for the snap booleans (unit test);
+3/3 green, /tmp/os3d-qa23-gridsnap-20260913.xcresult. QA53 compact
+sketch-transform check closed (compact suite 5/5). QA24 model-mode sketch
+transform: native sketch24 probe (twice) — typed 5000 on the up arrow moves
+the six selected edges, identity/selection kept, no History step, Plane -
+Offset 01 and Sketch 13 flag warnings and Plane 01 leaves Items, Undo
+restores; part24 is Extrusion 05 from Sketch 04 and stays put. Clone: gizmo
+on model-mode sketch selections, whole sketch = rigid frame move with
+dependents rebuilt in one step, subset = in-plane solver move, off-plane
+subset refused. Gate: ModelSketchTransformTests 6/6 and SelectionUXTests + SelectionTests + ConstraintApplyTests + SketchIdentityTests 112/112, serial on sim AC2FD923 (/tmp/os3d-qa24-sketchmove-unit-20260913.xcresult, -unit2). paired on the clone at 4347508 (sim AC2FD923): P24 row → Exit keeps 4 edges / 14.00 mm selected with the gizmo up; up arrow → keypad 5 → plane origin (0,5,0), local geometry unchanged, selection kept, undo title "Move", the dependent Extrude rebuilt to y 5..7 in the same step; bridge Undo/Redo restore/reapply. Twenty assets local (selection/qa24-model-sketch-move-live-2026-09-13). Native doc left as found
+(Undo twice, Plane 01 back). QA29: native sketch24 probe — dense label "123,456.7891 mm" reads in
+full; a linear-label drag deselects (no reposition); labels keep screen size
+across zoom, unclamped. Clone label format used `%g` (six significant
+digits) — fixed at f27e277 with grouping; Gate: AppSettingsTests 14/14 (/tmp/os3d-qa29-dense-20260913.xcresult) and DimensionUITests.testDenseValueReadsInFullOnCanvas 1/1 (/tmp/os3d-qa29-dense3-20260913.xcresult), serial on sim AC2FD923. Then, with
+screen-coordinate drags (peekaboo drag is screen-based; the earlier
+"drag deselects" reading was a miss): native repositions a linear label's
+leader — selection-lived for a measured label, saved and undoable for a
+driving one — and the clone gained the same for linear labels
+(97f320a). QA24 subset: one edge moved along the normal became
+a new "Sketch 14" natively; the clone now splits an off-plane subset into a
+new sketch (97f320a). Gates: Gate: ModelSketchTransformTests 7/7, ConstraintApplyTests 81/81, SelectionUXTests 15/15 (/tmp/os3d-split-label-20260913.xcresult, /tmp/os3d-split-label2-20260913.xcresult), serial on sim AC2FD923. Native doc
+left as found (three undos verified), Default View; clone fresh on the sim.
+Native circle label re-checked (measured: radial drag, reverts on reselect);
+native parked Default View. QA29 remaining: label overlaps, clone zoom on a
+device. QA24 curved-face/edge: native cylinder probe (wall → face, radius, Offset
+Face; rim → edge, length/radius, Chamfer/Fillet; Select Through → wall
+faces, body, profile; undone, Default View). Clone 637a24d:
+curved faces in Select Through, edge tap arms Chamfer/Fillet with the edge.
+Gate: SelectionTests 12/12, SelectionUXTests 15/15, SelectionUITests.testLongPressShowsSelectThroughPopup 1/1, BlendUITests 4/4 (/tmp/os3d-qa24-curved-edge-20260913.xcresult; SelectionTests re-run /tmp/os3d-qa24-curved-edge3-20260913.xcresult), serial on sim AC2FD923. Native parked; clone fresh on the sim. Evidence batch 2
+published (four docs, 75 images; index https://docs.google.com/document/d/1hv2uagPc1EFebuPSXBeYOg4IcoQpf2aWrA7mUu_xFyU/edit).
+QA-45 native mixed selection reached by a marquee drag (plain/shift/cmd clicks
+replace); typed 50,000 on X moved line + circles together, one Undo — paired
+with the clone. Leftover probe circle deleted from sketch24; History/Items
+rows verified. Evidence batch 3 published (QA-45 native mixed, Sept 12 offset assets;
+index https://docs.google.com/document/d/10C9QAMKtvAWNFXkxLmA1cZqplgmyA16aMxvP-dh3xXA/edit) — every
+hashed evidence folder is published. QA-29 overlaps paired (no per-entity labels for a multi-selection on
+either side; parallel-distance info-bar row added at 93df1d3; four captures published,
+https://docs.google.com/document/d/1MXH2uA56Daun114CpaDuYDVxCH3wXAG1L2SdEwKzQ88/edit). Every
+simulator-feasible core item is now closed or recorded; the rest is
+device-only (QA-19/20/21 hover, QA-40/52 physical input, QA-29 device zoom).
+Branch-wide regression run at dbbbc0a: unit 1611/1611, UI 171/185 with ten
+failures — nine from UI launches sharing the app's UserDefaults (fixed:
+OS3D_RESET_STORE also resets defaults), one from the edge-tap slice on a
+thin cylinder wall (fixed at b4a1bb0: edge target only from flat faces,
+measured on screen, sharp edges only). Targeted gates green for seven of
+the ten; the two QA-36 symmetry rail tests (006bf4b) and the mesh-unit
+prompt test failed identically at 0e86c6b — pre-existing, then fixed: grid
+snapping collapsed the symmetry operands (ad135ba, tests draw without it) and
+the Imported size row sat below the form-sheet fold (05bbf71). All ten pass in
+targeted gates; the full serial re-run at b398adc = unit 1612/1612, UI
+185 with 3 new failures (bug-report scroll 2dc2dfc, hidden-bottom-edge tap
+routing 3985340, rectangle grid capture 2dc2dfc), each fixed and gated green.
+Jason's iPad open-time report measured and fixed (7b80282: the load-time badge
+replay, 5.7 s of a 6.2 s open, now runs detached) — after-fix numbers still
+to capture on the unlocked iPad (testing/perf-open-path-2026-09-13.md).
+PR #29 refreshed and marked ready; full run on the final tree green
+(unit 1613/1613, UI 185 executed, 4 skipped, 0 failures); the merge to
+main awaits Jason (the session's push was refused by its permission
+policy). Jason's first iPad session found two more (2026-09-14): plane picker
+size (3004c48) and the rotation ring's typed entry without a keypad,
+handles never lit (ba42c5b) — testing/ipad-feedback-2026-09-14.md; both on
+the PR #29 branch and installed on the iPad.
+Next: the merge; the iPad after-fix timing; then a physical iPad
+session for QA-52 (hover, pan, pinch, Pencil).
+32/0/1/23; iPad unchanged.
+
+## Superseded — QA01 paired offset history/reopen; gate running
+
+HEAD ef09333; docs dirty only. Native500mm plane/7761.9858mm line and clone0.5mm
+plane/1.5mm line creation, line Undo/Redo and named gallery reopen verified.
+Native initial Undo disabled; later model menu passed. No source change.
+Serial PlaneTests + all four PlanesUITests owns simulator exec44966 at
+/tmp/os3d-qa01-plane-gate-20260913.{log,xcresult}; collect terminal before desktop.
+Twelve assets prepared, unpublished. Next finish gate, publish paired partial
+receipt; then curved-face/miss and plane-item no-op scoped work. Native parked
+Sketch13 selected/Top; clone test-owned.32/0/1/23;iPadunchanged.
+
+
+## Current — QA01 offset creation and canvas entry paired
+
+HEAD fd254e9; documentation checkpoint in progress, no source/test changes. No runner.
+Native face offset500mm committed Plane01, Items selection then Sketch enters Sketch13
+and alignsTop. Clone box1mm extrusion then face offset0.5mm committed Plane1;
+Sketch>Line>canvas plane enters correctly. Both currently empty offset-plane sketches
+with Line armed. Native/clone scales differ; no equal-size claim.
+Clone Plane Items row click has no effect; ItemsPanelView onSelect is empty, unlike
+native plane selection. Track separate Items/entry gap; no fix yet. Blank grid
+picker probes accepted a plane in both, but native existingSketch12 versus clone
+newground/tool state differs, so full miss recipe not closed.
+Evidence copied to workspace reports milestone/planes/qa01-offset-live-2026-09-12,
+evidence-index.json. Next create offset-plane line, paired history/reopen; then
+scoped plane-item selection investigation. Publication queued. Reports1302/1305
+placements/master38 unchanged;32/0/1/23;iPadunchanged. Disk1.9GiB observed.
+
+
+## Current — QA24 3D transform diagnostic retained; QA01 next
+
+ccb0cfa summary paired checkpoint pushed. Native5000 axis submission accepted,
+Undo/Redo invoked, finalUndo restored probe; exact downstream ownership not
+proven. Clone selected-sketch Transform>Move no-op; body-only guard confirmed.
+No transform source change; do not equate ChangeSketchPlane with native behavior.
+Diagnostic receipt/local model-transform-* evidence preserved; publication queued.
+Next oldest core QA01 plane-picker miss/face recipe. Native no selection; clone
+selectedtwo Sketch1/Transform menu open. No runner;32/0/1/23;iPadunchanged.
+Reports1302unique1305placements/master38. Disk~350MiB; preserve artifacts.
+
+
+## Current — QA24 model summary paired publication verified
+
+605511b + fixture0e86c6b final47/47. Changed live and publication verified:
+illustrated1302unique1305placements, ten new hashes once/no1292predecessorloss;
+master38/one heading/no loss. model-summary-verification.json durable. No runner.
+Next native model-mode sketch 3D transform dispatch comparison; source gap is
+known, full transform semantics still require paired numeric/history investigation.
+Native selectedsix sketch24 in modelmode, clone selectedtwo Sketch1 in modelmode.
+QA24partial32/0/1/23; iPadunchanged. Current documentation being checkpointed.
+
+
+## Current — QA24 summary final47/47 and changed live verified
+
+605511b + fixture0e86c6b pushed. Corrected final47/47,zero failures/skips; no runner.
+Changed single/two-edge summary, blank clearing, history partial/full selection,
+gallery reopen/reselection verified. Native blank/reselect/Exit fresh repeat.
+Ten new images and master note inserted; export audit exec74164 running,
+/tmp/os3d-qa24-model-summary-audit.py. Expect1302unique1305placements/master38
+from1292unique1295baseline; do not claim before exact hashes/no loss verified.
+Next finish publication/checkpoint then model-mode sketch transform dispatch.
+Native selectedsix modelmode; clone selectedtwo modelmode.32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 summary final gate active
+
+605511b pushed; test-only min/max fixture-label correction dirty after final1
+compile failure (no tests). Final measurement/selection/identity classes +SelectionUITests
+serial gate owns simulator exclusively exec82752 at
+/tmp/os3d-qa24-model-summary-final2-20260912.{log,xcresult}. Collect exact count
+and terminal before desktop. Changed live count/length/deselect/history/reopen
+then publication; 3D transform remainsopen.32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 summary source checkpoint, final gate next
+
+Focused17/17 and corrected UI1/1 passed separately; initial compile failure
+and initial UI leaf-query error retained. Added primitive nine-edge guard and
+removed mm-only UI query assumption. No runner. Source is being committed before
+final measurement/selection/identity +SelectionUI gate. Changed live/publication
+pending. Full 3D sketch transform still open; reports1292unique1295placements/
+master38,32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 model-mode selection summary focused gate
+
+36920fb paired Items checkpoint pushed; illustrated1292unique1295placements/master38.
+Fresh native named entry/Exit shows six-edge count/length and 3D MoveRotate;
+clone two-lines Exit has neither summary nor gizmo. Before summary0/1 reproduces
+missing rows. Scoped idle-only count/length resolves owned IDs, ignores stale IDs.
+Focused SketchIdentity+SelectionUX running exclusively exec28859 at
+/tmp/os3d-qa24-model-summary-focused-20260912.{log,xcresult}. Source/test dirty;
+collect before any desktop. 3D transform controls remain separate open work.
+Native parked selectedsix modelmode; clone testowned.32/0/1/23;iPadunchanged.
+
+
+## Current — QA24 Items paired checkpoint verified
+
+Source0cc5d6c final52/52; changed live two-line owned selection, untouched Exit,
+direct sketch24 Rename, Undo/Redo deselection after reselection, and saved name/
+both-line gallery reopen verified. Illustrated1292unique/1295placements, eight
+new hashes once/no1284predecessorloss; master38/one note/no loss. Durable
+selection/qa24-through-live-2026-09-12/item-selection-verification.json.
+No runner. Native cleanreopened sketch24/part24; clone reopened sketch24 two lines.
+Next paired model-mode gizmo/transform dispatch after named-sketch Exit; not
+claimed fixed by selection retention. QA24 partial32/0/1/23; iPad unchanged.
+HEAD441ee45 includes parent unfinished-work register; preserve it and all evidence.
+Current documentation checkpoint being committed.
+
+
+## Current — QA24 Items final52/52, changed live next
+
+0cc5d6c pushed. Final52/52 (43model+9UI),zero failures/skips,terminal0.
+/tmp/os3d-qa24-sketch-item-selection-final-20260912.{log,xcresult},summaryJSON.
+No runner. Next ordinary clone launch/gallery→Items sketch name→all-entity
+selection→Exit retention→Rename original/new UndoRedo deselection→galleryreopen.
+Native prior six-edge entry/Exit + sketch24 Rename/history/reopen is retained
+in published sketch-name batch; native currently cleanreopen sketch24/part24.
+Clone testfixture likely singlelineSketch1, inspect afterordinarylaunch.
+Publication pending, baseline1284unique1287placements/master38;32/0/1/23.
+iPadunchanged. Dirtyreceipt/continuation only. Preserve artifacts/immutableIPA.
+
+## Current — QA24 Items selection final regression
+
+0cc5d6c pushed. Focused7/7 history and prior8/8 identity/UI separately pass.
+Final five model classes + Selection/Planes/Items UI classes now running
+exclusively exec6637 at /tmp/os3d-qa24-sketch-item-selection-final-20260912
+.{log,xcresult}. Collect exact terminal/count before desktop. Items UI has known
+60second context-menu animation waits that eventually complete; do not duplicate
+runner. Next changed live named sketch all-edge selection/Exit retainedselection,
+RenameUndo/Redo cleanup, galleryreopen, then publication. Native reference
+retained, parked cleanreopened sketch24/part24; clone testowned. Reports1284unique
+1287placements/master38.32/0/1/23;iPadunchanged. Only documentation dirty.
+
+## Current — QA24 Items selection/history focused7/7 passed
+
+Corrected history focused7/7, terminal0; preceding identity+UI8/8 separately
+passed. No runner. Source/test changes being checkpointed, then broad final
+selection/identity/Items/UI gate. Changed live/publication pending; native
+reference retained. No desktop until finalgate finishes.32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items selection/history focused gate
+
+BeforeItems0/1 failed entry/Exit; scoped fix focused8/8 passed. Added Rename
+Undo/Redo assertions then before0/1 failed both. Scoped model-mode sketchRename
+history clears retained IDs; active sketch/tool history unchanged. Focused
+SketchIdentity6+bodyRename1 now running exclusively exec7188 at /tmp/os3d-qa24-
+sketch-item-history-focused-20260912.{log,xcresult}. No sourcepush yet.
+Collectterminal; broad combined regression, changed live item selection/Exit/
+history/reopen and publication. Native all-edge entry/Exit and Rename history
+retained in published sketch-name batch. HEAD27cc8db; source/tests/checkpoint
+dirty. No other runner;1284unique1287placements/master38;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items focused8/8, Rename history before
+
+Scoped Items selection/untouchedExit focused8/8 passed, terminal0; no sourcepush.
+Added native-observed RenameUndo/Redo deselection assertions to same identity
+test; before run exec70336 owns simulator exclusively at /tmp/os3d-qa24-sketch-
+item-history-before-20260912.{log,xcresult}. Collect before, then extend scoped
+Rename cleanup only if failure confirms; broadgate/changedlive/publication next.
+HEAD27cc8db; dirty EditorViewModel, ItemsPanelView, SketchIdentityTests, checkpoint.
+Native/clone last saved names sketch24;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items scoped selection focused gate
+
+Before0/1 reproduced emptyselection on entry and Exit (two assertions), terminal65.
+Items-only selectItemSketch now selects namedentity IDs; untouched all-entity
+selection survives Exit. Explicit changes invalidate scope; passive other-entry
+clears it. No sourcepush yet; focused SketchIdentity class+two UI workflows
+running exclusively exec70767 at /tmp/os3d-qa24-sketch-item-selection-focused-
+20260912.{log,xcresult}. Collectterminal before mutations/desktop, then broaden,
+changed live select/Exit/history/reopen and publication. Source EditorViewModel,
+ItemsPanelView, SketchIdentityTests dirty; documentation dirty. HEAD27cc8db.
+No other runner. Reports1284unique1287placements/master38;32/0/1/23;iPadunchanged.
+
+## Current — QA24 Items all-edge selection before regression
+
+HEAD27cc8db pushed sketch-name paired publication. Native all-edge selection/
+Exit retention observed; clone enters without selection and clears on Exit.
+Added behavior-neutral selectItemSketch wrapper and routed Items row to it,
+leaving other openItemSketch callers untouched. New before model test asserts
+named-only selection, untouched Exit retention, geometry preservation, passive
+non-Items entry and no resurrection after explicit deselection. Running
+exclusively exec96053 at /tmp/os3d-qa24-sketch-item-selection-before-20260912
+.{log,xcresult}. No selection fix yet. Dirty EditorViewModel, ItemsPanelView,
+SketchIdentityTests and checkpoint. Collect before, then scoped retention state
+only for untouched Items selection; focused/broad/live/history/reopen/publication.
+Native parked cleanreopen sketch24/part24; clone testowned. Reports1284unique/
+1287placements/master38. Inventory32/0/1/23;iPad unchanged.
+
+## Current — QA24 sketch-name paired publication complete
+
+Source05bed51 pushed; final47/47 zero failures/skips. Both apps direct sketch24
+Rename, Undo/Redo original/new name and both gallery reopenings verified.
+Illustrated1284unique/1287placements, thirteen hashesonce/no1271predecessorloss;
+master38/one heading/no loss. sketch-name-verification.json durable. No runner.
+Next QA24 Items sketch all-edge selection/Exit retention scoped comparison and
+regression. Native sketch24 (formerlySketch05) single click selects sixedges and
+enters sketching; Exit retains sixedges. Clone name handler enters with no
+selectedentity IDs, finishSketch clearsall. Do not change unrelated openItemSketch
+callers or general history blindly. Native parked clean reopened sketch24/part24;
+clone Items sketch24 singleline, no bodies. Inventory32/0/1/23;iPadunchanged.
+Documentation being checkpointed; preserve all evidence and immutable05be744.
+
+## Current — QA24 sketch-name final47/47 and changed live verified
+
+05bed51 pushed. Final47/47 (42 model +5 UI), zero failures/skips, terminal0.
+No runner. Changed clone ordinary launch/gallery entry→Sketch1 name tap enters
+sketching without keyboard. Exit→contextRename selects whole seed; direct
+sketch24 replacement exact. UndoSketch1/Redo sketch24 preserve line; gallery
+reopen retains sketch24. Images final-entry/field/committed/undone/redone/reopened
+retained under durable selection/qa24-through-live-2026-09-12. Native Sketch05
+parked in sketching with sixedges selected. NEXT native explicit sketch Rename
+replacement/history/reopen, then bounded publication. Native all-edge selection
+remains separate observed gap; handler unchanged. Clone parked Itemsopen
+sketch24 singleline, no bodies. No runner. Reports1271unique1274placements/master38;
+32/0/1/23;iPadunchanged. Dirty receipt/continuation only.
+
+## Current — QA24 sketch-name final regression
+
+05bed51 pushed. Corrected focused3/3 passed, terminal0. Final combined five model
+classes plus SelectionUI4 and coplanar identityUI now owns simulator exclusively,
+exec60233: /tmp/os3d-qa24-sketch-name-final-20260912.{log,xcresult}. No desktop
+interaction until terminal. Next exact count, changed live name entry/explicit
+Rename/history/reopen and publication. Native Sketch05 parked in sketching with
+six edges selected; that selection-all difference remains open, source handler
+unchanged. Body publication 5c0c142 verified1271unique1274placements/master38.
+Inventory32/0/1/23;iPad unchanged. Only checkpoint/receipt dirty aftersourcepush.
+
+## Current — QA24 sketch-name gap before regression
+
+HEAD5c0c142 pushed body Rename publication. Native Sketch05 single-name click
+enters sketching and selects six edges, no Rename keyboard. Clone fresh Sketch1
+circle name click opens caret/keyboard and stays out of sketching. Paired images
+retained under selection/qa24-through-live-2026-09-12. Before0/1 reproduced unwanted keyboard, terminal65: /tmp/os3d-qa24-sketch-name-before-20260912
+.{log,xcresult}. Scoped sketch nameTapSelects now true; PlanesUI name-existence assertions use
+stable IDs. Focused3 workflows running exclusively exec30688 at
+/tmp/os3d-qa24-sketch-name-focused-20260912.{log,xcresult}. Dirty ItemsPanelView,
+SelectionUITests, PlanesUITests and this checkpoint.
+Next collect focused result, broader regression and changed live;
+native all-edges selection is an additional observed behavior, not yet matched.
+Then focused/regression/changed live/history/reopen/publication. No desktop
+interaction while test owns simulator. Inventory32/0/1/23;iPad unchanged.
+
+## Current — QA24 body Rename paired and published
+
+b5bff74 source pushed. Final46/46 zero failures/skips; prior48/48 separately
+retains unchanged folder/split/pattern UI. No runner or desktop owner active.
+Both apps direct part24 replacement, Undo/Redo deselection, gallery reopen
+verified. Clone three boxes preserved. Native clean reopen part24 visible.
+Illustrated1271unique/1274placements, twelve hashes once/no predecessor loss;
+master38/one heading/no loss. Durable body-rename-verification.json in
+selection/qa24-through-live-2026-09-12. Documentation checkpoint being committed.
+Next paired QA24 sketch Items name interaction audit; body-only fix intentionally
+leaves other item types unchanged. Native Items open part24 belowSketch05; clone
+Items open three boxes (part24,Box2,Box3). No speculative source change. Curved
+face/edge overlap also remains open. Inventory32/0/1/23; iPad unchanged; preserve
+all evidence, unrelated identity/memory files and immutable05be744.
+
+## Active — QA24 Rename final combined gate
+
+b5bff74 pushed; focused3/3 passes,terminal0 (seed replacement, scopedbodyRename
+history, no-keyboardselect). Final combined selection/identity/Items/foldermodel
+plusSelectionUI+ItemsUI now owns simulator exclusively:
+/tmp/os3d-qa24-rename-semantics-final-20260912.{log,xcresult}. Collectterminal
+and exactcount first. Prior48/48 includes unchangedfolder/pattern/splitUI paths;
+not relabeled as current-source final. Next changedlive directreplacement,
+Undo/Redo deselection/reselection andbothreopenings, publication. Nativepart24
+parkeddeselected; clone testowned. No other sourcechanges.32/0/1/23;iPadunchanged.
+
+
+## Active — QA24 Rename semantics scoped fix focused gate
+
+Before0/2 confirmed: initial name not selected (UI appends), bodyRenameUndo/Redo
+retains selection/mode. Scoped fixes now implemented: first untouched Rename
+focus selects all via existing UITextField notification/deferred-caret pattern;
+body RenameItemCommand history clears selected/editingPrimitive/idle selection,
+other tool/sketch history untouched. Focused3checks exec79717 owns simulator:
+/tmp/os3d-qa24-rename-semantics-focused-20260912.{log,xcresult}.
+Collectterminal before new source or desktop. Then broadgate (previous48/48
+was before these additions), changed live exactreplacement/history/reopen and
+publication. Native part24 deselected afterRedo; nativeRename auto-selectedseed
+and Undo/Redo deselection verified. Clone testowned. CurrentHEAD8fbcac5 pushed;
+new source ItemsPanelView+EditorViewModel, SelectionUXTests/ItemsUITests anddocs
+dirty. QA24partial32/0/1/23;1259unique1262placements/master38;iPadunchanged.
+
+
+## Active — QA24 Rename selection/history additional gaps
+
+8fbcac5 source final48/48 passes; changed live name tap selects no keyboard,
+explicitRename/commit/history/reopen preserves single4mmBox. First bridge clear
+miss retained; explicit20Delete thenpart24 gives exactname. TwoUndo restoreBox,
+twoRedo restorepart24; galleryreopen preservespart24. No geometry change.
+Native explicitRename selects entire oldname; typingpart24 replacesBody05 exactly.
+Native Undo→Body05 clearsselection, Redo→part24 staysdeselected. Clone keeps
+selection and initializescaret at end: confirmed additional gaps. New before
+model+UI run exec32396 owns simulator exclusively:
+/tmp/os3d-qa24-rename-semantics-before-20260912.{log,xcresult}.
+Model asserts scoped bodyRenameUndo/Redo selectioncleanup; existingItemsUI now
+uses directtype without helperclear to assert initial all-selected name.
+No source correction yet. Next collectbefore, scopedUITextFieldseedselection
+(pattern inSketchDimensionOverlay704) and RenameItemCommand body historycleanup;
+focused/broad/changedlive/publication. Native parkedpart24 deselected, no runner
+exceptabove. Dirtytests/continuation/receipt/implementation/matrix documentation.
+QA24partial32/0/1/23;1259unique1262placements/master38;iPadunchanged.
+
+
+## Current — QA24 body-name final48/48, changed live next
+
+Final48/48 (41model+7UI),zero failure/skip,terminal0 on8fbcac5; no runner.
+/tmp/os3d-qa24-itemname-final-20260912.{log,xcresult}, summaryJSON retained.
+Changed app launched, capture /tmp/os3d-qa24-itemname-fixed-launch.png pending
+inspection. Next live bodyname select/Rename/Undo/Redo/galleryreopen, native
+same rename/history. Native parkedBody05 contextRename menu. No geometry edits
+for name workflow. QA24partial32/0/1/23; reports1259unique1262placements/master38.
+Dirtydocumentation only; source8fbcac5 pushed. Disklimited, preserveevidence/IPA.
+
+
+## Active — QA24 item-name final combined gate
+
+8fbcac5 pushed. Focused2/2 clean, terminal0: no-keyboard bodyname selection and
+explicitRename/Delete/Undo pass. Contextmenu animation notifications time out60s
+but workflow continues; no assertion failure. Final combined selection/identity/
+Items/folder/pattern model+UI run owns simulator exclusively:
+/tmp/os3d-qa24-itemname-final-20260912.{log,xcresult}. Collectterminal/exactcount.
+Next changed-build paired bodyname selection/Rename/history/reopen, publication.
+No additional product changes after focusedpass. QA24partial32/0/1/23;
+reports1259unique1262placements/master38. iPad/immutable05be744 unchanged.
+
+
+## Active — QA24 body-name selection fix under focused test
+
+HEADf1e6ebb pushed,1259 unique/1262placements/master38 identitypublication verified.
+Native Items Body05 name click selects wholebody; contextmenu offersRename.
+Clone Box2 name tap opens keyboard without selecting. Before UI0/1 reproduces.
+Scoped ItemRow body-only nameTapSelects: plainlabel selects, explicit contextmenu
+Rename enters inlineediting. Other itemclasses unchanged. Body row existence tests
+use type-independent ItemName IDs; Items rename workflow uses explicitRename.
+Focused2UI run exec48324 owns simulator exclusively:
+/tmp/os3d-qa24-itemname-focused-20260912.{log,xcresult}. Collectterminal first.
+Dirty ItemsPanelView,SelectionUITests,SplitPatternUITests,ItemsFolderUITests,
+ItemsUITests,continuation. No changedlive/finalgate/publication yet. Native parked
+Body05 contextmenu; clone testowned. Disk2GB; preserveevidence/IPA. QA24partial
+32/0/1/23;iPadunchanged. Next focusedresult, exactrename/history guard, broadgate,
+checkpoint/push, changed pairedlive and publication. No duplicateworker.
+
+
+## Current — QA24 identity publication verified, Items comparison active
+
+Sourceab6fb2d, prior docs02dd7a3 pushed. Final26/26 reused, no runner.
+Identity follow-up verified1259 unique/1262 placements (one new placement),
+master38, headings once/no loss. Duplicate chooser upload undone; retained
+chooser reused, only new correct pentagon selection added. No acceptance change.
+Next paired Items body selection/replacement/deselection. Native Body05 selected
+from Items, whole body highlighted; clone Items panel opened, inspect current
+screenshot. No geometry edits. QA24partial32/0/1/23; iPad unchanged.
+Dirty receipt/matrix/continuation ready to checkpoint. Reports selection/qa24-through-live-2026-09-12.
+
+## Previous — QA24 native identity resolved, follow-up publication next
+
+02dd7a3 pushed. Native fresh chooser AX elem_24 correctly selects pentagon,
+Items Sketch05 and filtered History Sketch05/Extrusion05. Earlier coordinate
+click hit unrelated Sketch12; input miss, not native defect. Local native-through2
+and native-profile-ax evidence retained; publish two-image correction next without
+repeating eleven-image batch. Reports1258/master38. No runner;32/0/1/23.
+Native selectedpentagon, clone3boxes+circle. iPad unchanged. Dirtyreceipt/continuation.
+
+## Previous — QA24 typed chooser publication verified
+
+Source ab6fb2d pushed; final26/26, zero failures/skips. No test runner.
+Illustrated1258/master38 verified: eleven new hashes once, headings once, no
+predecessor loss. Changed clone faces/profile dispatch, Cancel and gallery
+reopen preserve3boxes+circle. QA24partial32/0/1/23; iPad/05be744 unchanged.
+Next fresh native exact Profile candidate identity; broader curved-face/edge
+selection remains open. Native capture resumed; clone parked reopened fixture,
+Right palette retained. Documentation checkpoint ready; unrelated identity/memory
+untouched. Evidence selection/qa24-through-live-2026-09-12.
+
+
+## Active — QA24 changed chooser live verified, publication next
+
+ab6fb2d pushed; final26/26 zero fail/skip, no runner. Changed live saved three
+boxes: chooser offers twofaces+Box2; first selects topface at0mm, second selects
+occluded side at0mm (initial retry hit readout, excluded; Done then303431 long
+press opens real chooser). Created2mm circle on topface viaCircle, exited,
+chooser offers Profile—Sketch1 alongsidefaces/body. Profile selection arms0mm
+extrusion on exactcircle;Cancel then gallery/reopen preserves3boxes+circle.
+Native chooser shows2faces/body/profile; exact Profile identity caveat remains.
+Next publish bounded typed-choice fix with native chooser/before/changed assets,
+then native exact face/profile identity and QA24 remaining connected/additive.
+Evidence selection/qa24-through-live-2026-09-12 updated. Reports1247/master38;
+QA24partial32/0/1/23. Native selected profile/extrudecontrols, clone reopened
+3boxes+circle,Rightpalette retained. No geometry extruded by chooser. Immutable
+05be744/iPad unchanged. Only continuation dirty; source/test checkpoint safe.
+
+
+## Active — QA24 typed selection final26/26, live next
+
+Final26/26 zero failures/skips, terminal0, no runner. Typed planar face/body/
+visible occluded profile chooser implemented and model dispatch verified.
+Next checkpoint/push then changed live front/back/body/profile choices and
+native exact identity. Native Profile click identity caveat remains; curved
+face/edge breadth unverified. QA24partial32/0/1/23; reports1247/master38.
+All task changes ready to checkpoint; preserve unrelated identity/memory.
+Native selected profile/extrude state, clone test terminated; Right preference
+retained. Immutable05be744/iPad unchanged. No duplicate runner.
+
+
+## Active — QA24 broadened typed selection gate
+
+Focused9/9 after face-only8/8 and before0/1. Added hidden/stale profile check
+and curved-wall facet suppression. Final selection/identity/twoUI gate exec57984
+running exclusively, /tmp/os3d-qa24-through-final-20260912.log/xcresult.
+Selectors SelectionTests, SelectionUXTests, SketchIdentityTests, SelectionUITests.
+Collect terminal then inspect any failures, checkpoint safe source, changed live
+front/back/body/profile choices. Exact native Profile-row identity remains
+unverified (extrusion controls observed, apparent region mismatch). Do not close.
+Dirty HitTester, EditorViewModel, EditorView, SelectionUXTests, continuation,
+new select-through-targets receipt. HEAD89dbafc,32/0/1/23;1247/master38.
+Native parked selected profile/extrusion controls; clone runner-owned. Right
+palette retained. Immutable05be744/iPad unchanged; no duplicate runner.
+
+
+## Active — QA24 face/profile typed focused suite
+
+Face-only SelectionUX8/8 passed after before0/1. Added visible occluded sketch
+profile candidates (one innermost fill per visible sketch) and zero-distance
+existing startExtrude dispatch. New test verifies front/back planes y2/y0,
+source body/profile identity and no geometry mutation/cancel. Current exec7890
+running all SelectionUXTests exclusively:
+/tmp/os3d-qa24-through-typed-20260912.log/xcresult. Collect terminal first.
+No broad gate/changed live/publication yet. Native after Profile-row click shows
+one face and extrusion arrows, but screen selection appears different from the
+menu's Sketch05 label; do NOT claim exact candidate identity until verified.
+Native currently body zoom with selected profile/extrusion controls; clone testowned.
+HEAD89dbafc; dirty HitTester, EditorViewModel, EditorView, SelectionUXTests,
+continuation. Planar faces only; audit curved facet suppression and candidate
+order/hidden/stale behavior before broad gate. Preserve body/additive API.
+Evidence selection/qa24-through-live-2026-09-12. QA24partial32/0/1/23;
+reports1247/master38; iPad immutable05be744 unchanged. Right palette retained.
+
+
+## Active — QA24 typed face candidates under focused test
+
+Before0/1 confirms0faces expected2. Implemented HitTester.pickAllSurfaces,
+planar topology dedup front/back, typed body/face candidates; face choice sets
+existing faceContext and faceSelected without geometry edit. Body overload/
+additive path preserved; UI chooses typed candidate. Existing body order test
+filters body candidates explicitly. All SelectionUXTests running exec19880,
+/tmp/os3d-qa24-through-faces-20260912.log/xcresult, exclusive simulator owner.
+Profile candidates still missing; no changed live/publication yet. Need face
+choice assertions beyond counts, profile support then broad/regression/live.
+Dirty HitTester, EditorViewModel, EditorView, SelectionUXTests, continuation.
+HEAD89dbafc;32/0/1/23; reports1247/master38; iPad unchanged.
+Native parked Select Through chooser; clone test-owned. Earlier right palette
+preference retained. Do not duplicate runners or count incomplete fix as parity.
+
+
+## Active — QA24 Select Through missing target types, before test
+
+HEAD89dbafc pushed (QA53 panel final50/50, live and1247/master38 verified).
+Native right-click at visible sketch/body overlap→Select Through This Point
+(menu coordinate click only highlighted; foreground Return activated) lists
+two Face - Extrusion05, Body05 and Sketch05 Profile. Clone visible extruded-body/
+shown source sketch long-press lists only Extrude. Code SelectThroughCandidate
+and presentSelectThrough are body-only. Need face/profile target support;
+no source fix yet. New SelectionUXTests testSelectThroughIncludesFrontAndBackFacesAlongsideBody
+before run exec9159 owns simulator exclusively, /tmp/os3d-qa24-through-before-20260912.log/xcresult.
+Collect terminal before source changes/desktop. Native parked chooser open,
+body zoomed using Items Body05→Zoom to; clone owned by test. Right palette
+preference retained. Dirty SelectionUXTests and continuation only.
+Evidence durable selection/qa24-through-live-2026-09-12. Earlier long-press
+native probes merely hover-highlighted and are not chooser evidence.
+Official Selecting geometry and Create sketches docs confirm context route;
+URLs in transcript. Existing SelectionUX body-only expected names must be
+updated only when typed candidates implemented, preserving body order/additive.
+QA24 partial32/0/1/23; iPad/immutable05be744 unchanged. No duplicate runner.
+
+
+## Active — QA53 panel publication verified, QA24 next
+
+Source4b6a78f pushed; final50/50 zero failures/skips. Changed live Left/Right
+both-panel Sketch→Line and Left panel-close restoration verified. Illustrated1247/
+master38, ten hashes once/no1237 loss. QA53 partial32/0/1/23; no runner.
+Next QA24 outstanding connected/overlap/additive selection; inspect actual native
+and clone states first. Native modeling both panels open; clone modeling both
+panels open, Right palette preference retained, extruded-body project. Evidence
+keyboard/qa53-panels-live-2026-09-12. Immutable05be744/iPad unchanged.
+Task docs checkpoint now; do not repeat completed panel gates. QA40 pan delivery
+still blocked at CLI/bridge foreground mismatch, not native behavior evidence.
+
+
+## Active — QA53 final settings/layout gate on4b6a78f
+
+4b6a78f pushed. Focused four-state1/1 passes; final broad gate exec32944
+exclusively owns simulator, /tmp/os3d-qa53-panels-final-20260912.log/xcresult.
+Selectors AppSettingsTests, SketchLinearDimensionLayoutTests,
+SketchDiameterDimensionLayoutTests, GizmoScreenLayoutTests, all SettingsUITests.
+Collect terminal/count/failures before desktop. Next changed live both panels,
+Sketch→Line dispatch and panel toggle restoration; publication then next case.
+QA53 partial32/0/1/23; reports1237/master38. iPad/immutable05be744 unchanged.
+No other runner. Native modeling with both panels remains untouched.
+
+
+## Active — QA53 four-state focused passed, checkpoint ready
+
+Corrected matrix1/1, all four Left/Right portrait/landscape variants dispatch
+Line with both panels open. Before0/1 and intermediate right failure retained.
+No runner. Source EditorView panel inset/layering and ToolPalette inward Right
+flyout; tests SettingsUITests. Receipt panel-palette-2026-09-12.
+Next checkpoint then broader settings/layout gate and changed live verification/
+publication. QA53 partial32/0/1/23; reports1237/master38; iPad unchanged.
+
+
+## Active — QA53 right-flyout corrected matrix running
+
+Initial panel before0/1, left portrait fix1/1. Expanded matrix then passed both
+left orientations but right portrait Line tap failed to enter plane selection.
+Code confirms flyout always extended right beneath Items. ToolPalette now opens
+inward for Right; palette overlay ordered above panel overlays, same-side318pt
+inset retained. Corrected matrix exec14086 running exclusively:
+/tmp/os3d-qa53-panels-matrix2-20260912.log/xcresult. Collect terminal first.
+No changed live proof yet; last capture was SpringBoard after test termination,
+not flyout evidence. Native panel comparison preserved. Dirty EditorView,
+ToolPaletteView, SettingsUITests, matrix historical restoration, continuation.
+HEAD5676bd0, inventory32/0/1/23, reports1237/master38; iPad unchanged.
+Next focused result, broader layout/settings gate, changed live panels/dispatch,
+durable receipt/publication/checkpoint. No acceptance closure claim.
+
+
+## Active — QA53 panel correction focused runner
+
+Before0/1: Sketch reported hittable but tap did not open Line while History
+covered palette. Product EditorView now insets palette318 instead of14 when
+its same-side panel is open. Focused corrected exec48182 exclusively owns sim:
+/tmp/os3d-qa53-panels-fixed-20260912.log/xcresult. Collect before further edits
+or desktop. Dirty EditorView, SettingsUITests, continuation and historical
+matrix restoration. HEAD5676bd0. No acceptance promotion;32/0/1/23.
+Next inspect focused result, guard right-side/orientation and panel clearance,
+regression then changed live/publication. Native model both panels; immutable
+IPA/iPad unchanged. QA40 pan still delivery-blocked, cube57/57 verified.
+
+
+## Active — QA53 panel before-source gate
+
+HEAD5676bd0. Native Items/History in modeling leave toolbar visible; clone
+portrait History overlays Sketch/Modify/Transform. New SettingsUITests
+/testOpenHistoryAndItemsKeepModelingPaletteReachable running exclusively:
+/tmp/os3d-qa53-panels-before-20260912.log and xcresult, exec session28049.
+No product source fix yet. Collect terminal before desktop or source mutation.
+Next diagnose actual assertion, reserve palette space if confirmed, focused/
+regression/changed paired check and publication. Evidence retained under
+keyboard/qa53-panels-live-2026-09-12. Native parked modeling with both panels;
+Simulator owned by test. Dirty SettingsUITests, matrix historical supplement,
+this continuation. Inventory32/0/1/23; reports1237/master38; iPad unchanged.
+QA40 pan input blocked at CLI/bridge foreground mismatch; no pan claim.
+
+
+## Active — QA40 pan delivery blocked; QA53 fresh layout next
+
+Cube checkpoint5676bd0 pushed; final57/57 and1237/master38 verified.
+Native horizontal scroll was not delivered: both default focus and no-auto-focus
+return foreground=true required; CLI rejects --foreground for scroll. Screenshot
+is unchanged and is not pan evidence. No source change justified. QA40 partial.
+Historical QA40 September10 supplement restored in matrix. No runner active.
+Next fresh native layout settings/panel inspection via working click/capture,
+then matched clone QA53 sample. Inventory32/0/1/23; immutable IPA/iPad unchanged.
+Pan diagnostic JSONs retained in /tmp/os3d-qa40-native-scroll*.json.
+
+## Active — QA40 cube checkpoint publication verified
+
+5f1bf94 source pushed; final57/57 and changed live cube block/restored orbit/
+history/reopen verified. Illustrated1237/master38, ten hashes once/no1227 loss.
+Only five task docs dirty, checkpoint next; no runner. QA40partial32/0/1/23.
+Next native pan input with keypad open; Peekaboo drag has no mouse-button
+option, so verify any scroll/trackpad route before counting camera motion.
+Native parked tilted Sketch12, selected70912.4119mmline, no keypad. Simulator
+parked reopened line+rectangle in modeling, selectedline, no keypad.
+Immutable IPA/iPad unchanged; no restart/security changes.
+
+## Active — QA40 cube final57/57 and changed live verified
+
+Source5f1bf94 pushed, final57/57 zero failures/skips; no runner. Changedclone
+open1.4932mm line editor blocks cube drag, unchanged field/camera. Dismiss then
+settled repeat restores cube orbit. Undo removes only line; Redo restores;
+gallery reopen retains1.4932mm. Immediate post-dismiss orbit attempt preceded
+settling and did not move; excluded, settled repeat verifies. Native blocked/
+unblocked cube drag comparison retained. Publication next against1227/master38;
+QA40partial32/0/1/23, pan untested. Evidence keyboard/qa40-camera-live-2026-09-12.
+Only docs dirty, simulator parked reopened selected line; iPad unchanged.
+
+## Active — QA40 final combined runner36549 on5f1bf94
+
+5f1bf94 pushed, cube-only numeric input fix. Focused1/1 afterbefore0/1.
+Combined five model classes/five UI workflow gate running exclusively at
+/tmp/os3d-qa40-camera-final-20260912 log/xcresult. Exact selectors in log.
+No desktop untilterminal; collect count then changed live cube block/recovery/
+history/reopen and publication. Pan stilluntested; QA40partial32/0/1/23.
+QA54ed46642 closed; reports1227/master38; iPad unchanged.
+
+## Active — QA40 cube focused1/1 passed, checkpoint ready
+
+Source cube-only block and UI guard verified1/1 after before0/1. No runner.
+Next broad Camera/Orientation/Layout/numeric model plus cube/numeric/drag UI
+gate, then changed live repeat/publication. QA40 remainspartial32/0/1/23;
+reports1227/master38; QA54ed46642 pushed; iPad unchanged.
+
+## Active — QA40 cube correction focused runner14059
+
+Before0/1 confirms open editor moves75points during cube drag. Product fix
+claims/consumes only cube drags while editingDimension exists; no tap/pan change.
+Focused corrected runner14059, /tmp/os3d-qa40-cube-fixed-20260912 log/xcresult;
+exclusive simulator. Dirty ViewportView.swift, DimensionUITests.swift andtwo
+docs. Next collect, broader camera/dimension gate, changed live andpublication.
+Inventory32/0/1/23; QA54ed46642 pushed; reports1227/master38; iPad unchanged.
+
+## Active — QA40 cube/keypad before-source regression running
+
+QA54 closureed46642 pushed; final252/252 and reports1227/master38 verified.
+Inventory32/0/1/23. Native open keypad blocks cube drag; first orientation-arrow
+click dismisses editor, second rotates. Same native cube drag without editor
+rotates successfully. Clone cube drag rotates with editor/draft still open.
+New DimensionUITests/testOpenDimensionBlocksCubeDragUntilDismissed before-source
+runner75725 exclusively owns simulator; /tmp/os3d-qa40-cube-before-20260912
+log/xcresult. Product source unchanged. Next collect before result, scope cube
+input blocking to open numeric editor, focused/regression and changed paired
+live/history/reopen. Pan remains untested. Local keyboard/qa40-camera-live-2026-09-12
+screens retained; no new publication. Native parked rotated with original
+70912.4119mm line selected, editor closed. Immutable IPA/iPad unchanged.
+
+## Active — QA54 finite closure verified, ready to checkpoint
+
+Source43bbf06 pushed. Final252/252, zero failures/skips, no runner. Changed live
+Search preference/result/foreground Escape and numeric12+→12+1=13/history/reopen
+verified. Illustrated1227/master38, nineteen hashes once/no1208 predecessor loss.
+QA54 closed; inventory32/0/1/23. Only five task docs dirty, no source changes.
+Next commit/push closure docs, inspect QA40 rotate/pan transition finite gap.
+Simulator parked reopened Untitled2 with13mm line; Hotkeys restored. Native
+Sketch12 restored reference free line; no operation pending. iPad unchanged.
+
+## Active — QA54 broad final252/252 passed on43bbf06
+
+43bbf06 pushed (includes Search7b0e033). Final broad serial gate252/252,
+zero failures/skips, terminal exit0; no runner. Summary retained at
+/tmp/os3d-qa54-broad-final-20260912-summary.json and xcresult/log siblings.
+Next changed-build Search preference/results/Escape plus arithmetic resize/
+history/reopen, publication against1208/master38. Inventory31/0/1/24,
+QA54partial; iPad unchanged.
+
+## Active — QA54 solver focused8/8 and scale matrix1/1 passed
+
+Search7b0e033 pushed; solver fallback and exact model/scale tests dirty, ready
+for checkpoint. No runner. Successful original solves remain unchanged.
+Next broad combined solver/constraint/numeric/keyboard gate, then changed live
+Search result/preference/Escape and exact resize/history/reopen, publication.
+Reports1208/master38; inventory31/0/1/24; iPad unchanged.
+
+## Active — QA54 stalled-solver fallback focused gate running
+
+Exact free-line model before0/1: one distance13 target, no constraints, diagonal
+LM stalls200iterations residual4.202656 and rotates off-axis. Native exact13mm
+accepted, Undo restores original reference line (screens retained); attempted
+second tiny edit did not open editor and is excluded.
+Solver retries only nonconverged diagonal solves from original state with
+isotropic damping; accepts lower residual, existing conflict tolerance unchanged.
+No change to previously converged solves. Dirty Solver.swift and NumericKeypad
+test, docs; Search source7b0e033 pushed. Exclusive focused runner27649,
+/tmp/os3d-qa54-small-line-fixed-20260912: exact model+SolverCore+numeric UI.
+Next focusedterminal, broad solver/constraint/keyboard gate, changed live and
+publication. Inventory31/0/1/24; reports1208/master38; iPad unchanged.
+
+## Active — QA54 numeric free-line refusal reproduced in model
+
+Search source7b0e033 pushed; focused5/5. Full combined84/85 (76model+8of9UI),
+only numeric13 commit refused. IsolatedUI0/1 and new exact-geometry model0/1
+reproduce. Saved line A(-1.1494557858,1.0198372602),
+B(0.3819158971,1.0198373795), no constraints/dimensions. Invalid12+ recovery
+passes; valid12+1 gets conflict notice. New NumericKeypadTests model guard
+dirty, no product numeric fix. Solver/edited-ref trace runner53586 exclusively,
+/tmp/os3d-qa54-small-line-trace-20260912; collect before desktop.
+Next identify numeric cause, preserve refusal protections, paired native/clone
+resize and focused/full regression. QA54 stillpartial31/0/1/24; reports1208/38;
+iPad unchanged. No native/clone new publication claim.
+
+## Active — QA54 focused5/5, combined keyboard gate running
+
+Checkpoint7b0e033 pushed. Corrected Search UI5/5 clean with Command Search
+explicitly selected. Source final candidate; no trace/Button experiments remain.
+Full keyboard/settings/command/input model plus9UI serial gate exec50507,
+/tmp/os3d-qa54-keyboard-final-20260912.{log,xcresult}, exclusive simulator.
+No desktop until terminal. Next changed-build paired preference/result/Escape
+and saved reopen, report publication against1208/master38, closure ifverified.
+Foreground Escape already passed previous same Escape source; recheck afterfinal.
+Inventory31/0/1/24; iPad unchanged. Native parked Chamfer/Fillet noapply.
+
+## Active — QA54 explicit-result dispatch correction, focused five running
+
+File trace proved row handler executes; runCommand reroutes result as bare key
+under Command Search, then caller closes Search without performing command.
+Corrected explicit Search execution to bypass Single Key Action gating.
+Removed row Button experiment and temporary tracing. Original row assertions
+retained; tests explicitly launch CommandSearch preference.
+Exclusive runner5951, /tmp/os3d-qa54-dispatch-focused-20260912.{log,xcresult}.
+No desktop until terminal. Dirty CommandDispatch, EditorViewModel, two Search
+views, Search UI tests and docs. Foreground Escape passes changed live;
+XCTest Escape remains delivery-limited. Next final combined regression, changed
+paired results/preferences/Escape/reopen, publication and checkpoint.
+Inventory31/0/1/24; reports1208/master38; iPad unchanged.
+
+## Active — QA54 Search row Button correction, focused five running
+
+Native Search→Chamfer/Fillet Auto enters tool, clone actual row tap merely
+dismisses. Corrected rows to plain Buttons; tests target those controls with
+unchanged tool/refusal assertions. Exclusive runner exec39132, result bundle
+/tmp/os3d-qa54-result-button-20260912.xcresult. No desktop until terminal.
+Source/tests/docs dirty; HEADc25e9d5. Earlier Search controls3/5 and isolated
+Fillet0/1 retained; actual foreground Escape passes, synthesized Escape fails.
+Next focused result, final combined keyboard gate, changed live Escape/result/
+preference/reopen, publication and push. Reports1208/master38;31/0/1/24;
+iPad unchanged. Native parked Chamfer/Fillet (no operation applied).
+
+## Active — QA54 result tap gap reproduced live, no runner
+
+HEAD c25e9d5; dirty two Search views, Search UI tests, receipt/checkpoint.
+Changed foreground Escape closes Search and preserves sketch; synthesized
+XCTest Escape remains unreliable. Search-control suite3/5: close/history,
+scrim and empty-results pass; Fillet and Circle result taps fail. Isolated
+Fillet0/1 confirms tap at actual row center516/241 with field fil; screenshot
+retained. Desktop tap at visible Fillet row also dismisses without arming tool.
+Native matching Fillet result comparison now active, no test runner.
+Receipts /tmp/os3d-qa54-search-controls-20260912 and result-hit-20260912.
+Next native result, confirmed hit-routing correction, focused/full gate,
+changed paired verification/publication/checkpoint. Inventory31/0/1/24;
+reports1208/master38; iPad unchanged. Native now exiting sketch for Search.
+
+## Active — QA54 Search Escape reproduced; before-source UI test running
+
+HEADc25e9d5 (QA37closed); only task source dirty is new UI regression in
+CommandSearchUITests.swift. Native Hotkeys→CommandSearch preference confirmed,
+letter l opens Search, foreground hotkey l activates Line after restoringHotkeys.
+Native foreground Escape closes Search while remaining in sketch. Clone same
+Escape exits sketch but leaves Search/keyboard up. Likely duplicate cancel
+shortcuts in CommandShortcutsView and CommandSearchView; no product fix yet.
+Before test exec85090, /tmp/os3d-qa54-escape-before-20260912.{log,xcresult}, sole
+simulator owner. Do not desktop-interact until terminal. QA54 evidence local
+keyboard/qa54-live-2026-09-12. Clone setting CommandSearch still active; native
+Hotkeys restored. Reclaimed5.5GB with18 hash-verified APFS COW duplicate DOCX
+replacements preserving every file path/content; receipt in QA37 lock-closure.
+Next inspect before result, fix confirmed shortcut priority, focused+combined,
+changed paired UI/reopen, publish. Inventory31/0/1/24; reports1208/master38;
+immutable05be744/iPad unchanged. No Mac/security changes.
+
+## Active — QA37 closed, next QA54 native Single Key Action
+
+Source1cb2c54 final148/148, no runner. First/Last/reverse/whole-Lock/history/reopen
+finite recipe paired; illustrated1208/master38 verified, fourteen hashes once/no
+loss. Durable qa37-anchor-live-2026-09-12/lock-closure XML/hash receipts; full
+latest export verified in memory because disk has ~300MB free. Only incomplete
+new baseline copy removed; original baseline1194 DOCX and screenshots intact.
+Task docs dirty pending closure commit; no source dirty. Unrelated identity/memory
+untracked preserved. Native parked Last reverse-order Parallel pair in Sketch12;
+clone parked reopened same reverse case and earlier Lock pair. Next QA54 native
+Single Key Action preference read/switch; prior84/84 UI/model gate retained.
+Inventory31/0/1/24; iPad and immutable05be744 unchanged. No build until adequate
+space; continue read-only/UI/docs work. No Mac/security restart.
+
+## Active — QA37 Lock changed live/history/clone reopen passed
+
+Source1cb2c54 final148/148 clean, no runner. Clone fresh Lock override preserves
+free1.26971836mm/firstendpoint and exact lockedupper. Exact saved Undo/Redo/reopen.
+Native Undo/Redo retains Lock and restores Parallel; native gallery saved6:07PM,
+reopen started, skiptrial/selectSketch12/Normal next to confirm persistence.
+No codechanges afterfinal. Publication pending, baseline1194/master38. Durable
+constraint-types/qa37-anchor-live-2026-09-12; files os3d-qa37-lock-* plus fixed-lock-fixed JSON.
+Next native LastSelected reverse-order route after persistence, then clone route,
+publication/finite QA37 closure if all pass. Inventory30/0/1/25; iPad unchanged.
+
+## Active — QA37 Lock override final148/148 passed; changed live next
+
+Source1cb2c54 pushed, final148/148 clean, zero failures/skips, no runner.
+Final receipts /tmp/os3d-qa37-lock-final-20260912.{log,xcresult} +summaryJSON.
+Changed clone must recreate fresh pair after UI tests: upper200230→300210
+wholeLock, lower200280→300300free, FirstSelected free thenlocked. Verify length/
+firstendpoint preservation, history/reopen; native pending history/reopen.
+Native parked result lower943627→~1040608 selected100743.02mm, upperlocked
+943580→1039560. First free pluslockedsecond confirmed native placement.
+Then final LastSelected reverse-order observation if needed, publication/QA37
+finite closure. Reports1194/master38, inventory30/0/1/25; iPad unchanged.
+
+## Active — QA37 Lock override final running
+
+Whole-Locked operand now takes placement-anchor priority for Parallel. Before0/1
+fails two geometry assertions, focused7/7 and expandedmatrix1/1 clean. First/Last
+x bothorders locks, freeanchor/repeatedstability/history preserved.
+Source1cb2c54 pushed; final combined exclusive exec62582,
+/tmp/os3d-qa37-lock-final-20260912.{log,xcresult}. Collect before desktop.
+Changed live/native history/reopen
+and publication next. Sourcefirst-fixfb5d9a5 already paired1194/master38.
+Native lockedupper943580→1039560; freelower943627→~1040608 selected afterapply,
+length100743.02 retained. Clone shortlower around235293→266287; upperlocked
+200230→300210. Need Undo then changed apply or fresh fixture afterfinaltests.
+QA37partial30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 Lock override placement gap; before test running
+
+HEAD4312d4d/sourcefb5d9a5. FirstSelected paired fix published1194/master38,
+final148/148 retained. New Lock override comparison confirms second gap:
+native upper943580→1039560 whole Locked; lower943627→1039650 free selected
+FIRST, locked upper SECOND. Parallel preserves upper, lower first endpoint and
+100743.02mm length, lower end becomes~1040608. Both deselect.
+Native fresh creation input attempts inconclusive; reused prior pair after
+explicit Delete Constraints and lower endpoint drag. Setup inspected; no
+geometry removed. One-edge selection attempt excluded, clean2edge repeated.
+Clone fresh lower200280→300300, upper200230→300210 wholeLocked. First free then
+locked Parallel preserves locked upper but lower1.26971836→0.40161145mm,
+firstendpoint moves0.45624786mm. Durable QA37 folder holds PNG/saved JSON.
+Strengthened existing testAnchoredSketchEntityPreferenceUsesSelectionOrderAndExistingLocksWin
+adds free length/start checks; before runner exclusive exec92200, /tmp/os3d-qa37-lock-before-20260912.{log,xcresult}.
+Before0/1 confirms two geometry failures. Whole-Locked operand mapping implemented;
+focused7-case runner exec2143, /tmp/os3d-qa37-lock-focused-20260912. Collect before
+source edits or live input. Chosen explicit whole-Locked operand over
+preference in parallel placement while preserving point-lock/driver projection.
+Then focused/final and changed live/history/reopen/publication. Inventory30/0/1/25;
+iPad/immutable05be744 unchanged. Native lowerselected result; clone shortline.
+
+## Active — QA37 First Selected paired checkpoint verified
+
+Sourcefb5d9a5 pushed; final148/148 clean, zero failures/skips, no runner.
+Changed both selection orders, exact saved history/gallery reopen; native history
+and reopen pass. Illustrated1194/master38 verified, ten hashes once/headings once,
+no predecessor loss. Durable constraint-types/qa37-anchor-live-2026-09-12.
+Next fresh native Lock override of First Selected, then clone equivalent. Native
+normal view parallelpair943580→1039560 and943628→1039608; clone reopened
+pair200650→300630 and200700→300680. No active tools. QA37 still partial.
+Inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 paired First Selected verified; publication export running
+
+Sourcefb5d9a5 pushed; final148/148 clean. Changed clone both selection orders,
+length/endpoint/anchor preserved, exact saved Undo/Redo and gallery reopen.
+Native reverse history/reopen verified. No test runner. Export exec56033 downloading
+illustrated/master after ten-image append; verify hashes/headings/predecessors
+before retry or publication claim. Durable constraint-types/qa37-anchor-live-2026-09-12.
+Baseline1184/master38. Native now normal view: parallelpair943580→1039560 and
+943628→1039608 (new camera framing). Clone reopened pair200650→300630 and
+200700→300680. Next native Lock override fresh pair, then changed clone equivalent.
+QA37 partial, inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA37 First Selected final148/148; changed live next
+
+HEAD/sourcefb5d9a5 pushed. Final combined148/148 clean, zero failures/skips, no runner;
+/tmp/os3d-qa37-first-final-20260912.{log,xcresult}. Changed-build live/history/reopen next.
+Baseline729f4b3/source13badd6. Native First Selected both selection orders preserves
+first operand and rotates second about endpoint A without shortening. Clone
+First Selected preserves first but second length1.2619028→0.3912311, A moves0.4565193.
+Native lower960650→1060670 / upper960600→1060580; reverse applied parked.
+Clone initial lower200700→300720 / upper200650→300630. Shift-box attempt rotated
+camera, excluded; plain second tap successfully selected pair before Parallel.
+Saved JSON proves geometric gap independent of camera. Durable constraint-types/
+qa37-anchor-live-2026-09-12 holds PNG/JSON. First/AutoOFF settings matched.
+Before0/1 failed three moving geometry assertions; focused4/4 and expanded6/6 clean; no runner, /tmp/os3d-qa37-first-before-20260912
+log/xcresult; new ConstraintApplyTests/testFirstSelectedParallelPreservesFreeLineLengthAndFirstEndpoint.
+Scoped First/Last operand mapping implemented. Checkpoint source, run final combined
+reverse/Lock matrix and combined then
+changed live/history/reopen/publication. Lock override/reverse/current matrix pending.
+Reports1184/master38; inventory30/0/1/25; iPad/immutable05be744 unchanged.
+
+## Active — QA43 finite current-data closure verified; QA37 audit next
+
+Source13badd6 pushed; final145/145 clean, no failures/skips, no runner.
+Changed live driver cleanup/exact saved Undo/Redo/profile/reopen paired.
+Illustrated1184/master38 verified, ten new hashes once/headings once/no loss.
+Durable trim/qa43-live-2026-09-12 holds source PNG/actions/JSON and exports.
+QA43 finite current-data pass; inventory30/0/1/25. Legacy nil ownership retains
+old transfer; duplicate labels excluded. Native parked reopened height keypad,
+clone reopened U right selection. iPad/immutable05be744 unchanged.
+Next QA37 exact First/Last/reverse/Lock override/repeated stability recipe;
+audit retained September12 anchor receipts before fresh comparison. Do not
+repeat completed constraint-family variants. No runner.
+
+## Active — QA43 changed live passed; publication next
+
+Source13badd6 pushed, final145/145 clean, zero failures/skips, no runner.
+Fresh clone top2/right1 drivers: top Trim drops width, retains height only;
+JSON exact Undo/Redo, gallery reopen and open-profile/no-fill verified.
+Native retained height Unlock, bottom free Lock, Undo top Unlock and saved
+reopen height Unlock verified. No source changes after final gate.
+Ten assets staged publication-assets.json under trim/qa43-live-2026-09-12;
+baseline illustrated1174/master38 copied. Illustrated section and ten images inserted; master note inserted. Verify save/export before retry.
+Next export/hash verify before claiming publication or QA43 finite closure. Legacy nil driving
+edge unchanged; duplicate readout styling excluded. Inventory29/0/1/26.
+Native parked reopened height keypad; clone reopened right-side U selection.
+iPad/immutable05be744 unchanged.
+
+## Active — QA43 side-owner final gate running
+
+Source13badd6 pushed. Before0/1 confirms extra width driver; focused21/21 and
+expanded all-four-side Lock/typed matrix1/1 pass, JSON/import/history included.
+Final combined application/annotation/lifecycle/Trim/merge/polish +two UI
+running exclusively, exec75468, /tmp/os3d-qa43-side-final-20260912.{log,xcresult}.
+Collect terminal/summary before desktop or source changes. Changed-build live
+must use a NEW rectangle or remove/re-add old dimensions: legacy nil provenance
+intentionally keeps prior behavior. Exact native/clone top-width and right-height
+Lock, top Trim, height Unlock versus bottom free Lock, Undo/Redo/reopen next.
+Native parked bottom width editor of open U; clone UI fixture may be replaced
+by final test. No competing worker. Reports1174/master38, inventory29/0/1/26.
+QA41closed0c1f170; QA43partial. iPad/immutable05be744 unchanged.
+
+## Active — QA43 primitive rectangle side-driver gap
+
+HEAD0c1f170/source2016713; QA41 closed, inventory29/0/1/26.
+Native top100000/right70000 drivers locked. Trim top drops width driver,
+preserves height (native accessibility Unlock); Undo restores top driver,
+Redo then bottom editor offers Lock (not a surviving width driver).
+Clone rectangle200250→320320, width1.4946754/height0.8723702 locked; Trim top
+retains BOTH drivers, mapped to surviving diagonal endpoints. Confirmed gap.
+Initial Escape injection did not disarm clone Trim, extra right-edge deletion
+was undone; explicit Trim toggle then clean right selection verified. Excluded
+input attempt retained. Native parked bottom editor of open U; clone right
+selected open U. No live input during runner.
+Before-source test active exclusively: exec88838, /tmp/os3d-qa43-side-before-20260912.{log,xcresult}.
+New ConstraintApplyTests/testTrimRectangleDropsOnlyRemovedSideDriverAndUndoRestoresBoth.
+Before0/1 failed extra-width-driver assertion only. Product fix now implemented; focused21/21 passed; expanded all-four-side Lock/typed matrix1/1 passed, JSON/import/history included. No runner. Combined gate next after source checkpoint. Confirmed missing persisted owning-side provenance:
+rectangleLabelEdges is presentation only; toggleDimensionLock does not set it.
+Consider separate optional driving-edge field, preserved import/JSON; Trim
+should drop missing owner edge and retarget surviving owner endpoints.
+New rectangleDrivingEdge optional stored by Lock/numeric creation, imported; Trim drops removed owner or retargets surviving full edge. Legacy nil unchanged. Dirty source/tests/docs; no changed live yet. Fresh PNG/actions/JSON durable trim/qa43-live-2026-09-12.
+Reports1174/master38. iPad/immutable05be744 unchanged.
+
+## Active — QA41 finite closure verified; QA43 next
+
+Source2016713 pushed; final123/123 clean, no failures/skips, no runner.
+Changed clone exact polygon midpoint/history/reopen passed. Native explicit
+Escape/Exit Sketching/completed gallery save/reopen preserves open pentagon.
+Earlier immediate native reopen restored edge; unresolved route retained.
+Illustrated1174/master38 verified, twelve hashes once/headings once/no loss.
+Durable trim/qa41-live-2026-09-12 under workspace reports contains receipts,
+PNGs/actions, exports, publication-assets/verification JSON. QA41 finite pass;
+inventory29/0/1/26. iPad/immutable05be744 unchanged.
+Next QA43 fresh driven dimension/constraint Trim, surviving reference/profile,
+Undo/Redo and reopen comparison. Existing123 includes lifecycle/reference test;
+do not repeat unless source or assertions change. Native normal Sketch12 at
+reopened open pentagon, clone reopened open pentagon+unrelated hex/ellipse.
+QA41 closure0c1f170 pushed. Native QA43 rectangle top width100000 and right height70000 locked through keypad; Trim top removed edge. Surviving height70000 editor accessibility identifies expressionNumpad.unlock, proving retained driver. Native editor Escape then Edit Undo currently executing (exec95210); collect before desktop action. Next inspect restored top driver, then clone equivalent fixture. No test runner/source dirty. Fresh evidence trim/qa43-live-2026-09-12.
+
+## Active — QA38 closed; point-pair Coincident next
+
+Source03b9e1c/current corrected120/120 clean reused. Rectangle paired
+Disconnect/center translation/two-step history/both reopenings verified.
+Illustrated1154/master38, eight hashes once/headings once/no loss.
+Receipt sketch-parity-disconnect-rectangle-2026-09-12.md; durable
+disconnect/qa38-rectangle-live-2026-09-12. No runner/source dirty.
+QA38 finite pass, inventory28/0/1/27. Native parked reopened rectangle
+top side618237,100000×70000; clone reopened primitive281650→430775,
+external line250775→330840.
+Next confirmed point-pair Coincident anchor/selection discrepancy: native
+FirstSelected preserves rectangle/circle and moves external line endpoint;
+clone averages both and retains zero readout despite same preference.
+Read applyConstraint/commitAppliedConstraints and solver point-welding, add
+before regression for incremental point selection order, native held shape
+and geometry/history. No source fix until reproduced. Existing source order
+sidecar includes points; suspect solver welding overrides transient whole Lock,
+not yet proven. iPad/immutable05be744 unchanged.
+
+
+## Active — QA38 circle-center paired; primitive corner next
+
+Source03b9e1c pushed; final corrected120/120 clean, zero failures/skips.
+Changed clone point-only center drag, independent line, two-step history/saved
+Coincident restoration and gallery reopen Ø0.6168 verified. Native two-step
+history/reopen R18000 verified. Both apps parked reopened selected rims.
+Illustrated1146/master38 verified: eight hashes once/headings once/no loss.
+Durable disconnect/qa38-center-live-2026-09-12 holds PNG/actions, restoredJSON,
+exports/hash verification. No runner. Rectangle stored-corner Disconnect live preserves geometry in both apps;
+center drag moves rectangle alone. Clone two-step history and reopen verified,
+saved data confirms single rect and restored Coincident. Native first Undo
+currently executing; collect before next input. No test/build runner. Native
+rectangle moved30px to529230→652316, line500316→580410 fixed. Clone rect
+281650→430775,line250775→330840. Native history/reopen/publication next.
+Existing120 includes automated breadth; no source changes. Initial center+endpoint Coincident averaging/selection
+in clone despite First Selected remains separate unresolved gap.
+QA38partial27/0/1/28; iPad/immutable05be744 unchanged.
+
+
+## Active — QA38 circle-center drag selection correction
+
+Sourceee329b1 pushed; first combined118/120 (109model+9UI) with two armed
+circle readout failures. Branch was over-broad; restricted to disarmed mode,
+keeping previously verified armed readout. UI assertions unchanged. Scoped
+3/3 passed, zero failures/skips: center model +two failed UI. No runner.
+/tmp/os3d-qa38-center-scoped-20260912.{log,xcresult}. Dirty source+docs.
+Scoped03b9e1c pushed. Final2 passes120/120, zero failures/skips, on03b9e1c; no runner. /tmp/os3d-qa38-center-final2-20260912.{log,xcresult}.
+Changed live/history and both reopenings verified. Publication next; no runner.
+Native detached R18000 center470550, line500550→600650 fixed; overlap chooser
+Circle Center route works. Clone before circle220315, Ø0.6168, line250315→350350;
+whole-circle promotion fixed and repeated live; native R18000 and clone Ø0.6168 retained through reopen. Separate
+initial two-point Coincident average movement/selection issue retained, not fixed.
+Durable qa38-center-live-2026-09-12. QA38partial27/0/1/28, reports1138/master38;
+iPad/immutable05be744 unchanged. No desktop while upcoming runner active.
+
+## Active — QA38 midpoint paired; circle-center next
+
+Source96b1368 pushed; final116/116 clean, zero failures/skips (108model+8UI).
+No runner. Changed clone point-only detached endpoint drag→380700, target and
+sourceother fixed; no false0mm/gizmo. Two-step Undo/Redo and gallery reopen
+verified. Native two-step history/reopen verified; reopened detached788394,
+sourceother758351,target705405→813405. Both apps parked reopened fixtures.
+Illustrated1138/master38 verified: nine hashes once, headings once, no loss.
+Durable disconnect/qa38-midpoint-live-2026-09-12 holds PNG/actions/JSON/logs,
+exports/publication verification. QA38 still partial; next fresh circle-center
+Coincident Disconnect using prior native circle/line fixture if addressable;
+then primitive stored corner. Read connection breadth receipt. No new source
+change/test needed absent confirmed behavior. Inventory27/0/1/28; QA36 closed;
+QA37 exact-order input blocked. iPad/immutable05be744 unchanged.
+
+## Active — QA37 ordered-input blocked; QA38 next
+
+QA36 closed b4462ec, sourcec73f126/final114. Reports1129/master38 verified.
+No runner/source mutation. Fresh QA37 First Selected verified, upper800560→
+90055070,912.4119mm, lower800620→90064071,957.8636mm. Shiftbox/onepixel
+replace selection, stationary drag does nothing. No relation applied. Native
+parked selected upper; clone parked reopened Perpendicular285415. Evidence
+qa37-order-live-2026-09-12 retained; exact-order comparison input-blocked.
+Next QA38 midpoint Disconnect paired recipe; read current receipt/model rules
+before creating fresh connected line midpoint fixture. Inventory27/0/1/28;
+iPad/immutable05be744 unchanged.
+
+## Active — QA36 finite family closed; QA37 next
+
+Sourcec73f126, paired3d734bb; final114/114 clean, zero failures/skips.
+Eleven-family paired receipts reconciled. Illustrated1129/master38 closure
+headings once, media exactly unchanged; durable qa36-family-closure-2026-09-12.
+Inventory27/0/1/28; iPad/immutable05be744 unchanged. No runner.
+Both apps parked selected reopened Perpendicular. Next QA37 normal/reversed
+selection under First/Last using explicit first-line selection plus Shift-box
+containing only the second; verify membership after each input, then geometry.
+Prior whole-pair box attempt was inconclusive. Reuse clean114 model coverage;
+no duplicate tests unless a confirmed new behavior requires a change.
+
+## Active — Perpendicular pivot paired checkpoint
+
+Source c73f126 pushed; final114/114 clean, zero failures/skips (107model+7UI).
+No runner. Changed clone correct supporting-intersection pivot275375→295455,
+1.026mm, fixed upper, apply/history deselection, Undo/Redo and gallery reopen
+verified. Native same pivot/history/reopen43,805.7842mm, guides retained.
+Publication1129unique/master38 verified, ten hashesonce/headingsonce/no
+predecessor loss. Durable qa36-perpendicular-placement-live-2026-09-12
+contains PNG/actions/JSON/logs/exports and publication verification.
+Both apps parked selected reopened Perpendicular. Next reconcile finite QA36
+11-family matrix using retained paired receipts and final114, without expanding
+unbounded Tangent variants. QA37 anchor/reverse/Locks and QA38 Disconnect
+remain separate. Inventory26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Active — Parallel paired checkpoint
+
+Source33f7358, UIe834525 pushed. Final corrected112/112 clean, zero failures/
+skips (105model+7UI); no runner. Before0/1, initialfocused1/2 numerical anchor,
+corrected2/2, locked1/1; firstcombined105model+5/7UI, correctedUI2/2 retained.
+Changed clone350700→450680 preserves1.2606mm/first endpoint/fixed upper,
+apply/history deselect; gallery reopen glyph/value. Native same history and
+reopen50871.8061mm at612605→705586. Both apps parked reopened selected lower.
+Publication1119unique/master38 verified: ten hashesonce/headingsonce/no loss.
+Durable qa36-parallel-live-2026-09-12 contains all PNG/actions/logs/JSON/exports.
+Next reconcile finite QA36 relation checklist against fresh/retained receipts;
+do not expand endless Tangent variants. QA37 First/Last/reverse/Lock variants
+and QA38 Disconnect remain separate. QA36partial26/0/1/29; iPad unchanged.
+
+## Active — Vertical paired checkpoint
+
+Source9466502 pushed; before0/1, focused4/4, final110/110 clean
+(103model/integration+7UI), zero failures/skips; no runner. Changed clone
+450300→450405 retains1.3009mm/first endpoint and deselects apply/history;
+both gallery reopenings retain relation/value. Native50272.4354mm at527352→527453.
+Saved clone Vertical/unrelatedParallel, dimensions0. Publication1109unique/
+master38, ten hashesonce/headingsonce/no loss. Durable
+qa36-vertical-alignment-live-2026-09-12 contains receipts/JSON/exports/PNG.
+Next fresh Parallel comparison on separate free lines with matched anchor
+settings, values/history/reopen. Both apps parked selected reopened Vertical.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Active — Horizontal paired checkpoint
+
+Sourcef5d82e5 pushed; before0/1, focused1/1 and locked-driver1/1 separately,
+final108/108 clean (101model/integration+7UI), zero failures/skips; no runner.
+Changed clone350700→454700 retains1.2897mm and first endpoint; apply/history
+deselect, both gallery reopenings retain aligned geometry/value. Native
+48028.3119mm reopened535304→635304. Clone saved Horizontal/unrelatedParallel,
+dimensions0. Publication1099unique/master38, ten hashesonce/headingsonce/no loss.
+Durable qa36-axis-alignment-live-2026-09-12 contains all evidence/exports/JSON.
+Paired receipt ready to push. Next fresh Vertical native/clone comparison;
+Vertical has not been changed. Both apps parked selected reopened H lines.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Active — free-target Midpoint paired checkpoint
+
+Sourcee177ce1 pushed. Corrected before0/1 (six geometry failures), focused2/2,
+locked-driver1/1 separately; final106/106 clean, zero failures/skips, no runner.
+Changed clone First translates source350200→350270 to400230→400300 with
+unchanged target; Last extends target250300→450300/source350200→350300.
+Both modes live history verified. Native both modes/history match; Last gallery
+reopens76838.8519mm (target545567→712567, midpoint628567), clone2.4887mm.
+Clone saved JSON dimensions0, Midpoint plus unrelated Parallel intact.
+Both apps parked reopened selected Last-mode target, Last Selected preference.
+Publication1089unique/master38, eleven hashesonce/headingsonce/no1078/38loss.
+Durable qa36-midpoint-anchor-live-2026-09-12 contains all evidence and exports.
+Paired docs9c3551c pushed. Next fresh H/V and Parallel core sweep; these
+currently rely on retained older paired evidence. No duplicate Tangent probes.
+Reverse selection order/parallel/degenerate/non-line Midpoint not claimed.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Active — smaller arc fully nested paired checkpoint
+
+Source7349e99 pushed; before0/1, focused6/6, final104/104 clean, no failures/skips.
+No runner. Changed clone arc250700→~250690 with fixed circle250710,
+R0.2473/179.62degrees and opposite guide/history/reopen verified. Saved
+internalContact residual2.8e-17, dimensions0. Native R7140.419/180degrees
+and fixedR14000 circle retain contact/history/reopen. Native parked reopened
+selectedarc800589/circle800607; clone reopened selectedarc250690/circle250710.
+Publication1078unique/master38, nine hashesonce/headingsonce/no1069/38loss.
+Durable qa36-small-nested-arc-tangent-live-2026-09-12 includes receipts,
+PNG, savedJSON/contactvalidation and publication exports/manifests/verification.
+Next push paired docs, then return to open free-target Midpoint anchor variant
+before expanding more Tangent exact-boundary/arc-arc probes. Read prior
+qa36-midpoint-live-2026-09-12 receipt: native free target reshapes, clone fixes
+it. Need matched First/Last settings, fresh unconstrained operands and values.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Active — smaller arc deep-contact paired checkpoint
+
+Source5076e32 pushed; before0/1, focused5/5, final103/103 clean,
+zero failures/skips; no runner. Changed clone arc450700→~450705, fixed
+circle450725, R0.2473/179.62degrees and opposite guide/history/reopen verified.
+Saved internalContact residual1.4e-16, dimensions0. Native exactR6708.725/180
+and fixedR13000 circle retain contact/history/reopen. Native parked selected
+reopenedarc981572/circle981589; clone reopenedselectedarc450705/circle450725.
+Publication1069unique/master38 verified: nine hashesonce/headingsonce/no loss.
+Next push paired docs and native fully nested smaller-arc/larger-circle probe.
+Smaller-arc nested, exact centers/boundaries and arc-arc remain unverified.
+Durable qa36-small-arc-tangent-live-2026-09-12 includes source/test receipts,
+PNG, savedJSON/contactvalidation, publicationmanifest/exports/verification.
+QA36partial26/0/1/29; iPad and immutable05be744 unchanged.
+
+## Active — fully nested arc/circle paired verification
+
+Sourcecb22065 pushed; final102/102 clean, zero failures/skips; no runner.
+Changed clone arc250700→250690,circle250710 fixed; R0.4947/179.59degrees
+preserved through history/reopen, saved internalContact residual2.8e-17,
+no dimensions. Native exactR11849.9336/180degrees and fixedR6000 circle retain
+contact/history/reopen. Native parked selectedarc604581/circle604599; clone
+selectedarc250690/circle250710. Publication verified1060unique/master38,
+nine hashesonce, headingsonce/no1051/38loss. No runner.
+Next checkpoint/push docs and native smaller-arc deep contact comparison.
+Exact centers/radiusdifference/maxradius boundaries and arc-arc remain unverified.
+QA36partial26/0/1/29; iPad unchanged. Durable qa36-nested-arc-tangent-live-2026-09-12.
+
+## Active — deep arc/circle paired verification
+
+Source568f9da pushed, final101/101 clean, zero failures/skips, no runner.
+Changed clone live arc450700→450705, circle450725 fixed; R0.4947/179.59degrees
+retained through Undo/Redo and gallery reopen. Saved internalContact residual
+1.4e-16, no dimensions. Native Undo/Redo/reopen retains R11267.1795/180degrees,
+fixedR6000 circle. Native parked reopened selected arc762572/circle762590;
+clone reopened selectedarc450705/circle450725.
+Publication verified1051unique/master38, nine hashesonce, headingsonce/no1042/38loss.
+No runner. Next checkpoint/push docs and native fully nested larger-arc/circle probe.
+Fully nested, exact midpoint, smaller-arc deep pairs and arc-arc unverified.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged. Durable
+constraint-types/qa36-deep-arc-tangent-live-2026-09-12.
+
+## Active — shallow arc/circle paired checkpoint
+
+Source77365e3 pushed; final100/100 clean, no failures/skips, no runner.
+Native R10425.5562/180degrees arc550550→550546 with fixedR5000 circle550605;
+Undo/Redo and gallery reopen confirmed same radius/sweep. Native now reopened
+Sketch12Top selectedarc593523, circle593578. Clone LastSelected confirmed,
+arc250700→~250695,circle250755 fixed; R0.4947/179.59degrees preserved through
+Undo/reopen. Saved externalContact residual0.0,no dimensions. Clone parked
+reopenedSketch1Top selectedarc. Initial settings-dismiss timing camera rotation
+was restored throughExit/Items reopen; no geometry from that miss.
+Publication verified1042/master38, nine hashesonce, headingsonce/no1033/38loss.
+No runner. Next commit/push paired docs, then native deeper arc/circle probe.
+Then fresh native deep/nested arc-circle boundary. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged. Durable qa36-shallow-arc-tangent-live-2026-09-12.
+
+## Active — off-span Tangent changed-build live verified
+
+Source007181c pushed. Corrected final99/99 passed, zero failures/skips; no runner.
+Changed clone LastSelected verified: arc450700→450680, circle450620 fixed.
+Arc R0.4947mm/179.59degrees unchanged across apply/Undo/reopen; circle diameter
+0.4953mm. Settled none-selected guide hidden, arc OR circle selection shows
+complementary violet dashed guide. Undo removes relation/restores arc; Redo and
+gallery reopen retain contact. SavedJSON externalContact with no dimensions.
+Native matched geometry/history/reopen and settled guide selection already verified.
+Immediate native postapply transient timing and exact180degree clone creation
+are not claimed. Native parked reopenedSketch12Top selectedcircle; clone reopened
+Sketch1Top selectedarc. No source/test changes after final99. Publication verified illustrated1033/master38: ten hashes once, headingsonce,
+zero predecessor loss. Next native overlapping arc/circle boundary. Durable qa36-offspan-tangent-live-2026-09-12
+contains native/clone captures, final logs/summary and saved sketch. QA36partial
+26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — external arc/circle Tangent paired verification
+
+Source108eec3 pushed; final98/98 clean, zero failures/skips, no runner.
+Native free arc R10007.9041/180degrees translates center550400→550435 toward
+fixed circle550510,R5000. Undo/Redo and gallery reopening verified, same values.
+Changed clone LastSelected visibly verified after an inherited FirstSelected
+attempt was undone. Arc center250250→250285; circle250360 fixed. Arc readout
+R0.6227mm/180.02degrees preserved in applied/Undo/reopen states. SavedJSON shows
+radius0.6226610672331411,sweep180.02350481696166,circle radius0.30801880359658884,
+external contact residual0.0. This is preservation, not exact180degree creation.
+Source supports separated arc/circle external contact only if ray inside span;
+off-span, overlapping/nested and arc–arc remain unsupported/unverified.
+Native earlier reference-snapped arc sample excluded; all acquisitionOFF for
+controlled sample. Failed focus/preview/anchor-setting attempts retained locally.
+Illustrated1023unique/master38 export verified: nine hashes once, headingsonce,
+zero1014/38 predecessor loss. No runner. Durable constraint-types/qa36-arc-tangent-live-2026-09-12.
+Native parked reopenedSketch12Top arc628388/circle628451 selectedarc; clone
+reopenedSketch1Top arc250285/circle250360 selectedarc,Itemsopen.
+Next controlled native off-span/arc variant after paired checkpoint push; then
+remaining constraint matrix. QA36partial26/0/1/29;iPad/05be744 unchanged.
+
+## Current — Already-concentric equal-circle Tangent paired checkpoint
+
+Sourcec6dee5d pushed; before0/1, focused3/3, final96/96 clean serial run,
+zero failures/skips. No runner/no source edits after final. Native R9000 pair
+joined by Concentric accepts Tangent at coincident centers. Changed clone exact
+Ø1 pair at300730/420730→420730 accepts Tangent, Items/history removes/restores
+only Tangent while retaining Concentric and two diameter1 records. Both gallery
+reopenings verified; native selected2edges/center0/Tangentmarker/total113097.3355.
+Clone saved JSON distinctIDs/both relations/internalContact, center4e-11 only.
+Important selection route: clone Exit→Select marquee→Done→Items reopening;
+native in-sketch box. Relation verified, selection-route parity not claimed.
+Illustrated1014unique/master38: nine hashes once, headingsonce/no1005/38loss.
+Durable constraint-types/qa36-initial-coincident-live-2026-09-12 contains all
+captures/test logs/summaries/saved JSON/manifests/verification/afterDOCX.
+Native parked Sketch12Top coincident650250 selected2edges; clone Sketch1Top
+coincident420730, Itemsopen. LastSelected matched; acquisition/AutoOFF.
+Next fresh native circle/arc Tangent comparison. Exact halfway/selection route
+remain open; QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — Equal-radius internal Tangent paired and published
+
+Source5ddba88 pushed; before0/1, focused3/3, final95/95 zero failures/skips,
+one serial run. No runner; no source edits after final. Native equal R9000 pair
+retains two edges at coincident centers, unchanged total length113097.3355mm;
+geometry history and gallery reopen pass. Changed clone exact Ø1 pair retains
+both circles/dimensions through apply/history/reopen; saved JSON proves distinct
+IDs/internalContact and center difference3.13e-12 only. LastSelected matched.
+Illustrated1005unique/master38 verified: nine hashes once, headingsonce/no loss
+from996/38. All captures, logs/summaries, saved JSON/identity validation, manifests
+and DOCX exports durable in constraint-types/qa36-equal-contact-live-2026-09-12.
+Native parked Sketch12Top reopened equalpair637568 selected2edges; clone
+Sketch1Top coincident325750 selectedØ1, Itemsopen. Next fresh native halfway /
+initially coincident contact boundary, then arc variants. QA36partial26/0/1/29;
+iPad/immutable05be744 unchanged.
+
+## Current — Intersecting Tangent paired and published
+
+Source76dd2b0 pushed; before0/1, focused3/3, final94/94 zero failures/skips
+one serial run:52application+19merge+6polish+10Trim+7rail UI. No runner.
+Native shallow R8000/R5000 overlap resolves externally, deep overlap internally;
+second center/radii retained, apply deselects. Native deep geometry Undo/Redo
+and gallery reopening both branches verified, innerR5000 exact. Clone shallow
+1.2324/0.7358 centers400730/460730→381730/460730; deep1.2398/0.7358
+centers200730/230730→210730/230730; both branches geometry history and
+gallery reopen verified, inner0.7358 and two Tangent Items records retained.
+Initial clone post-settings orbit and label-drag creation interception discarded;
+settled Top and clear-start retries separately captured. LastSelected matched.
+Native now Sketch12Top deep inner947405 selectedR5000; shallow900557/974557.
+Clone Sketch1Top deep inner230730 selected0.7358, Itemsopen; shallow381730/460730.
+Illustrated996unique, eleven hashes once/headingonce/no985loss; master38
+headingonce/no loss. Durable constraint-types/qa36-overlap-tangent-live-2026-09-12
+contains all captures, test logs/summaries, publication-assets/verification,
+and afterDOCX exports. No product changes after final gate.
+Next native equal-radius overlap and exact halfway contact boundary; arc pairs
+still unsupported. Earlier native Redo-highlight ambiguity not retroactively
+resolved by this run's unhighlighted Redo. QA36partial26/0/1/29; iPad unchanged.
+
+## Current — Nested circle Tangent paired and published
+
+Source5f4ab54 pushed. Final93/93 passed, zero failures/skips, one serial run:
+51application+19merge+6polish+10Trim+7rail UI. No runner. Optional circleTangency
+persists internal/external, legacy nil external; import remap retains branch.
+Native fresh Sketch12Top R10000/R3000 internal contact preserves inner615560,
+moves outer600550 to574533. Changed clone diameters1.7271/0.4944 preserves
+inner265730 and moves outer250720 to224702. Apply, geometry Undo/Redo and
+both gallery reopenings verified. Native reopened pair center distance7000,
+innerR3000; clone inner0.4944 and Tangent Items record retained.
+Native Redo orange highlight unresolved as selection versus hover; no matching
+history-selection claim. Intersecting circles/arc pairs disabled and unverified.
+Illustrated985 unique: ten new hashes once, one heading, no975 predecessor loss;
+master38, one heading/no loss. Durable constraint-types/
+qa36-nested-tangent-live-2026-09-12 includes all probes, before0/1, corrected3/3,
+expanded compile-only fixture error, corrected5/5, final93 summary and logs,
+publication manifests/verification and after DOCX exports.
+Native parked reopened Sketch12Top inner680544 R3000 selected; outer643519R10000.
+Clone parked reopened Sketch1Top inner265730 selected, Items open. LastSelected
+matched, acquisition/Auto off. No source change after final gate.
+Next fresh intersecting-circle native Tangent comparison (not infer from nesting).
+QA36partial; inventory26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — External circle Tangent paired and published
+
+Source `becd8ed` pushed. Final90/90 passed in one serial run, zero failures/skips:
+49application+18merge+6polish+10Trim+7rail UI. No runner. Earlier failed
+free-pair diagnostics retained; radius/anchor validation alternatives removed.
+Geometric external-contact seed moves no fixed center and validates all saved
+constraints. Changed clone diameters0.7501/0.4974 preserve second center400340;
+native R40/R30 preserves second center1000450. Apply, geometry Undo/Redo and
+both gallery reopenings verified. Native Redo orange highlight remains unresolved
+as hover versus selection; no history-selection equivalence claimed.
+Illustrated975 unique, ten hashes once, one heading/no965 predecessor loss;
+master38, one heading/no loss. Durable constraint-types/
+qa36-circle-tangent-live-2026-09-12 includes captures, failed/final receipts,
+publication-assets, verification and after DOCX exports.
+Native parked reopened Sketch11Front external B1000431 selected R30; large
+outerR70 at1000600 has no inner circle (creation attempts inconclusive).
+Clone parked reopened Sketch1Top B400320 selected, Items open with Tangent.
+Next fresh native nested/overlap circle contact probe and Redo highlight check;
+these remain unsupported/unverified, not inferred from external contact.
+QA36partial; inventory26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — Concentric paired and publication verified
+
+Source2e84f84 pushed. Final88/88 in one serial run, zero failures/skips:
+47application+18merge+6polish+10Trim+7rail UI. No runner or desktop process active.
+Native R40/R30 circles preserve radii at second center740660 and clear selection.
+Changed clone diameters0.7457/0.4944 preserve radii at400730 with LastSelected;
+apply, deliberately selected Undo/Redo and both gallery reopenings verified.
+Initial changed run inherited FirstSelected from tests; Undo restored fixture
+before matched LastSelected repeat. Refusal retains operands; no solver changes.
+Illustrated965 unique, ten new hashes once, heading once/no955 predecessor loss;
+master38, heading once/no loss. Durable constraint-types/
+qa36-concentric-live-2026-09-12 contains captures, receipts and verified exports.
+Native parked Sketch11Front inner circle740642 selected; clone Sketch1Top
+inner400710 selected, Items open. LastSelected matched, acquisition/Auto off.
+Next fresh two-circle Tangent application: native control enabled, clone currently
+requires line+circle. Application not yet observed, so no solver fix authorized
+by evidence yet. Use independent circles, preserve existing Concentric fixtures.
+QA36 remains partial; inventory26/0/1/29. iPad/immutable05be744 unchanged.
+
+## Current — Reverse Tangent paired and published
+
+Source2b89368 pushed; final87/87 zero failures/skips, one serial run:
+46application+18merge+6polish+10Trim+7rail UI. No runner.
+Native fixed circle center850660 R30 preserves free line63.9544mm and endpointB;
+changed clone fixed circle300700 diameter0.4946773052 preserves line0.4943mm
+and endpointB320750. Apply, Undo/Redo and both gallery reopenings verified.
+Old clone displaced line to X~-45 and length4.3007; persisted JSON and before
+regression retained. Temporary length/endpoint preference yields to saved locks;
+no extra Lock/dimension saved. Box First/Last ordering probes inconclusive.
+Illustrated955 unique, ten hashes once, heading once/no945 loss; master38,
+heading once/no loss. Durable constraint-types/qa36-tangent-reverse-live-2026-09-12
+contains captures, before/applied JSON, test receipts, publication manifests and
+verified DOCX exports. Receipt testing/sketch-parity-tangent-reverse-2026-09-12.md.
+Native parked reopenedSketch11Front line856695 selected (63.9544mm), fixedcircle850660.
+Clone reopenedSketch1Top line307735 selected (0.4943mm), Items open.
+Next fresh manual Concentric application comparison using separate circles;
+preserve existing fixtures and verify history/reopen. QA36partial26/0/1/29;
+physical iPad/immutable05be744 unchanged. No competing desktop/build process.
+
+## Current — Tangent free-circle correction paired and published
+
+Sourceb8cf6b7 pushed; final86/86 zero failures/skips in one serial run:
+45application+18merge+6polish+10Trim+7rail UI. No runner. Before0/1 reproduces
+jump/radius/selection defects; focused1/1 then expanded2/2 preceded final gate.
+Fresh native anchored-line Tangent preserves R50mm/target95.9311mm, moves circle
+to near tangent position, clears apply/selected Undo/Redo and reopens atR50.
+Changed clone preserves diameter0.7452mm and target0.7406mm, moves center450740
+to450790 against target420820→480820, clears apply/deliberately selected history,
+and reopens with exact diameter and Tangent visible in Items.
+Transient radius/center-projection preference yields to saved constraints; no
+extra Lock/dimension persisted. Both First/Last line-anchor orders, both sides,
+three slopes, center-Lock fallback and whole-Lock refusal covered in regression.
+Illustrated945 unique, ten hashes once, heading once/no935 loss; master38 one
+heading/no loss. Durable constraint-types/qa36-tangent-live-2026-09-12 includes
+captures, saved before/bad geometry, test receipts and publication verification.
+Native parked reopenedSketch11Front circle553669 selected, R50, line523700→583700.
+Clone reopenedSketch1Top circle450790 selected, Items open, diameter0.7452.
+Matched LastSelected/acquisitionOFF/AutoOFF. Native trial-dismiss coordinate
+attempt did not dismiss; fresh AX Skip button worked, no subscription changes.
+Next fresh reverse Tangent anchor comparison: keep circle fixed and move line.
+Do not infer this variant from free-circle checks. QA36partial26/0/1/29;
+physical iPad and immutable05be744 unchanged. No competing process active.
+
+## Current — Coincident point-on-line paired and published
+
+Sourceaabbf7f pushed; final84/84 zero failures/skips in one serial run:
+43application+18merge+6polish+10Trim+7rail UI. No runner. Before0/1 reproduced
+disabled capability; focused2/2 and UI1/1 preceded final clean gate.
+Fresh native and changed clone project an endpoint onto a separate line's
+infinite extension, preserve target/other endpoint and clear successful apply
+selection. Undo/selected Redo native, deliberately reselected Undo/Redo clone,
+and both gallery reopening pass. Native target159.8835mm; clone1.2371mm with
+saved Coincident visible in Items. Existing solver lowering reused; own-line
+point rejected, locked refusal retains operands. Other Coincident forms unchanged.
+Illustrated935 unique: ten hashes once, heading once, no925 predecessor loss;
+master38 heading once/no loss. Durable constraint-types/qa36-coincident-live-
+2026-09-12 has captures, all test receipts, publication-assets/verification and
+DOCX exports. Initial Midpoint-joint probe ambiguous and excluded; isolated
+new target gives the true point-on-extension comparison.
+Native parked reopenedSketch11Front: target750550→850550 selected, source
+600550→700620; existing Midpoint/Equal/Symmetry/Perpendicular fixtures intact.
+Clone reopenedSketch1Top: target300680→400680 selected, source150680→250770,
+Items open with saved Coincident. LastSelected/acquisitionOFF/AutoOFF matched.
+Next fresh manual Tangent application/history comparison, reuse retained native
+baseline only where exact recipe matches. QA36partial26/0/1/29; iPad and
+immutable05be744 unchanged. No competing worker or desktop process active.
+
+## Current — Midpoint selection paired and published
+
+Source9659fec / test279a34b pushed; final82/82 zero failures/skips in one
+serial run (42application+18merge+6polish+10Trim+6rail UI). No runner.
+Changed live successful apply and deliberately reselected Undo/Redo clear
+operands; refused application retains them in regression. Both apps reopen the
+saved midpoint relation. Native target319.7689mm; clone1.2371mm with Midpoint
+record visible in Items. Native free target resizing/repositioning differs from
+clone fixed-target solving; separate open anchor variant, no geometry fix.
+Illustrated925 unique, ten source hashes exactly once, one heading/no915 loss;
+master38 one heading/no loss. All captures, final receipts, publication-assets,
+publication-verification and after DOCX exports preserved under durable
+constraint-types/qa36-midpoint-live-2026-09-12. Earlier before0/1 and focused3/4
+fixture failure followed by UI1/1 remain recorded; final82 is clean combined.
+Native parked reopenedSketch11 Front target319.7689 selected, endpoints545400
+and745400, joint645400; clone reopenedSketch1Top target1.2371 selected, Items
+open showing Midpoint. LastSelected/acquisitionOFF/AutoOFF. No active process.
+Next fresh native point+line Coincident apply/history: native menu enabled,
+clone capability currently excludes this operand combination, solver supports
+point+whole-line colinearity. Confirm application before changing code.
+QA36partial, inventory26/0/1/29; physical iPad/immutable05be744 unchanged.
+
+## Current — Perpendicular selection paired and published
+
+Source3a337c2 pushed, final80/80 zero fail/skip in one serial run:
+41application+18merge+6polish+10Trim+5rail UI. No runner.
+Changed live application, deliberate reselection before Undo/Redo, and gallery
+reopen pass: history clears selection and restores geometry; reopened line
+1.2291mm and Perpendicular glyph retained. Native evidence in preceding length
+section supplies comparison. Only selection gap resolved; unconstrained native
+free-line relocation still differs and is not claimed fixed.
+Illustrated915 unique, four hashes once/heading once/no911 predecessor loss;
+master38/heading once/no loss. Durable qa36-perpendicular-live-2026-09-12 has
+os3d-perp-clean-* captures, selection-assets.json, selection-after DOCX exports
+and selection-publication-verification.json. No test/source changes after3a337c2.
+Next fresh Coincident/Midpoint application/history/reopen comparison. Native
+parked reopenedSketch11Front free line70.8204 selected; clone reopenedSketch1Top
+line1.2291 selected near265270, LastSelected/acquisitionOFF/AutoConstrainOFF.
+QA36partial, inventory26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — Perpendicular length fix paired and published
+
+Sourcefd16cee pushed; final78/78 zero fail/skip, no runner. Native preserves
+70.8204/67.8371mm, changed clone1.2291/1.1735mm (total2.40 at90degrees),
+Undo/Redo and gallery reopening verified in both. Clone postRedo tap opened
+unchanged keypad, no value entered; reopen exact1.2291 and saved Perpendicular.
+Illustrated911 unique, eight hashes once/heading once/no903 loss; master38
+heading once/no loss. Durable constraint-types/qa36-perpendicular-live-2026-09-12
+contains all PNG/JSON, tests, exports and publication-verification.json.
+Remaining: native clears selection after Perpendicular apply/history, clone
+retains it; native free-line relocation differs from clone center-preserving
+rotation. Neither is claimed fixed. Next scoped Perpendicular selection cleanup:
+add successful-apply/Undo/Redo and refused-application retention tests; do not
+extend to other unverified constraint types. Changed live/publish afterward.
+Native parked reopenedSketch11 Front firstline70.8204 selected at874693;
+clone reopenedSketch1 Top firstline1.2291 selected near265270. LastSelected,
+snappingOFF/AutoConstrainOFF. No task source dirty; unrelated files preserved.
+QA36partial26/0/1/29; iPad/immutable05be744 unchanged.
+
+## Current — two-line Symmetry paired and published
+
+Source `bcc70c1`, tested `ebf4c37`: final76/76 zero fail/skip in one run.
+No runner. Fresh native and changed clone Last Selected two-line→Symmetry→axis
+preserve right operand/axis and reflect left; Undo restores original, Redo
+reflection. Gallery reopen/reselection confirms native81.9876mm and
+clone1.4098mm in separate-scale fixtures. Illustrated903 unique: eight source
+hashes once, heading once, no895 predecessor loss. Master38, heading once,
+no loss. Durable exports/images/verification in workspace reports under
+constraint-types/qa36-line-symmetry-live-2026-09-12.
+Next fresh remaining QA36 relation sweep, beginning Perpendicular two-line
+application/history/reopen; arc Symmetry remains an unverified element variant.
+Native parked Sketch11 Front left reflected small line selected; clone Sketch1
+Top left reflected small line selected, Last Selected, acquisitionOFF,
+AutoConstrainOFF. No task source dirty; unrelated identity/memory preserved.
+QA36partial, inventory26/0/1/29; iPad/immutable05be744 unchanged.
+Historical running entries below are superseded by this checkpoint.
+
+## Active gate — line Symmetry combined regression
+
+WIPbcc70c1 pushed, model4/4 and separate UI1/1 clean. Added test-only shared
+line/circle UI workflow and line endpoint-reference import assertion. Final
+combined application/merge/polish/Trim +4 UI workflows active exclusively:
+/tmp/os3d-qa36-line-sym-final-20260912.xcresult/.log, exec57540. No desktop
+interaction while running. Dirty tests and documentation only; sourceunchanged.
+Next collect exact terminal counts, commit tests/docs, then recreate native
+line fixture in changed clone, verify geometry/history/reopen, publish once.
+Native parked afterlineSymmetry; simulator owned byrunner/resetstore.
+Reports895/38 verified; QA36partial, inventory26/0/1/29, iPadunchanged.
+
+## Current WIP — two-line Symmetry extension
+
+Native confirms two whole lines→Symmetry→axis. Correct additive separate boxes
+exclude axis endpoint; broad box incorrectly included endpoint and is retained
+as fixture error. Native reflects left57.9747mm to right81.9876mm acrossx725,
+right fixed. Clone two selected lines showed Symmetric disabled. Screens copied
+to durable Symmetry directory (os3d-sym-lines-*). Source extension accepts two
+lines and persists closest endpoint pairing as five refs in one relationship;
+shares cancel/axis-pick/anchoring/refusal/history, rejects operand as axis.
+Focused4-case model gate active exclusively: /tmp/os3d-qa36-line-sym-focused-
+20260912.xcresult/.log, exec session99148. No result yet. No desktop interaction
+until gate ends. Changed line UI/live/history/reopen and publication pending.
+Native parked afterlineSymmetry; clone parked priorbuild two linesselected.
+Source dirty EditorViewModel, SketchSolverBridge, SketchConstraintRail,
+ConstraintApplyTests; docs continuation updated. Reports895/38 verified,
+QA36partial; inventory26/0/1/29. iPad/immutableIPA unchanged.
+
+## Current follow-up — native unequal radii verified
+
+Source5a3687e/final64/64 unchanged; docs8cbb8ca pushed. Native history axis
+orange was reproduced by hover alone; settled Undo/Redo deselects matching clone.
+Independent native R43/R65 with Equal Radius removed: Symmetry alone produces
+reflected R43, Undo restores R65/offset and Redo R43. Illustrated895 unique,
+all4 new hashes once/no891 loss; master38, follow-up heading once/no loss.
+Verification and new images durable in same Symmetry directory.
+Next two-line Symmetry comparison: native Sketch11 Front now has fresh first
+line local480430→550470 (57.9747mm), axis725180→725450 and prior circles.
+Create second line920470→1030440, select only both small lines and invoke
+Symmetry→axis. Clone still circle-only axis-pick. No runner; native foreground.
+QA36partial, inventory26/0/1/29, iPad/immutable05be744unchanged.
+
+## Current checkpoint — Symmetry paired and publication verified
+
+Source `5a3687e` pushed; final serial64/64 zero fail/skip. No runner.
+Changed clone two-circle→Symmetric→axis application, Cancel, fixed first center/axis,
+Undo/Redo and gallery reopening verified against native. Native already had
+Equal Radius (R43); clone Ø0.8638/0.8634 becomes Ø0.8638 at reflected centers.
+Illustrated891 unique media: ten new hashes once, heading/verdict once, no loss
+from881. Master38: heading and final verification paragraph once, no loss.
+Durable evidence: constraint-types/qa36-symmetry-live-2026-09-11 under workspace
+reports/openshape3d-core-sketch-milestone-2026-09-08.
+Next reproduce settled native axis selection after application/history; clone
+history deselects while native history highlighted axis. Then independent unequal
+native radii and remaining line/arc Symmetry variants. Do not call QA36 closed.
+Native Sketch11 Front reopened right R43 selected; simulator Sketch1 Top reopened
+right Ø0.8638 selected. No competing desktop/build owner. Inventory26/0/1/29;
+iPad and immutable05be744 unchanged. Unrelated identity/memory files preserved.
+Older running/pending entries below are superseded historical receipts.
+
+## Latest checkpoint — QA36 Symmetry final64/64
+
+Source fixes from006bf4b verified in one final **64/64** run, zero fail/skip
+(61 model/integration and3 UI). Receipt
+/tmp/os3d-qa36-symmetry-final-20260912.xcresult; summary/log copied durable
+constraint-types/qa36-symmetry-live-2026-09-11. No runner.
+Fixed overlay hit-testing interception and retained own-center operand handling;
+pendingaxis hides sketchgizmo, routes tapbeforecontrols, rejectsdragging.
+Next fresh changed-build clone/native apply/history/reopen, native unequal-circle
+radius probe (previousnativepairhadEqualRadius). Native parkedafterSymmetryUndo
+inSketch11 Front withverticalaxisx725 andR43circles600300/850330. Simulator test
+resetstore andendswithtwo-lineParallelfixture; recreatecircle/axisforlivesample.
+Reports881/master38 unchanged, QA36partial, inventory26/0/1/29. iPad/immutableIPA
+unchanged. UnrelatedIDENTITY/SOUL/USER/memory untrackedpreserved.
+
+## Latest checkpoint — Equal Radius paired/publication verified
+
+HEAD2940020 source696e8cd unchanged. No runner. Equal Radius nativeR65→43 and
+clone diameter1.4887→0.9925 preserve centers; both exact history/gallery reopen
+verified. Reuse current-source90/90, no new run. Illustrated881/master38, all8
+new hashes once and no predecessor loss. Durable qa36-radius-live-2026-09-11.
+Next Symmetry: native two similar elements, invokeSymmetry, thenaxis; clone
+currently requires2points+1line. Reproduce freshnative beforefix. NativeSketch11
+Front, rightR43circle selected, circlecenters600300/850330, priorEquallines
+at y85 and545→710. CloneSketch1 Front rightØ0.9925selected, circlecenters
+200650/400680, priorlinesy350/457→503. No desktop/build owner. Inventory
+26/0/1/29; iPad/immutableIPAunchanged.
+
+## Current execution — QA36 Equal Radius native verified, clone next
+
+HEAD2940020 pushed Equal direction live/publication checkpoint. No runner.
+Native Sketch11 now contains circles R43/R65mm at local600300/850330,
+Equal reduces larger toR43 without center movement. Badges/exactR43/Undo
+restoration/Redo verified; native radius gallery reopen pending. Native parked
+afterRedo. Simulator foreground, savedSketch1 Front contains prior Equal lines;
+Circle click atlocal61,315 active, next circles at200650/400680 radii40/60px.
+Fresh radius evidence durable constraint-types/qa36-radius-live-2026-09-11.
+No product change/new test/publication for radius. Reports873/38, inventory
+26/0/1/29, iPadunchanged. Next clone pair/Equal Radius/history/reopen, thennative
+reopen and bounded publication ifmatching.
+
+## Latest verified checkpoint — QA36 Equal live and publication complete
+
+HEAD696e8cd source pushed; final90/90 zero fail/skip. No runner. Native exact
+657.4091mm and clone3.0996mm Equal direction/history/gallery reopening verified.
+Illustrated873 unique images: all10 new hashes once, one heading/verdict, no
+loss from863. Master38 media, one note, no predecessor loss. Durable receipts:
+constraint-types/qa36-equal-live-2026-09-11/{illustrated,master}-verification.json.
+QA36 remains partial. Inventory26/0/1/29; iPad and immutable05be744 unchanged.
+Next fresh Equal Radius native/clone comparison, then Symmetric and remaining
+relation sweep. Native is Sketch11 Front after reopened lower-line selection;
+clone savedSketch1 Front, lower3.0996mm selected. Desktop idle, no build owner.
+Older execution entries below are historical and superseded.
+
+## Latest execution — QA36 Equal 90/90 and changed live verified
+
+HEAD696e8cd pushed. No test/build runner. Final serial90/90 zero fail/skip;
+changed clone retains10.79-degree direction, sizes lower to3.0996mm, Undo2.6502,
+Redo3.0996, and Items icon opens savedSketch1 with exact3.0996 readout after
+gallery reopen. Screens copied to durable qa36-equal-live-2026-09-11.
+Native Sketch11 Equal direction/value/history already verified; now Home click
+for native gallery reopen is active. No publication yet; reports863/38 baseline.
+Next inspect native gallery, reopen current project/Sketch11, preserve evidence,
+publish bounded Equal diagnosis/fix and master note, verify predecessor assets,
+commit docs. QA36 remains partial; inventory26/0/1/29, iPad unchanged.
+
+
+## Current execution — QA36 Equal combined gate active on696e8cd
+
+696e8cd WIP source checkpoint successfully pushed; focused3/3 clean. Broader
+ConstraintApply/AutoConstraintEngine/ConstraintPolish/LiveDimension plus both
+ConstraintRail UI workflows sole simulator owner, exec31852,
+/tmp/os3d-qa36-equal-final-20260911.xcresult and.log. No desktop interaction.
+UI fixtures reset disposable simulator store; preserved pre-fix Equal PNG/JSON
+remain durable, recreate same clone two-line fixture after gate for changed live
+direction/value/history/reopen. Native Sketch11 unchanged afterEqualRedo.
+Nextcollect exactcounts/failures, fix onlyconfirmedissues, finishchangedlivepair,
+publishreceipt/reportassets andcheckpoint. QA36stillpartial; inventory26/0/1/29,
+reports863/38; iPad/immutableIPAunchanged.
+
+## Current execution — QA36 Equal tested WIP checkpoint
+
+HEAD334e491; source/tests/docs ready for WIP commit. Focused corrected3/3 clean
+(zero fail/skip), previous0/1 retained. No runner. Next broader ConstraintApply,
+AutoConstraintEngine, ConstraintPolish, LiveDimension and ConstraintRail UI gate
+serially; then changed clone Equal direction/history/reopen live andpublication.
+Native remains Sketch11 EqualRedo. Clone Untitled2 saved pair predatesfix; rerun
+Equal from Undo on the updated app, do not claim old result corrected.
+Evidence durable constraint-types/qa36-equal-live-2026-09-11. Inventory26/0/1/29;
+reports863/38, no newlypublished screenshots, iPad/immutable05be744 untouched.
+
+## Current execution — QA36 Equal direction fix focused gate active
+
+HEAD334e491; dirty EditorViewModel.swift, ConstraintApplyTests.swift, QA36receipt
+and continuation. Native free-line Equal preserves directions; clone changed
+10.79°→28.90°. New regression failed0/1 before product change. Explicit Equal
+now tries transient direction preservation for nonanchored line; saved constraints
+win through fallback. Focused3 tests sole runner:
+/tmp/os3d-qa36-equal-direction-fixed-20260911.xcresult and.log, exec63583.
+Next collect exact result, fix only genuine failures, then broader constraint/
+sizing gate and changed live same clone pair/history/reopen; publish andpush.
+Native parked EqualRedo Sketch11; clone Untitled2 Front pair saved pretest. Unit
+runner owns simulator; no desktop interactions until finished. Evidence durable
+constraint-types/qa36-equal-live-2026-09-11. Inventory26/0/1/29, iPadunchanged.
+
+## Current execution — QA36 Equal native pass; clone pair active
+
+HEAD334e491 pushed QA37 limitation. No test/build runner; simulator now owns
+desktop. Native Sketch11 Front Equal applied: upper759.3439→657.4091mm,
+lower657.4091 unchanged, orientations retained. Equal badges, Undo restoration
+and Redo verified. No gallery reopen yet. Native parked after Redo.
+Clone new Untitled2 created through gallery (old project preserved), Front sketch,
+all acquisitionOFF/HintsON, Auto-ConstrainOFF, Last Selected verified. Lines
+3.0996mm and2.6502mm drawn, upper(200,350)→(450,350), lower(200,460)→(410,500)
+window-local. DisarmLine and addUpper pending: inspect os3d-qa36-clone-both.png.
+Next Equal via More; verify values/history/reopen, then relevant serial regression
+and publication. Equal Radius/Symmetry and remaining all-type sweep stillopen.
+QA36partial, inventory26/0/1/29; reports863/38; iPadunchanged.
+
+## Current execution — QA37 input boundary retained; QA36 Equal next
+
+HEAD d5fc3fe, documentation checkpoint ready to commit. No runner or pending
+desktop operation. Native Sketch11 Front, two lines after Parallel with Last
+Selected; lower unchanged, upper rotated. First produced same geometry with
+box selection; explicit Shift-additive click delivery failed. Thus no ordered
+anchor verdict, no product fix. Settings controls themselves verified. Full PNG/
+JSON/hash evidence durable selection-anchor/qa37-live-2026-09-11.
+Next Undo once, verify two original lines, select both via box and compare QA36
+Equal length, history/reopen, then clone equivalent. QA37 remains partial.
+Inventory26/0/1/29, reports863/38, no new publication or tests. iPad unchanged.
+
+
+## Current execution — QA37 fresh native ordered-selection fixture
+
+HEAD `d5fc3fe` pushed. No test/build runner; native desktop exclusively owned.
+Native Sketch 11 is a new Front-plane sketch with two separate nonparallel lines,
+Auto-constraining OFF and First Selected verified in the Constraints popover.
+Body 04 remains visible behind it; previous hide attempts did not take effect.
+Line 1 screen endpoints approximately (549,348)→(850,350); line 2
+(550,480)→(807,527), window origin (99,79). Foreground Escape disarmed Line.
+Ordered selection (line 1 then Shift-line 2) is the current pending desktop action;
+inspect `/tmp/os3d-qa37-native-first-order.png` before applying Parallel.
+AX `elem_124` resolved Sketch entry; generic query matched a menu and failed.
+App-targeted drags and foreground key delivery worked; untargeted/background
+commands sometimes reported success without changing the screenshot.
+Next: First/Last and reverse-order native Parallel comparisons, Lock override,
+history/reopen, then equivalent clone verification/current regression/publication.
+QA37 remains partial. Inventory 26/0/1/29; reports 863/38. iPad unchanged.
+
+## Current execution — QA19 inconclusive checkpoint; QA37 live next
+
+HEAD3c2538b. QA19docs-only diagnostic ready tocommit. Native side-face
+Sketch10Circle at800,400,3DGuidePointsON, other acquisitionOFF,HintsON.
+Corner6pxpair bothraw;2pxpair bothvertexhit; facecenterpair alsosame. No
+category-dependent result or productchange; QA19remains partial. All PNG/JSON/
+sha256 durable snap-categories/native-threshold-2026-09-11. No runner.
+Nextcommit/pushdiagnosticthenQA37 First/Last live using existing8ffd4fe
+implementation/final44/44 receipt; preserveQA19fixture forlaterclarifiedscope.
+Inventory26/0/1/29; reports863/38; nativeGUIworks via200msglobalpresses,
+scrollCLIforeground mismatch. Clone lastLineChainUI fixture. iPadunchanged.
+
+## Current execution — QA19 corner pairs inconclusive; face-center control next
+
+HEAD3c2538b. No runner; native desktop owns. Side-face Sketch10, Circle armed.
+All acquisition OFF/HintsON. Nearvertex6px/6px raw bothOFF/ON;2px/2pxvertexhit
+bothOFF/ON. No category-dependent result; do not promote intermediateONclaim.
+Official docs identify derived face centers asguidepoints, so next samegesture
+near facecenter avoids direct vertex hit precedence. Undo currentcircle active;
+face extents405,298→1189,497; center797,397.5 local, windoworigin99,79.
+Aim800,400→900,350 off then only3DpointsON exactrepeat; inspecteach state.
+Dirtyonly QA19receipt/continuation; evidence durable snap-categories/
+native-threshold-2026-09-11. ScrollCLIremote foregroundmismatch retained,
+noenvironmentchange. Inventory26/0/1/29; reports863/38. iPadunchanged.
+
+## Current execution — QA19 native face threshold pair setup
+
+HEAD3c2538b pushed QA05 closure; inventory26/0/1/29, reports863/38 verified.
+No runner. Native Body04 fitted inTop, extents454,232→1096,715; top-right
+corner free of existing sketchpoints. Body05 fit was irrelevant andnotcounted.
+Face-select desktop command active; next inspect, enterCircle onface, GridOFF/
+sketchpointsOFF/guidelinesOFF, 3DGuidePoints OFF vsON repeated nearvertex aim.
+Retained QA19final21/21/controlproof exists; near-threshold pair andpublication
+stillmissing. Clone is last LineChainUI fixture; debugseed may beusedforbody
+setup without claimingseed as user-inputproof. No productchange or testneeded
+yet; no iPad/immutable05be744 changes; unrelatedfilespreserved.
+
+## Current execution — QA05 closed; next unfinished core recipe
+
+HEAD1fdb6a3; documentation-only closure now ready to commit. Current serial3/3
+clean, no runner. Fresh native full chain/Return/B-resume/closure/Undo/Redo/
+gallery reopen fiveedges verified; retained clone exact-build proof reinspected.
+Illustrated863/master38 saved/exportverified, tennew sourcehashes plus one
+visuallyverified Google-downsampled reopen, no852 predecessorloss. Inventory
+26/0/1/29. Native parkedSketch09 selected fiveedges, normalTop. Clone lastUI
+linechain fixture, simulator idle. Durable line-chain-qa05/native-live-2026-09-11.
+Next commit/push then QA19 category comparison using recovered native input.
+No iPad/immutable05be744 changes; unrelatedidentity/memoryfiles preserved.
+
+## Current execution — QA05 fresh native closure/history verified
+
+HEAD 1fdb6a3; no build/UI runner. Native Sketch09 Top contains A→B→C,
+Return retained geometry/armed Line; resume B→D→E→B completed. Undo removes
+only E→B, Redo restores it; Exit shows filled triangle and unchanged open chain.
+Instantaneous bridge clicks did not seed anchors; 200 ms / 1 px presses did,
+so input delivery difference is explicit, not native product failure.
+Native gallery reopened, limited-version popup dismissed via query, selecting
+Sketch09/Zoom to is active desktop operation. Next inspect saved profile, then
+current-tree LineChainUITests serial3 and publication with retained clone proof.
+Fresh native PNG/JSON preserved under line-chain-qa05/native-live-2026-09-11.
+QA05 partial until final gate/publication; inventory25/0/1/30. Reports852/38.
+No iPad/immutable05be744 changes; unrelated identity/memory files preserved.
+
+## Current execution — QA25 closed; QA05 fresh native next
+
+HEADdb230f8 fixture pushed; closure docs committing. Final corrected29/29 clean,
+focused1/1 separate; initial28/29 offscreenfixture retained. Freshpaired off-state
+none/one/several/disconnected verified. Illustrated852/master38, elevenhashesonce,
+no841predecessorloss. Inventory25/0/1/30. No runner. QA26alreadyclosedd62c25d.
+NextQA05 freshnative A→B→C, Return, resumeB→D→E→B, history/reopen; existing
+clone3/3/liveevidence is retained. GUIbridgeworking. NativeSketch08currently
+three10/12/8lines, AlwaysShowOFF, first/third+middleendpoint selected. Clone
+latesttest single20mmline fitted anddimensioneditoropen; testsresetpriorfixture.
+AllQA25evidence/export/summary/log durable underannotation-off-state/qa25-live.
+Deviceinstallationpending; immutable05be744 and unrelatedfiles untouched.
+
+## Current execution — QA25 corrected combined gate active
+
+Focused fitted UI1/1 passed; combined29 now sole simulator owner at
+/tmp/os3d-qa25-live-corrected-final-20260911.xcresult and.log. Initial28/29failed
+receipt retained (20mm extendsviewport); FitView+explicitOFF fixture onlychange.
+Paired off-state PNG complete; eleven inserted intoillustrated SavedtoDrive,
+exportverification/finalverdict/master pending. Baselines841/38 copied durable.
+Nextcollectcombined, publishresult ifclean, verifyhashes/predecessors, updateledger
+andpush. QA25partial inventory24/0/1/31. NextafterclosureQA05freshnativechain.
+NativeSketch08 parkedselectedfirst/third+middleendpoint; cloneownedbyUIrunner.
+No iPad/immutable05be744 changes; unrelatedfilespreserved.
+
+## Current execution — QA25 focused viewport-fixture rerun active
+
+HEADd62c25d. Dirty DimensionUITests + QA25receipt/continuation. Pairednone/one/
+twoDisconnected/allthree captured inbothapps; clonefirst+thirdhidesmiddle2.
+Initialgate28pass/1UIfail:20mmoffscreenlabelx1675, ownershipassertionspassed.
+Fixture nowFitView after20edit and explicitOFFlaunchoverride; no sourcechange.
+Focusedsole runner /tmp/os3d-qa25-fitted-ui-20260911.xcresult and.log.
+Nextcollectthencombined29, verifyeleveninsertedimages against841/38predecessors,
+appendfinalverdict/master, closeonlyifverified. AllQA25PNG andfailedsummary/log/
+UIattachments durable. Nativeparkedfirst+third+middleendpoint (notexclusion).
+CloneUItestsown/resetfixture. Inventory24/0/1/31;deviceunchanged.
+
+## Current execution — QA25 paired off-state selection captured
+
+HEADd62c25d tasksource clean. NativeSketch08 saved10/12/8, AlwaysShowOFF:
+none/no labels, one10, two disconnected10+12 hide8, allthree10/12/8 verified.
+Narrower native first/third window also selected middle endpoint, so12visible
+is expected and not an exclusion case. Modifier-onlyShift rejected bybridge;
+no stuckmodifier. CloneSketch1 saved1/2/3, AlwaysShowOFF: none, one1, two1+2
+hide3, allthree, then first+third1+3 hideintervening2 verified. Different fixture
+scales/angles recorded; synthetic angle/transformcandidate is not savedlabel.
+No productchange forQA25. Native parked selectedfirst/third+middleendpoint;
+clone parkedfirst/third. Need final current annotation/foundation/dimensionUI
+gate, publication against841/38, closureledger ifverified. No runner currently.
+DurableQA25live PNG/JSON copied. Inventory24/0/1/31; iPadunchanged.
+
+## Current execution — QA25 native off-state fixture
+
+HEADd62c25d QA26closure pushed; inventory24/0/1/31. No test runner.
+NativeSketch08 has three independent lines with saved10/12/8mm lengths.
+AlwaysShowDimensions nowOFF; none hides all, one top shows10, replacementbottom
+shows8. Plainclick replaces selection. BoundedShift-hold plus globalclick probe
+active /tmp/os3d-qa25-native-shift-*.json; collect before desktop input.
+Next confirm disjointtop+bottom selection hidesmiddle12, then matchedclone and
+current regression/publication. NativeFront view endpoints top650250→790320,
+middle650400→838400, bottom650550→772578; windoworigin99,79.
+DurableQA25live dir annotation-off-state/qa25-live-2026-09-11 undercoremilestone.
+Clone latest final29 UI fixture, not yet QA25setup. Device/immutable unchanged.
+
+## Current execution — QA26 closed; QA25 off-state next
+
+HEAD2fdecd6 source pushed; closure docs being committed. Final29/29 clean,
+focused21/21 separate. Paired coplanar nativeSketch08/06 suppression50 andExit,
+changedcloneSketch2/1 suppression2 andExit; savedgallery2 retained. Earlier
+on/hidden/re-entry/toggle and other-plane evidence retained. Publication841/38
+verified, six hashes once/no835 loss. Inventory24/0/1/31. No runner.
+Next QA25 off-state none/one/several/disjoint saved dimensions, paired GUI now
+working. Inspect native idleFront Sketch08/07/06 and clone post-final UI fixture
+before input. QA26 durablecoplanar exports/manifests/summary/log complete.
+iPadbuild/install pending; immutable05be744 and unrelatedfiles untouched.
+
+## Current execution — QA26 coplanar live verified, final gate next
+
+Source identity-scope correction + tests ready to checkpoint; focused21/21 clean.
+Changed-clone gallery retained2mm, Sketch2 editing suppressesSketch1 label,
+Exit restores; nativeSketch08 suppressesSketch06 50mm thenExit restores.
+Durable QA26 directory contains PNG/JSON and focusedsummary/log. No runner.
+Next final combined annotation/identity/constraint-rail/coplanar-UI gate, then
+publish coplanar closure evidence against835/38 predecessors. QA26partial;
+inventory23/0/1/32. NativeidleFront, cloneidleTop; iPad/immutable05be744 untouched.
+
+## Current execution — QA26 independent coplanar correction
+
+HEAD60f7012; EditorViewModel and annotation tests dirty. Native independent
+Sketch08 created onFront after committed Top Sketch07; original FrontSketch06
+50mm label suppressed with AlwaysShowON, Exit restores50. PNG/JSON copied into
+QA26 durable live directory. Confirmed active-sketch scope, not merely plane.
+Source filter now identity-based; glyph scope unchanged. Annotation suite active
+/tmp/os3d-qa26-coplanar-focused-20260911.xcresult and.log, sole simulator owner.
+Next collect, fix any genuine failure, changed-build coplanar live comparison,
+broader gate/publication and safe commit. Native idleFront withSketch08/07/06;
+clone store may reset under tests. Inventory23/0/1/32; QA26partial. No device change.
+
+## Current execution — QA26 verified partial checkpoint
+
+HEAD6b89d01 source fix pushed; docs update ready to commit. Final29/29 zero
+fail/skip, no runner. Changed-clone Front editing viewedTop suppresses ground2mm
+dimension, Exit restores; native50mm and pre-fixclone50mm evidence retained.
+Illustrated835 unique media, eight new hashes once, no827 predecessor loss;
+master38, one note, no loss. QA26 partial, inventory23/0/1/32 unchanged.
+Next commit/push docs then resolve separate coplanar native scope. Official
+Using-sketch-planes doc explains immediate same-plane continuation; need an
+intervening new creation before returning toFront for an independent item.
+Native parkedSketch06 active/on. Clone idleTop afterExit, saved2mm driver in
+Sketch1, other same-planeSketch2 lines. Last Front entry was empty/discarded.
+Durable QA26 live directory contains manifests/exports/verification/receipts.
+No device/immutable05be744 changes. Unrelated identity/memory preserved.
+
+
+## Current execution — QA26 focused passed, combined gate active
+
+HEAD6b89d01 WIP pushed. Focused2/2 passed zero failures, receipt
+/tmp/os3d-qa26-plane-focused-20260911.xcresult; log copied durable.
+Combined annotation/identity plus both ConstraintRailUITests and coplanar
+Planes UI active /tmp/os3d-qa26-plane-final-20260911.xcresult and.log.
+Sole simulator owner, no desktop while running. Collect exact count then
+launch updatedclone without resetting savedproject. Recreate Front-plane
+editing viewedTop: inactive ground50 label must disappear; Exit must restore.
+Native different-plane suppression and AlwaysShowON already captured. Other
+live active/exit/hide/hidden-reentry verified before correction. Separate
+coplanar native annotation rule remains unverified; QA26 partial, no promotion.
+Publication queue is allQA26 diagnosis/changedresult, none inserted yet.
+Inventory23/0/1/32; QA27closed18487f2. Device/immutable05be744 unchanged.
+
+
+## Current execution — September11 20:14 QA26 other-plane fix WIP
+
+HEAD18487f2; EditorViewModel + SketchAnnotationVisibilityTests and QA26 receipt
+changed. Confirmed paired other-plane dimension suppression gap; dimension-only
+coincident-active-plane filter implemented. No geometry/constraint-glyph change.
+Focused2-case gate active /tmp/os3d-qa26-plane-focused-20260911.xcresult and.log,
+sole simulator owner; no desktop until terminal. Collect, diagnose, broader
+annotation/plane gate, then changed-build live same Front/Top state and exit.
+Native parkedSketch06 active/on; clone beforetests was Front new sketch viewed
+Top with ground50 label wrongly visible. Coplanar native scope remains open.
+Durable QA26 live directory contains all pairedPNG/JSON and manifest. No new
+publication yet. Inventory23/0/1/32, QA27closed18487f2; device immutable unchanged.
+
+
+## Current execution — September 11 20:08 QA26 paired scope audit
+
+HEAD18487f2 QA27 closure pushed; inventory23/0/1/32. No runner.
+QA26 paired always-on unselected/exit/hide/explicit-hidden-reentry passed on
+existing50mm line in both apps. Clone direct switch drag succeeded; control
+and label clicks stayedoff (input receipts retained, not product failures).
+Cross-sketch unresolved: native Sketch05 (different plane) suppresses visible
+Sketch06's50mm label with Always Show on; clone newly drawn coplanar Sketch2
+retains Sketch1's50. Need matched different-plane clone before fixing scope.
+Native Sketch entry from Front resumed06, so not yet same-plane comparison.
+Native parked Sketch06 active, alwaysShow on, sketch visible; clone Sketch2
+Line armed with Items open, Sketch1 visible50 and new undriven10.9813 line.
+Next compare clone different-plane active state; inspect native same-plane
+identity entry if necessary. No source change justified yet. Latest54/54 already
+includes QA26 model test; its all-visible-sketch expectation may be too broad.
+Durable evidence: reports/openshape3d-core-sketch-milestone-2026-09-08/
+annotation-on-state/qa26-live-2026-09-11 under workspace, manifest and allPNG/JSON.
+QA26 still partial, publication pending. Immutable05be744/device unchanged.
+
+
+## Current execution — September 11 QA27 closure verified
+
+HEAD3016ac6 source/tests pushed; documentation closure staged next. No runner.
+Final54/54 zero fail/skip. Paired exactH30/V40/Absolute50, numeric driver badge,
+Undo/Redo and both gallery reopen verified. Illustrated827 unique images, ten
+source hashes once, no817 predecessor loss; master38, one note, no media loss.
+Durable QA27/exact-recipe contains manifests/exports/verification and PNG/JSON.
+QA27 finite PASS, inventory23/0/1/32; variable/multiple-driver variants separate.
+Native parked Sketch06 reopened50 selected. Clone parked reopened50 selected.
+Next commit/push closure docs then QA26 paired annotation on-state walkthrough:
+active/other/hidden sketches, exit/re-entry and toggle persistence. Latest54/54
+already includes its automated matrix; no duplicate runner needed.
+Unrelated IDENTITY/SOUL/USER/memory preserved. Immutable05be744/device unchanged.
+
+
+## Current execution — September 11 19:38 live exact closure gate
+
+HEAD3016ac6 pushed. Combined54/54 completed, zero failure/skip; no runner.
+Changed clone exact H30/V40/Absolute50, driven badge, UndoH30/RedoAbsolute50
+and gallery reopen with one Distance50 driver all live-verified. Native exact
+H30/V40/Absolute50 and driven UndoV40 verified; native Redo command currently
+in flight, then reselect line and inspect. Native window1293x743; line endpoints
+(560,711)→(1032,83), reselect(850,326). Clone parked reopened50 selected.
+Next finish native Redo/reopen, publish exact closure images, verify817-image
+predecessor preservation and master38, then promote only finite QA27 recipe.
+Variable-linked/multiple-driver variants remain separate unverified cases.
+Durable QA27/exact-recipe holds source receipts; new publication pending.
+Inventory still22/0/1/33 until closure; device/immutable05be744 unchanged.
+
+## Current execution — QA27 driven focused passed
+
+HEAD3016ac6 WIP pushed. Focused3/3 zero failure/skip verified in
+/tmp/os3d-qa27-driven-focused-20260911.xcresult (summary copied durable).
+Combined annotation/layout/Trim/import + two UI workflows active at
+/tmp/os3d-qa27-driven-final-20260911.xcresult and .log. This is sole simulator
+owner; do not interact with desktop or start a duplicate runner until terminal.
+Next collect exact combined result, launch updated app without reset, perform
+clone exactH30/V40/Absolute50 numeric-driver badge/history/reopen. Fit View
+toolbar action available (EditorView.swift); native Item>Zoom to works. Native
+parked at exactAbsolute50 after unchanged-type switches. Publish new exact/driven
+evidence only after inspection. QA27 partial, inventory22/0/1/33; device unchanged.
+
+## Current execution — September 11 driven badge WIP
+
+HEAD27e0810 pushed. Native exact H30/V40/Absolute50 verified; numeric-driven badge
+remains available. Clone commitV40 has no badge: paired confirmed gap. Source
+WIP extends SetLineDimensionKindCommand to replace one plain numeric driver in
+place plus display metadata; preserves ID/refs/endpoints. Formula-linked and
+multiple-driver references excluded pending evidence. Model test covers exact
+30/40/50, JSON/history and subsequent100mm solver edit; UI adds post-commitbadge.
+Focused3-case gate active at /tmp/os3d-qa27-driven-focused-20260911.xcresult and
+.log, sole simulator owner. No desktop until terminal. Collect, audit failure or
+broaden relevant regression, then changed live exact recipe/history/reopen and
+publication. Native/clone diagnosis screenshots durable in QA27/exact-recipe.
+Inventory22/0/1/33; QA27 partial. Device/immutable05be744 unchanged.
+
+## Current execution — September 11 19:14 exact recipe
+
+HEAD27e0810 pushed; task tree clean before this checkpoint. Selection cleanup
+focused2/2 and live passed, illustrated817/master38 verified; prior53/53 remains
+separate. No test runner. Native Sketch06 now exact H30/V40/Absolute50, verified
+on unchanged endpoints through type switching after numeric sizing. Item > Zoom
+to works to fit the selected sketch. Native parked on Absolute50, unselected.
+Durable native PNG/JSON/actions in QA27 directory/exact-recipe/manifest.json.
+Next: compare clone badge after numeric driving commit, then implement only the
+confirmed driven-switch behavior and run geometry/history regression/live pair.
+Native H/V/absolute exact proof now exists; clone exact recipe still pending.
+Inventory22/0/1/33, QA27 partial; immutable05be744/device untouched.
+
+## Current execution — QA27 immediate-choice follow-up
+
+HEAD7f502db pushed with verified53/53/live/publication checkpoint. Source/test
+follow-up is dirty: EditorViewModel chooses display kind then clears selection
+through the same scoped helper used by history; model/UI assert deselection
+and deliberate reselection. Focused2-case gate passed2/2:
+/tmp/os3d-qa27-choice-clear-20260911.xcresult and .log. No runner remains. Live
+H1.7593→V2.0361 clears selection; reselect restoresV with unchanged endpoints.
+Publication verified: illustrated817 unique media, four source hashes once,
+zero813 predecessor loss; master38 media, one follow-up note, zero loss. Next
+commit/push, then exact live30/40/50 recipe; no runner active. Exact live30/40/50 and driven variants
+remain open; inventory22/0/1/33. Device/immutable05be744 unchanged.
+
+## Current execution — September 11 QA27 publication verified
+
+HEAD bbbfd2b pushed. Final combined gate53/53 completed with zero fail/skip; no
+xcodebuild/XCTest runner. Changed-build paired menu/projections/history and clone
+gallery reopen verified (Vertical2.4771mm). Illustrated813 unique images, all ten
+source hashes once, zero803 predecessor loss; master38 media and one dated note.
+Durable exports/verification under adaptive-dimensions/qa27-live-2026-09-11.
+QA27 remains partial; inventory22/0/1/33. Native clears immediate type-choice
+selection while clone retains it; exact live30/40/50 and driven variants remain.
+Next: checkpoint this documentation, then scoped immediate-selection cleanup,
+focused regression and changed live repeat. Desktop parked in clone reopened
+Untitled2; native reopened Sketch06. No duplicate test runner. Immutable05be744
+and physical device unchanged; unrelated identity/memory excluded.
+
+## Current execution — September 11 18:35
+
+WIP21c27ea pushed. Follow-up source/test changes fix only Distance Type history
+selection and legacy Trim metadata handling; import remap assertion added.
+First focused run2/3 is retained. Corrected focused run4/4 passed with unchanged
+UI history assertion. The combined gate is now active at
+/tmp/os3d-qa27-badge-final-20260911.xcresult and .log, sole simulator owner.
+Collect its terminal summary before any desktop interaction. Then launch exact
+changed app, repeat label-menu H/V, Undo/Redo and gallery reopen live; native
+paired reference/history/reopen already durable in QA27 manifest below. Publish
+only inspected distinct images and verify both report exports before closure.
+No new live proof or combined result yet. Inventory22/0/1/33; QA27 partial.
+Next action after checkpoint/push: collect this exact runner, do not duplicate.
+Immutable05be744/device untouched; unrelated identity/memory files excluded.
+
+## Current execution — September 11 18:29
+
+Baseline8748e29 pushed. QA27 paired live diagnosis now confirms native type switch
+is display-only, undoable, and survives gallery reopen; clone toolbar opens a
+keypad instead. Details/durable hashes in the QA27 adaptive-dimensions receipt.
+WIP source/tests are implemented, not yet verified: Sketch metadata/merge/commands,
+EditorViewModel, SketchDimensionOverlay, annotation model tests, Dimension UI test.
+The focused3-case xcodebuild run at /tmp/os3d-qa27-badge-focused-20260911.xcresult
+(and .log) is active, sole simulator owner; native parked in reopened Sketch06.
+No desktop interactions until terminal result. Next: collect exact result, fix
+confirmed failures, broaden relevant regression, then paired changed-build live
+history/reopen and publish diagnosis/fix evidence. Pending audit: geometry-only
+legacy Trim initializer must not mutate uncaptured presentation metadata.
+Checkpoint these task changes as WIP, exclude unrelated identity/memory and large
+artifacts. Inventory22/0/1/33; QA27 partial. QA33 remains partial and its verified
+publication is already pushed. IPA05be744 and physical device untouched.
+
+## Current execution — September 11 18:19
+
+HEAD `8748e29` pushed: QA-33 19/19 and both publication exports verified.
+Inventory22/0/1/33 unchanged. No xcodebuild/XCTest runner. This session owns the
+live Peekaboo workflow; native is parked in Sketch06 with its sloped line selected.
+
+QA-27 native distance badge is now live-observed: select line, hover the value,
+then click the small leading badge. Menu has Absolute/Horizontal/Vertical.
+Switching the same line yielded35462.0578/21277.236/28369.6453mm without moving
+its endpoints. This large-scale sample is NOT the exact30/40/50mm recipe and
+history/reopen are unverified. Five native PNG/JSON pairs and a hash manifest
+are durable under workspace reports/openshape3d-core-sketch-milestone-2026-09-08/
+adaptive-dimensions/qa27-live-2026-09-11. Publication pending; QA27 stays partial.
+
+Simulator is frontmost on owned AC2FD923-1661-435F-BF47-3E9DF30D1A16. Existing
+app launched without reset; created separate Untitled2. Next action: inspect
+Sketch palette click, select plane, draw sloped line and compare chooser live.
+Pinned PEEKABOO_BRIDGE_SOCKET to Library/Application Support/Peekaboo/bridge.sock
+is required for every command; app switch --to Simulator --verify resolved focus.
+Use foreground coordinate clicks and inspect captures. Default local fallback
+and scroll delivery failed; do not count those attempts. No product code changed.
+
+QA33 native10001 outcome remains unresolved; do not repeat stress probe. Remaining
+queue and immutable05be744/device boundaries below remain unchanged.
+
+## Current execution — September 11 17:58
+
+HEAD `6768bae`; QA-30 closure is already pushed. QA-33 final2 gate is complete
+19/19 (zero failures/skips), not pending. No build/test/Peekaboo runner is active.
+Only QA-33 receipt, matrix/ledger and this checkpoint are task-dirty; unrelated
+IDENTITY/SOUL/USER/memory files stay excluded.
+
+Native 10001 polygon submission entered sustained busy processing; normal app
+relaunch recovered Recents. No completed upper bound or saved mutation is claimed.
+Clone 10000 remains a defensive limit, not verified parity. QA-33 stays partial.
+Publication is verified: illustrated803 unique media (+3, no800 predecessor loss);
+master38 media, one dated note, prior text preserved. Durable exports and JSON
+verification are under the workspace numeric-recovery/qa33-upper-bound-2026-09-11
+report directory (absolute path in the QA-33 receipt). Inventory22/0/1/33.
+
+Exact next action: commit/push this bounded reconciliation, then paired QA-27
+Absolute/Horizontal/Vertical chooser and geometry/history on the current build.
+Check native survey/desktop availability first; no overlapping UI runner.
+Remaining queue includes QA01–03,05,19–21,24–27,29,33,36–38,40–41,43,45,53–54.
+QA33 upper-count completion remains unresolved; do not repeat the stress probe.
+Physical QA52 and updated device build/install remain pending. Immutable05be744
+IPA untouched. No Mac restart, login or security changes.
+
+## Current execution — September 11 17:13
+
+HEAD `681811e` is pushed. QA-30 now passes for the finite width→height desktop
+recipe. One clean exact-tree serial run passed 4/4, zero failures/skips, at
+`/tmp/os3d-qa30-sequence-final-20260911.xcresult`; retained paired native/clone
+sizing evidence and inspected current-build edge/keyboard captures supply the
+live comparison.
+
+Publication is anonymously export-verified: the illustrated report contains one
+QA-30 closure, 800 unique image placements, exactly four new exported assets and
+zero loss from the prior 796. The master roadmap retains 38 media and has one
+dated QA-30 note. Inventory is **22 passed / 0 failed / 1 device-blocked /
+33 incomplete**.
+
+No runner owns the simulator. Dirty files are bounded QA-30 closure documentation;
+unrelated identity/memory files remain untracked. Exact next action: commit/push
+this closure, then continue the next finite core acceptance case. QA-29 remains
+partial for dense/manual/zoom layout, and physical input remains QA-52. Immutable
+`05be744` IPA is untouched.
+
+## Current execution — September 11 17:00
+
+HEAD `e190b60` is pushed. QA-23's finite endpoint/midpoint, outline/profile,
+blank-deselect, selected-outline Delete, one-step Undo and gallery-reopen recipe
+is now closed. Its clean current-tree regression remains 19/19 at
+`/tmp/os3d-qa23-selection-baseline-20260911.xcresult`.
+
+Google publication recovered in a fresh authenticated tab without altering the
+older stalled tab. Anonymous exports verify one closure heading and verdict,
+796 unique illustrated placements, all ten new hashes exactly once, and zero
+loss from the prior 786 assets. The master roadmap retains 38 media and one
+dated QA-23 note. Inventory is **21 passed / 0 failed / 1 device-blocked /
+34 incomplete**.
+
+No runner owns the simulator. Dirty files are bounded QA-23 closure
+documentation; unrelated identity/memory files remain untracked. Exact next
+action: commit/push this publication checkpoint, then continue the finite
+QA-29 badge/keypad layout audit using the clean QA-53 51/51 layout gate and
+retained paired evidence. Fresh capture permutations and physical input remain
+separate open gates. Immutable `05be744` IPA is untouched.
+
+## Current execution — September 11 16:40
+
+HEAD `80dfdc9` is pushed. QA-54's final one-owner current-tree command/keyboard
+gate passed clean **84/84**, zero failures/skips, at
+`/tmp/os3d-qa54-keyboard-final-20260911.xcresult`. Persisted Single Key Action,
+command routing/search UI, numeric focus/recovery, keypad switching, Return,
+Escape scopes and history pass. Retained paired keyboard evidence remains valid.
+No product source changed.
+
+Fresh native Single Key Action switching and physical-key delivery are not
+proven, so QA-54 stays partial; physical input remains QA-52. Inventory remains
+**20 passed / 0 failed / 1 device-blocked / 35 incomplete**. Dirty files are
+bounded QA-54 tests/documentation plus the QA-53 Markdown whitespace cleanup;
+unrelated identity/memory files remain untracked. No runner owns the simulator.
+Exact next action: inspect, commit/push, then recover QA-23's already prepared
+selection publication and verify predecessor preservation before promotion.
+Immutable `05be744` IPA is untouched.
+
+## Current execution — September 11 16:30
+
+HEAD `470d1f4` is pushed. QA-53's final one-owner current-tree layout gate passed
+clean **51/51**, zero failures/skips, at
+`/tmp/os3d-qa53-layout-final4-20260911.xcresult`. The gate covers both
+orientations, left/right toolbar placement, open panels, accessibility text,
+constraint rail, lower keyboard, near-rail diameter targets and compact
+landscape controls. No product source changed. Retained fixture failures and
+corrections are recorded in the QA-53 receipt.
+
+Peekaboo app/window discovery works again, but window capture for Simulator and
+Shapr3D fails with `Web-focus detection returned without its required mutation
+outcome`; direct window capture also returns no image. Fresh handedness,
+large-text and panel permutations remain automated-only, so QA-53 stays partial.
+Inventory remains **20 passed / 0 failed / 1 device-blocked / 35 incomplete**.
+Dirty files are bounded QA-53 tests/documentation; unrelated identity/memory
+files remain untracked. No runner owns the simulator. Exact next action: inspect,
+commit/push this checkpoint, then run QA-54's finite keyboard focus/hotkey/Escape/
+history audit without repeating its already paired line/dimension routes.
+Immutable `05be744` IPA is untouched.
+
+## Current execution — September 11 15:57
+
+HEAD `3530d16` is pushed. QA-51's final one-owner archive/persistence/UI gate
+passed clean **47/47**, zero failures/skips, at
+`/tmp/os3d-qa51-persistence-final-20260911.xcresult`. Retained paired evidence
+closes the finite geometry, constraints, variables, pattern links, annotation
+state, units, history and gallery-reopen recipe. The gallery UI workflow's two
+60-second animation-idle waits are retained as timing evidence, not failures or
+performance claims. No product source changed and no duplicate report
+publication is claimed.
+
+QA-51 passes only its finite desktop recipe; advanced feature-link breadth and
+physical-device lifecycle remain separate. Inventory becomes **20 passed /
+0 failed / 1 device-blocked / 35 incomplete**. No runner owns the simulator.
+Dirty files are bounded QA-51 closure documentation. Exact next action: inspect,
+commit/push, then audit QA-53 layout against portrait/landscape, panels, edge
+placement, text-size and handedness without repeating its already paired radial
+and keypad samples. Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
+## Current execution — September 11 15:45
+
+HEAD `3ceb192` is pushed. QA-50's final one-owner exact-extrude/hole/source-
+rebuild/history/UI gate passed clean **15/15**, zero failures/skips, at
+`/tmp/os3d-qa50-solid-final-20260911.xcresult`. Retained paired evidence closes
+the finite solid handoff, consumed visibility, bore rebuild, Undo/Redo and
+gallery-reopen recipe. No product source changed and no duplicate report
+publication is claimed.
+
+QA-50 passes only its finite desktop recipe; advanced Sweep/Loft breadth and
+QA-51 cold-launch persistence remain separate. Inventory becomes **19 passed /
+0 failed / 1 device-blocked / 36 incomplete**. No runner owns the simulator.
+Dirty files are bounded QA-50 closure documentation. Exact next action: inspect,
+commit/push, then audit QA-51 save/reopen state against geometry, constraints,
+variables, pattern links, label state and units without repeating already paired
+reopen samples. Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
+## Current execution — September 11 15:41
+
+HEAD `c039366` is pushed. QA-49's final one-owner profile/construction/entity/UI
+gate passed clean **46/46**, zero failures/skips, at
+`/tmp/os3d-qa49-topology-final-20260911.xcresult`. Retained paired evidence
+closes the finite nested-hole, touching-loop, tiny-gap, duplicate-boundary and
+construction-crossing recipe, including history and reopen. No product source
+changed and no duplicate report publication is claimed.
+
+QA-49 passes only its finite desktop recipe; exhaustive curved-curve splitting,
+overlapping coplanar hit precedence and physical input remain separate. Inventory
+becomes **18 passed / 0 failed / 1 device-blocked / 37 incomplete**. No runner
+owns the simulator. Dirty files are bounded QA-49 closure documentation. Exact
+next action: inspect, commit/push, then audit QA-50 sketch-to-solid against its
+exact extrude/hole/consumed/rebuild/Undo recipe. Immutable `05be744` IPA and
+unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 15:36
+
+HEAD `ce361cb` is pushed. QA-48's final one-owner identity/profile/rebuild/UI
+gate passed clean **9/9**, zero failures/skips, at
+`/tmp/os3d-qa48-identity-final-20260911.xcresult`. Retained paired evidence
+closes independent coplanar creation, explicit named continuation, named
+consumed-source bore rebuild, hidden visibility, Undo/Redo and gallery reopen.
+No product source changed and no duplicate report publication is claimed.
+
+The first broader gate was interrupted after Xcode denied a temporary cloned
+runner and the unrelated Items rename/delete workflow stalled at a context-menu
+animation; its completed 8/8 units are retained but not counted as a clean run.
+QA-48 passes its finite identity recipe. Overlapping fill hit precedence remains
+a QA-23/49 selection variant. Inventory becomes **17 passed / 0 failed /
+1 device-blocked / 38 incomplete**. No runner owns the simulator. Dirty files
+are bounded QA-48 closure documentation only. Exact next action: inspect,
+commit/push, then audit QA-49 profile topology without repeating its already
+paired gap/nested/duplicate/partial-overlap/bow-tie cases. Immutable `05be744`
+IPA and unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 15:24
+
+HEAD `28af98c` is pushed. QA-45's final one-owner exact-value/direct-drag/mixed
+selection/Copy/history gate passed clean **50/50**, zero failures/skips, at
+`/tmp/os3d-qa45-transform-final-20260911.xcresult`. The baseline passed 48/49;
+its one failure used a free dimension label as a position proxy. Painted-center
+geometry assertions passed targeted 1/1. A new mixed line+circle Copy case passed
+after a retained first-run 8e-11 solver-roundoff mismatch; exact identity and
+history assertions remain unchanged. No product source changed.
+
+QA-45 remains partial because fresh paired mixed-selection and compact-layout
+checks are supported-input blocked. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+two bounded transform fixtures and QA-45 docs. Exact next action: inspect,
+commit/push, then audit QA-48 coplanar sketch identity (QA-46/47 are explicitly
+deferred). Immutable `05be744` IPA and unrelated identity/memory files remain
+untouched.
+
+## Current execution — September 11 15:06
+
+HEAD `f352d9a` is pushed. QA-43's targeted endpoint-reference lifecycle fixture
+passes 1/1, and the full one-owner Trim/reference/profile/import/UI gate passes
+clean **60/60**, zero failures/skips, at
+`/tmp/os3d-qa43-trim-references-final-20260911.xcresult`. One initial 0/1 fixture
+failure is retained: it used a legacy whole-line ref that correctly transfers to
+one surviving fragment; the corrected production endpoint dimension drops when
+its far endpoint is trimmed. No product source changed.
+
+QA-43 remains partial because fresh paired driven-reference/history gestures are
+supported-input blocked. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the bounded lifecycle test and QA-43 checkpoint docs. Exact next action: inspect,
+commit and push safely, then start QA-45 Move/rotate/copy acceptance (QA-44 is
+explicitly deferred). Immutable `05be744` IPA and unrelated identity/memory files
+remain untouched.
+
+## Current execution — September 11 15:00
+
+HEAD `c4b74c6` is pushed. QA-41's one-owner primitive Trim gate passed clean
+**37/37**, zero failures/skips, at
+`/tmp/os3d-qa41-trim-primitives-20260911.xcresult`. Two missing model assertions
+now cover whole arc removal and polygon-edge removal with exact Undo. Retained
+paired evidence covers crossing-line/circle spans and a rectangle boundary, but
+fresh paired arc/rectangle/polygon gestures remain supported-input blocked.
+
+QA-41 remains partial; inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the bounded Trim tests and checkpoint docs. Exact next action: commit/push safely,
+then execute QA-43 driven/reference/downstream-profile Trim integrity. Immutable
+`05be744` IPA and unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 14:57
+
+HEAD `1e42243` is pushed. QA-40's initial combined transition run completed with
+54 passes and two model failures while all five UI workflows passed. The failures
+were persisted-setting contamination: Grid quantized an oblique circle-direction
+fixture and Sketch Guidepoints off suppressed a requested tangent relation. Tests
+now declare and restore those prerequisites. Focused correction passed 2/2 and
+the complete same-set rerun passed clean **56/56**, zero failures/skips, at
+`/tmp/os3d-qa40-keypad-transitions-final-20260911.xcresult`.
+
+QA-40 remains partial for fresh paired rotation/pan and comprehensive physical/
+system-keyboard input. Inventory stays **16 passed / 0 failed /
+1 device-blocked / 39 incomplete**. No runner owns the simulator. Dirty files are
+the two isolated fixtures and bounded QA-40 checkpoint docs. Exact next action:
+commit/push safely, then execute QA-41 primitive Trim acceptance. Immutable
+`05be744` IPA and unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 14:48
+
+HEAD `5ea6b8a` is pushed. QA-39's one-owner serial gate passed clean **69/69**,
+zero failures/skips, at
+`/tmp/os3d-qa39-conflict-states-20260911.xcresult`. Retained paired evidence
+covers under/fully-defined appearance, point versus entity Lock, a conflicting
+dimension refusal with unchanged geometry, direct Unlock, Undo/Redo and gallery
+reopen. Existing publication verification is reused; no new screenshot claim.
+
+QA-39 is closure-ready for its finite desktop recipe. Inventory becomes
+**16 passed / 0 failed / 1 device-blocked / 39 incomplete**. No runner owns the
+simulator. Current dirty files are the bounded QA-39 documentation closure only.
+Exact next action: inspect, commit and push the closure, then start QA-40 keypad
+transition acceptance without retrying the known blocked live-canvas route.
+Immutable `05be744` IPA and unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 14:40
+
+HEAD `8ffd4fe` is pushed. QA-37 is implemented/tested but remains partial for
+fresh paired selection-order gestures; its final one-owner gate is clean 44/44.
+QA-38 now supports Midpoint, explicit non-line point and primitive-rectangle
+diagonal-corner Disconnect without decomposing geometry. The new targeted matrix
+passed 1/1, and the final one-owner Disconnect/merge/Trim/rectangle gate passed
+clean **58/58** at `/tmp/os3d-qa38-disconnect-final-20260911.xcresult`.
+
+No test runner owns the simulator. QA-38's historical four-line edge is paired,
+but the three new connection forms are automated-only because supported live
+canvas input remains blocked; no publication or pass promotion is claimed.
+Inventory stays **15 passed / 0 failed / 1 device-blocked / 40 incomplete**.
+Current dirty files are the bounded QA-38 product/test/docs checkpoint. Exact
+next action: inspect, commit and push it, then start QA-39 conflict and point-state
+acceptance. Immutable `05be744` IPA and unrelated identity/memory files remain
+untouched.
+
+## Current execution — September 11 14:32
+
+Current pushed baseline is `ffc3867`; QA-37 product/tests/docs are dirty pending
+checkpoint. OpenShape3D now persists First Selected / Last Selected anchored
+sketch-entity behavior, tracks ordered entity selection, and applies a transient
+whole-entity solve anchor without storing a Lock. Existing saved constraints win
+if the preference is incompatible.
+
+After retained compile-only and fixture failures, the final one-owner gate passed
+clean **44/44**, zero failures/skips, at
+`/tmp/os3d-qa37-anchor-final3-20260911.xcresult`: 12 settings, 30 constraint
+application, and 2 portrait/landscape rail workflows. The final UI fixture
+preserves the established Grid-off Parallel check and reaches both anchor choices
+through the actual Form scroll container. No runner owns the simulator.
+
+QA-37 remains partial because fresh paired native/clone selection-order gestures
+and screenshot publication are blocked by supported live canvas input delivery.
+Official Shapr3D documentation confirms the semantics, but default-choice live
+parity is not claimed. Inventory remains **15 passed / 0 failed /
+1 device-blocked / 40 incomplete**. Exact next action: inspect, commit and push
+this safe checkpoint, then continue the next finite acceptance case independent
+of live canvas input while retaining the QA-37 paired-evidence boundary. The
+immutable `05be744` IPA and unrelated identity/memory files remain untouched.
+
+## Current execution — September 11 13:45
+
+HEAD `f524b13` is pushed. QA-06 is reconciled as passed for its finite desktop
+recipe from retained paired Escape/Delete/Return/double-click/tool-switch,
+history, and gallery-reopen evidence. The exact current tree passed one clean
+serial 5/5 run at
+`/tmp/os3d-qa06-closure-combined-20260911.xcresult`; no runner is active. The
+illustrated evidence was already export-verified at 425 placements and the
+master closure note is now export-verified exactly once with all 38 predecessor
+media retained (`/tmp/os3d-qa06-master-closure.docx`, SHA-256
+`2f4b3d0c7ef9d507e459f5052042157ce31bd4f669a24640730a463d135cab00`). No
+duplicate image insertion was required for this reconciliation.
+
+QA-23 selection-state finite acceptance is also reconciled on the exact current
+tree. Retained paired evidence covers exact endpoint versus short-edge midpoint,
+outline/profile selection, and blank deselection. Exact-build clone profile and
+outline selection, selected-outline Delete, one-step Undo, and gallery reopen
+passed live. The clean selection baseline passed 19/19 at
+`/tmp/os3d-qa23-selection-baseline-20260911.xcresult`. Local current-build
+captures/hashes are under `reports/.../selection-qa23/`. Browser keystrokes did
+not establish a Docs caret; anonymous export remains at 786 media with zero
+QA-23 headings. No duplicate insertion occurred, so publication remains pending.
+
+Inventory remains 13 passed / 0 failed / 1 device-blocked / 42 incomplete. QA-05
+remains partial because fresh native chain clicks are desktop-input blocked;
+QA-19's final native threshold pair is independently blocked. Pointer hover and
+physical input remain QA-21 and QA-52. Current dirty files are documentation for
+the QA-23 closure-ready audit. Exact next: commit/push the safe functional
+checkpoint, execute QA-24 additive-selection acceptance, and retry QA-23
+publication through a verified caret route without duplicate evidence.
+Unrelated identity/memory files and immutable `05be744`
+IPA remain untouched; no device installation or parity claim.
+
+QA-24 current-tree selection baseline subsequently passed clean 19/19, including
+the two real UI workflows for three-body marquee/Delete/Undo and Select Through.
+The seeded project did not persist into an ordinary relaunch, and native Shift/
+additive input remains unverified; QA-24 stays partial and counts do not change.
+Exact next independent case is QA-25 annotation off-state while publication/input
+gaps remain tracked. See testing/sketch-parity-multiselection-checkpoint-2026-09-11.md.
+
+QA-25 current-tree annotation gate subsequently passed clean 23/23 after two
+retained fixture corrections: saved circular preference leaked into the first
+run, and a synthetic 0-degree selection candidate was initially counted as a
+saved annotation. None/one/several/disjoint saved-dimension ownership now has
+explicit coverage. Fresh live comparison remains blocked: Peekaboo resolves
+foreground clicks to the Simulator window but the app receives neither its
+Sketch control nor canvas input. Restarting only Peekaboo and then only the
+affected simulator preserved all data but did not restore delivery. QA-25 stays
+partial; exact next independent work is QA-26 on-state persistence/visibility
+regression while the input/publication blocker remains. See
+testing/sketch-parity-annotation-off-state-checkpoint-2026-09-11.md.
+## Active continuation — September10 pending three-point numeric input
+
+HEADaa2677f pushed. QA08/09 finiteclosure593f25c; inventory6passed/0failed/
+1deviceblocked/49incomplete. PriorRectangleEscape/readoutfixedlive; clean29/29+
+separate3/3; illustrated631/all5hashes/master38 exportverified. IPAuntouched.
+Newconfirmedgap: VALIDnative2tap baseline800,240→650,200 reads19.2508; bare1
+opensnumericfield,5Return→pending15 anchoredatfirst800,240,third680,270 commits
+15×7rect. Clonevalid2tap580,340→420,300 reads2.05; bare1noeffect. Earliernative
+clickcompletedrect(undone),Rchangedtype/centercreationundone,bare1onfirstpoint
+resetview—allinvalidnumericattemptsretained. Native now11rects(last15×7), armed.
+Dirty implementation: pendingbaselinekeyboardnumber/dot registration, existing
+DimensionField withhardwarefocus+keypad; commitupdatespendingbaselineonly, records
+optionaldrivingdimension atomicallywhenrectanglecompletes; cancellationdropsdraft.
+FilesEditorViewModel,CommandShortcutsView,SketchDimensionOverlay,EditorView,
+RectangleInputCancellationTests plusdocs. No concurrentdesktop.
+Initialexec68901 finishedclean23/23. Livepending1.5entry/Return/thirdpointworks;
+confirmedliveoverlaypaintsoverkeypad. Movedliveoverlaybelowdimensioneditor.
+Exec33921 completed clean3/3 (pendingunit2+height/historyUI). No runner active.
+Final build live: keypad fully covers pending label/leader; 1.5 Return preserves
+first endpoint; third point completes1.5×0.9664. One toolbarUndo removes rectangle;
+Redo restores. Gallery reopen width1.5/height0.9664 inspected. Native oneUndo
+removes15×7,Redo restores, galleryreopen15width/7selected-edge measurement verified.
+Native Undo disarms Rectangle; clone stays armed: retained separate lifecycle gap.
+Newassertionsinvalidrecovery,explicitunits/source,firstanchor,noearlyhistory,
+atomiccompletionUndoRedo/reload,cancelleddimensionnoleak. Initiallivefunctionalpass; finaloverlaypostfixpending.
+Final publication640/allfive hashes (completion duplicated)/master38 verified;
+all predecessor images and ordered text retained. No runner. Native reopened
+Front44edges with selected7mm side; clone saved1.5×0.9664 selectedheight.
+Exec63275 completed clean4/4. Same-build live2.0523×0.9664 rectangle Undo
+removes geometry and disarms Rectangle; Redo restores geometry without rearming.
+Paired native15×7 Undo/Redo reference captured. No runner. Illustrated642/new2
+hashes once/master38 verified; no predecessor image/text loss.
+Initial36940 ended32/33: center Lock also locked3wholeedges from release
+selection. Directpadlock now clears entityselection first, targetscenteronly.
+Corrected90180 clean33/33; existing center followup85567 clean3/3. Live fresh
+three-point release now shows centerhalo/padlock, no implicit glyphcluster;
+directLock clearsselection/centergreen; Escape disarms, reselectcenter then
+Unlock retainsfreehalo. Clonecenter491,358→451,338 moves(-40,-20)rigidly;
+UndoRedo restoresgeometry. Nativecenter727,263→787,263 (+60,0) similarlymoves,
+but UndoRedo clearscenterselection vsclonekeepshalo. Scopedhistorycleanup added
+only groupcenter withno sizinganchor. Newunit exactmove/UndoRedo/selection.
+24376 clean5/5. Final live fixturecenter370,573→410,533 translation(+40,-40),
+UndoRedo bothrestoregeometryandclearselection. Galleryreopen center410,533
+selectable withpadlock; savedwidth2.3659,height1. Revealedtwo-sidedheightaliases
+inheritedfrommigratedcenter path; restrict two alias branches to group with
+rectangleSizingAnchors metadata (notfreshthreepoint group). Otherselectededge
+presentation/visibility remains. New assertions one savedsizealias onadjacent
+selection andretaineddimensionstate.
+71931 clean6/6. Live savedwidth2.3659/height1 nowoneheightlabel; editoropens1,
+fullyvisible. Paired savedcentercontrols retained. Publication653/all7hashesonce/
+master38 verified, no predecessorimages/text loss. No runner. NativeFront44edges
+withmovedcenterselected772,262; clone savedfixturewidthselected,editorcancelled.
+Fresh center correction committed/pushed377bf34. Legacy recovery now dirty in
+RectangleConstruction, SketchTypes and RectangleConstructionTests. Decode requires
+isolated four-line loop and all seven original directed relations; no geometry,
+dimension or sizing-intent changes. Initial41618 compile-only failure: fixtures
+omitted edge IDs, no tests ran. Corrected57656 clean41/41; final28378 clean51/51 (includes pattern/decode tests).
+Legacy run completed. Final result /tmp/os3d-qa10-legacy-final-20260910.xcresult. Earlier result
+/tmp/os3d-qa10-legacy-identity-corrected-20260910.xcresult.
+Controlled legacy archive copied to app Documents, original JSON retained; live
+Import picker Recents reports Content Unavailable and On My iPad empty. No old
+file loaded, no live recovery claim. Pickers dismissed, existing Untitled reopened
+in model view. Exact next continue remaining QA10 completion directions; retain
+legacy recovery as implemented/tested but live/publication pending. Supported
+archive route needs recovery before marking that case verified.
+No fullparity/deviceclaim; IPAunchanged.
+Receipt docs/testing/sketch-parity-three-point-matrix-2026-09-10.md; allPNGcopied/
+hashedreports/.../three-point-matrix. Master/illustratededitable; nohostblocker.
+Soleowner; preserveunrelatedidentity/memory, reporttabs/nativefixtures; no merge/
+install/restart/securitychanges/duplicatewatchdog. Immutable05be744IPA unchanged.
+
+## Prior handoff checkpoint (superseded as stopping condition)
+
+September 9 ~22:30 EDT. Final regression correction revision `05be744` and final
+artifact/publication documentation revision `7f6b3e3` are pushed to PR #29.
+The working tree contains only preserved untracked `IDENTITY.md`, `SOUL.md`, and
+`USER.md`. No test/build worker is running; this session exclusively owns the
+booted simulator and native Shapr3D.
+
+The authoritative final xcresult passed 1,598 total: 1,595 passed, zero failed and
+three skipped at `/tmp/os3d-final-full-clean-20260909.xcresult` (5,116.835 seconds,
+serial). All nine deterministic prior failures also pass together 9/9. Exact-build
+clone live smoke shows Chamfer arming clears the body transform gizmo and accepts
+a painted edge; invalid 1 mm on the 0.79 mm body is clearly rejected. Native
+whole-body Tools > Chamfer/Fillet remains a no-op, so native edge-first solid-tool
+workflow is recorded as a known downstream difference, not a core-sketch pass.
+Receipt: `docs/testing/sketch-parity-final-regression-2026-09-09.md`; screenshots
+and hashes: `reports/.../final-gate/`.
+
+Exact revision `05be744` archives and exports successfully as a development IPA:
+`reports/.../final-gate/OpenShape3D-SketchParity-05be744.ipa`, 16,876,597 bytes,
+SHA-256 `b0f512efc9a22ed5f23dcefe3567f2dfe727e6ed1821fd782fa10d212ba6d65c`.
+It is iPhoneOS/arm64, minimum iOS 17.0, strict-signature verified, and uses the
+existing team profile with 81 device entries through 2027-07-21. It is installable
+only on included devices; no installation or physical Pencil result is claimed.
+
+Final publication is anonymously export-verified. The illustrated report now has
+265 placements / 263 unique media and all five final screenshot hashes exactly
+once. The master retains its 38 drawings and exactly one final candidate note.
+The first master append briefly replaced predecessor content; it was caught by
+the export gate, undone, and the restoration verified before publication was
+counted. Receipt: `reports/.../final-gate/publication-verification-2026-09-09.txt`.
+
+Exact next: hand off the identified IPA plus physical A/B checklist. Preserve the
+full 56-case map: two passed, zero failed, one device-blocked, and 53 incomplete
+(42 partial, 11 explicitly deferred). No merge; device installation and
+Pencil/touch remain Jason's physical-device gate. Resume evidence-led fixes if
+that device comparison exposes a core-sketch failure.
+
+## Earlier checkpoint history
+
+97350 completed clean 16/16. Live initial arc bounds pivot, 45-degree rotation,
+Undo/Redo, typed X Copy 1 mm and two-arc gallery reopen inspected successfully.
+Receipt: docs/testing/sketch-parity-explicit-transform-controls-2026-09-08.md.
+Exact next: publish verified control/pivot/reopen evidence and commit; continue
+native retained operation value re-edit and rotating control-frame comparison.
+Native 1924 at 99,79 remains free arc rotated 45 degrees in explicit mode.
+Simulator 5147 at 275,44 has reopened Untitled 2 with two copied arcs.
+Every Peekaboo call uses healthy GUI bridge socket in user Application Support.
+No competing desktop workers, build, or UI tests. Dedicated simulator AC2FD923-1661-435F-BF47-3E9DF30D1A16.
+Illustrated 92 images/new 3 PNG hashes and master 38-image final reopen note
+export-verified. Native inspected 90-degree re-edit replaces operation angle. Active tabs 7442C07B27B3DEA86715C808891BAD9B and
+77EDB2C49ACE004AFAD551FCDE5ECD9A; preserve older stalled tabs.
+Retained values/pivot/frame, remaining numeric/selection matrix, final regression
+and installable candidate gate still open. Identity files untouched. No merge,
+device installation, restart/security changes, or duplicate watchdog.
+
+## Historical receipts (not current execution/publication state)
+
+## Verified
+
+Circle radial extension: clean6/6 /tmp/os3d-circle-radial-20260908.xcresult
+(3solver,3circle/arc/Copy UI), exec71287 completed0. Finalbinary
+0157edfdbde7a8ed38207732cc9b95a73f96e1d66b85dfc5482c62959dbd3c01.
+Live nativefreeØ800→1415.6774, cloneØ1.323→2.311, centersfixed. Clone
+UndoRedo restoresboth. Typed nativeØ1000/cloneØ2 bothrefuseupwardradial
+dragwithnotice; pairedgalleryreopen retainsdiameter/upwardhandle. Native
+trialpromptcoordinatesdidnotdismiss; AXelem25Skipworked. No purchase.
+Fullreceipt docs/testing/sketch-parity-circle-radial-handle-2026-09-08.md.
+Earlier66cb99b arc radial and2ab1f9c Copymodefix pushed; receipts retain
+initialfailures/targetedpasses accurately.
+
+## Publication/gate
+
+Master1LyptlUULQ6e4yWiBz9QBMgxvZKoft6bhAhISfRvHXdE t13SavedtoDrive,
+36embeddedimages verified; nowSavingblocked afterclone rectdiagnosisinsert.
+Finalrectimageslocalonly; master-pending-rectangle-recovery.json recordsqueue.
+Do notclose/reloadtab orduplicateinsert. Prior35circleimagesfullyverified.
+Evidence /Users/thelodgestudio/.openclaw/workspace/reports/openshape3d-core-sketch-milestone-2026-09-08/handle-ui/.
+Originalillustrated1qHopHdl7nDJncL4MR4bEF3JGdbkOIXuXSe3bC3xGNko t11still
+Saving76verifiedimages/6unsynced; preserveblockedtab/recovery. Full42audit/
+56recipes retained. Remainingrectangle/polygon/glyph/controlplacement, numeric/
+selection/editing, persistence/finalsinglerevisionregression, publicationbacklog,
+installabledeviceartifact/checklist. Notcandidate-ready. No merge/deviceinstall
+assumptions/restart/logout/securitychanges/secrets/duplicateworkers. Preserve
+30minutewatchdog.
+
+## Latest actual execution — September10 22:23 EDT
+
+Serial57843 completed clean4/4: /tmp/os3d-qa10-pending-color-20260910.xcresult.
+Pending baseline orange correction in EditorViewModel, based on fresh forward
+paired screenshots; completion two dimensions/center/no keypad passes at unequal
+scales. Native now12rectangles/48edges, last17.9023×8 at lowerleft selectedcenter;
+clone test resets fixture. Legacy decode recovery dirty, clean51/51 but live import
+blocked as above. Exact-build orange pending baseline and paired Escape preservation verified;
+publication660/all7hashes/master38 verified, no prior images/text lost. No runner.
+Exact next commit/push color correction, continue leader-spacing/remainingQA10
+rechecks; keep legacy recovery unverified until supported import succeeds. No other workers.
+
+## Legacy fixture loader — latest execution
+
+Temporary openshape3dTests/LegacyLiveFixtureDiagnostics.swift is diagnostic only,
+NOT for commit or broad test runs. Serial92817 owns simulator, uses normal
+ProjectArchive.remappingAllUUIDs/insert + SwiftData context to create ONE separate
+QA10 Legacy Live Fixture project from retained archive bytes. Original project
+not changed. This bypasses system file picker only for fixture setup, not live
+import acceptance. Exact next collect result, move temporary Swift harness into
+local evidence (remove from test target), relaunch/open gallery fixture and test
+legacy center Lock/movement/history/reopen live versus native. No runner overlap.
+
+## Latest actual execution — legacy final guard
+
+Temporary92817 fixture loader completed and moved out of test target into evidence.
+Live recovered legacy center Lock/Unlock/move(+40,-40)/UndoRedo/reopen2.3659×1
+passed; fresh nativeLock/Unlockreference captured. Native now15×7centerselected
+772,262; clone legacyfixturewidthselected. Precommit audit added interior T-
+junction exclusion andfixture; final serial99241 now owns simulator, result
+/tmp/os3d-qa10-legacy-branch-final-20260910.xcresult. Exactnext collect result,
+final gallery recheck, publish legacy recovery (previous import-blocked note must
+be superseded, not removed), commit/push and continue QA10. No unrelatedchanges.
+
+## Latest verified — September10 22:45 EDT
+
+99241 clean54/54; no runner. Finalbuild legacygallerycenter recheckpassed.
+Illustrated667/all7hashes/master38 verified; prior660images/textpreserved.
+Temporary fixtureharness is OUTSIDE testtarget, retained evidence .swift.txt.
+Native saved15×7centerselected772,262; clone QA10 Legacy Live Fixture saved
+centerselected410,532, dimensions2.3659×1 (oneunitheightdriving). Original
+Untitled retained separately. Exactnext commit/push legacy recovery, then compare
+pending baseline leader spacing at controlled views/remainingQA10directions.
+Systempicker stillunverified; fixture API setup is explicitly notpickerpass.
+No readiness claim, immutableIPA unchanged.
+
+## Latest actual running — pending leader correction
+
+HEADddffe34 pushed; sole dirty product SketchLiveDimensionOverlay.swift. Native
+100/200px pending baselines keep70pxleaderdistance/valueoutside. Clone14/28px
+length-proportionaldistance/valueinside confirmed. Previous toward-geometry
+claim withdrawn. Fixed100viewpointdistance likecompletedrectangle and24point
+outervalue now serial81246, /tmp/os3d-qa10-pending-leader-20260910.xcresult.
+Exactnext collectresult, live100/200px andtypedentry/cancel/reopenverification,
+publish correction andcontinue QA10. Native pendingdraft cancelled,48edges;
+clone UItestowns/resetfixture. No competing workers. IPAunchanged.
+
+## Latest verified — September10 23:00 EDT
+
+81246 completedclean5/5; no runner. Leader short/long/typed1.5 keypad/Return/
+completion1.5×0.3719/UndoRedo/reopen passedlive. Illustrated677/all6hashes plus
+671diagnosis4/master38 verified. Native Rectanglearmed/no pending,48edges;
+clone savedUntitled2rects, width1.5selected at441,380, tooloff. Exactnext commit/
+push leaderlayout, then paired DIRECT pending-label tap activation, reverse
+directions/remainingQA10acceptance. App13792; no otherdesktopowner.
+
+## Latest actual — direct pending-label click
+
+HEADaa2677f pushed. Native pendingvalueclick commits thirdpoint (23.4062×
+10.0143), notkeypad; Undo restores48edges. Cloneclick commits2.4891×0.9265,
+Undo restoresoriginal2rectangles. No productchange needed. Bothnowtooloff.
+Allscreens copied/hashedlocal, directpublicationpending; lastverified677/master38.
+Exactnext reverse-baseline/opposite-height comparison, remainingQA10closure.
+No runner. Soleowner, originalIPAunchanged.
+
+## Latest running — September10 23:03 EDT
+
+HEADaa2677f pushed. Pending precision correction dirty in EditorViewModel: use
+existingcompactdimensionformatter forreleasedthreepointbaseline only (observed
+2.49pending vs2.4891committed, nativefourdecimals). Serial58085 owns simulator,
+/tmp/os3d-qa10-pending-precision-20260910.xcresult. Exactnext collect result,
+reversebaseline/oppositeheight live withprecision, publishdirectclick+precision
+evidence thencommit/push. Directclickpairedpass localonly; latestDoc677/master38.
+No new workers/devicechanges; immutableIPAuntouched.
+
+## Latest running — September10 23:10 EDT
+
+58085 clean4/4. Precisionlive2.4891 passes. Reversecomparison confirmednative
+valueaboveleader evenwhenleaderbelowgeometry; clonealwaysouterrulewrong for
+reverse. Prior ALWAYSoutsidegeneralization withdrawn (forwardcasevalid).
+SketchLiveDimensionOverlay now uses readabletextnormal, fixedspacingretained.
+Serial87523 owns simulator: /tmp/os3d-qa10-reverse-value-side-20260910.xcresult.
+DirtyEditorViewModelprecision+Overlaydirection+docs. Native3Points pending
+800,600→600,600 (23.4062),48edges; clone UItestresetfixture. Invalidnative
+Center/Rcycle attempt cancelled, no geometryadded. Exactnext collectresult,
+reverse/forward live sideandprecision, completion/cancel, publishcorrection,
+commit/push. Directpublication681 exportdownloaded butnotverified yet; last
+verified677/master38. No otherworkers/devicechanges.
+
+## September 10 23:20 — reverse value-side correction verified
+
+Final combined reverse-value-side run passed clean 5/5 (3 cancellation units +
+2 rectangle UI workflows), after the separate precision run passed 4/4.
+Live updated clone puts 2.4891 mm above the lower leader on a right-to-left
+baseline. Native recheck confirms this side; forward clone retains above-leader
+placement and four decimals (2.4726 mm in that separate snapped sample).
+The earlier universal outside-of-geometry interpretation is withdrawn: only
+the forward sample supported it. The corrected rule follows readable text.
+Both apps complete the reverse baseline with both dimensions and center control,
+without opening a keypad (native 23.4062×6 mm; clone 2.4891×0.622 mm at its scale).
+Native keyboard Undo/Redo and clone toolbar Undo/Redo remove/restore this rectangle
+and clear selection. Clone synthesized cmd-Z/shift-cmd-Z did not act in this
+attempt; those two screenshots are NOT history passes. No history logic changed.
+A subsequent forward draft cancels without removing the committed rectangle.
+Clone gallery reopen retains its 2.4891 mm baseline. Native reverse reopen remains
+next, alongside remaining QA10 directional acceptance.
+Illustrated direct-click681 and reverse-diagnosis683 exports verified: all six
+new hashes once, no prior placement loss, previous text order preserved.
+No test runner remains. Immutable IPA unchanged; QA10 remains partial.
+
+Exact next: publish final four images, native reopen, commit/push two product files and docs, continue remaining QA10 directions. HEAD aa2677f; no runner.
+
+## Latest verified — September 10 23:24 EDT
+
+87523 clean5/5; live reverse/forward label and precision passed. Native reverse gallery reopen23.4062×6 and clone2.4891 baseline retained. Clone toolbar UndoRedo passed; synthetic cmdZ did not act (not a pass). Illustrated687/all4finalhashes/no prior loss and master38 verified; final reopen text addendum inserted once, export verification next. HEADaa2677f; two product files plus ledger/matrix/receipt/checkpoint dirty. No runner. Native Front Sketch04 now52edges, reverse baseline selected750,554; clone savedUntitled two rectangles, baseline selected480,320. Next commit/push then controlled angled baseline/opposite-height QA10. ImmutableIPA unchanged.
+
+## Latest actual — September10 23:26 EDT
+
+5014cef pushed; reopen note export verified687/master38. No runner. Angled forward baseline native900740→1050710, third1030780 completes20.4084×9; clone380750→530720, third510790 completes1.8895×0.7957. Labels/readouts/center/noauto-keypad matched. Initial clone reset-to-Diagonal gesture undone, excluded. Both current tools3Points armed with new rectangle selected. Next history then reverseangled pending/completion/cancellation. Acceptanceunchanged; IPAunchanged.
+
+## September 10 — angled direction matrix supplement
+
+At5014cef, native900740→1050710/third1030780 completed20.4084×9; clone
+380750→530720/third510790 completed1.8895×0.7957. Reverse baselines
+1050710→900740/third920670 and530720→380750/third400680 respectively
+completed20.4084×9 and1.8895×0.797 on the opposite side. Both pending
+leader/value directions and completed dual sizes/center control match the
+sampled workflow; no auto-keypad. Separate grid acquisition means screen
+gestures are not asserted to produce identical normalized dimensions.
+Native forward rectangle undone before reverse; clone forward rectangle
+undone before reverse. Clone initially reset to Diagonal after gallery reopen;
+that incorrect-subtype rectangle was undone and excluded. Native R cycled
+Center before explicit restoration to3Points; no geometry drawn in wrong mode.
+Clone firstpoint380830/Escape removes draft point, keeps committed geometry
+and Rectangle armed. Native600780 click showed no firstpoint state; Escape
+therefore inconclusive for that stage, not a parity pass. Historical released
+baseline two-stage Escape remains verified separately.
+Serial85267 now owns simulator: /tmp/os3d-qa10-direction-final-20260910.xcresult,
+RectangleConstruction + RectangleInputCancellation + four3pointUI workflows.
+Exact next collect result, supported native firstpoint/cancel diagnosis,
+publication export and finiteQA10 closure reconciliation. No candidate claim.
+
+## Latest verified — September10 23:37 EDT
+
+QA10 finite recipe closed at5014cef; final36/36, illustrated700/all5finalhashes+8angled/master38/closure note verified. Inventory7/0/1/48 (37partial11deferred). No runner. Native FrontSketch04 has14rectangles/56edges, selectedlastreverseangled20.4084×9; firstpoint draft cancelled and Rectangle disarmed. Simulator UItests resetfixture; app requiresrelaunch. Exactnext commit/pushclosure docs then paired QA11concentric center initiation plus history/reopen/current regression. Preserve old QA11 sampledpass evidence; do not repeat fixedQA10. Unrelatedidentityfiles/IPA untouched.
+
+## Latest actual running — September10 23:46 EDT
+
+HEADc66039f pushed. QA11 selectedfreshcircle mismatch confirmed: nativecenter
+dragmovesonecircle; clonecenterdragmovesdiameterlabel. Unselectednativecenter
+createsouterafterUndo/rearm. DirtyEditorViewModel circlecenterrelease/drag/
+markers/dimensioncandidate/Lock, PointStateOverlay+ConstraintOverlay+
+DimensionOverlay centerhitexclusion, newCircleCenterInputTests. Serial42305
+/tmp/os3d-qa11-center-input-20260910.xcresult owns simulator. Exactnext collect
+result, addmeaningful UI selectedcenterdrag vs labeltarget regression, live
+postfix/nativeLock comparison/publication/commit. Nativecircletooloff with
+outer16.0041+inner9.3357at620340selectedcenter;14rectanglesretained. Cloneunit
+testownsfixture/relaunchneeded. Inventory7/0/1/48. Nootherworkers/IPAchanges.
+
+Initial center-input run42305 passed clean7/7 (2newbehavior +5diameterlayoutunits). Added UI workflow targets renderedCircleCenterControl and requiresactualcenter displacement, unchangeddiameter, singlecircle andUndoRedo. Serial17232 nowruns same7units+3UI (newcenterdrag, existingexplicitMove, diametercommit) at /tmp/os3d-qa11-center-ui-20260910.xcresult. No desktopoverlap; no livepostfixclaim. NativeEscape additionallyretainsselectedcenter/diameter afterdisarming; candidate labelcondition keeps thatstate.
+
+## Initial live correction and lifecycle follow-up
+
+Center UI17232 passed clean10/10 (7units+3UI). Exact-build live freshcircle
+430650→465650 noworange selectedcenter/Lock/Ø0.8649. Drag430650→490650
+movesactualcircle60px, diameterunchanged; sourcecircleaboveunchanged. Toolbar
+UndoRedo restoresgeometry but retainedselectedcenter/Circlearmed, unlike
+nativepriorcenterMoveUndo thatclearspoint/readout/disarmsCircle. No blanket
+historyparityclaim. Native directcenterLock (outerconcentric circle) clears
+control, centerturnsgreen andØ16.0041 remains; circlegeometryunchanged.
+Added scoped circlecenter historypreparation and ephemeral free-diameter
+readout afterlocalLock (not a drivingdimension). Selectionchanges/history clear
+that ephemeralreadout. Unit+UI assertions strengthened. Serial88531 owns
+simulator: /tmp/os3d-qa11-center-lifecycle-20260910.xcresult, same10checks.
+Exactnext collectresult, livehistory/Lock/unselectedconcentric/reopen; then
+publish/commit. Current source dirty5productfiles,2testfiles,docs.
+
+QA11 diagnosis publication verified705placements/all5newhashesonce/no700loss/orderedprior text. Masterlastverified38 QA10closure; QA11masterupdate followsfinal live. Serial88531 stillactive; no desktopinteraction.
+
+Lifecycle88531 finished8passed/2failed: diameter-radial Undo and explicitMove
+Undo lost theirDimensionLabel because genericselectedcirclecleanup was too
+broad. Newfresh-centerUIpassed. Narrowed cleanup to armedCircle+selectedcenter
+inUndo only; ordinary radial/transform histories retainpreviousbehavior.
+No assertion weakened. Same10checks now serial21417,
+/tmp/os3d-qa11-center-lifecycle-final-20260910.xcresult.
+Currentlastverifiedpublication705/master38; no postfixlifecycleliveclaim.
+
+## September 11 00:08 — current execution checkpoint
+
+HEAD c66039f; five product files, two test files and QA11 docs dirty; unrelated
+identity/memory untouched. Lifecycle21417 completed clean10/10. Live release
+and move retain diameter0.8649; first resumed Undo/Redo attempts mistakenly
+used app-targeted window-relative coordinates with global values, missed toolbar,
+and are excluded. Correct global Undo restored center. Unselected center then
+created outer1.4859 at430650. Selected outer-center drag incorrectly moved older
+inner circle, while selected control remained atoutercenter; exact screenshots
+final-concentric/final-concentric-move retained. Correct toolbar Undo restored
+both and cleared selection/disarmed Circle. Native LockUndo/recreateouter then
+selectedcenter drag moves BOTH connected circles. Clone Settings visibly has
+SketchGuidepoints OFF, so independent motion is not missing-constraint evidence.
+Hit target must still retain selected outer identity: scoped selected-circle
+center priority added plus exact two-circle target/UndoRedo regression.
+Serial /tmp/os3d-qa11-center-target-20260911.xcresult now owns simulator; collect
+actual result before desktop. Exact next final selectedtarget live, Lock/readout,
+matched guidepoint settings/concentric relation, galleryreopen/publication then
+commit/push. Native center now650380 withconnected9.3357/16.0041circles; clone
+settings sheet open before test reset. Last illustrated705/master38 verified;
+QA11master diagnosis paragraph insertedonce, exportpending. No IPA changes.
+
+## September11 00:16 verified correction checkpoint
+
+Center-target final clean11/11 at /tmp/os3d-qa11-center-target-20260911.xcresult;
+no runner. Exact build live freshcenter move/Undo clearscontrols/disarms; unselected
+center createsouter. Selectedouter nowmoves30,40 whileinnerstays (guidepointsoff),
+retainsØ1.4859. DirectLock clearscentercontrol, greencenter/freeØretained. Gallery
+reopen retains3circles includingolderUIfixture, inner0.8649, movedouter1.4859 and
+centerLock; rimreselectionreads1.4859. Native connectedpair movesboth; retained
+separatecomparison becausecloneGuidepointsoff. NativeLock referencepaired.
+Illustrated711/all6newhashesonce/no705imageororderedtextloss verified; master38
+QA11diagnosis verified and finalcheckpoint paragraphinsertedonce/exportpending.
+No runtimeworkers; clonecurrentouterrimselected/tooloff; nativeconnectedcircles
+center650380,Circlearmed. Exactnext commit/push verifiedcenterinputfix, then
+matchedGuidepoints/Auto-Constrain QA11 relationship and finalpairedreopen.
+Acceptanceunchanged7/0/1/48; no IPA/devicechanges.
+
+Final master export verified38, checkpointheadingonce, no priorimages/text loss.
+
+## September11 00:21 — concentric relationship correction running
+
+HEADca4663e pushed; priorcenterfixpublished711/master38verified. CloneGuidepoints
+toggleclicks failed; supported shortswitchdrag visiblyenabled it. AutoConstrainON
+and persisted pointSnaptrue verified. NewouterØ1.2419 fromoldinnercenter430650
+then drag400610 movedonlynewcircle, innerstayed. NativeAutoConstrainON captured;
+connectedpair movesboth (priorreference). Confirmed missingcreationrelationship:
+nonlineinference deliberatelypositionalonly; circleANCHOR iswell-definedcenter.
+DirtyEditorViewModel addscoincidentcenteronlyforexactacquiredexistingcirclecenter
+(distance<=1e-6), gatedAutoConstrain+pointSnap+Guidepoints, acceptedbyexisting
+conflictguard andsameDrawcommand. AddedatomiccreationUndoRedo, both-circlemove,
+offGuidepoints regressions; selectedtargettest nowrestoresits settings. Serial
+exec67561 /tmp/os3d-qa11-center-connection-20260911.xcresult owns simulator; no
+desktopinteractionsuntilcomplete. Exactnext collectresult, relevantUI/live
+connectedcenter/history/reopen, publish/committhenQA11closure. Nativeconstraint
+popupopen,Circlearmed,connectedpaircenter650380; cloneUItestreset/relaunchafter.
+No IPA/devicechanges; inventory7/0/1/48.
+
+67561 completedclean32/32. Same32+3circleUI now serial /tmp/os3d-qa11-connection-final-20260911.xcresult; no livepostfix yet.
+
+Connection diagnosis publication714 verified: all3newhashesonce, no711placementloss andpriororderedtextpreserved. Final35test run still active exec84740; no livepostfix claim.
+
+## September11 00:28 — center connection glyph blocker under regression
+
+Connection final84740 completedclean35/35. Liveupdatedclone createsrealcenter
+connection, but glyphpaintedoncenter interceptsdrag; no livemovementpass. Native
+connectionglyph sitsbelowcenterbesideLock. AddedisCircleCenterConnectionmetadata,
+plainblacklink glyph below-left32pt/down40pt (slotfanned), center/Lock unchanged.
+NewUI explicitlyenablesGuidepoints/AutoConstrain/pointSnap, createspair, asserts
+glyphnotintersectingcenter, bothcentersmove+UndoRedo. Focusedexec15825 at
+/tmp/os3d-qa11-connection-glyph-20260911.xcresult nowowns simulator (5units+newUI).
+No runner overlap. Exactnext collectresult, liveboth-centerMove/history/reopen,
+finalpublish/commit. HEADca4663e; connection+glyph+testsdirty. Prior714diagnosis
+verified; newestglyphobstructionPNGlocalonly. Nativepopupopen,pairedcircles
+center650380; cloneUIresetfixture/relaunchafter. Acceptanceunchanged,IPAunchanged.
+
+## September11 QA11 finite closure
+
+Selected/unselectedcenterinitiation, savedconnection/clearlinkcontrol, paired
+movement/history/reopen nowverified. Clean35/35 plusseparatefinal6/6; illustrated
+724/all9hashes/no715loss. Finalclone1.4852/.8645; native16.0041/9.3357. Draft
+.8708 unverifiedvaluewithdrawn/corrected. Nativepopoverblockedhistory excluded;
+cleanrepeatpassed. Inventory8/0/1/47 (36partial11deferred). Audit
+testing/sketch-parity-concentric-closure-audit-2026-09-11.md. No runner.
+Exactnext commit/pushconnection+glyphclosure, thenQA12radius/diameter modes.
+Cloneinnerselectedat460720; nativeinnerselectedat726422, bothtooloff.
+Masterclosureinsertedonce/exportverificationpending; IPAunchanged.
+
+QA11 masterclosureexportverified38, headingonce,no priorimage/textloss.
+
+## Latest actual — QA12 preference regression
+
+# QA12 circular annotation preference — September 11
+
+Baseline78c7c7c pushed, QA11closed8/0/1/47. Native PreferencesGeneralCircular
+Annotations defaultsRadiusandDiameter; AlwaysRadius switches savedinnerØ9.3357
+toR4.6679 withgeometryunchanged andradiusleader. R5typedcommit clearsselection;
+switchbackRadiusandDiameter +rimselectreadsØ10, centerunchanged. Native now
+innerØ10driven,outer16.0041, sharedcenter726422. Preference restoreddefault.
+Clone Settings has no circularannotationpreference, candidatehardcodeddiameter.
+ConfirmedDM04 gap. DirtyAppSettings enum/persistence, Settingspicker, circlelive
+Kitmodeparameter, Editorlabelconversion/prefcandidate/dedupRadiusDiameterfamily,
+existingdimensioneditadoptsdisplaykindwithsameID; untouchedconvertedseedreturns
+withoutchangingoriginalsource/history. Arc/polygonexistingradiusunchanged.
+CircleCenterInputTests addsfactor-of-two/display/noopsource/stableID/history;
+AppSettingsTestspersistence/default. InitialscriptassertionstoppedbeforeKernel
+write becausepolygonsharesdiameterstring; correctedcircle-onlyreplacement, no
+compile/testfailurefromthat. Serialexec14333 owns simulator:
+/tmp/os3d-qa12-circular-preference-20260911.xcresult. Exactnext collectresult,
+addSettingsUIflow, pairedliveAlwaysRadiuscreate/edit/switch/Undo/reopen; verify
+existingexpressionsandradiusleaderlayout. No liveclonepostfixclaim. No merge/
+deviceinstallation/IPAchanges; unrelatedidentityfilespreserved. Native/source
+reporttabsuntouched. LastpublicationQA11illustrated724/master38verified.
+
+Initial14333 passedclean18/18. AddedrealSettings->AlwaysRadius->R1edit->RadiusandDiameter->Ø2editorUI workflow, stablecenter/onebadge assertions. ExistingcircleDiameterUIincluded; same18units+2UI now serialexec24346 /tmp/os3d-qa12-preference-ui-20260911.xcresult. Nativecurrentlydefaultpreference/innerØ10selected; no newdesktopworker.
+
+## September 11 01:03 — QA12 live radius clipping follow-up
+
+Combined preference run completed clean 20/20 at
+`/tmp/os3d-qa12-preference-ui-20260911.xcresult`; no preceding failures.
+Live saved fixture reopened; Always Radius shows R1 with radius leader and
+editor seed1. Immediate rim click after Settings dismissal did not select;
+settled repeat did. Physical keyboard typing in keypad mode did not change
+value; Return retained R1, excluded as a resize attempt. Visible keypad entry
+1.5 inspected before commit and enlarged radius1→1.5 with center unchanged.
+Readout then ran behind right constraint rail (screenshot
+`/tmp/os3d-qa12-clone-radius-valid.png`, lower info shows Radius1.50).
+Radius leader now reserves rail/palette space and rotated text half-width;
+strengthened Settings UI test uses R1.5→Ø3 and asserts value clear of rail.
+Serial exec25255 owns simulator: `/tmp/os3d-qa12-radius-rail-20260911.xcresult`
+(two UI workflows). No desktop until complete. HEAD78c7c7c, QA12 dirty plus
+SketchDimensionOverlay.swift. Next collect result, repeat live enlarged
+radius/readout, switch/history/native history and paired gallery reopen;
+publish postfix evidence and commit/push. Native unchanged innerØ10, center
+726422, preference Radius and Diameter. Illustrated727 native diagnosis
+verified; new clone evidence local only. Inventory8/0/1/47, IPA unchanged.
+
+Follow-up diameter case failed its Ø-prefix assertion because live Always Radius
+preference persisted into the older default-assuming fixture. Initial spoken
+setup-failure interpretation was wrong and immediately corrected; no sketch-entry
+failure. Test now explicitly chooses Radius and Diameter through Settings, with
+assertions retained. New radius-clearance case still running in25255.
+
+25255 completed1pass/1fail: enlarged radius-clearance workflow passed; older
+diameter fixture expectedØ despite persistedAlwaysRadius. Explicit UI preference
+setup added, no assertions weakened. Consolidated unit+circle+arc editor run
+exec30191 `/tmp/os3d-qa12-radius-final-20260911.xcresult` now owns simulator.
+Shared radius leader arc editor included; live postfix pending.
+
+Radius diagnosis publication export verified729 placements; both new hashes+1, no727loss, headingonce and prior ordered text preserved. Arc and explicit-mode diameter UI passed in30191; final preference/units still running.
+
+## Final relevant regression and live preference check
+
+30191 completed clean21/21 (18units+3UI), after retained1pass/1fixturefail.
+No runner. Live updated R1.5 value now fully clear of rail, keypad seed1.5
+reachable; keypad editR1 holdscenter414444global. Preference switchØ2 does
+not resize, oneUndo→Ø3,Redo→Ø2. Native priorR5edit Undo→Ø9.3357 andRedo
+restoresgeometry, followed by galleryreopenØ10 and preference/reselectR5.
+Native label refresh needed reselection after preference switch; first screenshot
+retained oldØ10 label while info already showedR5. Settled reselect correct.
+Clone galleryreopenØ2, switchR1, anothergalleryreopen retainsAlwaysRadius/R1.
+Paired numeric geometry/history and saved values pass for these samples.
+Separate confirmed lifecycle gap: native commit/Undo/Redo clears selected rim
+and readout; clone retains them during numeric-circle edit/history. Keep QA12
+partial, address next, no broad radial/explicit-transform cleanup. Current
+cloneR1selectedcenter414444, nativeR5selectedcenter706420; bothtooloff.
+Postfix screenshots local circle-annotation-modes directory, publication next.
+HEAD78c7c7c/dirtyQA12, immutableIPAunchanged, inventory8/0/1/47.
+
+Postfix illustrated export verified735 placements, all6newhashes+1/no729loss, priororderedtextpreserved andheadingonce. Master38 firstexport retains priorcontent butnewheadingnotyetpresent; insertedonce, retryexportwithoutduplicate.
+
+## September11 01:17 — circle numeric lifecycle correction under test
+
+Preference/clearance944ae3e committed and pushconfirmed. Final21/21 and paired
+saved values publishedillustrated735/all6hashes verified; master38 newnote
+firstexportmissing, retrywithoutduplicate. New dirtyEditorViewModel,
+CircleCenterInputTests, DimensionUITests implement narrowly disarmed-circle
+successfulnumericcommit cleanup and preUndo/Redo cleanup only when stack
+command adds/updates selectedcircle drivingdimension (recursescomposites).
+Free radialdrag/history andexplicittransform excluded. Unitchecks exact
+original/edited sketches andonehistoryentry; UI preservesnumericvalueassertions
+and explicitlyreselects after expectedselectionclear. Serialexec13296 owns
+simulator `/tmp/os3d-qa12-circle-numeric-lifecycle-20260911.xcresult`
+(CircleCenterInputTests+3circleUI includingexplicitMove). No livepostfixclaim.
+NativeR5selectedcenter706420, clonewillUIreset/relaunch. Exactnextcollect
+result, diagnose failureswithoutbroadcleanup, pairednumericcommit/history
+postfix+reopen; masterexportretry, publish/commit thenremainingQA12creation.
+Inventory8/0/1/47, IPAunchanged.
+
+Master retry export now verified38/headingonce/no prior media or ordered text loss; no duplicate insertion. Preference publication complete735/master38. Lifecycle13296 still running.
+
+13296 numeric-circleUI deselection assertion passed, then radius-info assertion
+failed after center (not rim) reselection; no geometryfailureclaim. Needfailure
+screenshotinspection and validrimfixture. ExplicitMove/history exclusion passed.
+PreferenceUI/units stillrunning; no repeateddesktopwork.
+
+13296 complete10pass/1fail. New exact geometry/history unit and explicitMove
+exclusion passed; numericUI info assertion aftercenterreselectionfailed.
+No automaticfailureattachments were saved (exportmanifestempty). Addedexplicit
+after-reselectiondiagnosticattachment, singlecaseexec15233 nowowns simulator
+`/tmp/os3d-qa12-circle-selection-diagnostic-20260911.xcresult`. No assertion
+weakened orgeometryclaim. Nextinspectcapture, correctactualfixture/product as
+evidencewarrants, finalrelevant/liverecheck. Master38 andillustrated735verified.
+
+15233 reproducedinfofailure; explicitcapture shows largeØ10circle with only
+centerselected, noriminfo. Geometryvisiblyenlarged; no productsizefailure.
+Fixture now computes lowerdiagonal rim from originalmeasuredØ andpixelradius,
+retainsØ10/Ø8 andR5/R4assertions andnewselectioncleanupassertions. Same11
+cases rerun serialexec28441 `/tmp/os3d-qa12-circle-numeric-final-20260911.xcresult`.
+No new productchange since13296. Diagnosticcapture copiedlocally; publication
+notyetupdatedforthisfixture. Next collect/run livecommit/history/reopen.
+
+28441 diameterUI nowpassed with originalØ10/Ø8/R5/R4assertions and rimreselection; unitsalso passed. Other2UI stillactive; nofinalcombinedclaimyet.
+
+## Numeric-circle lifecycle verified live — September11 01:34
+
+28441 finalclean11/11 (8circleunits+3UI), after retained10pass/1fail and
+single1faildiagnostic. SameØ10/Ø8/R5/R4assertions preserved; lower-rim
+reselection fixes fixture, no geometry/testthreshold weakening.
+Paired freshdisarmednumeric: nativeR5→R4 andcloneØ3→Ø2 both clearselected
+rim/readout/handle oncommit; reselect/Undo restoresprevioussize andclears;
+reselect/Redo reapplies andclears. Finalgalleryreopen retainsnativeR4 with
+AlwaysRadius andcloneØ2 withRadiusandDiameter. Centers unchanged within each
+viewport; differentnative/clone scales explicitlyretained. No runner.
+Productcleanup excludesarmedCirclecreation, freeradiusdrag andexplicitMove;
+history onlyreacts to selectedcircle Add/Update drivingdimension commands,
+recursingcomposites. Rawgeometry/Undo stack logic unchanged.
+Nextpublishpaired8images/masterverify, commit/pushlifecycle then remaining
+QA12freshAlwaysRadiuscreation/armednumeric/cancellation matrix. QA12partial,
+inventory8/0/1/47. NativeR4selectedcenter706420; cloneØ2selected414444.
+
+Lifecycleillustratedexport verified743/all8newhashes+1/no735loss, headingonce andpriororderedtextpreserved. Masterfollowupinsertedonce; exportverificationcurrenttool. No runner; commit/pushnext.
+
+Masterfollowupverified38/headingonce/no predecessor media ororderedtextloss. Lifecyclepublicationcomplete743/master38.
+
+## September11 01:43 — fresh radius construction leader under test
+
+Lifecycle5436e46 pushed; final11/11 andpairednumericcommit/history/reopen
+verified, illustrated743/master38/all8hashes verified. No IPAchange.
+ContinuingQA12AlwaysRadiuscreation: native20pxradiusfreshcircle center630720
+releasedR2.7185 withcompactcenter-to-rimleader/valueovermidpoint, centerhalo/
+Lock andCirclearmed. Clone20pxradiuscenter420700 releasesR.2475 withlong
+extension. NativearmededitR3 retainsCircle/valuewhitebluebadge anddimension
+lock butdropscenterhalo/centerLock. ClonevalidkeypadR.3commit dropscenter
+halo too, butlongplainradiuslabel persists. No newgeometryfailure.
+DirtyisCircleRadiuslabelmetadata andcompactCircle-armedradiuslayout keep
+center-to-rimtail/insidearrow/valueabove midpoint; disarmedcircle/arc keep
+rail-awareextension. NewfreshAlwaysRadiusUI assertsactualmidpointplacement
+andexpliciteditor, existingpreferenceUI+arcEditor+circleunitsincluded.
+Serialexec48328 nowowns simulator:
+`/tmp/os3d-qa12-compact-radius-20260911.xcresult`. Exactnext collectresult,
+livefreshreadout/editor/armedcommit, then selectedbadge+dimensionLock
+discrepancy/cancellation/reversecreation. NativefreshR3center630720Circle
+armed; priorpaircenter706420 innerR4. ClonefreshR.3center420700Circlearmed,
+priorcirclecenter414444Ø2. Reportnewdiagnosislocalonly. Inventory8/0/1/47.
+
+## September11 01:53 — armed radius badge and direct unlock under test
+
+Compact48328 passedclean11/11. Diagnosis747/all4hashes/no743loss verified.
+LiveupdatedfreshcircleR.2475 compactleader andexplicitkeypadwork; armedR.3
+commitretainscompactreadout. NativeR3selectedbadgeLock clicked directly
+(global664704): removesradiusconstraintwithoutresizing, restoresplainR3
+outwardleaderwhileCirclearmed. This narrowscompactrule to freshselected
+center ordrivingradius, notallarmedcirclelabels.
+Dirtycirclelabelmetadata/UIcompactrule refined; successfularmedradiuscommit
+setsselectedDimensionID. SelectedradiusHStack showswhite/bluebadge+separate
+44ptUnlockbutton callingexistingdeleteDimension; sourcef(x)markerretained.
+UnlockclearsselectedID andcandidate resumesoutwardleader. Unitasserts
+geometryandUndoRedo; freshUIassertsreadoutposition, editor, postcommitcenter
+clear, directUnlock/valuepreservation/outwardlabel. Serialexec18215 owns
+simulator `/tmp/os3d-qa12-armed-radius-controls-20260911.xcresult` (9units+3UI).
+Exactnextcollect, livepostfixarmedcommit/Unlock/history/cancel/reopen,
+publish/commitcompact+controls, thenremainingreverse/freecreationQA12.
+HEAD5436e46pushed; dirtyEditorViewModel,SketchDimensionOverlay,
+CircleCenterInputTests,DimensionUITests,receipt/checkpoint. NoIPAchange.
+NativeR3nowunlockedcenter630720,Circlearmed; cloneUIwillresetfixture.
+PriorNativeR4center706420 preserved. Inventory8/0/1/47.
+
+18215 completed11pass/1fail: test incorrectlyexpected CircleCenterControl
+(informational5ptmarker) absent. Nativebluecenterpointremains; liveclonealso
+retainsit, selectedcenterunitNilpassed. CorrectedUI requiresmarkerexists
+andCircleCenterLockToggleabsent; geometryassertions unchanged. Selectedbadge
+also nowpreservesexistingconflict-red styling/accessibilityidentifier. Same12
+cases serialexec27851 `/tmp/os3d-qa12-armed-radius-final-20260911.xcresult`
+nowowns simulator. No livefinalcontrolsclaimyet; first11/12retained.
+
+## September 11 02:06 — armed radius live control and history follow-up
+
+27851 completed clean12/12, no failures/skips. Exact-build live fresh R0.2475
+compact leader opens editor; R0.3 commit shows selected white/blue badge and
+dimension Unlock, without selected-center Lock. Direct Unlock retains geometry
+and R0.3, restoring the plain outward leader, matching native R3 sample.
+Native direct-Unlock Undo and Redo clear selection and disarm Circle. Clone
+Undo restored compact radius but retained Circle/selection: confirmed separate
+lifecycle gap. Narrow RemoveSketchDimensionCommand radius/selected-circle
+Undo cleanup implemented; geometry and cleared/disarmed unit assertions added.
+Serial exec94018 owns simulator, result
+`/tmp/os3d-qa12-radius-unlock-history-20260911.xcresult`. No live postfix claim.
+Latest7 screenshots copied to circle-annotation-modes local report. Publication
+remains747/master38; new final controls/history evidence not inserted yet.
+HEAD5436e46; current compact/badge/Unlock/history work uncommitted. Inventory
+8passed/0failed/1deviceblocked/47incomplete. IPA unchanged. Exact next collect
+94018, live corrected Unlock Undo/Redo and saved reopen, publish verified images,
+commit/push then remaining QA12 cancellation/reverse creation.
+
+## September 11 02:10 — armed radius controls verified
+
+94018 completed clean10/10. Final live R0.3 Unlock Undo/Redo both clear readout
+and disarm Circle while preserving geometry, matching native R3 reference.
+Gallery reopen retains nativeR3/cloneR0.3. Illustrated export
+`/tmp/os3d-qa12-armed-controls-final.docx` verified756 placements, allnine
+newhashes+1, no747predecessorimage loss, allorderedprior text preserved. Master
+`/tmp/os3d-qa12-armed-controls-master.docx`38media/headingonce verified.
+No runner active. NativeFrontfreshR3selectedafterreopen; cloneTopR.3selected
+afterreopen. Exactnext commit/push compact radius/badge/Unlock/history correction,
+then paired reverse creation and armed cancellation; QA12 remains partial.
+
+## September 11 02:16 — reverse radius direction under regression
+
+08fe2f6 pushed; priorcontrols publication756/master38 verified. New paired
+reverse20pxdrag: native930740→910740 releasesR2.8482 withleftleader, clone
+530740→510740 releasesR.2473 withrightleader. NativeR3numericcommit, Escape,
+rimreselection andgalleryreopen retainleftcompactleader. Escape disarmsbut
+keepsselectedbadge; thatseparateclonecancellationstate remainsuncompared.
+Dirtypresentationmetadata circleRadiusDirections onSketch recordsAlwaysRadius
+creationunitdirection inAddSketchEntityCommand; Undo removesit,Redoreadds;
+legacydecode defaults empty. Label usesstoredunitdirection/currentradius;
+drivinglabelretainscompactformafterdisarm. No solverreferencesorconstraints.
+Newunit reverse/vertical/diagonal sizing,history,decode/legacycoverage. Serial
+exec84663 owns simulator result`/tmp/os3d-qa12-radius-direction-20260911.xcresult`.
+Exactnext collect, fixfailures, live reversepostfix/edit/history/reopen, finish
+armedcancellationcomparison, publish/commit. NativeFront60edges/allselected
+aftergalleryreopen, reverseR3near929714; clonetestresetexpected. NoIPAchange.
+Inventory8/0/1/47. Newdiagnosisimages copied locally, notpublishedyet.
+
+## September 11 02:24 — direction passes, Circle Escape confirmed missing
+
+61407 passedclean11/11. Updatedlive leftwardR.2473release andR.3numericcommit
+retainleftleader. TwoPeekabooEscapeattempts leaveCirclearmed. Sourceinspection
+confirmsCircle has no cancelActionregistration, whileLine/Rect/Arcdo. Native
+Escape disarmsretainingselectedR3badge. AddedcancelCircleInputnohistorymethod,
+CirclecancelAction andselectedradiusbadgeoutsidearmedmode (stillnoTransform).
+Newunit exactselection/geometry/history; UI usesrealEscapeandrequirestool-off
+promptbeforeUnlock. Serial95518 owns simulator
+`/tmp/os3d-qa12-circle-escape-20260911.xcresult`. Exactnextcollect/liveEscape,
+reversehistory/reopen/publication. Prior directioninitial10/11retained. NoIPAchange.
+
+## September 11 08:41 — QA-18 midpoint routing verified; face corner next
+
+Current HEAD `898128c` is pushed. Dirty task changes are the
+`SketchConstraintOverlay` ordinary-glyph hit-test correction, the midpoint UI
+workflow, its radial-label-aware rectangle-corner fixture, and this receipt/
+checkpoint. Untracked identity and memory files are unrelated and remain
+excluded. No runner owns the simulator.
+
+The initial `/tmp/os3d-qa18-midpoint-20260911.xcresult` failed 0/2 only because
+both fixtures assumed diameter labels while the saved Always Radius preference
+correctly produced radius labels; it is retained and not classified as a
+product failure. The corrected
+`/tmp/os3d-qa18-midpoint-radial-aware-20260911.xcresult` is clean 2/2.
+Exact-build live clone Circle-through-H-midpoint, Undo removing only the
+circle, Redo, and gallery reopen pass. Native release and menu Undo/Redo show
+the same geometry lifecycle. Eight exact-hash PNGs are stored in the local
+`drawing-on-points` report. Publication and commit/push are next, followed by
+the paired face-corner recipe. QA-18 remains partial; inventory stays
+10 passed / 0 failed / 1 device-blocked / 45 incomplete. The immutable IPA is
+unchanged.
+
+Publication is now export-verified: illustrated 779 placements, all seven new
+hashes exactly once, no loss from the 772-image predecessor; master remains 38
+media with one midpoint note. Commit/push remains the immediate next action,
+then paired face-corner placement. No runner is active.
+
+## September 11 09:18 — QA-18 finite recipe closed
+
+Pushed product commit `b19c041` supplies the constraint-glyph input-routing
+correction. Paired top-face-corner Circle release and geometry-specific
+Undo/Redo now supplement the previously verified endpoint, circle-center,
+rectangle-corner, and line-midpoint cases; clone gallery reopen retains the
+face-corner circle. Final current-tree regression is one clean 13/13 serial run.
+Illustrated publication is verified at 786 media with all seven new hashes once
+and no predecessor loss; master remains 38 media with a dated closure note.
+Inventory advances to 11/0/1/44. No runner is active; next action is the next
+finite incomplete core case. The immutable IPA and physical device remain
+untouched.
+
+## September 11 10:08 — QA-19 category control correction verified; paired threshold remains
+
+Current pushed baseline entering this work was `5d266aa`. Dirty task files are
+`SnappingSettingsSection.swift`, `SettingsUITests.swift`, this receipt, and this
+checkpoint; unrelated identity/memory files remain excluded. Snapping Hints was
+the only nonresponsive settings row across the expanded five-category workflow.
+It now exposes a real trailing switch without changing the visible order. The
+initial 20/21 and all interaction-diagnostic failures are retained. Corrected
+targeted result is 1/1; final combined result is one clean 21/21 at
+`/tmp/os3d-qa19-category-matrix-final-20260911.xcresult`.
+
+Exact-build live Hints-off and Face-Guidepoints-off controls passed. With Grid
+and Face Guidepoints both off, a top-face Circle placement remained visibly raw.
+The repeated on/off near-threshold gesture was outside the screen-space radius
+after Simulator coordinate quantization and is not claimed as comparative snap
+evidence. Native currently remains available for the required controlled 3D
+Guide Points off/on repeat. Local evidence/hashes are in the `snap-categories`
+report directory; Google Docs publication is pending. QA-19 remains partial;
+inventory stays 11 passed / 0 failed / 1 device-blocked / 44 incomplete. No test
+runner is active after the clean run. Exact next action: commit/push the verified
+control correction, complete the paired near-threshold repeat, publish, then
+advance the finite matrix. Immutable IPA unchanged.
+
+## September 11 10:22 — QA-19 native threshold input blocked; QA-13 gate running
+
+`9ae0f20` is pushed and the task tree is clean apart from unrelated untracked
+identity/memory files. The final snap-category regression remains one clean
+21/21 run. A native retry exposed and safely dismissed a transient macOS
+Automation prompt without granting permission or changing security settings.
+Shapr3D is frontmost and Circle is armed, but supported Peekaboo click, drag,
+and swipe routes still do not mutate the canvas, including at an obvious
+face-interior diagnostic point. Toolbar accessibility actions do work. The
+missing Grid-off/3D-Guide-Points off/on near-threshold pair is therefore blocked
+by native canvas input delivery, not classified as an app or parity failure.
+QA-19 remains partial and its local evidence remains unpublished.
+
+The next independent finite closure is QA-13. Its original endpoint/side,
+minor/semicircle/major, tangent transition, Return, chaining, cancellation and
+history recipe already has paired live and export-verified evidence. Pointer
+hover remains QA-21 and physical input remains QA-52. A current-tree 63-case
+arc regression is running serially at
+`/tmp/os3d-qa13-current-tree2-20260911.xcresult`; it exclusively owns the
+simulator. Exact next action: collect that result, reconcile the finite QA-13
+closure without broadening its claim, publish only if new documentation needs a
+dated note, then continue the next finite core case. Immutable IPA unchanged.
+
+## September 11 13:31 — QA-26/27 automated checkpoints complete
+
+Current pushed baseline is `89bb2f0`. Task changes implement adaptive
+Absolute/Horizontal/Vertical dimensions for a selected sloped line, add QA-26
+Always Show on-state coverage, and add deterministic model/UI workflows plus
+the two new checkpoint receipts. Final QA-27 serial gate passed clean 18/18 at
+`/tmp/os3d-qa27-dimension-final2-20260911.xcresult`; QA-26's focused baseline is
+clean 16/16. Two combined-run QA-27 assertion failures are retained as fixture
+corrections: Undo exposes the selected line's absolute undriven candidate.
+
+No runner owns the simulator. Fresh paired live comparison and Google Docs
+publication remain blocked because foreground Peekaboo events resolve to the
+Simulator window but do not mutate the app after scoped bridge/simulator
+recovery. Inventory remains 13/0/1/42. Exact next action: inspect and commit the
+safe task diff, then continue the next independent finite acceptance case while
+retaining QA-24/25/26/27 live/publication gates. Immutable IPA unchanged.
+
+## September 11 13:43 — QA-30 serial sequence checkpoint
+
+Current pushed HEAD is `6dca210`. The only task change is a new edge-positioned
+rectangle UI workflow plus QA-30 documentation. Its initial target failed only
+because square touch frames do not identify dimension orientation; the corrected
+target passed. A four-workflow run then passed but used parallel simulator clones,
+so it was not counted as the final gate. The one-owner rerun with parallel testing
+disabled passed clean 4/4 at
+`/tmp/os3d-qa30-sequence-serial-20260911.xcresult`.
+
+No runner owns the simulator. QA-30 remains partial pending fresh exact-build
+paired live repetition and publication; inventory stays 13/0/1/42. Exact next
+action: checkpoint the test/docs, then continue the next finite core case that
+does not depend on blocked live canvas input. Immutable IPA unchanged.
+
+## September 11 13:50 — QA-34 finite closure ready
+
+Current pushed HEAD is `526e015`. The only product-tree change since that commit
+is a corrected UI fixture: successful circle numeric commit intentionally clears
+selection, so the test now records a safe rim target, requires cleanup, and
+reselects before exercising Unlock. The first combined run passed radial model
+checks but retained the stale fixture failure; the first correction also assumed
+a generic center marker absent in this state. Final one-owner serial gate is
+clean 29/29 at `/tmp/os3d-qa34-locked-values-final-20260911.xcresult`.
+
+Retained paired evidence supplies driven refusal, direct Unlock, free resize,
+Undo/Redo and saved reopen. QA-34 is therefore closed only for its original
+finite desktop recipe; broader constraint/transform/device cases remain open.
+Inventory advances to 14/0/1/41. No runner owns the simulator. Exact next action:
+commit/push this bounded closure, then continue the next finite incomplete case.
+Immutable IPA unchanged.
+
+## September 11 13:57 — QA-35 finite closure ready
+
+Current pushed HEAD is `18be00f`. The QA-35 initial combined run passed both rail
+UI workflows but found three saved-annotation fixtures inheriting persisted
+Always Show state. Those fixtures now save/set/restore the prerequisite. The
+corrected one-owner run is clean 30/30 at
+`/tmp/os3d-qa35-constraint-rail-corrected-20260911.xcresult`: 28 model cases and
+2 portrait/landscape rail workflows.
+
+Retained paired contextual Lock/Unlock, history and reopen evidence closes the
+finite rail recipe; constraint solve/conflict breadth remains QA-36/39. Inventory
+advances to 15/0/1/40. No runner owns the simulator. Exact next action: commit
+and push the fixture/closure docs, then start QA-36's finite constraint-type
+matrix. Immutable IPA unchanged.
+
+## September 11 14:01 — QA-36 automated matrix complete
+
+Current pushed HEAD is `5d31097`. A new 11-relation application matrix directly
+verifies enablement, stored relation, structural residual, Undo/Redo and JSON
+round-trip. The first attempt was compile-only due an unqualified nested selection
+type; corrected target passed. Final one-owner gate is clean 64/64 at
+`/tmp/os3d-qa36-constraint-types-final-20260911.xcresult` across application,
+inference, persistence and portrait/landscape rail suites.
+
+QA-36 remains partial because paired Equal Length/Equal Radius/Symmetric and a
+fresh all-type live sweep are still open and simulator input delivery is blocked.
+Inventory remains 15/0/1/40. No runner owns the simulator. All task changes are
+the test and checkpoint docs; exact next action is commit/push, then continue
+QA-37 selection-anchor coverage independently. Immutable IPA unchanged.

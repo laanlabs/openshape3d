@@ -81,4 +81,55 @@ final class DragSolveBridgeTests: XCTestCase {
         // The editor refuses the drag on a zero-DOF sketch (spring back), so the
         // solved geometry equals the untouched input.
     }
+    func testOffAxisDragUsesRemainingFreedomWithOppositeEndpointLocked() {
+        for vertical in [false, true] {
+            let id = UUID(), unrelated = UUID()
+            let end = vertical ? SIMD2<Double>(0, 10) : SIMD2<Double>(10, 0)
+            var sketch = Sketch(plane: .ground, entities: [
+                .line(id: id, a: .zero, b: end),
+                .circle(id: unrelated, center: SIMD2(30, 20), radius: 2)
+            ])
+            sketch.constraints = [
+                SketchConstraint(kind: vertical ? .vertical : .horizontal,
+                                 refs: [ConstraintRef(entityID: id, role: .whole)]),
+                SketchConstraint(kind: .fixed,
+                                 refs: [ConstraintRef(entityID: id, role: .endpointA)])
+            ]
+            let target = vertical ? SIMD2<Double>(3, 14) : SIMD2<Double>(14, 3)
+            let out = SketchSolverBridge.solveOutcome(sketch, movingEntity: id, dragTarget: target)
+            XCTAssertLessThan(out.structuralResidual, 1e-6)
+            guard case let .line(_, a, b) = out.entities[0] else { return XCTFail() }
+            XCTAssertEqual(a.x, 0, accuracy: 1e-6)
+            XCTAssertEqual(a.y, 0, accuracy: 1e-6)
+            XCTAssertEqual(b.x, vertical ? 0 : 14, accuracy: 1e-4)
+            XCTAssertEqual(b.y, vertical ? 14 : 0, accuracy: 1e-4)
+            XCTAssertEqual(out.entities[1], sketch.entities[1], "Unrelated geometry must not move")
+        }
+    }
+
+    func testOffAxisDragDoesNotRelaxDrivingLengthOrHideStructuralConflict() {
+        let id = UUID()
+        var sketch = Sketch(plane: .ground, entities: [
+            .line(id: id, a: .zero, b: SIMD2(10, 0))
+        ])
+        sketch.constraints = [
+            SketchConstraint(kind: .horizontal, refs: [ConstraintRef(entityID: id, role: .whole)]),
+            SketchConstraint(kind: .fixed, refs: [ConstraintRef(entityID: id, role: .endpointA)])
+        ]
+        let refs = [ConstraintRef(entityID: id, role: .endpointA),
+                    ConstraintRef(entityID: id, role: .endpointB)]
+        sketch.dimensions = [SketchDimension(kind: .distance, refs: refs, value: 10)]
+        let rigid = SketchSolverBridge.solveOutcome(sketch, movingEntity: id, dragTarget: SIMD2(14, 3))
+        XCTAssertLessThan(rigid.structuralResidual, 1e-6)
+        XCTAssertEqual(rigid.dof, 0)
+        guard case let .line(_, a, b) = rigid.entities[0] else { return XCTFail() }
+        XCTAssertEqual(a.x, 0, accuracy: 1e-6)
+        XCTAssertEqual(a.y, 0, accuracy: 1e-6)
+        XCTAssertEqual(b.x, 10, accuracy: 1e-4)
+        XCTAssertEqual(b.y, 0, accuracy: 1e-4)
+        sketch.dimensions.append(SketchDimension(kind: .distance, refs: refs, value: 20))
+        let conflict = SketchSolverBridge.solveOutcome(sketch, movingEntity: id, dragTarget: SIMD2(14, 3))
+        XCTAssertGreaterThan(conflict.structuralResidual, 1, "Contradictory saved dimensions remain a conflict")
+    }
+
 }

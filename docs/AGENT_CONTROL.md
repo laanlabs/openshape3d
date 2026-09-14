@@ -104,7 +104,7 @@ detect as a timeout.
 
 ### `GET /v1/commands`
 
-Exactly what Command Search offers — the 37 commands that reach the editor, not
+Exactly what Command Search offers — the 38 commands that reach the editor, not
 the wider ~60-entry catalog. An agent handed the full catalog wastes turns on
 ids that cannot run.
 

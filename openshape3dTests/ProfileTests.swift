@@ -101,6 +101,139 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(profiles[0].area, 9, accuracy: 1e-9)
     }
 
+    func testDuplicateStraightBoundaryKeepsProfileAndOriginalEdgeIdentity() throws {
+        let a = SIMD2<Double>(0, 0), b = SIMD2<Double>(3, 0)
+        let c = SIMD2<Double>(3, 2), d = SIMD2<Double>(0, 2)
+        let original = UUID(), duplicate = UUID()
+        let boundary: [SketchEntity] = [
+            .line(id: original, a: a, b: b),
+            .line(id: UUID(), a: b, b: c),
+            .line(id: UUID(), a: c, b: d),
+            .line(id: UUID(), a: d, b: a)
+        ]
+        for reversed in [false, true] {
+            let sketch = makeSketch(boundary + [
+                .line(id: duplicate, a: reversed ? b : a, b: reversed ? a : b)
+            ])
+            let profiles = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(profiles.count, 1)
+            let profile = try XCTUnwrap(profiles.first)
+            XCTAssertEqual(profile.area, 6, accuracy: 1e-9)
+            XCTAssertTrue(profile.contains(SIMD2(1, 1)))
+            XCTAssertTrue(profile.edgeEntityIDs.contains(original))
+            XCTAssertFalse(profile.edgeEntityIDs.contains(duplicate))
+            XCTAssertEqual(sketch.entities.count, 5, "Detection must not delete editable duplicate entities")
+        }
+    }
+
+    func testDuplicatedDividerStillSeparatesAdjacentProfiles() {
+        let a = SIMD2<Double>(0, 0), b = SIMD2<Double>(2, 0)
+        let c = SIMD2<Double>(2, 2), d = SIMD2<Double>(0, 2)
+        let e = SIMD2<Double>(4, 0), f = SIMD2<Double>(4, 2)
+        let sketch = makeSketch([
+            .line(id: UUID(), a: a, b: b), .line(id: UUID(), a: b, b: c),
+            .line(id: UUID(), a: c, b: d), .line(id: UUID(), a: d, b: a),
+            .line(id: UUID(), a: b, b: e), .line(id: UUID(), a: e, b: f),
+            .line(id: UUID(), a: f, b: c), .line(id: UUID(), a: c, b: b)
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 8, accuracy: 1e-9)
+    }
+
+    func testPointTouchLoopsRemainIndependentRegions() {
+        let loops: [[SIMD2<Double>]] = [
+            [SIMD2(0, 0), SIMD2(2, 0), SIMD2(2, 2), SIMD2(0, 2)],
+            [SIMD2(2, 2), SIMD2(3, 2), SIMD2(3, 3), SIMD2(2, 3)]
+        ]
+        let sketch = makeSketch(loops.flatMap { points in
+            points.indices.map { i in
+                SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+            }
+        })
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 5, accuracy: 1e-9)
+        for point in [SIMD2<Double>(1, 1), SIMD2<Double>(2.5, 2.5)] {
+            XCTAssertEqual(profiles.filter { $0.contains(point) }.count, 1)
+        }
+    }
+
+    func testPartialStraightBoundaryOverlapKeepsRegion() throws {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(3, 0), SIMD2(3, 2), SIMD2(0, 2)]
+        let boundary = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        for endX in [2.0, 3.0] {
+            for reversed in [false, true] {
+                let a = SIMD2<Double>(1, 0), b = SIMD2<Double>(endX, 0)
+                let sketch = makeSketch(boundary + [.line(id: UUID(), a: reversed ? b : a, b: reversed ? a : b)])
+                let profiles = ProfileDetector.detectProfiles(in: sketch)
+                XCTAssertEqual(profiles.count, 1)
+                let profile = try XCTUnwrap(profiles.first)
+                XCTAssertEqual(profile.area, 6, accuracy: 1e-9)
+                XCTAssertTrue(profile.contains(SIMD2(1.5, 1)))
+                XCTAssertEqual(sketch.entities.count, 5)
+            }
+        }
+    }
+
+    func testCrossedStraightOutlineExposesTwoTriangularRegions() {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(4, 3), SIMD2(0, 3), SIMD2(4, 0)]
+        let entities = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        let sketch = makeSketch(entities)
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 6, accuracy: 1e-9)
+        for point in [SIMD2<Double>(2, 0.5), SIMD2<Double>(2, 2.5)] {
+            XCTAssertEqual(profiles.filter { $0.contains(point) }.count, 1)
+        }
+        XCTAssertEqual(sketch.entities.count, 4, "Intersection nodes belong to the temporary graph, not the editable sketch")
+        XCTAssertTrue(profiles.allSatisfy { $0.sourceEntityIDs.isSubset(of: Set(entities.map(\.id))) })
+    }
+
+    func testUnsplitStraightDividerCreatesTwoRegionsWithoutChangingSketch() {
+        let points: [SIMD2<Double>] = [SIMD2(0, 0), SIMD2(4, 0), SIMD2(4, 2), SIMD2(0, 2)]
+        var entities = points.indices.map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % points.count])
+        }
+        entities.append(.line(id: UUID(), a: SIMD2(1, 0), b: SIMD2(1, 2)))
+        let sketch = makeSketch(entities)
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.map(\.area).reduce(0, +), 8, accuracy: 1e-9)
+        XCTAssertEqual(sketch.entities.count, 5)
+        XCTAssertEqual(profiles.filter { $0.contains(SIMD2(0.5, 1)) }.count, 1)
+        XCTAssertEqual(profiles.filter { $0.contains(SIMD2(2, 1)) }.count, 1)
+    }
+
+    func testSavedNearlyCollinearOverlapKeepsBothTouchingRegions() {
+        // Live saved sketch after further constrained drawing: the partial
+        // top-edge overlap differs by roughly 4e-14 mm, not a visible gap.
+        let entities: [SketchEntity] = [
+            .line(id: UUID(), a: SIMD2(-2.373746275901889, 3.673585865586188), b: SIMD2(-1.6294044916705066, 3.673585865586189)),
+            .line(id: UUID(), a: SIMD2(-1.6294044916705066, 3.673585865586189), b: SIMD2(-1.629404491670507, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-1.629404491670507, 2.9292402267455695), b: SIMD2(-2.3737462759017, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-2.3737462759017, 2.9292402267455695), b: SIMD2(-2.373746275901889, 3.673585865586188)),
+            .line(id: UUID(), a: SIMD2(-1.629404491670507, 2.9292402267455695), b: SIMD2(-1.1331766843795776, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-1.1331766843795776, 2.9292402267455695), b: SIMD2(-1.1331766843795776, 2.436713218688899)),
+            .line(id: UUID(), a: SIMD2(-1.1331766843795776, 2.436713218688899), b: SIMD2(-1.6294044916704575, 2.436713218688899)),
+            .line(id: UUID(), a: SIMD2(-1.6294044916704575, 2.436713218688899), b: SIMD2(-1.629404491670507, 2.9292402267455695)),
+            .line(id: UUID(), a: SIMD2(-2.1276707562923103, 3.673585865586149), b: SIMD2(-1.6294044916705066, 3.673585865586189))
+        ]
+        for ordered in [entities, Array(entities.reversed())] {
+            let sketch = makeSketch(ordered)
+            let profiles = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(profiles.count, 2)
+            XCTAssertEqual(profiles.filter { $0.contains(SIMD2(-2, 3.3)) }.count, 1)
+            XCTAssertEqual(profiles.filter { $0.contains(SIMD2(-1.4, 2.7)) }.count, 1)
+            XCTAssertEqual(sketch.entities.count, 9)
+        }
+    }
+
+
     // MARK: - Detection
 
 

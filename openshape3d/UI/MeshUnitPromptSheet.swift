@@ -31,6 +31,14 @@ struct MeshUnitPromptSheet: View {
                     LabeledContent("Contents",
                                    value: "\(probe.parts.count) part\(probe.parts.count == 1 ? "" : "s"), "
                                         + "\(probe.triangleCount.formatted()) triangles")
+                    // Up here with the file facts so the consequence of the
+                    // choice stays in view: a form sheet shows the five unit
+                    // rows and nothing below them without scrolling.
+                    LabeledContent("Imported size") {
+                        Text(probe.sizeDescription(for: unit))
+                            .monospacedDigit()
+                            .accessibilityIdentifier("MeshUnitResult")
+                    }
                 } footer: {
                     Text(probe.unitNote)
                 }
@@ -71,14 +79,6 @@ struct MeshUnitPromptSheet: View {
                             + (candidate == unit ? ", selected" : "")
                             + (candidate == probe.detectedUnit ? ", detected" : ""))
                         .accessibilityIdentifier("MeshUnitRow-\(candidate.rawValue)")
-                    }
-                }
-
-                Section {
-                    LabeledContent("Imported size") {
-                        Text(probe.sizeDescription(for: unit))
-                            .monospacedDigit()
-                            .accessibilityIdentifier("MeshUnitResult")
                     }
                 }
             }

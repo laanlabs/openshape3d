@@ -12,7 +12,7 @@ import SwiftUI
 
 // MARK: - Palette model (view-layer only; values captured at build time)
 
-private enum ToolMenu { case constrain, insert, mirror }
+private enum ToolMenu { case constrain, dimension, insert, mirror }
 
 private struct ToolItem: Identifiable {
     let id: String
@@ -58,25 +58,37 @@ private struct GroupFrameKey: PreferenceKey {
 struct ToolPaletteView: View {
     @Bindable var viewModel: EditorViewModel
 
+    private var paletteOnRight: Bool { AppSettings.shared.paletteOnRight }
+
     @State private var expandedGroupID: String?
     @State private var groupFrames: [String: CGRect] = [:]
 
     var body: some View {
         ViewThatFits(in: .vertical) {
-            paletteColumn
-            ScrollView(.vertical, showsIndicators: false) { paletteColumn }
+            paletteColumn(spacing: 12, verticalPadding: 16)
+            // Compact height (an iPhone in portrait under the extrude bar):
+            // a tighter column keeps every entry on screen — with the wide
+            // spacing the last one, Delete, scrolled off and was untappable.
+            paletteColumn(spacing: 6, verticalPadding: 10)
+            // The identifier lives on the scroll view only: on the plain
+            // column it would make the VStack one accessibility element and
+            // hide every tool button from the UI tests.
+            ScrollView(.vertical, showsIndicators: false) {
+                paletteColumn(spacing: 12, verticalPadding: 16)
+            }
+            .accessibilityIdentifier("ToolPalette")
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
         .coordinateSpace(name: "palette")
         .onPreferenceChange(GroupFrameKey.self) { groupFrames = $0 }
-        .overlay(alignment: .topLeading) { flyoutOverlay }
+        .overlay(alignment: paletteOnRight ? .topTrailing : .topLeading) { flyoutOverlay }
         // A context flip (enter/leave sketch) closes any open flyout.
         .onChange(of: viewModel.mode.isSketching) { _, _ in expandedGroupID = nil }
     }
 
-    private var paletteColumn: some View {
-        VStack(spacing: 12) {
+    private func paletteColumn(spacing: CGFloat, verticalPadding: CGFloat) -> some View {
+        VStack(spacing: spacing) {
             ForEach(entries) { entry in
                 switch entry {
                 case .item(let item): toolView(item)
@@ -84,7 +96,7 @@ struct ToolPaletteView: View {
                 }
             }
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, verticalPadding)
         .padding(.horizontal, 10)
     }
 
@@ -205,7 +217,8 @@ struct ToolPaletteView: View {
             ToolItem(id: "Dimension", label: "Dimension", icon: "ruler",
                      enabled: viewModel.canDimensionSelection,
                      accessibilityID: "DimensionButton",
-                     run: { viewModel.beginDimensionForSelection() }),
+                     run: { viewModel.beginDimensionForSelection() },
+                     menu: viewModel.dimensionKindChoices.count > 1 ? .dimension : nil),
         ])
     }
 
@@ -225,7 +238,7 @@ struct ToolPaletteView: View {
 
     private var drawItems: [ToolItem] {
         [sketchTool("Line", "line.diagonal", .line),
-         sketchTool("Rect", "rectangle", .rect),
+         sketchTool("Rectangle", "rectangle", .rect),
          sketchTool("Circle", "circle", .circle),
          sketchTool("Arc", "point.topleft.down.to.point.bottomright.curvepath", .arc),
          sketchTool("Ellipse", "oval", .ellipse),
@@ -286,6 +299,7 @@ struct ToolPaletteView: View {
         // Tapping the active tool deselects it (same toggle as CreateTool):
         // with no tool armed, empty-space drags orbit the sketch view.
         return ToolItem(id: label, label: label, icon: icon, active: active,
+                        accessibilityID: tool == .rect ? "Rect" : nil,
                         run: {
                             if active {
                                 viewModel.deselectSketchTool()
@@ -366,7 +380,7 @@ struct ToolPaletteView: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
             .shadow(color: .black.opacity(0.18), radius: 8, y: 2)
             .fixedSize()
-            .offset(x: frame.maxX + 10, y: frame.minY)
+            .offset(x: paletteOnRight ? -(frame.width + 10) : frame.maxX + 10, y: frame.minY)
             .transition(.move(edge: .leading).combined(with: .opacity))
         }
     }
@@ -377,6 +391,7 @@ struct ToolPaletteView: View {
     private func toolView(_ item: ToolItem, inFlyout: Bool = false) -> some View {
         switch item.menu {
         case .constrain: constraintsMenu
+        case .dimension: dimensionMenu
         case .insert: insertSymbolMenu
         case .mirror: mirrorMenu
         case nil: actionButton(item, inFlyout: inFlyout)
@@ -406,6 +421,32 @@ struct ToolPaletteView: View {
     }
 
     // MARK: - Menu-backed tools (kept bespoke)
+
+    private var dimensionMenu: some View {
+        Menu {
+            ForEach(viewModel.dimensionKindChoices, id: \.rawValue) { kind in
+                Button(dimensionKindTitle(kind)) {
+                    viewModel.beginDimensionForSelection(kind: kind)
+                    expandedGroupID = nil
+                }
+                .accessibilityIdentifier("DimensionKind-" + kind.rawValue)
+            }
+        } label: {
+            paletteIcon("ruler", label: "Dimension")
+                .foregroundStyle(Color.primary)
+        }
+        .disabled(!viewModel.canDimensionSelection)
+        .accessibilityIdentifier("DimensionButton")
+    }
+
+    private func dimensionKindTitle(_ kind: DimensionKind) -> String {
+        switch kind {
+        case .distance: "Absolute"
+        case .horizontal: "Horizontal"
+        case .vertical: "Vertical"
+        default: EditorViewModel.dimensionTitle(.init(kind: kind, refs: [], value: 0))
+        }
+    }
 
     private var mirrorMenu: some View {
         Menu {

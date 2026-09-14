@@ -161,6 +161,9 @@ struct ProjectGalleryView: View {
                 Text(importErrorMessage ?? "")
             }
             .navigationDestination(for: PersistentIdentifier.self) { id in
+                #if DEBUG
+                let _ = OpenTiming.reset("destination requested")
+                #endif
                 if let project = modelContext.model(for: id) as? Project {
                     EditorView(project: project)
                 }

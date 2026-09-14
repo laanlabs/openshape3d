@@ -61,6 +61,30 @@ final class ProjectMergeTests: XCTestCase {
             naming: SignatureNaming(), nextRevision: RevisionSource().next)
     }
 
+    func testCircleTangencyBranchSurvivesArchiveAndImportWithLegacyExternalDefault() throws {
+        for branch: CircleTangency? in [nil, .externalContact, .internalContact] {
+            let internalContact = branch == .internalContact
+            let a = SketchEntity.circle(id: UUID(), center: .zero, radius: 1.0)
+            let b = SketchEntity.circle(id: UUID(), center: SIMD2(internalContact ? 0.7 : 1.3, 0), radius: 0.3)
+            let constraint = SketchConstraint(kind: .tangent, refs: [
+                .init(entityID: a.id, role: .whole), .init(entityID: b.id, role: .whole)],
+                circleTangency: branch)
+            var guest = DesignDocument()
+            guest.sketches = [Sketch(plane: .ground, entities: [a, b], constraints: [constraint])]
+            let restored = try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(guest.sketches[0]))
+            XCTAssertEqual(restored.constraints[0].circleTangency, branch)
+            XCTAssertLessThan(SketchSolverBridge.residualNorm(restored), 1e-8)
+            guest.sketches = [restored]
+            let imported = ProjectMergeKit.insert(guest, into: DesignDocument()).document
+            let sketch = try XCTUnwrap(imported.sketches.first)
+            XCTAssertEqual(sketch.constraints[0].circleTangency, branch)
+            XCTAssertNotEqual(sketch.constraints[0].id, constraint.id)
+            XCTAssertTrue(Set(sketch.constraints[0].refs.map(\.entityID)).isDisjoint(with: [a.id, b.id]))
+            XCTAssertEqual(Set(sketch.constraints[0].refs.map(\.entityID)), Set(sketch.entities.map(\.id)))
+            XCTAssertLessThan(SketchSolverBridge.residualNorm(sketch), 1e-8)
+        }
+    }
+
     // MARK: History arrives intact
 
     func testInsertedStepsAppearIndividuallyInHistory() {
@@ -189,6 +213,83 @@ final class ProjectMergeTests: XCTestCase {
         let newLine = merged.sketches[0].entities[0].id
         XCTAssertEqual(merged.sketches[0].constraints[0].refs[0].entityID, newLine,
                        "a constraint pointing at the OLD id would be dead on arrival")
+    }
+
+    func testInsertedLineDistanceTypeUsesNewEntityIdentity() throws {
+        let id = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.line(id: id, a: .zero, b: SIMD2(30, 40))],
+            lineDimensionKinds: [id: .vertical])]
+        let inserted = try XCTUnwrap(ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches.first)
+        let newID = try XCTUnwrap(inserted.entities.first?.id)
+        XCTAssertNotEqual(newID, id)
+        XCTAssertEqual(inserted.lineDimensionKinds, [newID: .vertical])
+    }
+
+    func testInsertedRotatedRectangleRetainsRemappedCenterIdentity() throws {
+        let id = UUID(), ids = [id, UUID(), UUID(), UUID()]
+        var original = Sketch(plane: .ground, entities: [.rect(id: id, min: .zero, max: SIMD2(4, 2))])
+        original.rectangleSizingAnchors[id] = .center
+        original.constraints = [.init(kind: .fixed, refs: [.init(entityID: id, role: .center)])]
+        var guest = DesignDocument()
+        guest.sketches = [try XCTUnwrap(RectangleConstruction.prepareCenterRotation(original, id: id, edgeIDs: ids))]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        let newIDs = inserted.entities.map(\.id)
+        XCTAssertTrue(Set(newIDs).isDisjoint(with: ids))
+        XCTAssertEqual(inserted.rotatedRectangleEdges[newIDs[0]], newIDs)
+        XCTAssertEqual(inserted.constraints[0].refs[0].entityID, newIDs[0])
+        XCTAssertNotNil(RectangleConstruction.centerDiagonalReferences(newIDs[0], in: inserted))
+        XCTAssertEqual(try JSONDecoder().decode(Sketch.self, from: JSONEncoder().encode(inserted)), inserted)
+    }
+
+    func testInsertedDimensionRetainsScalarExpressionAndRemapsReferences() {
+        let line = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.line(id: line, a: .zero, b: SIMD2(15, 0))],
+            dimensions: [SketchDimension(kind: .distance,
+                refs: [ConstraintRef(entityID: line, role: .endpointA),
+                       ConstraintRef(entityID: line, role: .endpointB)],
+                value: 15, displayExpression: "(10+5) mm")])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        XCTAssertEqual(inserted.dimensions[0].displayExpression, "(10+5) mm")
+        XCTAssertNil(inserted.dimensions[0].formula)
+        XCTAssertNotEqual(inserted.entities[0].id, line)
+        XCTAssertTrue(inserted.dimensions[0].refs.allSatisfy { $0.entityID == inserted.entities[0].id })
+    }
+
+    func testInsertedDisconnectedEndpointDoesNotReweld() throws {
+        let a = UUID(), b = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground, entities: [
+            .line(id: a, a: SIMD2(0, 0), b: SIMD2(10, 0)),
+            .line(id: b, a: SIMD2(10, 0), b: SIMD2(10, 5))],
+            disconnectedEndpoints: [.init(entityID: a, role: .endpointB)])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        XCTAssertEqual(inserted.disconnectedEndpoints,
+                       [.init(entityID: inserted.entities[0].id, role: .endpointB)])
+        XCTAssertTrue(inserted.validateConstraintRefs())
+        XCTAssertEqual(SketchSolverBridge.solve(inserted, movingEntity: nil, dragTarget: nil).dof, 8)
+    }
+
+    func testInsertedRectangleSideLockKeepsItsScope() throws {
+        let id = UUID()
+        var guest = DesignDocument()
+        guest.sketches = [Sketch(plane: .ground,
+            entities: [.rect(id: id, min: SIMD2(0, 0), max: SIMD2(10, 6))],
+            constraints: [.init(kind: .fixed, refs: [.init(entityID: id, role: .whole, rectangleEdge: 1)])])]
+        let inserted = ProjectMergeKit.insert(guest, into: DesignDocument()).document.sketches[0]
+        let newID = inserted.entities[0].id
+        XCTAssertNotEqual(newID, id)
+        XCTAssertEqual(inserted.constraints[0].refs[0].entityID, newID)
+        XCTAssertEqual(inserted.constraints[0].refs[0].rectangleEdge, 1)
+        let moved = try XCTUnwrap(SketchSolverBridge.solveAxisRectangleEdge(inserted, id: newID, edge: 3, delta: 2))
+        guard case let .rect(_, lo, hi) = moved[0] else { return XCTFail() }
+        XCTAssertEqual(lo.x, -2, accuracy: 1e-5)
+        XCTAssertEqual(hi.x, 10, accuracy: 1e-5)
+        XCTAssertEqual(lo.y, 0, accuracy: 1e-5)
+        XCTAssertEqual(hi.y, 6, accuracy: 1e-5)
     }
 
     // MARK: Variables

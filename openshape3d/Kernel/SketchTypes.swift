@@ -178,6 +178,53 @@ nonisolated extension SketchEntity {
     }
 }
 
+/// Creation intent, not a permanent geometry lock. Corner names refer to the
+/// current normalized bounds, so translating a rectangle cannot stale its anchor.
+nonisolated enum RectangleSizingAnchor: String, Codable, Equatable, Sendable {
+    case center, minMin, minMax, maxMin, maxMax
+    // Center sizing remains center-preserving. These variants only retain the
+    // creation-direction corner for default dimension leader placement.
+    case centerMinMin, centerMinMax, centerMaxMin, centerMaxMax
+
+    static func centered(from center: SIMD2<Double>, to corner: SIMD2<Double>) -> Self {
+        switch diagonal(first: center, min: SIMD2(min(center.x, corner.x), min(center.y, corner.y))) {
+        case .minMin: .centerMinMin
+        case .minMax: .centerMinMax
+        case .maxMin: .centerMaxMin
+        default: .centerMaxMax
+        }
+    }
+
+    // Center rectangles put width opposite the vertical drag direction and
+    // height toward the horizontal drag direction; diagonal creation differs.
+    var annotationCornerUsesMax: (x: Bool, y: Bool)? {
+        switch self {
+        case .centerMinMin: (false, false)
+        case .centerMinMax: (true, false)
+        case .centerMaxMin: (false, true)
+        case .centerMaxMax: (true, true)
+        default: cornerUsesMax
+        }
+    }
+
+    static func diagonal(first: SIMD2<Double>, min: SIMD2<Double>) -> Self {
+        if first.x <= min.x + 1e-9 {
+            return first.y <= min.y + 1e-9 ? .minMin : .minMax
+        }
+        return first.y <= min.y + 1e-9 ? .maxMin : .maxMax
+    }
+
+    var cornerUsesMax: (x: Bool, y: Bool)? {
+        switch self {
+        case .center, .centerMinMin, .centerMinMax, .centerMaxMin, .centerMaxMax: nil
+        case .minMin: (false, false)
+        case .minMax: (false, true)
+        case .maxMin: (true, false)
+        case .maxMax: (true, true)
+        }
+    }
+}
+
 nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     let id: SketchID
     var name: String
@@ -199,6 +246,17 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
     /// seed, so editing the seed re-generates them. Auto-created by the Pattern
     /// tool, never by hand.
     var patternLinks: [SketchPatternLink]
+    var rectangleSizingAnchors: [UUID: RectangleSizingAnchor]
+    /// Ordered edges of a migrated center rectangle; independent of later branches.
+    var rotatedRectangleEdges: [UUID: [UUID]]
+    /// Endpoints explicitly detached by Disconnect must not silently proximity-
+    /// weld again. Explicit Coincident still reconnects them. Legacy sketches
+    /// retain proximity welding through the empty decode default.
+    var disconnectedEndpoints: [ConstraintRef]
+    /// Radius-construction annotation direction; presentation only, never solved.
+    var circleRadiusDirections: [UUID: SIMD2<Double>]
+    /// Undriven line readout projection. Presentation only; never a solver input.
+    var lineDimensionKinds: [UUID: DimensionKind]
 
     init(
         id: SketchID = SketchID(),
@@ -209,7 +267,12 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         constructionEntityIDs: Set<UUID> = [],
         constraints: [SketchConstraint] = [],
         dimensions: [SketchDimension] = [],
-        patternLinks: [SketchPatternLink] = []
+        patternLinks: [SketchPatternLink] = [],
+        rectangleSizingAnchors: [UUID: RectangleSizingAnchor] = [:],
+        rotatedRectangleEdges: [UUID: [UUID]] = [:],
+        disconnectedEndpoints: [ConstraintRef] = [],
+        circleRadiusDirections: [UUID: SIMD2<Double>] = [:],
+        lineDimensionKinds: [UUID: DimensionKind] = [:]
     ) {
         self.id = id
         self.name = name
@@ -220,11 +283,18 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
         self.constraints = constraints
         self.dimensions = dimensions
         self.patternLinks = patternLinks
+        self.rotatedRectangleEdges = rotatedRectangleEdges
+        self.rectangleSizingAnchors = rectangleSizingAnchors
+        self.disconnectedEndpoints = disconnectedEndpoints
+        self.circleRadiusDirections = circleRadiusDirections
+        self.lineDimensionKinds = lineDimensionKinds
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, plane, entities, isHidden, constructionEntityIDs
-        case constraints, dimensions, patternLinks
+        case constraints, dimensions, patternLinks, rectangleSizingAnchors
+        case disconnectedEndpoints, rotatedRectangleEdges, circleRadiusDirections
+        case lineDimensionKinds
     }
 
     /// `name`/`isHidden`/`constructionEntityIDs`/`constraints`/`dimensions`
@@ -242,8 +312,19 @@ nonisolated struct Sketch: Identifiable, Codable, Equatable, Sendable {
             try container.decodeIfPresent([SketchConstraint].self, forKey: .constraints) ?? []
         dimensions =
             try container.decodeIfPresent([SketchDimension].self, forKey: .dimensions) ?? []
+        rectangleSizingAnchors = try container.decodeIfPresent(
+            [UUID: RectangleSizingAnchor].self, forKey: .rectangleSizingAnchors) ?? [:]
+        rotatedRectangleEdges = try container.decodeIfPresent(
+            [UUID: [UUID]].self, forKey: .rotatedRectangleEdges) ?? [:]
         patternLinks =
             try container.decodeIfPresent([SketchPatternLink].self, forKey: .patternLinks) ?? []
+        disconnectedEndpoints = try container.decodeIfPresent(
+            [ConstraintRef].self, forKey: .disconnectedEndpoints) ?? []
+        circleRadiusDirections = try container.decodeIfPresent(
+            [UUID: SIMD2<Double>].self, forKey: .circleRadiusDirections) ?? [:]
+        lineDimensionKinds = try container.decodeIfPresent(
+            [UUID: DimensionKind].self, forKey: .lineDimensionKinds) ?? [:]
+        RectangleConstruction.recoverLegacyGroups(in: &self)
     }
 }
 
@@ -257,6 +338,7 @@ nonisolated extension Sketch {
     /// every mutation.
     func validateConstraintRefs() -> Bool {
         let ids = Set(entities.map(\.id))
+        if disconnectedEndpoints.contains(where: { !ids.contains($0.entityID) }) { return false }
         for constraint in constraints
         where constraint.refs.contains(where: { !ids.contains($0.entityID) }) {
             return false

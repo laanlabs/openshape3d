@@ -152,6 +152,19 @@ nonisolated struct FixedPointConstraint: ConstraintResidual {
     }
 }
 
+/// Fix a derived midpoint without introducing an independent point variable.
+nonisolated struct FixedMidpointConstraint: ConstraintResidual {
+    let a: Int
+    let b: Int
+    let target: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(a) + pointIndices(b) }
+    var residualCount: Int { 2 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        let d = (point(vars, a) + point(vars, b)) / 2 - target
+        return [d.x, d.y]
+    }
+}
+
 // MARK: - Distance dimensions
 
 /// Distance between two points equals `distance` (|B - A| - d = 0).
@@ -402,5 +415,53 @@ nonisolated struct TangentLineCircleConstraint: ConstraintResidual {
         guard len > 1e-12 else { return [simd_length(point(vars, center) - a) - r] }
         let dist = abs(cross2(dir, point(vars, center) - a)) / len
         return [dist - r]
+    }
+}
+
+/// Persisted external/internal circle contact; radii remain independently driven.
+nonisolated struct TangentCircleCircleConstraint: ConstraintResidual {
+    let centerA: Int
+    let centerB: Int
+    let radiusA: Int
+    let radiusB: Int
+    var internalContact: Bool = false
+    var variableIndices: [Int] { pointIndices(centerA) + pointIndices(centerB) + [radiusA, radiusB] }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        let target = internalContact ? abs(vars[radiusA] - vars[radiusB]) : vars[radiusA] + vars[radiusB]
+        return [simd_length(point(vars, centerB) - point(vars, centerA)) - target]
+    }
+}
+
+/// A persisted arc angle drives the CCW sweep in radians, not its radius.
+nonisolated struct ArcSweepConstraint: ConstraintResidual {
+    let sweepVar: Int
+    let sweep: Double
+    var variableIndices: [Int] { [sweepVar] }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] { [vars[sweepVar] - sweep] }
+}
+
+/// Transient numeric-edit preference: retain a line direction without fixing its length.
+nonisolated struct LineDirectionConstraint: ConstraintResidual {
+    let a: Int
+    let b: Int
+    let direction: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(a) + pointIndices(b) }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        [cross2(point(vars, b) - point(vars, a), direction)]
+    }
+}
+
+/// Transient application preference, not a saved geometric relationship.
+struct PointProjectionConstraint: ConstraintResidual {
+    let p: Int
+    let origin: SIMD2<Double>
+    let direction: SIMD2<Double>
+    var variableIndices: [Int] { pointIndices(p) }
+    var residualCount: Int { 1 }
+    func residuals(_ vars: [Double]) -> [Double] {
+        [simd_dot(point(vars, p) - origin, direction)]
     }
 }

@@ -12,6 +12,13 @@ import XCTest
 
 final class PlanesUITests: XCTestCase {
 
+    private func attach(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
@@ -69,6 +76,125 @@ final class PlanesUITests: XCTestCase {
 
         app.buttons["Exit Sketching"].tap()
         XCTAssertFalse(app.staticTexts["Sketching on plane"].exists)
+    }
+
+    func testCoplanarNewSketchAndNamedContinuationStaySeparate() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        for y in [CGFloat(0.45), CGFloat(0.65)] {
+            startSketchTool(app, "Line")
+            XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+            p(0.80, 0.78).tap()
+            XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+            lookAtSketch(app)
+            sleep(1)
+            p(0.40, y).press(forDuration: 0.15, thenDragTo: p(0.60, y))
+            app.buttons["Exit Sketching"].tap()
+        }
+        app.buttons["ItemsButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 1"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 2"].firstMatch.exists,
+                      "Starting on the same plane must not silently append to Sketch 1")
+        attach(app, "independent-coplanar-items")
+        let first = app.otherElements["ItemRow-Sketch 1"].firstMatch
+        first.coordinate(withNormalizedOffset: CGVector(dx: 0.06, dy: 0.5)).tap()
+        app.buttons["ItemsButton"].tap()
+        tapPaletteTool(app, group: "Sketch", label: "Line")
+        XCTAssertFalse(app.staticTexts["Choose a sketch plane"].exists,
+                       "Explicit item entry must continue that sketch")
+        p(0.40, 0.55).press(forDuration: 0.15, thenDragTo: p(0.60, 0.55))
+        app.buttons["Exit Sketching"].tap()
+        app.buttons["ItemsButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Sketch 2"].firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Sketch 3"].firstMatch.exists)
+        attach(app, "named-continuation-keeps-two-items")
+    }
+
+    /// A curved wall is not a sketch plane: with the picker up, tapping the
+    /// cylinder's side keeps "Choose a sketch plane"; its flat cap starts
+    /// the sketch (QA-01, Shapr3D sketches on planar faces only).
+    func testPlanePickerRefusesCurvedWallAndAcceptsCap() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launchEnvironment["OS3D_DEBUG_SEED_CYLINDER"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        sleep(1) // camera fit settles
+        let window = app.windows.firstMatch
+
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+
+        // The front-right wall, nearer the camera than the origin tiles.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.70, dy: 0.60)).tap()
+        sleep(1)
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].exists,
+                      "A curved wall should be refused and leave the picker up")
+        XCTAssertFalse(app.staticTexts["Sketching on plane"].exists)
+
+        // The flat top cap is a sketch plane.
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.34)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on plane"].waitForExistence(timeout: 3),
+                      "The planar cap should start the sketch")
+        app.buttons["Exit Sketching"].tap()
+    }
+
+    /// Named views while sketching (QA-03, Shapr3D): the sketch's own
+    /// head-on view keeps it; any other named view ends it. A free orbit
+    /// keeps it and offers Look at Sketch, which returns head-on.
+    func testNamedViewsWhileSketchingKeepOrEndTheSketch() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        let window = app.windows.firstMatch
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2) // head-on camera flight
+        XCTAssertFalse(app.buttons["Look at Sketch"].exists,
+                       "Entry is head-on, so Look at Sketch is not offered yet")
+
+        // Top is the ground sketch's own view: the sketch stays.
+        app.buttons["ViewsMenu"].tap()
+        let top = app.buttons["Top"].firstMatch
+        XCTAssertTrue(top.waitForExistence(timeout: 3))
+        top.tap()
+        sleep(1)
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists, "Top keeps a ground sketch")
+        XCTAssertFalse(app.buttons["Look at Sketch"].exists)
+
+        // A free orbit keeps the sketch and offers Look at Sketch.
+        app.buttons["Line"].firstMatch.tap() // tool off: empty-space drags orbit
+        XCTAssertTrue(app.staticTexts["Drag to orbit — pick a tool to draw"].waitForExistence(timeout: 3))
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.88))
+            .press(forDuration: 0.1,
+                   thenDragTo: window.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.84)))
+        XCTAssertTrue(app.buttons["Look at Sketch"].waitForExistence(timeout: 4),
+                      "An orbit while sketching should offer Look at Sketch")
+        XCTAssertTrue(app.buttons["Exit Sketching"].exists, "The sketch stays active through an orbit")
+        app.buttons["Look at Sketch"].tap()
+        sleep(2) // camera flight back
+        XCTAssertFalse(app.buttons["Look at Sketch"].exists)
+
+        // Isometric is not the sketch's view: the sketch ends (Shapr3D).
+        app.buttons["ViewsMenu"].tap()
+        let isometric = app.buttons["Isometric"].firstMatch
+        XCTAssertTrue(isometric.waitForExistence(timeout: 3))
+        isometric.tap()
+        sleep(2)
+        XCTAssertFalse(app.buttons["Exit Sketching"].exists,
+                       "A named view off the sketch plane should end the sketch")
+        XCTAssertFalse(app.staticTexts["Sketching on ground plane"].exists)
     }
 
     func testSketchOnFaceThenExtrudeNewBody() throws {

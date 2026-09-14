@@ -174,6 +174,85 @@ final class SelectionTests: XCTestCase {
         return body
     }
 
+    /// Shapr3D (observed 2026-09-13 on a probe cylinder): a click on a body
+    /// EDGE selects the edge — "1 edge", length and radius readouts — and
+    /// offers Chamfer/Fillet. Here that is the blend pick armed with the edge
+    /// already chosen; a tap on the face interior still selects the face.
+    func testTapNearABodyEdgeArmsFilletOnThatEdge() throws {
+        let vm = try makeViewModel()
+        let box = addBox(to: vm, name: "Block", at: .zero)   // x,z in −1…1, y in 0…2
+        // 0.03 inside the top face's +x edge: within the 8 pt edge target.
+        vm.handle(.tap(ray: Ray(origin: SIMD3(0.97, 10, 0.3), direction: SIMD3(0, -1, 0))))
+        XCTAssertEqual(vm.mode, .pickingBlendEdges(.fillet))
+        XCTAssertEqual(vm.blendSelectedEdges.count, 1, "the edge under the finger, not the whole face")
+        XCTAssertEqual(vm.blendBodyID, box.id)
+        let rows = vm.selectionMeasurements
+        XCTAssertEqual(rows.first { $0.label == "Edges" }?.value, "1")
+        XCTAssertEqual(rows.first { $0.label == "Length" }?.value, "2.00 mm")
+
+        // Well inside the face: the face, as before.
+        vm.cancelBlend()
+        XCTAssertEqual(vm.mode, .selected(box.id), "leaving the blend keeps the body selected")
+        vm.handle(.tap(ray: Ray(origin: SIMD3(0.5, 10, 0.3), direction: SIMD3(0, -1, 0))))
+        XCTAssertEqual(vm.mode, .faceSelected(box.id))
+    }
+
+    /// The edge target is measured in world units, so an edge that is only
+    /// NEAR ON SCREEN — a box's hidden bottom edge, which perspective draws
+    /// inward under the top face — never claims a tap on the face above it
+    /// (PlanesUITests.testSketchOnFaceThenExtrudeNewBody, 2026-09-13).
+    func testTapOnATopFaceAboveAHiddenBottomEdgeIsTheFace() throws {
+        let vm = try makeViewModel()
+        let box = addBox(to: vm, name: "Block", at: .zero)   // x,z in −1…1, y in 0…2
+        // 0.1 inside the top face's −x edge (twice the 5 pt target), and
+        // 2 mm straight above the bottom face's −x edge.
+        vm.handle(.tap(ray: Ray(origin: SIMD3(-0.9, 10, 0.3), direction: SIMD3(0, -1, 0))))
+        XCTAssertEqual(vm.mode, .faceSelected(box.id), "\(vm.mode)")
+        XCTAssertNil(vm.blendBodyID)
+    }
+
+    /// A tap on the middle of a cylinder wall is the wall (the radial
+    /// diameter edit), never a rim edge — CylinderGrowShotUITests caught the
+    /// edge target firing on a 2 mm-tall wall.
+    func testTapOnACylinderWallMidHeightArmsTheRadialEditNotAFillet() throws {
+        let vm = try makeViewModel()
+        let spec = PrimitiveSpec.cylinder(radius: 1.5, height: 2)
+        var document = vm.session.document
+        let drum = Body(name: "Drum", transform: .identity, primitive: spec,
+                        euclidMesh: .primitive(spec), revision: document.nextRevision())
+        vm.session.perform(AddBodyCommand(body: drum))
+        // Sideways into the wall at mid-height (the wall spans y 0…2).
+        vm.handle(.tap(ray: Ray(origin: SIMD3(10, 1, 0), direction: SIMD3(-1, 0, 0))))
+        XCTAssertEqual(vm.mode, .faceSelected(drum.id), "\(vm.mode)")
+        XCTAssertNotNil(vm.toolContext?.cylinderFace)
+        XCTAssertNil(vm.blendBodyID)
+    }
+
+    /// Shapr3D's Select Through on a curved wall lists the wall faces, the
+    /// body and the sketch profile behind (observed 2026-09-13). The clone
+    /// used to keep only the body for a curved hit; choosing the wall now
+    /// lands where a direct tap lands — a plain cylinder's radial edit.
+    func testSelectThroughOffersACurvedWallAndChoosingItArmsTheRadialEdit() throws {
+        let vm = try makeViewModel()
+        let spec = PrimitiveSpec.cylinder(radius: 2, height: 4)
+        var document = vm.session.document
+        let cylinder = Body(name: "Drum", transform: .identity, primitive: spec,
+                            euclidMesh: .primitive(spec), revision: document.nextRevision())
+        vm.session.perform(AddBodyCommand(body: cylinder))
+        // Sideways through the wall at mid-height.
+        vm.presentSelectThrough(ray: Ray(origin: SIMD3(10, 2, 0), direction: SIMD3(-1, 0, 0)))
+        let candidates = try XCTUnwrap(vm.selectThroughCandidates)
+        let faces = candidates.filter { if case .face = $0.target { return true }; return false }
+        XCTAssertFalse(faces.isEmpty, "the curved wall is a choice, not just the body")
+        XCTAssertTrue(faces.allSatisfy { $0.name == "Face — Drum" })
+        XCTAssertTrue(candidates.contains { if case .body(let id) = $0.target { return id == cylinder.id }; return false })
+        vm.chooseSelectThrough(try XCTUnwrap(faces.first))
+        XCTAssertEqual(vm.selection, [cylinder.id])
+        XCTAssertEqual(vm.mode, .faceSelected(cylinder.id))
+        XCTAssertNotNil(vm.toolContext?.cylinderFace, "a plain cylinder's wall arms the radial push/pull")
+        XCTAssertEqual(vm.session.document.bodies.count, 1, "choosing never edits geometry")
+    }
+
     func testAdditiveToggleAddsAndRemovesBodies() throws {
         let viewModel = try makeViewModel()
         let a = addBox(to: viewModel, name: "A", at: .zero)

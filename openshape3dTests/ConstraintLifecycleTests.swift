@@ -224,6 +224,53 @@ final class ConstraintLifecycleTests: XCTestCase {
         XCTAssertTrue(after.validateConstraintRefs())
     }
 
+    func testTrimmedProfileDropsOnlyAffectedReferencesAndUndoRestoresEverything() {
+        let bottom = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(10, 0))
+        let right = SketchEntity.line(id: UUID(), a: SIMD2(10, 0), b: SIMD2(10, 6))
+        let top = SketchEntity.line(id: UUID(), a: SIMD2(10, 6), b: SIMD2(0, 6))
+        let left = SketchEntity.line(id: UUID(), a: SIMD2(0, 6), b: SIMD2(0, 0))
+        let cutter = SketchEntity.line(id: UUID(), a: SIMD2(4, -2), b: SIMD2(4, 2))
+        let fixedTopRight = SketchConstraint(kind: .fixed, refs: [
+            ConstraintRef(entityID: top.id, role: .endpointA),
+        ])
+        let affectedBottomLength = SketchDimension(kind: .distance, refs: [
+            ConstraintRef(entityID: bottom.id, role: .endpointA),
+            ConstraintRef(entityID: bottom.id, role: .endpointB),
+        ], value: 10)
+        let survivingTopLength = SketchDimension(kind: .distance, refs: [
+            ConstraintRef(entityID: top.id, role: .endpointA),
+            ConstraintRef(entityID: top.id, role: .endpointB),
+        ], value: 10)
+        let sketch = Sketch(
+            plane: .ground,
+            entities: [bottom, right, top, left, cutter],
+            constructionEntityIDs: [cutter.id],
+            constraints: [fixedTopRight],
+            dimensions: [affectedBottomLength, survivingTopLength]
+        )
+        XCTAssertEqual(ProfileDetector.detectProfiles(in: sketch).count, 1)
+
+        let fragment = SketchEntity.line(id: UUID(), a: SIMD2(0, 0), b: SIMD2(4, 0))
+        let command = TrimCommand(sketch: sketch, index: 0, removed: bottom,
+                                  fragments: [fragment])
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        command.apply(to: &document)
+
+        let open = document.sketches[0]
+        XCTAssertTrue(ProfileDetector.detectProfiles(in: open).isEmpty,
+                      "removing the far boundary opens the downstream profile")
+        XCTAssertEqual(open.constraints, [fixedTopRight])
+        XCTAssertEqual(open.dimensions, [survivingTopLength])
+        XCTAssertEqual(open.constructionEntityIDs, [cutter.id])
+        XCTAssertTrue(open.validateConstraintRefs())
+
+        command.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+        XCTAssertEqual(ProfileDetector.detectProfiles(in: document.sketches[0]).count, 1)
+        XCTAssertTrue(document.sketches[0].validateConstraintRefs())
+    }
+
     // MARK: - Solver conflict reporting (R2-3, docs/FREECAD_PLAYBOOK.md S1)
 
     func testConflictingDimensionsReportStructuralResidual() {

@@ -156,16 +156,18 @@ final class LiveDimensionTests: XCTestCase {
                        0, accuracy: 1e-9, "the two axes are perpendicular")
     }
 
-    func testArcReportsItsRadiusToTheArcMidpoint() {
+    func testArcReportsRadiusToItsSecondEndpointAndItsSweep() {
         let arc = SketchEntity.arc(id: UUID(), center: .zero, radius: 10,
                                    startAngle: 0, endAngle: .pi / 2)
         let out = dims(arc)
-        XCTAssertEqual(out[0].kind, .radius)
+        XCTAssertEqual(out.map(\.kind), [.radius, .angle])
         XCTAssertEqual(out[0].value, 10, accuracy: 1e-9)
         XCTAssertEqual(out[0].start, .zero, "the leader starts at the centre")
-        // 45° — halfway round the swept arc, so it lands ON the drawn curve.
-        XCTAssertEqual(out[0].end.x, 10 * cos(Double.pi / 4), accuracy: 1e-9)
-        XCTAssertEqual(out[0].end.y, 10 * sin(Double.pi / 4), accuracy: 1e-9)
+        XCTAssertEqual(out[0].end.x, 0, accuracy: 1e-9)
+        XCTAssertEqual(out[0].end.y, 10, accuracy: 1e-9)
+        XCTAssertEqual(out[1].value, 90, accuracy: 1e-9)
+        XCTAssertEqual(out[1].arcCenter, .zero)
+        XCTAssertGreaterThan(out[1].arcPoints.count, 8)
     }
 
     func testSplineHasNoLiveDimension() {
@@ -195,5 +197,6 @@ final class LiveDimensionTests: XCTestCase {
                                    startAngle: 0, endAngle: .pi)
         XCTAssertEqual(LiveDimensionKit.label(dims(arc)[0], unit: .millimeters),
                        "R10.00 mm")
+        XCTAssertEqual(LiveDimensionKit.label(dims(arc)[1], unit: .millimeters), "180°")
     }
 }

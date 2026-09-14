@@ -39,19 +39,19 @@ final class SplitPatternUITests: XCTestCase {
 
         // Three bodies: the original plus two pattern copies.
         app.buttons["ItemsButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.textFields["ItemName-Box 2"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.waitForExistence(timeout: 3),
                       "Second pattern instance should exist")
-        XCTAssertTrue(app.textFields["ItemName-Box 3"].exists,
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 3"].firstMatch.exists,
                       "Third pattern instance should exist")
 
         // One CompositeCommand: a single undo removes both copies …
         let undo = app.buttons["UndoButton"]
         undo.tap()
-        XCTAssertFalse(app.textFields["ItemName-Box 2"].waitForExistence(timeout: 2),
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.waitForExistence(timeout: 2),
                        "Undoing the pattern should remove every copy at once")
-        XCTAssertFalse(app.textFields["ItemName-Box 3"].exists)
-        XCTAssertTrue(app.textFields["ItemName-Box"].exists,
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box 3"].firstMatch.exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box"].firstMatch.exists,
                       "The original body should survive the undo")
 
         // … leaving only the seeded Add undoable.
@@ -91,16 +91,16 @@ final class SplitPatternUITests: XCTestCase {
 
         // Two bodies, named "<name> A" / "<name> B" after the source body.
         app.buttons["ItemsButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Box A"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box A"].firstMatch.waitForExistence(timeout: 3),
                       "First half should be renamed <name> A")
-        XCTAssertTrue(app.textFields["ItemName-Box B"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box B"].firstMatch.waitForExistence(timeout: 3),
                       "Split should leave two bodies")
 
         // One undo restores the single box (composite Replace + Add).
         app.buttons["UndoButton"].tap()
-        XCTAssertFalse(app.textFields["ItemName-Box B"].waitForExistence(timeout: 2),
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box B"].firstMatch.waitForExistence(timeout: 2),
                        "Undo should remove the second half")
-        XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 2),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 2),
                       "Undo should restore the original body and its name")
     }
 }

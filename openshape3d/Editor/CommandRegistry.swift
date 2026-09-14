@@ -158,6 +158,10 @@ nonisolated struct CommandRegistry: Sendable {
         AppCommand(id: "sketch.arc", title: "Arc", category: .sketch, chord: KeyChord("a")),
         AppCommand(id: "sketch.circle", title: "Circle", category: .sketch, chord: KeyChord("c")),
         AppCommand(id: "sketch.polygon", title: "Polygon", category: .sketch, chord: KeyChord("g")),
+        /// Shapr3D: Space with the pointer over a plane or face starts a sketch
+        /// there (observed live 2026-09-13 on the grid and on a box face).
+        AppCommand(id: "sketch.onHoveredPlane", title: "Sketch on Hovered Plane", category: .sketch,
+                   chord: KeyChord("space")),
         AppCommand(id: "sketch.image", title: "Insert Image", category: .sketch, chord: KeyChord("i")),
         AppCommand(id: "sketch.line", title: "Line", category: .sketch, chord: KeyChord("l")),
         AppCommand(id: "sketch.offset", title: "Offset", category: .sketch, chord: KeyChord("o")),
@@ -221,10 +225,10 @@ nonisolated struct CommandRegistry: Sendable {
         AppCommand(id: "view.top", title: "View - Top", category: .view, chord: KeyChord("5", .command)),
         AppCommand(id: "view.bottom", title: "View - Bottom", category: .view, chord: KeyChord("6", .command)),
         AppCommand(id: "view.isometric", title: "View - Isometric", category: .view, chord: KeyChord("7", .command)),
-        /// Hover a face + Space zooms to it; with a sketch selected it rotates
-        /// to that sketch's head-on view (spec §8.4).
+        /// No chord: Space is Sketch on Hovered Plane (what the reference app
+        /// does with it — the earlier "hover + Space zooms" reading was wrong).
         AppCommand(id: "view.zoomToSelection", title: "Zoom to Selection", category: .view,
-                   chord: KeyChord("space")),
+                   chord: nil),
         AppCommand(id: "view.fit", title: "Zoom to Fit", category: .view, chord: nil),
 
         // Command Search itself (X or Cmd+F).

@@ -89,6 +89,10 @@ struct CommandSearchView: View {
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .focused($focused)
+                .onKeyPress(.escape) {
+                    viewModel.closeCommandSearch()
+                    return .handled
+                }
                 .submitLabel(.go)
                 .onSubmit { run(highlightedCommand) }
                 .onChange(of: query) { _, _ in

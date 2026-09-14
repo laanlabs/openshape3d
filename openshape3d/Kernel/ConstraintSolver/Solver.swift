@@ -53,15 +53,17 @@ nonisolated enum ConstraintSolver {
     ///   - initial: full variable vector (starting point).
     ///   - fixed: indices held constant (columns removed, values never moved).
     ///   - constraints: residual providers over the shared variable vector.
-    ///   - maxIterations: LM iteration cap.
+    ///   - maxIterations: LM iteration cap per attempt (at most one stalled-solve retry).
     ///   - tolerance: convergence threshold on the gradient / relative step.
+    ///   - diagonalDamping: normal diagonal scaling; false is the internal isotropic retry.
     /// - Returns: solved variables plus convergence + DOF diagnostics. Never
     ///   returns NaN/Inf; on a conflicting system it returns the best fit found.
     static func solve(initial: [Double],
                       fixed: Set<Int>,
                       constraints: [any ConstraintResidual],
                       maxIterations: Int = 200,
-                      tolerance: Double = 1e-9) -> SolveResult {
+                      tolerance: Double = 1e-9,
+                      diagonalDamping: Bool = true) -> SolveResult {
         let n = initial.count
 
         // Free variable index map (globals that may move).
@@ -216,6 +218,7 @@ nonisolated enum ConstraintSolver {
                 break
             }
 
+            let largestDiagonal = (0..<nFree).map { A[$0 * nFree + $0] }.max() ?? 0
             // Try damped steps, growing λ until one improves (or λ blows up).
             var stepTaken = false
             while lambda <= lambdaMax {
@@ -223,7 +226,7 @@ nonisolated enum ConstraintSolver {
                 var Ad = A
                 for i in 0..<nFree {
                     let d = A[i * nFree + i]
-                    Ad[i * nFree + i] = d + lambda * (d + absFloor)
+                    Ad[i * nFree + i] = d + lambda * ((diagonalDamping ? d : largestDiagonal) + absFloor)
                 }
                 var neg = g
                 for i in 0..<nFree { neg[i] = -neg[i] }
@@ -283,6 +286,22 @@ nonisolated enum ConstraintSolver {
         // Final residual norm and DOF at the solution.
         let residualNorm = safeNorm(r)
         let dof = estimateDOF(jacobian(x), m: m, nFree: nFree)
+
+        // Near-axis free geometry can make diagonal preconditioning amplify
+        // an almost-zero derivative into a huge transverse step. Preserve all
+        // successful solves; only retry a stalled solve from its original state
+        // with isotropic LM damping, accepting it only when residual improves.
+        if !converged, diagonalDamping {
+            let retry = solve(initial: initial, fixed: fixed, constraints: constraints,
+                              maxIterations: maxIterations, tolerance: tolerance,
+                              diagonalDamping: false)
+            if retry.residualNorm < residualNorm {
+                return SolveResult(variables: retry.variables, converged: retry.converged,
+                                   residualNorm: retry.residualNorm,
+                                   degreesOfFreedom: retry.degreesOfFreedom,
+                                   iterations: iterations + retry.iterations)
+            }
+        }
 
         return SolveResult(variables: x, converged: converged,
                            residualNorm: residualNorm,

@@ -71,6 +71,81 @@ final class CompactWidthBarUITests: XCTestCase {
                              file: file, line: line)
     }
 
+    /// QA-53 at compact width: the sketch Move/Rotate and Copy pills read
+    /// horizontally and the X control stays reachable. A completed line keeps
+    /// its selection; turning the tool off exposes the pills.
+    func testSketchTransformControlsAreUsableAtCompactWidth() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        try skipUnlessCompact(app)
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        p(0.30, 0.45).press(forDuration: 0.15, thenDragTo: p(0.70, 0.45))
+        XCTAssertTrue(app.buttons["DimensionLabel"].firstMatch.waitForExistence(timeout: 3))
+        app.buttons["Line"].firstMatch.tap() // tool off; the selection stays
+        XCTAssertTrue(app.staticTexts["Drag to orbit — pick a tool to draw"].waitForExistence(timeout: 3))
+
+        assertReadsHorizontally(app.buttons["SketchTransformMode"], minimumWidth: 70, "Move/Rotate pill")
+        assertReadsHorizontally(app.buttons["SketchCopyBadge"], minimumWidth: 44, "Copy pill")
+        app.buttons["SketchTransformMode"].tap()
+        let xControl = app.descendants(matching: .any)
+            .matching(identifier: "SketchTransform-x").firstMatch
+        XCTAssertTrue(xControl.waitForExistence(timeout: 3))
+        XCTAssertTrue(xControl.isHittable, "The X control must not be covered at compact width")
+        app.buttons["SketchTransformMode"].tap()
+    }
+
+    /// QA-29 at compact width: a line against the (left) palette opens its
+    /// keypad clear of the palette, on screen, with the commit key reachable.
+    func testEdgeKeypadIsUsableAtCompactWidth() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        try skipUnlessCompact(app)
+        let window = app.windows.firstMatch
+        func p(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y))
+        }
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        startSketchTool(app, "Line")
+        XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
+        p(0.8, 0.78).tap()
+        XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
+        sleep(2)
+        let palette = app.buttons["Line"].firstMatch
+        XCTAssertTrue(palette.waitForExistence(timeout: 3))
+
+        // A line starting just right of the palette.
+        p(0.30, 0.45).press(forDuration: 0.15, thenDragTo: p(0.62, 0.45))
+        // A completed line keeps its readout selected — no selection tap.
+        let label = app.buttons["DimensionLabel"].firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 3), "A completed line should show its length label")
+        sleep(1)
+        XCTAssertGreaterThanOrEqual(label.frame.minX, palette.frame.maxX,
+                                    "The length badge must not sit under the palette at compact width")
+        label.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let keypad = app.otherElements["NumericKeypad"].firstMatch
+        XCTAssertTrue(keypad.waitForExistence(timeout: 3), "The badge tap should open the keypad")
+        XCTAssertGreaterThanOrEqual(keypad.frame.minX, palette.frame.maxX,
+                                    "The keypad must stay clear of the palette at compact width")
+        XCTAssertLessThanOrEqual(keypad.frame.maxX, window.frame.maxX)
+        XCTAssertLessThanOrEqual(keypad.frame.maxY, window.frame.maxY)
+        let commit = app.buttons["KeypadCommit"].firstMatch
+        XCTAssertTrue(commit.isHittable, "The commit key must be reachable at compact width")
+        commit.tap()
+    }
+
     /// The extrude bar: the worst of the two reported cases.
     func testExtrudeBarIsUsableAtCompactWidth() throws {
         let app = launchSeeded()
@@ -92,6 +167,16 @@ final class CompactWidthBarUITests: XCTestCase {
         // and was unreachable under the old layout.
         let delete = app.buttons.containing(.staticText, identifier: "Delete").firstMatch
         XCTAssertTrue(delete.waitForExistence(timeout: 3))
+        // Nine entries do not fit an iPhone portrait screen above the info
+        // strip and the bar, so the palette scrolls there (ViewThatFits); the
+        // requirement is that Delete is reachable — directly or by scrolling
+        // the palette — rather than sitting under the bar where no scroll
+        // could reveal it (the original defect).
+        if !delete.isHittable {
+            let palette = app.scrollViews["ToolPalette"]
+            XCTAssertTrue(palette.exists, "A palette that does not fit should scroll")
+            palette.swipeUp()
+        }
         XCTAssertTrue(delete.isHittable,
                       "The extrude bar is covering the tool palette's last entry")
 

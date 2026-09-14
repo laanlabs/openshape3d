@@ -64,7 +64,6 @@ final class CommandDispatchTests: XCTestCase {
             "project.importIntoCurrent",
             "project.new",
             "sketch.image",               // Insert Image is not a sketch tool here
-            "view.zoomToSelection",
         ])
     }
 

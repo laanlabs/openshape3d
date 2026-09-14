@@ -52,9 +52,10 @@ struct ItemsPanelView: View {
                 }
 
                 sectionHeader("Sketches")
-                let looseSketches = document.sketches.filter { !filed.contains(.sketch($0.id)) }
+                let sketches = viewModel.itemSketches
+                let looseSketches = sketches.filter { !filed.contains(.sketch($0.id)) }
                 if looseSketches.isEmpty {
-                    emptyRow(document.sketches.isEmpty ? "No sketches yet" : "All sketches are in folders")
+                    emptyRow(sketches.isEmpty ? "No sketches yet" : "All sketches are in folders")
                 }
                 ForEach(looseSketches) { sketch in
                     itemRow(.sketch(sketch.id), depth: 0, tree: tree)
@@ -238,6 +239,7 @@ struct ItemsPanelView: View {
             guard let body = document.body(with: id) else { return nil }
             return ItemRowView(
                 icon: "cube", name: body.name, isHidden: body.isHidden, renameable: true,
+                nameTapSelects: true,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
                 onSelect: { viewModel.selectItemBody(id) },
@@ -249,9 +251,10 @@ struct ItemsPanelView: View {
             guard let sketch = document.sketches.first(where: { $0.id == id }) else { return nil }
             return ItemRowView(
                 icon: "pencil.and.outline", name: sketch.name, isHidden: sketch.isHidden, renameable: true,
+                nameTapSelects: true,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
-                onSelect: { viewModel.openItemSketch(id) },
+                onSelect: { viewModel.selectItemSketch(id) },
                 onToggleVisibility: { viewModel.setItemHidden(.sketch(id), hidden: !sketch.isHidden) },
                 onRename: { viewModel.renameItem(.sketch(id), to: $0) },
                 onZoom: { viewModel.zoomToItem(.sketch(id)) },
@@ -272,10 +275,10 @@ struct ItemsPanelView: View {
             let plane = document.planes[index]
             return ItemRowView(
                 icon: "square.3.layers.3d", name: "Plane \(index + 1)", isHidden: plane.isHidden,
-                renameable: false,
+                renameable: false, isSelected: viewModel.selectedPlane?.id == id,
                 depth: depth, dragPayload: payload, moveTargets: targets,
                 onMove: onMove, onNewFolder: onNewFolder,
-                onSelect: {},
+                onSelect: { viewModel.selectItemPlane(id) },
                 onToggleVisibility: { viewModel.setItemHidden(.plane(id), hidden: !plane.isHidden) },
                 onRename: { _ in },
                 onZoom: { viewModel.zoomToItem(.plane(id)) },
@@ -575,6 +578,10 @@ private struct ItemRowView: View {
     let name: String
     let isHidden: Bool
     let renameable: Bool
+    /// Highlighted like a selected constraint row (a plane picked from Items).
+    var isSelected = false
+    /// Body names select on tap; Rename is an explicit context-menu action.
+    var nameTapSelects = false
     /// Symbols aren't scene items: no eye toggle or Zoom for them.
     var showsVisibility = true
     var showsZoom = true
@@ -591,6 +598,9 @@ private struct ItemRowView: View {
     let onDelete: () -> Void
 
     @State private var draft = ""
+    @State private var isRenaming = false
+    @State private var initialRenameSelectionPending = false
+    @FocusState private var renameFocused: Bool
 
     var body: some View {
         // Draggable on the inner content, context menu on the wrapper — see
@@ -600,10 +610,15 @@ private struct ItemRowView: View {
             .padding(.vertical, 7)
             .padding(.horizontal, 8)
             .padding(.leading, CGFloat(depth) * 14 + (depth > 0 ? 20 : 0))
+            .background(
+                isSelected ? Color.blue.opacity(0.12) : Color.clear,
+                in: RoundedRectangle(cornerRadius: 6)
+            )
             .contentShape(Rectangle())
             .onTapGesture(perform: onSelect)
             .contextMenu { menuItems }
             .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("ItemRow-\(name)")
             .onAppear { draft = name }
             .onChange(of: name) { _, updated in draft = updated }
@@ -615,16 +630,37 @@ private struct ItemRowView: View {
                 .font(.system(size: 15))
                 .frame(width: 24)
                 .foregroundStyle(isHidden ? Color.barLabelDim : Color.barLabel)
-            if renameable {
+            if renameable && (!nameTapSelects || isRenaming) {
                 TextField("Name", text: $draft)
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
-                    .onSubmit { onRename(draft) }
+                    .focused($renameFocused)
+                    .onSubmit {
+                        onRename(draft)
+                        isRenaming = false
+                        renameFocused = false
+                    }
+                    .onAppear { if isRenaming { renameFocused = true } }
+                    .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                        guard nameTapSelects, isRenaming, initialRenameSelectionPending,
+                              let field = notification.object as? UITextField,
+                              field.text == name, draft == name else { return }
+                        // Match native Rename: replace the untouched seed on first typing.
+                        // Defer until SwiftUI has established this field's caret.
+                        DispatchQueue.main.async {
+                            guard field.isFirstResponder, isRenaming,
+                                  initialRenameSelectionPending,
+                                  field.text == name, draft == name else { return }
+                            field.selectAll(nil)
+                            initialRenameSelectionPending = false
+                        }
+                    }
                     .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
                     .accessibilityIdentifier("ItemName-\(name)")
             } else {
                 Text(name)
-                    .foregroundStyle(isHidden ? Color.barLabel : Color.primary)
+                    .foregroundStyle(isHidden ? Color.barLabel : (isSelected ? Color.blue : Color.primary))
+                    .accessibilityIdentifier("ItemName-\(name)")
             }
             Spacer(minLength: 4)
             if showsVisibility {
@@ -642,6 +678,15 @@ private struct ItemRowView: View {
 
     @ViewBuilder
     private var menuItems: some View {
+            if renameable && nameTapSelects {
+                Button {
+                    draft = name
+                    initialRenameSelectionPending = true
+                    isRenaming = true
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+            }
             if showsZoom {
                 Button {
                     onZoom()

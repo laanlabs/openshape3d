@@ -28,6 +28,58 @@ final class SelectionUITests: XCTestCase {
         return app
     }
 
+    func testItemsNameSingleTapSelectsWithoutOpeningRenameKeyboard() throws {
+        let app = launchSeeded()
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.85)).tap()
+        app.buttons["ItemsButton"].tap()
+        let name = app.descendants(matching: .any)["ItemName-Box"].firstMatch
+        XCTAssertTrue(name.waitForExistence(timeout: 3))
+        name.tap()
+        XCTAssertFalse(app.keyboards.firstMatch.waitForExistence(timeout: 2),
+                       "A single item-name tap selects; renaming is a separate action")
+        XCTAssertTrue(app.buttons["CopyBadge"].waitForExistence(timeout: 3),
+                      "The named body must be selected, not merely focused for typing")
+    }
+
+    func testSketchNameSingleTapEntersSketchWithoutRenameKeyboard() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        let window = app.windows.firstMatch
+        startSketchTool(app, "Line")
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
+        lookAtSketch(app)
+        sleep(1)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.40, dy: 0.45))
+            .press(forDuration: 0.15, thenDragTo:
+                window.coordinate(withNormalizedOffset: CGVector(dx: 0.60, dy: 0.45)))
+        app.buttons["Exit Sketching"].tap()
+        app.buttons["ItemsButton"].tap()
+        let name = app.descendants(matching: .any)["ItemName-Sketch 1"].firstMatch
+        XCTAssertTrue(name.waitForExistence(timeout: 3))
+        name.tap()
+        XCTAssertFalse(app.keyboards.firstMatch.waitForExistence(timeout: 2),
+                       "Sketch name entry must not begin Rename")
+        XCTAssertTrue(app.buttons["Exit Sketching"].waitForExistence(timeout: 3),
+                      "The named sketch must be opened for editing")
+        // SwiftUI forwards this container identifier to its static-text leaves.
+        let lengthValue = app.staticTexts.matching(identifier: "SelectionInfoBar")
+            .matching(NSPredicate(format: "label != 'Length'")).firstMatch
+        XCTAssertTrue(lengthValue.waitForExistence(timeout: 3))
+        let selectedLength = lengthValue.label
+        app.buttons["Exit Sketching"].tap()
+        XCTAssertTrue(app.staticTexts["Edges"].waitForExistence(timeout: 3),
+                      "Model-mode Items selection retains its edge-count feedback")
+        XCTAssertTrue(app.staticTexts[selectedLength].exists,
+                      "Exit preserves the selected geometry's measured length")
+        app.buttons["ItemsButton"].tap()
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.75)).tap()
+        XCTAssertFalse(app.staticTexts["Edges"].waitForExistence(timeout: 2),
+                       "Blank deselection clears the retained summary")
+    }
+
     func testMarqueeSelectsPatternBodiesAndDeleteRemovesAll() throws {
         let app = launchSeeded()
         let window = app.windows.firstMatch
@@ -62,16 +114,16 @@ final class SelectionUITests: XCTestCase {
         // Delete removes all three bodies at once…
         app.buttons["DeleteButton"].tap()
         app.buttons["ItemsButton"].tap()
-        XCTAssertFalse(app.textFields["ItemName-Box"].waitForExistence(timeout: 2),
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 2),
                        "Delete should remove every selected body")
-        XCTAssertFalse(app.textFields["ItemName-Box 2"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.exists)
 
         // …and a single undo restores them (one DeleteBodiesCommand).
         app.buttons["UndoButton"].tap()
-        XCTAssertTrue(app.textFields["ItemName-Box"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box"].firstMatch.waitForExistence(timeout: 3),
                       "Undo should restore the deleted bodies")
-        XCTAssertTrue(app.textFields["ItemName-Box 2"].exists)
-        XCTAssertTrue(app.textFields["ItemName-Box 3"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 2"].firstMatch.exists)
+        XCTAssertTrue(app.descendants(matching: .any)["ItemName-Box 3"].firstMatch.exists)
     }
 
     func testLongPressShowsSelectThroughPopup() throws {

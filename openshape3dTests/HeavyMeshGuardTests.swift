@@ -54,27 +54,25 @@ final class HeavyMeshGuardTests: XCTestCase {
 
     // MARK: Plane picker tiles scale with the scene
 
-    func testPlanePickerTilesScaleWithSceneExtent() {
-        let small = PlanePicking.worldTiles(sceneExtent: 0)
-        XCTAssertEqual(small.count, 3)
-        XCTAssertEqual(small[0].localMax.x, PlanePicking.worldTileMax, accuracy: 1e-9,
-                       "an empty scene keeps the 2.3 mm default")
-        XCTAssertEqual(small[0].localMin.x, PlanePicking.worldTileMin, accuracy: 1e-9)
-
-        let tiny = PlanePicking.worldTiles(sceneExtent: 3)
-        XCTAssertEqual(tiny[0].localMax.x, PlanePicking.worldTileMax, accuracy: 1e-9,
-                       "a scene smaller than the default never shrinks the tiles")
-
-        let scan = PlanePicking.worldTiles(sceneExtent: 4746)
-        XCTAssertEqual(scan[0].localMax.x, 4746 * 0.6, accuracy: 1e-6)
-        XCTAssertEqual(scan[0].localMin.x / scan[0].localMax.x,
-                       PlanePicking.worldTileMin / PlanePicking.worldTileMax, accuracy: 1e-9,
-                       "the corner gap keeps its proportion so the three tiles never overlap")
-        for tile in scan {
-            XCTAssertEqual(tile.localMin, SIMD2(scan[0].localMin.x, scan[0].localMin.x))
-            XCTAssertEqual(tile.localMax, SIMD2(scan[0].localMax.x, scan[0].localMax.x))
-        }
-        XCTAssertEqual(PlanePicking.worldTiles.map(\.localMax), small.map(\.localMax))
+    /// Origin plane pickers keep a constant on-screen size: as fractions of
+    /// the outer edge they span 13 %…100 %, resolved at the camera's
+    /// world-per-gizmo-unit (iPad, 2026-09-14: zoomed way out they were a
+    /// speck, zoomed in a wall). Without a camera the 2.3 mm default holds.
+    func testOriginPlaneTilesScaleWithTheGizmoUnitNotTheScene() {
+        let unit = PlanePicking.originTiles
+        XCTAssertEqual(unit.count, 3)
+        XCTAssertTrue(unit.allSatisfy(\.screenProportional))
+        XCTAssertEqual(unit[0].localMax.x, 1, accuracy: 1e-9)
+        XCTAssertEqual(unit[0].localMin.x, PlanePicking.worldTileMin / PlanePicking.worldTileMax, accuracy: 1e-9)
+        let cameraless = PlanePicking.worldTiles
+        XCTAssertEqual(cameraless[0].localMax.x, PlanePicking.worldTileMax, accuracy: 1e-9)
+        XCTAssertEqual(cameraless[0].localMin.x, PlanePicking.worldTileMin, accuracy: 1e-9)
+        // Zoomed out on a metre-scale scan (gizmo unit 400 mm) a tile is
+        // 600 mm; zoomed into a 3 mm part (gizmo unit 1 mm) it is 1.5 mm —
+        // the same size on screen both times.
+        XCTAssertEqual(PlanePicking.originTileScale(gizmoUnit: 400), 600, accuracy: 1e-9)
+        XCTAssertEqual(unit[0].scaled(by: PlanePicking.originTileScale(gizmoUnit: 1)).localMax.x, 1.5, accuracy: 1e-9)
+        XCTAssertEqual(unit[0].scaled(by: PlanePicking.originTileScale(gizmoUnit: 1)).localMin.x, 1.5 * PlanePicking.worldTileMin / PlanePicking.worldTileMax, accuracy: 1e-9)
     }
 
     // MARK: Heavy meshes stay out of booleans

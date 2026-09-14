@@ -47,13 +47,22 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
             return
         }
         context.configure(view: view)
+        #if DEBUG
+        OpenTiming.mark("render context ready")
+        #endif
         let renderer = Renderer(context: context)
         renderer.scene = viewModel.scene
+        #if DEBUG
+        OpenTiming.mark("renderer + scene built")
+        #endif
         view.delegate = renderer
         self.renderer = renderer
         self.view = view
         cameraAnimator = CameraAnimator(renderer: renderer, view: view)
         gestures.attach(to: view, renderer: renderer)
+        #if DEBUG
+        OpenTiming.mark("viewport attached")
+        #endif
         gestures.delegate = self
 
         // Keep the Look-at-Sketch affordance in sync with camera motion
@@ -135,8 +144,9 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     private var faceRotateDragActive = false
     private var faceRotateAxis = SIMD3<Double>(0, 0, 1)
     /// A drag on the orientation cube orbiting the camera (spec §7.2): the
-    /// universal orbit control, live in every mode.
+    /// universal orbit control, except while numeric entry owns input.
     private var cubeOrbitActive = false
+    private var numericEditorBlockedCubeDrag = false
     private var lastCubeDragPoint: CGPoint = .zero
 
     /// Pivot-reposition drag: moving the gizmo, not the model. The grab point
@@ -153,6 +163,18 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
                at: point, camera: renderer.camera, viewSize: view.bounds.size
            ) {
             cameraAnimator?.animate(to: pose, duration: 0.4)
+            return
+        }
+        if viewModel.isPickingSymmetryAxis, let ray = ray(at: point) {
+            viewModel.handle(.tap(ray: ray))
+            sceneDidChange()
+            return
+        }
+        // Touch can arrive at Metal even when a projected SwiftUI control is
+        // drawn above it. Dispatch the rectangle's scoped padlock before picks,
+        // just as gizmo handles below dispatch before ordinary geometry.
+        if viewModel.toggleRectangleCenterLock(at: point) {
+            sceneDidChange()
             return
         }
         // Tapping the very centre arms the pivot: the dot becomes a crosshair
@@ -298,11 +320,18 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         if isPencil { viewModel.sawApplePencil = true }
 
         // Orientation cube = universal orbit control (spec §7.2): a drag that
-        // STARTS on the cube orbits the camera in EVERY mode, so the user can
+        // STARTS on the cube orbits the camera in drawing modes, so the user can
         // always reorient even when a tool owns the rest of the viewport. (A
         // tap on the cube still snaps to that standard view — taps and drags
         // are separate gestures.)
         if let view, OrientationCube.rect(in: view.bounds.size).contains(point) {
+            // Native numeric entry blocks cube dragging without committing or
+            // dismissing its draft. Claim the gesture so it cannot fall through
+            // to canvas orbit or drawing; restore normal cube input on release.
+            if viewModel.editingDimension != nil {
+                numericEditorBlockedCubeDrag = true
+                return true
+            }
             cubeOrbitActive = true
             lastCubeDragPoint = point
             return true
@@ -507,6 +536,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     }
 
     func gestureDragChanged(at point: CGPoint) {
+        if numericEditorBlockedCubeDrag { return }
         if pivotDragActive {
             if let ray = ray(at: point),
                let t = ray.intersect(planePoint: pivotDragOrigin, planeNormal: pivotDragNormal) {
@@ -599,6 +629,10 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     }
 
     func gestureDragEnded(at point: CGPoint) {
+        if numericEditorBlockedCubeDrag {
+            numericEditorBlockedCubeDrag = false
+            return
+        }
         if pivotDragActive {
             pivotDragActive = false
             sceneDidChange()
@@ -676,16 +710,17 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     /// Apple Pencil double-tap → undo the last action (a Shapr3D-style shortcut).
     func gesturePencilDoubleTapped() {
         viewModel.sawApplePencil = true
-        if viewModel.session.undoStack.canUndo {
-            viewModel.session.undo()
+        if viewModel.session.undoStack.canUndo || viewModel.hasPendingRectangle {
+            viewModel.undo()
             sceneDidChange()
         }
     }
 
-    /// Pointer / Pencil hover → line-tool rubber-band preview between taps.
+    /// Pointer / Pencil hover → tap-built Line/Rectangle/Arc preview.
     func gestureHovered(at point: CGPoint?) {
         var hoverRay: Ray?
         if let point { hoverRay = ray(at: point) }
+        viewModel.hoverRay = hoverRay
         if viewModel.updateLinePreview(ray: hoverRay) {
             sceneDidChange()
         }

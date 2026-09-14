@@ -139,7 +139,7 @@ final class CommandRegistryTests: XCTestCase {
 
     func testSpaceIsBoundToZoomToSelection() {
         XCTAssertEqual(registry.command(for: KeyChord("space"))?.id,
-                       "view.zoomToSelection")
+                       "sketch.onHoveredPlane")
     }
 
     func testNoTwoCommandsShareAChord() {

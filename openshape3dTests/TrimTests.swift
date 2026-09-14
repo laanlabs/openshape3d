@@ -121,6 +121,50 @@ final class TrimTests: XCTestCase {
         )
     }
 
+    func testUncrossedArcIsRemovedEntirely() {
+        let target = SketchEntity.arc(
+            id: UUID(), center: SIMD2(0, 0), radius: 2,
+            startAngle: 0, endAngle: .pi
+        )
+        let sketch = makeSketch([target])
+        let tap = SketchEntity.arcPoint(center: SIMD2(0, 0), radius: 2,
+                                        angle: .pi / 2)
+        XCTAssertEqual(SketchTrimmer.trim(entity: target, at: tap, in: sketch)?.count, 0)
+    }
+
+    // MARK: - Polygon boundaries
+
+    func testPolygonEdgeTrimRemovesOnlyTheChosenBoundaryAndUndoes() throws {
+        // Polygons are stored as ordinary connected lines. An uncrossed edge
+        // is therefore the whole trimmable entity; deleting it must leave the
+        // other boundaries intact and Undo must restore the exact closed loop.
+        let points = (0..<5).map { i -> SIMD2<Double> in
+            let a = Double(i) * 2 * .pi / 5 + .pi / 2
+            return SIMD2(cos(a), sin(a)) * 4
+        }
+        let edges = (0..<5).map { i in
+            SketchEntity.line(id: UUID(), a: points[i], b: points[(i + 1) % 5])
+        }
+        let sketch = makeSketch(edges)
+        let target = edges[2]
+        let tap = (points[2] + points[3]) / 2
+        let fragments = try XCTUnwrap(SketchTrimmer.trim(entity: target, at: tap, in: sketch))
+        XCTAssertTrue(fragments.isEmpty)
+
+        var document = DesignDocument()
+        document.sketches = [sketch]
+        let command = TrimCommand(sketch: sketch, index: 2, removed: target,
+                                  fragments: fragments)
+        command.apply(to: &document)
+        XCTAssertEqual(document.sketches[0].entities.count, 4)
+        XCTAssertFalse(document.sketches[0].entities.contains { $0.id == target.id })
+        XCTAssertEqual(document.sketches[0].entities.map(\.id),
+                       edges.enumerated().filter { $0.offset != 2 }.map { $0.element.id })
+
+        command.revert(in: &document)
+        XCTAssertEqual(document.sketches[0], sketch)
+    }
+
     // MARK: - Rects (explode into lines, then trim)
 
     func testTrimmedRectExplodesIntoLines() {

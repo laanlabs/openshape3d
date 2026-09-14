@@ -16,6 +16,32 @@ final class SketchOffsetUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    /// The active rectangle's rendered top-edge midpoint. Fixed viewport
+    /// fractions drift when the sketch camera or chrome changes; the endpoint
+    /// markers are the pixels the user can actually see and tap.
+    private func renderedTopEdge(_ app: XCUIApplication, _ window: XCUIElement) -> XCUICoordinate {
+        let centers = app.descendants(matching: .any)
+            .matching(identifier: "SketchPointMarker")
+            .allElementsBoundByIndex
+            .map { CGPoint(x: $0.frame.midX, y: $0.frame.midY) }
+            .reduce(into: [CGPoint]()) { unique, point in
+                if !unique.contains(where: { hypot($0.x - point.x, $0.y - point.y) < 2 }) {
+                    unique.append(point)
+                }
+            }
+        XCTAssertGreaterThanOrEqual(
+            centers.count, 2, "The rectangle should expose its rendered anchor corners")
+        // A just-completed diagonal rectangle advertises the two opposite
+        // placement anchors, not four redundant connected-corner markers.
+        // Their bounding box still defines the visible top-edge midpoint.
+        let x = (centers.map(\.x).min()! + centers.map(\.x).max()!) / 2
+        let y = centers.map(\.y).min()!
+        let frame = window.frame
+        return window.coordinate(withNormalizedOffset: CGVector(
+            dx: (x - frame.minX) / frame.width,
+            dy: (y - frame.minY) / frame.height))
+    }
+
     /// Arm Offset on a fresh sketch containing one rectangle.
     private func sketchWithRectangle(_ app: XCUIApplication) -> XCUIElement {
         app.launchEnvironment["OS3D_FRESH"] = "1"
@@ -42,6 +68,7 @@ final class SketchOffsetUITests: XCTestCase {
     func testOffsetEdgeAddsASecondProfileThatExtrudes() throws {
         let app = XCUIApplication()
         let window = sketchWithRectangle(app)
+        let topEdge = renderedTopEdge(app, window)
 
         startSketchTool(app, "Offset")
         XCTAssertTrue(app.staticTexts["Tap sketch geometry to offset"].waitForExistence(timeout: 3),
@@ -50,8 +77,8 @@ final class SketchOffsetUITests: XCTestCase {
         let apply = app.buttons["SketchOffsetApply"]
         XCTAssertFalse(apply.isEnabled, "Apply stays disabled until something is picked")
 
-        // Tap the rectangle's top edge.
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.48, dy: 0.38)).tap()
+        // Tap the rectangle's rendered top edge.
+        topEdge.tap()
         XCTAssertTrue(app.staticTexts["1 selected"].waitForExistence(timeout: 3),
                       "Tapping the rectangle should pick it")
         XCTAssertTrue(apply.isEnabled, "A pick with a non-zero distance should enable Apply")
@@ -74,10 +101,11 @@ final class SketchOffsetUITests: XCTestCase {
     func testOffsetCancelLeavesTheSketchUntouched() throws {
         let app = XCUIApplication()
         let window = sketchWithRectangle(app)
+        let topEdge = renderedTopEdge(app, window)
 
         startSketchTool(app, "Offset")
         XCTAssertTrue(app.staticTexts["Tap sketch geometry to offset"].waitForExistence(timeout: 3))
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.48, dy: 0.38)).tap()
+        topEdge.tap()
         XCTAssertTrue(app.staticTexts["1 selected"].waitForExistence(timeout: 3))
 
         app.buttons["SketchOffsetCancel"].tap()

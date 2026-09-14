@@ -70,7 +70,7 @@ final class BlendEditUITests: XCTestCase {
         tapPaletteTool(app, group: "Modify", id: "FilletButton")
         let apply = app.buttons["BlendApply"]
         XCTAssertTrue(apply.waitForExistence(timeout: 3))
-        for pt in [(0.5, 0.42), (0.5, 0.5), (0.55, 0.45), (0.45, 0.55)] {
+        for pt in [(0.42, 0.34), (0.37, 0.27), (0.65, 0.26), (0.59, 0.45)] {
             p(CGFloat(pt.0), CGFloat(pt.1)).tap()
             sleep(1)
             if apply.isEnabled { break }

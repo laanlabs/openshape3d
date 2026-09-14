@@ -12,6 +12,19 @@ import XCTest
 
 final class AppSettingsTests: XCTestCase {
 
+    @MainActor
+    func testCircularAnnotationPreferencePersistsWithCompatibleDefault() throws {
+        let suite = "CircularAnnotationsTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertEqual(settings.circularAnnotations, .radiusAndDiameter)
+        settings.circularAnnotations = .alwaysRadius
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .alwaysRadius)
+        settings.circularAnnotations = .radiusAndDiameter
+        XCTAssertEqual(AppSettings(defaults: defaults).circularAnnotations, .radiusAndDiameter)
+    }
+
     // MARK: DisplayUnit conversion
 
     func testConversionFactors() {
@@ -48,7 +61,28 @@ final class AppSettingsTests: XCTestCase {
     func testCompactLengthTrimsZeros() {
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 12.7), "12.7 mm")
         XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 5), "5 mm")
-        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1 in")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 0.869 / 2), "0.4345 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 12.34567), "12.3457 mm")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 25.4), "1\"")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 1.016), "0.04\"")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 20.32), "0.0667'")
+        XCTAssertEqual(DisplayUnit.feet.compactLengthString(fromMM: 1.016), "0.0033'")
+        XCTAssertEqual(DisplayUnit.inches.symbol, "in", "Input suffix stays distinct from annotation")
+        XCTAssertEqual(DisplayUnit.feet.symbol, "ft")
+    }
+
+    /// Native canvas labels paired 2026-09-13: "123,456.7891 mm",
+    /// "164,058.8074 mm", "R 50,000 mm" — every decimal kept, thousands
+    /// grouped. `%g` had capped labels at six significant digits.
+    func testCompactLengthKeepsDenseValuesAndGroupsThousands() {
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 123456.7891), "123,456.7891 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 164058.8074), "164,058.8074 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 50000), "50,000 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 1234.5678), "1,234.5678 mm")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: 1234.56785), "1,234.5679 mm")
+        XCTAssertEqual(DisplayUnit.centimeters.compactLengthString(fromMM: 12345.6789), "1,234.568 cm")
+        XCTAssertEqual(DisplayUnit.inches.compactLengthString(fromMM: 1234.56789 * 25.4), "1,234.5679\"")
+        XCTAssertEqual(DisplayUnit.millimeters.compactLengthString(fromMM: -0.00001), "0 mm")
     }
 
     // MARK: Persistence
@@ -68,6 +102,46 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.antiAliasing, 4)
     }
 
+    func testSnappingPreferencesPersistIncludingExplicitOff() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.snapOptions, SnapOptions())
+        XCTAssertTrue(first.showSnapHints)
+        XCTAssertTrue(first.snapToSketchGuidelines)
+        first.snapToGrid = false
+        first.snapToSketchGuidelines = false
+        first.snapToSketchGuidepoints = false
+        first.snapToFaceGuidepoints = false
+        first.showSnapHints = false
+        let next = AppSettings(defaults: defaults)
+        XCTAssertEqual(next.snapOptions, SnapOptions(grid: false, sketchGuidepoints: false,
+                                                    faceGuidepoints: false))
+        XCTAssertFalse(next.showSnapHints)
+        XCTAssertFalse(next.snapToSketchGuidelines)
+        next.snapToGrid = true
+        XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
+    }
+
+    /// UI tests override snapping with launch arguments (`-os3d.snapToGrid
+    /// NO`), which land in the argument domain as strings. Those must read
+    /// as booleans, and an unrelated string must not turn a default off.
+    func testLaunchArgumentStringsOverrideSnapDefaults() {
+        let defaults = freshDefaults()
+        defaults.set("NO", forKey: "os3d.snapToGrid")
+        defaults.set("YES", forKey: "os3d.snapToSketchGuidelines")
+        defaults.set("0", forKey: "os3d.snapToSketchGuidepoints")
+        defaults.set("1", forKey: "os3d.showSnapHints")
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertFalse(settings.snapToGrid)
+        XCTAssertTrue(settings.snapToSketchGuidelines)
+        XCTAssertFalse(settings.snapToSketchGuidepoints)
+        XCTAssertTrue(settings.showSnapHints)
+        XCTAssertTrue(settings.snapToFaceGuidepoints, "unset keeps the default")
+        // A real Bool written by the app still round-trips as before.
+        settings.snapToGrid = true
+        XCTAssertTrue(AppSettings(defaults: defaults).snapToGrid)
+    }
+
     func testSettingsPersistAcrossReload() {
         let defaults = freshDefaults()
         let first = AppSettings(defaults: defaults)
@@ -81,6 +155,16 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(second.theme, .dark)
         XCTAssertTrue(second.paletteOnRight)
         XCTAssertEqual(second.antiAliasing, 2)
+    }
+
+    func testAnchoredSketchEntityPreferencePersistsWithFirstSelectedDefault() {
+        let defaults = freshDefaults()
+        let first = AppSettings(defaults: defaults)
+        XCTAssertEqual(first.anchoredSketchEntity, .firstSelected)
+        first.anchoredSketchEntity = .lastSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .lastSelected)
+        first.anchoredSketchEntity = .firstSelected
+        XCTAssertEqual(AppSettings(defaults: defaults).anchoredSketchEntity, .firstSelected)
     }
 
     func testLaunchSampleCountRejectsInvalidStoredValues() {

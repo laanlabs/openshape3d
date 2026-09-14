@@ -667,6 +667,9 @@ final class DocumentSession {
 
     private func load() {
         storeIsNewerThanApp = project.formatVersion > Project.currentFormatVersion
+        #if DEBUG
+        OpenTiming.mark("load start")
+        #endif
         var loaded = DesignDocument()
         for persisted in project.bodies {
             guard let render = try? MeshBlob.decode(persisted.meshData),
@@ -712,6 +715,9 @@ final class DocumentSession {
             }
             loaded.bodies.append(body)
         }
+        #if DEBUG
+        OpenTiming.mark("\(loaded.bodies.count) bodies decoded (mesh, brep)")
+        #endif
         for persisted in project.sketches {
             if let sketch = try? JSONDecoder().decode(Sketch.self, from: persisted.sketchData) {
                 loaded.sketches.append(sketch)
@@ -719,6 +725,9 @@ final class DocumentSession {
                 unreadableRows.sketches.insert(persisted.sketchID)
             }
         }
+        #if DEBUG
+        OpenTiming.mark("\(loaded.sketches.count) sketches decoded")
+        #endif
         for persisted in project.planes {
             if let plane = try? JSONDecoder().decode(ConstructionPlane.self, from: persisted.planeData) {
                 loaded.planes.append(plane)
@@ -766,6 +775,9 @@ final class DocumentSession {
         // node that sat BEFORE the marker fails to decode and is skipped, the
         // active prefix shrinks, so shift the marker down by the number of such
         // skips to keep it on the same logical boundary.
+        #if DEBUG
+        OpenTiming.mark("planes/axes/images/symbols decoded")
+        #endif
         let savedMarker = project.rollbackIndex
         var skippedBeforeMarker = 0
         for (position, persisted) in project.features
@@ -794,6 +806,9 @@ final class DocumentSession {
         }
         document = loaded
         evalCache = EvalCache()   // a fresh memo for a freshly loaded document
+        #if DEBUG
+        OpenTiming.mark("\(loaded.features.nodes.count) features decoded, load done")
+        #endif
         if storeIsNewerThanApp {
             loadWarning = """
             This project was saved by a newer version of the app. It opens \
@@ -820,11 +835,47 @@ final class DocumentSession {
             }
             loadWarning = parts.isEmpty ? nil : parts.joined(separator: "\n\n")
         }
+        changeCount += 1
         // A document saved with broken refs used to reopen with NO badges,
         // because errors only existed after the first live rebuild (review
-        // R4-N6). Surface them now, before the user edits anything.
-        refreshEvalErrors()
-        changeCount += 1
+        // R4-N6). Surface them without holding the open: see below.
+        scheduleLoadEvalRefresh()
+    }
+
+    /// The load-time badge refresh, off the open path. It is the whole graph
+    /// replayed against an EMPTY memo — 5.7 s of a 6.2 s open for a
+    /// 13-feature document on an iPad Pro in Debug (2026-09-13, "any drawing
+    /// takes a second or two to open") — so it runs detached on value copies,
+    /// as the boolean CSG does, and only its error map comes back, and only
+    /// if the document has not changed meanwhile (an edit's own rebuild has
+    /// fresher errors). The scratch memo is NOT adopted: its revision stamps
+    /// come from a scratch counter, not the document's, so the first live
+    /// rebuild still warms the memo itself.
+    private func scheduleLoadEvalRefresh() {
+        guard !document.features.nodes.isEmpty else {
+            lastEvalErrors = [:]
+            return
+        }
+        let features = document.features
+        let sketches = document.sketches
+        let planes = document.planes
+        let naming = naming
+        let generation = changeCount
+        Task.detached(priority: .utility) { [weak self] in
+            var counter: UInt64 = 1
+            var scratch = EvalCache()
+            let errors = features.evaluate(
+                sketches: sketches,
+                planes: planes,
+                naming: naming,
+                nextRevision: { counter &+= 1; return counter },
+                cache: &scratch
+            ).errors
+            await MainActor.run {
+                guard let self, self.changeCount == generation else { return }
+                self.lastEvalErrors = errors
+            }
+        }
     }
 
     /// Recompute `lastEvalErrors` WITHOUT touching any body: replay the

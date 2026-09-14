@@ -60,8 +60,7 @@ final class SketchStateUITests: XCTestCase {
             "A fresh free line is under-defined — no Fully-defined chip yet"
         )
 
-        // Select the line, then Lock it: both endpoints become fixed → 0 DOF.
-        p(0.48, 0.49).tap()
+        // The completed line is selected; Lock it: both endpoints become fixed → 0 DOF.
         sleep(1)
         applyConstraint(app, "Constraint_Lock")
         sleep(1)

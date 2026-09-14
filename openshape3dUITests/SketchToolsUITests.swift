@@ -43,6 +43,28 @@ final class SketchToolsUITests: XCTestCase {
         let polygonVertex = window.coordinate(withNormalizedOffset: CGVector(dx: 0.54, dy: 0.42))
         polygonCenter.press(forDuration: 0.15, thenDragTo: polygonVertex)
 
+        let radius = app.buttons.matching(identifier: "DimensionLabel").firstMatch
+        XCTAssertTrue(radius.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["DimensionField"].exists,
+                       "Polygon release retains its radius badge without forcing numeric input")
+        let count = app.buttons.matching(identifier: "DimensionLabel")
+            .matching(NSPredicate(format: "label CONTAINS 'sides'")).firstMatch
+        XCTAssertTrue(count.waitForExistence(timeout: 3), "Completed polygon must expose its count")
+        count.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-3"].tap()
+        app.buttons["Keypad-."].tap()
+        app.buttons["Keypad-5"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(count.waitForExistence(timeout: 3))
+        XCTAssertTrue(count.label.contains("3 sides"), "3.5 changes selected topology to triangle")
+        app.buttons["UndoButton"].tap()
+        XCTAssertTrue(count.label.contains("6 sides"), "Count edit restores original polygon in one step")
+
+        radius.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.textFields["DimensionField"].waitForExistence(timeout: 3),
+                      "Explicit radius tap must still open numeric input")
+
         let undo = app.buttons["UndoButton"]
         XCTAssertTrue(undo.isEnabled, "Drawing a polygon should push an undoable command")
 

@@ -51,7 +51,10 @@ final class FilletLeakUITests: XCTestCase {
         tapPaletteTool(app, group: "Modify", id: "FilletButton")
         XCTAssertTrue(app.buttons["BlendApply"].waitForExistence(timeout: 3))
         let apply = app.buttons["BlendApply"]
-        for pt in [(0.34, 0.42), (0.34, 0.5), (0.40, 0.45), (0.30, 0.5)] {
+        // Start on the rendered top/front edge. A face-interior tap selects
+        // the whole face, whose four-edge 1 mm preview is invalid on this
+        // 1.5 mm-wide box.
+        for pt in [(0.36, 0.30), (0.30, 0.27), (0.48, 0.28), (0.44, 0.40)] {
             p(window, CGFloat(pt.0), CGFloat(pt.1)).tap(); sleep(1)
             if apply.isEnabled { break }
         }

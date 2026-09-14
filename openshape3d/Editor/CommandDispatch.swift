@@ -38,7 +38,7 @@ extension CommandRegistry {
         // Sketch tools — the tutorial's C / A / L / R / T / G.
         "sketch.line", "sketch.rectangle", "sketch.circle", "sketch.arc",
         "sketch.ellipse", "sketch.polygon", "sketch.text", "sketch.trim",
-        "sketch.offset", "sketch.construction",
+        "sketch.offset", "sketch.construction", "sketch.onHoveredPlane",
 
         // Modeling.
         "model.extrude", "model.revolve", "model.sweep", "model.loft",
@@ -108,7 +108,7 @@ extension EditorViewModel {
     /// palette's own `enabled` conditions, so a hotkey can never reach a state
     /// the equivalent button would have refused.
     @discardableResult
-    func runCommand(_ id: String) -> Bool {
+    func runCommand(_ id: String, honoringSingleKeyAction: Bool = true) -> Bool {
         guard let command = CommandRegistry.command(inCatalog: id) else { return false }
 
         // Honour the spec's Single Key Action setting. The registry is a pure
@@ -119,7 +119,7 @@ extension EditorViewModel {
         // Command Search: open it pre-typed instead of firing the hotkey.
         // (`CommandShortcutsView` also stops registering bare-key hotkeys in
         // that mode, so this is the belt to its braces.)
-        if command.chord?.isBareKey == true,
+        if honoringSingleKeyAction, command.chord?.isBareKey == true,
            commandRegistry.singleKeyAction == .commandSearch {
             openCommandSearch(seed: command.chord?.key ?? "")
             return true
@@ -135,6 +135,7 @@ extension EditorViewModel {
 
         // MARK: Sketch tools (only while a sketch is open)
         case "sketch.line":         return armSketchTool(.line)
+        case "sketch.onHoveredPlane": return sketchOnHoveredPlane()
         case "sketch.rectangle":    return armSketchTool(.rect)
         case "sketch.circle":       return armSketchTool(.circle)
         case "sketch.arc":          return armSketchTool(.arc)
@@ -186,7 +187,7 @@ extension EditorViewModel {
 
         // MARK: Transform
         case "model.move":
-            guard !selection.isEmpty else { return false }
+            guard !selection.isEmpty || hasModelSketchSelection else { return false }
             beginMoveTool()
             return true
         case "transform.scaleUniform":

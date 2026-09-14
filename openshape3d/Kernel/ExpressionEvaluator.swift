@@ -29,6 +29,44 @@ nonisolated enum ExpressionEvaluator {
         "pi", "radians",
     ]
 
+    /// Fully unit-qualified additive lengths, returned in document millimetres.
+    /// Kept separate from the legacy scalar/variable evaluator: changing that
+    /// evaluator's unit convention would double-convert existing formulas.
+    /// Products, unqualified terms and angle/length mixtures are not accepted.
+    static func additiveLengthMM(_ text: String) -> Double? {
+        var source = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if source.hasPrefix("=") { source.removeFirst() }
+        let number = #"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"#
+        let term = #"([+-]?)\s*("# + number + #")\s*(mm|cm|m|ft|in)"#
+        guard let regex = try? NSRegularExpression(pattern: term) else { return nil }
+        let ns = source as NSString
+        let matches = regex.matches(in: source, range: NSRange(location: 0, length: ns.length))
+        guard matches.count >= 2 else { return nil }
+        var end = 0
+        var total = 0.0
+        for (index, match) in matches.enumerated() {
+            let gap = ns.substring(with: NSRange(location: end, length: match.range.location - end))
+            guard gap.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  let value = Double(ns.substring(with: match.range(at: 2))) else { return nil }
+            let sign = ns.substring(with: match.range(at: 1))
+            guard index == 0 || !sign.isEmpty else { return nil }
+            let unit = ns.substring(with: match.range(at: 3))
+            let scale: Double
+            switch unit {
+            case "m": scale = 1000
+            case "cm": scale = 10
+            case "ft": scale = 304.8
+            case "in": scale = 25.4
+            default: scale = 1
+            }
+            total += (sign == "-" ? -value : value) * scale
+            end = NSMaxRange(match.range)
+        }
+        guard ns.substring(from: end).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              total.isFinite else { return nil }
+        return total
+    }
+
     /// Evaluate `text` to a Double, or nil when it is empty / malformed.
     /// A trailing alphabetic unit suffix (mm, cm, in, "), whitespace, and a
     /// leading "=" are tolerated. Backwards-compatible entry point: no
@@ -54,6 +92,25 @@ nonisolated enum ExpressionEvaluator {
         let stripped = stripTrailingUnit(s)
         guard stripped != s, !stripped.isEmpty else { return nil }
         return tryParse(stripped, variables: variables)
+    }
+
+    /// Diagnostic for an invalid dimension draft. Use the parser's actual
+    /// denominator evaluation, not a textual `/0` heuristic (e.g. `1/0.5`).
+    static func validationMessage(_ text: String, variables: [String: Double]) -> String? {
+        guard evaluate(text, variables: variables) == nil else { return nil }
+        var value = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if value.hasPrefix("=") { value.removeFirst() }
+        guard !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return "A value is needed but none is given."
+        }
+        for candidate in [value, stripTrailingUnit(value)] {
+            var parser = Parser(Array(candidate), variables: variables)
+            _ = parser.parseExpression()
+            if parser.dividedByZero {
+                return "Expression is invalid. Cannot divide by zero."
+            }
+        }
+        return "Expression contains a syntax error that cannot be parsed."
     }
 
     /// Set of maximal identifier tokens in `text` that denote VARIABLE
@@ -108,6 +165,7 @@ nonisolated enum ExpressionEvaluator {
         private let chars: [Character]
         private let variables: [String: Double]
         private var i = 0
+        private(set) var dividedByZero = false
 
         init(_ chars: [Character], variables: [String: Double]) {
             self.chars = chars
@@ -155,7 +213,10 @@ nonisolated enum ExpressionEvaluator {
                 _ = consume()
                 guard let rhs = parseFactor() else { return nil }
                 if op == "/" {
-                    guard rhs != 0 else { return nil }
+                    guard rhs != 0 else {
+                        dividedByZero = true
+                        return nil
+                    }
                     value /= rhs
                 } else {
                     value *= rhs

@@ -17,9 +17,12 @@ import SwiftUI
 
 struct NumericKeypad: View {
     @Binding var text: String
-    /// Whether committing should leave a driving dimension behind. Nil hides
-    /// the lock key for fields where the idea means nothing.
+    /// Current dimension lock state. Nil hides the key for unrelated fields.
     var isLocked: Bool?
+    var lockEnabled = true
+    /// Dimension fields start with their measured value selected. Other
+    /// numeric consumers retain append behavior unless they opt in.
+    var initialValueSelected: Binding<Bool> = .constant(false)
     var onToggleLock: () -> Void = {}
     var onCommit: () -> Void
     /// Shown as the keyboard key; nil hides it (no system keyboard to fall to).
@@ -28,6 +31,13 @@ struct NumericKeypad: View {
     /// Units the pad can append. The evaluator already tolerates a trailing
     /// unit, and `NumericKeypad.trailingUnit` reads it back for conversion.
     static let units = ["mm", "cm", "m", "deg"]
+
+    private var visibleUnits: [String] {
+        switch AppSettings.shared.unit {
+        case .inches, .feet: ["ft", "in", "deg"]
+        default: Self.units
+        }
+    }
 
     private static let keyW: CGFloat = 44
     private static let keyH: CGFloat = 36
@@ -42,7 +52,8 @@ struct NumericKeypad: View {
             }
         }
         .padding(10)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        // A numeric editor must obscure the sketch points/edges below it.
+        .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary, lineWidth: 0.5))
         .shadow(color: .black.opacity(0.18), radius: 12, y: 4)
         // An identifier on a styled container collapses it into ONE element and
@@ -62,7 +73,7 @@ struct NumericKeypad: View {
             ForEach(["(", ")"], id: \.self) { token in
                 flatKey(token) { append(token) }
             }
-            ForEach(Self.units, id: \.self) { unit in
+            ForEach(visibleUnits, id: \.self) { unit in
                 flatKey(unit) { appendUnit(unit) }
             }
         }
@@ -91,8 +102,10 @@ struct NumericKeypad: View {
             if let isLocked {
                 iconKey(isLocked ? "lock.fill" : "lock.open",
                         id: "KeypadLock",
-                        tint: isLocked ? Color.accentColor : .secondary,
+                        tint: .primary,
                         action: onToggleLock)
+                    .disabled(!lockEnabled)
+                    .opacity(lockEnabled ? 1 : 0.35)
             } else if onSwitchToSystemKeyboard != nil {
                 Color.clear.frame(width: Self.keyW, height: Self.keyH)
             }
@@ -175,11 +188,17 @@ struct NumericKeypad: View {
     /// binding's setter — while `text = text + token` does. `backspace` and
     /// `appendUnit` already assigned, which is why the delete and unit keys
     /// worked while every digit was swallowed.
-    private func append(_ token: String) { text = text + token }
+    private func append(_ token: String) {
+        let replaces = initialValueSelected.wrappedValue &&
+            (token.first?.isNumber == true || token == "." || token == "(")
+        initialValueSelected.wrappedValue = false
+        text = replaces ? token : text + token
+    }
 
     /// A unit belongs at the END of the expression, and there can only be one —
     /// tapping mm then cm should read "cm", not "mm cm".
     private func appendUnit(_ unit: String) {
+        initialValueSelected.wrappedValue = false
         var base = text
         if let existing = Self.trailingUnit(in: base) {
             base = String(base.dropLast(existing.count))
@@ -190,10 +209,16 @@ struct NumericKeypad: View {
 
     /// Negate rather than blindly prepending "-", so ± is its own inverse.
     private func toggleSign() {
+        initialValueSelected.wrappedValue = false
         if text.hasPrefix("-") { text = String(text.dropFirst()) } else { text = "-" + text }
     }
 
     private func backspace() {
+        if initialValueSelected.wrappedValue {
+            initialValueSelected.wrappedValue = false
+            text = ""
+            return
+        }
         guard !text.isEmpty else { return }
         // A unit reads as one key, so one tap removes the whole suffix.
         if let unit = Self.trailingUnit(in: text) {
@@ -209,8 +234,14 @@ struct NumericKeypad: View {
     static func trailingUnit(in text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         // Longest first so "mm" is never mistaken for a trailing "m".
-        return units.sorted { $0.count > $1.count }
-            .first { trimmed.hasSuffix($0) }
+        // Recognition includes both families, regardless of the visible unit row.
+        return (units + ["in", "ft"]).sorted { $0.count > $1.count }
+            .first { token in
+                guard trimmed.hasSuffix(token) else { return false }
+                let body = trimmed.dropLast(token.count)
+                // Do not mistake a variable such as `pin` for an inch suffix.
+                return body.last.map { !$0.isLetter && $0 != "_" } ?? false
+            }
     }
 }
 
