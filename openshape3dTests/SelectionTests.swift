@@ -197,6 +197,20 @@ final class SelectionTests: XCTestCase {
         XCTAssertEqual(vm.mode, .faceSelected(box.id))
     }
 
+    /// The edge target is measured in world units, so an edge that is only
+    /// NEAR ON SCREEN — a box's hidden bottom edge, which perspective draws
+    /// inward under the top face — never claims a tap on the face above it
+    /// (PlanesUITests.testSketchOnFaceThenExtrudeNewBody, 2026-09-13).
+    func testTapOnATopFaceAboveAHiddenBottomEdgeIsTheFace() throws {
+        let vm = try makeViewModel()
+        let box = addBox(to: vm, name: "Block", at: .zero)   // x,z in −1…1, y in 0…2
+        // 0.1 inside the top face's −x edge (twice the 5 pt target), and
+        // 2 mm straight above the bottom face's −x edge.
+        vm.handle(.tap(ray: Ray(origin: SIMD3(-0.9, 10, 0.3), direction: SIMD3(0, -1, 0))))
+        XCTAssertEqual(vm.mode, .faceSelected(box.id), "\(vm.mode)")
+        XCTAssertNil(vm.blendBodyID)
+    }
+
     /// A tap on the middle of a cylinder wall is the wall (the radial
     /// diameter edit), never a rim edge — CylinderGrowShotUITests caught the
     /// edge target firing on a 2 mm-tall wall.

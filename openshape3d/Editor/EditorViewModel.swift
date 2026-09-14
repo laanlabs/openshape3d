@@ -4899,25 +4899,11 @@ final class EditorViewModel {
             simd_dot($0.normalA, $0.normalB) <= flattest
         }
         guard !sharp.isEmpty else { return false }
-        // Measure on screen through the live camera: a world-unit tolerance
-        // from `worldUnitsPerPoint` balloons in the orthographic named views
-        // (CylinderGrowShotUITests' Front view), turning a mid-wall tap into
-        // a rim hit. The unit-test path has no camera and keeps world units.
-        if let camera = cameraControl,
-           let tap = camera.worldToScreenPoint(SIMD3<Double>(hit.worldPoint)) {
-            let transform = body.transform
-            for edge in sharp {
-                guard let a = camera.worldToScreenPoint(transform.applying(to: SIMD3<Double>(edge.start))),
-                      let b = camera.worldToScreenPoint(transform.applying(to: SIMD3<Double>(edge.end)))
-                else { continue }
-                let ab = SIMD2(Double(b.x - a.x), Double(b.y - a.y))
-                let ap = SIMD2(Double(tap.x - a.x), Double(tap.y - a.y))
-                let len2 = simd_dot(ab, ab)
-                let t = len2 > 1e-9 ? max(0, min(1, simd_dot(ap, ab) / len2)) : 0
-                if simd_length(ap - ab * t) <= Self.edgeTapPoints { return true }
-            }
-            return false
-        }
+        // Measured in WORLD units at the camera's current scale, never on
+        // screen: a screen-space test has no depth, and perspective draws a
+        // box's hidden bottom edges inward under its top face, where a tap
+        // on the face lands within a few points of them (PlanesUITests
+        // testSketchOnFaceThenExtrudeNewBody, 2026-09-13).
         let inverse = simd_inverse(body.transform.matrixFloat)
         let local4 = inverse * SIMD4(hit.worldPoint, 1)
         let local = SIMD3<Float>(local4.x, local4.y, local4.z)
