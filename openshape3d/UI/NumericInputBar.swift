@@ -23,7 +23,7 @@ struct NumericInputBar: View {
     /// commit the stale value silently (gotcha 37).
     @State private var extrudeDistanceText: String = ""
     @State private var extrudeDistancePadOpen = false
-    @State private var extrudeDistanceUsesKeyboard = false
+    @State private var extrudeDistanceUsesKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var extrudeDistanceFocused: Bool
 
     private func submitExtrudeDistance() {

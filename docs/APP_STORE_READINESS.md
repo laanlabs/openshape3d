@@ -6,6 +6,30 @@ in a real signed archive**; what remains is listed under "Still open" and
 "Untested". Re-verify with the commands in "How this was checked" before any
 future submission — a build setting that was right once is not right forever.
 
+## 1.2 update — verified 2026-09-14
+
+- **iOS:** Release build of main (1.2 build 1) installed on the paired iPad
+  and run by Jason through the week's fixes; the earlier upload was 1.1 (1)
+  from the 2026-09-05 archive (set in Xcode, never committed — fixed in
+  PR #33). Persisted schema unchanged since that archive's commit, so
+  existing stores open without a migration. Full serial suite on the
+  merged tree: unit 1613/1613 (1 skipped), UI 187 executed, 4 skipped,
+  0 failures; a further run with the gizmo-test coordinates followed.
+- **Mac (Catalyst):** `xcodebuild archive` for `generic/platform=macOS,
+  variant=Mac Catalyst` succeeds with no flags once the project excludes
+  x86_64 for macOS (the kernel's Catalyst slice is arm64-only; PR #34):
+  arm64, `app-sandbox` + `files.user-selected.read-write`, category
+  `public.app-category.graphics-design`, `LSMinimumSystemVersion` 14.0.
+  The archived Release app runs sandboxed on this Mac: gallery → new
+  design → Sketch → plane picker → rectangle by drag → Exit → Extrude by
+  typing 3 + Return → a 15 mm³ body. Numeric fields on the Mac now start
+  with the real keyboard, focused, and never raise the on-screen keypad
+  (`AppSettings.prefersSystemKeyboard`).
+- **Still to do by hand:** the App Store Connect listing (screenshots at the
+  required sizes for iPad and Mac, what's new, privacy label = no tracking,
+  no collection); the Mac upload needs a Mac App Store distribution
+  profile in Organizer. Document types (below) remain undeclared.
+
 ## Verdict
 
 **The build is submittable.** `xcodebuild archive` for `generic/platform=iOS`

@@ -283,7 +283,7 @@ private struct NumericPadAttachment: ViewModifier {
     var onCommit: () -> Void
 
     @State private var padOpen = false
-    @State private var usingSystemKeyboard = false
+    @State private var usingSystemKeyboard = AppSettings.prefersSystemKeyboard
 
     func body(content: Content) -> some View {
         content

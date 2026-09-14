@@ -11,7 +11,7 @@ struct SketchTransformControlsOverlay: View {
     @State private var dragOffset = SIMD2<Double>.zero
     @State private var text = "0"
     @State private var initialValueSelected = true
-    @State private var usingKeyboard = false
+    @State private var usingKeyboard = AppSettings.prefersSystemKeyboard
     @FocusState private var focused: Bool
 
     var body: some View {
