@@ -86,6 +86,30 @@ final class GizmoFlowUITests: XCTestCase {
         XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "GizmoAxis-Y").firstMatch.value as? String, "idle")
     }
 
+    /// Copy badge on, then a typed distance: the copy moves, the original
+    /// stays (iPad, 2026-09-14) — three undo steps (seed Add, Copy, Move)
+    /// where a plain typed move leaves two.
+    func testCopyBadgeThenTypedDistanceMovesADuplicate() throws {
+        let app = launchSeeded()
+        let copy = app.buttons["CopyBadge"]
+        XCTAssertTrue(copy.waitForExistence(timeout: 3))
+        copy.tap()
+        let window = app.windows.firstMatch
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.499, dy: 0.592)).tap()
+        XCTAssertTrue(app.textFields["MoveDistanceField"].waitForExistence(timeout: 3))
+        app.buttons["Keypad-5"].tap()
+        app.buttons["KeypadCommit"].tap()
+        XCTAssertTrue(app.textFields["MoveDistanceField"].waitForNonExistence(timeout: 3))
+        let undo = app.buttons["UndoButton"]
+        XCTAssertTrue(undo.isEnabled)
+        undo.tap()   // Move
+        XCTAssertTrue(undo.isEnabled)
+        undo.tap()   // Copy
+        XCTAssertTrue(undo.isEnabled, "A copied move leaves the seed Add still undoable")
+        undo.tap()   // seed Add
+        XCTAssertFalse(undo.isEnabled)
+    }
+
     private func launchSeeded() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
