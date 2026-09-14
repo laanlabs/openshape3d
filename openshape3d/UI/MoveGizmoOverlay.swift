@@ -81,7 +81,7 @@ struct MoveGizmoOverlay: View {
     @ViewBuilder
     private func scaleHandle(_ part: GizmoPart, _ ctx: ProjectionContext, center: CGPoint) -> some View {
         if let tip = GizmoScreenLayout.axisAnchor(part, project: ctx.project) {
-            let colored = viewModel.gizmoHighlight == part ? Self.highlight : Self.fill
+            let colored = viewModel.litGizmoPart == part ? Self.highlight : Self.fill
             // Direction from the head back toward the pivot; fall back to a fixed
             // heading if the head sits on top of the pivot (degenerate).
             let dx = center.x - tip.x, dy = center.y - tip.y
@@ -124,7 +124,7 @@ struct MoveGizmoOverlay: View {
             // would be a foreshortened smear); it is still draggable in 3D.
             if len > 6 {
                 let angle = atan2(Double(dy), Double(dx))
-                let colored = viewModel.gizmoHighlight == part ? Self.highlight : Self.fill
+                let colored = viewModel.litGizmoPart == part ? Self.highlight : Self.fill
                 ZStack {
                     Image(systemName: "arrowshape.up.fill")
                         .foregroundStyle(Self.outline).scaleEffect(1.22)
@@ -135,7 +135,9 @@ struct MoveGizmoOverlay: View {
                 .rotationEffect(.radians(angle + .pi / 2))
                 .position(tip)
                 .opacity(min(1, Double(len) / 24))
+                .accessibilityElement(children: .ignore)
                 .accessibilityIdentifier("GizmoAxis-\(part.axisName)")
+                .accessibilityValue(viewModel.litGizmoPart == part ? "lit" : "idle")
             }
         }
     }
@@ -148,13 +150,20 @@ struct MoveGizmoOverlay: View {
     private func rotationArc(_ part: GizmoPart, _ ctx: ProjectionContext) -> some View {
         let pts = GizmoScreenLayout.ringPolyline(part, project: ctx.project)
         if pts.count >= 3 {
-            let colored = viewModel.gizmoHighlight == part ? Self.highlight : Self.fill
+            let colored = viewModel.litGizmoPart == part ? Self.highlight : Self.fill
             // Outline pass (fat, dark) then the fill pass, both with arrowheads
             // at each end — the double-ended curved arrow. Thicker + shorter and
             // pushed OUT past the move arrows (radius from GizmoScreenLayout) so
             // it reads as its own control, clear of the move handles.
-            curvedArrow(pts, width: 13, arrow: 20, color: Self.outline)
-            curvedArrow(pts, width: 7, arrow: 16, color: colored)
+            // One accessibility element for the whole handle (the passes are
+            // several paths) so the UI suite can read its lit state.
+            ZStack {
+                curvedArrow(pts, width: 13, arrow: 20, color: Self.outline)
+                curvedArrow(pts, width: 7, arrow: 16, color: colored)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("GizmoRing-\(part.axisName)")
+            .accessibilityValue(viewModel.litGizmoPart == part ? "lit" : "idle")
         }
     }
 
@@ -207,7 +216,7 @@ struct MoveGizmoOverlay: View {
 
     @ViewBuilder
     private func planeTile(_ part: GizmoPart, quad: [CGPoint], area: CGFloat) -> some View {
-        let colored = viewModel.gizmoHighlight == part ? Self.highlight : Self.fill
+        let colored = viewModel.litGizmoPart == part ? Self.highlight : Self.fill
         let path = Path { p in
             p.addLines(quad)
             p.closeSubpath()

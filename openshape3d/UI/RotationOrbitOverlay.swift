@@ -165,14 +165,40 @@ struct RotationOrbitOverlay: View {
 }
 
 /// The inline field shown when a rotation ring is tapped: type an angle,
-/// Enter to turn by exactly that much.
+/// Enter to turn by exactly that much. Same shape as `MoveDistanceField`:
+/// the app's own keypad comes up with the field (focusing a text field
+/// from an overlay left the iPad with an empty field and no keyboard,
+/// 2026-09-14), and the pad's keyboard key hands over to the system one.
 private struct RotationAngleField: View {
     @Bindable var viewModel: EditorViewModel
     let part: GizmoPart
     @State private var text = ""
+    @State private var padOpen = false
+    @State private var usingSystemKeyboard = false
     @FocusState private var focused: Bool
 
     var body: some View {
+        VStack(spacing: 6) {
+            pill
+            if padOpen && !usingSystemKeyboard {
+                NumericKeypad(
+                    text: $text,
+                    isLocked: nil,
+                    onCommit: {
+                        padOpen = false
+                        viewModel.commitRotationAngle(text)
+                    },
+                    onSwitchToSystemKeyboard: {
+                        padOpen = false
+                        usingSystemKeyboard = true
+                        focused = true
+                    }
+                )
+            }
+        }
+    }
+
+    private var pill: some View {
         HStack(spacing: 4) {
             Text(part.axisName)
                 .font(.caption2.weight(.bold))
@@ -186,6 +212,7 @@ private struct RotationAngleField: View {
                 .frame(width: 66)
                 .focused($focused)
                 .submitLabel(.done)
+                .allowsHitTesting(usingSystemKeyboard)
                 .onSubmit { viewModel.commitRotationAngle(text) }
                 .accessibilityIdentifier("RotationAngleField")
             Button {
@@ -202,9 +229,11 @@ private struct RotationAngleField: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
         .overlay(RoundedRectangle(cornerRadius: 7)
             .stroke(Color(red: 0.20, green: 0.52, blue: 1.0), lineWidth: 1.5))
+        .contentShape(Rectangle())
+        .onTapGesture { if !usingSystemKeyboard { padOpen = true } }
         .onAppear {
             text = ""
-            focused = true
+            padOpen = true
         }
     }
 }
