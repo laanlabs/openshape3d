@@ -127,3 +127,14 @@ Full serial run on the final tree (616fd16,
 0 failures, 1 skipped; UI 185 executed, 4 skipped, 0 failures.** PR #29 is
 ready for review; the merge to main is Jason's click (the session's push
 to main and its `gh pr merge` were refused by its permission policy).
+
+## Full runs after the merge
+
+- On 063e959 (PR #29's final tree: plane picker size, ring keypad):
+  **unit 1613 executed, 0 failures, 1 skipped; UI 187 executed, 4 skipped,
+  0 failures** (114 min, /tmp/os3d-full-suite4-20260914.xcresult).
+- PR #29 merged at b188b59; PRs #30 (Copy badge for a typed distance) and
+  #31 (gizmo centre, Reposition, Recenter) merged at 2c89dcd. The gizmo UI
+  tests' coordinates for the raised gizmo travel with PR #32; the next full
+  run is on that tree.
+
