@@ -83,6 +83,7 @@ struct MeshUnitPromptSheet: View {
                 }
             }
             .navigationTitle("Import Units")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

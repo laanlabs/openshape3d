@@ -107,6 +107,7 @@ struct ConstraintSettingsView: View {
                 }
             }
             .navigationTitle("Constraints")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

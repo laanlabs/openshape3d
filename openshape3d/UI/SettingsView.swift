@@ -92,6 +92,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

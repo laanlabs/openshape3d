@@ -90,6 +90,7 @@ struct MeshExportOptionsSheet: View {
                     .accessibilityIdentifier("ExportPerBodyToggle")
             }
             .navigationTitle("\(formatName) Export")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -137,6 +138,7 @@ struct ScreenshotOptionsSheet: View {
                     .accessibilityIdentifier("ScreenshotGrid")
             }
             .navigationTitle("Screenshot")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -282,6 +284,8 @@ struct EditorView: View {
             #endif
         }
         .navigationTitle(project.name)
+        .onAppear { MacWindowTitle.want(project.name) }
+        .onChange(of: project.name) { _, name in MacWindowTitle.want(name) }
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
             viewModel?.saveThumbnail()

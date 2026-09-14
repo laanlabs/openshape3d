@@ -56,6 +56,7 @@ struct MaterialSheet: View {
                 }
             }
             .navigationTitle("Material")
+            .onDisappear { MacWindowTitle.restore() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
