@@ -37,6 +37,24 @@ future submission — a build setting that was right once is not right forever.
   (Catalyst adopts a sheet's navigation title) — is fixed: the gallery and
   the editor own the window title (`MacWindowTitle`) and every sheet puts
   it back as it disappears.
+- **iPad / iPhone screenshots (2026-09-14):** framed, captioned App Store
+  images in `marketing/app-store/<device>/` (gitignored), made in two steps.
+  `scripts/marketing_scenes.py wheel|plate|bottle` builds and colours each
+  model over the DEBUG bridge (launch with `OS3D_FRESH_NAME` so the title
+  is a real name); the touch-only states (dimensioned sketch, push/pull
+  preview, History panel, Export menu) are posed by hand on top, captured
+  with `simctl io screenshot` into `marketing/raw/<device>-<slug>.png`.
+  `scripts/marketing_compose.py` then frames each on the icon's navy
+  blueprint ground at the native size — iPad Pro 13-inch 2064 × 2752,
+  iPhone 17 Pro Max 1320 × 2868, RGB — and writes `overview.png`. Shot
+  list: hero (wheel + tyre), sketch, push/pull, history (mounting plate),
+  revolve (bottle), export (wheel face-on under the Export menu). Both sets
+  are done. On the iPhone, Zoom to Fit overfills the narrow screen (it
+  sizes from the vertical FOV only), so each shot is re-framed by pinch and
+  a two-finger pan, aimed with `GET /v1/project`; History and Export live
+  under the toolbar's "…" menu. Shooting the iPhone wheel found the pinch
+  zoom-out bug fixed alongside (STATUS, 2026-09-14). New bridge ops for
+  this: `body.setMaterial`, `item.setHidden` (docs/AGENT_CONTROL.md).
 - **Still to do by hand:** the App Store Connect listing (screenshots at the
   required sizes for iPad and Mac, what's new, privacy label = no tracking,
   no collection); the Mac upload needs a Mac App Store distribution

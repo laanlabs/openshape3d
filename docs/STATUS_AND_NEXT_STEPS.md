@@ -1975,6 +1975,7 @@ Notes:
 | Var | What it does |
 |---|---|
 | `OS3D_FRESH` | Open a brand-new document instead of the gallery/last file |
+| `OS3D_FRESH_NAME` | With `OS3D_FRESH`: title that document (staged screenshots show "Motorcycle Wheel", not "Untitled 64") |
 | `OS3D_AUTO_OPEN` | Open the most recent document straight away |
 | `OS3D_DEBUG_SEED` | Seed a 4 mm box, **selected** (`.editingPrimitive`) — the fastest way to a live move gizmo |
 | `OS3D_DEBUG_SEED_CYLINDER` | Circle extrude via OCCT (a TRUE smooth cylinder), `brep` and all — it calls `adoptBRep` exactly like `evalExtrude` |

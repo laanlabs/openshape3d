@@ -179,7 +179,9 @@ struct ProjectGalleryView: View {
                 // release binary (2026-08-25 review / readiness audit §5).
                 #if DEBUG
                 if ProcessInfo.processInfo.environment["OS3D_FRESH"] != nil {
-                    createProject() // always a clean design (test isolation)
+                    // always a clean design (test isolation); OS3D_FRESH_NAME
+                    // titles it, so a staged screenshot is not "Untitled 64"
+                    createProject(named: ProcessInfo.processInfo.environment["OS3D_FRESH_NAME"])
                 } else if ProcessInfo.processInfo.environment["OS3D_AUTO_OPEN"] != nil {
                     if let first = projects.first {
                         path.append(first.persistentModelID)
@@ -668,7 +670,9 @@ struct ProjectGalleryView: View {
     // MARK: - Designs
 
     /// New designs land in the folder on screen.
-    private func createProject() {
+    private func createProject() { createProject(named: nil) }
+
+    private func createProject(named requested: String?) {
         let base = "Untitled"
         let existing = Set(projects.map(\.name))
         var name = base
@@ -677,7 +681,7 @@ struct ProjectGalleryView: View {
             name = "\(base) \(n)"
             n += 1
         }
-        let project = Project(name: name)
+        let project = Project(name: requested ?? name)
         project.folderID = currentFolderID
         modelContext.insert(project)
         // Save before navigating so the model ID is permanent — navigating on

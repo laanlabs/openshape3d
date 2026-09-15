@@ -137,6 +137,15 @@ nonisolated enum AgentExecOp: Sendable, Equatable {
     /// limitation as the interactive tool, for the same reason.
     case replaceFace(body: BodyID, face: Int, targetOrigin: SIMD3<Double>,
                      targetNormal: SIMD3<Double>, flip: Bool)
+    /// The Material sheet's Apply: one appearance over a set of bodies, one
+    /// undo step. Not a feature — appearance lives on the body, not in the
+    /// graph — so it goes through `SetMaterialCommand` like the sheet does.
+    case setMaterial(bodies: [BodyID], material: BodyMaterialSpec)
+    /// The Items panel's eye: hide or show bodies, sketches or planes by id
+    /// (the bridge resolves which kind each is), or every sketch at once —
+    /// `/v1/state` lists no sketch ids, and a finished model usually wants
+    /// all its profiles out of the way.
+    case setHidden(ids: [UUID], allSketches: Bool, hidden: Bool)
 }
 
 // MARK: - Parsing
@@ -153,6 +162,7 @@ nonisolated enum AgentExec {
         "feature.sweep", "feature.loft", "feature.pushPull",
         "feature.moveFace", "feature.scaleFace", "feature.rotateFace",
         "feature.deleteFace", "feature.replaceFace", "feature.draftFace",
+        "body.setMaterial", "item.setHidden",
     ]
 
     static let booleanKinds = ["union", "subtract", "intersect"]
@@ -191,6 +201,8 @@ nonisolated enum AgentExec {
         case "feature.deleteFace": return parseDeleteFace(args)
         case "feature.draftFace":  return parseDraftFace(args)
         case "feature.replaceFace": return parseReplaceFace(args)
+        case "body.setMaterial":   return parseSetMaterial(args)
+        case "item.setHidden":     return parseSetHidden(args)
         default:
             return .failure(.init(code: "unknown_op",
                                   message: "No exec op '\(op)'. Known ops: \(opNames.joined(separator: ", "))."))
@@ -872,6 +884,71 @@ nonisolated enum AgentExec {
                        + "Body ids come from /v1/state.")
         }
         return (op, targets)
+    }
+
+    /// A preset by the name the Material sheet shows, or a raw `color`; either
+    /// way `metallic`/`roughness` may override. Out-of-range values are refused
+    /// rather than clamped — a 255-based color is a caller bug worth naming.
+    private static func parseSetMaterial(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {
+        do {
+            guard let raw = a["bodyIDs"] as? [String], !raw.isEmpty else {
+                return .failure(.init(code: "missing_bodyIDs",
+                                      message: "args.bodyIDs must be a non-empty array of body ids from /v1/state."))
+            }
+            let bodies = try raw.map { s -> BodyID in
+                guard let u = UUID(uuidString: s) else {
+                    throw AgentExecError(code: "bad_uuid",
+                                         message: "args.bodyIDs entry '\(s)' is not a UUID. Ids come from /v1/state.")
+                }
+                return BodyID(raw: u)
+            }
+            var spec: BodyMaterialSpec
+            if let name = a["preset"] as? String {
+                guard let preset = MaterialPreset.library.first(where: {
+                    $0.name.caseInsensitiveCompare(name) == .orderedSame
+                }) else {
+                    return .failure(.init(code: "unknown_preset",
+                                          message: "No material preset '\(name)'. Known: "
+                                                 + MaterialPreset.library.map(\.name).joined(separator: ", ") + "."))
+                }
+                spec = preset.spec
+            } else if let rgba = a["color"] as? [Double] {
+                guard (3...4).contains(rgba.count), rgba.allSatisfy({ $0.isFinite && (0...1).contains($0) }) else {
+                    return .failure(.init(code: "bad_color",
+                                          message: "args.color must be [r, g, b] or [r, g, b, a], each 0…1."))
+                }
+                spec = BodyMaterialSpec(baseColor: SIMD4(rgba[0], rgba[1], rgba[2], rgba.count == 4 ? rgba[3] : 1))
+            } else {
+                return .failure(.init(code: "missing_material",
+                                      message: "args needs a \"preset\" name or a \"color\" [r, g, b]."))
+            }
+            for key in ["metallic", "roughness"] {
+                guard let v = try optionalDouble(a, key) else { continue }
+                guard (0...1).contains(v) else {
+                    return .failure(.init(code: "bad_\(key)", message: "args.\(key) must be 0…1."))
+                }
+                if key == "metallic" { spec.metallic = v } else { spec.roughness = v }
+            }
+            return .success(.setMaterial(bodies: bodies, material: spec))
+        } catch let e as AgentExecError { return .failure(e) } catch { return .failure(unexpected) }
+    }
+
+    private static func parseSetHidden(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {
+        let allSketches = a["allSketches"] as? Bool ?? false
+        let raw = a["ids"] as? [String] ?? []
+        guard allSketches || !raw.isEmpty else {
+            return .failure(.init(code: "missing_ids",
+                                  message: "args.ids must list body, sketch or plane ids, or pass \"allSketches\": true."))
+        }
+        var ids: [UUID] = []
+        for s in raw {
+            guard let u = UUID(uuidString: s) else {
+                return .failure(.init(code: "bad_uuid",
+                                      message: "args.ids entry '\(s)' is not a UUID. Ids come from /v1/state or a previous exec reply."))
+            }
+            ids.append(u)
+        }
+        return .success(.setHidden(ids: ids, allSketches: allSketches, hidden: a["hidden"] as? Bool ?? true))
     }
 
     private static func uuid(_ a: [String: Any], _ key: String) throws -> UUID {
