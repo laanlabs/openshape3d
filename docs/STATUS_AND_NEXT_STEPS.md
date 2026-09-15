@@ -67,8 +67,17 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   (1 skipped), 0 failures. Live on the iPad: the same 6.5 mm push/pull drag
   is grey on the old build and blue on the new; a bridge `feature.moveFace`
   commit and its undo stay blue. Left alone on purpose: the fresh-extrude
-  and pattern ghosts stay translucent accent previews. Not checked: whether
-  `BooleanCommand` results (built by each caller) keep the target's material.
+  and pattern ghosts stay translucent accent previews. **Booleans, checked
+  the same day:** the live Combine path (`runBoolean`) built its result as
+  a fresh `Body` and `BooleanCommand` wrote it verbatim, so Union/Subtract/
+  Intersect turned a painted target grey (and redo did again); apply and
+  revert now keep the target's appearance the same way — the tool's paint
+  goes with the tool. Graph replays were already fine: every boolean route
+  (`evalBoolean`, extrude/revolve/sweep/loft join-cut) keeps the target's
+  id, so `RebuildPlanner` carries the material. `MaterialTests` +1 (1630,
+  1 skipped, 0 failures). Live on the iPhone: blue 20×20×10 ∪ grey
+  20×10×16 by touch → one blue body, 6700 mm³; undo → blue + grey; redo →
+  blue.
 - **Gotchas added:** UI tests share the app's UserDefaults across launches
   (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
   test drags (launch with `-os3d.snapToGrid NO` where the recipe is

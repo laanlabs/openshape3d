@@ -107,7 +107,9 @@ struct ReplaceBodyCommand: DocumentCommand {
 }
 
 /// Replace the target body's geometry with the boolean result and consume the
-/// tool body. Both originals are snapshotted for undo.
+/// tool body. Both originals are snapshotted for undo. The result is built
+/// fresh from the CSG mesh, so — like `ReplaceBodyCommand` — the target keeps
+/// its live material and visibility; the tool's paint goes with the tool.
 struct BooleanCommand: DocumentCommand {
     let title: String
     let targetBefore: Body
@@ -126,7 +128,7 @@ struct BooleanCommand: DocumentCommand {
 
     func apply(to document: inout DesignDocument) {
         if let index = document.bodyIndex(of: targetBefore.id) {
-            var updated = result
+            var updated = result.keepingAppearance(of: document.bodies[index])
             updated.meshRevision = document.nextRevision()
             document.bodies[index] = updated
         }
@@ -135,7 +137,7 @@ struct BooleanCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         if let index = document.bodyIndex(of: targetBefore.id) {
-            var restored = targetBefore
+            var restored = targetBefore.keepingAppearance(of: document.bodies[index])
             restored.meshRevision = document.nextRevision()
             document.bodies[index] = restored
         }
