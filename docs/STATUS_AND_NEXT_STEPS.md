@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-15 — full UI suite after the camera / material / phone safe-area PRs (#37–#39); see the newest mission log, the register above, and
+Last updated: 2026-09-15 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -49,6 +49,20 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   LineChain, Settings) pass 43 of 43. **Gotcha:** a control near the bottom edge of a medium-detent
   sheet can drop taps. Main Settings, Material and a gallery sheet also use
   `[.medium, .large]` (flagged as a follow-up).
+- **Full UI suite on `main` after #37–#40 (ad9f1b0): no known failures.**
+  The first run crashed partway (`xcodebuild` exit 133) when the Mac's
+  disk filled, and three tests failed around then: the SweepLoft circle
+  sweep, TwoShapeRepro draw-switch-draw and VariablesPanel. None had
+  failed that morning. With space freed, every class that run failed or
+  never reached was rerun on a freshly booted `os3d-test`, and 17 of 17
+  passed. Together with the 170 that passed before the disk filled,
+  every UI test passes on `main`. The 4 `CompactWidthBarUITests` skip on
+  the iPad by design. **Gotcha:** a full disk makes UI tests fail
+  spuriously, can crash `xcodebuild`, and stops the agent's own tools
+  from writing output at all. A long UI run's `.xcresult` is 1 GB or
+  more, and repeated diagnostic runs add up. Check
+  `df -h /System/Volumes/Data` before a long run and delete old result
+  bundles.
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 
