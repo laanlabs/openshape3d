@@ -172,6 +172,36 @@ final class MaterialTests: XCTestCase {
         XCTAssertEqual(document.bodies[0].material, brass, "and so does the undo")
     }
 
+    /// Combine builds its result as a fresh Body from the CSG mesh — no
+    /// material — and BooleanCommand wrote it verbatim: a painted target
+    /// went grey on Union/Subtract/Intersect (and again on redo).
+    func testBooleanKeepsTheTargetMaterialAndUndoRestoresTheTool() {
+        var document = makeDocument()
+        let brass = preset("Brass"), rubber = preset("Rubber")
+        document.bodies[0].material = brass
+        document.bodies[1].material = rubber
+        let target = document.bodies[0], tool = document.bodies[1]
+        let result = Body(id: target.id, name: target.name,
+                          euclidMesh: .primitive(.box(width: 2, depth: 1, height: 1)), revision: 0)
+        XCTAssertNil(result.material, "the scenario: the CSG result carries no paint")
+
+        let command = BooleanCommand(kind: .union, targetBefore: target, toolIndex: 1,
+                                     toolBefore: tool, result: result)
+        command.apply(to: &document)
+        XCTAssertEqual(document.bodies.map(\.id), [target.id], "the tool is consumed")
+        XCTAssertEqual(document.bodies[0].material, brass, "the target keeps its paint")
+        XCTAssertEqual(document.bodies[0].render.localAABB.max.x, 1, accuracy: 1e-6,
+                       "while the geometry is the result's")
+
+        command.revert(in: &document)
+        XCTAssertEqual(document.bodies.map(\.id), [target.id, tool.id])
+        XCTAssertEqual(document.bodies.map(\.material), [brass, rubber],
+                       "undo brings back both bodies with their own paint")
+
+        command.apply(to: &document)
+        XCTAssertEqual(document.bodies[0].material, brass, "and so does redo")
+    }
+
     // MARK: - Persistence
 
     func testSpecCodableRoundTrip() throws {
