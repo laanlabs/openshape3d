@@ -11,6 +11,11 @@ import MetalKit
 
 struct ViewportView: UIViewRepresentable {
     let viewModel: EditorViewModel
+    /// The tool palette's frame (global coordinates) when the viewport should
+    /// keep clear of it — on a phone, where it covers a sixth of the width.
+    /// Nil frames against the whole viewport.
+    var paletteFrame: CGRect? = nil
+    var paletteOnRight = false
 
     func makeCoordinator() -> ViewportCoordinator {
         ViewportCoordinator(viewModel: viewModel)
@@ -24,6 +29,7 @@ struct ViewportView: UIViewRepresentable {
 
     func updateUIView(_ view: MTKView, context: Context) {
         context.coordinator.sceneDidChange()
+        context.coordinator.setPalette(frame: paletteFrame, onRight: paletteOnRight)
     }
 }
 
@@ -34,9 +40,16 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     private let gestures = ViewportGestureController()
     private weak var view: MTKView?
     private var cameraAnimator: CameraAnimator?
-    /// The camera the attach-time fit produced before the view had a size
-    /// (vertical FOV only); nil once re-fitted or when no re-fit is owed.
-    private var pendingLayoutFit: TurntableCamera?
+    /// The camera the latest automatic opening fit produced. The attach-time
+    /// fit runs before the view has a size or the palette has been measured,
+    /// so each arriving re-fits — only while the camera is still exactly this
+    /// one. Nil once the user moves it (or when no fit is owed).
+    private var openingFit: TurntableCamera?
+    /// The tool palette's frame (global coordinates, nil off a phone) and the
+    /// safe area derived from it against the current bounds.
+    private var paletteFrame: CGRect?
+    private var paletteOnRight = false
+    private var safeArea = ViewportSafeArea()
 
     init(viewModel: EditorViewModel) {
         self.viewModel = viewModel
@@ -90,10 +103,10 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         }
 
         if let bounds = renderer.scene.worldBounds {
-            renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
-            // The view is usually still .zero here, so this fit knows no
-            // aspect; owe a re-fit for when the real size lands.
-            pendingLayoutFit = viewportAspect == nil ? renderer.camera : nil
+            renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: fitAspect)
+            // The view is usually still .zero here and the palette unmeasured,
+            // so this fit knows neither; it is redone as they land.
+            openingFit = renderer.camera
         }
 
         // Re-publish the camera whenever the viewport is laid out or resized.
@@ -103,6 +116,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         // user happened to move the camera. This also covers rotation and
         // split-view resizes.
         renderer.viewportSizeChanged = { [weak self] in
+            self?.updateSafeArea()   // the palette's share of the width moved too
             self?.refitIfStillOpening()
             self?.cameraDidMove()
         }
@@ -116,7 +130,8 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
 
     private func ray(at point: CGPoint) -> Ray? {
         guard let renderer, let view else { return nil }
-        return renderer.camera.ray(through: point, viewportSize: view.bounds.size)
+        return renderer.camera.ray(through: point, viewportSize: view.bounds.size,
+                                   centerOffset: renderer.centerOffset)
     }
 
     // MARK: - ViewportGestureDelegate
@@ -810,7 +825,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         let viewPoint = camera.viewMatrix * SIMD4(world, 1)
         guard viewPoint.z < 0 else { return nil } // behind the camera
         let aspect = Float(size.width / size.height)
-        let clip = camera.projectionMatrix(aspect: aspect) * viewPoint
+        let clip = camera.projectionMatrix(aspect: aspect, centerOffset: renderer.centerOffset) * viewPoint
         guard clip.w > 1e-9 else { return nil }
         let ndc = SIMD3(clip.x, clip.y, clip.z) / clip.w
         return SIMD2(
@@ -825,7 +840,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         guard let renderer else { return }
         var target = renderer.camera
         if let bounds = renderer.scene.worldBounds {
-            target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
+            target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: fitAspect)
         } else {
             target = TurntableCamera()
         }
@@ -835,26 +850,61 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     func fitTo(bounds: (min: SIMD3<Float>, max: SIMD3<Float>)) {
         guard let renderer else { return }
         var target = renderer.camera
-        target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
+        target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: fitAspect)
         cameraAnimator?.animate(to: target)
     }
 
-    /// Width / height of the laid-out viewport; nil before layout (the
-    /// MTKView starts at .zero), where a fit falls back to the vertical FOV.
-    private var viewportAspect: Float? {
-        guard let size = view?.bounds.size, size.width > 0, size.height > 0 else { return nil }
-        return Float(size.width / size.height)
+    /// Width / height of the strip the palette leaves visible (the whole
+    /// viewport off a phone); nil before layout (the MTKView starts at
+    /// .zero), where a fit falls back to the vertical FOV.
+    private var fitAspect: Float? {
+        guard let size = view?.bounds.size else { return nil }
+        return safeArea.fitAspect(viewportSize: size)
     }
 
-    /// Once, on the first real size: redo the attach-time fit with the aspect
-    /// it could not know — but only if the camera is still exactly where that
-    /// fit left it (a restored or user-moved camera is never overridden).
-    /// Later resizes (rotation, split view) keep the user's framing.
+    /// Redo the opening fit with what it could not know at attach — the real
+    /// size, then the palette's safe area — while the camera is still exactly
+    /// where that fit left it. A camera the user has moved is never
+    /// overridden; later resizes then keep the user's framing.
     private func refitIfStillOpening() {
-        guard let pending = pendingLayoutFit, let renderer, let aspect = viewportAspect else { return }
-        pendingLayoutFit = nil
-        guard renderer.camera == pending, let bounds = renderer.scene.worldBounds else { return }
+        guard let opening = openingFit, let renderer, let aspect = fitAspect else { return }
+        guard renderer.camera == opening, let bounds = renderer.scene.worldBounds else {
+            openingFit = nil
+            return
+        }
         renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: aspect)
+        openingFit = renderer.camera
+    }
+
+    /// EditorView reports the palette's frame on every update (nil off a
+    /// phone). The centre shift applies at once; the re-fit and the overlay
+    /// re-publish wait a runloop turn, out of SwiftUI's view update.
+    func setPalette(frame: CGRect?, onRight: Bool) {
+        guard frame != paletteFrame || onRight != paletteOnRight else { return }
+        paletteFrame = frame
+        paletteOnRight = onRight
+        guard updateSafeArea() else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.refitIfStillOpening()
+            self?.cameraDidMove()
+        }
+    }
+
+    /// Re-derive the safe area from the palette frame and the current bounds
+    /// and hand its centre shift to the renderer — the one value drawing,
+    /// picking (`ray(at:)`) and projecting (`worldToScreen`) all read, so
+    /// they can never disagree. True when the shift changed.
+    @discardableResult
+    private func updateSafeArea() -> Bool {
+        guard let renderer, let view else { return false }
+        let size = view.bounds.size
+        let local = paletteFrame.map { view.convert($0, from: nil) }
+        safeArea = ViewportSafeArea.palette(at: local, onRight: paletteOnRight, viewportSize: size)
+        let offset = safeArea.centerOffset(viewportSize: size)
+        guard offset != renderer.centerOffset else { return false }
+        renderer.centerOffset = offset
+        view.setNeedsDisplay()
+        return true
     }
 
     func animateToStandardView(_ standard: StandardView) {

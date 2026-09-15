@@ -45,10 +45,28 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   Measured over the bridge, the plate after isometric + fit: iPhone 17 Pro
   Max x −109…562 → 65…378 on 440 pt (reopening the design lands the same);
   iPad portrait (aspect 0.75, where the horizontal FOV also binds) x 43…1009
-  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. Still
-  open: no viewport inset notion, so the fitted model can tuck slightly
-  under the left tool palette on iPhone (its corner at x 65 vs the palette
-  edge ≈ 78).
+  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. The
+  iPhone palette overlap left open here is fixed by the next entry.
+- **The phone palette keeps a safe area (2026-09-14).** The aspect-aware
+  fit still centred on the full width, so on iPhone the fitted plate's
+  near corner sat under the tool palette (AABB x 61 vs its edge at 79).
+  `ViewportSafeArea` (Camera.swift) is the strip the palette leaves
+  visible, derived from its measured frame (EditorView `onGeometryChange`;
+  compact width only, so iPad framing is unchanged; a palette pushed
+  inward by an open panel, leaving under half the width, covers nothing).
+  Fits use the strip's aspect, and the projection centre moves to the
+  strip's middle: a clip-space shift, `centerOffset`, read from
+  `Renderer.centerOffset` by the on-screen frame, `ray(at:)` and
+  `worldToScreen` (every overlay, `/v1/project`), so drawing, picking and
+  labels agree. **Anything new that draws, picks or projects must pass it
+  too.** Offscreen captures (thumbnails, `/v1/screenshot`) stay centred.
+  It is a lens shift, not an offset fit target, so the model stays clear
+  at every orbit angle and standard view. The opening fit is redone when
+  the palette is first measured, while the camera is untouched.
+  `CameraTests` +3; full suite 1633 (1 skipped), 0 failures. Live on the
+  iPhone 17 Pro Max, plate after isometric + fit: AABB x 61…382 → 129…392
+  (centre 259.3, mid-strip 259.5); Back view 141…377; a tap on the plate's
+  end selects it, and a tap 18 pt past its drawn edge selects nothing.
 - **Painted bodies keep their material through previews and face edits
   (2026-09-14).** Every preview that stands in for its source body — face
   push/pull, fillet/chamfer, shell, delete face, replace face — was drawn
