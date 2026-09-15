@@ -31,12 +31,24 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   now pass in full (10/10). **Gotcha:** a UI test that taps a fitted seed
   at fixed coordinates is tied to the fit; change the fit, rescale the
   taps.
-- **One failure predates this work:**
-  `ConstraintRailUITests.testMidpointApplicationAndHistoryDeselectMixedOperands`.
-  The rail settings' `SnapToGridToggle` never reads "0" after the test's
-  tap. It fails identically on `bfe822d` on a separate freshly booted
-  simulator (`os3d-runner-A`). Not fixed here; flagged as a follow-up
-  task.
+- **The fourth predated this work and was a real app bug, fixed the same
+  day.** `ConstraintRailUITests.testMidpointApplicationAndHistoryDeselectMixedOperands`
+  (it also fails on `bfe822d`) was the constraint settings sheet's Grid
+  switch ignoring taps. By hand in the simulator it ignored 1 of 2. With
+  the app instrumented, a lost tap never reached `AppSettings.snapToGrid`
+  (no set, no revert), and the sheet was not re-rendering. The cause was
+  the sheet's half-height detent. Sheet taps lost per diagnostic run:
+  - `[.medium, .large]`: 2 of 15 and 4 of 15;
+  - plus `.presentationContentInteraction(.scrolls)`: 1 of 30;
+  - no detents: 0 of 15.
+
+  The same switch in main Settings lost none, but the test had swiped that
+  sheet up to full height. The constraint sheet now opens full height (no
+  detents), and the midpoint test, with its original single tap, passed
+  8 of 8. The four classes that use the sheet (ConstraintRail, Dimension,
+  LineChain, Settings) pass 43 of 43. **Gotcha:** a control near the bottom edge of a medium-detent
+  sheet can drop taps. Main Settings, Material and a gallery sheet also use
+  `[.medium, .large]` (flagged as a follow-up).
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 
