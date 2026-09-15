@@ -22,6 +22,24 @@ struct BodyMaterial: Equatable {
     var textureRevision: UInt64 = 0
 }
 
+extension BodyMaterial {
+    /// The render-side form of a body's persisted appearance — the one
+    /// mapping, shared by the body and by every live preview that stands in
+    /// for it (push/pull, blend, shell, delete/replace face), which otherwise
+    /// drew the default grey. The texture rides along only when the mesh can
+    /// sample it: a rebuilt (boolean'd, blended, previewed) mesh has no
+    /// texcoords, so it keeps the colour and drops the image.
+    init(spec: BodyMaterialSpec, meshHasTexcoords: Bool, revision: UInt64) {
+        self.init(
+            baseColor: SIMD4<Float>(spec.baseColor),
+            metallic: Float(spec.metallic),
+            roughness: Float(spec.roughness),
+            textureData: meshHasTexcoords ? spec.baseColorTexture : nil,
+            textureRevision: revision
+        )
+    }
+}
+
 /// Everything the renderer needs to draw one body.
 struct BodyDrawable: Identifiable {
     let id: BodyID

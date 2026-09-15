@@ -81,7 +81,9 @@ struct TransformBodiesCommand: DocumentCommand {
 }
 
 /// Swap a body's geometry/transform for a new version (face extrude,
-/// push/pull results). Value snapshots both ways.
+/// push/pull results). Value snapshots both ways — of GEOMETRY: the body
+/// keeps its live material and visibility (`Body.keepingAppearance`), since
+/// several callers snapshot freshly built bodies that carry neither.
 struct ReplaceBodyCommand: DocumentCommand {
     let title: String
     let before: Body
@@ -89,7 +91,7 @@ struct ReplaceBodyCommand: DocumentCommand {
 
     func apply(to document: inout DesignDocument) {
         if let index = document.bodyIndex(of: before.id) {
-            var updated = after
+            var updated = after.keepingAppearance(of: document.bodies[index])
             updated.meshRevision = document.nextRevision()
             document.bodies[index] = updated
         }
@@ -97,7 +99,7 @@ struct ReplaceBodyCommand: DocumentCommand {
 
     func revert(in document: inout DesignDocument) {
         if let index = document.bodyIndex(of: before.id) {
-            var restored = before
+            var restored = before.keepingAppearance(of: document.bodies[index])
             restored.meshRevision = document.nextRevision()
             document.bodies[index] = restored
         }

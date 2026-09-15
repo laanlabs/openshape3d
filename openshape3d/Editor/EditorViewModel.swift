@@ -573,6 +573,15 @@ final class EditorViewModel {
         let replaceFacePreviewSource: BodyID? =
             replaceFacePreview != nil ? replaceFaceBodyID : nil
 
+        // A preview that replaces its source body IS that body mid-edit, so it
+        // wears the source's material — without this, a blue part turned the
+        // default grey for the whole push/pull, blend, shell or face edit.
+        func sourceMaterial(_ sourceID: BodyID?, on preview: Body) -> BodyMaterial? {
+            guard let sourceID, let spec = session.document.body(with: sourceID)?.material else { return nil }
+            return BodyMaterial(spec: spec, meshHasTexcoords: preview.render.texcoords != nil,
+                                revision: preview.meshRevision)
+        }
+
         // Isolate (spec §16.2): a transient override hides everything outside
         // the isolated set without touching persisted visibility.
         for body in session.document.bodies
@@ -601,18 +610,8 @@ final class EditorViewModel {
                 baseColor: SIMD4(0.72, 0.74, 0.78, 1),
                 selectionState: selectionState,
                 material: body.material.map {
-                    BodyMaterial(
-                        baseColor: SIMD4(
-                            Float($0.baseColor.x), Float($0.baseColor.y),
-                            Float($0.baseColor.z), Float($0.baseColor.w)
-                        ),
-                        metallic: Float($0.metallic),
-                        roughness: Float($0.roughness),
-                        // Only a mesh with texcoords can sample it; a
-                        // rebuilt (boolean'd, blended) body drops both.
-                        textureData: body.render.texcoords == nil ? nil : $0.baseColorTexture,
-                        textureRevision: body.meshRevision
-                    )
+                    BodyMaterial(spec: $0, meshHasTexcoords: body.render.texcoords != nil,
+                                 revision: body.meshRevision)
                 }
             ))
         }
@@ -635,7 +634,9 @@ final class EditorViewModel {
                 // committed result), not an orange "selected" body.
                 selectionState: replacesSource
                     ? SelectionStateNone.rawValue : SelectionStatePreview.rawValue,
-                isTranslucent: !replacesSource
+                isTranslucent: !replacesSource,
+                // A fresh sketch extrude's accent ghost stays uncoloured.
+                material: replacesSource ? sourceMaterial(facePreviewSource, on: preview) : nil
             ))
         }
 
@@ -649,7 +650,8 @@ final class EditorViewModel {
                 meshRevision: preview.meshRevision,
                 modelMatrix: preview.transform.matrixFloat,
                 baseColor: SIMD4(0.72, 0.74, 0.78, 1),
-                selectionState: SelectionStateNone.rawValue
+                selectionState: SelectionStateNone.rawValue,
+                material: sourceMaterial(shellBodyID, on: preview)
             ))
         }
 
@@ -662,7 +664,8 @@ final class EditorViewModel {
                 meshRevision: preview.meshRevision,
                 modelMatrix: preview.transform.matrixFloat,
                 baseColor: SIMD4(0.72, 0.74, 0.78, 1),
-                selectionState: SelectionStateNone.rawValue
+                selectionState: SelectionStateNone.rawValue,
+                material: sourceMaterial(deleteFaceBodyID, on: preview)
             ))
         }
 
@@ -676,7 +679,8 @@ final class EditorViewModel {
                 meshRevision: preview.meshRevision,
                 modelMatrix: preview.transform.matrixFloat,
                 baseColor: SIMD4(0.72, 0.74, 0.78, 1),
-                selectionState: SelectionStateNone.rawValue
+                selectionState: SelectionStateNone.rawValue,
+                material: sourceMaterial(replaceFaceBodyID, on: preview)
             ))
         }
 
@@ -763,7 +767,8 @@ final class EditorViewModel {
                 meshRevision: preview.meshRevision,
                 modelMatrix: preview.transform.matrixFloat,
                 baseColor: SIMD4(0.72, 0.74, 0.78, 1),
-                selectionState: SelectionStateNone.rawValue
+                selectionState: SelectionStateNone.rawValue,
+                material: sourceMaterial(blendBodyID, on: preview)
             ))
         }
 
@@ -1648,7 +1653,7 @@ final class EditorViewModel {
               let moved = faceMovedLocalMesh(s, worldDelta: worldDelta) else {
             session.preview { document in
                 if let index = document.bodyIndex(of: s.bodyID) {
-                    document.bodies[index] = before
+                    document.bodies[index] = before.keepingAppearance(of: document.bodies[index])
                 }
             }
             return
@@ -1818,10 +1823,12 @@ final class EditorViewModel {
                                 indices: s.previewRender.indices)
         session.preview { document in
             guard let index = document.bodyIndex(of: s.bodyID) else { return }
-            document.bodies[index] = Body(
+            var preview = Body(
                 id: s.bodyID, name: document.bodies[index].name,
                 transform: transform, render: render,
                 edges: s.previewEdges, revision: revision)
+            preview.material = document.bodies[index].material   // not grey mid-drag
+            document.bodies[index] = preview
         }
     }
 
@@ -1847,7 +1854,7 @@ final class EditorViewModel {
               let scaled = faceScaledLocalMesh(s, factor: factor) else {
             session.preview { document in
                 if let index = document.bodyIndex(of: s.bodyID) {
-                    document.bodies[index] = before
+                    document.bodies[index] = before.keepingAppearance(of: document.bodies[index])
                 }
             }
             return
@@ -1965,10 +1972,12 @@ final class EditorViewModel {
         transform.translation = s.pivot
         session.preview { document in
             guard let index = document.bodyIndex(of: s.bodyID) else { return }
-            document.bodies[index] = Body(
+            var preview = Body(
                 id: s.bodyID, name: document.bodies[index].name,
                 transform: transform, primitive: nil,
                 euclidMesh: rotated, revision: revision)
+            preview.material = document.bodies[index].material   // not grey mid-drag
+            document.bodies[index] = preview
         }
     }
 
@@ -1995,7 +2004,7 @@ final class EditorViewModel {
               let rotated = faceRotatedLocalMesh(s, angle: angle, axis: axis) else {
             session.preview { document in
                 if let index = document.bodyIndex(of: s.bodyID) {
-                    document.bodies[index] = before
+                    document.bodies[index] = before.keepingAppearance(of: document.bodies[index])
                 }
             }
             return
@@ -2170,7 +2179,7 @@ final class EditorViewModel {
                                     indices: s.previewRender.indices)
             session.preview { document in
                 guard let index = document.bodyIndex(of: s.bodyID) else { return }
-                document.bodies[index] = Body(
+                var preview = Body(
                     id: s.bodyID,
                     name: document.bodies[index].name,
                     transform: transform,
@@ -2178,6 +2187,10 @@ final class EditorViewModel {
                     edges: s.previewEdges,
                     revision: revision
                 )
+                // The fresh body has no material: carry the source's, or a
+                // painted part turns the default grey for the whole drag.
+                preview.material = document.bodies[index].material
+                document.bodies[index] = preview
             }
             return
         }

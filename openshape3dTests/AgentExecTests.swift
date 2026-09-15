@@ -133,6 +133,50 @@ final class AgentExecTests: XCTestCase {
                        "missing_faces")
     }
 
+    func testSetMaterialTakesAPresetOrAColor() throws {
+        let id = UUID().uuidString
+        guard case let .setMaterial(bodies, brass)? = op(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"],"preset":"brass","roughness":0.5}}"#) else {
+            return XCTFail("expected .setMaterial")
+        }
+        XCTAssertEqual(bodies.map { $0.raw.uuidString }, [id])
+        let preset = try XCTUnwrap(MaterialPreset.library.first { $0.name == "Brass" })
+        XCTAssertEqual(brass.baseColor, preset.spec.baseColor, "preset names match case-insensitively")
+        XCTAssertEqual(brass.metallic, 1)
+        XCTAssertEqual(brass.roughness, 0.5, "an explicit factor overrides the preset's")
+
+        guard case let .setMaterial(_, orange)? = op(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"],"color":[1,0.5,0]}}"#) else {
+            return XCTFail("expected .setMaterial")
+        }
+        XCTAssertEqual(orange.baseColor, SIMD4(1, 0.5, 0, 1), "an RGB color gets alpha 1")
+        XCTAssertEqual(orange.metallic, 0)
+
+        XCTAssertEqual(code(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"],"preset":"Unobtainium"}}"#), "unknown_preset")
+        XCTAssertEqual(code(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"]}}"#), "missing_material")
+        XCTAssertEqual(code(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"],"color":[2,0,0]}}"#), "bad_color")
+        XCTAssertEqual(code(#"{"op":"body.setMaterial","args":{"bodyIDs":["\#(id)"],"preset":"Steel","metallic":3}}"#), "bad_metallic")
+        XCTAssertEqual(code(#"{"op":"body.setMaterial","args":{"bodyIDs":[],"preset":"Steel"}}"#), "missing_bodyIDs")
+    }
+
+    func testSetHiddenTakesIdsOrEverySketch() throws {
+        let id = UUID()
+        guard case let .setHidden(ids, allSketches, hidden)? = op(#"{"op":"item.setHidden","args":{"ids":["\#(id.uuidString)"]}}"#) else {
+            return XCTFail("expected .setHidden")
+        }
+        XCTAssertEqual(ids, [id])
+        XCTAssertFalse(allSketches)
+        XCTAssertTrue(hidden, "hides unless told otherwise")
+
+        guard case let .setHidden(none, every, shown)? = op(#"{"op":"item.setHidden","args":{"allSketches":true,"hidden":false}}"#) else {
+            return XCTFail("expected .setHidden")
+        }
+        XCTAssertTrue(none.isEmpty)
+        XCTAssertTrue(every)
+        XCTAssertFalse(shown)
+
+        XCTAssertEqual(code(#"{"op":"item.setHidden","args":{}}"#), "missing_ids", "nothing to act on")
+        XCTAssertEqual(code(#"{"op":"item.setHidden","args":{"ids":["nope"]}}"#), "bad_uuid")
+    }
+
     func testReplaceFaceParsesPlaneAndRejectsDegenerateNormal() throws {
         let id = UUID().uuidString
         let parsed = op(#"{"op":"feature.replaceFace","args":{"bodyID":"\#(id)","face":[2],"targetOrigin":[0,5,0],"targetNormal":[0,2,0],"flip":true}}"#)

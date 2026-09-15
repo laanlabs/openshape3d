@@ -289,6 +289,8 @@ graph, and shows up in History like any other feature.
 | `feature.mirror` | `bodyID`, `planeOrigin`, `planeNormal`; optional `keepOriginal` (default true — a mirrored COPY beside the source; `false` moves it: the source body is consumed, one body remains) |
 | `feature.transform` | `bodyID`; `translation` `[x,y,z]`, `rotationDegrees` (optional `rotationAxis`, default +Z) and/or `scale` (a positive uniform factor), the rotation and scale about `rotationCenter` (default origin). Moves the body IN PLACE — same id, analytic solid and element names kept; a parametric node like any other, the same node the Move/Rotate/Scale tools record. Identity is refused (`identity_transform`), `scale ≤ 0` is `bad_scale`. |
 | `feature.boolean` | `kind` (union/subtract/intersect), `targetBodyID`, `toolBodyIDs[]` |
+| `body.setMaterial` | `bodyIDs[]`, and `preset` (a Material sheet name, case-insensitive: Steel, Aluminum, Brass, Plastic Matte, Plastic Gloss, Rubber, Wood) or `color` `[r,g,b(,a)]` in 0…1; optional `metallic`, `roughness` (0…1, override the preset's). The sheet's Apply — one `SetMaterialCommand`, one undo step, not a feature |
+| `item.setHidden` | `ids[]` (any mix of body, sketch and plane ids) and/or `allSketches: true`; optional `hidden` (default true; false shows). The Items panel's eye — one `SetItemVisibilityCommand` per item, reported as `undoSteps` |
 
 Entity kinds: `line` (`a`,`b`), `circle` (`center`,`radius`), `arc`
 (`center`,`radius`,`startAngle`,`endAngle`), `spline` (`points[]`,`closed`),

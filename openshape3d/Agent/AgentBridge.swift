@@ -429,6 +429,29 @@ final class AgentBridge {
             return execReplaceFace(body: bodyID, face: face,
                                    targetOrigin: origin, targetNormal: normal,
                                    flip: flip, on: viewModel)
+
+        case let .setMaterial(bodies, material):
+            if let bad = missingBody(bodies, session) { return bad }
+            session.perform(SetMaterialCommand(bodyIDs: Set(bodies), material: material.clamped,
+                                               document: session.document))
+            return execOK(viewModel, ["bodyIDs": bodies.map { $0.raw.uuidString }, "undoSteps": 1])
+
+        case let .setHidden(ids, allSketches, hidden):
+            let document = session.document
+            var items: [DocumentItemRef] = allSketches ? document.sketches.map { .sketch($0.id) } : []
+            for raw in ids {
+                if document.bodies.contains(where: { $0.id.raw == raw }) {
+                    items.append(.body(BodyID(raw: raw)))
+                } else if document.sketches.contains(where: { $0.id.raw == raw }) {
+                    items.append(.sketch(SketchID(raw: raw)))
+                } else if document.planes.contains(where: { $0.id.raw == raw }) {
+                    items.append(.plane(ConstructionPlaneID(raw: raw)))
+                } else {
+                    return execMissing("item", raw.uuidString)
+                }
+            }
+            for item in items { session.perform(SetItemVisibilityCommand(item: item, isHidden: hidden)) }
+            return execOK(viewModel, ["count": items.count, "undoSteps": items.count])
         }
     }
 

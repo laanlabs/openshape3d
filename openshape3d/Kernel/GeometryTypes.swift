@@ -228,4 +228,16 @@ nonisolated struct Body: Identifiable, Sendable {
     func euclidMesh() -> Euclid.Mesh {
         euclid ?? EuclidBridge.euclidMesh(from: render)
     }
+
+    /// This body's geometry wearing `live`'s appearance (material, Items
+    /// visibility). Appearance has its own commands, so a geometry swap must
+    /// not change it — yet the face move/scale/rotate paths snapshot freshly
+    /// built bodies that carry neither, which turned a painted part grey on
+    /// commit, undo and cancel.
+    nonisolated func keepingAppearance(of live: Body) -> Body {
+        var body = self
+        body.material = live.material
+        body.isHidden = live.isHidden
+        return body
+    }
 }

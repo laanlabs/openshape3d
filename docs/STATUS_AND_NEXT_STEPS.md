@@ -29,6 +29,46 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 - **iPad session feedback (2026-09-14):** plane picker tiles sized to the
   screen (3004c48); rotation ring typed entry with the app keypad and lit
   handles (ba42c5b). `testing/ipad-feedback-2026-09-14.md`.
+- **Pinch-out on a metre-scale model no longer jumps the camera in
+  (2026-09-14).** `TurntableCamera.zoom` capped distance at 2000 mm while
+  `fit` sets it directly: a 1 m wheel fits from ~2.6 m, so every zoom-out
+  snapped to 2 m (×1.29 closer, whatever the pinch). The cap is now
+  `maxZoomDistance` (100 m) and never below the current distance
+  (`CameraTests.testPinchOutFromAFarFitNeverMovesCloser`).
+- **Zoom to Fit respects the viewport aspect (2026-09-14).** `fit` sized the
+  bounding sphere against the vertical FOV only, so a wide model overflowed
+  a portrait phone. `fit(boundsMin:boundsMax:aspect:)` now fits inside the
+  tighter half-FOV (horizontal = atan(tan(fovY/2)·aspect); orthographic
+  needs no branch). Aspect ≥ 1 is unchanged. The viewport passes its aspect
+  on every fit, and redoes the attach-time fit once when the view first
+  gets a size (it opens at .zero) unless the camera moved meanwhile.
+  Measured over the bridge, the plate after isometric + fit: iPhone 17 Pro
+  Max x −109…562 → 65…378 on 440 pt (reopening the design lands the same);
+  iPad portrait (aspect 0.75, where the horizontal FOV also binds) x 43…1009
+  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. Still
+  open: no viewport inset notion, so the fitted model can tuck slightly
+  under the left tool palette on iPhone (its corner at x 65 vs the palette
+  edge ≈ 78).
+- **Painted bodies keep their material through previews and face edits
+  (2026-09-14).** Every preview that stands in for its source body — face
+  push/pull, fillet/chamfer, shell, delete face, replace face — was drawn
+  with no material, so a painted part went the default grey for the whole
+  drag; the face move/scale/rotate drags did the same by swapping a fresh
+  `Body` (no material) into the document in `session.preview`. Worse, those
+  three committed through `ReplaceBodyCommand` with freshly built
+  before/after snapshots, so the commit, its undo and a cancelled drag
+  stripped the paint for good. Now one spec→render mapping,
+  `BodyMaterial(spec:meshHasTexcoords:revision:)`, serves bodies and
+  replacing previews alike (a rebuilt preview mesh keeps the colour and
+  drops an imported texture, as a committed rebuild already did); the face
+  drag previews carry the source's material; `ReplaceBodyCommand` apply and
+  revert keep the live body's material and visibility
+  (`Body.keepingAppearance`). `MaterialTests` +2; full unit suite 1629
+  (1 skipped), 0 failures. Live on the iPad: the same 6.5 mm push/pull drag
+  is grey on the old build and blue on the new; a bridge `feature.moveFace`
+  commit and its undo stay blue. Left alone on purpose: the fresh-extrude
+  and pattern ghosts stay translucent accent previews. Not checked: whether
+  `BooleanCommand` results (built by each caller) keep the target's material.
 - **Gotchas added:** UI tests share the app's UserDefaults across launches
   (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
   test drags (launch with `-os3d.snapToGrid NO` where the recipe is
@@ -1935,6 +1975,7 @@ Notes:
 | Var | What it does |
 |---|---|
 | `OS3D_FRESH` | Open a brand-new document instead of the gallery/last file |
+| `OS3D_FRESH_NAME` | With `OS3D_FRESH`: title that document (staged screenshots show "Motorcycle Wheel", not "Untitled 64") |
 | `OS3D_AUTO_OPEN` | Open the most recent document straight away |
 | `OS3D_DEBUG_SEED` | Seed a 4 mm box, **selected** (`.editingPrimitive`) — the fastest way to a live move gizmo |
 | `OS3D_DEBUG_SEED_CYLINDER` | Circle extrude via OCCT (a TRUE smooth cylinder), `brep` and all — it calls `adoptBRep` exactly like `evalExtrude` |
