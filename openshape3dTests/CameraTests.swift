@@ -15,6 +15,97 @@ final class CameraTests: XCTestCase {
 
     private let viewport = CGSize(width: 1024, height: 768)
 
+    // MARK: - Zoom
+
+    /// `fit` sets distance directly, so a metre-scale model fits from beyond
+    /// the old 2000 mm pinch cap — and a pinch-OUT then snapped the camera IN
+    /// (a 1 m wheel jumped 1.29× closer on every zoom-out).
+    func testPinchOutFromAFarFitNeverMovesCloser() {
+        var camera = TurntableCamera()
+        camera.fit(boundsMin: SIMD3(-500, 0, -500), boundsMax: SIMD3(500, 1000, 500))
+        let fitted = camera.distance
+        XCTAssertGreaterThan(fitted, 2000, "the scenario: a fit beyond the old cap")
+
+        camera.zoom(scale: 0.8)   // fingers closing = zoom out
+        XCTAssertEqual(camera.distance, fitted / 0.8, accuracy: 0.01)
+
+        camera.zoom(scale: 2)     // zoom in still works from out here
+        XCTAssertEqual(camera.distance, fitted / 0.8 / 2, accuracy: 0.01)
+    }
+
+    func testZoomOutStopsAtTheCeilingWithoutJumpingIn() {
+        var camera = TurntableCamera()
+        camera.distance = TurntableCamera.maxZoomDistance * 0.9
+        camera.zoom(scale: 0.5)
+        XCTAssertEqual(camera.distance, TurntableCamera.maxZoomDistance)
+
+        camera.distance = TurntableCamera.maxZoomDistance * 2   // a fit past the ceiling
+        camera.zoom(scale: 0.5)
+        XCTAssertEqual(camera.distance, TurntableCamera.maxZoomDistance * 2,
+                       "zooming out past the ceiling holds; it never pulls the camera in")
+    }
+
+    // MARK: - Fit
+
+    /// The 40 × 24 mm mounting plate with its 4.5 mm boss (Y up).
+    private let plateMin = SIMD3<Float>(-20, 0, -12)
+    private let plateMax = SIMD3<Float>(20, 10.5, 12)
+
+    /// Largest |NDC| over the AABB's eight corners: ≤ 1 means all in frame.
+    private func worstCornerNDC(_ camera: TurntableCamera, aspect: Float,
+                                min lo: SIMD3<Float>, max hi: SIMD3<Float>) -> (x: Float, y: Float) {
+        var worst = (x: Float(0), y: Float(0))
+        for i in 0..<8 {
+            let corner = SIMD3<Float>(i & 1 == 0 ? lo.x : hi.x,
+                                      i & 2 == 0 ? lo.y : hi.y,
+                                      i & 4 == 0 ? lo.z : hi.z)
+            let clip = camera.viewProjection(aspect: aspect) * SIMD4(corner, 1)
+            worst.x = max(worst.x, abs(clip.x / clip.w))
+            worst.y = max(worst.y, abs(clip.y / clip.w))
+        }
+        return worst
+    }
+
+    /// Measured 2026-09-14 on the iPhone 17 Pro Max (440 × 956 pt): the
+    /// vertical-only fit put the plate's corners at x = −109 and 562.
+    func testFitOnAPortraitPhoneKeepsTheWholeModelInFrame() {
+        let phone: Float = 440.0 / 956.0
+        var before = TurntableCamera()
+        before.fit(boundsMin: plateMin, boundsMax: plateMax)
+        XCTAssertGreaterThan(worstCornerNDC(before, aspect: phone, min: plateMin, max: plateMax).x, 1,
+                             "the scenario: a vertical-only fit overflows a portrait phone's width")
+
+        var camera = TurntableCamera()
+        camera.fit(boundsMin: plateMin, boundsMax: plateMax, aspect: phone)
+        let worst = worstCornerNDC(camera, aspect: phone, min: plateMin, max: plateMax)
+        XCTAssertLessThan(worst.x, 1)
+        XCTAssertLessThan(worst.y, 1)
+    }
+
+    func testFitOnALandscapeViewportIsUnchanged() {
+        var vertical = TurntableCamera()
+        vertical.fit(boundsMin: plateMin, boundsMax: plateMax)
+        for aspect: Float in [1, 4.0 / 3.0, 16.0 / 10.0] {
+            var camera = TurntableCamera()
+            camera.fit(boundsMin: plateMin, boundsMax: plateMax, aspect: aspect)
+            XCTAssertEqual(camera.distance, vertical.distance, accuracy: 1e-4,
+                           "aspect \(aspect): the vertical FOV already binds")
+        }
+        var unknown = TurntableCamera()
+        unknown.fit(boundsMin: plateMin, boundsMax: plateMax, aspect: nil)
+        XCTAssertEqual(unknown.distance, vertical.distance, "no laid-out viewport keeps the vertical fit")
+    }
+
+    func testOrthographicFitOnAPortraitPhoneKeepsTheModelInFrame() {
+        let phone: Float = 440.0 / 956.0
+        var camera = TurntableCamera()
+        camera.projection = .orthographic
+        camera.fit(boundsMin: plateMin, boundsMax: plateMax, aspect: phone)
+        let worst = worstCornerNDC(camera, aspect: phone, min: plateMin, max: plateMax)
+        XCTAssertLessThan(worst.x, 1)
+        XCTAssertLessThan(worst.y, 1)
+    }
+
     // MARK: - Orthographic projection
 
     func testOrthographicRaysAreParallel() {

@@ -25,6 +25,8 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
 
     static let defaultFovY: Float = 40 * .pi / 180
     static let elevationLimit: Float = 89 * .pi / 180
+    /// Farthest a pinch can dolly out, mm (100 m: a room scan still fits).
+    static let maxZoomDistance: Float = 100_000
 
     /// Vertical FOV used for screen-size conversions (pan, fit, gizmo scale).
     /// Orthographic keeps the default so the frustum height at the target
@@ -95,7 +97,11 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
 
     mutating func zoom(scale: Float) {
         guard scale > 0 else { return }
-        distance = min(max(distance / scale, 0.05), 2000)
+        // The ceiling never sits below the current distance: `fit` sets
+        // distance directly, and a metre-scale model fits from ~2.6 m, so the
+        // old fixed 2000 mm cap turned every pinch-OUT there into a jump IN.
+        // Near/far scale with distance, so a far camera stays depth-precise.
+        distance = min(max(distance / scale, 0.05), max(Self.maxZoomDistance, distance))
     }
 
     /// Ray through a screen point (points, UIKit top-left origin).
@@ -115,11 +121,24 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
     }
 
     /// Frame the given world-space AABB, keeping the current orientation.
-    mutating func fit(boundsMin: SIMD3<Float>, boundsMax: SIMD3<Float>) {
+    /// `aspect` is the viewport's width / height: the bounding sphere is fitted
+    /// inside whichever FOV is tighter, so a wide model on a portrait phone
+    /// (aspect ≈ 0.46) no longer overflows the width. Nil (no laid-out
+    /// viewport yet) or aspect ≥ 1 keeps the vertical fit.
+    mutating func fit(boundsMin: SIMD3<Float>, boundsMax: SIMD3<Float>, aspect: Float? = nil) {
         let center = (boundsMin + boundsMax) * 0.5
         let radius = max(simd_length(boundsMax - boundsMin) * 0.5, 0.5)
         target = center
-        distance = radius / tan(fovY * 0.5) * 1.35
+        distance = radius / tan(fitHalfAngle(aspect: aspect)) * 1.35
+    }
+
+    /// The half-FOV the fit must respect. The horizontal half-FOV is
+    /// atan(tan(fovY / 2) · aspect); orthographic needs no branch, since its
+    /// half-width is distance · tan(fovY / 2) · aspect — the same relation.
+    func fitHalfAngle(aspect: Float?) -> Float {
+        let vertical = fovY * 0.5
+        guard let aspect, aspect.isFinite, aspect > 0, aspect < 1 else { return vertical }
+        return atan(tan(vertical) * aspect)
     }
 }
 

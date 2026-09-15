@@ -29,6 +29,26 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 - **iPad session feedback (2026-09-14):** plane picker tiles sized to the
   screen (3004c48); rotation ring typed entry with the app keypad and lit
   handles (ba42c5b). `testing/ipad-feedback-2026-09-14.md`.
+- **Pinch-out on a metre-scale model no longer jumps the camera in
+  (2026-09-14).** `TurntableCamera.zoom` capped distance at 2000 mm while
+  `fit` sets it directly: a 1 m wheel fits from ~2.6 m, so every zoom-out
+  snapped to 2 m (×1.29 closer, whatever the pinch). The cap is now
+  `maxZoomDistance` (100 m) and never below the current distance
+  (`CameraTests.testPinchOutFromAFarFitNeverMovesCloser`).
+- **Zoom to Fit respects the viewport aspect (2026-09-14).** `fit` sized the
+  bounding sphere against the vertical FOV only, so a wide model overflowed
+  a portrait phone. `fit(boundsMin:boundsMax:aspect:)` now fits inside the
+  tighter half-FOV (horizontal = atan(tan(fovY/2)·aspect); orthographic
+  needs no branch). Aspect ≥ 1 is unchanged. The viewport passes its aspect
+  on every fit, and redoes the attach-time fit once when the view first
+  gets a size (it opens at .zero) unless the camera moved meanwhile.
+  Measured over the bridge, the plate after isometric + fit: iPhone 17 Pro
+  Max x −109…562 → 65…378 on 440 pt (reopening the design lands the same);
+  iPad portrait (aspect 0.75, where the horizontal FOV also binds) x 43…1009
+  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. Still
+  open: no viewport inset notion, so the fitted model can tuck slightly
+  under the left tool palette on iPhone (its corner at x 65 vs the palette
+  edge ≈ 78).
 - **Gotchas added:** UI tests share the app's UserDefaults across launches
   (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
   test drags (launch with `-os3d.snapToGrid NO` where the recipe is

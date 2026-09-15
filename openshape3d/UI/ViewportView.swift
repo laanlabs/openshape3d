@@ -34,6 +34,9 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     private let gestures = ViewportGestureController()
     private weak var view: MTKView?
     private var cameraAnimator: CameraAnimator?
+    /// The camera the attach-time fit produced before the view had a size
+    /// (vertical FOV only); nil once re-fitted or when no re-fit is owed.
+    private var pendingLayoutFit: TurntableCamera?
 
     init(viewModel: EditorViewModel) {
         self.viewModel = viewModel
@@ -87,7 +90,10 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         }
 
         if let bounds = renderer.scene.worldBounds {
-            renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max)
+            renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
+            // The view is usually still .zero here, so this fit knows no
+            // aspect; owe a re-fit for when the real size lands.
+            pendingLayoutFit = viewportAspect == nil ? renderer.camera : nil
         }
 
         // Re-publish the camera whenever the viewport is laid out or resized.
@@ -96,7 +102,10 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         // viewport and would stay stale — silently drawing nothing — until the
         // user happened to move the camera. This also covers rotation and
         // split-view resizes.
-        renderer.viewportSizeChanged = { [weak self] in self?.cameraDidMove() }
+        renderer.viewportSizeChanged = { [weak self] in
+            self?.refitIfStillOpening()
+            self?.cameraDidMove()
+        }
         cameraDidMove()
     }
 
@@ -816,7 +825,7 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         guard let renderer else { return }
         var target = renderer.camera
         if let bounds = renderer.scene.worldBounds {
-            target.fit(boundsMin: bounds.min, boundsMax: bounds.max)
+            target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
         } else {
             target = TurntableCamera()
         }
@@ -826,8 +835,26 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
     func fitTo(bounds: (min: SIMD3<Float>, max: SIMD3<Float>)) {
         guard let renderer else { return }
         var target = renderer.camera
-        target.fit(boundsMin: bounds.min, boundsMax: bounds.max)
+        target.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: viewportAspect)
         cameraAnimator?.animate(to: target)
+    }
+
+    /// Width / height of the laid-out viewport; nil before layout (the
+    /// MTKView starts at .zero), where a fit falls back to the vertical FOV.
+    private var viewportAspect: Float? {
+        guard let size = view?.bounds.size, size.width > 0, size.height > 0 else { return nil }
+        return Float(size.width / size.height)
+    }
+
+    /// Once, on the first real size: redo the attach-time fit with the aspect
+    /// it could not know — but only if the camera is still exactly where that
+    /// fit left it (a restored or user-moved camera is never overridden).
+    /// Later resizes (rotation, split view) keep the user's framing.
+    private func refitIfStillOpening() {
+        guard let pending = pendingLayoutFit, let renderer, let aspect = viewportAspect else { return }
+        pendingLayoutFit = nil
+        guard renderer.camera == pending, let bounds = renderer.scene.worldBounds else { return }
+        renderer.camera.fit(boundsMin: bounds.min, boundsMax: bounds.max, aspect: aspect)
     }
 
     func animateToStandardView(_ standard: StandardView) {
