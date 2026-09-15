@@ -132,15 +132,18 @@ final class PlanesUITests: XCTestCase {
         startSketchTool(app, "Line")
         XCTAssertTrue(app.staticTexts["Choose a sketch plane"].waitForExistence(timeout: 3))
 
-        // The front-right wall, nearer the camera than the origin tiles.
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.70, dy: 0.60)).tap()
+        // The front-right wall, nearer the camera than the origin tiles. (Zoom
+        // to Fit has respected the portrait aspect since 2026-09-14: on this
+        // iPad the cylinder draws at 0.75× its old size, so both taps sit
+        // 0.75× as far from the centre as they used to.)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.65, dy: 0.575)).tap()
         sleep(1)
         XCTAssertTrue(app.staticTexts["Choose a sketch plane"].exists,
                       "A curved wall should be refused and leave the picker up")
         XCTAssertFalse(app.staticTexts["Sketching on plane"].exists)
 
         // The flat top cap is a sketch plane.
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.34)).tap()
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.38)).tap()
         XCTAssertTrue(app.staticTexts["Sketching on plane"].waitForExistence(timeout: 3),
                       "The planar cap should start the sketch")
         app.buttons["Exit Sketching"].tap()

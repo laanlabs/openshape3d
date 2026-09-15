@@ -93,14 +93,17 @@ final class MeasureUITests: XCTestCase {
 
         // Tap near two box corners; the picker snaps to the nearest body
         // vertex within tolerance. Sweep a few candidate spots so the test
-        // survives camera-framing differences.
+        // survives small camera-framing differences. (Zoom to Fit has
+        // respected the portrait aspect since 2026-09-14: on this iPad the box
+        // draws at 0.75× its old size, so each spot sits 0.75× as far from
+        // the centre as it used to.)
         let candidates: [CGVector] = [
-            CGVector(dx: 0.58, dy: 0.42),  // front-top corner
-            CGVector(dx: 0.87, dy: 0.72),  // bottom-right corner
-            CGVector(dx: 0.44, dy: 0.22),  // top-back corner
-            CGVector(dx: 0.91, dy: 0.28),  // top-right corner
-            CGVector(dx: 0.57, dy: 0.86),  // bottom-front corner
-            CGVector(dx: 0.13, dy: 0.70),  // bottom-left corner
+            CGVector(dx: 0.56, dy: 0.44),   // front-top corner
+            CGVector(dx: 0.78, dy: 0.665),  // bottom-right corner
+            CGVector(dx: 0.455, dy: 0.29),  // top-back corner
+            CGVector(dx: 0.81, dy: 0.335),  // top-right corner
+            CGVector(dx: 0.55, dy: 0.77),   // bottom-front corner
+            CGVector(dx: 0.22, dy: 0.65),   // bottom-left corner
         ]
         let distance = app.staticTexts["MeasureDistanceValue"]
         for offset in candidates {

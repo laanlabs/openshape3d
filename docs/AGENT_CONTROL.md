@@ -361,7 +361,10 @@ Two behaviours worth knowing:
 
 PNG bytes, rendered by the app itself — so it works identically on Catalyst and
 on a device, where `simctl io screenshot` does not exist. Sizes clamp to
-64–4096, default 1024.
+64–4096, default 1024. It is an offscreen render, centred on the camera
+target. On a phone the on-screen view is shifted right of the tool palette
+(`ViewportSafeArea`), so for tap coordinates use `/v1/project`, which
+follows the screen, not positions read off this image.
 
 Sleep ~1s after any `view.*` command before capturing: standard views animate,
 and an immediate capture catches the camera mid-flight, which looks exactly like

@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-13 — sketch-parity branch (PR #29) ready to merge; iPad open-time fix; see the newest mission log, the register above, and
+Last updated: 2026-09-15 — full UI suite after the camera / material / phone safe-area PRs (#37–#39); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,32 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-15, full UI suite after #37–#39
+
+- **Full UI suite on `fix/phone-palette-safe-area`** (0da9c88, on top of
+  #37 and #38): 189 executed, 181 passed, 4 skipped, 4 failed, in 115 min
+  on a freshly booted `os3d-test`. The 4 skips are the
+  `CompactWidthBarUITests` phone-width tests, which skip on the iPad, so
+  the #39 safe area has no UI coverage (unit tests and the live iPhone
+  check only).
+- **Three failures were #37's framing, not the app.** `DeleteFaceUITests`,
+  `MeasureUITests.testMeasureTwoPointsShowsDistance` and
+  `PlanesUITests.testPlanePickerRefusesCurvedWallAndAcceptsCap` tap fixed
+  normalized points on a seeded model fitted at open. Zoom to Fit now
+  respects the portrait aspect: on the 13" iPad (0.75) the model fits
+  1/0.75 farther away, so every fitted point sits 0.75× as far from the
+  screen centre. All three pass on `bfe822d` (before #37). Their points
+  are rescaled (new = 0.5 + (old − 0.5) · 0.75), and the three classes
+  now pass in full (10/10). **Gotcha:** a UI test that taps a fitted seed
+  at fixed coordinates is tied to the fit; change the fit, rescale the
+  taps.
+- **One failure predates this work:**
+  `ConstraintRailUITests.testMidpointApplicationAndHistoryDeselectMixedOperands`.
+  The rail settings' `SnapToGridToggle` never reads "0" after the test's
+  tap. It fails identically on `bfe822d` on a separate freshly booted
+  simulator (`os3d-runner-A`). Not fixed here; flagged as a follow-up
+  task.
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 
@@ -45,10 +71,28 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   Measured over the bridge, the plate after isometric + fit: iPhone 17 Pro
   Max x −109…562 → 65…378 on 440 pt (reopening the design lands the same);
   iPad portrait (aspect 0.75, where the horizontal FOV also binds) x 43…1009
-  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. Still
-  open: no viewport inset notion, so the fitted model can tuck slightly
-  under the left tool palette on iPhone (its corner at x 65 vs the palette
-  edge ≈ 78).
+  → 157…886 on 1032 pt, ~25 % smaller and clear of the palette. The
+  iPhone palette overlap left open here is fixed by the next entry.
+- **The phone palette keeps a safe area (2026-09-14).** The aspect-aware
+  fit still centred on the full width, so on iPhone the fitted plate's
+  near corner sat under the tool palette (AABB x 61 vs its edge at 79).
+  `ViewportSafeArea` (Camera.swift) is the strip the palette leaves
+  visible, derived from its measured frame (EditorView `onGeometryChange`;
+  compact width only, so iPad framing is unchanged; a palette pushed
+  inward by an open panel, leaving under half the width, covers nothing).
+  Fits use the strip's aspect, and the projection centre moves to the
+  strip's middle: a clip-space shift, `centerOffset`, read from
+  `Renderer.centerOffset` by the on-screen frame, `ray(at:)` and
+  `worldToScreen` (every overlay, `/v1/project`), so drawing, picking and
+  labels agree. **Anything new that draws, picks or projects must pass it
+  too.** Offscreen captures (thumbnails, `/v1/screenshot`) stay centred.
+  It is a lens shift, not an offset fit target, so the model stays clear
+  at every orbit angle and standard view. The opening fit is redone when
+  the palette is first measured, while the camera is untouched.
+  `CameraTests` +3; full suite 1633 (1 skipped), 0 failures. Live on the
+  iPhone 17 Pro Max, plate after isometric + fit: AABB x 61…382 → 129…392
+  (centre 259.3, mid-strip 259.5); Back view 141…377; a tap on the plate's
+  end selects it, and a tap 18 pt past its drawn edge selects nothing.
 - **Painted bodies keep their material through previews and face edits
   (2026-09-14).** Every preview that stands in for its source body — face
   push/pull, fillet/chamfer, shell, delete face, replace face — was drawn

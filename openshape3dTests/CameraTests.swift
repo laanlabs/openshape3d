@@ -106,6 +106,93 @@ final class CameraTests: XCTestCase {
         XCTAssertLessThan(worst.y, 1)
     }
 
+    // MARK: - Phone palette safe area
+
+    /// iPhone 17 Pro Max portrait; the tool palette spans x 14…79.
+    private let phoneSize = CGSize(width: 440, height: 956)
+    private let paletteFrame = CGRect(x: 14, y: 178, width: 65, height: 597)
+
+    /// On-screen x range (points) of the AABB's corners, drawn with `offset`.
+    private func cornerScreenX(_ camera: TurntableCamera, offset: SIMD2<Float>,
+                               min lo: SIMD3<Float>, max hi: SIMD3<Float>) -> ClosedRange<Double> {
+        let vp = camera.viewProjection(aspect: Float(phoneSize.width / phoneSize.height),
+                                       centerOffset: offset)
+        var xs: [Double] = []
+        for i in 0..<8 {
+            let corner = SIMD3<Float>(i & 1 == 0 ? lo.x : hi.x,
+                                      i & 2 == 0 ? lo.y : hi.y,
+                                      i & 4 == 0 ? lo.z : hi.z)
+            let clip = vp * SIMD4(corner, 1)
+            xs.append((Double(clip.x / clip.w) + 1) / 2 * phoneSize.width)
+        }
+        return xs.min()!...xs.max()!
+    }
+
+    func testPaletteSafeAreaCentresOnTheVisibleStrip() {
+        let area = ViewportSafeArea.palette(at: paletteFrame, onRight: false, viewportSize: phoneSize)
+        XCTAssertEqual(area, ViewportSafeArea(leading: 79))
+        XCTAssertEqual(area.centerOffset(viewportSize: phoneSize).x, Float(79.0 / 440.0), accuracy: 1e-6)
+        XCTAssertEqual(area.fitAspect(viewportSize: phoneSize) ?? 0, Float(361.0 / 956.0), accuracy: 1e-6)
+
+        // Left-handed layout: the palette 14 pt off the right edge (x 361…426).
+        let right = ViewportSafeArea.palette(at: paletteFrame.offsetBy(dx: 347, dy: 0), onRight: true,
+                                             viewportSize: phoneSize)
+        XCTAssertEqual(right, ViewportSafeArea(trailing: 79))
+        XCTAssertEqual(right.centerOffset(viewportSize: phoneSize).x, Float(-79.0 / 440.0), accuracy: 1e-6)
+
+        // Pushed inward by an open panel (x 332…397): framing into the 43 pt
+        // left over would be worse than the overlap, so it covers nothing.
+        XCTAssertEqual(ViewportSafeArea.palette(at: paletteFrame.offsetBy(dx: 318, dy: 0), onRight: false,
+                                                viewportSize: phoneSize), ViewportSafeArea())
+        XCTAssertEqual(ViewportSafeArea.palette(at: nil, onRight: false, viewportSize: phoneSize),
+                       ViewportSafeArea())
+    }
+
+    /// Measured 2026-09-14 on the iPhone 17 Pro Max: Zoom to Fit put the
+    /// plate's near corner at x 65, under the palette's edge at 79.
+    func testFitIntoThePhoneSafeAreaKeepsThePlateClearOfThePaletteFromEveryView() {
+        let area = ViewportSafeArea.palette(at: paletteFrame, onRight: false, viewportSize: phoneSize)
+        let offset = area.centerOffset(viewportSize: phoneSize)
+
+        var before = TurntableCamera()
+        before.fit(boundsMin: plateMin, boundsMax: plateMax,
+                   aspect: Float(phoneSize.width / phoneSize.height))
+        XCTAssertLessThan(cornerScreenX(before, offset: .zero, min: plateMin, max: plateMax).lowerBound, 79,
+                          "the scenario: a full-width fit reaches under the palette")
+
+        var camera = TurntableCamera()
+        camera.fit(boundsMin: plateMin, boundsMax: plateMax, aspect: area.fitAspect(viewportSize: phoneSize))
+        // The shift keeps the target — the model's centre — mid-strip, so every
+        // orientation stays clear, not only the one it was fitted at.
+        for view in StandardView.allCases {
+            let xs = cornerScreenX(view.applied(to: camera), offset: offset, min: plateMin, max: plateMax)
+            XCTAssertGreaterThan(xs.lowerBound, 79, view.rawValue)
+            XCTAssertLessThan(xs.upperBound, 440, view.rawValue)
+        }
+    }
+
+    /// Taps must land on what was drawn: the ray through a point projected
+    /// with the shift passes back through it, perspective and ortho.
+    func testPickingThroughAShiftedProjectionHitsWhatItDrew() {
+        let offset = SIMD2<Float>(Float(79.0 / 440.0), 0)
+        let aspect = Float(phoneSize.width / phoneSize.height)
+        for projection in [CameraProjection.perspective(fovY: TurntableCamera.defaultFovY), .orthographic] {
+            var camera = TurntableCamera()
+            camera.projection = projection
+            let world = SIMD3<Float>(1.5, 0.8, -2)
+            let clip = camera.viewProjection(aspect: aspect, centerOffset: offset) * SIMD4(world, 1)
+            let screen = CGPoint(x: (Double(clip.x / clip.w) + 1) / 2 * phoneSize.width,
+                                 y: (1 - Double(clip.y / clip.w)) / 2 * phoneSize.height)
+            let ray = camera.ray(through: screen, viewportSize: phoneSize, centerOffset: offset)
+            let along = simd_dot(world - ray.origin, ray.direction)
+            XCTAssertLessThan(simd_length(world - ray.origin - ray.direction * along), 1e-2, "\(projection)")
+        }
+        // The target lands mid-strip: 79 + 361 / 2 = 259.5 pt.
+        let camera = TurntableCamera()
+        let clip = camera.viewProjection(aspect: aspect, centerOffset: offset) * SIMD4(camera.target, 1)
+        XCTAssertEqual((Double(clip.x / clip.w) + 1) / 2 * phoneSize.width, 259.5, accuracy: 1e-3)
+    }
+
     // MARK: - Orthographic projection
 
     func testOrthographicRaysAreParallel() {

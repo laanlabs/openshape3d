@@ -46,8 +46,10 @@ final class DeleteFaceUITests: XCTestCase {
         XCTAssertFalse(apply.isEnabled, "Apply stays off until a face is picked")
 
         // The drill runs up the Y axis, so the hole opens through the TOP face
-        // and its wall is what shows through the opening.
-        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35)).tap()
+        // and its wall is what shows through the opening. (Zoom to Fit has
+        // respected the portrait aspect since 2026-09-14: on this iPad the box
+        // draws at 0.75× its old size, so this sits 0.75× as far from centre.)
+        window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.39)).tap()
         XCTAssertTrue(app.staticTexts["1 face to delete"].waitForExistence(timeout: 5),
                       "tapping the hole wall should pick exactly one face")
         XCTAssertTrue(apply.isEnabled, "a healable pick enables Apply")

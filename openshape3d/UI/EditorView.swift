@@ -192,6 +192,10 @@ struct EditorView: View {
     /// Measured height of the bottom bar stack, fed by `BottomBarHeightKey`.
     /// The palette and the corner chips inset above it — see `bottomBarInset`.
     @State private var bottomBarHeight: CGFloat = 0
+    /// The tool palette's frame (global coordinates), measured for the
+    /// viewport's phone safe area — see `ViewportSafeArea`.
+    @State private var paletteFrame: CGRect?
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     /// App-wide preferences; reads in body are Observation-tracked so unit /
     /// palette-side changes re-render live.
     private var settings: AppSettings { AppSettings.shared }
@@ -944,7 +948,11 @@ struct EditorView: View {
     /// (importers, exporters, sheets, alerts) attach in `editorContent`.
     /// Split keeps each expression type-checkable in reasonable time.
     private func viewportChrome(_ viewModel: EditorViewModel) -> some View {
-        ViewportView(viewModel: viewModel)
+        // On a phone the palette covers a sixth of the width: Zoom to Fit
+        // frames, and the view centres, in the strip it leaves visible.
+        ViewportView(viewModel: viewModel,
+                     paletteFrame: horizontalSizeClass == .compact ? paletteFrame : nil,
+                     paletteOnRight: settings.paletteOnRight)
             .ignoresSafeArea()
             .overlay {
                 marqueeOverlay(viewModel)
@@ -1087,6 +1095,10 @@ struct EditorView: View {
             // Keep palette flyouts above the panels they temporarily overlap.
             .overlay(alignment: settings.paletteOnRight ? .trailing : .leading) {
                 ToolPaletteView(viewModel: viewModel)
+                    // The column itself (flyouts are overlays, outside it).
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                        paletteFrame = $0
+                    }
                     // Interface side (spec §17): palette flips to the right
                     // for left-handed sketching.
                     .padding(settings.paletteOnRight ? .trailing : .leading,

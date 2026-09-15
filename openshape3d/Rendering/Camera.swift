@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreGraphics
 import simd
 
 /// Camera projection mode (spec §7.3: FOV slider reaching 0° = orthographic;
@@ -51,26 +52,37 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
         Matrices.lookAt(eye: position, target: target, up: SIMD3(0, 1, 0))
     }
 
-    func projectionMatrix(aspect: Float) -> simd_float4x4 {
+    /// `centerOffset` moves the image's centre — where the target lands — off
+    /// the viewport's middle, in NDC (the viewport spans −1…1): the middle of
+    /// the strip the phone palette leaves visible (`ViewportSafeArea`).
+    /// Everything that draws, picks or projects must pass the same offset.
+    func projectionMatrix(aspect: Float, centerOffset: SIMD2<Float> = .zero) -> simd_float4x4 {
         // Near/far scaled to distance keeps depth precision sane whether the
         // model is 5mm or 5m.
         let near = max(0.01, distance * 0.01)
         let far = max(100, distance * 40)
+        let lens: simd_float4x4
         switch projection {
         case .perspective(let fov):
-            return Matrices.perspective(fovYRadians: fov, aspect: aspect, near: near, far: far)
+            lens = Matrices.perspective(fovYRadians: fov, aspect: aspect, near: near, far: far)
         case .orthographic:
             // Ortho scale derives from distance: the frustum height equals the
             // perspective height at the target depth, so dolly = zoom.
             let halfHeight = distance * tan(fovY * 0.5)
-            return Matrices.orthographic(
+            lens = Matrices.orthographic(
                 halfWidth: halfHeight * aspect, halfHeight: halfHeight, near: near, far: far
             )
         }
+        guard centerOffset != .zero else { return lens }
+        // x_clip += offset · w_clip: after the divide every point moves by
+        // the same NDC offset, perspective and ortho alike.
+        var shift = matrix_identity_float4x4
+        shift.columns.3 = SIMD4(centerOffset.x, centerOffset.y, 0, 1)
+        return shift * lens
     }
 
-    func viewProjection(aspect: Float) -> simd_float4x4 {
-        projectionMatrix(aspect: aspect) * viewMatrix
+    func viewProjection(aspect: Float, centerOffset: SIMD2<Float> = .zero) -> simd_float4x4 {
+        projectionMatrix(aspect: aspect, centerOffset: centerOffset) * viewMatrix
     }
 
     // MARK: - Navigation
@@ -108,11 +120,12 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
     /// Orthographic needs no special branch: the inverse view-projection is
     /// affine (w stays 1), so unprojected near/far points yield parallel rays
     /// whose origins slide on the near plane — exactly ortho picking.
-    func ray(through point: CGPoint, viewportSize: CGSize) -> Ray {
+    func ray(through point: CGPoint, viewportSize: CGSize,
+             centerOffset: SIMD2<Float> = .zero) -> Ray {
         let aspect = Float(viewportSize.width / max(viewportSize.height, 1))
         let ndcX = Float(point.x / viewportSize.width) * 2 - 1
         let ndcY = 1 - Float(point.y / viewportSize.height) * 2
-        let inverseVP = simd_inverse(viewProjection(aspect: aspect))
+        let inverseVP = simd_inverse(viewProjection(aspect: aspect, centerOffset: centerOffset))
         let nearPoint = inverseVP * SIMD4(ndcX, ndcY, 0, 1)
         let farPoint = inverseVP * SIMD4(ndcX, ndcY, 1, 1)
         let near3 = SIMD3(nearPoint.x, nearPoint.y, nearPoint.z) / nearPoint.w
@@ -139,6 +152,46 @@ nonisolated struct TurntableCamera: Sendable, Equatable {
         let vertical = fovY * 0.5
         guard let aspect, aspect.isFinite, aspect > 0, aspect < 1 else { return vertical }
         return atan(tan(vertical) * aspect)
+    }
+}
+
+/// The part of the viewport the tool palette leaves visible. On a phone the
+/// palette covers ~80 of 440 points at one side, and Zoom to Fit centred on
+/// the full width put the model's near side under it. Fits frame into the
+/// visible strip (`fitAspect`) and the projection centre moves to its middle
+/// (`centerOffset`), so the model stays clear at every orbit angle and
+/// standard view — not only the one it was fitted at, as shifting the fit's
+/// target would.
+nonisolated struct ViewportSafeArea: Equatable, Sendable {
+    /// Points covered at the leading / trailing edge.
+    var leading: CGFloat = 0
+    var trailing: CGFloat = 0
+
+    /// The side a palette at `frame` (viewport coordinates) covers. A palette
+    /// an open panel pushed inward, leaving under half the width visible,
+    /// covers nothing: framing into a sliver is worse than the overlap.
+    static func palette(at frame: CGRect?, onRight: Bool, viewportSize: CGSize) -> ViewportSafeArea {
+        guard let frame, viewportSize.width > 0 else { return ViewportSafeArea() }
+        let area = onRight
+            ? ViewportSafeArea(trailing: max(0, viewportSize.width - frame.minX))
+            : ViewportSafeArea(leading: max(0, frame.maxX))
+        return area.visibleWidth(in: viewportSize.width) >= viewportSize.width * 0.5
+            ? area : ViewportSafeArea()
+    }
+
+    func visibleWidth(in width: CGFloat) -> CGFloat { width - leading - trailing }
+
+    /// The NDC shift that centres the projection on the visible strip.
+    func centerOffset(viewportSize: CGSize) -> SIMD2<Float> {
+        guard viewportSize.width > 0 else { return .zero }
+        return SIMD2(Float((leading - trailing) / viewportSize.width), 0)
+    }
+
+    /// Width / height of the visible strip — the aspect a fit must respect.
+    /// Nil before layout (the MTKView starts at .zero).
+    func fitAspect(viewportSize: CGSize) -> Float? {
+        guard viewportSize.width > 0, viewportSize.height > 0 else { return nil }
+        return Float(visibleWidth(in: viewportSize.width) / viewportSize.height)
     }
 }
 

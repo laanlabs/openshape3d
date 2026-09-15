@@ -17,6 +17,10 @@ import CoreGraphics
 final class Renderer: NSObject, MTKViewDelegate {
     let context: RenderContext
     var camera = TurntableCamera()
+    /// NDC shift of the on-screen image's centre — the phone palette's safe
+    /// area (`ViewportSafeArea`). Set by the viewport coordinator, which picks
+    /// and projects with this same value; offscreen captures stay centred.
+    var centerOffset: SIMD2<Float> = .zero
     var scene = ViewportScene()
 
     private let cache = GPUResourceCache()
@@ -593,6 +597,8 @@ final class Renderer: NSObject, MTKViewDelegate {
     // MARK: - Uniforms
 
     private func makeFrameUniforms(viewportSize: CGSize? = nil) -> FrameUniforms {
+        // An explicit size is an offscreen capture: no palette sits over it.
+        let centerOffset = viewportSize == nil ? self.centerOffset : .zero
         let viewportSize = viewportSize ?? self.viewportSize
         let aspect = Float(viewportSize.width / max(viewportSize.height, 1))
         let cameraPosition = camera.position
@@ -606,7 +612,7 @@ final class Renderer: NSObject, MTKViewDelegate {
         let lightDirection = simd_normalize(forward + right * 0.35 - up * 0.45)
 
         var frame = FrameUniforms()
-        frame.viewProjectionMatrix = camera.viewProjection(aspect: aspect)
+        frame.viewProjectionMatrix = camera.viewProjection(aspect: aspect, centerOffset: centerOffset)
         frame.cameraPosition = SIMD4(cameraPosition, 1)
         frame.keyLightDirection = SIMD4(lightDirection, 0)
         frame.skyColor = SIMD4(1.0, 1.0, 1.05, 1)
