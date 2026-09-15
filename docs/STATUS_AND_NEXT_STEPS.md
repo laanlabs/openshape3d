@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-13 — sketch-parity branch (PR #29) ready to merge; iPad open-time fix; see the newest mission log, the register above, and
+Last updated: 2026-09-15 — full UI suite after the camera / material / phone safe-area PRs (#37–#39); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,32 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-15, full UI suite after #37–#39
+
+- **Full UI suite on `fix/phone-palette-safe-area`** (0da9c88, on top of
+  #37 and #38): 189 executed, 181 passed, 4 skipped, 4 failed, in 115 min
+  on a freshly booted `os3d-test`. The 4 skips are the
+  `CompactWidthBarUITests` phone-width tests, which skip on the iPad, so
+  the #39 safe area has no UI coverage (unit tests and the live iPhone
+  check only).
+- **Three failures were #37's framing, not the app.** `DeleteFaceUITests`,
+  `MeasureUITests.testMeasureTwoPointsShowsDistance` and
+  `PlanesUITests.testPlanePickerRefusesCurvedWallAndAcceptsCap` tap fixed
+  normalized points on a seeded model fitted at open. Zoom to Fit now
+  respects the portrait aspect: on the 13" iPad (0.75) the model fits
+  1/0.75 farther away, so every fitted point sits 0.75× as far from the
+  screen centre. All three pass on `bfe822d` (before #37). Their points
+  are rescaled (new = 0.5 + (old − 0.5) · 0.75), and the three classes
+  now pass in full (10/10). **Gotcha:** a UI test that taps a fitted seed
+  at fixed coordinates is tied to the fit; change the fit, rescale the
+  taps.
+- **One failure predates this work:**
+  `ConstraintRailUITests.testMidpointApplicationAndHistoryDeselectMixedOperands`.
+  The rail settings' `SnapToGridToggle` never reads "0" after the test's
+  tap. It fails identically on `bfe822d` on a separate freshly booted
+  simulator (`os3d-runner-A`). Not fixed here; flagged as a follow-up
+  task.
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 
