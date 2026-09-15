@@ -49,6 +49,26 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   open: no viewport inset notion, so the fitted model can tuck slightly
   under the left tool palette on iPhone (its corner at x 65 vs the palette
   edge ≈ 78).
+- **Painted bodies keep their material through previews and face edits
+  (2026-09-14).** Every preview that stands in for its source body — face
+  push/pull, fillet/chamfer, shell, delete face, replace face — was drawn
+  with no material, so a painted part went the default grey for the whole
+  drag; the face move/scale/rotate drags did the same by swapping a fresh
+  `Body` (no material) into the document in `session.preview`. Worse, those
+  three committed through `ReplaceBodyCommand` with freshly built
+  before/after snapshots, so the commit, its undo and a cancelled drag
+  stripped the paint for good. Now one spec→render mapping,
+  `BodyMaterial(spec:meshHasTexcoords:revision:)`, serves bodies and
+  replacing previews alike (a rebuilt preview mesh keeps the colour and
+  drops an imported texture, as a committed rebuild already did); the face
+  drag previews carry the source's material; `ReplaceBodyCommand` apply and
+  revert keep the live body's material and visibility
+  (`Body.keepingAppearance`). `MaterialTests` +2; full unit suite 1629
+  (1 skipped), 0 failures. Live on the iPad: the same 6.5 mm push/pull drag
+  is grey on the old build and blue on the new; a bridge `feature.moveFace`
+  commit and its undo stay blue. Left alone on purpose: the fresh-extrude
+  and pattern ghosts stay translucent accent previews. Not checked: whether
+  `BooleanCommand` results (built by each caller) keep the target's material.
 - **Gotchas added:** UI tests share the app's UserDefaults across launches
   (`OS3D_RESET_STORE` now resets them too); grid snapping captures small
   test drags (launch with `-os3d.snapToGrid NO` where the recipe is

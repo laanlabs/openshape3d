@@ -126,6 +126,52 @@ final class MaterialTests: XCTestCase {
         XCTAssertEqual(document.bodies[0].material, wood)
     }
 
+    // MARK: - Render mapping
+
+    /// The spec → renderer mapping used by a body AND by every live preview
+    /// that replaces it (push/pull, blend, shell, delete/replace face) — the
+    /// previews used to skip it and draw the default grey mid-drag.
+    @MainActor
+    func testRenderMaterialCarriesTheSpecAndDropsTheTextureWithoutTexcoords() {
+        var spec = preset("Plastic Gloss")
+        spec.baseColorTexture = Data([1, 2, 3])
+
+        let textured = BodyMaterial(spec: spec, meshHasTexcoords: true, revision: 7)
+        XCTAssertEqual(textured.baseColor, SIMD4<Float>(spec.baseColor))
+        XCTAssertEqual(textured.metallic, Float(spec.metallic))
+        XCTAssertEqual(textured.roughness, Float(spec.roughness))
+        XCTAssertEqual(textured.textureData, Data([1, 2, 3]))
+        XCTAssertEqual(textured.textureRevision, 7)
+
+        let rebuilt = BodyMaterial(spec: spec, meshHasTexcoords: false, revision: 8)
+        XCTAssertNil(rebuilt.textureData, "a rebuilt preview mesh cannot sample the image")
+        XCTAssertEqual(rebuilt.baseColor, textured.baseColor, "but it keeps the colour")
+        XCTAssertEqual(rebuilt.roughness, textured.roughness)
+    }
+
+    /// Face move/scale/rotate commit through ReplaceBodyCommand with freshly
+    /// built before/after bodies that carry no material; a painted part went
+    /// grey on commit and stayed grey on undo.
+    func testReplaceBodyKeepsTheLiveMaterialOnApplyAndRevert() {
+        var document = makeDocument(bodyCount: 1)
+        let brass = preset("Brass")
+        document.bodies[0].material = brass
+        let live = document.bodies[0]
+        let before = Body(id: live.id, name: live.name,
+                          euclidMesh: .primitive(.box(width: 1, depth: 1, height: 1)), revision: 0)
+        let after = Body(id: live.id, name: live.name,
+                         euclidMesh: .primitive(.box(width: 2, depth: 1, height: 1)), revision: 0)
+        XCTAssertNil(after.material, "the scenario: snapshots built without the paint")
+
+        let command = ReplaceBodyCommand(title: "Scale Face", before: before, after: after)
+        command.apply(to: &document)
+        XCTAssertEqual(document.bodies[0].material, brass, "the commit keeps the paint")
+        XCTAssertEqual(document.bodies[0].render.localAABB.max.x, 1, accuracy: 1e-6,
+                       "while the geometry is the replacement's")
+        command.revert(in: &document)
+        XCTAssertEqual(document.bodies[0].material, brass, "and so does the undo")
+    }
+
     // MARK: - Persistence
 
     func testSpecCodableRoundTrip() throws {
