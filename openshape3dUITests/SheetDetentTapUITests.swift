@@ -59,6 +59,45 @@ final class SheetDetentTapUITests: XCTestCase {
             .withOffset(CGVector(dx: point.x, dy: point.y)).tap()
     }
 
+    /// Opens main Settings on either device. On an iPad the gear is in the
+    /// editor's toolbar. On a phone the toolbar folds into a "…" menu, and
+    /// the Settings row there has no `SettingsButton` identifier, so it is
+    /// found by its title (gotcha 58).
+    private func openSettings(_ app: XCUIApplication) {
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10), "editor should be up")
+        let gear = app.buttons["SettingsButton"]
+        if gear.exists && gear.isHittable {
+            gear.tap()
+        } else {
+            let overflow = app.navigationBars.buttons.matching(
+                NSPredicate(format: "label CONTAINS[c] 'more'")).firstMatch
+            XCTAssertTrue(overflow.waitForExistence(timeout: 5), "the toolbar should offer a \"…\" menu")
+            overflow.tap()
+            let row = app.buttons["Settings"].firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 5), "Settings should be in the \"…\" menu")
+            row.tap()
+        }
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5), "Settings should open")
+    }
+
+    /// Opens the constraint settings sheet from an active sketch. The
+    /// regular-width rail has a gear (`ConstraintRailSettings`); at compact
+    /// width the rail is a menu (`ConstraintRailMenu`) whose "Constraint
+    /// Settings" row is found by its title.
+    private func openConstraintSettings(_ app: XCUIApplication) {
+        let gear = app.buttons["ConstraintRailSettings"]
+        let menu = app.buttons["ConstraintRailMenu"]
+        XCTAssertTrue(poll(5) { gear.exists || menu.exists }, "the constraint rail should be up")
+        if gear.exists {
+            gear.tap()
+        } else {
+            menu.tap()
+            let row = app.buttons["Constraint Settings"].firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 3), "the rail menu should offer Constraint Settings")
+            row.tap()
+        }
+    }
+
     /// The point on a Form switch row that lands on the switch itself.
     private func switchPoint(_ row: XCUIElement) -> CGPoint {
         let f = row.frame
@@ -110,6 +149,12 @@ final class SheetDetentTapUITests: XCTestCase {
                              identifier: String) {
         let row = app.switches[identifier].firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
+        // A switch below the fold is not a lost tap: a tap there misses the
+        // sheet. Fail loudly rather than record 15 false losses.
+        guard row.frame.maxY <= app.windows.firstMatch.frame.maxY + 1 else {
+            XCTFail("\(sheet): the switch is below the fold (row \(row.frame)); nothing to probe")
+            return
+        }
         let point = switchPoint(row)
         var before = row.value as? String
         probe(app, sheet: sheet, navTitle: navTitle,
@@ -149,9 +194,7 @@ final class SheetDetentTapUITests: XCTestCase {
         app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
         sleep(2)
-        let rail = app.buttons["ConstraintRailSettings"]
-        XCTAssertTrue(rail.waitForExistence(timeout: 5))
-        rail.tap()
+        openConstraintSettings(app)
         probeSwitch(app, sheet: "constraint", navTitle: "Constraints",
                     identifier: "SnapToGridToggle")
     }
@@ -166,9 +209,7 @@ final class SheetDetentTapUITests: XCTestCase {
         app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.78)).tap()
         XCTAssertTrue(app.staticTexts["Sketching on ground plane"].waitForExistence(timeout: 3))
         sleep(2)
-        let rail = app.buttons["ConstraintRailSettings"]
-        XCTAssertTrue(rail.waitForExistence(timeout: 5))
-        rail.tap()
+        openConstraintSettings(app)
         probeSwitch(app, sheet: "constraint-top", navTitle: "Constraints",
                     identifier: "AlwaysShowDimensionsToggle")
     }
@@ -177,8 +218,7 @@ final class SheetDetentTapUITests: XCTestCase {
     /// Circular Annotations menu (the snapping switches are below it).
     func testSettingsCircularAnnotationsPicker() {
         let app = launch(seeded: false)
-        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
-        app.buttons["SettingsButton"].tap()
+        openSettings(app)
         probeMenuPicker(app, sheet: "settings", navTitle: "Settings",
                         picker: app.buttons["SettingsCircularAnnotations"],
                         options: ["Radius and Diameter", "Always Radius"])
@@ -186,19 +226,21 @@ final class SheetDetentTapUITests: XCTestCase {
 
     /// Main Settings at medium, its Grid switch, where the medium stop shows
     /// it at all. The iPad's card does not (the test skips there). A phone's
-    /// half-height sheet probably does, but on 2026-09-15 Settings could not
-    /// be opened on a phone (its button is missing from the editor's "…"
-    /// overflow menu).
+    /// half-height sheet may; Settings opens there through the "…" menu
+    /// since #44 (before that it could not be opened on a phone at all).
     func testSettingsGridSwitch() throws {
         let app = launch(seeded: false)
-        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
-        app.buttons["SettingsButton"].tap()
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        openSettings(app)
         sleep(1)
         let row = app.switches["SnapToGridToggle"].firstMatch
         let form = app.collectionViews.firstMatch
-        let visible = row.exists && row.frame.maxY <= form.frame.maxY
-            && row.frame.maxY <= app.windows.firstMatch.frame.maxY
+        // A point of slack. On a phone the Grid row sits flush with the
+        // sheet's bottom edge at medium: its frame and the form's both end at
+        // 948 pt, but on opposite sides of a 1e-13 floating-point hairline,
+        // which skipped this test with the switch plainly on screen
+        // (2026-09-16).
+        let visible = row.exists && row.frame.maxY <= form.frame.maxY + 1
+            && row.frame.maxY <= app.windows.firstMatch.frame.maxY + 1
         print("SHEETPROBE settings-grid row=\(row.exists ? "\(row.frame)" : "absent") "
               + "form=\(form.frame)")
         try XCTSkipUnless(visible, "the Grid switch is below the fold at medium here")
@@ -211,8 +253,7 @@ final class SheetDetentTapUITests: XCTestCase {
     /// constraint-sheet taps have in common.
     func testSettingsUnitsSegment() {
         let app = launch(seeded: false)
-        XCTAssertTrue(app.buttons["SettingsButton"].waitForExistence(timeout: 10))
-        app.buttons["SettingsButton"].tap()
+        openSettings(app)
         let picker = app.segmentedControls["SettingsUnitPicker"]
         XCTAssertTrue(picker.waitForExistence(timeout: 5))
         let segments = [picker.buttons["cm"], picker.buttons["mm"]]
