@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,42 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, switch-tap probe on iPhone
+
+- **On a phone, no switch dropped a tap, not even in the positive
+  control.** With #44, Settings opens on a phone, so
+  `SheetDetentTapUITests` could run on the iPhone 17 Pro Max simulator.
+  Taps lost at the medium stop:
+
+  | Sheet | Target | Lost |
+  |---|---|---|
+  | Constraint settings, `[.medium, .large]` restored for the run (positive control) | Grid switch | 0 of 45 |
+  | Constraint settings, same | Always Show Dimensions switch (top of form) | 0 of 30 |
+  | Main Settings, `[.medium, .large]` | Grid switch, flush with the bottom edge | 0 of 90 |
+  | Main Settings | Units segmented control | 0 of 30 |
+  | Main Settings | Circular Annotations menu | 0 of 30 |
+
+  The same control lost 17 of 60 and 3 of 30 on `os3d-runner-B`, and 2
+  of 15 and 1 of 15 on `os3d-test` (both iPad Pro 13" simulators). The
+  control and Main Settings' Grid switch ran in the same sessions.
+- **The control really sat at its medium stop.** In every trial of both
+  sheets the grabber read "Half" and the sheet's top edge was at
+  470.4 pt, and no sheet left its first stop. The iPad's medium stop is
+  different: a centred 580×364 pt card whose grabber reads "Collapsed".
+- **So, as measured, the effect is iPad-only, and Settings keeps its
+  detents on the phone.** The mechanism is still unconfirmed. Caveats:
+  because nothing drops taps on the phone, the probe cannot show that it
+  would catch a loss there; and this is one phone model, in a simulator.
+- **Probe fixes.** `openSettings` and `openConstraintSettings` reach both
+  sheets on either device. On a phone they go through the toolbar's "…"
+  menu and the rail's compact menu (`ConstraintRailMenu`, which replaces
+  the rail and its gear at compact width), finding rows by title (gotcha
+  58). The Grid switch visibility check allows a point of slack: on the
+  phone the row ends flush with the sheet at 948 pt, and a 1e-13
+  floating-point difference skipped the test with the switch on screen.
+  `probeSwitch` now fails when its switch is below the fold, instead of
+  logging taps that miss the sheet as lost.
 
 ## Mission log — 2026-09-16, Settings reachable on iPhone
 
@@ -45,12 +81,12 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   skipped (window 1032 pt). The regular branch is the previous code
   unchanged, so the other iPad callers of `SettingsButton`
   (`DimensionUITests`, `SheetDetentTapUITests`) were not rerun.
-- **Still open: Settings' switches at a phone's medium detent.**
-  `SheetDetentTapUITests.testSettingsGridSwitch` opens Settings with
-  `app.buttons["SettingsButton"]`, which matches nothing on a phone (the
-  overflow row has no identifier). Route it through "…" by title, then run
-  the probe on the iPhone to see whether Settings' `[.medium, .large]` loses
-  switch taps there (gotcha 57).
+- **Then open, now answered: Settings' switches at a phone's medium
+  detent.** `SheetDetentTapUITests.testSettingsGridSwitch` opened Settings
+  with `app.buttons["SettingsButton"]`, which matches nothing on a phone
+  (the overflow row has no identifier). Routed through "…" by title and
+  run on the iPhone, it lost no taps, and neither did the positive control
+  (entry above).
 
 ## Mission log — 2026-09-15, medium-detent sheet tap probe
 
@@ -2897,7 +2933,11 @@ first differing frame is the one you want.
     `SheetDetentTapUITests` (`TEST_RUNNER_OS3D_SHEET_PROBE=1`). When
     probing a medium sheet from a UI test, tap window coordinates: an
     element tap can scroll, a scroll expands the sheet, and an expanded
-    sheet hides the bug.
+    sheet hides the bug. **Measured on iPads only:** on the iPhone 17 Pro
+    Max simulator the same constraint sheet with `[.medium, .large]` lost
+    0 of 75 switch taps at its medium stop (2026-09-16). There the medium
+    stop is an edge-attached half sheet (grabber "Half"), not the iPad's
+    centred card (grabber "Collapsed").
 58. **A toolbar item that folds into the "…" overflow needs a `Label`
     title, and a `Label` cannot carry a 44 pt target** (2026-09-16).
     SwiftUI builds each overflow row from the label's title. An `Image`
