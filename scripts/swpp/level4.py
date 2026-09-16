@@ -1079,8 +1079,10 @@ def p4_5():
     n = (t / math.sqrt(1 + t * t), 1 / math.sqrt(1 + t * t))
     T2 = (C[0] + R * n[0], C[1] + R * n[1])
     a1 = math.degrees(math.atan2(T2[1] - C[1], T2[0] - C[0]))
-    # R5 at the two end corners as sketch fillets: the bridge cannot fillet
-    # lateral profile-wall edges (see agent_bugs_R1B).
+    # R5 at the two end corners as sketch fillets. Written when the bridge
+    # could not fillet these lateral edges (agent_bugs_R1B); on 2026-09-16 a
+    # bridge R5 on the sharp corners gave this body's volume exactly, so
+    # either route works now.
     th = math.atan(t)
     dL = 5 / math.tan(math.radians(67.5)); dR = 5 / math.tan((math.pi / 2 + th) / 2)
     sk = (Sketch(front(-21.5)).poly([(6, 0), (119, 0), (119, 18), (125, 18), (125, h - dR)], close=False)
