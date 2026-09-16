@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); crossing outlines split into real regions (round 6's bug 1); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,116 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, crossing outlines split into real regions
+
+- **Round 6's bug 1 is fixed: two crossing circles give a lens and two
+  crescents.** The cause was two gaps in `ProfileDetector`. Circles,
+  rectangles and polygons were always emitted whole, never split where
+  other outlines cross them; and `holes(of:)` took any smaller profile
+  whose CENTROID lay inside the outer one for a hole. A circle crossing
+  the outer boundary became a hole, so the face got an inner wire through
+  its outer wire: an invalid solid with the whole circle subtracted.
+- **What changed.**
+  - `splitCrossedClosedShapes` re-expresses every circle, rectangle and
+    polygon that other outlines (lines, arcs, circles, rects, polygons)
+    split at two or more points as arcs and lines for the face walker:
+    circles become arcs between the split angles, rects and polygons their
+    sides.
+  - The face walker now splits arcs, not just lines, where lines and other
+    arcs cross them, from the arc's exact geometry rather than its
+    tessellation. A computed crossing snaps to an existing chain end within
+    the weld tolerance, so every chain through one crossing shares one
+    exact point. The split arcs keep exact start / mid / end, so OCCT still
+    gets true circular edges.
+  - **Crossing splits, touching doesn't** (`splits(at:side:others:)`). At
+    each meeting point the other outlines are probed a 0.1 µm step either
+    way: they split the curve if they arrive from both sides (a crossing)
+    or with an odd count of ends and passes (a line ending on it, so two
+    radii cut a slice out of a circle). An even number from one side only
+    touch it and leave it whole, as before this change. That covers a hole
+    tangent to its boundary, a circle in a rect's corner touching both
+    sides, and practice problem 13.9's hull of tube chords whose vertices
+    sit on its Ø200 rim. Splitting at touches was tried first: at a touch
+    the region between the two curves tapers to a cusp, the two
+    tessellations cross inside it, and the self-intersecting loop is
+    dropped. The full rerun caught it: 13.9A/B's "everything outside the
+    hull" cut picked up the whole front half of the disc and fell from
+    417 020 to 239 845 mm³.
+  - The face walker orders the edges leaving a node by the exact arc a
+    short step along, not by the first tessellation chord, which leans
+    half a step (3.75° at 48 per turn) off the tangent. With 13.9's touch
+    points split (spokes added outside the rim), the chord order put a
+    7.5° rim chord past a 5° tube chord and the walk produced one region
+    of 31 333 mm² over the whole disc; exact order produces none bigger
+    than a lobe. A control run with chord order fails that test.
+  - `holes(of:)` tests a point guaranteed inside the candidate
+    (`interiorPoint`) rather than its vertex average, which on a C-shaped
+    crescent falls in the neighbouring lens. Boundaries that cross are not
+    holes; after the split only a boundary with an ellipse or a spline in
+    it can still cross, so only those pairs go through the chord-crossing
+    test. (Requiring every tessellation vertex inside and no chord
+    crossings, as a first cut did, dropped holes tangent to their boundary:
+    the tangent vertex sits on the boundary, and the chords cross at most
+    angles.)
+  - Ellipses and splines are still not split. A profile whose boundary
+    crosses one is left out of `profiles(at:)`, so the pick and a rebuild
+    refuse ("extrude profile unresolved") instead of building the wrong
+    solid.
+- **Verification.**
+  - `ProfileCrossingOutlineTests` (12 tests): the crossing-circle lens and
+    crescents; the crescent extruded to (π·40² − lens)·5 within 0.01 mm³
+    with a valid health report; a line across a circle (two regions); a
+    rectangle crossed by a circle (three); nested shapes that don't cross
+    stay standalone holes; a circle touched at one point stays whole;
+    holes tangent to a circle (at 0° and 37°) or a rect side stay holes; a
+    circle touching two rect sides stays a hole; two radii cut a slice;
+    13.9's hull, as chords and as arcs, stays a hole of its rim, and with
+    its touch points split no region over the whole disc appears; no region
+    of a crossing arrangement is a hole of another; an ellipse crossing a
+    circle is never a hole and is refused. Full unit suite: 1646 tests,
+    1 skipped, 0 failures.
+  - In the app (final build, iPad simulator), round 6's repro: circle r40
+    at the origin and r18 at (0, 24) on `front(0)`, region at (0, −20),
+    5 deep → 20 188.652 mm³, `/v1/check` valid (was 20 043.361, invalid).
+    A line across a circle: the lower region extrudes to 1 174.460 mm³, the
+    exact figure, valid. Two radii: the quarter slice, 392.699 mm³, exact,
+    valid. An ellipse crossing a circle: refused, no body. 13.9A's
+    outside-the-hull cut: 1 339 585.008 mm³ left, valid.
+  - 18.8A/B's recipe had worked around this bug (a full-disc cut, the rings
+    added back, the bores re-cut). Built as one region cut instead, the
+    volumes match to the thousandth before and after the R1 fillets
+    (91 680.142 and 87 724.070 mm³), with the same edge counts and 8
+    features instead of 14; `round6_b._build_18_8` now does that.
+  - All 215 practice-problem recipes rerun on the iPad simulator against
+    the final build: 181 / 215 pass, the same 181 as before, and every
+    volume and health flag is identical to the pre-change ledger (0
+    differences over 215). Two earlier reruns on intermediate builds are
+    what caught the tangent-touch regression above.
+- **New finding (not fixed): a hole tangent to its boundary gives the right
+  volume but an invalid solid.** Circle r10 with a circle r5 tangent inside
+  it at 37°, ring region, 5 deep: 1 178.097 mm³ (exact) but `/v1/check`
+  flags `intersectingWires`, because the hole's wire touches the outer wire.
+  A 20 × 20 rect with a Ø10 hole tangent to one side, or to two, does the
+  same (1 607.301 mm³). This branch hands the kernel what `main` did for
+  these sketches (touching shapes are not split, the hole is found as
+  before), but it was not re-run on `main`. 13.9's hull, which touches its
+  rim only at polyline vertices, checks valid. A fix would give the face
+  one wire through the touching point, or merge the wires there; splitting
+  at touches would also need the tessellation cusp handled.
+- **Gotcha: another session's app can answer your bridge port.** Midway
+  through a rerun another session launched the app on `os3d-test` with
+  port 8899. The iPad app, relaunched for the next problem, could not bind,
+  and `relaunch_fresh` accepted the other app's fresh document as its own:
+  6.9 was built and ledgered in the wrong simulator (its row was dropped).
+  `relaunch_fresh` now reads the pid `simctl launch` prints and waits for
+  `/v1/health` to answer from that pid, naming the other pid when it
+  doesn't. `lsof -nP -iTCP:<port> -sTCP:LISTEN` shows who holds a port;
+  the process path names the simulator. These reruns used port 8911.
+- **7.29 is flaky, not changed.** Its R1 predicate picks R25 arc edges by
+  midpoint, and which halves match varies run to run: 103 460.165
+  (2026-09-03), 103 536.058 (later rows), 103 384.272 in a probe today. It
+  passes at all three.
 
 ## Mission log — 2026-09-16, practice problems round 6 (three parallel agents)
 
@@ -45,7 +155,7 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      extrude the region seeded at (0, −20), 5 deep. Got 20 043.361 mm³, which
      is the whole small disc removed; the true region is 20 188.652. `/v1/check`:
      invalid, `intersectingWires`. As a cut the tool is refused ("tool solid is
-     invalid").
+     invalid"). **Fixed; see the next mission log up.**
   2. **A pocket whose R1 corners are tangent to an existing boss leaves an
      invalid body, reported ok.** Plate `rect(−15, −10, 15, 15)` × 7, a Ø13 × 9
      boss unioned, then a pocket on `front(7)` (sides x = ±4, top y = 11, bottom
