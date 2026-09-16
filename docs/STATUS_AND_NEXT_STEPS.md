@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,48 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, Shell: stale over-hollow finding; the Shell tool opens holed faces
+
+- **The logged Shell over-hollow doesn't happen, on `main` or on the
+  2026-09-05 build.** The 2026-09-04/05 log recorded `feature.shell` on
+  the 13.9 hub removing 517k mm³ where the offset cavity is 286k, with
+  brep true and a clean check. Rebuilt three ways on `main` (13.9A: no
+  shell 703 263.8 mm³; the recipe's explicit cavity 417 020.2, so
+  286 243.6 removed), the app's Shell is refused: "the shelled solid failed
+  validity checking". The app built at `9ece43d` (2026-09-05, which
+  contains the commit that wrote the note) gives identical numbers and the
+  same refusal. The validity check (`OS3DHealAndValidate`) and the rule
+  that a B-rep body whose OCCT shell fails errors instead of falling back
+  to the mesh inset both date from 2026-08-31 (`069be64`), before the note,
+  and `OCCTBridge.mm` is unchanged since 2026-09-05. So no committed build
+  returned 517k; it most likely came from a worker's uncommitted state.
+  What remains is a capability gap: Shell cannot hollow this hub, and the
+  recipe keeps its explicit cavity.
+- **The Shell tool could not open a face with a hole in it.** The live
+  preview (`EditorViewModel.shelledBody`) identified each open face to
+  OCCT by the centroid of its outline. The outline is the OUTER boundary,
+  so on a holed face that centroid lies in the hole: OCCT refused the
+  pick, the preview stayed empty and Apply stayed disabled, while the same
+  shell built over the bridge. The evaluator was fixed for exactly this on
+  2026-09-04 (`e405820`); the tool was not. Reproduced on the iPad
+  simulator on a 10 × 10 × 6 box with a Ø4 through-hole and a 0.5 mm wall:
+  a plain side face previewed with Apply enabled; the holed face gave no
+  preview and Apply stayed disabled; over the bridge the holed face shelled
+  to 187.09 mm³ (hand-computed 187.09). Now
+  `EditorViewModel.shellOpenPoints` hands OCCT the evaluator's point
+  (`FeatureGraph.pointOnPlanarFace`), so the preview and the feature it
+  commits pick faces the same way. After the fix the holed face previews
+  and Apply commits 187.09 mm³ with no eval errors. Test:
+  `PlanarFacePickPointTests.testShellToolOpenPointsHollowAHoledFace` (the
+  tool's point shells to the analytic volume; the old outline centroid is
+  refused). `FeatureShellEvalTests` + `PlanarFacePickPointTests`: 7 of 7.
+- **Gotcha (tool behaviour, unchanged):** the first tap on a body with the
+  Shell tool sets the thickness to `defaultShellThickness` (2 mm, capped at
+  a quarter of the body's smallest extent), replacing any value typed
+  before it. Pick the body, then type the wall. It cost several rounds
+  here: the replaced 1.5 mm is too thick for the test part and disabled
+  Apply on every face, which looked like the bug.
 
 ## Mission log — 2026-09-16, SOLIDWORKS practice problems rerun on main
 
@@ -1143,7 +1185,9 @@ are **still not published**. Do that before the build reaches anyone else.
   fillet instead; (2) `feature.shell` on the 13.9 hub (`level13._p139_build(60,
   5, do_shell="app")`) succeeds with brep true and a clean check but removes
   517k mm³ where the offset cavity is 286k — the 25-deep front pockets'
-  offsets are not honoured; (3) a Level 10-13 worker's earlier note that
+  offsets are not honoured **[stale, 2026-09-16: on `main` and on the
+  2026-09-05 build this call is refused ("the shelled solid failed validity
+  checking"); see that day's Shell mission log]**; (3) a Level 10-13 worker's earlier note that
   `/v1/faces` reports a meaningless normal for cylindrical faces (select by
   `kind`) and `kind: "other"` for conical walls.
 

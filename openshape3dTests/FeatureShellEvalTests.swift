@@ -176,4 +176,57 @@ final class PlanarFacePickPointTests: XCTestCase {
         XCTAssertLessThan(OCCTKernel.volume(shelled), OCCTKernel.volume(ring) * 0.6,
                           "hollowed through the open ring face")
     }
+
+    /// The Shell TOOL's live preview must hand OCCT the same on-face points as
+    /// the evaluator. It sent the outline centroid, which on a holed face lies
+    /// in the hole: the preview never computed and Apply stayed disabled,
+    /// though the same shell built fine over the bridge (2026-09-16).
+    func testShellToolOpenPointsHollowAHoledFace() throws {
+        // 10 × 10 × 6 box (centred in X/Z, base on y = 0) with a Ø4 hole
+        // straight through along Y: the OS3D_DEBUG_SEED_HOLE shape.
+        let box = try XCTUnwrap(OCCTKernel.primitiveShape(.box(width: 10, depth: 10, height: 6), placement: .identity))
+        let hole = try XCTUnwrap(OCCTKernel.primitiveShape(.cylinder(radius: 2, height: 60), placement: .identity))
+        let holed = try XCTUnwrap(OCCTKernel.boolean(box, hole, op: OCCTKernel.booleanOp(.subtract)))
+        let solidBox: Double = 10 * 10 * 6
+        let throughHole: Double = Double.pi * 2 * 2 * 6
+        XCTAssertEqual(OCCTKernel.volume(holed), solidBox - throughHole, accuracy: 1e-3,
+                       "the hole goes straight through")
+
+        let raw = OCCTKernel.renderMesh(from: holed)
+        let mesh = RenderMesh(positions: raw.positions, normals: raw.normals, indices: raw.indices)
+        var top: FaceTopology.PlanarFace?
+        for t in 0..<mesh.triangleCount {
+            let a = mesh.positions[Int(mesh.indices[t * 3])]
+            let b = mesh.positions[Int(mesh.indices[t * 3 + 1])]
+            let c = mesh.positions[Int(mesh.indices[t * 3 + 2])]
+            let n = simd_cross(b - a, c - a)
+            guard simd_length(n) > 1e-9, simd_normalize(n).y > 0.999, abs(a.y - 6) < 1e-4 else { continue }
+            top = FaceTopology.planarFace(in: mesh, seedTriangle: t)
+            break
+        }
+        let face = try XCTUnwrap(top, "the box has a +Y top face")
+        XCTAssertFalse(face.holes.isEmpty, "the top face has the hole in it")
+
+        // The tool's points: OCCT accepts the face and the wall is exact.
+        // Cavity with the top open: 9 × 9 × 5.5, less the Ø5 zone around the hole.
+        let points = EditorViewModel.shellOpenPoints(for: [face], mesh: mesh)
+        let shelled = try OCCTKernel.shellResult(
+            holed, openingAt: points, thickness: 0.5,
+            tolerance: OCCTKernel.matchTolerance(for: holed)).get()
+        let openBox: Double = 9 * 9 * 5.5
+        let holeZone: Double = Double.pi * 2.5 * 2.5 * 5.5
+        let cavity: Double = openBox - holeZone
+        XCTAssertEqual(OCCTKernel.volume(shelled), OCCTKernel.volume(holed) - cavity, accuracy: 0.05)
+
+        // What the tool used to send, the outline centroid, lies in the hole
+        // and OCCT refuses it: the failure this test guards against.
+        let centre = face.outline.reduce(SIMD2<Double>.zero, +) / Double(face.outline.count)
+        let outlineCentroid = face.origin + face.basisX * centre.x + face.basisY * centre.y
+        XCTAssertLessThan(hypot(outlineCentroid.x, outlineCentroid.z), 2, "the outline centroid is in the hole")
+        if case .success = OCCTKernel.shellResult(
+            holed, openingAt: [outlineCentroid], thickness: 0.5,
+            tolerance: OCCTKernel.matchTolerance(for: holed)) {
+            XCTFail("a point in the hole should not identify the face")
+        }
+    }
 }
