@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,73 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, Settings reachable at any width (iPad mini portrait)
+
+- **#44's size-class branch missed the iPad mini.** Checked on `main`
+  (c9a9ee6) with a throwaway toolbar probe, each run on a freshly booted
+  simulator:
+
+  | Device, orientation | Width, class | Toolbar | Settings |
+  |---|---|---|---|
+  | iPhone 17 Pro, portrait | 402, compact | "…" menu | row present, opens |
+  | iPhone 17 Pro, landscape | 874, compact | everything fits | 41.3 pt `Label` in the bar, opens |
+  | iPhone 17 Pro Max, landscape | 956, regular | everything fits | 58 pt gear in the bar, opens |
+  | iPad mini (A17 Pro), landscape | 1133, regular | everything fits | 58 pt gear in the bar, opens |
+  | **iPad mini (A17 Pro), portrait** | **744, regular** | **"…" holds Report a Bug only** | **missing, cannot be opened** |
+
+  The menu fills up whenever the bar is too narrow, whatever the size
+  class. At regular width #44 kept the icon-only gear, and the menu drops
+  it, just as it did on the iPhone. **The 11" iPads fit, with little
+  room to spare.** With the fix, the new test tapped the gear in the bar
+  in portrait on the iPad Pro 11" (M5, 834 pt) and the iPad Air 11" (M4,
+  820 pt), and passed in both orientations. On the Pro 11" in portrait
+  about 37 pt separates the back button from the toolbar capsule
+  (screenshot), less than one item's width, so another toolbar item would
+  likely fold both. `main` was not run on either; its regular-width gear
+  is the same 58 pt item, so it should fit the same way. Split View windows
+  were not tried.
+- **What each place needs.** Measured on the iPad mini with trial
+  labels as extra toolbar items. The menu includes any item whose label
+  contains a `Text`, even an invisible one. It ignores
+  `.accessibilityLabel`. The bar renders every `Label` (a plain one, one
+  with a custom `LabelStyle`, one whose icon is the 44 pt `ZStack`) as a
+  native 41.5 pt item, which fails
+  `testSettingsCenterTargetOpensInBothOrientations` (width ≥ 44). A
+  `Label` with `.buttonStyle(.plain)` came out 27.5 pt and missed every
+  tap. The 6c8ffaf centre miss reproduced: as the group's last item, a
+  `Label` gear (icon = the clear 44 pt `ZStack`) did not open on two taps
+  at its exact centre, while taps 9 pt either side did. Report a Bug, next
+  to it, opened at all three points. Mechanism unconfirmed.
+- **Fix (`EditorView`): no branch.** The gear is the 44 pt `ZStack` #44
+  kept for regular width, plus `Text("Settings").opacity(0).frame(width: 0)`.
+  In the bar it is the same 58 pt custom item. In the menu the row reads
+  "Settings" with the gear icon, under Report a Bug.
+- **Verified after the fix:** iPad mini portrait, a Settings row that
+  opens; landscape, 58 pt in the bar, opens on a centre tap. iPhone 17 Pro
+  portrait, Settings is the menu's last row; landscape, 58 pt in the bar
+  (now the custom item, not the 41.3 pt `Label`), opens on a centre tap.
+  iPad Pro 13" (`os3d-test`), all 8 `SettingsUITests` pass in 371 s,
+  including the 44 pt guard, and the gear is 58 pt in both orientations.
+  Mac Catalyst was not built.
+- **Test:** `SettingsUITests.testSettingsOpensFromToolbarAtAnyWidthInBothOrientations`
+  replaces `CompactWidthBarUITests.testSettingsIsReachableAtCompactWidth`.
+  That test skipped above 500 pt, so it could not catch the iPad mini. The
+  new one never skips. In each orientation it taps the gear if it is in
+  the bar, otherwise opens "…" and taps the row by title, and asserts that
+  the sheet opens. It passed on the iPad mini, the iPhone 17 Pro and the
+  iPad Pro 13". The probe that found the bug takes the same steps and failed
+  on `main` at the missing row. The new test itself was not run on `main`.
+  The regular suite runs on the iPad Pro 13", which never takes the menu
+  path: run this test on an iPhone or the iPad mini after touching the
+  toolbar.
+- **Switch probe, iPhone 17 Pro: nothing to probe.**
+  `SheetDetentTapUITests.testSettingsGridSwitch` (`TEST_RUNNER_OS3D_SHEET_PROBE=1`)
+  skipped. At the medium stop the form spans 415–866 pt, and the Grid row
+  is not on screen (its row is not in the hierarchy yet). Grid is the
+  first switch in Settings, so no switch shows at medium on this phone,
+  the same as on the iPad. With #45's 0 of 90 on the Pro Max (inherited,
+  not rerun), Settings keeps `[.medium, .large]`.
 
 ## Mission log — 2026-09-16, practice problems round 6 (three parallel agents)
 
@@ -239,7 +306,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   `CompactWidthBarUITests.testSettingsIsReachableAtCompactWidth` opens "…",
   taps the Settings row and asserts the sheet opens; it skips at regular
   width. It finds the row by title, since the row carries no identifier
-  (gotcha 58).
+  (gotcha 58). **Superseded later on 2026-09-16:** the size-class branch
+  still lost Settings on the iPad mini in portrait, which is regular width.
+  The branch and this test were replaced (see "Settings reachable at any
+  width" above).
 - **Verified:** on the iPhone 17 Pro Max the new test passed (11.0 s). On
   the iPad Pro 13" all 7 `SettingsUITests` passed (348 s) and the new test
   skipped (window 1032 pt). The regular branch is the previous code
@@ -3106,19 +3176,19 @@ first differing frame is the one you want.
     0 of 75 switch taps at its medium stop (2026-09-16). There the medium
     stop is an edge-attached half sheet (grabber "Half"), not the iPad's
     centred card (grabber "Collapsed").
-58. **A toolbar item that folds into the "…" overflow needs a `Label`
-    title, and a `Label` cannot carry a 44 pt target** (2026-09-16).
-    SwiftUI builds each overflow row from the label's title. An `Image`
-    with only `.accessibilityLabel` has none, so at compact width the item
-    silently disappears from the menu, with no warning, while it still
-    works on the iPad. In the bar, though, the gear as a `Label` measured
-    41.5 pt wide, with an outer 44 pt `.frame` and with a `Color.clear`
-    backing alike, where the `Image` version measures at least 44 pt. The
-    mechanism is unconfirmed; the likely one is that the accessibility
-    element follows the `Label`'s own bounds rather than the frame. An item
-    that needs both branches on `horizontalSizeClass`, as `SettingsButton`
-    does. In UI tests, find an overflow row by its title:
-    the row does not keep the toolbar item's `accessibilityIdentifier`, so
+58. **A toolbar item that folds into the "…" overflow needs a `Text` in
+    its label, and a `Label` cannot carry a 44 pt target** (2026-09-16).
+    Each overflow row is built from a `Text` in the item's label. An item
+    with none (an `Image` with only `.accessibilityLabel`) silently
+    disappears from the menu. In the bar, every `Label` variant tried
+    renders as a native 41.5 pt item: an outer 44 pt `.frame`, a
+    `Color.clear` backing, a custom `LabelStyle`, a 44 pt `ZStack` as the
+    icon. A custom view (the `ZStack` itself) keeps its 58 pt. An item that
+    needs both is the custom view plus a hidden `Text`, as `SettingsButton`
+    is. **Do not branch on `horizontalSizeClass`:** the bar folds whenever
+    it runs out of room, and the iPad mini in portrait (744 pt) is regular
+    width and folds. In UI tests, find an overflow row by its title: the
+    row does not keep the toolbar item's `accessibilityIdentifier`, so
     `app.buttons["SettingsButton"]` finds nothing even with the row on
     screen.
 
