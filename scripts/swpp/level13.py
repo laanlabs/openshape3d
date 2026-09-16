@@ -334,9 +334,9 @@ def _p139_build(D, t, do_shell=True):
     if do_shell == "app":
         back_face = face_where(body, lambda c, n: abs(n[2] + 1) < 1e-6 and abs(c[2]) < 0.05)
         assert len(back_face) == 1, back_face
-        shell(body, t, back_face)                   # hollows ~517k on the D=60 body (see bugs R10D)
+        shell(body, t, back_face)                   # refused on the D=60 body: fails validity checking (2026-09-16)
     elif do_shell:
-        # Explicit shell cavity (the app's feature.shell over-hollows this body):
+        # Explicit shell cavity (the app's feature.shell refuses this body):
         # under every front face the offset ceiling is 25 - t (the pockets and
         # the outer region are 25 deep; the 10-wide band and the tube walls are
         # thinner than 2t so they carry no cavity); the walls are the rim

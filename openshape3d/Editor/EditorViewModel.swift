@@ -4291,6 +4291,19 @@ final class EditorViewModel {
         updateShellPreview()
     }
 
+    /// The point each open face is handed to OCCT by: a point ON the face,
+    /// from the same helper the evaluator uses, so the live preview and the
+    /// feature it commits pick the same faces. It used to be the centroid of
+    /// the face's outline, which is the OUTER boundary: on a face with a hole
+    /// that centroid lands in the hole, OCCT refused the pick, and the preview
+    /// stayed empty with Apply disabled on any holed face, while the same
+    /// shell built fine over the bridge and on History replay (2026-09-16).
+    nonisolated static func shellOpenPoints(
+        for faces: [FaceTopology.PlanarFace], mesh: RenderMesh
+    ) -> [SIMD3<Double>] {
+        faces.map { FeatureGraph.pointOnPlanarFace($0, mesh: mesh) }
+    }
+
     /// Recompute the live shell preview (face toggles and thickness edits call
     /// this). An empty kernel result (thickness ate the body, or an opening
     /// rim collapsed) clears the preview — that's the invalid state.
@@ -4305,12 +4318,7 @@ final class EditorViewModel {
     /// stays for brep-less bodies. Nil = invalid.
     private func shelledBody(source: Body, revision: UInt64) -> Body? {
         if OCCTKernel.useOCCTAsSourceOfTruth, let brep = source.brep {
-            // A point at the centroid of each open face identifies it to OCCT.
-            let openPoints: [SIMD3<Double>] = shellSelectedFaces.map { face in
-                let n = Double(max(face.outline.count, 1))
-                let c = face.outline.reduce(SIMD2<Double>.zero, +) / n
-                return face.origin + face.basisX * c.x + face.basisY * c.y
-            }
+            let openPoints = Self.shellOpenPoints(for: shellSelectedFaces, mesh: source.render)
             guard let hollow = try? OCCTKernel.shellResult(
                 brep, openingAt: openPoints, thickness: shellThickness,
                 tolerance: OCCTKernel.matchTolerance(for: brep)).get() else {
