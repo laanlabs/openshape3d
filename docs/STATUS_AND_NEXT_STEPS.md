@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); crossing outlines split into real regions (round 6's bug 1); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -122,6 +122,170 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   (2026-09-03), 103 536.058 (later rows), 103 384.272 in a probe today. It
   passes at all three.
 
+## Mission log — 2026-09-16, edge convexity and collinear edge merging
+
+- **Round 6's bug 3 is fixed, and a second bug in the same function with
+  it.** Both live in `EdgeTopology.selectableEdges`, the mesh-side edge
+  list behind `/v1/edges`' midpoint, length and `convex`, the interactive
+  blend pick and blend replay.
+  1. **Convexity.** An edge was called convex when its outward bisector
+     pointed away from the average of ALL the mesh's vertices. That test
+     only holds for a convex solid. It called a T-beam's inside corners
+     convex and a pocket's rim edges concave. Now it is decided locally from
+     the triangle winding: with outward normals, face A walks a convex edge
+     along `nA × nB`. The old test is kept only as the fallback for an edge
+     whose two triangles are wound the same way.
+  2. **Collinear merging.** Crease pieces sharing a line and a face pair
+     were merged into ONE span from the bucket's extremes, even across a
+     gap. The T's two bar-underside edges became one 30 mm "edge" across the
+     stem. `/v1/edges` maps each mesh edge to a kernel edge by its midpoint,
+     and that midpoint lies on no kernel edge. So the real edges got no
+     midpoint, length or convexity. Now only touching or overlapping pieces
+     merge, as the function's comment always said, and convex and concave
+     pieces never share a span.
+- **Before and after, same script, over the bridge** (fixed build on
+  `os3d-test`; `main`'s EdgeTopology and bridge on `os3d-touch`, from the
+  main checkout's build of `2e35560`, whose only local change was another
+  session's uncommitted `ProfileDetector` edit):
+
+  | Body | Build | Kernel edges | Without mesh data | Concave |
+  |---|---|---|---|---|
+  | T, 8 000 mm³ | `main` | 24 | 4 (the bar undersides) | none |
+  | T | fix | 24 | 0 | 2, the inside corners (5, 20) |
+  | 4.5 recipe, 107 922.674 mm³ | `main` | 76 | 28 | 4, two of them wrong |
+  | 4.5 recipe | fix | 76 | 12 | 6 |
+
+  On 4.5, `main` called edges 47 and 69 concave. They are where each
+  rail's inner wall meets the lug's round top, an outside corner. The fix
+  marks them convex. Its six concave edges are the four Detail A step
+  corners (x = 6 and 119, one per rail) and the two channel-floor corners.
+  The 16 edges it recovers all sit at the y = 18 step, merged across the
+  channel or along the profile on `main`. The 12 still without data run
+  through consecutive faces (5–11, 21–27), consistent with tangent joins,
+  which have no crease; they were not inspected one by one.
+- **The fillet log's "other four" edges were the y = 18 ledges (confirmed
+  after #51 merged).** The sharp 4.5 profile was rebuilt over the bridge:
+  the recipe's sketch with sharp corners at (125, h) and (0, h), h = 27.213,
+  extruded 43 on `front(-21.5)`. Two apps from one tree, `main` (8787b0f)
+  and `main` with `EdgeTopology.swift` put back to 55ed21b, on a freshly
+  booted `os3d-test`, same script. Both matched the fillet log: the
+  recipe's sketch-fillet profile gives 208 792.537 mm³, the sharp profile
+  208 924.295, and a bridge R5 on its two lateral corners (#11, #20) brings
+  it to 208 792.537.
+
+  | Build | Kernel edges | Without mesh data | Concave |
+  |---|---|---|---|
+  | before #51 | 32 | 6: #9, #10, #27, #28, #14, #17 | none |
+  | after #51 | 32 | 2: #14, #17 | #5, #26 |
+
+  #9/#10 and #27/#28 are the cap edges of the two ledges (faces 3 and 9,
+  both facing −y at y = 18). Mesh-side they shared one line and one face
+  pair with each cap, so they merged into one 125 mm span that matched
+  neither. After #51 they read 6 mm, convex, at (122, 18, ±21.5) and
+  (3, 18, ±21.5). #14 and #17 are the tangent joins into the lug arc, as
+  the log said. #5 and #26 are the inside corners at (119, 18) and (6, 18),
+  which the old test called convex.
+- **Gotcha, not caused by #51: a curved edge's `/v1/edges` midpoint
+  changes between launches.** Relaunching the SAME after-#51 app and
+  rerunning the script moved the midpoints of the lug-arc and hole-rim cap
+  edges (#18: (30.706, 54.631) then (29.579, 54.331); #32: (29.079, 45.658)
+  then (26.926, 37.513)), while every length stayed the same. The bridge
+  keeps the first tessellation segment that maps to a kernel edge, and
+  `selectableEdges` returns them in Swift dictionary order, which is seeded
+  per process. Straight edges have one segment and are stable. Do not pick
+  an arc edge with `kit.edges_near` on its reported midpoint; use
+  `level4._edges_between` or its length.
+- **What the wrong flag touched.** `/v1/edges`' `convex`, and the mesh
+  blend path (`KernelOps.blendEdges`, bodies without a brep): a misread
+  edge is cut when it should be filled, or the other way round. OCCT
+  fillets and chamfers (every brep body, and the bridge's `edges` indices)
+  do not read it, and the tap pick does not filter on it (it did before
+  2026-08-30). The merge bug also reaches the interactive pick on brep
+  bodies, whose blend is placed at the picked edge's midpoint: a span
+  across a gap would miss every kernel edge. That was not tried in the
+  app.
+- **Tests:** `EdgeConvexityTests` (8). The oracle is point containment, not
+  the classifier: a point just above face A's plane and below face B's is
+  in the solid exactly when the edge is concave. Every edge is checked on
+  a T-beam, an L-beam, a U-channel and a pocketed block built with Euclid,
+  and on a T and a pocketed block built and tessellated by OCCT. The
+  T-beams also assert 24 edges. The Euclid tests, run on `main` before the
+  fix, failed the way the bugs predict (T inside corners convex, two
+  pocket rims concave, 22 edges instead of 24); the L-beam and U-channel
+  passed there too, by the luck of where their centroids fall. The OCCT
+  tests were added after the convexity change and first caught the merge
+  bug (the T's 30 mm span). With the fix: the
+  blend, concave, fillet-fallback, blend-edit, stress and element-naming
+  classes pass (84 tests), and the full unit suite passes on `os3d-unit`
+  (1642 executed, 1 skipped, 0 failures).
+
+## Mission log — 2026-09-16, Settings reachable at any width (iPad mini portrait)
+
+- **#44's size-class branch missed the iPad mini.** Checked on `main`
+  (c9a9ee6) with a throwaway toolbar probe, each run on a freshly booted
+  simulator:
+
+  | Device, orientation | Width, class | Toolbar | Settings |
+  |---|---|---|---|
+  | iPhone 17 Pro, portrait | 402, compact | "…" menu | row present, opens |
+  | iPhone 17 Pro, landscape | 874, compact | everything fits | 41.3 pt `Label` in the bar, opens |
+  | iPhone 17 Pro Max, landscape | 956, regular | everything fits | 58 pt gear in the bar, opens |
+  | iPad mini (A17 Pro), landscape | 1133, regular | everything fits | 58 pt gear in the bar, opens |
+  | **iPad mini (A17 Pro), portrait** | **744, regular** | **"…" holds Report a Bug only** | **missing, cannot be opened** |
+
+  The menu fills up whenever the bar is too narrow, whatever the size
+  class. At regular width #44 kept the icon-only gear, and the menu drops
+  it, just as it did on the iPhone. **The 11" iPads fit, with little
+  room to spare.** With the fix, the new test tapped the gear in the bar
+  in portrait on the iPad Pro 11" (M5, 834 pt) and the iPad Air 11" (M4,
+  820 pt), and passed in both orientations. On the Pro 11" in portrait
+  about 37 pt separates the back button from the toolbar capsule
+  (screenshot), less than one item's width, so another toolbar item would
+  likely fold both. `main` was not run on either; its regular-width gear
+  is the same 58 pt item, so it should fit the same way. Split View windows
+  were not tried.
+- **What each place needs.** Measured on the iPad mini with trial
+  labels as extra toolbar items. The menu includes any item whose label
+  contains a `Text`, even an invisible one. It ignores
+  `.accessibilityLabel`. The bar renders every `Label` (a plain one, one
+  with a custom `LabelStyle`, one whose icon is the 44 pt `ZStack`) as a
+  native 41.5 pt item, which fails
+  `testSettingsCenterTargetOpensInBothOrientations` (width ≥ 44). A
+  `Label` with `.buttonStyle(.plain)` came out 27.5 pt and missed every
+  tap. The 6c8ffaf centre miss reproduced: as the group's last item, a
+  `Label` gear (icon = the clear 44 pt `ZStack`) did not open on two taps
+  at its exact centre, while taps 9 pt either side did. Report a Bug, next
+  to it, opened at all three points. Mechanism unconfirmed.
+- **Fix (`EditorView`): no branch.** The gear is the 44 pt `ZStack` #44
+  kept for regular width, plus `Text("Settings").opacity(0).frame(width: 0)`.
+  In the bar it is the same 58 pt custom item. In the menu the row reads
+  "Settings" with the gear icon, under Report a Bug.
+- **Verified after the fix:** iPad mini portrait, a Settings row that
+  opens; landscape, 58 pt in the bar, opens on a centre tap. iPhone 17 Pro
+  portrait, Settings is the menu's last row; landscape, 58 pt in the bar
+  (now the custom item, not the 41.3 pt `Label`), opens on a centre tap.
+  iPad Pro 13" (`os3d-test`), all 8 `SettingsUITests` pass in 371 s,
+  including the 44 pt guard, and the gear is 58 pt in both orientations.
+  Mac Catalyst was not built.
+- **Test:** `SettingsUITests.testSettingsOpensFromToolbarAtAnyWidthInBothOrientations`
+  replaces `CompactWidthBarUITests.testSettingsIsReachableAtCompactWidth`.
+  That test skipped above 500 pt, so it could not catch the iPad mini. The
+  new one never skips. In each orientation it taps the gear if it is in
+  the bar, otherwise opens "…" and taps the row by title, and asserts that
+  the sheet opens. It passed on the iPad mini, the iPhone 17 Pro and the
+  iPad Pro 13". The probe that found the bug takes the same steps and failed
+  on `main` at the missing row. The new test itself was not run on `main`.
+  The regular suite runs on the iPad Pro 13", which never takes the menu
+  path: run this test on an iPhone or the iPad mini after touching the
+  toolbar.
+- **Switch probe, iPhone 17 Pro: nothing to probe.**
+  `SheetDetentTapUITests.testSettingsGridSwitch` (`TEST_RUNNER_OS3D_SHEET_PROBE=1`)
+  skipped. At the medium stop the form spans 415–866 pt, and the Grid row
+  is not on screen (its row is not in the hierarchy yet). Grid is the
+  first switch in Settings, so no switch shows at medium on this phone,
+  the same as on the iPad. With #45's 0 of 90 on the Pro Max (inherited,
+  not rerun), Settings keeps `[.medium, .large]`.
+
 ## Mission log — 2026-09-16, practice problems round 6 (three parallel agents)
 
 - **19 untried sheets, 3 agents, 13 built: 11 pass, 2 fail, 6 unbuildable.**
@@ -155,7 +319,7 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      extrude the region seeded at (0, −20), 5 deep. Got 20 043.361 mm³, which
      is the whole small disc removed; the true region is 20 188.652. `/v1/check`:
      invalid, `intersectingWires`. As a cut the tool is refused ("tool solid is
-     invalid"). **Fixed; see the next mission log up.**
+     invalid"). **Fixed; see "crossing outlines split into real regions" above.**
   2. **A pocket whose R1 corners are tangent to an existing boss leaves an
      invalid body, reported ok.** Plate `rect(−15, −10, 15, 15)` × 7, a Ø13 × 9
      boss unioned, then a pocket on `front(7)` (sides x = ±4, top y = 11, bottom
@@ -170,6 +334,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      cause is `EdgeTopology.isConvexEdge`, which judges by the normal
      bisector against the mesh's vertex centroid; the tap-to-pick path for
      fillet/chamfer also relies on convexity, so it may be affected.
+     **Fixed 2026-09-16** ("edge convexity and collinear edge merging"
+     above). The cause was that centroid test. The tap pick does not filter
+     on convexity; the mesh blend path for bodies without a brep reads it.
   4. **The bridge over-reports `undoSteps` for a failed feature.** Union two
      cubes, then a fillet that fails: the reply says `undoSteps: 2`, but one
      undo already removes the feature (undo title "Add Feature") and a second
@@ -205,7 +372,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   that meet TANGENTLY (the lines into the lug arc): no crease, nothing to
   fillet, so that is correct. The other four were not identified, and
   `level4._edges_between` (edges picked by their adjacent faces) is still
-  the way to address such edges. 4.7's lug-junction R2s, noted as
+  the way to address such edges. **Later on 2026-09-16:** confirmed as the
+  cap edges of the y = 18 ledges (#9, #10, #27, #28), lost to the
+  collinear-merge bug fixed in #51 ("edge convexity and collinear edge
+  merging" above); after #51 only the two tangent joins lack data. 4.7's lug-junction R2s, noted as
   impossible over the bridge, were not re-tested.
 - **Gotcha: undo a bridge feature twice.** A feature exec lands as two undo
   steps (`undoSteps: 2`, docs/AGENT_CONTROL.md). ONE undo reverts the
@@ -349,7 +519,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   `CompactWidthBarUITests.testSettingsIsReachableAtCompactWidth` opens "…",
   taps the Settings row and asserts the sheet opens; it skips at regular
   width. It finds the row by title, since the row carries no identifier
-  (gotcha 58).
+  (gotcha 58). **Superseded later on 2026-09-16:** the size-class branch
+  still lost Settings on the iPad mini in portrait, which is regular width.
+  The branch and this test were replaced (see "Settings reachable at any
+  width" above).
 - **Verified:** on the iPhone 17 Pro Max the new test passed (11.0 s). On
   the iPad Pro 13" all 7 `SettingsUITests` passed (348 s) and the new test
   skipped (window 1032 pt). The regular branch is the previous code
@@ -2430,9 +2603,9 @@ Everything routes through the same three seams as the rest of the app:
 (state machine).
 
 - `openshape3d/Kernel/EdgeTopology.swift` — `SelectableEdge` (endpoints + the
-  two adjacent face normals + convexity); `selectableEdges(from:)` welds
-  positions and merges collinear same-face-pair creases into maximal straight
-  edges; `signature(of:)` / `resolve(_:in:sizeScale:)` re-find an edge after a
+  two adjacent face normals + convexity, decided from the triangle winding);
+  `selectableEdges(from:)` welds positions and merges TOUCHING collinear
+  same-face-pair creases into maximal straight edges; `signature(of:)` / `resolve(_:in:sizeScale:)` re-find an edge after a
   rebuild (adjacent-face-normal PAIR dominates the score).
 - `openshape3d/Kernel/KernelOps.swift` — `chamferEdge` (subtract a triangular
   corner-wedge prism), `filletEdge` (subtract the corner parallelogram MINUS a
@@ -3216,19 +3389,19 @@ first differing frame is the one you want.
     0 of 75 switch taps at its medium stop (2026-09-16). There the medium
     stop is an edge-attached half sheet (grabber "Half"), not the iPad's
     centred card (grabber "Collapsed").
-58. **A toolbar item that folds into the "…" overflow needs a `Label`
-    title, and a `Label` cannot carry a 44 pt target** (2026-09-16).
-    SwiftUI builds each overflow row from the label's title. An `Image`
-    with only `.accessibilityLabel` has none, so at compact width the item
-    silently disappears from the menu, with no warning, while it still
-    works on the iPad. In the bar, though, the gear as a `Label` measured
-    41.5 pt wide, with an outer 44 pt `.frame` and with a `Color.clear`
-    backing alike, where the `Image` version measures at least 44 pt. The
-    mechanism is unconfirmed; the likely one is that the accessibility
-    element follows the `Label`'s own bounds rather than the frame. An item
-    that needs both branches on `horizontalSizeClass`, as `SettingsButton`
-    does. In UI tests, find an overflow row by its title:
-    the row does not keep the toolbar item's `accessibilityIdentifier`, so
+58. **A toolbar item that folds into the "…" overflow needs a `Text` in
+    its label, and a `Label` cannot carry a 44 pt target** (2026-09-16).
+    Each overflow row is built from a `Text` in the item's label. An item
+    with none (an `Image` with only `.accessibilityLabel`) silently
+    disappears from the menu. In the bar, every `Label` variant tried
+    renders as a native 41.5 pt item: an outer 44 pt `.frame`, a
+    `Color.clear` backing, a custom `LabelStyle`, a 44 pt `ZStack` as the
+    icon. A custom view (the `ZStack` itself) keeps its 58 pt. An item that
+    needs both is the custom view plus a hidden `Text`, as `SettingsButton`
+    is. **Do not branch on `horizontalSizeClass`:** the bar folds whenever
+    it runs out of room, and the iPad mini in portrait (744 pt) is regular
+    width and folds. In UI tests, find an overflow row by its title: the
+    row does not keep the toolbar item's `accessibilityIdentifier`, so
     `app.buttons["SettingsButton"]` finds nothing even with the row on
     screen.
 

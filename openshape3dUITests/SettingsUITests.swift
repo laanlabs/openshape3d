@@ -37,6 +37,50 @@ final class SettingsUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    /// Settings must open from the toolbar at any width. When the bar is too
+    /// narrow for its items, UIKit folds the tail of the group into a "…"
+    /// menu and builds each row from a `Text` in the item's label; an item
+    /// with none is dropped from the menu without a warning. That hid
+    /// Settings, its only route, on an iPhone in portrait and then (with an
+    /// iPhone-only fix) on an iPad mini in portrait, which is REGULAR width.
+    /// So this runs on every device, with no skip: on the iPad Pro 13" the
+    /// gear sits in the bar, on the iPhone 17 Pro and the iPad mini in
+    /// portrait it is in "…".
+    ///
+    /// The overflow row is found by title: it does not carry the toolbar
+    /// item's `accessibilityIdentifier` (gotcha 58).
+    func testSettingsOpensFromToolbarAtAnyWidthInBothOrientations() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["OS3D_FRESH"] = "1"
+        app.launchEnvironment["OS3D_RESET_STORE"] = "1"
+        app.launch()
+        XCTAssertTrue(app.buttons["SketchGroup"].waitForExistence(timeout: 10))
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            sleep(2)
+            let width = app.windows.firstMatch.frame.width
+            let gear = app.buttons["SettingsButton"]
+            if gear.exists && gear.isHittable {
+                gear.tap()
+            } else {
+                let overflow = app.navigationBars.buttons.matching(
+                    NSPredicate(format: "label CONTAINS[c] 'more'")).firstMatch
+                XCTAssertTrue(overflow.waitForExistence(timeout: 5),
+                              "At \(width)pt Settings is not in the bar, so the bar should offer \"…\"")
+                overflow.tap()
+                let row = app.buttons["Settings"].firstMatch
+                XCTAssertTrue(row.waitForExistence(timeout: 5),
+                              "At \(width)pt the \"…\" menu has no Settings row: its label lost its Text")
+                row.tap()
+            }
+            XCTAssertTrue(app.buttons["SettingsDone"].waitForExistence(timeout: 5),
+                          "Settings should open at \(width)pt")
+            app.buttons["SettingsDone"].tap()
+            XCTAssertTrue(app.buttons["SettingsDone"].waitForNonExistence(timeout: 5))
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
     func testToolbarSideSwapsSketchPaletteAndConstraintRailInBothOrientations() throws {
         let app = XCUIApplication()
         app.launchEnvironment["OS3D_FRESH"] = "1"
