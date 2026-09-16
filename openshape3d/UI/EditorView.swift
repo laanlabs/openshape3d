@@ -1716,13 +1716,43 @@ struct EditorView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        ZStack {
-                            Color.clear
-                            Image(systemName: "gearshape")
+                        // Two requirements that pull opposite ways, and they
+                        // apply in different places — hence the branch.
+                        //
+                        // Compact (iPhone): this group collapses into the
+                        // toolbar's "…" menu, and each row is built from the
+                        // item's label TITLE. A bare `Image` with only an
+                        // `.accessibilityLabel` has no title, so the overflow
+                        // dropped this item entirely and Settings — whose button
+                        // is its only route — could not be opened on an iPhone
+                        // at all (2026-09-16). A row needs no 44pt target.
+                        //
+                        // Regular (iPad): the gear sits in the bar, where its
+                        // own centre used to miss until an explicit 44pt clear
+                        // surface was added (6c8ffaf). A `Label` did not keep
+                        // it: with a `Label` given an outer 44pt frame, or
+                        // placed inside this same clear ZStack, the button
+                        // measured 41.5pt and failed
+                        // testSettingsCenterTargetOpensInBothOrientations. The
+                        // likely reason is that the published accessibility
+                        // element follows the Label rather than the frame
+                        // (unconfirmed).
+                        //
+                        // Each branch is the shape proven in its own context.
+                        // (If a compact bar ever shows this button rather than
+                        // folding it into the menu, it would want the 44pt
+                        // treatment too.)
+                        if horizontalSizeClass == .compact {
+                            Label("Settings", systemImage: "gearshape")
+                        } else {
+                            ZStack {
+                                Color.clear
+                                Image(systemName: "gearshape")
+                            }
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                            .accessibilityLabel("Settings")
                         }
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                        .accessibilityLabel("Settings")
                     }
                     .accessibilityIdentifier("SettingsButton")
                 }

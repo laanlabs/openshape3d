@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,46 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, Settings reachable on iPhone
+
+- **Settings could not be opened on an iPhone at all.** At compact width
+  the editor's primary toolbar group collapses into a "…" overflow menu,
+  which builds each row from the item's `Label` title. `SettingsButton`,
+  the only route to Settings, was a `ZStack { Color.clear; Image }` with
+  only `.accessibilityLabel("Settings")`. With no title, the overflow
+  dropped it: on the iPhone 17 Pro Max simulator the menu held History,
+  Variables, Items, Import, Export, Command Search and Report a Bug, and
+  nothing else. Found by the medium-detent probe (entry below).
+- **Fix: branch on size class** (`EditorView`). Compact renders
+  `Label("Settings", systemImage: "gearshape")`, and the menu now ends with
+  Settings. Regular keeps the previous 44 pt `ZStack` unchanged, because a
+  `Label` cannot carry that target (gotcha 58). 6c8ffaf added the 44 pt
+  surface after taps on the gear's own centre missed;
+  `testSettingsCenterTargetOpensInBothOrientations` guards it.
+- **No single shape does both.** A `Label` with an outer 44 pt frame
+  fixed the phone (Settings appeared in the menu) but measured 41.5 pt on
+  the iPad and failed that guard (width ≥ 44). A `Label` inside the
+  `Color.clear` `ZStack` also measured 41.5 pt. The guard passes on
+  unmodified main (19.8 s), so the change caused the failure, not the
+  test. The shipped compact branch is a bare `Label`, verified on the
+  phone only; the iPad never runs it.
+- **Regression test:**
+  `CompactWidthBarUITests.testSettingsIsReachableAtCompactWidth` opens "…",
+  taps the Settings row and asserts the sheet opens; it skips at regular
+  width. It finds the row by title, since the row carries no identifier
+  (gotcha 58).
+- **Verified:** on the iPhone 17 Pro Max the new test passed (11.0 s). On
+  the iPad Pro 13" all 7 `SettingsUITests` passed (348 s) and the new test
+  skipped (window 1032 pt). The regular branch is the previous code
+  unchanged, so the other iPad callers of `SettingsButton`
+  (`DimensionUITests`, `SheetDetentTapUITests`) were not rerun.
+- **Still open: Settings' switches at a phone's medium detent.**
+  `SheetDetentTapUITests.testSettingsGridSwitch` opens Settings with
+  `app.buttons["SettingsButton"]`, which matches nothing on a phone (the
+  overflow row has no identifier). Route it through "…" by title, then run
+  the probe on the iPhone to see whether Settings' `[.medium, .large]` loses
+  switch taps there (gotcha 57).
 
 ## Mission log — 2026-09-15, medium-detent sheet tap probe
 
@@ -101,7 +141,9 @@ drop taps at their medium stop?
   half-height sheet will probably show the snapping switches, the case
   that loses taps. Then run `testSettingsGridSwitch` on the phone (it
   skips on the iPad, where the switch is below the fold) and drop
-  Settings' detents if it loses taps. Flagged as a follow-up task.
+  Settings' detents if it loses taps. **Reachability fixed 2026-09-16**
+  (entry above); the probe test still needs routing through "…" before
+  it can open Settings on a phone.
 - **Harness notes.** A long-press context menu in the gallery leaves the
   app never idle, so XCUITest waits 60 s after the press and again after
   the menu tap (about 2 min per trial). The probe opens the move picker
@@ -2856,6 +2898,21 @@ first differing frame is the one you want.
     probing a medium sheet from a UI test, tap window coordinates: an
     element tap can scroll, a scroll expands the sheet, and an expanded
     sheet hides the bug.
+58. **A toolbar item that folds into the "…" overflow needs a `Label`
+    title, and a `Label` cannot carry a 44 pt target** (2026-09-16).
+    SwiftUI builds each overflow row from the label's title. An `Image`
+    with only `.accessibilityLabel` has none, so at compact width the item
+    silently disappears from the menu, with no warning, while it still
+    works on the iPad. In the bar, though, the gear as a `Label` measured
+    41.5 pt wide, with an outer 44 pt `.frame` and with a `Color.clear`
+    backing alike, where the `Image` version measures at least 44 pt. The
+    mechanism is unconfirmed; the likely one is that the accessibility
+    element follows the `Label`'s own bounds rather than the frame. An item
+    that needs both branches on `horizontalSizeClass`, as `SettingsButton`
+    does. In UI tests, find an overflow row by its title:
+    the row does not keep the toolbar item's `accessibilityIdentifier`, so
+    `app.buttons["SettingsButton"]` finds nothing even with the row on
+    screen.
 
 ## 4. Next missions (prioritized)
 
