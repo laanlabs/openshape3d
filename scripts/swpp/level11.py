@@ -201,9 +201,7 @@ def p11_5():
     # (R9 mid), 0..50 deg, R1 corners; M2 pan-head CBORE at (-7, 6): O2.4
     # through, O4.9 x 1.6; M2.5 at the origin: O2.9 through, O5.9 x 2.0
     # (counterbore diameters measured off the sheet's rings).
-    import sys, os
-    sys.path.insert(0, "/private/tmp/claude-501/-Users-thelodgestudio-projects-openshape3d/32e63bf9-f2c4-43ad-a7e4-5aa61d3e4683/scratchpad")
-    from geo115 import outline
+    from geo115 import outline   # scripts/swpp/geo115.py (was a scratchpad file until 2026-09-16)
     segs, poly, info = outline()
     sk = Sketch(front(0))
     for s in segs:

@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,31 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, SOLIDWORKS practice problems rerun on main
+
+- **All 202 practice problems rerun on `main` (5e0f9c3): 170 pass, the
+  same as on 2026-09-05.** 55 commits had changed the kernel, the model
+  and the agent bridge since the last run. Once 11.5 was fixed (below), no
+  problem went from pass to fail or from fail to pass, and the 32 fails are
+  the same sheets. Builds took 15.0 min, against 14.0.
+- **11.5 was a harness failure, not an app regression.** The first pass
+  scored 169, because 11.5 stopped with `No module named 'geo115'` before
+  building anything. Its recipe imported the cam-plate outline helper from
+  a 2026-09-04 worker's scratchpad, which has since been deleted, and the
+  helper was never committed. It was recovered verbatim from that worker's
+  transcript (written two minutes before 11.5's 2026-09-04 pass and not
+  changed after) and is now `scripts/swpp/geo115.py`. Its self-check gives
+  1831.930 mm³, and the app builds 1831.927 mm³ (+0.237 %), identical to
+  September. No other recipe imports code from outside the repo.
+  **Gotcha:** a recipe that imports from a scratchpad works until the
+  scratchpad is cleaned up. Keep helpers in `scripts/swpp/`.
+- **One pass moved: 7.29** (two plates, a web, mirror, union, R2 and R1
+  fillets) went from +0.074 % to +0.147 % (103 460 → 103 536 mm³), the
+  same to the cubic millimetre on two reruns. That is still well inside the
+  0.5 % band. The commit that changed it was not traced.
+- **Ledger:** the rows are appended to `scripts/swpp/results.jsonl`: the
+  202 of the rerun, then 11.5 once and 7.29 twice.
 
 ## Mission log — 2026-09-16, switch-tap probe on iPhone
 
@@ -3582,7 +3607,7 @@ practice-problems, every sheet printing the finished part's volume, used as
 an outside-in parity harness: read the drawing, build it, score the body's
 volume against the printed number to 0.5 %.
 
-**Where it stands (2026-09-05, small hours).** 202 sheets attempted, 170 pass (114 within 0.01 %), 32 fail — every fail a drawing that admits two readings whose printed volume picks the one not drawn (the notes name the reading that WOULD hit the number and the view it contradicts), or a blend the kernel refuses (4.57; 4.7's lug arcs now a typed refusal via the crash guard); none a wrong volume from a correct feature. 155 sheets carry a written reason in `scripts/swpp/deferred.json`: 83 readable-but-not-reached (the best next picks are named), 22 undimensioned to 0.5 %, 31 packages the database no longer serves (404 — assembly / START-part exercises), 11 assemblies or centre-of-mass studies, 6 needing an unsupplied parent part, 2 needing a normal-to-profile loft. Four sheets (1.1, 1.9, 2.13, 4.38) were built entirely BY TOUCH; `docs/TOUCH_DRIVING_PLAYBOOK.md` is how. Resume by dispatching bridge workers over `deferred.json`'s "readable" entries with `scripts/swpp/run.py` (see the worker brief pattern in the 2026-09-04/05 mission log).
+**Re-verified 2026-09-16** on `main` (5e0f9c3): all 202 rerun, 170 still pass, the same sheets (mission log, 2026-09-16). **Where it stands (2026-09-05, small hours).** 202 sheets attempted, 170 pass (114 within 0.01 %), 32 fail — every fail a drawing that admits two readings whose printed volume picks the one not drawn (the notes name the reading that WOULD hit the number and the view it contradicts), or a blend the kernel refuses (4.57; 4.7's lug arcs now a typed refusal via the crash guard); none a wrong volume from a correct feature. 155 sheets carry a written reason in `scripts/swpp/deferred.json`: 83 readable-but-not-reached (the best next picks are named), 22 undimensioned to 0.5 %, 31 packages the database no longer serves (404 — assembly / START-part exercises), 11 assemblies or centre-of-mass studies, 6 needing an unsupplied parent part, 2 needing a normal-to-profile loft. Four sheets (1.1, 1.9, 2.13, 4.38) were built entirely BY TOUCH; `docs/TOUCH_DRIVING_PLAYBOOK.md` is how. Resume by dispatching bridge workers over `deferred.json`'s "readable" entries with `scripts/swpp/run.py` (see the worker brief pattern in the 2026-09-04/05 mission log).
 
 | Level | Title | Sheets | Attempted | Pass |
 |---|---|---|---|---|
