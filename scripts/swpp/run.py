@@ -7,20 +7,30 @@
     OS3D_KEEP_DOC=1 …                            # build into the open document
 
 Problems register themselves in `levelN.py` modules via `PROBLEMS[pid] =
-(meta, build)`; `meta` carries the sheet's volume and unit.
+(meta, build)`; `meta` carries the sheet's volume and unit. Later rounds
+that ran as parallel agents keep their recipes in `roundN_x.py` modules,
+loaded after the levels.
 """
-import importlib, os, sys
+import glob, importlib, os, sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 import kit  # noqa: E402
 
 PROBLEMS = {}
-for n in range(1, 19):
+_modules = [f"level{n}" for n in range(1, 19)]
+_modules += sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(HERE, "round*.py")))
+for name in _modules:
     try:
-        mod = importlib.import_module(f"level{n}")
-        PROBLEMS.update(mod.PROBLEMS)
-    except ModuleNotFoundError:
-        pass
+        mod = importlib.import_module(name)
+    except ModuleNotFoundError as e:
+        if e.name == name:   # the level module doesn't exist (there is no level9/level17)
+            continue
+        raise
+    for pid in mod.PROBLEMS:
+        if pid in PROBLEMS:
+            raise SystemExit(f"problem {pid} is registered twice (again in {name}.py)")
+    PROBLEMS.update(mod.PROBLEMS)
 
 
 def _key(pid):
