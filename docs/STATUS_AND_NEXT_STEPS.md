@@ -52,10 +52,39 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   The 16 edges it recovers all sit at the y = 18 step, merged across the
   channel or along the profile on `main`. The 12 still without data run
   through consecutive faces (5–11, 21–27), consistent with tangent joins,
-  which have no crease; they were not inspected one by one. The fillet
-  log's "other four" edges without data on the sharp 4.5 profile are
-  almost certainly the y = 18 ledges: the same pattern, but that variant
-  was not rebuilt.
+  which have no crease; they were not inspected one by one.
+- **The fillet log's "other four" edges were the y = 18 ledges (confirmed
+  after #51 merged).** The sharp 4.5 profile was rebuilt over the bridge:
+  the recipe's sketch with sharp corners at (125, h) and (0, h), h = 27.213,
+  extruded 43 on `front(-21.5)`. Two apps from one tree, `main` (8787b0f)
+  and `main` with `EdgeTopology.swift` put back to 55ed21b, on a freshly
+  booted `os3d-test`, same script. Both matched the fillet log: the
+  recipe's sketch-fillet profile gives 208 792.537 mm³, the sharp profile
+  208 924.295, and a bridge R5 on its two lateral corners (#11, #20) brings
+  it to 208 792.537.
+
+  | Build | Kernel edges | Without mesh data | Concave |
+  |---|---|---|---|
+  | before #51 | 32 | 6: #9, #10, #27, #28, #14, #17 | none |
+  | after #51 | 32 | 2: #14, #17 | #5, #26 |
+
+  #9/#10 and #27/#28 are the cap edges of the two ledges (faces 3 and 9,
+  both facing −y at y = 18). Mesh-side they shared one line and one face
+  pair with each cap, so they merged into one 125 mm span that matched
+  neither. After #51 they read 6 mm, convex, at (122, 18, ±21.5) and
+  (3, 18, ±21.5). #14 and #17 are the tangent joins into the lug arc, as
+  the log said. #5 and #26 are the inside corners at (119, 18) and (6, 18),
+  which the old test called convex.
+- **Gotcha, not caused by #51: a curved edge's `/v1/edges` midpoint
+  changes between launches.** Relaunching the SAME after-#51 app and
+  rerunning the script moved the midpoints of the lug-arc and hole-rim cap
+  edges (#18: (30.706, 54.631) then (29.579, 54.331); #32: (29.079, 45.658)
+  then (26.926, 37.513)), while every length stayed the same. The bridge
+  keeps the first tessellation segment that maps to a kernel edge, and
+  `selectableEdges` returns them in Swift dictionary order, which is seeded
+  per process. Straight edges have one segment and are stable. Do not pick
+  an arc edge with `kit.edges_near` on its reported midpoint; use
+  `level4._edges_between` or its length.
 - **What the wrong flag touched.** `/v1/edges`' `convex`, and the mesh
   blend path (`KernelOps.blendEdges`, bodies without a brep): a misread
   edge is cut when it should be filled, or the other way round. OCCT
@@ -233,9 +262,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   that meet TANGENTLY (the lines into the lug arc): no crease, nothing to
   fillet, so that is correct. The other four were not identified, and
   `level4._edges_between` (edges picked by their adjacent faces) is still
-  the way to address such edges. **Later on 2026-09-16:** almost certainly
-  the y = 18 ledges, lost to the collinear-merge bug, now fixed ("edge
-  convexity and collinear edge merging" above). 4.7's lug-junction R2s, noted as
+  the way to address such edges. **Later on 2026-09-16:** confirmed as the
+  cap edges of the y = 18 ledges (#9, #10, #27, #28), lost to the
+  collinear-merge bug fixed in #51 ("edge convexity and collinear edge
+  merging" above); after #51 only the two tangent joins lack data. 4.7's lug-junction R2s, noted as
   impossible over the bridge, were not re-tested.
 - **Gotcha: undo a bridge feature twice.** A feature exec lands as two undo
   steps (`undoSteps: 2`, docs/AGENT_CONTROL.md). ONE undo reverts the
