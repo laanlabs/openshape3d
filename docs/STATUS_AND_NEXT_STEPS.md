@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,74 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, edge convexity and collinear edge merging
+
+- **Round 6's bug 3 is fixed, and a second bug in the same function with
+  it.** Both live in `EdgeTopology.selectableEdges`, the mesh-side edge
+  list behind `/v1/edges`' midpoint, length and `convex`, the interactive
+  blend pick and blend replay.
+  1. **Convexity.** An edge was called convex when its outward bisector
+     pointed away from the average of ALL the mesh's vertices. That test
+     only holds for a convex solid. It called a T-beam's inside corners
+     convex and a pocket's rim edges concave. Now it is decided locally from
+     the triangle winding: with outward normals, face A walks a convex edge
+     along `nA × nB`. The old test is kept only as the fallback for an edge
+     whose two triangles are wound the same way.
+  2. **Collinear merging.** Crease pieces sharing a line and a face pair
+     were merged into ONE span from the bucket's extremes, even across a
+     gap. The T's two bar-underside edges became one 30 mm "edge" across the
+     stem. `/v1/edges` maps each mesh edge to a kernel edge by its midpoint,
+     and that midpoint lies on no kernel edge. So the real edges got no
+     midpoint, length or convexity. Now only touching or overlapping pieces
+     merge, as the function's comment always said, and convex and concave
+     pieces never share a span.
+- **Before and after, same script, over the bridge** (fixed build on
+  `os3d-test`; `main`'s EdgeTopology and bridge on `os3d-touch`, from the
+  main checkout's build of `2e35560`, whose only local change was another
+  session's uncommitted `ProfileDetector` edit):
+
+  | Body | Build | Kernel edges | Without mesh data | Concave |
+  |---|---|---|---|---|
+  | T, 8 000 mm³ | `main` | 24 | 4 (the bar undersides) | none |
+  | T | fix | 24 | 0 | 2, the inside corners (5, 20) |
+  | 4.5 recipe, 107 922.674 mm³ | `main` | 76 | 28 | 4, two of them wrong |
+  | 4.5 recipe | fix | 76 | 12 | 6 |
+
+  On 4.5, `main` called edges 47 and 69 concave. They are where each
+  rail's inner wall meets the lug's round top, an outside corner. The fix
+  marks them convex. Its six concave edges are the four Detail A step
+  corners (x = 6 and 119, one per rail) and the two channel-floor corners.
+  The 16 edges it recovers all sit at the y = 18 step, merged across the
+  channel or along the profile on `main`. The 12 still without data run
+  through consecutive faces (5–11, 21–27), consistent with tangent joins,
+  which have no crease; they were not inspected one by one. The fillet
+  log's "other four" edges without data on the sharp 4.5 profile are
+  almost certainly the y = 18 ledges: the same pattern, but that variant
+  was not rebuilt.
+- **What the wrong flag touched.** `/v1/edges`' `convex`, and the mesh
+  blend path (`KernelOps.blendEdges`, bodies without a brep): a misread
+  edge is cut when it should be filled, or the other way round. OCCT
+  fillets and chamfers (every brep body, and the bridge's `edges` indices)
+  do not read it, and the tap pick does not filter on it (it did before
+  2026-08-30). The merge bug also reaches the interactive pick on brep
+  bodies, whose blend is placed at the picked edge's midpoint: a span
+  across a gap would miss every kernel edge. That was not tried in the
+  app.
+- **Tests:** `EdgeConvexityTests` (8). The oracle is point containment, not
+  the classifier: a point just above face A's plane and below face B's is
+  in the solid exactly when the edge is concave. Every edge is checked on
+  a T-beam, an L-beam, a U-channel and a pocketed block built with Euclid,
+  and on a T and a pocketed block built and tessellated by OCCT. The
+  T-beams also assert 24 edges. The Euclid tests, run on `main` before the
+  fix, failed the way the bugs predict (T inside corners convex, two
+  pocket rims concave, 22 edges instead of 24); the L-beam and U-channel
+  passed there too, by the luck of where their centroids fall. The OCCT
+  tests were added after the convexity change and first caught the merge
+  bug (the T's 30 mm span). With the fix: the
+  blend, concave, fillet-fallback, blend-edit, stress and element-naming
+  classes pass (84 tests), and the full unit suite passes on `os3d-unit`
+  (1642 executed, 1 skipped, 0 failures).
 
 ## Mission log — 2026-09-16, Settings reachable at any width (iPad mini portrait)
 
@@ -127,6 +195,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      cause is `EdgeTopology.isConvexEdge`, which judges by the normal
      bisector against the mesh's vertex centroid; the tap-to-pick path for
      fillet/chamfer also relies on convexity, so it may be affected.
+     **Fixed 2026-09-16** ("edge convexity and collinear edge merging"
+     above). The cause was that centroid test. The tap pick does not filter
+     on convexity; the mesh blend path for bodies without a brep reads it.
   4. **The bridge over-reports `undoSteps` for a failed feature.** Union two
      cubes, then a fillet that fails: the reply says `undoSteps: 2`, but one
      undo already removes the feature (undo title "Add Feature") and a second
@@ -162,7 +233,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   that meet TANGENTLY (the lines into the lug arc): no crease, nothing to
   fillet, so that is correct. The other four were not identified, and
   `level4._edges_between` (edges picked by their adjacent faces) is still
-  the way to address such edges. 4.7's lug-junction R2s, noted as
+  the way to address such edges. **Later on 2026-09-16:** almost certainly
+  the y = 18 ledges, lost to the collinear-merge bug, now fixed ("edge
+  convexity and collinear edge merging" above). 4.7's lug-junction R2s, noted as
   impossible over the bridge, were not re-tested.
 - **Gotcha: undo a bridge feature twice.** A feature exec lands as two undo
   steps (`undoSteps: 2`, docs/AGENT_CONTROL.md). ONE undo reverts the
@@ -2390,9 +2463,9 @@ Everything routes through the same three seams as the rest of the app:
 (state machine).
 
 - `openshape3d/Kernel/EdgeTopology.swift` — `SelectableEdge` (endpoints + the
-  two adjacent face normals + convexity); `selectableEdges(from:)` welds
-  positions and merges collinear same-face-pair creases into maximal straight
-  edges; `signature(of:)` / `resolve(_:in:sizeScale:)` re-find an edge after a
+  two adjacent face normals + convexity, decided from the triangle winding);
+  `selectableEdges(from:)` welds positions and merges TOUCHING collinear
+  same-face-pair creases into maximal straight edges; `signature(of:)` / `resolve(_:in:sizeScale:)` re-find an edge after a
   rebuild (adjacent-face-normal PAIR dominates the score).
 - `openshape3d/Kernel/KernelOps.swift` — `chamferEdge` (subtract a triangular
   corner-wedge prism), `filletEdge` (subtract the corner parallelogram MINUS a
