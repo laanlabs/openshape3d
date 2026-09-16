@@ -345,10 +345,17 @@ Two behaviours worth knowing:
 - A feature exec lands as **two undo steps** (the append, then the rebuild that
   evaluates it), reported as `undoSteps`. `performRebuild` is private to
   `DocumentSession`, and bundling them would mean changing production code to
-  suit a debug channel. **Undo it `undoSteps` times.** One undo reverts only
-  the rebuild: the body shows its old volume while History still holds the
+  suit a debug channel. **Undo it `undoSteps` times, unless the reply says
+  `failed: true`.** One undo of a feature that built reverts only the
+  rebuild: the body shows its old volume while History still holds the
   feature, and the next feature builds on that mismatch (a fillet on one box
-  edge then rounded the whole corner, 2026-09-16).
+  edge then rounded the whole corner, 2026-09-16). A feature that FAILED to
+  build changes nothing on rebuild, so only one step is recorded while the
+  reply still says `undoSteps: 2`: one undo removes it, and a second undo
+  reverts the feature before it (union, failed R15 fillet, undo → back to 3
+  features; undo again → the union is gone; 2026-09-16). When in doubt, read
+  `undoTitle` from `/v1/state`: "Add Feature" means the next undo removes the
+  feature itself.
 - Every reply carries `producedBodyIDs`, `changedBodyIDs` and `removedBodyIDs`.
   All three are needed, because a BOOLEAN adds no body — it replaces its target
   in place, so judging success by "did a new body appear" reports a subtract

@@ -11,20 +11,31 @@ page carries the same table.*
 
 ## Reading
 
-- 202 of the 365 sheets have a scored build; 170 pass within 0.5 % of
-  the printed volume with a clean kernel check, 114 of them within
+- 215 of the 365 sheets have a scored build; 181 pass within 0.5 % of
+  the printed volume with a clean kernel check, 115 of them within
   0.01 %. Every level with single-part sheets has passes, Level 1 is
   complete (20/20 attempted, 18 pass), Level 4 stands at 46 of 53
   attempted, Level 15's configuration sheets score every configuration
-  (15.3 and 15.6: four each, exact).
+  (15.3, 15.6 and 15.8: four each, within 0.01 %).
+- **Round 6 (2026-09-16)** ran three parallel agents over the 19 readable
+  sheets fetched on 2026-09-05 and never tried: 13 built (11 pass, 2 fail)
+  and 6 found unbuildable (four Level 17 motion/interference exercises,
+  and 18.6B/18.12B, which edit parts whose A drawings have not been read).
+  Recipes live in `scripts/swpp/round6_{a,b,c}.py`, which `run.py` loads
+  after the levels. Three of the passes (18.5A, 18.5B, 18.9A) are missing
+  fillets the kernel refused, and 18.5A may not pass with the full set;
+  their notes say so.
 - Across every attempted sheet no correct feature produced a wrong
-  volume: extrude, cut, union, intersect, arcs, ellipses, polygons,
-  slots, fillets, chamfers, revolve, open and closed sweeps, mirror,
-  linear and circular body patterns, multi-tool subtracts, ribs, taper
-  extrudes, exact face drafts on planar and cylindrical walls, and
-  shells through ring faces all came out B-rep-exact against closed-form
-  hand figures (workers rastered the drawing whenever the closed form was
-  in doubt).
+  volume, with one exception found in round 6: extrude, cut, union,
+  intersect, arcs, ellipses, polygons, slots, fillets, chamfers, revolve,
+  open and closed sweeps, mirror, linear and circular body patterns,
+  multi-tool subtracts, ribs, taper extrudes, exact face drafts on planar
+  and cylindrical walls, and shells through ring faces all came out
+  B-rep-exact against closed-form hand figures (workers rastered the
+  drawing whenever the closed form was in doubt). The exception: a region
+  bounded by two CROSSING circles extrudes with the whole inner circle
+  removed and an invalid solid (the check flags it, so the ledger cannot
+  score it as a pass); see STATUS, 2026-09-16.
 - Three sheets were built **entirely by touch** on the iPad Pro simulator
   — 2.13, 1.1 and 4.38 (2026-09-04) — plus 1.9 (exact) by a touch worker on
   2026-09-05; `docs/TOUCH_DRIVING_PLAYBOOK.md` records the coordinates and
@@ -35,15 +46,21 @@ page carries the same table.*
   4.40, 6.9, 7.47, 13.9A/B, 18.16 …); `notes.json` says which reading was
   built and what the number implies, and several notes name the reading
   that WOULD hit the number and why it contradicts a view. Nothing was
-  fitted to the answer.
-- The 155 sheets without a build are listed with a reason each in
-  `scripts/swpp/deferred.json`: 83 are readable and simply not reached
+  fitted to the answer. Round 6 added the first fails of a different
+  kind: 18.3 and 18.23 fail because the kernel refuses a fillet (18.3's
+  tube is tangent to the face it meets) or a shell the drawing needs, not
+  because of the reading.
+- The 142 sheets without a build are listed with a reason each in
+  `scripts/swpp/deferred.json`: 64 are readable and simply not reached
   within the workers' budgets (the best next picks are named in the
   reasons), 22 have callouts that do not fix the geometry to 0.5 %, 31
   are packages the database no longer serves (assembly / START-part
-  exercises, HTTP 404), 11 are assemblies or centre-of-mass studies, 6
-  need a parent part that is not supplied, 2 need a normal-to-profile
-  loft the app lacks.
+  exercises, HTTP 404), 15 are assemblies, motion or centre-of-mass
+  studies, 8 need a parent part that is not supplied, 2 need a
+  normal-to-profile loft the app lacks.
+- Fetching sheets: since 2026-09-16 the SOLIDWORKS CDN (Akamai) refuses
+  scripted downloads (curl stalls, then resets), so sheets are saved from
+  a browser; nothing in the repo keeps the PDFs.
 
 ## Where the app falls short of the database
 
@@ -95,7 +112,7 @@ page carries the same table.*
   snaps kept the raw along-edge coordinate; Top/Bottom views kept a rolled
   azimuth; a second extrude region joined with no highlight.
 
-# SOLIDWORKS practice problems in openshape3d — 170/202 attempted pass (365 in the database)
+# SOLIDWORKS practice problems in openshape3d — 181/215 attempted pass (365 in the database)
 
 | Level | Title | Problems | Attempted | Pass | Fail | Error |
 |---|---|---|---|---|---|---|
@@ -105,7 +122,7 @@ page carries the same table.*
 | 4 | Extrude Cut & Fillet/Chamfer | 70 | 53 | 46 | 7 | 0 |
 | 5 | Reference Geometry | 15 | 14 | 13 | 1 | 0 |
 | 6 | Revolve Boss/Cut | 20 | 20 | 16 | 4 | 0 |
-| 7 | Feature Patterning | 48 | 32 | 25 | 7 | 0 |
+| 7 | Feature Patterning | 48 | 33 | 26 | 7 | 0 |
 | 8 | Sweep Boss/Cut | 14 | 3 | 3 | 0 | 0 |
 | 9 | Assemblies and Mates | 16 | 0 | 0 | 0 | 0 |
 | 10 | CSWA Exam Level | 19 | 2 | 2 | 0 | 0 |
@@ -113,10 +130,10 @@ page carries the same table.*
 | 12 | Draft | 9 | 1 | 1 | 0 | 0 |
 | 13 | Shell | 13 | 5 | 2 | 3 | 0 |
 | 14 | Rib | 9 | 3 | 2 | 1 | 0 |
-| 15 | Configurations, Design Tables, Suppress | 16 | 9 | 9 | 0 | 0 |
+| 15 | Configurations, Design Tables, Suppress | 16 | 10 | 10 | 0 | 0 |
 | 16 | Global Variables, Equations, Link Values | 7 | 5 | 4 | 1 | 0 |
 | 17 | Move, Rotate, Collision & Interference | 14 | 0 | 0 | 0 | 0 |
-| 18 | CSWP Exam Level | 35 | 2 | 1 | 1 | 0 |
+| 18 | CSWP Exam Level | 35 | 13 | 10 | 3 | 0 |
 
 ## Level 1: Basic Sketch & Extrusion
 
@@ -298,10 +315,11 @@ page carries the same table.*
 | 7.20 | Extrude Boss, Extrude Cut, Fillets and Chamfers, Mirror Pattern | 14,462 mm³ | 14,462.298 mm³ | +0.00 % | pass |  |
 | 7.21 | Extrude Boss, Extrude Cut, Mirror Pattern | 20,044 mm³ | 20,043.841 mm³ | -0.00 % | pass |  |
 | 7.22 | Extrude Boss, Sketch: Slot, Extrude Cut, Mirror Pattern | 123,310 mm³ | 123,309.841 mm³ | -0.00 % | pass |  |
+| 7.23 | Extrude Boss, Extrude Cut, Sketch: Arcs, Offset (as arcs) | 86,531 mm³ | 86,493.609 mm³ | -0.04 % | pass | status: pass reading: Leaf spring 40 wide and 4 thick, eye centres 450 apart; each eye R7 inside and R11 outside; the leaf's top face is an R3800 arc tangent to both R7 circles; each coil ends on a radial face 60° from vertical; two Ø10 holes through the leaf 45 apart. hand: 86 494 got: 86 493.609 (−0.04 %). (Round 6, agent A, 2026-09-16.) |
 | 7.26 | Revolve, Extrude Cut, Mirror Pattern | 882 mm³ | 882.175 mm³ | +0.02 % | pass |  |
 | 7.27 | Extrude Boss, Mirror Pattern | 13,642 mm³ | 13,886.027 mm³ | +1.79 % | fail | status: fail reading: 4-thick bracket: upright 65 wide, 53° sides from the base corners at y=4 to an R11 lobe (Ø10, centre 28.84 up), floor plate 65 x 21 (to z=-25), two 22-wide feet to z=-29 carrying 4-thick lips 13 tall hand: 13886 got: 13886.027 FAIL +1.8%. Hole centre measures 28.3 up in pixels, consistent with sides starting at the plate top (y=4); sides from y=0 give 12 846 (-5.8%). Top view: middle front edge at 25 from the back, feet 4 further (lip 4 thick) — confirmed by the right view's 25.5 mm foot run. No reading hits the number. |
 | 7.28 | Extrude Boss, Extrude Cut, Fillets and Chamfers, Mirror Pattern | 148,769 mm³ | 148,769.204 mm³ | +0.00 % | pass |  |
-| 7.29 | Extrude Boss, Sketch: Slot, Extrude Cut, Mirror Pattern | 103,384 mm³ | 103,460.165 mm³ | +0.07 % | pass | Mirror + union of the plate-and-web half; R2 concave web fillets and R1 outline rounds picked by edge position; +0.07 %. |
+| 7.29 | Extrude Boss, Sketch: Slot, Extrude Cut, Mirror Pattern | 103,384 mm³ | 103,536.058 mm³ | +0.15 % | pass | Mirror + union of the plate-and-web half; R2 concave web fillets and R1 outline rounds picked by edge position; +0.07 %. |
 | 7.30 | Extrude Boss, Sketch: Offset, Extrude Cut, Fillets and Chamfers, Circular Pattern, Mirror Pattern | 1,908 mm³ | 1,887.197 mm³ | -1.09 % | fail |  |
 | 7.31 | Extrude Boss, Sketch: Slot, Sketch: Offset, Extrude Cut, Mirror Pattern | 179,795 mm³ | 179,794.69 mm³ | -0.00 % | pass | One profile extrude (walls, base, T-caps) and an R8 slot cut through the base. |
 | 7.32 | Extrude Boss, Sketch: Slot, Cut with Surface, Reference Geometry: Planes, Mirror Pattern | 101,245 mm³ | 100,105.245 mm³ | -1.13 % | fail |  |
@@ -382,6 +400,7 @@ page carries the same table.*
 | 15.3 | Extrude Boss, Extrude Cut, Hole (as cut), Configurations (as recipe) | 2,392.4 mm³ | 2,392.367 mm³ | -0.00 % | pass | status: pass reading: U bracket design table: legs A tall, B wide overall, C deep, THK D, bend R4 OUTSIDE (R4-D inside), O6 through the top centre, O E through each leg 10 up; UH.4 adds two more top holes at 30 (60 between the outer ones, iso view) - one hole per leg stays. hand: closed form 2392.5 / 6602.0 / 11735.9 / 17681.5 got: 2392.367 / 6601.903 / 11735.841 / 17681.482 all four configs built side by side and scored; the outer-R4 reading is the only one that reproduces UH.1 (inner R4 gives 2375). Configurations: UH.1 2,392.367 vs 2,392.4 (-0.00 %); UH.2 6,601.903 vs 6,601.9 (+0.00 %); UH.3 11,735.841 vs 11,735.8 (+0.00 %); UH.4 17,681.482 vs 17,681.5 (-0.00 %) |
 | 15.5 | Extrude Boss, Extrude Cut, Configurations (as recipe) | 571,697.6 mm³ | 571,697.606 mm³ | +0.00 % | pass | status: pass reading: Wheel, ASSY configuration only (details suppressed): O160 disc 28 thick, O58 hub carried to 45 overall, O32 bore. hand: 571697.8 got: 571697.606 Scored the ASSY* row (571697.6). Other rows need the recessed web (O58..O124 both faces, 10 deep?) and R3 TYP ALL fillets: STANDARD 381071.9, W7-225 462223.3 (A50 B25 C64 D175), W7-25 646967.2 (A50 B27 C70 D190), W8-3 762963.1 (A45 B28 C75 D200). Rough check: STANDARD = ASSY - recesses (188684) - net fillets (~1600) = ~381300, consistent. Configurations: ASSY* 571,697.606 vs 571,697.6 (+0.00 %) |
 | 15.6 | Extrude Boss, Revolve, Configurations (as recipe) | 1,366.1 mm³ | 1,366.12 mm³ | +0.00 % | pass | status: pass reading: Bent pin: rod O D along an L path, A along x and B down from the corner, the corner filleted RC; built as two cylinders + a quarter torus (revolve 90). hand: pi (D/2)^2 (A + B - 2 RC + pi RC/2) = 1366.1 / 3909.9 / 4758.1 / 7614.3 got: 1366.12 / 3909.865 / 4758.095 / 7614.314 all four configs Configurations: PIN.1 1,366.12 vs 1,366.1 (+0.00 %); PIN.2 3,909.865 vs 3,909.9 (-0.00 %); PIN.3 4,758.095 vs 4,758.1 (-0.00 %); PIN.4 7,614.314 vs 7,614.3 (+0.00 %) |
+| 15.8 | Extrude Boss (thin feature), Extrude Cut, Configurations (as recipe) | 5,039 mm³ | 5,039.402 mm³ | +0.01 % | pass | status: pass reading: U-hanger built as a thin feature from the inside out: inner Ø B semicircle about the origin, legs A tall, D thick outward, C wide, a Ø7 hole 10 below the top of each leg. hand: C·(π/2·((B/2+D)² − (B/2)²) + 2AD) − 2π·3.5²·D gives the four table volumes exactly. got: 5039.402 / 13 312.433 / 34 516.658 / 36 123.517, all four configurations within 0.01 %. Kit note: extrude(..., symmetric=True) takes the distance per side. (Round 6, agent B, 2026-09-16.) Configurations: LH.1 5,039.402 vs 5,039 (+0.01 %); LH.2 13,312.433 vs 13,312 (+0.00 %); LH.3 34,516.658 vs 34,517 (-0.00 %); LH.4 36,123.517 vs 36,124 (-0.00 %) |
 
 ## Level 16: Global Variables, Equations, Link Values
 
@@ -397,10 +416,21 @@ page carries the same table.*
 
 | Problem | Features | Sheet | Got | Error | Status | Note |
 |---|---|---|---|---|---|---|
+| 18.9A | Revolve, Extrude Boss, Extrude Cut, Fillet, Hole Wizard (CBORE, as cuts) | 138,032.3 mm³ | 138,355.603 mm³ | +0.23 % | pass | status: pass (fillets incomplete) reading: R35 hemisphere cup with an R31 cavity, rim plane at the origin; diamond boss = hull of Ø40 about the axis and Ø24 about two bolts on a Ø46 circle at 15°, running 50 from the rim, Ø25 bore, M6 pan-head counterbores (Ø6.6 through, Ø13 × 4, measured in Section C-C); arm 110 to the cup axis, 40 tall, R20 corner, a 3 recess starting 50 in, 10-thick back wall and floor, its bottom bending up on an R45 arc (pixel-measured, best fit R44.5, a reading not a printed dimension) tangent to the recess line and ending on the Ø70 circle under the axis; floor holes 15/35 from the end and 10/30 from the front; R3 on everything except the rim plane, the 3 step, the holes and the cavity. The sphere/diamond intersection fillets are refused in every order (estimated +50 mm³). got: 138 355.603 (+0.23 %); without fillets +0.73 %. (Round 6, agent A, 2026-09-16.) |
+| 18.8A | Extrude Boss, Extrude Cut, Shell (as cut), Fillet | 92,076.8 mm³ | 91,680.142 mm³ | -0.43 % | pass | status: pass reading: Ø100 × 10 flange; 25-tall body = hull of three Ø36 tubes on a Ø48 pitch circle with Ø26 bores; centre pocket 25 deep to the flange face, inside the hull inset 5 (5 TYP, the hull of R13 circles) and outside the Ø36 rings; shelled 5 from the back face, so the back is recessed 5 inside Ø90 except the rings (matches Detail A's 3-wide groove at r 42–45 and the section's recess behind the pocket); R1 on every edge. got: 91 680.142 (−0.43 %). Before fillets −0.33 %; a ~300 mm³ shortfall shared with 18.8B was not traced. Shell built as a cut. (Round 6, agent B, 2026-09-16.) |
+| 18.8B | Extrude Boss, Extrude Cut, Shell (as cut), Fillet, Editing | 88,069.3 mm³ | 87,724.07 mm³ | -0.39 % | pass | status: pass reading: The 18.8A recipe with the flange at Ø90 (recess inside Ø80, so the rings run into the rim wall) and the pocket inset 10 (10 TYP). The sharp A − B difference is 3978 against 4007.5 printed, so the two readings agree. got: 87 724.07 (−0.39 %); shares 18.8A's untraced ~300 mm³ shortfall. The pocket outline's crossing circles hit the region-extrude bug (STATUS, 2026-09-16), worked around with a full-disc cut, the rings added back and the bores re-cut. (Round 6, agent B, 2026-09-16.) |
+| 18.5A | Revolve, Extrude Boss, Extrude Cut, Plane (angled sketch planes), Pattern (as recipe), Fillet | 225,009.5 mm³ | 225,263.644 mm³ | +0.11 % | pass | status: pass (fillets incomplete; doubtful) reading: Ø65 body with a Ø53 bore and an R32.5/R26.5 dome, 87 tall; Ø95 × 7 flange 5 above the bottom; two diamond ports (R16 about Ø15, R10 about Ø10 at ±19), 70 long, at 0° and 45°, their axis 58 up so the diamond top touches the dome crown (Section A-A); Ø10 holes 25 deep, the Ø15 through to the cavity; pipe Ø31/Ø21 × 75 rising 12° through the dome centre toward −x+z. R5 fillets: the kernel builds two blend groups (port/port +1158, port/pipe +692) and refuses every port/body and port/dome blend in any order. got: 225 263.644 (+0.11 %). Without fillets −0.71 %; with the refused blends at their separately measured sizes the reading would land around +0.35 to +0.6 %, so this pass may not survive a complete fillet set. (Round 6, agent A, 2026-09-16.) |
+| 18.5B | Revolve, Extrude Boss, Extrude Cut, Editing (rebuilt with the 18.5B changes), Fillet | 218,746.1 mm³ | 218,245.968 mm³ | -0.23 % | pass | status: pass (fillets incomplete) reading: The 18.5A recipe with the sheet's changes: the second port moves to −x (90° apart); the pipe becomes Ø30/Ø20 × 60, horizontal toward +x on the ports' 58 axis (the far port's Ø15 bore shows through the pipe in the right view). Only the pipe/body R5 builds (+204); the port/body blends are refused. got: 218 245.968 (−0.23 %); without fillets −0.32 %, so it passes either way. (Round 6, agent A, 2026-09-16.) |
+| 18.3 | Extrude Boss, Fillet, Shell (as explicit cuts), Hole Wizard (as cuts), Mirror (symmetric sketch) | 27,786.2 mm³ | 27,334.406 mm³ | -1.63 % | fail | status: fail reading: Ø40 bosses 60 apart joined by R40 arcs tangent to both, 30 tall, R6 on the top outline; a Ø26 × 40 cross tube along z tangent to the top face (axis 17 up); the union shelled 3, open at the bottom and both tube ends (Section B-B shows no tube wall inside the cavity); Ø18 holes through the boss centres. got: 27 334.406 FAIL at −1.63 %. The missing volume is the R3 fillet where the tube meets the waist walls: the kernel refuses it in every order while the tube is tangent to the top face ('TopoDS_Vertex hasn't gp_Pnt'). Moved 2 mm down, the same fillet builds and adds +549, which would put this reading within about ±0.2 %. feature.shell refused the body, so the cavity is cut explicitly. (Round 6, agent A, 2026-09-16.) |
+| 18.10 | Extrude Boss, Extrude Cut, Mirror (as second cut), Fillet (sketch R3), Full Round Fillet (as cut) | 50,540.5 mm³ | 50,633.25 mm³ | +0.18 % | pass | status: pass reading: Clevis: Ø55 head; flanks 30° off vertical tangent to it; R20 into legs at x = ±15 down to y = −65; a 15-wide slot with an R7.5 end at the origin (computed tangent heights −13.75 / −24.38 / −34.38 against the side view's −13.5 / −24.2 / −34.3). Section A-A: grooves 12 deep on both faces (6 web) between R12.5 and R22.5, the R22.5 arc running until x = ±12.5 with R3 in the tips (groove bottom −14.8 against −14.7 measured); leg ends a full R15 round about y = −50 with a Ø20 hole along x. got: 50 633.25 (+0.18 %); other groove-outline readings not tried. (Round 6, agent C, 2026-09-16.) |
+| 18.15 | Extrude Boss, Extrude Cut, Rib (as extrude), Hole Wizard (CBORE / CSK / straight, as cuts + revolve) | 3,447,594.2 mm³ | 3,448,618.784 mm³ | +0.03 % | pass | status: pass reading: C-shaped body Ø204, 140 thick, flat top at y 82, an 80-wide slot ending R40 at the origin; the back 20 has the slot 10 wider each side (R50: the back view's second U, the left view's 20, the top view's notch); lug 55 × 50 with an R25 top at 170, 10–60 back from the front face, an M14 hex-bolt hole along x (Ø15.5 through, Ø26 × 8.8 on +x); rib 12 thick, 48 tall at the lug, sloping to z −130; tail 70 thick (z −10..−80), left edge x −27.5, R38 end about (0, −146) with a Ø25 hole, right edge the common tangent of R38 and Ø204; Detail A: 2 × M10 countersinks (Ø11 through, Ø20 × 90°) on the Ø140 bolt circle at ±58°, 2 × Ø13.5 × 40 at x −20. Ø26 counterbore and Ø20 countersink measured; 8.8 is the M14 head height; the thin Ø175 circle is the Detail A boundary. got: 3 448 618.784 (+0.03 %). (Round 6, agent C, 2026-09-16.) |
 | 18.16 | Extrude Boss, Extrude Cut, Chamfer (as cut), Hole (as cut) | 176,459.6 mm³ | 171,424.112 mm³ | -2.85 % | fail | status: fail reading: Origin back-left-bottom, 100 x 63 x 50. Back slab z 0..30: tall block x 30..60 to 63, right block x 60..100 to 48 (63-15), low-left region under R30 about (0,35) from (0,5) to the pin centre (30,35). Front slab z 30..50: same blocks with a O50 half-scoop about (30,35) out of the tall block (floor at z=30 per the left view's z=30 edge y 45..60), low-left region under R25 about (0,35) from (0,10) to the cusp (11.9,13.0), a 20 deg plane down to (20,10), flat to (30,10). O20 HALF boss (x>=30) 8 long on the scoop floor, a SOLID O10 pin the full depth (both isos show a convex cylinder with an end cap; it is the left view's band and the top view's x 25..30 strip). 20 deg x 18 chamfer on the tall block's back top edge, R20 (about (100,35)) / x=80 pocket 9 deep in the right block's front face with the O9 through, Detail A notch (20 deg from (45,0), 45 deg to (85,0), R10 crest at 9.10) through the full depth (edge gap in the front view's bottom line AND the profile on the back face in the left iso). hand: 171420.0 got: 171424.112 FAIL -2.85 %, healthy brep, app = hand to 4 mm3. Every view (front/top/left/right, Details A/B/C, both isos) is consistent with this reading and I cannot find the missing 5040 mm3 (= 5.04 x 1000, e.g. 40 x 63 x 2). Combinations that reach the printed number all contradict a view: notch only through the back 30 + full boss (+0.02 %) contradicts the front view's bottom-edge gap; scoop only 12 deep + full boss (-0.07 %) contradicts the left view's z=30 scoop edge; notch 9 deep (-0.27 %) contradicts the back-face notch in the iso. The prior R14B decode had the tall block at x 40..60 and the O10 as a hole - both wrong (hole centre and block edge measure x=30; the pin is convex in both isos). Left as an honest fail. |
+| 18.19 | Extrude Boss, Extrude Cut, Fillet, Linear Pattern, Hole Wizard (as cut) | 3,108.35 mm³ | 3,109.645 mm³ | +0.04 % | pass | status: pass reading: Lever, origin at the boss centre; arm 7 thick; Ø13 boss 9 long with a Ø6 bore; outline: a vertical at x 6.5 tangent to the boss up to y 5, flat to a 30° lower slope landing at (30, 0), flat to x 47, a 5-tall end, flat back to a 36° slope up to the apex (15, 17), a 30° slope down to the y 12 flat, flat to x −3, a line tangent to the boss; Detail A: Ø4 at (14, 8), Ø2 at (9, 8) and (19, 8), through; Detail C / D-D: a window pocket 5 deep from the front (2 wall), sides parallel to the left edge 2 in and 7 apart, top y 10, bottom the boss circle, R1 corners; Detail B: five 1 × 1 × 5 grooves at 2 pitch in the top and bottom of the tip, the last 3 from the end; blue R1s on the lateral corners, orange R0.5s round the arm outline on both faces. got: 3109.645 (+0.04 %). The window must be cut before the boss is added: cut after, its R1 corners tangent to the boss leave an invalid body (bug, STATUS 2026-09-16). (Round 6, agent B, 2026-09-16.) |
 | 18.21 | Extrude Boss, Revolve, Shell (as explicit walls), Rib (as extrude), Pattern (as recipe) | 11,756.4 mm³ | 11,756.706 mm³ | +0.00 % | pass | status: pass reading: Twin syringe: 50 x 25 x 2 plate R10 corners (origin at its inner face), two straight O20 x 80 barrels at x=+-11 (2 mm gap), 1 SHELL TYP open through the plate (O18 bores through the plate, plate itself solid), 1 thick tip caps, O5 x 8 nozzles at x=+-5 with the 3 deg draft (the DRAFT 3 TYP leader points at the nozzle, not the barrel), shelled hollow with an open tip (Detail B's white hole), and 5 (Detail B) x 10 TYP rib blocks bridging the gap centred 20 and 70 up (the 50 is centre to centre). hand: 11756.1 got: 11756.4 PASS. Prior deferral ('ribs ~10 % and unresolvable') was wrong: the ribs are 5 x 10 blocks in the 2 mm gap worth 110.6 mm3 each (1.9 %), and the ribs' width is Detail B's 5. Built explicitly (tubes + caps + revolved hollow nozzles + rib blocks) instead of a shell op. |
+| 18.22 | Extrude Boss, Extrude Cut (cavity, as shell), Fillet, Fillet (lug roots, as sketch), Chamfer, Hole Wizard (CBORE, as stacked cylinders) | 230,587.9 mm³ | 231,289.065 mm³ | +0.30 % | pass | status: pass reading: 300 × 30 × 35 square tube, R3 outer corners, 2 wall (inner R1), open at both ends (the right view looks straight through, so the lugs don't fill the hollow); two R15 obround lugs at x −90 and 80 from the tube top to 40 below, centres 12 in front of the front face and 9 behind (the 21); four Ø22 × 15 bosses at 24 + 82k from the left end with 2 × 45° bottom chamfers; M10 hex counterbore from the top (Ø11 through, Ø21 × 6.4); M5 counterbore from the boss bottoms (Ø5.5 into the hollow, Ø12 × 3.5). The sheet gives no counterbore sizes: diameters measured off the rings (the known circles measure within ~0.1), depths = ISO 4014 head heights. got: 231 289.065 (+0.30 %); ~1 mm deeper counterbores would account for it, and the sheet doesn't fix the depth. The lug-root R3s were refused by the app fillet ('the blended solid failed validity checking') and built as geometry. (Round 6, agent C, 2026-09-16.) |
+| 18.23 | Extrude Boss, Revolve, Fillet, Shell, Rib (as extrude), Extrude Cut | 43,690.6 mm³ | 44,024.848 mm³ | +0.77 % | fail | status: fail reading: Origin at the flange top: R28 centre flange with R13 ends at ±38, 13 thick, Ø9 holes; revolved body: an R19 dome about the origin (the 38 REF), a Ø25 neck, a Ø33 cup up to 58; a Ø22 side pipe at y 24 out to z 50; R3 fillets before the shell (the two on the 4-wide step at 35 meet as an S-curve); shell 3, open at the flange bottom, cup top and pipe end; 3-thick ribs in the flange cavity (a Ø45 ring and x-axis ribs out to the bolt-hole rings). Section B-B, scanned pixel by pixel, agrees on the dome, the neck/cup offsets, the R6 inner foot blend, the ceiling at −3, the Ø16 bore and the 3 ribs. got: 44 024.848 FAIL at +0.77 %. feature.shell refused the body (cavity built explicitly), and the kernel would not roll the pipe-junction R3 over the S-step nor its R6 offset over the inner dome torus; the bottom view's see-through keyhole reaches z ≈ 13 where this model's stops at 10.3, so SOLIDWORKS' blend removes more wall (estimated −200 mm³, about +0.3 %), which could not be built. (Round 6, agent B, 2026-09-16.) |
 
-## Read but not attempted (155 sheets)
+## Read but not attempted (142 sheets)
 
 Sheets read from their drawings and set aside: the drawing does not fix
 the geometry, or the printed volume contradicts every reading tried. None
@@ -437,7 +467,6 @@ is an app limitation.
 | 7.11 | NOT re-examined this pass (budget) — prior structural reason carried forward unverified: Clevis fitting: the ears' Detail A profile (32°, R6, R16, 15°, R3 …) has more inferred tangencies than fixed points. |
 | 7.12 | NOT re-examined this pass (budget) — prior structural reason carried forward unverified: Swing hanger: the eye ring's major diameter and the lug's rounded end aren't dimensioned. |
 | 7.14 | Budget only: 196 mm³ spool (Ø8/Ø6/Ø5, 4 ribs 2 wide R0.5, 30° flanges, 0.25 chamfers) — at 1 mm³ tolerance the 0.25 chamfer/rib geometry needs a careful read; not attempted. |
-| 7.23 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 7.24 | Budget only: piston Ø75x90 with 5 wall, 3 ring grooves 3x5, R10 crown underside, Ø30/Ø22 pin bosses 26 apart — the head cavity / boss outline was not fully read in time. |
 | 7.25 | Hard, budget only (looked): Ø20/R13 hub with 17° flat, Ø10 bore, 4xØ3 on a bolt circle, 13-wide slot 12/10 deep, Detail B Ø2/Ø3 cross holes; not attempted. |
 | 7.40 | Budget only: not opened this pass. |
@@ -513,54 +542,41 @@ is an app limitation.
 | 15.7A | Table inconsistent with a uniform block: with a 16 x 8n x 10 body, 1 walls, 2 top, O5 x 2 studs the 2x2 -> 2x3 -> 2x4 increments would be equal, but the printed ones are +440.3 and +499.7; the under-side tube (1 TYP wall, Detail H) diameter/height is not printed. Agree with the prior deferral. |
 | 15.7B | See 15.7A (same table). |
 | 15.7C | Not a single-part sheet: the database serves it as a package (PracticeProblems_15_7C_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
-| 15.8 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 16.6 | Not a single-part sheet: the database serves it as a package (PracticeProblems_16_6_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 16.7 | Confirmed after looking: START part not supplied (16.7_START) - the sheet gives only Flange_TH = 23, Flange_Hgt = 150, Fillet_R = 8; the base length, tab pitch, tab width, hole and tab top radius are not dimensioned. |
 | 17.1 | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_1_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 17.2 | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_2_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 17.3A | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_3A_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 17.3B | Assembly exercise (mated Conn Rod Assy, collision move, centre of mass) - no single-part volume. |
-| 17.3C | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 17.3C | Not buildable as a volume (checked 2026-09-16): an assembly motion/collision exercise; the printed answer is a centre of mass, not a volume. |
 | 17.4A | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_4A_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 17.4B | BUDGET ONLY: sheet downloaded but never opened; not reached. |
 | 17.5A | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_5A_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 17.5B | Assembly exercise: the ARM part comes from the supplied 17.5 assembly; the sheet shows only the modified sketch (30 top, 20 tall, 60 deg, 7.00) with no extrusion depth or the rest of the ARM. |
-| 17.5C | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 17.5C | Not buildable (checked 2026-09-16): an interference exercise on the 17.5 assembly. The printed volume is for its MAIN BRIDGE part, which the sheet shows only as a screenshot with a few sketch dimensions (Ø12.50 change, 25, 9.5, 21, Ø12, Ø32, R5), not a full drawing. |
 | 17.6A | Assembly exercise (interference detection on the supplied 'interference 3' assembly, centre of mass) - no single-part volume. |
-| 17.6B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 17.6B | Not buildable as a volume (checked 2026-09-16): an assembly motion/collision exercise; the printed answer is a centre of mass, not a volume. |
 | 17.7A | Not a single-part sheet: the database serves it as a package (PracticeProblems_17_7A_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
-| 17.7B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 17.7B | Not buildable as a volume (checked 2026-09-16): an assembly motion/collision exercise; the printed answer is a centre of mass, not a volume. |
 | 18.1 | BUDGET ONLY, examined: 70 x 24 base with two lugs (O10 hole 22 up, R8 top, 24 wide at the base), 5 deg TYP draft on every wall, R2 ALL FILLETS, CBORE M5 pan head at the centre (35 REF). Section A-A shows the base's top as a shallow concave arc (sagitta ~1.7 over the width, i.e. R~30, while the printed R15 leader lands on a construction arc off the lug's side) and a base ~9.5 thick at the edges; the CBORE sizes are not printed. A first-cut estimate (base 70x24x8.5 + two lugs) overshoots 16856.9 by ~20 %, so the base/lug thicknesses need a careful pixel pass before a build is defensible. |
 | 18.2 | Not attempted: 728.3 mm3 part (tolerance 3.6 mm3) whose large 20 deg cut (R1 TYP, the '4', '3', '1' and Detail B 45 deg) needs construction geometry the 825-px sheet does not resolve; plus CSK M2, two O1 holes, 0.5 x 45 chamfer, O6/O5 boss. |
-| 18.3 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.4 | BUDGET ONLY (unchanged from F4): twin ribbed pillars; not reached. |
-| 18.5A | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
-| 18.5B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.6A | BUDGET ONLY (unchanged from F4): fork lever with R2 ALL FILLETS; not reached. |
-| 18.6B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 18.6B | Needs the 18.6A drawing (checked 2026-09-16): an Editing sheet that gives only the changed dimensions (8 TYP, 15, 85); the arm radii, thickness, fork outline and holes come from 18.6A, which has not been read. |
 | 18.7A | BUDGET ONLY - lever (50 x 80 block, R200/R50 blend to the O50/O30 boss 100 up, O80/O50 hub) with R4 ALL FILLETS (~0.7 %); not attempted. |
 | 18.7B | Modification of 18.7A (R40, 45 deg, 30/20), which was not built. |
-| 18.8A | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
-| 18.8B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
-| 18.9A | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.9B | STRUCTURAL: an 'Editing' sheet - 'Edit part 18.9A using the changes documented here'; it shows only the changed dims (15/30/55, 40, R3 ALL FILLETS) and three isos, not the part. 18.9A has never been built (no recipe in any level file, no results.jsonl row) and is not in this assignment, so there is no START part to edit. |
-| 18.10 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.11 | BUDGET ONLY (unchanged from F4); not reached. |
 | 18.12A | Not attempted: the triangular loop (R175 / R100 / R12 TYP / R6 TYP / 30 deg, 6 TYP walls, 16 thick) is only partly dimensioned relative to the O35/O22 hub; budget. |
-| 18.12B | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
+| 18.12B | Needs the 18.12A drawing (checked 2026-09-16): an Editing sheet that gives only 20, 12, 5, R10 TYP and 12 TYP; the hub sizes and the triangular loop's arcs and positions come from 18.12A, which has not been read. |
 | 18.13 | BUDGET ONLY (unchanged from F4): lofted/drafted tray; not reached. |
 | 18.14 | BUDGET ONLY (unchanged from F4): multi-plane bracket; not reached. |
-| 18.15 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.17A | Undimensioned features dominate: the iso shows the 11 (SLOT_w) x 45 slot as a shallow POCKET in the top of the arm (not a fork) and the O30 (D) hole has an inner O19.5 (SM_D) shoulder; neither depth is printed. Closed form with a through O30 hole and a full-height slot gives 250951 (-1.2 %) for A and 285940 (-1.6 %) for B; matching the table would need ~27500 mm3 of undimensioned removal in A. |
 | 18.17B | Configuration B of 18.17A (D35 T34 H225 HH55) - same undimensioned pocket/shoulder depths. |
 | 18.17C | Configuration C of 18.17A (D40 T36 H245 HH60) - same. |
 | 18.17D | Configuration D of 18.17A (D45 T37 H275 HH65) - same. |
 | 18.18 | Agree with R14B: the top view's O50 circles at the slot ends are an undimensioned feature (spot-face / boss?) worth ~1 % per 3 mm of depth; the 8 deg / 3 deg drafts are otherwise buildable. |
-| 18.19 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.20A | Lug flank geometry is not dimensioned and dominates: ring O60/O50 x 20 = 17278.8, three 90 deg x 10 slots with full-round ends (centred on the lugs, the 15 deg TYP is the half-width of the 30 deg solid tongues) remove 6157.5, so the three lugs must net 175 mm2 each (x10 effective after the slot passes through them). A hull tangent to the ring gives 286 mm2 (19713, +20 %), flanks meeting the ring at 15 deg give 146 mm2 (15492, -5.4 %); the drawing scales to ~22 deg, which is what the volume needs but nothing prints it. |
 | 18.20B | Modification of 18.20A (75 deg slots, forked lugs 5 TYP, O10 at 45), which is deferred for the same lug flanks. |
-| 18.22 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
-| 18.23 | Readable sheet, fetched 2026-09-05 after the retry workers had triaged the level; not yet attempted. |
 | 18.24 | Not a single-part sheet: the database serves it as a package (PracticeProblems_18_24_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
 | 18.25 | Not a single-part sheet: the database serves it as a package (PracticeProblems_18_25_ENG.zip) that now returns 404 — an assembly / START-part exercise. |
-

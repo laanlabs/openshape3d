@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,69 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, practice problems round 6 (three parallel agents)
+
+- **19 untried sheets, 3 agents, 13 built: 11 pass, 2 fail, 6 unbuildable.**
+  The batch was the 19 readable sheets fetched on 2026-09-05 and never
+  attempted. Each agent ran on its own simulator (`os3d-runner-A/B/C`,
+  ports 8901–8903) and wrote its recipes in its own module
+  (`scripts/swpp/round6_{a,b,c}.py`, which `run.py` now loads after the
+  levels). Shared files (notes, deferred list, docs) were updated afterwards
+  from the agents' reports. Every result was checked against
+  `results.jsonl`, and all 13 builds were then re-run through `run.py` on the
+  iPad simulator with identical volumes.
+
+  | Result | Sheets |
+  |---|---|
+  | pass | 7.23 (−0.04 %), 15.8 (four configs, ≤ 0.01 %), 18.8A (−0.43 %), 18.8B (−0.39 %), 18.10 (+0.18 %), 18.15 (+0.03 %), 18.19 (+0.04 %), 18.22 (+0.30 %) |
+  | pass, fillets incomplete | 18.5A (+0.11 %, **doubtful**), 18.5B (−0.23 %), 18.9A (+0.23 %) |
+  | fail | 18.3 (−1.63 %), 18.23 (+0.77 %) |
+  | unbuildable | 17.3C, 17.6B, 17.7B (centre-of-mass motion studies), 17.5C (part shown only as a screenshot), 18.6B, 18.12B (edit parts whose A drawings haven't been read) |
+
+  18.5A's kernel refused the port/body and port/dome R5 blends in every
+  order; with them at their separately measured sizes the reading would
+  land around +0.35 to +0.6 %, so its pass may not survive. 18.3 fails only
+  on the R3 fillet where its tube is tangent to the top face: moved 2 mm
+  down, the same fillet builds and would bring it within about ±0.2 %. That
+  tangent-contact fillet refusal is the most useful kernel case to reduce
+  next.
+- **Four bugs found by the agents, each reproduced again here in a fresh
+  document on the iPad simulator:**
+  1. **Region extrude with crossing circles is wrong and invalid, but reported
+     ok.** Sketch on `front(0)`: circle r40 at (0, 0), circle r18 at (0, 24);
+     extrude the region seeded at (0, −20), 5 deep. Got 20 043.361 mm³, which
+     is the whole small disc removed; the true region is 20 188.652. `/v1/check`:
+     invalid, `intersectingWires`. As a cut the tool is refused ("tool solid is
+     invalid").
+  2. **A pocket whose R1 corners are tangent to an existing boss leaves an
+     invalid body, reported ok.** Plate `rect(−15, −10, 15, 15)` × 7, a Ø13 × 9
+     boss unioned, then a pocket on `front(7)` (sides x = ±4, top y = 11, bottom
+     the boss arc, R1 corners) cut 5 deep: no eval error, 188.986 mm³ removed,
+     `/v1/check` invalid (`invalidPolygonOnTriangulation`); the next boolean is
+     refused ("target solid is invalid"). Agent B's exact script:
+     `round6_b._corner` / `_arc_short` build the outline.
+  3. **`/v1/edges` reports concave edges as convex.** A T-shaped profile
+     extruded 20: the two inside corners at (±5, 10) come back
+     `convex: true`; the other ten 20 mm edges, all convex, are
+     correctly `true`. The likely
+     cause is `EdgeTopology.isConvexEdge`, which judges by the normal
+     bisector against the mesh's vertex centroid; the tap-to-pick path for
+     fillet/chamfer also relies on convexity, so it may be affected.
+  4. **The bridge over-reports `undoSteps` for a failed feature.** Union two
+     cubes, then a fillet that fails: the reply says `undoSteps: 2`, but one
+     undo already removes the feature (undo title "Add Feature") and a second
+     undo reverts the union. `AgentBridge.record` hard-codes 2. The note merged
+     in #48 ("undo `undoSteps` times") is corrected in AGENT_CONTROL.md.
+- **Getting the sheets.** The 2026-09-05 PDFs had lived in a deleted
+  scratchpad. The SOLIDWORKS CDN (Akamai) now refuses scripted downloads:
+  curl connects and sends the request, then the server stalls and later
+  resets the connection; its homepage and `robots.txt` behave the same.
+  The sheets were saved through the browser instead, one save dialog each.
+- **`run.py` loads more strictly.** It used to skip a level module whenever
+  anything inside it failed to import, silently dropping that level's
+  recipes. It now skips only levels that don't exist, raises on a real
+  import error, and refuses a problem registered twice. All 215 recipes load.
 
 ## Mission log — 2026-09-16, Fillet: lateral-edge finding stale; bridge undo gotcha
 
