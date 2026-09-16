@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-15 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; see the newest mission log, the register above, and
+Last updated: 2026-09-15 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -63,6 +63,47 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   more, and repeated diagnostic runs add up. Check
   `df -h /System/Volumes/Data` before a long run and delete old result
   bundles.
+
+## Mission log — 2026-09-15, App Store screenshots reshot for the new framing
+
+- **All twelve App Store shots were reshot** (iPad Pro 13-inch 2064 × 2752,
+  iPhone 17 Pro Max 1320 × 2868) because both sets predated #37
+  (aspect-aware Zoom to Fit) and #39 (phone palette safe area). A marketing
+  image that shows the old framing misrepresents the shipping app, and the
+  iPhone set was the point: #39 exists so a fitted model is not left under
+  the palette. Pipeline and shot list: `docs/APP_STORE_READINESS.md`.
+- **Staging over the bridge, posing by touch.** `marketing_scenes.py
+  wheel|plate|bottle` builds, paints and frames each model through
+  `/v1/exec`; only the states with no endpoint (dimensioned sketch, armed
+  push/pull, History panel, Export menu) are posed by hand. Aim taps with
+  `GET /v1/project` and read results from `/v1/state` — a screenshot cannot
+  tell you which face got selected. Two traps cost real time: taps on the
+  plate's top can land on the filleted band ("Curved face — no push/pull",
+  perimeter 0.00) instead of a planar face, so pick the target from
+  `/v1/faces` + `/v1/project`; and committed sketch dimensions are invisible
+  unless the app is launched with `-os3d.alwaysShowDimensions YES`
+  (annotations otherwise follow selection). `/v1/sketches` reports
+  `dimensionCount`, which is how you prove one exists.
+- **Zoom to Fit now frames marketing shots too small, where it used to frame
+  them too large.** On the phone the fit is aspect-aware *and* confined to
+  the strip the palette leaves visible, so the bottle fitted at ~25 % of
+  screen height against the ~68 % the shot wants. Every shot is still
+  hand-framed, now by pinching *out*. A two-finger `touch2_path` whose two
+  contacts move symmetrically is a clean zoom: it leaves `mode` at `idle`
+  and the selection empty, so it cannot disturb a posed scene.
+- **#39 verified on the finished images, not just in tests.** Measured on
+  saturated model pixels, the bottle has zero pixels under the palette
+  before or after, and its left edge moved outward 129 pt → 173 pt; the two
+  shots that changed most went 14.4 % → 3.9 % (sketch) and 13.2 % → 5.6 %
+  (extrude) of model pixels inside the palette band. **Gotcha for anyone
+  repeating this:** a naive "saturated or dark" pixel mask also catches the
+  palette icons' own dark strokes and the coloured ground axes, which run to
+  the screen edge — that floors every shot at 1–2 % and reports a spurious
+  occlusion. Restrict the mask to the model's own hue.
+- **`marketing/` is gitignored, so none of this is committable.** The twelve
+  raws and twelve composed images live on disk only and are regenerable from
+  the two tracked scripts; a fresh clone has neither. Only this record and
+  the readiness doc are in the repo.
 
 ## Mission log — 2026-09-13, sketch-parity branch merged; iPad open time
 

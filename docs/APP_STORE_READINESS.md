@@ -37,24 +37,33 @@ future submission — a build setting that was right once is not right forever.
   (Catalyst adopts a sheet's navigation title) — is fixed: the gallery and
   the editor own the window title (`MacWindowTitle`) and every sheet puts
   it back as it disappears.
-- **iPad / iPhone screenshots (2026-09-14):** framed, captioned App Store
-  images in `marketing/app-store/<device>/` (gitignored), made in two steps.
-  `scripts/marketing_scenes.py wheel|plate|bottle` builds and colours each
-  model over the DEBUG bridge (launch with `OS3D_FRESH_NAME` so the title
-  is a real name); the touch-only states (dimensioned sketch, push/pull
+- **iPad / iPhone screenshots (reshot 2026-09-15):** framed, captioned App
+  Store images in `marketing/app-store/<device>/` (gitignored), made in two
+  steps. `scripts/marketing_scenes.py wheel|plate|bottle` builds and colours
+  each model over the DEBUG bridge (launch with `OS3D_FRESH_NAME` so the
+  title is a real name); the touch-only states (dimensioned sketch, push/pull
   preview, History panel, Export menu) are posed by hand on top, captured
   with `simctl io screenshot` into `marketing/raw/<device>-<slug>.png`.
   `scripts/marketing_compose.py` then frames each on the icon's navy
   blueprint ground at the native size — iPad Pro 13-inch 2064 × 2752,
   iPhone 17 Pro Max 1320 × 2868, RGB — and writes `overview.png`. Shot
   list: hero (wheel + tyre), sketch, push/pull, history (mounting plate),
-  revolve (bottle), export (wheel face-on under the Export menu). Both sets
-  are done. On the iPhone, Zoom to Fit overfills the narrow screen (it
-  sizes from the vertical FOV only), so each shot is re-framed by pinch and
-  a two-finger pan, aimed with `GET /v1/project`; History and Export live
-  under the toolbar's "…" menu. Shooting the iPhone wheel found the pinch
-  zoom-out bug fixed alongside (STATUS, 2026-09-14). New bridge ops for
-  this: `body.setMaterial`, `item.setHidden` (docs/AGENT_CONTROL.md).
+  revolve (bottle), export (wheel face-on under the Export menu). All
+  twelve were reshot on 2026-09-15 because the first set predated #37
+  (aspect-aware fit) and #39 (phone palette safe area), which move where a
+  fitted model lands on both devices. **Every shot still needs hand-framing,
+  but the reason changed.** Before
+  #37, Zoom to Fit sized from the vertical FOV only and *overfilled* the
+  narrow phone screen. Now fit is aspect-aware and, on the phone, fits
+  inside the strip the palette leaves visible — so it errs the other way
+  and frames small: the bottle fitted at ~25 % of screen height against the
+  ~68 % the shot wants. So each shot is re-framed by pinch (and a two-finger
+  pan where needed), aimed with `GET /v1/project` — which is **GET only**,
+  and which follows the shifted projection centre, so it stays the right way
+  to aim a tap on a phone. History and Export live under the toolbar's "…"
+  menu. New bridge ops for this: `body.setMaterial`, `item.setHidden`
+  (docs/AGENT_CONTROL.md). Shooting the iPhone wheel in the first pass found
+  the pinch zoom-out bug fixed alongside (STATUS, 2026-09-14).
 - **Still to do by hand:** the App Store Connect listing (screenshots at the
   required sizes for iPad and Mac, what's new, privacy label = no tracking,
   no collection); the Mac upload needs a Mac App Store distribution
