@@ -105,6 +105,46 @@ final class CompactWidthBarUITests: XCTestCase {
         app.buttons["SketchTransformMode"].tap()
     }
 
+    /// Settings must be reachable on a phone. At compact width the editor's
+    /// primary toolbar group collapses into a "…" overflow menu, which builds
+    /// each row from the item's label TITLE. Settings' button carried only an
+    /// `.accessibilityLabel`, so it had no title and the overflow silently
+    /// dropped it: on 2026-09-16 the menu held History, Variables, Items,
+    /// Import, Export, Command Search and Report a Bug, and Settings — whose
+    /// button is its only route — could not be opened on an iPhone at all.
+    ///
+    /// The assertion is that the sheet actually opens, not merely that some
+    /// element exists: a dropped item leaves no element to find, and an item
+    /// present but unhittable would pass an existence check.
+    func testSettingsIsReachableAtCompactWidth() throws {
+        let app = launchSeeded()
+        try skipUnlessCompact(app)
+
+        // On a phone the gear is not in the bar itself; it lives behind "…".
+        let settings = app.buttons["SettingsButton"]
+        if !settings.exists || !settings.isHittable {
+            let overflow = app.navigationBars.buttons.matching(
+                NSPredicate(format: "label CONTAINS[c] 'more'")).firstMatch
+            XCTAssertTrue(overflow.waitForExistence(timeout: 5),
+                          "The compact toolbar should offer a \"…\" overflow menu")
+            overflow.tap()
+        }
+
+        // Match the row by its TITLE, not by "SettingsButton": a toolbar item
+        // collapsed into the overflow does not carry its
+        // `accessibilityIdentifier` onto the menu row. Querying the identifier
+        // here fails even when the row is on screen — which is exactly how the
+        // menu renders the title this test is really guarding.
+        let inMenu = app.buttons["Settings"].firstMatch
+        XCTAssertTrue(inMenu.waitForExistence(timeout: 5),
+                      "Settings should appear in the overflow menu — if this fails, "
+                      + "its toolbar item has no Label title for the menu to render")
+        inMenu.tap()
+        XCTAssertTrue(app.buttons["SettingsDone"].waitForExistence(timeout: 5),
+                      "Tapping Settings should open the Settings sheet")
+        app.buttons["SettingsDone"].tap()
+    }
+
     /// QA-29 at compact width: a line against the (left) palette opens its
     /// keypad clear of the palette, on screen, with the commit key reachable.
     func testEdgeKeypadIsUsableAtCompactWidth() throws {
