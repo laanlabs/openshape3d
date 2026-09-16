@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,40 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, Fillet: lateral-edge finding stale; bridge undo gotcha
+
+- **Sharp lateral edges fillet over the bridge on `main`.** The
+  2026-09-04/05 log said the corner edges parallel to an extrusion have no
+  mesh-side signature, so `feature.fillet` refuses them with
+  `unaddressable_edge` and every "R n TYP" corner needs a sketch fillet.
+  On a plain 20 × 10 × 5 extruded rectangle, R1 on a vertical edge removes
+  1.073 mm³, exactly (1 − π/4) · 1² · 5. On practice problem 4.5's own
+  profile, whose recipe carries the sketch-fillet workaround: the recipe's
+  sketch-fillet corners extruded 43 give 208 792.537 mm³; the same profile
+  with SHARP corners, extruded, with a bridge R5 on the two lateral corner
+  edges (#11, #20, both listed with midpoint and length) gives
+  208 792.537 mm³, a difference of 0.000. A cylinder's rim fillets too
+  (Ø20 × 10, R1: 3141.593 → 3128.410, matching Pappus). The September
+  build was not re-tested for this one.
+- **Not every lateral edge carries mesh-side data.** On that sharp 4.5
+  profile, 6 of 32 edges list no midpoint or length. Two join profile walls
+  that meet TANGENTLY (the lines into the lug arc): no crease, nothing to
+  fillet, so that is correct. The other four were not identified, and
+  `level4._edges_between` (edges picked by their adjacent faces) is still
+  the way to address such edges. 4.7's lug-junction R2s, noted as
+  impossible over the bridge, were not re-tested.
+- **Gotcha: undo a bridge feature twice.** A feature exec lands as two undo
+  steps (`undoSteps: 2`, docs/AGENT_CONTROL.md). ONE undo reverts the
+  rebuild but leaves the feature in History, so the body shows the old
+  volume while the graph still holds the feature. The next feature then
+  builds on that mismatch: after fillet #3 → one undo → fillet #1, the box
+  lost 7.344 mm³ (the whole corner, #1 + #3 + #11) instead of 1.073, with
+  the feature count at 3 instead of 2. With two undos the same sequence is
+  exact. It cost a false bug report here and briefly cast doubt on the
+  Shell fix's in-app check, which was then re-run clean (holed box, tool
+  Apply: 187.094 mm³, 3 features, `/v1/check` 0 invalid). Interactive
+  tools record features differently and do not hit this.
 
 ## Mission log — 2026-09-16, Shell: stale over-hollow finding; the Shell tool opens holed faces
 
@@ -1182,7 +1216,9 @@ are **still not published**. Do that before the build reaches anyone else.
   wall edges (the prism corners parallel to the extrusion) list without a
   mesh-side signature after `feature.extrude`, so `feature.fillet` answers
   `unaddressable_edge` — every "R n TYP" on such a corner needs a sketch
-  fillet instead; (2) `feature.shell` on the 13.9 hub (`level13._p139_build(60,
+  fillet instead **[stale for sharp corners, 2026-09-16: on `main` a
+  bridge fillet on 4.5's two lateral corner edges matches its sketch-fillet
+  volume exactly; see that day's Fillet mission log]**; (2) `feature.shell` on the 13.9 hub (`level13._p139_build(60,
   5, do_shell="app")`) succeeds with brep true and a clean check but removes
   517k mm³ where the offset cavity is 286k — the 25-deep front pockets'
   offsets are not honoured **[stale, 2026-09-16: on `main` and on the
