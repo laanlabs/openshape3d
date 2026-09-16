@@ -420,16 +420,31 @@ def relaunch_fresh():
     env2 = dict(env, SIMCTL_CHILD_OS3D_AGENT="1",
                 SIMCTL_CHILD_OS3D_AGENT_PORT=os.environ.get("OS3D_PORT", "8899"),
                 SIMCTL_CHILD_OS3D_FRESH="1")
-    subprocess.run(["xcrun", "simctl", "launch", SIM, BUNDLE], env=env2,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    launched = subprocess.run(["xcrun", "simctl", "launch", SIM, BUNDLE], env=env2,
+                              capture_output=True, text=True)
+    # `simctl launch` prints "<bundle>: <pid>". The bridge must answer from
+    # THAT process: another session's app already listening on this port
+    # (any simulator) keeps the relaunched app from binding, and a fresh
+    # document there would otherwise pass for ours (found 2026-09-16, when
+    # a problem was built and ledgered in another simulator's app).
+    tail = launched.stdout.strip().rsplit(":", 1)[-1].strip()
+    pid = int(tail) if tail.isdigit() else None
+    other = None
     for _ in range(40):
         time.sleep(0.5)
         try:
+            health = G("/v1/health")
+            if pid is not None and health.get("pid") != pid:
+                other = health.get("pid")
+                continue
             st = state()
             if st.get("ok") and st.get("featureCount", 1) == 0:
                 return st["document"]
         except Exception:
             pass
+    if other is not None:
+        raise RuntimeError(f"port {BASE.rsplit(':', 1)[-1]} is answered by pid {other}, "
+                           f"not the app just launched on {SIM} (pid {pid}); pick another OS3D_PORT")
     raise RuntimeError("app did not come up on a fresh document")
 
 

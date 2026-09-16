@@ -436,3 +436,257 @@ final class ProfileEndpointWeldTests: XCTestCase {
         XCTAssertTrue(ProfileDetector.detectProfiles(in: sketch).isEmpty)
     }
 }
+
+final class ProfileCrossingOutlineTests: XCTestCase {
+
+    // MARK: - Crossing outlines (2026-09-16)
+    //
+    // Closed shapes were never split: two overlapping circles came back as two
+    // full circles, and `holes(of:)` (centroid test) took the smaller for a
+    // hole of the larger. Extruding the region between them built a face whose
+    // inner wire crossed its outer one: an invalid solid with the whole small
+    // circle subtracted (practice sheet 18.8B, repro: 20 043.361 mm³ where the
+    // region is 20 188.652).
+
+    private func makeSketch(_ entities: [SketchEntity]) -> Sketch {
+        Sketch(plane: .ground, entities: entities)
+    }
+
+    /// Area where circle (c1, r1) and circle at distance d with radius r2 overlap.
+    private func lensArea(_ r1: Double, _ r2: Double, _ d: Double) -> Double {
+        let a1: Double = r1 * r1 * acos((d * d + r1 * r1 - r2 * r2) / (2 * d * r1))
+        let a2: Double = r2 * r2 * acos((d * d + r2 * r2 - r1 * r1) / (2 * d * r2))
+        let k: Double = (-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2)
+        return a1 + a2 - 0.5 * sqrt(k)
+    }
+
+    private func crossingCircles() -> Sketch {
+        makeSketch([
+            .circle(id: UUID(), center: SIMD2(0, 0), radius: 40),
+            .circle(id: UUID(), center: SIMD2(0, 24), radius: 18),
+        ])
+    }
+
+    func testTwoCrossingCirclesGiveALensAndTwoCrescents() {
+        let profiles = ProfileDetector.detectProfiles(in: crossingCircles())
+        XCTAssertEqual(profiles.count, 3, "big crescent, lens, small outer part")
+        for profile in profiles {
+            if case .circle = profile.kind { XCTFail("a crossed circle must not stay a full-circle profile") }
+            XCTAssertGreaterThan(profile.area, 0)
+            XCTAssertFalse(profile.segments.isEmpty, "arc boundaries reach the kernel exactly")
+        }
+        let lens: Double = lensArea(40, 18, 24)
+        let expected: [Double] = [lens, Double.pi * 18 * 18 - lens, Double.pi * 40 * 40 - lens].sorted()
+        let areas = profiles.map(\.area).sorted()
+        for (got, want) in zip(areas, expected) {
+            XCTAssertEqual(got, want, accuracy: want * 0.01, "tessellated area within 1 %")
+        }
+    }
+
+    func testTheCrescentExtrudesToTheExactRegionAndAValidSolid() throws {
+        let sketch = crossingCircles()
+        let outer = try XCTUnwrap(ProfileDetector.profiles(at: SIMD2(0, -20), in: sketch).first)
+        let holes = ProfileDetector.holes(of: outer, among: ProfileDetector.detectProfiles(in: sketch))
+        XCTAssertTrue(holes.isEmpty, "the small circle crosses the region: it is not a hole")
+        let solid = try XCTUnwrap(OCCTKernel.extrudeShape(
+            outerLoop: outer.loop, holes: [], zMin: 0, zMax: 5,
+            origin: .zero, xAxis: SIMD3(1, 0, 0), yAxis: SIMD3(0, 1, 0), normal: SIMD3(0, 0, 1),
+            outerSegments: outer.segments))
+        let region: Double = Double.pi * 40 * 40 - lensArea(40, 18, 24)
+        let health = OCCTKernel.healthReport(for: solid)
+        XCTAssertTrue(health.isValid, "findings: \(health.findings)")
+        XCTAssertEqual(OCCTKernel.volume(solid), region * 5, accuracy: 0.01,
+                       "20 188.652 mm³: the crescent, not the disc minus the whole small circle")
+    }
+
+    func testALineAcrossACircleGivesTwoRegions() {
+        let sketch = makeSketch([
+            .circle(id: UUID(), center: .zero, radius: 10),
+            .line(id: UUID(), a: SIMD2(-20, 4), b: SIMD2(20, 4)),
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        let cap: Double = 100 * acos(0.4) - 4 * sqrt(84.0)
+        let expected: [Double] = [cap, Double.pi * 100 - cap].sorted()
+        for (got, want) in zip(profiles.map(\.area).sorted(), expected) {
+            XCTAssertEqual(got, want, accuracy: want * 0.01)
+        }
+    }
+
+    func testARectCrossedByACircleGivesThreeRegions() {
+        let sketch = makeSketch([
+            .rect(id: UUID(), min: SIMD2(0, 0), max: SIMD2(20, 20)),
+            .circle(id: UUID(), center: SIMD2(20, 10), radius: 6),
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 3, "rect minus the half disc, and the two half discs")
+        let half: Double = Double.pi * 36 / 2
+        let expected: [Double] = [half, half, 400 - half]
+        for (got, want) in zip(profiles.map(\.area).sorted(), expected) {
+            XCTAssertEqual(got, want, accuracy: want * 0.01)
+        }
+    }
+
+    func testShapesThatDoNotCrossStayStandaloneAndNest() throws {
+        let sketch = makeSketch([
+            .rect(id: UUID(), min: SIMD2(-20, -20), max: SIMD2(20, 20)),
+            .circle(id: UUID(), center: .zero, radius: 10),
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.filter { if case .circle = $0.kind { return true }; return false }.count, 1,
+                       "an uncrossed circle stays a circle profile")
+        let outer = try XCTUnwrap(ProfileDetector.profiles(at: SIMD2(15, 15), in: sketch).first)
+        XCTAssertEqual(ProfileDetector.holes(of: outer, among: profiles).count, 1, "the circle is still a hole")
+    }
+
+    func testACircleTouchedAtOnePointStaysOneCircle() {
+        let sketch = makeSketch([
+            .circle(id: UUID(), center: .zero, radius: 10),
+            .line(id: UUID(), a: SIMD2(0, 20), b: SIMD2(0, 10)),
+        ])
+        let profiles = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(profiles.count, 1)
+        if let only = profiles.first, case .circle = only.kind {} else { XCTFail("still a standalone circle") }
+    }
+
+    /// Touching isn't crossing: a hole tangent to the boundary it sits in
+    /// stays a hole. At an arbitrary angle the two tessellations' chords
+    /// cross and a vertex pokes out, so neither may decide it.
+    func testAHoleTangentToItsBoundaryStaysAHole() throws {
+        let tilt = 37 * Double.pi / 180
+        let layouts: [(String, SketchEntity, SIMD2<Double>, SIMD2<Double>)] = [
+            ("circle, tangent at 37°", .circle(id: UUID(), center: .zero, radius: 10),
+             SIMD2(cos(tilt), sin(tilt)) * 5, SIMD2(-8, 0)),
+            ("circle, tangent at 0°", .circle(id: UUID(), center: .zero, radius: 10),
+             SIMD2(5, 0), SIMD2(-8, 0)),
+            ("rect side", .rect(id: UUID(), min: SIMD2(-10, -10), max: SIMD2(10, 10)),
+             SIMD2(5, 3.3), SIMD2(-8, 0)),
+        ]
+        for (name, boundary, holeCenter, pick) in layouts {
+            let sketch = makeSketch([boundary, .circle(id: UUID(), center: holeCenter, radius: 5)])
+            let all = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(all.count, 2, "\(name): touching splits nothing")
+            let outer = try XCTUnwrap(ProfileDetector.profiles(at: pick, in: sketch).first, name)
+            XCTAssertEqual(ProfileDetector.holes(of: outer, among: all).count, 1, name)
+        }
+    }
+
+    /// Touching at two points doesn't split either: a circle in a rect's
+    /// corner, tangent to both sides, stays a hole of the rect (the corner
+    /// between them is not a region of its own, as before crossings were
+    /// split). See `ProfileDetector.splits(at:side:others:)` for why.
+    func testACircleTouchingTwoSidesStaysAHole() throws {
+        let sketch = makeSketch([
+            .rect(id: UUID(), min: SIMD2(-10, -10), max: SIMD2(10, 10)),
+            .circle(id: UUID(), center: SIMD2(5, 5), radius: 5),
+        ])
+        let all = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(all.count, 2)
+        let rect = try XCTUnwrap(ProfileDetector.profiles(at: SIMD2(-8, -8), in: sketch).first)
+        XCTAssertEqual(ProfileDetector.holes(of: rect, among: all).count, 1)
+    }
+
+    /// A line ending on a circle is a junction, not a touch: two radii cut a
+    /// quarter slice out of the disc.
+    func testTwoRadiiCutASliceOutOfACircle() throws {
+        let sketch = makeSketch([
+            .circle(id: UUID(), center: .zero, radius: 10),
+            .line(id: UUID(), a: .zero, b: SIMD2(10, 0)),
+            .line(id: UUID(), a: .zero, b: SIMD2(0, 10)),
+        ])
+        let all = ProfileDetector.detectProfiles(in: sketch)
+        XCTAssertEqual(all.count, 2, "the slice and the rest")
+        let slice = try XCTUnwrap(ProfileDetector.profiles(at: SIMD2(4, 4), in: sketch).first)
+        XCTAssertEqual(slice.area, Double.pi * 25, accuracy: Double.pi * 25 * 0.01)
+        let rest = try XCTUnwrap(ProfileDetector.profiles(at: SIMD2(-4, -4), in: sketch).first)
+        XCTAssertEqual(rest.area, Double.pi * 75, accuracy: Double.pi * 75 * 0.01)
+    }
+
+    /// Practice problem 13.9's front sketch: the hull of three R40 tubes,
+    /// touching its Ø200 outer circle at three points, is a hole of the
+    /// circle. Checked with the tubes as chords (the recipe) and as exact
+    /// arcs.
+    ///
+    /// With short spokes outside the circle ending at the touch points, the
+    /// points do split. The curves leave them nearly together, and ordering
+    /// them by tessellation chord (a 7.5° circle chord leans further than a
+    /// 5° tube chord) swapped them: the walk produced one region over the
+    /// whole disc. Ordered by the exact arc, no region under a lobe point is
+    /// bigger than the lobe.
+    func testAHullTouchingItsOuterCircleStaysAHole() throws {
+        let tubeRadius = 40.0, pitch = 60.0
+        let centers = [90.0, 210.0, 330.0].map { SIMD2(cos($0 * .pi / 180), sin($0 * .pi / 180)) * pitch }
+        let side: Double = pitch * 3.0.squareRoot()
+        let hullArea: Double = 3.0.squareRoot() / 4 * side * side + 3 * side * tubeRadius
+            + Double.pi * tubeRadius * tubeRadius
+        let lobeArea: Double = (Double.pi * 100 * 100 - hullArea) / 3
+        func onTube(_ i: Int, _ degrees: Double) -> SIMD2<Double> {
+            centers[i] + SIMD2(cos(degrees * .pi / 180), sin(degrees * .pi / 180)) * tubeRadius
+        }
+        let tubeAngles = [90.0, 210.0, 330.0]
+        let lobePoint = SIMD2(cos(Double.pi / 6), sin(Double.pi / 6)) * 90
+
+        var chordHull: [SketchEntity] = []
+        var arcHull: [SketchEntity] = []
+        var spokes: [SketchEntity] = []
+        for i in 0..<3 {
+            let a = tubeAngles[i]
+            let next = (i + 1) % 3
+            let steps = 24
+            for k in 0..<steps {
+                chordHull.append(.line(id: UUID(), a: onTube(i, a - 60 + 120 * Double(k) / Double(steps)),
+                                       b: onTube(i, a - 60 + 120 * Double(k + 1) / Double(steps))))
+            }
+            chordHull.append(.line(id: UUID(), a: onTube(i, a + 60), b: onTube(next, a + 60)))
+            arcHull.append(.arc(id: UUID(), center: centers[i], radius: tubeRadius,
+                                startAngle: (a - 60) * .pi / 180, endAngle: (a + 60) * .pi / 180))
+            arcHull.append(.line(id: UUID(), a: onTube(i, a + 60), b: onTube(next, a + 60)))
+            let outward = SIMD2(cos(a * .pi / 180), sin(a * .pi / 180))
+            spokes.append(.line(id: UUID(), a: onTube(i, a), b: onTube(i, a) + outward * 5))
+        }
+        for (name, hull) in [("chords", chordHull), ("arcs", arcHull)] {
+            let sketch = makeSketch([.circle(id: UUID(), center: .zero, radius: 100)] + hull)
+            let all = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(all.count, 2, "\(name): the circle and the hull")
+            let circle = try XCTUnwrap(ProfileDetector.profiles(at: lobePoint, in: sketch).first, name)
+            if case .circle = circle.kind {} else { XCTFail("\(name): the pick is the whole circle") }
+            XCTAssertEqual(ProfileDetector.holes(of: circle, among: all).count, 1, "\(name): the hull is its hole")
+        }
+        let split = makeSketch([.circle(id: UUID(), center: .zero, radius: 100)] + chordHull + spokes)
+        for region in ProfileDetector.profiles(at: lobePoint, in: split) {
+            XCTAssertLessThan(abs(region.area), lobeArea * 1.1, "never a region over the whole disc")
+        }
+    }
+
+    /// Regions of one arrangement sit side by side, so none is a hole of
+    /// another, even where a C-shaped region's vertex average falls in its
+    /// neighbour.
+    func testNoRegionOfACrossingArrangementIsAHoleOfAnother() {
+        for sketch in [crossingCircles(), makeSketch([
+            .circle(id: UUID(), center: .zero, radius: 20),
+            .circle(id: UUID(), center: SIMD2(0, 4), radius: 19),
+        ])] {
+            let all = ProfileDetector.detectProfiles(in: sketch)
+            XCTAssertEqual(all.count, 3)
+            for outer in all {
+                XCTAssertTrue(ProfileDetector.holes(of: outer, among: all).isEmpty)
+            }
+        }
+    }
+
+    /// Ellipses aren't split: a circle an ellipse crosses is neither a hole of
+    /// anything nor pickable, so extruding it is refused instead of wrong.
+    func testAnEllipseCrossingACircleIsNeverAHoleAndIsRefused() {
+        let sketch = makeSketch([
+            .circle(id: UUID(), center: .zero, radius: 10),
+            .ellipse(id: UUID(), center: SIMD2(0, 9), radiusX: 6, radiusY: 4, rotation: 0),
+        ])
+        let all = ProfileDetector.detectProfiles(in: sketch)
+        for outer in all {
+            XCTAssertTrue(ProfileDetector.holes(of: outer, among: all).isEmpty)
+        }
+        XCTAssertTrue(ProfileDetector.profiles(at: SIMD2(0, -5), in: sketch).isEmpty,
+                      "the region under the point isn't the circle: refuse")
+    }
+}
