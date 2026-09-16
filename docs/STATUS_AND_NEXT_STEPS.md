@@ -28,9 +28,15 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 
   The menu fills up whenever the bar is too narrow, whatever the size
   class. At regular width #44 kept the icon-only gear, and the menu drops
-  it, just as it did on the iPhone. Other regular-width windows too narrow
-  for the bar (11" iPads in portrait at 820–834 pt, Split View) were not
-  tried and would presumably lose it the same way.
+  it, just as it did on the iPhone. **The 11" iPads fit, with little
+  room to spare.** With the fix, the new test tapped the gear in the bar
+  in portrait on the iPad Pro 11" (M5, 834 pt) and the iPad Air 11" (M4,
+  820 pt), and passed in both orientations. On the Pro 11" in portrait
+  about 37 pt separates the back button from the toolbar capsule
+  (screenshot), less than one item's width, so another toolbar item would
+  likely fold both. `main` was not run on either; its regular-width gear
+  is the same 58 pt item, so it should fit the same way. Split View windows
+  were not tried.
 - **What each place needs.** Measured on the iPad mini with trial
   labels as extra toolbar items. The menu includes any item whose label
   contains a `Text`, even an invisible one. It ignores
