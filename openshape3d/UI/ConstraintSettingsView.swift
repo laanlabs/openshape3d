@@ -119,10 +119,12 @@ struct ConstraintSettingsView: View {
             }
         }
         .accessibilityIdentifier("ConstraintSettingsPanel")
-        // No half-height detent. At the medium stop the sheet's resize
-        // handling swallowed taps on the switches near its bottom edge: the
-        // Grid switch ignored 6 of 30 taps in a UI-test diagnostic
-        // (2026-09-15), still 1 of 30 with `.presentationContentInteraction
-        // (.scrolls)`, and 0 of 15 once the sheet opened full height.
+        // No half-height detent. At the medium stop, while the sheet could
+        // still resize, it swallowed taps on its switches, wherever they sat:
+        // the Grid switch (near the bottom edge) ignored 6 of 30 taps in a
+        // UI-test diagnostic (2026-09-15), still 1 of 30 with
+        // `.presentationContentInteraction(.scrolls)`, and 0 of 15 once the
+        // sheet opened full height. `SheetDetentTapUITests` later measured
+        // 17 of 60 on the Grid switch and 3 of 30 on the top switch.
     }
 }

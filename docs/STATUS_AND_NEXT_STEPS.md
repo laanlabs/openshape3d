@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-15 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,102 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-15, medium-detent sheet tap probe
+
+Follow-up to #40, which fixed the constraint settings sheet's dropped taps by
+removing its detents. The question here: which of the other detented sheets
+drop taps at their medium stop?
+
+- **Probe.** `SheetDetentTapUITests` (new, opt-in:
+  `TEST_RUNNER_OS3D_SHEET_PROBE=1`, about 35 min for the class at two
+  iterations). Each test opens one sheet at its medium stop without
+  swiping. It then taps one control, the lowest visible one unless the
+  table notes otherwise, 15 times at a fixed window point. It records
+  whether each tap took and whether the sheet stayed at medium. The taps
+  use window points because a swipe expands a medium sheet and hides the
+  bug, and an element tap may scroll, which does the same. Runs were on a
+  freshly booted `os3d-runner-B` (iPad Pro 13", iOS 26.5, portrait). On
+  this iPad every sheet at its medium stop, with one detent or two, is the
+  same centred 580×364 pt card (bottom edge at y = 1008). The two-detent
+  ones carry a "Sheet Grabber" that reads Collapsed. No sheet left its
+  first stop in any trial.
+- **Taps lost at the medium stop**, per target:
+
+  | Sheet | Detents | Target | Lost |
+  |---|---|---|---|
+  | Constraint settings, before #40 (positive control) | medium, large | Grid switch, bottom edge | 17 of 60 |
+  | Constraint settings, before #40 | medium, large | Always Show Dimensions switch, TOP of the form | 3 of 30 |
+  | Main Settings | medium, large | Circular Annotations menu (lowest visible) | 0 of 30 |
+  | Main Settings | medium, large | Units segmented control (top) | 0 of 30 |
+  | Material | medium, large | Color well, on the bottom edge | 0 of 30 |
+  | Gallery "Move to Folder" | medium, large | F04 row, on the bottom edge | 0 of 37 |
+  | Text | medium | Font menu | 0 of 30 |
+  | Helix options | medium | Turns field (opens the number pad) | 0 of 30 |
+  | Screenshot options | medium | Show Grid switch | 0 of 30 |
+  | GLB/OBJ export options | medium | Separate File per Body switch | 0 of 30 |
+
+  The constraint rows ran with that sheet's `[.medium, .large]` restored
+  for the run, in the same runs as the other sheets. The losses come in
+  streaks: one block of 15 lost 11 taps in a row and then took the rest,
+  while other blocks lost none. So a clean block of 15 proves little on
+  its own; compare against the control in the same session. Every lost
+  tap was delivered: XCUITest synthesized it at the right point, and the
+  app went idle within half a second.
+- **Only runs outside the disk-full window count.** The Mac's disk filled
+  between about 19:00 and 20:00 UTC (see the next entry). The table uses
+  only the runs before and after it (18:23–18:54 and from 21:51 UTC).
+  Runs inside the window pointed the same way (switch taps lost, nothing
+  else) but are left out.
+- **#40 holds.** On `ad9f1b0` (main with #40) the constraint sheet opens
+  full height, with no grabber, and lost 0 of 30 taps on the Grid switch
+  and 0 of 30 on the top switch. Without `TEST_RUNNER_OS3D_SHEET_PROBE`
+  the probe's 11 tests all skip (0 failures, about 1 s), so it adds no time
+  to the regular UI suite — confirmed on `os3d-test`: 11 executed, 11
+  skipped, 0 failures in 0.7 s.
+- **Reproduced on a second simulator before landing.** The table above was
+  measured on `os3d-runner-B`. Restoring `[.medium, .large]` on the
+  constraint sheet on `os3d-test` and rerunning the two positive controls
+  lost 2 of 15 on the Grid switch and 1 of 15 on the top switch (the sheet
+  stayed at its first stop in all 30 trials). Lower rates than the original
+  runs, as the streakiness predicts, but the same effect on different
+  hardware — and an independent reproduction of the finding that the TOP
+  switch loses taps, which is what rules out a bottom-edge explanation.
+  The probe therefore catches the bug it claims to, rather than only
+  passing where #40 already fixed it.
+- **Finding: it is not a bottom-edge effect, and not any control.** Taps
+  are lost only when both of these hold: the control is a `Toggle`
+  (UISwitch), and the sheet sits at a medium stop it can still resize
+  from. The constraint sheet's top switch lost taps as well as its bottom
+  Grid switch. Switches in the one-stop `[.medium]` sheets lost none
+  (0 of 60). Menus, a colour well, list rows and a segmented control in
+  the two-stop sheets lost none, even on the bottom edge (0 of 127). The
+  mechanism is unconfirmed. The likely candidate is the switch's own
+  drag-to-toggle tracking competing with the sheet's resize gesture.
+  #40's code comment ("switches near its bottom edge") is corrected to
+  match.
+- **No sheet needs a fix on the iPad.** None of the remaining two-stop
+  sheets shows a switch at its medium stop. Main Settings' snapping
+  switches sit below the fold (the Grid row starts at y 1081, the card
+  ends at 1008), so they can only be reached by expanding the sheet, and
+  the #40 diagnostic lost none there at full height. The detents stay:
+  Settings, Material and the move picker keep their resizable half-height
+  presentation.
+- **iPhone: Settings is unreachable, which is a separate bug.** On an
+  iPhone 17 Pro simulator the editor's toolbar collapses into a "…"
+  overflow menu, and Settings is not in it (History, Variables, Items,
+  Import, Export, Command Search, Report a Bug). `SettingsButton` is the
+  only route and has an icon-only custom label; that is presumably why the
+  overflow drops it. Once Settings is reachable there, a phone's
+  half-height sheet will probably show the snapping switches, the case
+  that loses taps. Then run `testSettingsGridSwitch` on the phone (it
+  skips on the iPad, where the switch is below the fold) and drop
+  Settings' detents if it loses taps. Flagged as a follow-up task.
+- **Harness notes.** A long-press context menu in the gallery leaves the
+  app never idle, so XCUITest waits 60 s after the press and again after
+  the menu tap (about 2 min per trial). The probe opens the move picker
+  from Select mode instead. `-test-iterations N` runs each test N times
+  back to back.
 
 ## Mission log — 2026-09-15, full UI suite after #37–#39
 
@@ -46,9 +142,13 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   sheet up to full height. The constraint sheet now opens full height (no
   detents), and the midpoint test, with its original single tap, passed
   8 of 8. The four classes that use the sheet (ConstraintRail, Dimension,
-  LineChain, Settings) pass 43 of 43. **Gotcha:** a control near the bottom edge of a medium-detent
-  sheet can drop taps. Main Settings, Material and a gallery sheet also use
-  `[.medium, .large]` (flagged as a follow-up).
+  LineChain, Settings) pass 43 of 43. **Gotcha** (narrowed the same day
+  by the tap probe above): what drops taps is a switch in a sheet that
+  can still resize from its medium stop, wherever the switch sits. It is
+  not a control near the bottom edge. Menus, buttons, list rows, a colour
+  well and a segmented control in those sheets lost none (gotcha 57).
+  None of the other `[.medium, .large]` sheets shows a switch at medium,
+  so none needed a fix.
 - **Full UI suite on `main` after #37–#40 (ad9f1b0): no known failures.**
   The first run crashed partway (`xcodebuild` exit 133) when the Mac's
   disk filled, and three tests failed around then: the SweepLoft circle
@@ -2744,6 +2844,18 @@ first differing frame is the one you want.
     = .portrait` in `setUp`; a test that must rotate should rotate back in
     `tearDown`. Cost 2026-09-05: an hour of bisecting the branch for a
     "tap regression" that was the device.
+57. **A switch in a sheet parked at a medium stop it can still resize from
+    drops taps** (2026-09-15). With `[.medium, .large]` at medium, `Toggle`
+    taps never reached the binding: 17 of 60 on one switch and 3 of 30 on
+    another, in streaks, at the top of the sheet as well as at its bottom
+    edge. Menus, buttons, list rows, a colour well and a segmented control
+    in the same sheets lost none, and so did the switches in one-stop
+    `[.medium]` sheets. Put switches in a sheet that opens full height (no
+    detents, as #40 did) or has a single stop. Re-measure with
+    `SheetDetentTapUITests` (`TEST_RUNNER_OS3D_SHEET_PROBE=1`). When
+    probing a medium sheet from a UI test, tap window coordinates: an
+    element tap can scroll, a scroll expands the sheet, and an expanded
+    sheet hides the bug.
 
 ## 4. Next missions (prioritized)
 
