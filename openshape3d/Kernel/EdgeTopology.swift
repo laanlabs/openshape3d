@@ -65,6 +65,14 @@ nonisolated enum EdgeTopology {
         var b: Int          // topo vertex id
         var normalA: SIMD3<Float>
         var normalB: SIMD3<Float>
+        var isConvex: Bool
+    }
+
+    /// One triangle's side of an edge: its outward normal, and whether its
+    /// winding walks the edge from the lower topo id to the higher.
+    private struct EdgeSide {
+        var normal: SIMD3<Float>
+        var forward: Bool
     }
 
     static func selectableEdges(
@@ -89,8 +97,8 @@ nonisolated enum EdgeTopology {
             }
         }
 
-        // 2. Map each undirected topo edge → its adjacent face normals.
-        var edgeFaces = [EdgeKey: [SIMD3<Float>]]()
+        // 2. Map each undirected topo edge → its adjacent faces.
+        var edgeFaces = [EdgeKey: [EdgeSide]]()
         var triangle = 0
         while triangle < mesh.triangleCount {
             let i0 = Int(mesh.indices[triangle * 3])
@@ -104,18 +112,26 @@ nonisolated enum EdgeTopology {
             let normal = cross / area
             let t0 = topoID[i0], t1 = topoID[i1], t2 = topoID[i2]
             guard t0 != t1, t1 != t2, t2 != t0 else { continue }
-            edgeFaces[EdgeKey(t0, t1), default: []].append(normal)
-            edgeFaces[EdgeKey(t1, t2), default: []].append(normal)
-            edgeFaces[EdgeKey(t2, t0), default: []].append(normal)
+            edgeFaces[EdgeKey(t0, t1), default: []].append(EdgeSide(normal: normal, forward: t0 < t1))
+            edgeFaces[EdgeKey(t1, t2), default: []].append(EdgeSide(normal: normal, forward: t1 < t2))
+            edgeFaces[EdgeKey(t2, t0), default: []].append(EdgeSide(normal: normal, forward: t2 < t0))
         }
 
         // 3. Keep manifold crease edges (exactly 2 faces meeting past the
         //    threshold). Boundary / non-manifold edges aren't chamfer-able.
         let cosThreshold = cos(angleThresholdDegrees * .pi / 180)
+        let centroid = topoPositions.reduce(SIMD3<Float>(repeating: 0), +)
+            / Float(max(topoPositions.count, 1))
         var raw = [RawEdge]()
-        for (edge, normals) in edgeFaces where normals.count == 2 {
-            if simd_dot(normals[0], normals[1]) < cosThreshold {
-                raw.append(RawEdge(a: edge.a, b: edge.b, normalA: normals[0], normalB: normals[1]))
+        for (edge, sides) in edgeFaces where sides.count == 2 {
+            if simd_dot(sides[0].normal, sides[1].normal) < cosThreshold {
+                raw.append(RawEdge(
+                    a: edge.a, b: edge.b,
+                    normalA: sides[0].normal, normalB: sides[1].normal,
+                    isConvex: isConvexEdge(
+                        from: topoPositions[edge.a], to: topoPositions[edge.b],
+                        sideA: sides[0], sideB: sides[1],
+                        centroid: centroid)))
             }
         }
 
@@ -132,18 +148,15 @@ nonisolated enum EdgeTopology {
                 end: end,
                 normalA: edge.normalA,
                 normalB: edge.normalB,
-                isConvex: isConvexEdge(
-                    start: start, end: end,
-                    normalA: edge.normalA, normalB: edge.normalB,
-                    positions: topoPositions)
+                isConvex: edge.isConvex
             )
         }
     }
 
     // MARK: - Merging
 
-    /// Group raw crease edges by (line, face-pair) and stitch touching /
-    /// overlapping collinear segments into one edge spanning the extremes.
+    /// Group raw crease edges by (line, face-pair, convexity) and stitch
+    /// touching / overlapping collinear segments into maximal spans.
     private static func mergeCollinear(
         _ raw: [RawEdge], positions: [SIMD3<Float>]
     ) -> [RawEdge] {
@@ -162,7 +175,12 @@ nonisolated enum EdgeTopology {
         func qv(_ v: SIMD3<Float>, _ s: Float) -> QVec {
             QVec(x: q(v.x, s), y: q(v.y, s), z: q(v.z, s))
         }
-        struct BucketKey: Hashable { let line: QVec; let dir: QVec; let na: QVec; let nb: QVec }
+        struct BucketKey: Hashable {
+            let line: QVec; let dir: QVec; let na: QVec; let nb: QVec
+            // Never merge a convex piece into a concave one: the span takes
+            // one flag, and a blend applies it to the whole length.
+            let convex: Bool
+        }
 
         var buckets = [BucketKey: [RawEdge]]()
         for e in raw {
@@ -181,31 +199,48 @@ nonisolated enum EdgeTopology {
             // Face-pair key (order-independent).
             let n0 = qv(e.normalA, 1e3), n1 = qv(e.normalB, 1e3)
             let key = BucketKey(line: qv(anchor, 1e4), dir: qv(cd, 1e3),
-                                na: min(n0, n1), nb: max(n0, n1))
+                                na: min(n0, n1), nb: max(n0, n1), convex: e.isConvex)
             buckets[key, default: []].append(e)
         }
 
         var result = [RawEdge]()
         for (_, group) in buckets {
-            // Project every endpoint onto the shared direction and take the
-            // extreme vertices as the merged span. (A single bucket is one line
-            // and one face pair, so this is a valid straight edge.)
+            // Project every segment onto the shared direction and stitch the
+            // ones that touch or overlap into spans. A bucket is one line and
+            // one face pair, but not one edge: a T-beam's two bar-underside
+            // edges share both, with the stem between them, and taking the
+            // bucket's extremes made one 30 mm "edge" across the junction
+            // (EdgeConvexityTests).
             let first = group[0]
             var d = positions[first.b] - positions[first.a]
             let l = simd_length(d)
             guard l > 1e-9 else { result.append(first); continue }
             d /= l
-            var minProj = Float.greatestFiniteMagnitude, maxProj = -Float.greatestFiniteMagnitude
-            var minV = first.a, maxV = first.b
-            for e in group {
-                for v in [e.a, e.b] {
-                    let t = simd_dot(positions[v], d)
-                    if t < minProj { minProj = t; minV = v }
-                    if t > maxProj { maxProj = t; maxV = v }
+            struct Interval { var lo: Float; var hi: Float; var loV: Int; var hiV: Int }
+            let intervals = group.map { e -> Interval in
+                let ta = simd_dot(positions[e.a], d), tb = simd_dot(positions[e.b], d)
+                return ta <= tb
+                    ? Interval(lo: ta, hi: tb, loV: e.a, hiV: e.b)
+                    : Interval(lo: tb, hi: ta, loV: e.b, hiV: e.a)
+            }.sorted { $0.lo < $1.lo }
+            // Touching segments share a welded vertex, so their projections
+            // agree to float precision; the slack is far below any real gap.
+            let touch = max(EdgeTopology.quantum * 10, 1e-5 * max(abs(intervals[0].lo), 1))
+            func emit(_ span: Interval) {
+                result.append(RawEdge(a: span.loV, b: span.hiV,
+                                      normalA: first.normalA, normalB: first.normalB,
+                                      isConvex: first.isConvex))
+            }
+            var span = intervals[0]
+            for next in intervals.dropFirst() {
+                if next.lo <= span.hi + touch {
+                    if next.hi > span.hi { span.hi = next.hi; span.hiV = next.hiV }
+                } else {
+                    emit(span)
+                    span = next
                 }
             }
-            result.append(RawEdge(a: minV, b: maxV,
-                                  normalA: first.normalA, normalB: first.normalB))
+            emit(span)
         }
         return result
     }
@@ -312,36 +347,29 @@ nonisolated enum EdgeTopology {
 
     // MARK: - Convexity
 
-    /// A crease edge is convex when the solid material fills the wedge between
-    /// the two faces. Probe a point just inside from the edge midpoint along the
-    /// inward bisector `-(nA+nB)`; if that point is inside the mesh's local AABB
-    /// interior AND the faces "open outward", the edge is convex. We use the
-    /// normal geometry directly: for a convex edge the outward normals splay
-    /// apart, so the midpoint pushed OUT along `+(nA+nB)` leaves the solid.
+    /// A crease edge is convex when the solid fills the wedge between its two
+    /// faces. Decided locally, from the winding: with outward normals and
+    /// counter-clockwise triangles, face A walks a convex edge along
+    /// `nA × nB` and a concave one against it. (A box's top face, +z, walks
+    /// its front edge, where the front face is −y, in +x = z × −y.)
+    ///
+    /// This replaced a GLOBAL test, whether the outward bisector pointed away
+    /// from the mesh's vertex centroid, which only holds for convex solids: a
+    /// T-beam's inside corners came back convex and a pocket's rim concave
+    /// (EdgeConvexityTests). That test survives only as the fallback for an
+    /// inconsistently wound edge, where both triangles walk the same way and
+    /// the winding says nothing.
     private static func isConvexEdge(
-        start: SIMD3<Float>, end: SIMD3<Float>,
-        normalA: SIMD3<Float>, normalB: SIMD3<Float>,
-        positions: [SIMD3<Float>]
+        from a: SIMD3<Float>, to b: SIMD3<Float>,
+        sideA: EdgeSide, sideB: EdgeSide,
+        centroid: SIMD3<Float>
     ) -> Bool {
-        // Tangents into each face, perpendicular to the edge.
-        let e = simd_normalize(end - start)
-        var tA = simd_cross(normalA, e)
-        var tB = simd_cross(normalB, e)
-        let lA = simd_length(tA), lB = simd_length(tB)
-        guard lA > 1e-6, lB > 1e-6 else { return false }
-        tA /= lA; tB /= lB
-        // Orient each tangent to point INTO its face, away from the other face:
-        // moving into face A should go below face B's outward plane.
-        if simd_dot(tA, normalB) > 0 { tA = -tA }
-        if simd_dot(tB, normalA) > 0 { tB = -tB }
-        // For a convex edge the two into-face tangents point apart while the
-        // outward normals also splay; the signed test that distinguishes convex
-        // from concave is whether the corner apex sits OUTSIDE the solid, i.e.
-        // the outward bisector points away from the mesh centroid.
-        let centroid = positions.reduce(SIMD3<Float>(repeating: 0), +)
-            / Float(max(positions.count, 1))
-        let mid = (start + end) / 2
-        let outwardBisector = normalA + normalB
-        return simd_dot(outwardBisector, mid - centroid) > 0
+        let d = b - a
+        if sideA.forward != sideB.forward {
+            let walkA = sideA.forward ? d : -d
+            return simd_dot(simd_cross(sideA.normal, sideB.normal), walkA) > 0
+        }
+        let mid = (a + b) / 2
+        return simd_dot(sideA.normal + sideB.normal, mid - centroid) > 0
     }
 }
