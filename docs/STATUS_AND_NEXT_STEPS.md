@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); see the newest mission log, the register above, and
+Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -54,6 +54,63 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   recipes rerun on the fix: every recorded field identical to the ledger
   (183 pass). Only 18.19's row is committed.
 
+## Mission log — 2026-09-17, YouTube tutorial series: sketching, shapes, materials
+
+- **Three narrated tutorials** in `marketing/youtube/` (gitignored):
+  `openshape3d-tutorial-{sketching,shapes,materials}.mp4`, each ~3½ min at
+  1920×1080 with a chapter panel, plus a `-metadata.md` beside each (title,
+  description with chapter timestamps generated from the take's timeline,
+  tags, thumbnail text). Pipeline in **`scripts/youtube_series/`** (README
+  there): `tutorial.py <name>` records, composes and writes metadata.
+- **Touches are an XCUITest** (`TutorialTakeUITests`, skipped unless
+  `TEST_RUNNER_OS3D_TUTORIAL_TAKE=1`) remote-controlled by the host over
+  HTTP: palette taps by identity, viewport taps/drags by normalised window
+  coordinates (world mm → screen via `GET /v1/project`), keypad entry for
+  dimensions (`dimension:40@1` picks the second label), pinch, History and
+  Material sheet buttons. Modelling and camera go over the bridge; every
+  chapter holds until its narration clip (edge-tts
+  `en-US-AndrewMultilingualNeural`) has played.
+- **Dedicated simulator `os3d-video`** (iPad Pro 13-inch (M5), iOS 26.5),
+  landscape via `XCUIDevice.orientation`, built into a private DerivedData
+  so the shared simulators and the other sessions' runs are untouched. A
+  fresh iPadOS 26 simulator opens apps in floating windows; there is no
+  `simctl` switch, so `VideoSimSetupUITests` (`TEST_RUNNER_OS3D_SIM_SETUP=1`)
+  drives Settings › Multitasking & Gestures › Full Screen Apps once.
+- **Touch facts learned:** the Rect and Circle tools are drags, not tap
+  pairs; a rect is selected right after drawing and its two `DimensionLabel`s
+  are live then; a pinch while a draw tool is armed draws a huge rectangle
+  instead of zooming; the aligned sketch camera is zoomed to ~14 mm across,
+  so draw small, type the dimension, then `view.fit`; a double-tap selects a
+  body (move gizmo) and the palette Material button opens the sheet (preset
+  swatches by label, `MaterialApply`); the wheel's axis is world X, so the
+  rim is face-on in `view.right`. `XCUIDevice.landscapeLeft` on this
+  simulator needs ffmpeg `transpose=2` / PIL `ROTATE_90`.
+- Per-chapter framing in the shapes take hides the other bodies with
+  `item.setHidden` and fits the current one; the whole row is revealed for
+  the History chapter.
+## Mission log — 2026-09-17, loft preview drew creases across smooth walls
+
+- **Reported from the shapes tutorial:** the square-to-circle loft rendered
+  with a fan of dark lines down its sides. The kernel side was fine — a
+  valid 7-face solid, 4 140 mm³, smooth blend surfaces — the lines were
+  the PREVIEW mesh. Loft, revolve and sweep keep the Euclid mesh on screen
+  and only attach the OCCT solid (the naming pass cannot afford OCCT's
+  tessellation), and `SweepLoftKit.loft` built each band as ONE row of
+  ruled quads between the resampled rings. Near a square corner a column of
+  quads twists ~45° from ring to ring, so one quad's two triangles sat more
+  than 20° apart and `FeatureEdges` drew them as creases. Circle→circle and
+  square→square bands have no twist and were clean, which is why it went
+  unnoticed.
+- **Fix (`SweepLoftKit.bandSlices`):** each band is sliced into rows so no
+  quad twists past ~8° (worst quad twist ÷ 8°, 1…12 rows). A band without
+  twist — frustum, draft extrude — stays one row, so those meshes are
+  byte-identical. The square→circle loft now shows only its four corner
+  ridges, the hexagon→circle its six; the exec loft still takes 0.1 s.
+- **Test:** `testLoftSquareToCircleHasNoCreasesOffTheRidges` measures
+  every dihedral in the triangulated preview and requires every crease
+  over 20° to lie on a cap or a corner ridge (44 off-ridge creases before
+  the fix, 0 after); `testBandSlicesAreOneForAFrustumAndMoreForATwistedBand`
+  pins the no-twist case to one row.
 ## Mission log — 2026-09-17, practice problems on main after the shell and fillet fixes
 
 - **All 215 recipes rerun on `main` after #60, #62, #63 and #65** (the
