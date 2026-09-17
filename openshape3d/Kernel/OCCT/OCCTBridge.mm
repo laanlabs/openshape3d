@@ -2313,9 +2313,23 @@ static std::set<Standard_Integer> OS3DBlendableEdges(
     return out;
 }
 
+// Whether a blend builder blended `edge`. Generated() alone is not enough:
+// ChFi3d credits a tangent chain's blend faces to some of its edges only, so
+// an edge inside a chain can generate nothing and still be blended. Six of
+// 18.5A's 22 port-junction edges did, and a valid R5 result was refused as
+// "6 of 22 edges can't take this size" (2026-09-16). Such an edge is gone
+// from the result with no modified image. A dropped edge is still there,
+// and an edge a neighbouring blend only trimmed has a modified image.
+static bool OS3DEdgeBlended(BRepFilletAPI_LocalOperation &mk,
+                            const TopoDS_Shape &edge,
+                            const TopTools_IndexedMapOfShape &resultEdges) {
+    if (!mk.Generated(edge).IsEmpty()) return true;
+    return !resultEdges.Contains(edge) && mk.Modified(edge).IsEmpty();
+}
+
 // Shared tail of the fillet and chamfer paths: count the picked edges the
-// builder actually blended (via its Generated() history — the only per-edge
-// success signal MakeChamfer exposes), refuse partial builds outright, then
+// builder actually blended (OS3DEdgeBlended — MakeChamfer has no other
+// per-edge success signal), refuse partial builds outright, then
 // unwrap/validate the result. Returns nil with `status` filled on any
 // failure. `faultyContours` is the fillet builder's own count (-1 when the
 // builder doesn't expose one).
@@ -2338,10 +2352,12 @@ static OCCTShape *OS3DFinishBlend(BRepFilletAPI_LocalOperation &mk,
     }
 
     // IsDone() with zero faulty contours can STILL mean an edge was quietly
-    // dropped: check that every requested edge generated blend geometry.
+    // dropped: check that every requested edge was blended.
+    TopTools_IndexedMapOfShape resultEdges;
+    TopExp::MapShapes(mk.Shape(), TopAbs_EDGE, resultEdges);
     NSInteger blended = 0;
     for (Standard_Integer i : edges) {
-        if (!mk.Generated(edgeMap(i)).IsEmpty()) ++blended;
+        if (OS3DEdgeBlended(mk, edgeMap(i), resultEdges)) ++blended;
     }
     if (blended < requested) {
         OS3DSetStatus(status, OCCTOpCodePartialResult,
@@ -2886,8 +2902,10 @@ static bool OS3DFilletBuilds(const TopoDS_Shape &shape,
         mk.Build(progress->Start());
         if (deadline->Fired()) return false;
         if (!mk.IsDone() || mk.NbFaultyContours() > 0) return false;
+        TopTools_IndexedMapOfShape resultEdges;
+        TopExp::MapShapes(mk.Shape(), TopAbs_EDGE, resultEdges);
         for (Standard_Integer i : edges) {
-            if (mk.Generated(edgeMap(i)).IsEmpty()) return false;
+            if (!OS3DEdgeBlended(mk, edgeMap(i), resultEdges)) return false;
         }
         int solidCount = 0;
         const TopoDS_Shape single = OS3DExtractSingleSolid(mk.Shape(), solidCount);
