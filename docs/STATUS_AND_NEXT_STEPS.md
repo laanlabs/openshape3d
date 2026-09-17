@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; see the newest mission log, the register above, and
+Last updated: 2026-09-17 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,32 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-17, 18.9A's sphere/diamond blend: a drawn tangency, no stable offset
+
+- **Why it is refused.** The diamond boss's Ø24 lobes sit on a Ø46 circle,
+  so they reach 23 + 12 = 35: exactly the R35 cup sphere, which they touch
+  at the rim. The arm's outline also ends on the Ø70 circle. Drawn like
+  that, the union carries a 0.00214 mm tolerance and the sphere/diamond R3
+  comes back invalid (applied first) or fails every contour (applied last).
+- **Offsets.** Moving the lobe centres in 0.001 mm lets that blend build
+  (+48.722 mm³; the note estimated +50), but the recipe reuses the lobe
+  centre for the arm outline and the channel, so the arm-wall group then
+  fails. Shrinking the lobe radius breaks the channel corner the recipe
+  computes from r 12. Growing the sphere is the clean change. The whole
+  set, sphere/diamond included, builds at +0.002, +0.01 and +0.05 mm.
+  At +0.001, +0.005 and +0.02 mm the arm-wall group comes back invalid.
+  Replayed offline at +0.001 mm, that fillet builds with no faulty contour
+  but leaves a 0.19 mm² sliver face on the sphere with a self-intersecting
+  wire, which `ShapeFix` does not repair. So it is a real invalid result,
+  not a false refusal.
+- **Decision: the recipe keeps the drawn tangency.** An offset picked
+  because it happens to build, with its neighbours failing, is fitting to
+  kernel noise. The blend would also move the part away from the printed
+  volume (+0.23 % to about +0.27 %; still a pass). The note says all this.
+  18.3's and 18.5A/B's 0.001 mm offsets were not probed at other sizes the
+  same way; their blends converged as the gap closed.
+- No code change.
 
 ## Mission log — 2026-09-17, the fillet drag's size probe looks past a failed tiny size
 
