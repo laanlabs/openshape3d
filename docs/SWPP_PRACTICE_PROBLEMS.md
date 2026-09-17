@@ -11,8 +11,8 @@ page carries the same table.*
 
 ## Reading
 
-- 215 of the 365 sheets have a scored build; 181 pass within 0.5 % of
-  the printed volume with a clean kernel check, 116 of them within
+- 215 of the 365 sheets have a scored build; 182 pass within 0.5 % of
+  the printed volume with a clean kernel check, 117 of them within
   0.01 %. Every level with single-part sheets has passes, Level 1 is
   complete (20/20 attempted, 18 pass), Level 4 stands at 46 of 53
   attempted, Level 15's configuration sheets score every configuration
@@ -24,7 +24,8 @@ page carries the same table.*
   Recipes live in `scripts/swpp/round6_{a,b,c}.py`, which `run.py` loads
   after the levels. Three of the passes (18.5A, 18.5B, 18.9A) are missing
   fillets the kernel refused, and 18.5A may not pass with the full set;
-  their notes say so.
+  their notes say so. 18.3 has passed since (+0.004 %): its R3 tube
+  fillet builds with the tube 0.001 mm below tangent (STATUS, 2026-09-16).
 - Across every attempted sheet no correct feature produced a wrong
   volume, with one exception found in round 6: extrude, cut, union,
   intersect, arcs, ellipses, polygons, slots, fillets, chamfers, revolve,
@@ -50,9 +51,9 @@ page carries the same table.*
   built and what the number implies, and several notes name the reading
   that WOULD hit the number and why it contradicts a view. Nothing was
   fitted to the answer. Round 6 added the first fails of a different
-  kind: 18.3 and 18.23 fail because the kernel refuses a fillet (18.3's
-  tube is tangent to the face it meets) or a shell the drawing needs, not
-  because of the reading.
+  kind: 18.23 fails because the kernel refuses a fillet and a shell the
+  drawing needs, not because of the reading (18.3 did too, until its tube
+  fillet was built 0.001 mm off tangent).
 - The 142 sheets without a build are listed with a reason each in
   `scripts/swpp/deferred.json`: 64 are readable and simply not reached
   within the workers' budgets (the best next picks are named in the
@@ -115,7 +116,7 @@ page carries the same table.*
   snaps kept the raw along-edge coordinate; Top/Bottom views kept a rolled
   azimuth; a second extrude region joined with no highlight.
 
-# SOLIDWORKS practice problems in openshape3d — 181/215 attempted pass (365 in the database)
+# SOLIDWORKS practice problems in openshape3d — 182/215 attempted pass (365 in the database)
 
 | Level | Title | Problems | Attempted | Pass | Fail | Error |
 |---|---|---|---|---|---|---|
@@ -136,7 +137,7 @@ page carries the same table.*
 | 15 | Configurations, Design Tables, Suppress | 16 | 10 | 10 | 0 | 0 |
 | 16 | Global Variables, Equations, Link Values | 7 | 5 | 4 | 1 | 0 |
 | 17 | Move, Rotate, Collision & Interference | 14 | 0 | 0 | 0 | 0 |
-| 18 | CSWP Exam Level | 35 | 13 | 10 | 3 | 0 |
+| 18 | CSWP Exam Level | 35 | 13 | 11 | 2 | 0 |
 
 ## Level 1: Basic Sketch & Extrusion
 
@@ -424,7 +425,7 @@ page carries the same table.*
 | 18.8B | Extrude Boss, Extrude Cut, Shell (as cut), Fillet, Editing | 88,069.3 mm³ | 87,724.07 mm³ | -0.39 % | pass | status: pass reading: The 18.8A recipe with the flange at Ø90 (recess inside Ø80, so the rings run into the rim wall) and the pocket inset 10 (10 TYP). The sharp A − B difference is 3978 against 4007.5 printed, so the two readings agree. got: 87 724.07 (−0.39 %); shares 18.8A's untraced ~300 mm³ shortfall. The back recess's outline (the Ø80 rim circle crossed by the Ø36 rings) first hit the region-extrude bug and was worked around with a full-disc cut, the rings added back and the bores re-cut; since the fix (STATUS, 2026-09-16) it is one region cut, with the same volume and edges. (Round 6, agent B, 2026-09-16.) |
 | 18.5A | Revolve, Extrude Boss, Extrude Cut, Plane (angled sketch planes), Pattern (as recipe), Fillet | 225,009.5 mm³ | 225,263.644 mm³ | +0.11 % | pass | status: pass (fillets incomplete; doubtful) reading: Ø65 body with a Ø53 bore and an R32.5/R26.5 dome, 87 tall; Ø95 × 7 flange 5 above the bottom; two diamond ports (R16 about Ø15, R10 about Ø10 at ±19), 70 long, at 0° and 45°, their axis 58 up so the diamond top touches the dome crown (Section A-A); Ø10 holes 25 deep, the Ø15 through to the cavity; pipe Ø31/Ø21 × 75 rising 12° through the dome centre toward −x+z. R5 fillets: the kernel builds two blend groups (port/port +1158, port/pipe +692) and refuses every port/body and port/dome blend in any order. got: 225 263.644 (+0.11 %). Without fillets −0.71 %; with the refused blends at their separately measured sizes the reading would land around +0.35 to +0.6 %, so this pass may not survive a complete fillet set. (Round 6, agent A, 2026-09-16.) |
 | 18.5B | Revolve, Extrude Boss, Extrude Cut, Editing (rebuilt with the 18.5B changes), Fillet | 218,746.1 mm³ | 218,245.968 mm³ | -0.23 % | pass | status: pass (fillets incomplete) reading: The 18.5A recipe with the sheet's changes: the second port moves to −x (90° apart); the pipe becomes Ø30/Ø20 × 60, horizontal toward +x on the ports' 58 axis (the far port's Ø15 bore shows through the pipe in the right view). Only the pipe/body R5 builds (+204); the port/body blends are refused. got: 218 245.968 (−0.23 %); without fillets −0.32 %, so it passes either way. (Round 6, agent A, 2026-09-16.) |
-| 18.3 | Extrude Boss, Fillet, Shell (as explicit cuts), Hole Wizard (as cuts), Mirror (symmetric sketch) | 27,786.2 mm³ | 27,334.406 mm³ | -1.63 % | fail | status: fail reading: Ø40 bosses 60 apart joined by R40 arcs tangent to both, 30 tall, R6 on the top outline; a Ø26 × 40 cross tube along z tangent to the top face (axis 17 up); the union shelled 3, open at the bottom and both tube ends (Section B-B shows no tube wall inside the cavity); Ø18 holes through the boss centres. got: 27 334.406 FAIL at −1.63 %. The missing volume is the R3 fillet where the tube meets the waist walls: the kernel refuses it in every order while the tube is tangent to the top face ('TopoDS_Vertex hasn't gp_Pnt'). Moved 2 mm down, the same fillet builds and adds +549, which would put this reading within about ±0.2 %. feature.shell refused the body, so the cavity is cut explicitly. (Round 6, agent A, 2026-09-16.) |
+| 18.3 | Extrude Boss, Fillet, Shell (as explicit cuts), Hole Wizard (as cuts), Mirror (symmetric sketch) | 27,786.2 mm³ | 27,787.186 mm³ | +0.00 % | pass | status: pass reading: Ø40 bosses 60 apart joined by R40 arcs tangent to both, 30 tall, R6 on the top outline; a Ø26 × 40 cross tube along z tangent to the top face (axis 17 up); R3 where the tube meets the waist walls; the union shelled 3, open at the bottom and both tube ends (Section B-B shows no tube wall inside the cavity); Ø18 holes through the boss centres. got: 27 787.186 (+0.004 %). OCCT cannot end a blend where it vanishes, and the R3 vanishes where the tube touches the top face, so drawn tangent it is refused in every order ('TopoDS_Vertex hasn't gp_Pnt'); the tube sits 0.001 mm lower than drawn, where the blend builds and has converged (per side +226.418 mm³ at 0.001 mm, +226.474 at 0.01, +238.247 at 2; STATUS 2026-09-16). feature.shell refused the body, so the cavity is cut explicitly. Without the R3 it was 27 334.406 (−1.63 %). (Round 6, agent A; R3 added 2026-09-16.) |
 | 18.10 | Extrude Boss, Extrude Cut, Mirror (as second cut), Fillet (sketch R3), Full Round Fillet (as cut) | 50,540.5 mm³ | 50,633.25 mm³ | +0.18 % | pass | status: pass reading: Clevis: Ø55 head; flanks 30° off vertical tangent to it; R20 into legs at x = ±15 down to y = −65; a 15-wide slot with an R7.5 end at the origin (computed tangent heights −13.75 / −24.38 / −34.38 against the side view's −13.5 / −24.2 / −34.3). Section A-A: grooves 12 deep on both faces (6 web) between R12.5 and R22.5, the R22.5 arc running until x = ±12.5 with R3 in the tips (groove bottom −14.8 against −14.7 measured); leg ends a full R15 round about y = −50 with a Ø20 hole along x. got: 50 633.25 (+0.18 %); other groove-outline readings not tried. (Round 6, agent C, 2026-09-16.) |
 | 18.15 | Extrude Boss, Extrude Cut, Rib (as extrude), Hole Wizard (CBORE / CSK / straight, as cuts + revolve) | 3,447,594.2 mm³ | 3,448,618.784 mm³ | +0.03 % | pass | status: pass reading: C-shaped body Ø204, 140 thick, flat top at y 82, an 80-wide slot ending R40 at the origin; the back 20 has the slot 10 wider each side (R50: the back view's second U, the left view's 20, the top view's notch); lug 55 × 50 with an R25 top at 170, 10–60 back from the front face, an M14 hex-bolt hole along x (Ø15.5 through, Ø26 × 8.8 on +x); rib 12 thick, 48 tall at the lug, sloping to z −130; tail 70 thick (z −10..−80), left edge x −27.5, R38 end about (0, −146) with a Ø25 hole, right edge the common tangent of R38 and Ø204; Detail A: 2 × M10 countersinks (Ø11 through, Ø20 × 90°) on the Ø140 bolt circle at ±58°, 2 × Ø13.5 × 40 at x −20. Ø26 counterbore and Ø20 countersink measured; 8.8 is the M14 head height; the thin Ø175 circle is the Detail A boundary. got: 3 448 618.784 (+0.03 %). (Round 6, agent C, 2026-09-16.) |
 | 18.16 | Extrude Boss, Extrude Cut, Chamfer (as cut), Hole (as cut) | 176,459.6 mm³ | 171,424.112 mm³ | -2.85 % | fail | status: fail reading: Origin back-left-bottom, 100 x 63 x 50. Back slab z 0..30: tall block x 30..60 to 63, right block x 60..100 to 48 (63-15), low-left region under R30 about (0,35) from (0,5) to the pin centre (30,35). Front slab z 30..50: same blocks with a O50 half-scoop about (30,35) out of the tall block (floor at z=30 per the left view's z=30 edge y 45..60), low-left region under R25 about (0,35) from (0,10) to the cusp (11.9,13.0), a 20 deg plane down to (20,10), flat to (30,10). O20 HALF boss (x>=30) 8 long on the scoop floor, a SOLID O10 pin the full depth (both isos show a convex cylinder with an end cap; it is the left view's band and the top view's x 25..30 strip). 20 deg x 18 chamfer on the tall block's back top edge, R20 (about (100,35)) / x=80 pocket 9 deep in the right block's front face with the O9 through, Detail A notch (20 deg from (45,0), 45 deg to (85,0), R10 crest at 9.10) through the full depth (edge gap in the front view's bottom line AND the profile on the back face in the left iso). hand: 171420.0 got: 171424.112 FAIL -2.85 %, healthy brep, app = hand to 4 mm3. Every view (front/top/left/right, Details A/B/C, both isos) is consistent with this reading and I cannot find the missing 5040 mm3 (= 5.04 x 1000, e.g. 40 x 63 x 2). Combinations that reach the printed number all contradict a view: notch only through the back 30 + full boss (+0.02 %) contradicts the front view's bottom-edge gap; scoop only 12 deep + full boss (-0.07 %) contradicts the left view's z=30 scoop edge; notch 9 deep (-0.27 %) contradicts the back-face notch in the iso. The prior R14B decode had the tall block at x 40..60 and the O10 as a hole - both wrong (hole centre and block edge measure x=30; the pin is convex in both isos). Left as an honest fail. |
