@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,57 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, shells over fillets: split at C0 knots; 18.23's refusals traced
+
+- **A body with a fillet over a curved junction could not be shelled.**
+  OCCT approximates such a blend as a B-spline face with C0 knots, and C0
+  edge curves, where the rolling ball crosses from one support face to the
+  next. `BRepOffset` refuses any C0 geometry before it tries a join, so
+  every shell failed with "OCCT offset: C0Geometry". Found on 18.23 with a
+  straight neck: flange, dome, neck, a Ø22 pipe, R3 on the pipe junction
+  (over the dome sphere, its blend torus and the neck), then shell 3 open
+  at the flange, neck top and pipe end. A plain T-pipe's junction fillet
+  has no C0 knot and always shelled.
+- **Fix (`shelledShape:`).** When the arc-join offset fails with
+  C0Geometry, `OS3DSplitAtC0` splits the body at its C0 knots
+  (`ShapeUpgrade_ShapeDivideContinuity`, C1 criteria, no point moves) and
+  the offset runs again with arc joins on the split copy. Intersection
+  joins on the split body build but do not heal, so they are not retried.
+  The offset of a split body has edges with a wrong SameRange flag
+  (`invalidSameRangeFlag`). `ShapeFix` repaired them but rebuilt every
+  face and dropped all ancestry (`truncatedByHeal`, no "same" rows), so
+  `BRepLib::SameRange` now sets the flags in place, only on edges the
+  offset made. Ancestry is composed through the split
+  (`OS3DCollectMakerHistoryThrough`): pieces of a split face are "modified"
+  from it, and everything the offset made of a piece is credited to the
+  source face. The enclosed hollow (no openings: offset the whole solid,
+  cut the copy out) gets the same split. Every other shell takes the old
+  path.
+- **Checked.** The straight-neck body shells to 33 324.749 mm³ at 3 mm and
+  23 034.235 at 2, valid with no heal. Offline, every sampled inner-wall
+  point is exactly the thickness from the outer surface, except near the
+  three openings, where the open face itself is nearer; none is farther.
+  The enclosed hollow comes out 44 331.346, the open shell plus its three
+  3 mm caps (flange cavity outline, Ø19 and Ø16 discs) to 0.16 mm³. Pinned
+  by the fixture `filleted-pipe-junction-shell-c0` and
+  `ShellOverFilletTests` (both volumes, the enclosed hollow, and ancestry
+  for every input face including the split blend), which fail on main's
+  bridge; the enclosed-hollow test fails with only that branch's retry
+  disabled. Full unit suite 1667 / 0 failures. 13.1, 13.5, 15.4A–D, 18.3 and 18.23 rerun on the fix:
+  every volume identical to the ledger.
+- **18.23 still fails (+0.77 %), for two traced reasons.**
+  - *The shell.* The recipe's body now gets past C0 and is refused with
+    UnknownError: the arc join round the pipe junction fails where it meets
+    the S step, whose convex R3 offsets to zero radius at t = 3. The body
+    builds at t = 2.9 and without the pipe. A sharp step with the pipe top
+    in the step plane fails too, and builds with the pipe 0.1 lower.
+  - *The fillet.* R3 on the pipe junction over the S step is refused
+    whatever the pipe height (y 23 to 24): the ball's contact has to jump
+    from the neck to the convex R3 across the concave R3, which ChFi3d does
+    not do. R1 builds; R2.9 and R3.1 do not.
+  The explicit cavity and the fillet-before-the-cup order stay; the
+  recipe comments and the note now say why.
 
 ## Mission log — 2026-09-16, shell refusals: 18.3 was the tangent tube, 13.9A is OCCT's offset
 
@@ -3661,6 +3712,15 @@ first differing frame is the one you want.
     row does not keep the toolbar item's `accessibilityIdentifier`, so
     `app.buttons["SettingsButton"]` finds nothing even with the row on
     screen.
+
+59. **OCCT's offset refuses a fillet's C0 B-spline faces** (2026-09-16).
+    A blend over several support faces comes back as a B-spline face with
+    C0 knots, and `BRepOffset` fails any shell or offset of that body with
+    `C0Geometry` before it tries a join. Both shell branches split at
+    those knots and retry (`OS3DSplitAtC0`). Anything new that offsets a
+    filleted body (a thicken, an offset face) needs the same split. Do not repair
+    the split body's SameRange flags with `ShapeFix`: it rebuilds every
+    face and the ancestry goes with them.
 
 ## 4. Next missions (prioritized)
 
