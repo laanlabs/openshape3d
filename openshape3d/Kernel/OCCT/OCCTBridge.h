@@ -515,6 +515,15 @@ typedef NS_ENUM(NSInteger, OCCTOpCode) {
                             toPointX:(double)x y:(double)y z:(double)z
                            tolerance:(double)tolerance;
 
+/// Each edge's point halfway along its curve BY ARC LENGTH, as packed
+/// doubles `x y z` per edge in the shared 1-based indexed-map order (entry
+/// i−1 is edge i). NaN for an edge with no curve (degenerated) or whose
+/// length cannot be computed. Independent of the edge's orientation; for a
+/// closed edge (a full circle) it is measured from the curve's own first
+/// parameter, so it is fixed by the shape. `/v1/edges` reports it, where a
+/// tessellation segment's midpoint used to be whichever came first.
++ (nullable NSData *)edgeMidpointsOfShape:(OCCTShape *)shape;
+
 /// The largest fillet radius the edges near `worldPoints` can actually
 /// take, found by bisection over REAL (fully checked) `BRepFilletAPI`
 /// builds — so the drag clamp and the commit agree by construction, unlike

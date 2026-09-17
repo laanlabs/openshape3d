@@ -49,6 +49,7 @@
 #include <BRepAdaptor_Curve.hxx>
 #include <BRepAlgoAPI_Section.hxx>
 #include <GCPnts_UniformDeflection.hxx>
+#include <GCPnts_AbscissaPoint.hxx>
 #include <gp_Pln.hxx>
 #include <Geom_Surface.hxx>
 #include <Geom_BSplineSurface.hxx>
@@ -2780,6 +2781,40 @@ static double OS3DSpanExactArea(const TopoDS_Face &face) {
         return found.empty() ? 0 : (NSInteger)*found.begin();
     } catch (...) {
         return 0;
+    }
+}
+
++ (nullable NSData *)edgeMidpointsOfShape:(OCCTShape *)shape {
+    if (shape == nil || shape->_shape.IsNull()) return nil;
+    try {
+        TopTools_IndexedMapOfShape edgeMap;
+        TopExp::MapShapes(shape->_shape, TopAbs_EDGE, edgeMap);
+        std::vector<double> out((size_t)edgeMap.Extent() * 3,
+                                std::numeric_limits<double>::quiet_NaN());
+        for (Standard_Integer e = 1; e <= edgeMap.Extent(); ++e) {
+            const TopoDS_Edge edge = TopoDS::Edge(edgeMap(e));
+            if (BRep_Tool::Degenerated(edge)) continue;
+            // One bad edge leaves its own NaN, not a nil for the whole body.
+            try {
+                BRepAdaptor_Curve curve(edge);
+                const double first = curve.FirstParameter();
+                const double last = curve.LastParameter();
+                const double length = GCPnts_AbscissaPoint::Length(curve, first, last);
+                if (!(length > 0.0) || !std::isfinite(length)) continue;
+                GCPnts_AbscissaPoint half(curve, length / 2.0, first);
+                if (!half.IsDone()) continue;
+                const gp_Pnt p = curve.Value(half.Parameter());
+                const size_t base = (size_t)(e - 1) * 3;
+                out[base] = p.X();
+                out[base + 1] = p.Y();
+                out[base + 2] = p.Z();
+            } catch (Standard_Failure &) {
+                continue;
+            }
+        }
+        return [NSData dataWithBytes:out.data() length:out.size() * sizeof(double)];
+    } catch (...) {
+        return nil;
     }
 }
 

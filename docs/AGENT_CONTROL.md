@@ -173,9 +173,16 @@ somewhere in a chain is itself a finding. `invalid` counts sick breps only.
 ### `GET /v1/edges?body=<uuid>` and `GET /v1/faces?body=<uuid>`
 
 Kernel sub-shape discovery — the vocabulary for identity-addressed exec ops.
-Edges: 1-based kernel index, adjacent-face pair, midpoint/length/convexity
-(recovered mesh-side), and the durable `EdgeName` when the identity layer has
-one. Faces come KERNEL-SIDE (`faceInfo`, straight from the brep — never
+Edges: 1-based kernel index, adjacent-face pair, midpoint/length/convexity,
+and the durable `EdgeName` when the identity layer has one. Midpoint, length
+and convexity appear only for an edge the render mesh shows as a crease (a
+tangent join between two faces has none). The midpoint is the kernel's:
+the point halfway along the edge's curve by arc length, in world space, the
+same on every launch (for a full circle it is measured from the curve's own
+start, so it is some fixed point on the circle). `lengthMM` is the sum of
+the mesh segments along the edge, so a curved edge reads its chord length,
+a hair short of the true arc. Before 2026-09-16 a curved edge's midpoint was
+whichever tessellation segment came first, and moved between launches. Faces come KERNEL-SIDE (`faceInfo`, straight from the brep — never
 stale, and correct for revolve/sweep/loft bodies whose render is not the
 kernel tessellation): index, kind (planar / cylindrical + radius / "other"
 with `referenceable: false` for torus-class surfaces), area, centroid,
