@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); see the newest mission log, the register above, and
+Last updated: 2026-09-17 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,27 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-17, the fillet drag's size probe looks past a failed tiny size
+
+- **What was wrong.** `maxFilletRadiusForShape:` (the ceiling a fillet
+  drag is clamped to, computed once as the drag starts) tries the
+  bracket, then one tiny size (min(1 % of the bracket, 0.05 mm)), and
+  returned 0 when both failed. Whether a size builds is not monotonic: on
+  18.5A's port/body chain R0.05 fails validity, R0.1 to R5 build and R8
+  and R10 fail. With 0 the editor leaves the drag unclamped
+  (`blendDragMax` nil), so it could run past every size that builds and
+  lean on the preview's typed errors.
+- **Fix.** When the tiny size fails too, halve down from the bracket and
+  take the first size that builds as the lower end, the size above it as
+  the upper end, then bisect as before. All of those extra builds share
+  one kernel deadline (5 s), because the probe runs on the main thread;
+  `OS3DFilletBuilds` takes the remaining time as its deadline. The chain
+  now reports 7.773 mm in 0.36 s (0 on main), and R7.773 builds.
+- **Checked.** `FilletChainCreditTests.testTheRadiusProbeLooksPastAFailedTinySize`
+  (still fails at R0.05, the probe reports at least 5, and the reported
+  size builds) fails on main's bridge; `BlendStressTests`' probe tests
+  still pass.
 
 ## Mission log — 2026-09-16, fillets OCCT built were refused per edge; 13.3 passes, 18.5A/B get their full R5 sets
 
@@ -52,9 +73,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   chain, all junctions, the radius probe on the port/port chain, and R20
   still refused as a partial result). All but the R20 test fail on main's
   bridge. Full unit suite 1671 / 0 failures.
-- **Found, not fixed:** the radius probe starts from a 0.05 mm build and
-  returns 0 when that fails. On 18.5A's port/body chain R0.05 fails validity
-  while R0.1 to R5 build, so the drag clamp still offers nothing there.
+- **Found:** the radius probe starts from a 0.05 mm build and returns 0
+  when that fails. On 18.5A's port/body chain R0.05 fails validity while
+  R0.1 to R5 build, so that drag went unclamped. (Fixed next; see "the
+  fillet drag's size probe".)
 
 ## Mission log — 2026-09-16, welcome screen, bundled sample designs, App Store previews
 

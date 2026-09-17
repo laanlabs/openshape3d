@@ -64,6 +64,20 @@ final class FilletChainCreditTests: XCTestCase {
         XCTAssertNoThrow(try OCCTKernel.filletResult(body, edgeIndices: Self.portOneAndPortTwo, radius: cap).get())
     }
 
+    /// The port/body chain fails at the probe's first tiny size (R0.05
+    /// fails validity) though R0.1 to R5 build. The probe gave up there and
+    /// the drag went unclamped; it now halves down from its bracket.
+    func testTheRadiusProbeLooksPastAFailedTinySize() throws {
+        let body = try body()
+        XCTAssertThrowsError(try OCCTKernel.filletResult(body, edgeIndices: Self.portOneAndBody, radius: 0.05).get(),
+                             "the fixture must still fail at the tiny size for this to test anything")
+        let midpoints = OCCTKernel.edgeMidpoints(body)
+        let points = try Self.portOneAndBody.map { try XCTUnwrap(midpoints[$0]) }
+        let cap = OCCTKernel.maxFilletRadius(body, at: points, tolerance: 1e-3)
+        XCTAssertGreaterThanOrEqual(cap, 5)
+        XCTAssertNoThrow(try OCCTKernel.filletResult(body, edgeIndices: Self.portOneAndBody, radius: cap).get())
+    }
+
     /// A size the junction really cannot take is still refused.
     func testAnOversizeFilletIsStillRefused() throws {
         let result = OCCTKernel.filletResult(try body(), edgeIndices: Self.portOneAndBody, radius: 20)
