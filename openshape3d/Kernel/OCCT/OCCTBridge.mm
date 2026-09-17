@@ -3452,6 +3452,7 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
             BRepOffsetAPI_MakeThickSolid mkSplit;
             TopoDS_Shape split;
             Handle(BRepTools_History) splitHistory;
+            NSString *retryNote = @"";
             if (made == nullptr && code == (int)BRepOffset_C0Geometry) {
                 split = OS3DSplitAtC0(input, splitHistory);
                 if (!split.IsNull()) {
@@ -3461,15 +3462,26 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                             splitOpenFaces.Append(piece);
                         }
                     }
+                    // The refusal names the retry's own failure: reporting
+                    // the first C0Geometry sent readers after C0 faces the
+                    // split had already removed (18.23, 2026-09-17).
                     try {
                         mkSplit.MakeThickSolidByJoin(split, splitOpenFaces, offset, 1.0e-3);
                         if (mkSplit.IsDone()) {
                             made = &mkSplit;
                         } else {
                             code = (int)mkSplit.MakeOffset().Error();
+                            retryNote = @", after splitting its C0 faces";
                         }
+                    } catch (Standard_Failure &e) {
+                        made = nullptr;
+                        code = -2;
+                        NSString *what = [@(e.GetMessageString()) stringByTrimmingCharactersInSet:
+                                          [NSCharacterSet whitespaceCharacterSet]];
+                        if (what.length > 0) retryNote = [@": " stringByAppendingString:what];
                     } catch (...) {
                         made = nullptr;
+                        code = -2;
                     }
                 }
             }
@@ -3492,8 +3504,9 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                     "CannotTrimEdges", "CannotFuseVertices", "CannotExtentEdge",
                     "UserBreak", "MixedConnectivity"};
                 const char *name = (code >= 0 && code < 11) ? kOffsetErrors[code] : "?";
-                OS3DSetStatus(status, OCCTOpCodeKernelRefused,
-                              [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset: %s)", name]);
+                OS3DSetStatus(status, OCCTOpCodeKernelRefused, code == -2
+                    ? [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset threw after splitting its C0 faces%@)", retryNote]
+                    : [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset: %s%@)", name, retryNote]);
                 return nil;
             }
             built = made->Shape();

@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "op": "shell",
+  "date": "2026-09-17T12:45:35Z",
+  "note": "Practice problem 18.23's outer body before its cavity (round6_b.py, up to the explicit cavity): flange, dome, neck, the \u00d822 pipe with its R3 junction fillet, and the cup with the S step (a concave R3 then a convex R3 on a 4-wide step at y 35) unioned on after. Shell 3 open at the flange bottom, the cup top and the pipe end. The pipe's junction runs over the S step's concave R3. Where a shell meets an inside corner its inner wall is a tube of radius t round the edge, and where the edge follows that torus it bends at about 3 mm, so from t = 3 the tube folds on itself and OCCT's offset fails (2026-09-17). On the same body without fillets it builds below 3 (2.9 and less) and fails at 3 and 4, and with the pipe low enough to miss the step it builds at 3 and 4. This body also carries a C0 fillet face; split at the knots, the offset fails at every thickness tried (1 to 4). The recipe builds its cavity explicitly. If OCCT's offset ever handles this, flip expect to success and check the volume against the explicit cavity.",
+  "params": {
+    "points": [
+      [
+        0,
+        -13,
+        0
+      ],
+      [
+        0,
+        58,
+        0
+      ],
+      [
+        0,
+        24,
+        50
+      ]
+    ],
+    "thickness": 3,
+    "tolerance": 0.4
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 11,
+        "other": 14,
+        "planar": 8
+      },
+      "file": "shape.brep",
+      "label": "shape",
+      "maxTolerance": 0.00013095390401391836,
+      "valid": true,
+      "volumeMM3": 108188.51817850725
+    }
+  ],
+  "expect": {
+    "outcome": "failure",
+    "errorContains": "after splitting its C0 faces"
+  }
+}

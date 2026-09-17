@@ -92,4 +92,21 @@ final class ShellOverFilletTests: XCTestCase {
         XCTAssertGreaterThan(faceRows.filter { $0.relation == .same }.count, inputFaces / 2)
         XCTAssertFalse(faceRows.filter { $0.relation != .same }.isEmpty)
     }
+
+    /// When the offset still fails after the split, the refusal names that
+    /// failure, not the first C0Geometry the split already dealt with.
+    /// 18.23's body (Fixtures/Captures/pipe-junction-over-s-step-shell): at
+    /// 3 mm the retry reports UnknownError (the fixture pins it), at 2.9 it
+    /// throws.
+    func testARefusalAfterTheSplitNamesTheRetry() throws {
+        let bundle = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/Captures/pipe-junction-over-s-step-shell/shape.brep")
+        let body = BRepHandle(try XCTUnwrap(OCCTBridge.rawShape(fromSerialized: try Data(contentsOf: bundle))))
+        let openings = [SIMD3<Double>(0, -13, 0), SIMD3(0, 58, 0), SIMD3(0, 24, 50)]
+        guard case let .failure(error) = OCCTKernel.shellResult(body, openingAt: openings, thickness: 2.9, tolerance: 0.4) else {
+            return XCTFail("OCCT cannot shell this body; if it now can, update the fixture and this test")
+        }
+        XCTAssertTrue(error.message.contains("threw after splitting its C0 faces"), error.message)
+        XCTAssertFalse(error.message.contains("C0Geometry"), error.message)
+    }
 }
