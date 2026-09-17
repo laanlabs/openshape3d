@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,58 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, welcome screen, bundled sample designs, App Store previews
+
+- **Welcome sheet** (`UI/WelcomeView.swift`): shown once per install from
+  the gallery (`AppSettings.hasSeenWelcome`, marked as soon as it appears),
+  again from Gallery › … › Welcome…. App icon, four feature rows, the
+  sample list with baked thumbnails, and two pinned exits: **Add Sample
+  Designs** and **Start a Blank Design**. Page-sized on the iPad (the form
+  sheet was too short and opened scrolled to its end; iOS 17 keeps the
+  form), actions pinned with `safeAreaInset` so the way in is on screen
+  on a phone without scrolling. DEBUG hooks: `OS3D_WELCOME` forces it;
+  `OS3D_FRESH` / `OS3D_AUTO_OPEN` / `OS3D_RESET_STORE` suppress it without
+  marking it seen, so every existing UI test still starts where it did.
+- **Sample designs** (`Model/SampleDesigns.swift`, `openshape3d/Demos/`):
+  four `.os3d` archives — Motorcycle Wheel, Mounting Plate, Glass Bottle,
+  Plate Cam — baked from the live app by `scripts/demo_models.py` (the
+  screenshot scenes plus the cycloidal cam) through the new
+  **`GET /v1/archive`** bridge route, which saves, refreshes the thumbnail
+  and returns the archive bytes. Installed into a top-level **Demos**
+  folder from the welcome sheet or Gallery › … › Add Sample Designs;
+  idempotent by name, so a deleted sample comes back and nothing
+  duplicates. Bundled archives import with `trustingBRep: true` — the
+  user-file path still drops the OCCT blob (the unhardened reader) — so a
+  sample opens analytic, with its full feature history. Newest lists
+  first, so the install runs in reverse catalog order and the wheel is
+  the first card. The four archives add ~8.7 MB to the bundle.
+- **App preview videos**: `scripts/preview_video.py iphone|ipad`. The taps
+  are an XCUITest (`PreviewTakeUITests`, skipped unless the runner has
+  `OS3D_PREVIEW_TAKE=1`) that the script remote-controls over a small
+  HTTP loop, so they land by element identity; camera and modelling go
+  over the bridge; `simctl io recordVideo` records at native size and
+  ffmpeg encodes to the sizes App Store Connect accepts — **886 × 1920 for
+  every current iPhone (not the 1320 × 2868 screenshot size), 1200 × 1600
+  for every current iPad** — 30 fps H.264 ~10 Mbps, silent stereo AAC,
+  29.5 s, portrait like the screenshots. Details in
+  `docs/APP_STORE_READINESS.md`.
+- **Lessons.** (1) Peekaboo clicks on a Simulator window go to whichever
+  window is on top at that screen point; with several sessions' devices
+  overlapping, a phone tap silently landed on another session's iPhone
+  and my window could not be moved or raised (peekaboo refuses window
+  mutation; System Events -10006). Hence the XCUITest driver. (2) Two
+  simulators launched with `OS3D_AGENT_PORT=8899` share the Mac loopback:
+  the second app never binds, and `/v1/state` answers for the other
+  device — terminate the other instance first. (3) The phone simulator
+  can be rotated or force-quit by another session's Simulator menu use;
+  the test pins portrait. (4) `Bundle.main` flattens the `Demos/` folder
+  (synchronized group, not a folder reference): look up resources with
+  and without the subdirectory.
+- Tests: `SampleDesignsTests` (archives decode with bodies, history and
+  breps; the install/welcome decisions), `WelcomeUITests` (forced sheet →
+  Demos folder → a sample opens; idempotent re-add; Welcome… reopens;
+  suppressed under `OS3D_RESET_STORE`).
 
 ## Mission log — 2026-09-16, shell refusals: 18.3 was the tangent tube, 13.9A is OCCT's offset
 

@@ -183,6 +183,13 @@ final class AppSettings {
         static let snapToSketchGuidepoints = "os3d.snapToSketchGuidepoints"
         static let snapToFaceGuidepoints = "os3d.snapToFaceGuidepoints"
         static let showSnapHints = "os3d.showSnapHints"
+        static let hasSeenWelcome = "os3d.hasSeenWelcome"
+    }
+
+    /// The welcome screen has been dismissed once. Stored as soon as it is
+    /// shown, so an app killed mid-welcome does not nag on the next launch.
+    var hasSeenWelcome: Bool {
+        didSet { defaults.set(hasSeenWelcome, forKey: Key.hasSeenWelcome) }
     }
 
     var circularAnnotations: CircularAnnotations {
@@ -277,6 +284,7 @@ final class AppSettings {
         snapToSketchGuidepoints = Self.storedBool(defaults, Key.snapToSketchGuidepoints) ?? true
         snapToFaceGuidepoints = Self.storedBool(defaults, Key.snapToFaceGuidepoints) ?? true
         showSnapHints = Self.storedBool(defaults, Key.showSnapHints) ?? true
+        hasSeenWelcome = Self.storedBool(defaults, Key.hasSeenWelcome) ?? false
         unit = defaults.string(forKey: Key.unit).flatMap(DisplayUnit.init) ?? .millimeters
         theme = defaults.string(forKey: Key.theme).flatMap(AppTheme.init) ?? .system
         paletteOnRight = defaults.bool(forKey: Key.paletteOnRight)

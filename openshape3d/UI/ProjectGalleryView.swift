@@ -32,6 +32,7 @@ struct ProjectGalleryView: View {
     @State private var didHandleLaunchHooks = false
     @State private var showArchiveImporter = false
     @State private var showBugReport = false
+    @State private var showWelcome = false
     @State private var importErrorMessage: String?
 
     /// Select mode (Photos-style): card taps toggle membership instead of
@@ -175,6 +176,9 @@ struct ProjectGalleryView: View {
                 // .task refires when navigation pops back to the gallery).
                 guard !didHandleLaunchHooks else { return }
                 didHandleLaunchHooks = true
+                showWelcome = Self.wantsWelcomeAtLaunch(
+                    hasSeenWelcome: AppSettings.shared.hasSeenWelcome,
+                    environment: ProcessInfo.processInfo.environment)
                 // DEBUG only: test/screenshot hooks must not ship in the
                 // release binary (2026-08-25 review / readiness audit §5).
                 #if DEBUG
@@ -225,6 +229,14 @@ struct ProjectGalleryView: View {
             } message: {
                 Text(newFolderParent.flatMap { folder(withID: $0)?.name }
                     .map { "Inside “\($0)”." } ?? "At the top level.")
+            }
+            .sheet(isPresented: $showWelcome) {
+                WelcomeView(
+                    samples: SampleDesigns.available(),
+                    onAddSamples: installSampleDesigns,
+                    onNewDesign: createProject
+                )
+                .onAppear { AppSettings.shared.hasSeenWelcome = true }
             }
             .sheet(isPresented: $showBugReport) {
                 BugReportSheet(
@@ -473,6 +485,22 @@ struct ProjectGalleryView: View {
                 }
                 .accessibilityIdentifier("GalleryBugReportButton")
             }
+            if !SampleDesigns.available().isEmpty {
+                ToolbarItem(placement: .secondaryAction) {
+                    Button(action: installSampleDesigns) {
+                        Label("Add Sample Designs", systemImage: "shippingbox")
+                    }
+                    .accessibilityIdentifier("AddSampleDesignsButton")
+                }
+            }
+            ToolbarItem(placement: .secondaryAction) {
+                Button {
+                    showWelcome = true
+                } label: {
+                    Label("Welcome…", systemImage: "hand.wave")
+                }
+                .accessibilityIdentifier("GalleryWelcomeButton")
+            }
             if !visibleProjects.isEmpty {
                 ToolbarItem(placement: .primaryAction) {
                     Button("Select") { isSelecting = true }
@@ -491,6 +519,7 @@ struct ProjectGalleryView: View {
                 Button(action: createProject) {
                     Label("New Design", systemImage: "plus")
                 }
+                .accessibilityIdentifier("NewDesignButton")
             }
         }
     }
@@ -721,6 +750,42 @@ struct ProjectGalleryView: View {
         let project = archive.remappingAllUUIDs().insert(into: modelContext, name: name)
         project.folderID = folderID ?? currentFolderID
         try? modelContext.save()
+    }
+}
+
+// MARK: - Welcome & sample designs
+
+extension ProjectGalleryView {
+    /// Whether the welcome sheet opens on this launch. Once per install,
+    /// unless a DEBUG hook decides: `OS3D_WELCOME` forces it (staging a
+    /// screenshot or preview), and the test/automation hooks (`OS3D_FRESH`,
+    /// `OS3D_AUTO_OPEN`, `OS3D_RESET_STORE`) suppress it, since every UI
+    /// test resets the defaults and would otherwise start under the sheet.
+    /// Suppressing never marks it seen, so a real first launch still gets it.
+    static func wantsWelcomeAtLaunch(hasSeenWelcome: Bool,
+                                     environment: [String: String]) -> Bool {
+        #if DEBUG
+        if environment["OS3D_WELCOME"] != nil { return true }
+        for hook in ["OS3D_FRESH", "OS3D_AUTO_OPEN", "OS3D_RESET_STORE"]
+        where environment[hook] != nil { return false }
+        #endif
+        return !hasSeenWelcome
+    }
+
+    /// Install the bundled samples into the Demos folder and show it.
+    func installSampleDesigns() {
+        if isSelecting { exitSelectMode() }
+        let result = SampleDesigns.install(into: modelContext)
+        do {
+            try modelContext.save()
+        } catch {
+            importErrorMessage = "Couldn't add the sample designs. \(error.localizedDescription)"
+            return
+        }
+        // Straight to the folder: `navigate(to:)` checks the folder query,
+        // which has not necessarily refreshed on this same run-loop turn.
+        history.go(to: result.folderID)
+        expandedFolders.insert(result.folderID)
     }
 }
 

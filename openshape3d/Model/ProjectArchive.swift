@@ -241,9 +241,13 @@ extension ProjectArchive {
     /// Materialize the archive as a NEW project (rows inserted, not saved —
     /// the caller saves the context). Always remap first (`remappingAllUUIDs`)
     /// when the archive may share IDs with rows already in the store.
+    /// `trustingBRep` restores each body's OCCT solid as well. It is for
+    /// archives the app itself ships (`SampleDesigns`) — bytes we wrote, in
+    /// our own bundle — never for a file a user picked; see the note on
+    /// `BodyRecord.brep` for why that reader must not see untrusted input.
     @MainActor
     @discardableResult
-    func insert(into context: ModelContext, name: String) -> Project {
+    func insert(into context: ModelContext, name: String, trustingBRep: Bool = false) -> Project {
         let project = Project(name: name)
         project.thumbnail = thumbnail
         project.rollbackIndex = rollbackIndex
@@ -264,7 +268,7 @@ extension ProjectArchive {
             // catch(...) can help). Dropping it costs analytic fidelity on
             // imported bodies — `load()` already falls back to the archived
             // render mesh — and removes the entire remote-crash surface.
-            row.brepData = nil
+            row.brepData = trustingBRep ? record.brep : nil
             row.project = project
             context.insert(row)
         }

@@ -30,6 +30,11 @@ The same tools on iPhone — the contextual bars adapt to compact width.
 
 ## Getting started
 
+First launch opens a welcome screen; **Add Sample Designs** puts four
+editable examples (a motorcycle wheel, a mounting plate, a glass bottle
+and a plate cam) into a Demos folder in the gallery. It is always
+available again from the gallery's … menu.
+
 **Install [Git LFS](https://git-lfs.com) before cloning.** The prebuilt
 `ThirdParty/OCCT.xcframework` (the OCCT static libs, ~280 MB) is stored via Git
 LFS, so the app builds straight after a clone — no local OCCT build needed.

@@ -248,6 +248,16 @@ path; pull it with `scripts/fetch_captures.sh`, replay it with
 `openshape3dTests/Fixtures/Captures/` as a regression fixture. 409
 `nothing_to_capture` when no body carries a brep.
 
+### `GET /v1/archive`
+
+The open design as `.os3d` archive bytes (`application/octet-stream`) — the
+same `ProjectArchive` Export Project writes, after a save and a fresh
+viewport thumbnail, so live edits are in it. This is how the bundled sample
+designs are baked: `scripts/demo_models.py` builds each scene in a fresh
+design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
+512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
+gallery is on screen.
+
 ### `POST /v1/command`
 
 Body `{"id":"view.isometric"}`. Returns the full state plus `ran`.

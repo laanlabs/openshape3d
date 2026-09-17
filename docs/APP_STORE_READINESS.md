@@ -64,6 +64,25 @@ future submission — a build setting that was right once is not right forever.
   menu. New bridge ops for this: `body.setMaterial`, `item.setHidden`
   (docs/AGENT_CONTROL.md). Shooting the iPhone wheel in the first pass found
   the pinch zoom-out bug fixed alongside (STATUS, 2026-09-14).
+- **App preview videos (2026-09-16):** `scripts/preview_video.py iphone|ipad`
+  records one ~27 s take per device from the live DEBUG app and writes
+  `marketing/app-store/previews/<device>-preview.mp4` (gitignored with the
+  rest of `marketing/`). The take: the welcome sheet, Add Sample Designs,
+  the Demos folder, the Motorcycle Wheel orbiting (front → isometric over
+  the bridge), then a mounting plate built step by step in a new design and
+  the History panel opened. Taps go through Peekaboo onto the Simulator
+  window (device points × the window scale, measured with the simulator
+  inspector and kept in the script's `TAPS`); modelling goes over
+  `/v1/exec`. The raw `simctl io recordVideo` is native-size; ffmpeg makes
+  the App Store file at the size App Store Connect actually accepts, which
+  is **not** the screenshot size: iPhone previews are 886 × 1920 for every
+  current display (6.1"–6.9", so one file covers the 17 Pro Max down to the
+  17e), iPad previews 1200 × 1600 for every current iPad (13" and 11").
+  Both portrait, matching the screenshots (one orientation per device
+  size). 30 fps H.264 at ~10 Mbps, a silent stereo 256 kbps AAC track (the
+  spec lists stereo AAC), trimmed to 29.5 s of the 15–30 s window. The iPhone
+  17 Pro Max's 1320 × 2868 is 0.46:1 against 886 × 1920's 0.4615:1, so the
+  scale-to-fill crops 2 px a side; the iPad's 3:4 maps exactly.
 - **Still to do by hand:** the App Store Connect listing (screenshots at the
   required sizes for iPad and Mac, what's new, privacy label = no tracking,
   no collection); the Mac upload needs a Mac App Store distribution

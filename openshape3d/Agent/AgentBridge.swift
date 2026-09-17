@@ -120,6 +120,18 @@ final class AgentBridge {
         case .sketches:
             return listSketches(on: viewModel)
 
+        case .archive:
+            // Flush live edits and the viewport thumbnail into the rows
+            // first: `archive(from:)` snapshots PERSISTED state only.
+            viewModel.saveThumbnail()
+            viewModel.session.save()
+            guard let data = ProjectArchive.archive(from: viewModel.session.project).encoded() else {
+                return .failure(500, "Internal Server Error", error: "archive_failed",
+                                message: "The design could not be encoded as a .os3d archive.")
+            }
+            return AgentResponse(status: 200, reason: "OK",
+                                 contentType: "application/octet-stream", body: data)
+
         case let .project(points):
             // Screen points in the viewport's coordinate space (pt, full-bleed
             // Metal view = the touch space); null where a point is behind the
