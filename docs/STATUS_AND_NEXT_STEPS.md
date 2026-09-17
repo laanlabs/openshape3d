@@ -494,7 +494,8 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   on the R3 fillet where its tube is tangent to the top face: moved 2 mm
   down, the same fillet builds and would bring it within about ±0.2 %. That
   tangent-contact fillet refusal is the most useful kernel case to reduce
-  next.
+  next. (Done: 18.3 passes with the tube 0.001 mm below tangent; see
+  "practice problems on merged main; 18.3 passes" above.)
 - **Four bugs found by the agents, each reproduced again here in a fresh
   document on the iPad simulator:**
   1. **Region extrude with crossing circles is wrong and invalid, but reported
