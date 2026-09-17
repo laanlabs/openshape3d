@@ -335,15 +335,15 @@ def _build_18_8(D, inset):
         c = (24 * math.cos(math.radians(a)), 24 * math.sin(math.radians(a)))
         extrude(Sketch(front(36)).circle(c, 13), c, -37, cut=[body])
     extrude(_tri_pocket(Sketch(front(35)), 24, 18 - inset, 18), (0, 0), -25, cut=[body])
-    # back recess 5 deep inside the rim wall, O36 rings standing (as a disc
-    # cut, rings put back, bores re-cut: on O90 the rings run into the rim
-    # wall and the ring-minus-circles sketch region makes an invalid tool)
-    extrude(Sketch(front(-1)).circle((0, 0), D / 2 - 5), (0, 0), 6, cut=[body])
-    cs = [(24 * math.cos(math.radians(a)), 24 * math.sin(math.radians(a))) for a in (90, 210, 330)]
-    for c in cs:
-        extrude(Sketch(front(0)).circle(c, 18), c, 5.5, union=[body])
-    for c in cs:
-        extrude(Sketch(front(-1)).circle(c, 13), c, 7, cut=[body])
+    # back recess 5 deep inside the rim wall, O36 rings standing: one region
+    # cut. On O90 the rings cross the rim circle; until the crossing-outline
+    # fix (STATUS 2026-09-16) that region made an invalid tool, and this was
+    # a disc cut with the rings put back and the bores re-cut (same volume
+    # and edges, 14 features instead of 8).
+    sk = Sketch(front(-1)).circle((0, 0), D / 2 - 5)
+    for a in (90, 210, 330):
+        sk.circle((24 * math.cos(math.radians(a)), 24 * math.sin(math.radians(a))), 18)
+    extrude(sk, (0, 0), 6, cut=[body])
     return body
 
 

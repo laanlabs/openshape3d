@@ -204,7 +204,13 @@ nonisolated enum ProfileDetector {
     static func detectProfiles(in sketch: Sketch) -> [Profile] {
         var profiles: [Profile] = []
         // Construction (reference) geometry never bounds a profile (spec §3.3).
-        let entities = sketch.regularEntities
+        let regular = sketch.regularEntities
+        // A circle, rect or polygon crossed by other outlines is re-expressed
+        // as the arcs and lines the face walker splits and joins, so two
+        // overlapping circles give a lens and two crescents. Everything else
+        // (and every shape crossed nowhere) is emitted as before.
+        let crossed = splitCrossedClosedShapes(regular)
+        let entities = regular.filter { !crossed.ids.contains($0.id) }
 
         // Circles are always closed profiles.
         for entity in entities {
@@ -278,25 +284,61 @@ nonisolated enum ProfileDetector {
             }
         }
 
-        // Walk loops from line segments and arc chains.
-        profiles.append(contentsOf: lineLoops(in: sketch))
+        // Walk loops from line segments and arc chains (including the pieces
+        // of any crossed closed shape).
+        profiles.append(contentsOf: lineLoops(in: entities + crossed.pieces))
         return profiles
     }
 
     /// Profiles fully containing `point`, smallest area first (innermost region).
+    ///
+    /// A profile whose boundary crosses an ellipse or a closed spline is left
+    /// out: those curves are not split into regions, so the region under the
+    /// point is not the profile's loop, and extruding it would build the wrong
+    /// solid. Leaving it out makes the pick (and a rebuild) refuse instead.
     static func profiles(at point: SIMD2<Double>, in sketch: Sketch) -> [Profile] {
-        detectProfiles(in: sketch)
-            .filter { $0.contains(point) }
+        let all = detectProfiles(in: sketch)
+        return all
+            .filter { $0.contains(point) && !isCrossedByUnsplitCurve($0, among: all) }
             .sorted { abs($0.area) < abs($1.area) }
     }
 
-    /// Profiles from `all` strictly nested inside `outer` (used as holes).
+    /// Profiles from `all` nested inside `outer` (used as holes).
+    ///
+    /// Nested means a point inside the candidate lies inside `outer` and the
+    /// two boundaries don't cross. Until 2026-09-16 this tested only the
+    /// candidate's centroid, which took a circle CROSSING the outer boundary
+    /// for a hole: the face got an inner wire through its outer one, an
+    /// invalid solid with the whole circle subtracted. Crossing lines, arcs,
+    /// circles, rects and polygons are now split into regions, so only a
+    /// boundary with an ellipse or a spline in it can still cross another.
+    /// Touching is not crossing: a hole tangent to the outer boundary stays
+    /// a hole, as it always was (checking every tessellation vertex, or
+    /// chord crossings, would drop it).
     static func holes(of outer: Profile, among all: [Profile]) -> [Profile] {
         all.filter { candidate in
             candidate.id != outer.id
                 && abs(candidate.area) < abs(outer.area)
-                && outer.contains(candidate.centroid)
+                && outer.contains(candidate.interiorPoint)
+                && !((hasUnsplitCurve(outer) || hasUnsplitCurve(candidate))
+                     && loopsCross(outer.loop, candidate.loop))
         }
+    }
+
+    /// True when `profile`'s boundary crosses one with an ellipse or a spline
+    /// in it: the curves `splitCrossedClosedShapes` and the face walker do
+    /// not split.
+    private static func isCrossedByUnsplitCurve(_ profile: Profile, among all: [Profile]) -> Bool {
+        all.contains { other in
+            other.id != profile.id
+                && (hasUnsplitCurve(profile) || hasUnsplitCurve(other))
+                && loopsCross(profile.loop, other.loop)
+        }
+    }
+
+    private static func hasUnsplitCurve(_ profile: Profile) -> Bool {
+        if case .ellipse = profile.kind { return true }
+        return profile.segments.contains { $0.controlPoints != nil }
     }
 
     // MARK: - Loop walking over line segments
@@ -309,13 +351,14 @@ nonisolated enum ProfileDetector {
         }
     }
 
-    private static func lineLoops(in sketch: Sketch) -> [Profile] {
+    private static func lineLoops(in entities: [SketchEntity]) -> [Profile] {
         // A chain starts as one entity exploded to a polyline. Straight chains
-        // are split at intersections below; curved chains use only endpoints
-        // as junctions, retaining their tessellated interior for traversal.
+        // are split where they cross each other; arcs are split where they
+        // cross lines or other arcs (both below). Splines use only their
+        // endpoints as junctions, retaining their tessellated interior.
         struct Chain {
             let entityID: UUID
-            let points: [SIMD2<Double>]
+            var points: [SIMD2<Double>]
             /// True when `points` is a TESSELLATION of a real curve, so the
             /// analytic boundary should describe it as an arc rather than as
             /// the polyline standing in for it.
@@ -323,10 +366,14 @@ nonisolated enum ProfileDetector {
             /// An OPEN spline's control points, in the order of `points`, so a
             /// loop can carry it as one exact segment (one B-spline edge).
             var spline: [SIMD2<Double>]? = nil
+            /// An arc's exact geometry (CCW from `start` through `sweep`), so a
+            /// crossing can be found and the arc split without going through
+            /// its tessellation.
+            var arc: ArcGeometry? = nil
         }
 
         var chains: [Chain] = []
-        for entity in sketch.regularEntities {
+        for entity in entities {
             switch entity {
             case let .line(id, a, b) where simd_length(b - a) > 1e-9:
                 chains.append(Chain(entityID: id, points: [a, b], isArc: false))
@@ -337,7 +384,11 @@ nonisolated enum ProfileDetector {
                     segmentsPerTurn: circleSegments
                 )
                 if points.count >= 2 {
-                    chains.append(Chain(entityID: id, points: points, isArc: true))
+                    chains.append(Chain(
+                        entityID: id, points: points, isArc: true,
+                        arc: ArcGeometry(center: center, radius: radius, start: startAngle,
+                                         sweep: SketchEntity.arcSweep(startAngle: startAngle,
+                                                                      endAngle: endAngle))))
                 }
             case let .spline(id, points, closed) where !closed && points.count >= 2:
                 // An open spline joins loops like any chain: its endpoints are
@@ -368,11 +419,8 @@ nonisolated enum ProfileDetector {
                 return p
             }
             for i in chains.indices {
-                var points = chains[i].points
-                points[0] = weld(points[0])
-                points[points.count - 1] = weld(points[points.count - 1])
-                chains[i] = Chain(entityID: chains[i].entityID, points: points,
-                                  isArc: chains[i].isArc, spline: chains[i].spline)
+                chains[i].points[0] = weld(chains[i].points[0])
+                chains[i].points[chains[i].points.count - 1] = weld(chains[i].points[chains[i].points.count - 1])
             }
         }
 
@@ -422,10 +470,97 @@ nonisolated enum ProfileDetector {
                 cuts[j, default: []].append((u, point))
             }
         }
+
+        // Arcs split where they cross lines and other arcs, including the
+        // pieces of a crossed circle (`splitCrossedClosedShapes`). An arc's
+        // cut parameter is the fraction of its sweep. A computed crossing
+        // snaps to an existing chain endpoint within the weld tolerance, so
+        // every chain through one crossing gets the same exact point: two
+        // separately computed copies a few ulps apart can quantise to
+        // different nodes and leave the face open.
+        //
+        // Only where the other curve CROSSES or ends on it, though; see
+        // `splits(at:side:others:)`. A curve that only touches the arc
+        // stays whole there.
+        let arcIndices = chains.indices.filter { chains[$0].arc != nil }
+        if !arcIndices.isEmpty {
+            var anchors = chains.flatMap { [$0.points[0], $0.points[$0.points.count - 1]] }
+            func anchored(_ p: SIMD2<Double>) -> SIMD2<Double> {
+                for q in anchors where simd_length(p - q) <= endpointWeldTolerance { return q }
+                anchors.append(p)
+                return p
+            }
+            let pieces: [CurvePiece?] = chains.map { chain in
+                if let arc = chain.arc { return .arc(arc) }
+                if chain.spline == nil, chain.points.count == 2 {
+                    return .segment(chain.points[0], chain.points[1])
+                }
+                return nil
+            }
+            func splits(_ index: Int, at point: SIMD2<Double>) -> Bool {
+                guard let own = pieces[index] else { return false }
+                let others = pieces.indices.compactMap { $0 == index ? nil : pieces[$0] }
+                return ProfileDetector.splits(at: point, side: side(of: own), others: others)
+            }
+            for i in arcIndices {
+                guard let arc = chains[i].arc else { continue }
+                for j in straightIndices {
+                    let a = chains[j].points[0], b = chains[j].points[1]
+                    for hit in segmentCircleHits(a, b, center: arc.center, radius: arc.radius) {
+                        guard let u = arc.parameter(of: hit.point) else { continue }
+                        let cutsArc = splits(i, at: hit.point), cutsLine = splits(j, at: hit.point)
+                        guard cutsArc || cutsLine else { continue }
+                        let point = anchored(hit.point)
+                        if cutsLine { cuts[j, default: []].append((hit.t, point)) }
+                        if cutsArc { cuts[i, default: []].append((u, point)) }
+                    }
+                }
+            }
+            for (offset, i) in arcIndices.enumerated() {
+                guard let first = chains[i].arc else { continue }
+                for j in arcIndices.dropFirst(offset + 1) {
+                    guard let second = chains[j].arc else { continue }
+                    for hit in circleCircleHits(first.center, first.radius, second.center, second.radius) {
+                        guard let u = first.parameter(of: hit), let v = second.parameter(of: hit) else { continue }
+                        let cutsFirst = splits(i, at: hit), cutsSecond = splits(j, at: hit)
+                        guard cutsFirst || cutsSecond else { continue }
+                        let point = anchored(hit)
+                        if cutsFirst { cuts[i, default: []].append((u, point)) }
+                        if cutsSecond { cuts[j, default: []].append((v, point)) }
+                    }
+                }
+            }
+        }
+
         var splitChains: [Chain] = []
         for (index, chain) in chains.enumerated() {
             guard let interior = cuts[index] else {
                 splitChains.append(chain)
+                continue
+            }
+            if let arc = chain.arc {
+                // Each piece is re-sampled over its own angular range, with
+                // its ends pinned to the exact crossing points.
+                let ordered = ([(t: 0.0, point: chain.points[0])] + interior
+                    + [(t: 1.0, point: chain.points[chain.points.count - 1])]).sorted { $0.t < $1.t }
+                var previous = ordered[0]
+                for cut in ordered.dropFirst() where NodeKey(cut.point) != NodeKey(previous.point) {
+                    let start = arc.start + arc.sweep * previous.t
+                    let sweep = arc.sweep * (cut.t - previous.t)
+                    var points = SketchEntity.arcPoints(
+                        center: arc.center, radius: arc.radius,
+                        startAngle: start, endAngle: start + sweep,
+                        segmentsPerTurn: circleSegments)
+                    if points.count >= 2 {
+                        points[0] = previous.point
+                        points[points.count - 1] = cut.point
+                        splitChains.append(Chain(
+                            entityID: chain.entityID, points: points, isArc: true,
+                            arc: ArcGeometry(center: arc.center, radius: arc.radius,
+                                             start: start, sweep: sweep)))
+                    }
+                    previous = cut
+                }
                 continue
             }
             let ordered = ([(t: 0.0, point: chain.points[0])] + interior
@@ -470,9 +605,34 @@ nonisolated enum ProfileDetector {
             let chain: Int
             let forward: Bool
             let to: NodeKey
-            /// Direction leaving the tail, using the polyline's own first
-            /// segment so an arc sorts by its true tangent, not its chord.
+            /// Direction leaving the tail (see `outAngles`).
             let outAngle: Double
+        }
+
+        /// The directions leaving a chain's first and last point. A line's is
+        /// its own. An arc's is taken along the EXACT arc a short step from
+        /// the end, not along its first tessellation chord: that chord leans
+        /// half a tessellation step (3.75° at 48 per turn) off the tangent,
+        /// enough to swap two curves leaving a node nearly together. A hull
+        /// of tube chords touching its Ø200 outer circle at three points came
+        /// out as one region covering the whole disc (practice problem 13.9,
+        /// 2026-09-16). The step is short but not zero, so the order keeps
+        /// curvature: of two tangent curves, the tighter one turns away first.
+        func outAngles(of chain: Chain) -> (first: Double, last: Double) {
+            let pts = chain.points, n = pts.count
+            let chords = (first: atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x),
+                          last: atan2(pts[n - 2].y - pts[n - 1].y, pts[n - 2].x - pts[n - 1].x))
+            guard let arc = chain.arc, arc.radius > 1e-9, arc.sweep > 1e-12 else { return chords }
+            let step = min(arc.sweep / 2, 1e-3 / arc.radius)
+            func point(_ angle: Double) -> SIMD2<Double> {
+                arc.center + SIMD2(cos(angle), sin(angle)) * arc.radius
+            }
+            let start = point(arc.start), afterStart = point(arc.start + step)
+            let end = point(arc.start + arc.sweep), beforeEnd = point(arc.start + arc.sweep - step)
+            let fromStart = atan2(afterStart.y - start.y, afterStart.x - start.x)
+            let fromEnd = atan2(beforeEnd.y - end.y, beforeEnd.x - end.x)
+            return simd_length(pts[0] - start) <= simd_length(pts[0] - end)
+                ? (fromStart, fromEnd) : (fromEnd, fromStart)
         }
 
         var halfEdges: [HalfEdge] = []
@@ -482,9 +642,7 @@ nonisolated enum ProfileDetector {
             let ka = NodeKey(pts.first!)
             let kb = NodeKey(pts.last!)
             guard ka != kb else { continue }
-            let n = pts.count
-            let aOut = atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x)
-            let bOut = atan2(pts[n - 2].y - pts[n - 1].y, pts[n - 2].x - pts[n - 1].x)
+            let (aOut, bOut) = outAngles(of: chain)
             // Appended in pairs, so a half-edge's twin is always `index ^ 1`.
             outgoing[ka, default: []].append(halfEdges.count)
             halfEdges.append(HalfEdge(chain: index, forward: true, to: kb, outAngle: aOut))
@@ -615,5 +773,313 @@ nonisolated enum ProfileDetector {
         let d4 = orientation(p1, p2, p4)
         return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0))
             && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+    }
+
+    /// True when any edge of loop `p` properly crosses any edge of loop `q`.
+    /// Touching and collinear overlap don't count, so regions that share a
+    /// boundary (split pieces of one arrangement) never report crossing.
+    static func loopsCross(_ p: [SIMD2<Double>], _ q: [SIMD2<Double>]) -> Bool {
+        guard p.count >= 2, q.count >= 2 else { return false }
+        func bounds(_ loop: [SIMD2<Double>]) -> (SIMD2<Double>, SIMD2<Double>) {
+            var lo = loop[0], hi = loop[0]
+            for v in loop { lo = simd_min(lo, v); hi = simd_max(hi, v) }
+            return (lo, hi)
+        }
+        let (plo, phi) = bounds(p), (qlo, qhi) = bounds(q)
+        guard plo.x <= qhi.x, qlo.x <= phi.x, plo.y <= qhi.y, qlo.y <= phi.y else { return false }
+        for i in p.indices {
+            let a1 = p[i], a2 = p[(i + 1) % p.count]
+            for j in q.indices where segmentsIntersect(a1, a2, q[j], q[(j + 1) % q.count]) {
+                return true
+            }
+        }
+        return false
+    }
+
+    // MARK: - Crossing outlines
+
+    /// An arc's exact geometry: CCW from `start` (radians) through `sweep`,
+    /// where a full circle has `sweep` 2π.
+    struct ArcGeometry {
+        let center: SIMD2<Double>
+        let radius: Double
+        let start: Double
+        let sweep: Double
+
+        /// Where `point` (assumed on the circle) falls along the arc, as a
+        /// fraction of the sweep; nil when it lies outside the arc.
+        func parameter(of point: SIMD2<Double>) -> Double? {
+            let tolerance = 1e-9
+            let angle = atan2(point.y - center.y, point.x - center.x)
+            var delta = (angle - start).truncatingRemainder(dividingBy: 2 * .pi)
+            if delta < 0 { delta += 2 * .pi }
+            if delta > 2 * .pi - tolerance { delta = 0 }
+            guard sweep > 1e-12, delta <= sweep + tolerance else { return nil }
+            return min(1, delta / sweep)
+        }
+    }
+
+    /// One straight or circular piece of an entity's outline, for finding
+    /// where outlines cross.
+    private enum CurvePiece {
+        case segment(SIMD2<Double>, SIMD2<Double>)
+        case arc(ArcGeometry)
+    }
+
+    /// The splittable pieces of an entity's outline. Ellipses and splines
+    /// have none: they are never split (see `profiles(at:)`).
+    private static func curvePieces(of entity: SketchEntity) -> [CurvePiece] {
+        switch entity {
+        case let .line(_, a, b) where simd_length(b - a) > 1e-9:
+            return [.segment(a, b)]
+        case let .arc(_, center, radius, startAngle, endAngle) where radius > 1e-6:
+            let sweep = SketchEntity.arcSweep(startAngle: startAngle, endAngle: endAngle)
+            guard sweep > 1e-9 else { return [] }
+            return [.arc(ArcGeometry(center: center, radius: radius, start: startAngle, sweep: sweep))]
+        case let .circle(_, center, radius) where radius > 1e-6:
+            return [.arc(ArcGeometry(center: center, radius: radius, start: 0, sweep: 2 * .pi))]
+        case let .rect(_, lo, hi):
+            let corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+            return (0..<4).map { .segment(corners[$0], corners[($0 + 1) % 4]) }
+        case let .polygon(_, center, radius, sides, rotation) where radius > 1e-6 && sides >= 3:
+            let corners = SketchEntity.polygonPoints(center: center, radius: radius,
+                                                     sides: sides, rotation: rotation)
+            return corners.indices.map { .segment(corners[$0], corners[($0 + 1) % corners.count]) }
+        default:
+            return []
+        }
+    }
+
+    /// Circles, rects and polygons that other outlines cross, or end on, at
+    /// two or more distinct points, re-expressed as arcs (a circle, split at
+    /// those angles) or lines (a rect's or polygon's sides) under the same
+    /// entity id, for `lineLoops` to split further and walk.
+    ///
+    /// A shape split at one point or none stays a standalone profile, and so
+    /// does one that other outlines only touch (`splits(at:side:others:)`),
+    /// so a sketch without crossings keeps exactly the profiles and
+    /// identities it had. Before 2026-09-16 no closed shape was ever split:
+    /// two overlapping circles gave two full circles, and `holes(of:)` then
+    /// took the smaller one for a hole of the larger — an invalid solid with
+    /// the wrong volume.
+    private static func splitCrossedClosedShapes(_ entities: [SketchEntity])
+        -> (ids: Set<UUID>, pieces: [SketchEntity]) {
+        let outlines = entities.map { curvePieces(of: $0) }
+        var ids = Set<UUID>()
+        var pieces: [SketchEntity] = []
+        for (index, entity) in entities.enumerated() {
+            switch entity {
+            case .circle, .rect, .polygon: break
+            default: continue
+            }
+            let own = outlines[index]
+            guard !own.isEmpty, let inside = closedSide(of: entity) else { continue }
+            let others = outlines.indices.flatMap { $0 == index ? [] : outlines[$0] }
+            var hits: [SIMD2<Double>] = []
+            for a in own {
+                for b in others {
+                    for p in crossings(a, b)
+                    where !hits.contains(where: { simd_length($0 - p) <= endpointWeldTolerance }) {
+                        hits.append(p)
+                    }
+                }
+            }
+            // Touching points don't split it; see `splits(at:side:others:)`.
+            hits = hits.filter { splits(at: $0, side: inside, others: others) }
+            guard hits.count >= 2 else { continue }
+            ids.insert(entity.id)
+            switch entity {
+            case let .circle(id, center, radius):
+                let angles = hits.map { atan2($0.y - center.y, $0.x - center.x) }.sorted()
+                for (i, start) in angles.enumerated() {
+                    pieces.append(.arc(id: id, center: center, radius: radius,
+                                       startAngle: start, endAngle: angles[(i + 1) % angles.count]))
+                }
+            default:
+                for case let .segment(a, b) in own {
+                    pieces.append(.line(id: entity.id, a: a, b: b))
+                }
+            }
+        }
+        return (ids, pieces)
+    }
+
+    /// Whether the outlines in `others` split a curve at `point`, a point
+    /// on it; `side` is positive on one side of the curve and negative on
+    /// the other. They split it where they CROSS it (some arrive from each
+    /// side) or where an odd number of their ends and passes meet it (a line
+    /// ending on a circle, which is how a pie slice or a slot drawn from
+    /// circles closes). An even number arriving from one side only touch it:
+    /// a hole tangent to its boundary, or a hull of tube chords with a vertex
+    /// on its outer circle (practice problem 13.9). A touching point stays
+    /// unsplit, as it was before crossings were split: the region between
+    /// two curves meeting there tapers to a cusp, the two tessellations cross
+    /// inside the cusp, and the self-intersecting loop would be dropped,
+    /// taking a region the sketch had always had with it.
+    private static func splits(
+        at point: SIMD2<Double>, side: (SIMD2<Double>) -> Double, others: [CurvePiece]
+    ) -> Bool {
+        var count = 0, fromInside = false, fromOutside = false
+        for piece in others {
+            for probe in probes(of: piece, near: point) {
+                count += 1
+                let s = side(probe)
+                if s > 1e-10 { fromInside = true } else if s < -1e-10 { fromOutside = true }
+            }
+        }
+        return (fromInside && fromOutside) || count % 2 == 1
+    }
+
+    /// Points a short step (0.1 µm) along `piece` each way from `point`,
+    /// leaving out a way in which the piece ends at `point`; none when the
+    /// piece doesn't pass through `point`.
+    private static func probes(of piece: CurvePiece, near point: SIMD2<Double>) -> [SIMD2<Double>] {
+        let step = 1e-4, tolerance = endpointWeldTolerance
+        switch piece {
+        case let .segment(a, b):
+            let length = simd_length(b - a)
+            guard length > 1e-12 else { return [] }
+            let direction = (b - a) / length
+            let along = simd_dot(point - a, direction)
+            guard along >= -tolerance, along <= length + tolerance,
+                  simd_length(point - (a + direction * along)) <= tolerance else { return [] }
+            var out: [SIMD2<Double>] = []
+            if along > tolerance { out.append(point - direction * min(step, along / 2)) }
+            if length - along > tolerance { out.append(point + direction * min(step, (length - along) / 2)) }
+            return out
+        case let .arc(arc):
+            guard arc.radius > 1e-9,
+                  abs(simd_length(point - arc.center) - arc.radius) <= tolerance else { return [] }
+            let angle = atan2(point.y - arc.center.y, point.x - arc.center.x)
+            func at(_ offset: Double) -> SIMD2<Double> {
+                arc.center + SIMD2(cos(angle + offset), sin(angle + offset)) * arc.radius
+            }
+            if arc.sweep >= 2 * .pi - 1e-12 {
+                return [at(-step / arc.radius), at(step / arc.radius)]
+            }
+            var delta = (angle - arc.start).truncatingRemainder(dividingBy: 2 * .pi)
+            if delta < 0 { delta += 2 * .pi }
+            // Past the end but nearer the start than the end: before the start.
+            if delta > arc.sweep + (2 * .pi - arc.sweep) / 2 { delta -= 2 * .pi }
+            let fromStart = delta * arc.radius, toEnd = (arc.sweep - delta) * arc.radius
+            guard fromStart >= -tolerance, toEnd >= -tolerance else { return [] }
+            var out: [SIMD2<Double>] = []
+            if fromStart > tolerance { out.append(at(-min(step, fromStart / 2) / arc.radius)) }
+            if toEnd > tolerance { out.append(at(min(step, toEnd / 2) / arc.radius)) }
+            return out
+        }
+    }
+
+    /// Which side of a piece's line or circle a point is on (positive to the
+    /// left of a segment, inside a circle).
+    private static func side(of piece: CurvePiece) -> (SIMD2<Double>) -> Double {
+        switch piece {
+        case let .segment(a, b):
+            let length = max(simd_length(b - a), 1e-12)
+            return { p in ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) / length }
+        case let .arc(arc):
+            return { p in arc.radius - simd_length(p - arc.center) }
+        }
+    }
+
+    /// Positive inside a circle, rect or polygon, negative outside; nil for
+    /// other entities.
+    private static func closedSide(of entity: SketchEntity) -> ((SIMD2<Double>) -> Double)? {
+        let corners: [SIMD2<Double>]
+        switch entity {
+        case let .circle(_, center, radius):
+            return { p in radius - simd_length(p - center) }
+        case let .rect(_, lo, hi):
+            corners = [lo, SIMD2(hi.x, lo.y), hi, SIMD2(lo.x, hi.y)]
+        case let .polygon(_, center, radius, sides, rotation) where sides >= 3:
+            corners = SketchEntity.polygonPoints(center: center, radius: radius,
+                                                 sides: sides, rotation: rotation)
+        default:
+            return nil
+        }
+        // Convex: inside every edge. The distance to the nearest edge line,
+        // signed by the winding so inside is positive.
+        let winding: Double = Profile.signedArea(corners) < 0 ? -1 : 1
+        return { p in
+            var nearest = Double.infinity
+            for i in corners.indices {
+                let a = corners[i], b = corners[(i + 1) % corners.count]
+                let length = simd_length(b - a)
+                guard length > 1e-12 else { continue }
+                nearest = min(nearest, winding * ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) / length)
+            }
+            return nearest
+        }
+    }
+
+    /// Points where two outline pieces meet (touching included).
+    private static func crossings(_ p: CurvePiece, _ q: CurvePiece) -> [SIMD2<Double>] {
+        switch (p, q) {
+        case let (.segment(a, b), .segment(c, d)):
+            return segmentSegmentPoint(a, b, c, d).map { [$0] } ?? []
+        case let (.segment(a, b), .arc(arc)), let (.arc(arc), .segment(a, b)):
+            return segmentCircleHits(a, b, center: arc.center, radius: arc.radius)
+                .map { $0.point }
+                .filter { arc.parameter(of: $0) != nil }
+        case let (.arc(first), .arc(second)):
+            return circleCircleHits(first.center, first.radius, second.center, second.radius)
+                .filter { first.parameter(of: $0) != nil && second.parameter(of: $0) != nil }
+        }
+    }
+
+    /// The point where segments ab and cd meet, ends included; nil when they
+    /// don't meet or are parallel (collinear overlap is `lineLoops`' job).
+    private static func segmentSegmentPoint(
+        _ a: SIMD2<Double>, _ b: SIMD2<Double>, _ c: SIMD2<Double>, _ d: SIMD2<Double>
+    ) -> SIMD2<Double>? {
+        let r = b - a, v = d - c
+        let denominator = r.x * v.y - r.y * v.x
+        guard abs(denominator) > 1e-12 * simd_length(r) * simd_length(v) else { return nil }
+        let w = c - a
+        let t = (w.x * v.y - w.y * v.x) / denominator
+        let u = (w.x * r.y - w.y * r.x) / denominator
+        guard t >= -1e-12, t <= 1 + 1e-12, u >= -1e-12, u <= 1 + 1e-12 else { return nil }
+        return a + r * min(1, max(0, t))
+    }
+
+    /// Where segment ab meets the circle, with each point's fraction `t`
+    /// along the segment (ends included; a tangent gives one point).
+    private static func segmentCircleHits(
+        _ a: SIMD2<Double>, _ b: SIMD2<Double>, center: SIMD2<Double>, radius: Double
+    ) -> [(t: Double, point: SIMD2<Double>)] {
+        let d = b - a, f = a - center
+        let qa = simd_dot(d, d)
+        guard qa > 1e-18 else { return [] }
+        let qb = 2 * simd_dot(f, d)
+        let qc = simd_dot(f, f) - radius * radius
+        let discriminant = qb * qb - 4 * qa * qc
+        let slack = 1e-12 * max(1, qb * qb)
+        guard discriminant >= -slack else { return [] }
+        let root = sqrt(max(0, discriminant))
+        let ts = root <= 1e-9 * max(1, abs(qb)) ? [-qb / (2 * qa)]
+            : [(-qb - root) / (2 * qa), (-qb + root) / (2 * qa)]
+        return ts.compactMap { t in
+            guard t >= -1e-12, t <= 1 + 1e-12 else { return nil }
+            let clamped = min(1, max(0, t))
+            return (clamped, a + d * clamped)
+        }
+    }
+
+    /// Where two circles meet: none, one (tangent) or two points. Concentric
+    /// circles (including a circle and itself) meet nowhere.
+    private static func circleCircleHits(
+        _ c1: SIMD2<Double>, _ r1: Double, _ c2: SIMD2<Double>, _ r2: Double
+    ) -> [SIMD2<Double>] {
+        let delta = c2 - c1
+        let distance = simd_length(delta)
+        guard distance > 1e-12 else { return [] }
+        let slack = 1e-9 * max(1, r1 + r2)
+        guard distance <= r1 + r2 + slack, distance >= abs(r1 - r2) - slack else { return [] }
+        let along = (r1 * r1 - r2 * r2 + distance * distance) / (2 * distance)
+        let height = sqrt(max(0, r1 * r1 - along * along))
+        let base = c1 + delta * (along / distance)
+        guard height > 1e-9 else { return [base] }
+        let perpendicular = SIMD2(-delta.y, delta.x) / distance
+        return [base + perpendicular * height, base - perpendicular * height]
     }
 }
