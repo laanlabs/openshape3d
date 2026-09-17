@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,33 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, shell refusals: 18.3 was the tangent tube, 13.9A is OCCT's offset
+
+- **18.3's shell refusal is gone.** With the cross tube 0.001 mm below
+  tangent (the change that let its R3 fillet build), `feature.shell` on the
+  outer body, open at the bottom and both tube ends, builds (28 553.197 mm³).
+  The recipe still cuts its cavity explicitly: a true shell leaves a tube
+  wall inside the cavity, which Section B-B does not show.
+- **13.9A's shell is refused correctly.** Retried with the hull and pockets
+  as exact arcs instead of polylines (disc + hull extruded and unioned, so
+  no tangent hole face): the body before the shell is valid, 703 449 mm³
+  against the hand 703 427, and the shell is still refused. Replayed from its
+  capture with every `MakeThickSolidByJoin` option: arc joins give an invalid
+  123 568 mm³ at any tolerance, with self-intersection on or with internal
+  edges removed; intersection joins give an invalid 682 997 (unorientable
+  and badly oriented faces); either with the intersection flag is not done.
+  A plausible shell is 417–446k. The band and tube walls are thinner than
+  twice the wall (the recipe's own comment), so their inward offsets cross,
+  which the thick-solid offset does not handle. The explicit cavity stays.
+- **13.9B's shell "builds", but don't trust it.** With exact arcs the app's
+  Shell returns a valid 175 991 mm³ for D = 80, t = 7, far below every
+  reading (420–448k) and removing three times what the explicit cavity
+  does. There is no hand figure for a true shell of that body, so this is
+  unverified rather than wrong; it is noted and not used. A shell whose
+  offsets cross can evidently come back valid, which the volume-direction
+  check (`the shell removed no material`) cannot catch.
+- No code change; notes for 13.9A, 13.9B and 18.3 updated.
 
 ## Mission log — 2026-09-16, practice problems on merged main; 18.3 passes
 
