@@ -2888,7 +2888,8 @@ static double OS3DSpanExactArea(const TopoDS_Face &face) {
 static bool OS3DFilletBuilds(const TopoDS_Shape &shape,
                              const TopTools_IndexedMapOfShape &edgeMap,
                              const std::set<Standard_Integer> &edges,
-                             double radius) {
+                             double radius,
+                             double deadlineSeconds = kOS3DKernelDeadlineSeconds) {
     try {
         BRepFilletAPI_MakeFillet mk(shape);
         for (Standard_Integer i : edges) {
@@ -2897,7 +2898,7 @@ static bool OS3DFilletBuilds(const TopoDS_Shape &shape,
         // The SHORT deadline: a drag clamp runs ~7 of these probes, and one
         // hanging probe would wedge the drag exactly like the boolean hang.
         OS3DDeadlineProgress *deadline =
-            new OS3DDeadlineProgress(kOS3DKernelDeadlineSeconds);
+            new OS3DDeadlineProgress(deadlineSeconds);
         Handle(Message_ProgressIndicator) progress(deadline);
         mk.Build(progress->Start());
         if (deadline->Fired()) return false;
@@ -2970,7 +2971,24 @@ static bool OS3DFilletBuilds(const TopoDS_Shape &shape,
         if (probe > 0 && OS3DFilletBuilds(shape->_shape, edgeMap, qualified, probe)) {
             lo = probe;
         } else {
-            return 0.0;
+            // Whether a size builds is not monotonic: a tiny blend can fail
+            // validity where larger ones build. 18.5A's port/body chain fails
+            // at R0.05, R8 and R10 and builds from R0.1 to R5; returning 0
+            // left that drag unclamped (2026-09-17). Halve down from the
+            // bracket for a size that builds, all of it within one kernel
+            // deadline: this runs on the main thread as the drag starts.
+            const CFAbsoluteTime budgetEnd =
+                CFAbsoluteTimeGetCurrent() + kOS3DKernelDeadlineSeconds;
+            for (double r = 0.5 * hi; r > probe; r *= 0.5) {
+                const double left = budgetEnd - CFAbsoluteTimeGetCurrent();
+                if (left <= 0) break;
+                if (OS3DFilletBuilds(shape->_shape, edgeMap, qualified, r, left)) {
+                    lo = r;
+                    hi = 2.0 * r;   // the last size tried above it failed
+                    break;
+                }
+            }
+            if (lo == 0.0) return 0.0;
         }
         for (int step = 0; step < 7; ++step) {
             const double mid = 0.5 * (lo + hi);
