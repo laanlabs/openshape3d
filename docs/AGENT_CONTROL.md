@@ -235,8 +235,8 @@ landing the exact analytic volume. Failures are typed: 404
 `unknown_edge`/`unknown_face` (with a pointer to the discovery endpoint),
 409 `mesh_only_body`/`stale_identity`/`unaddressable_edge`, and a blend the
 kernel refuses (radius too big, degenerate offset) comes back as the
-feature's `evalErrors` entry with `failed: true` — undo twice to remove the
-recorded node, exactly like any failed exec feature.
+feature's `evalErrors` entry with `failed: true` — undo once to remove the
+recorded node, exactly like any other exec feature.
 
 ### `POST /v1/capture`
 
@@ -349,20 +349,16 @@ see a disabled button and will otherwise retry the wrong thing forever:
 
 Two behaviours worth knowing:
 
-- A feature exec lands as **two undo steps** (the append, then the rebuild that
-  evaluates it), reported as `undoSteps`. `performRebuild` is private to
-  `DocumentSession`, and bundling them would mean changing production code to
-  suit a debug channel. **Undo it `undoSteps` times, unless the reply says
-  `failed: true`.** One undo of a feature that built reverts only the
-  rebuild: the body shows its old volume while History still holds the
-  feature, and the next feature builds on that mismatch (a fillet on one box
-  edge then rounded the whole corner, 2026-09-16). A feature that FAILED to
-  build changes nothing on rebuild, so only one step is recorded while the
-  reply still says `undoSteps: 2`: one undo removes it, and a second undo
-  reverts the feature before it (union, failed R15 fillet, undo → back to 3
-  features; undo again → the union is gone; 2026-09-16). When in doubt, read
-  `undoTitle` from `/v1/state`: "Add Feature" means the next undo removes the
-  feature itself.
+- A feature exec is **one undo step**, whether it built or failed, reported as
+  `undoSteps: 1`: the node is appended and the graph rebuilt in one composite,
+  the way the interactive tools commit (`DocumentSession.recordAndRebuild`),
+  and `undoTitle` in `/v1/state` is the feature's name. **Undo `undoSteps`
+  times.** Until 2026-09-16 the append and the rebuild were separate steps and
+  every reply said `undoSteps: 2`, but a feature that FAILED recorded only one
+  (its rebuild changed no body, so it committed nothing), and undoing twice
+  also reverted the feature before it (union, failed R15 fillet, undo, undo:
+  the union was gone). One undo of a feature that built reverted only its
+  rebuild, leaving the node in History over the old bodies.
 - Every reply carries `producedBodyIDs`, `changedBodyIDs` and `removedBodyIDs`.
   All three are needed, because a BOOLEAN adds no body — it replaces its target
   in place, so judging success by "did a new body appear" reports a subtract

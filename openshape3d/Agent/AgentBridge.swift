@@ -181,11 +181,8 @@ final class AgentBridge {
     /// to `DocumentCommand`/`FeatureKind` rather than puppeting the interactive
     /// tools: an exec'd model has to be the same model a person would have built.
     ///
-    /// UNDO: a feature exec lands as TWO undo steps — the `AppendFeatureCommand`
-    /// and the rebuild that evaluates it. `performRebuild` is private to
-    /// `DocumentSession`, so bundling them would mean changing production code
-    /// to suit a debug channel. Reported as `undoSteps` so a caller unwinding an
-    /// exec knows how far back to go instead of guessing.
+    /// UNDO: every exec reports `undoSteps`, how many undos revert it. A
+    /// feature exec is ONE step, built or not (`record(_:on:)`).
     private func execute(_ op: AgentExecOp, on viewModel: EditorViewModel) -> AgentResponse {
         let session = viewModel.session
 
@@ -466,8 +463,15 @@ final class AgentBridge {
         // wrong in real use. What matters is whether the document moved at all.
         var before: [BodyID: UInt64] = [:]
         for body in session.document.bodies { before[body.id] = body.meshRevision }
-        session.record(node)
-        session.rebuildFrom(node.id)
+        // Append and rebuild as ONE undo step, the way the interactive tools
+        // commit. This used to be `record` + `rebuildFrom`: two steps when the
+        // feature built, but ONE when it failed (a rebuild that changes no
+        // body commits nothing), while the reply always said `undoSteps: 2`,
+        // so a caller undoing twice after a failure also reverted the feature
+        // before it (practice problems round 6, bug 4, 2026-09-16). And one
+        // undo of a feature that built reverted only its rebuild, leaving the
+        // node in History over the old bodies.
+        session.recordAndRebuild([node], title: node.name)
 
         var produced: [BodyID] = []
         var changed: [BodyID] = []
@@ -485,7 +489,7 @@ final class AgentBridge {
             "producedBodyIDs": produced.map(\.raw.uuidString),
             "changedBodyIDs": changed.map(\.raw.uuidString),
             "removedBodyIDs": removed.map(\.raw.uuidString),
-            "undoSteps": 2,
+            "undoSteps": 1,
         ]
         // Keyed by feature id, so an agent can tell ITS node failing from an
         // unrelated upstream node that was already broken.

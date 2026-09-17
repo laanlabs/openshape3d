@@ -14,9 +14,10 @@ def problem(pid, volume, unit="mm", features=("Extrude Boss", "Shell")):
     return deco
 
 
-def undo(n=2):
+def undo(n=1):
     """edit.undo over the command endpoint: a failed feature leaves its node
-    (and evalErrors) in the document; two undos remove it."""
+    (and evalErrors) in the document; one undo removes it (a bridge feature
+    is one undo step, built or not, since 2026-09-16)."""
     from kit import call
     for _ in range(n):
         call("/v1/command", {"id": "edit.undo"})
@@ -67,7 +68,7 @@ def p13_1():
         fillet(body, 1.0, concave)
     except Exception as e:  # noqa: BLE001
         print("  R1 inside fillets skipped:", str(e)[:120])
-        undo(2)
+        undo()
     extrude(Sketch(front(-1)).circle((0, 25), 11.5), (0, 25), 24, cut=[body])
     for k in range(6):
         a = math.radians(90 + 60 * k)
@@ -102,7 +103,7 @@ def try_fillet(bid, radius, edge_ids_fn, label):
     except Exception as e:  # noqa: BLE001
         print("  fillet", label, "skipped:", str(e)[:110])
         if "eval errors" in str(e):
-            undo(2)
+            undo()
         return False
 
 
