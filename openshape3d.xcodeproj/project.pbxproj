@@ -42,6 +42,12 @@
 			membershipExceptions = (
 				"Fixtures/Captures/clevis-lug-junction-fillet-r2/manifest.json",
 				"Fixtures/Captures/clevis-lug-junction-fillet-r2/shape.brep",
+				"Fixtures/Captures/coincident-boss-arc-window-cut/a.brep",
+				"Fixtures/Captures/coincident-boss-arc-window-cut/b.brep",
+				"Fixtures/Captures/coincident-boss-arc-window-cut/manifest.json",
+				"Fixtures/Captures/loose-tolerance-bent-pin-union/a.brep",
+				"Fixtures/Captures/loose-tolerance-bent-pin-union/b.brep",
+				"Fixtures/Captures/loose-tolerance-bent-pin-union/manifest.json",
 				"Fixtures/Captures/overradius-fillet-d10-rim/manifest.json",
 				"Fixtures/Captures/overradius-fillet-d10-rim/shape.brep",
 			);

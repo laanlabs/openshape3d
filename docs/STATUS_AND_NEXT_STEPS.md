@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,75 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, render mesh no longer fails validity; heal-loosened booleans refused
+
+- **Round 6's bug 2 is fixed: the tangent pocket was never invalid.** Its
+  cut is exact (188.986 mm³ removed, the hand integral of the pocket
+  region) and passes `BRepCheck_Analyzer`, until the app meshes it for
+  display. `TessellateShape` runs `BRepMesh_IncrementalMesh` on the stored
+  shape, which writes the triangulation into it, and for this body the
+  mesher wrote an edge polygon the analyzer rejects (Edge21
+  `invalidPolygonOnTriangulation`). Every validity gate then read the body
+  as invalid: `/v1/check`, and the boolean operand gate that refused the
+  next cut ("the target solid is invalid"). A kernel test pins it: meshing
+  the TARGET is harmless, meshing the RESULT makes it "invalid" (2×2 table,
+  same volume in all four).
+- **What changed.** `OS3DIsValid` in `OCCTBridge.mm`: when a shape fails the
+  analyzer and carries a triangulation, it is judged again as a mesh-free
+  copy (`BRepBuilderAPI_Copy` sharing its geometry). Every gate goes through
+  it: the post-op heal-and-validate, the boolean operand gate, the fillet
+  probe; the health report analyzes the mesh-free copy too. Documents are
+  written without triangulation, so reloaded bodies never had this problem.
+  `TangentPocketValidityTests` (2 tests): the meshed pocket checks valid with
+  the exact volume, and the next boolean accepts it. A control run with the
+  mesh-free check disabled fails both, with the exact bug-2 messages.
+- **The fix unmasked a second bug, now refused instead of silent.** 18.19's
+  window pocket cut AFTER its boss (the drawn order, which agent B avoided)
+  used to fail loudly on the next op. With validity fixed, the window cut
+  and four later cuts all "succeeded", and those four removed nothing: the
+  body stayed at 3 545.524 mm³ while its max tolerance climbed 12.9 → 77 mm.
+  Traced on the captured operands: OCCT's boolean gives the coincident R6.5
+  floor edge (on the boss cylinder) a pcurve 11.5 mm off on the boss face,
+  leaving that face `UnorientableShape`, an invalid result; `ShapeFix_Shape`
+  then "heals" it with a 12.87 mm tolerance, which passes BRepCheck with the
+  right volume. No fuzzy value (0 to 0.01 mm), OBB or glue mode avoids it.
+  Rebuilding the pcurve by projection makes it exact (2e-15) but the face
+  stays unorientable, and the edge is shared with an operand, so a repair
+  was not pursued.
+- **The guard: a heal may not loosen a boolean result to part size.** When
+  the heal ran and the result's max tolerance exceeds 1% of its size and ten
+  times what it (and the operands) carried before, the boolean refuses: "the
+  result could only be repaired by loosening its tolerance to 12.9 mm, too
+  loose to build on". The first version refused ANY result that loose, and
+  the practice-problem rerun caught it refusing 15.6's bent pin (PIN.3):
+  OCCT's own union there is valid with a 2.44 mm tolerance (2.58 in the
+  app), and cross-holes drilled near and far from the bend remove exactly
+  the reference volume, so it is fine to build on. Both cases are replay
+  fixtures now: `coincident-boss-arc-window-cut` (expect the refusal; a
+  control without the guard replays it as "valid result") and
+  `loose-tolerance-bent-pin-union` (expect success, 4 758.095 mm³; the first
+  guard fails it). The 18.19 recipe keeps cutting the window first
+  (3 109.645 mm³, unchanged).
+- **Still open:** the coincident-cylinder pcurve itself; a fix that makes
+  that cut succeed should flip its fixture to `success`, volume 3 545.524.
+  Round 6's other kernel refusals were retried on this build in case they
+  were the same mesh artifact; they are not, and fail as before: 13.9A's
+  and 18.3's shells ("the shelled solid failed validity checking") and
+  18.5A's port/body blends ("this size is too large", "TopoDS_Vertex
+  hasn't gp_Pnt"). Other ops' heals (fillet, shell, draft) could loosen a
+  result the same way; no case has been seen, and they are not guarded.
+- **Capture tooling:** `/v1/capture` wrote one file per body NAME, so two
+  bodies called "Extrude" became one `Extrude.brep` while the manifest listed
+  both. Files are now `Extrude.brep`, `Extrude-2.brep`; a test pins it.
+- **Verification.** Full unit suite: 1658 tests, 1 skipped, 0 failures
+  (`ShapeHealthTests` also checks a meshed invalid shape reports the same
+  named findings as the plain one). In the app (iPad simulator): round 6's
+  repro checks valid after the cut; 18.19 in drawn order is refused at the
+  window cut; 15.6 and 18.19 pass. All 215 practice-problem recipes rerun
+  on the final build: 181 pass, the same 181 as `main`'s ledger, every
+  health flag the same, and 214 volumes identical to the thousandth; 4.41
+  moved by 0.001 mm³ (110 002.137 → .138).
 
 ## Mission log — 2026-09-16, stable `/v1/edges` midpoints for curved edges
 
@@ -385,6 +454,8 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      `/v1/check` invalid (`invalidPolygonOnTriangulation`); the next boolean is
      refused ("target solid is invalid"). Agent B's exact script:
      `round6_b._corner` / `_arc_short` build the outline.
+     **Fixed 2026-09-16** ("render mesh no longer fails validity; heal-loosened booleans refused" above): the
+     solid was sound, its render mesh was not.
   3. **`/v1/edges` reports concave edges as convex.** A T-shaped profile
      extruded 20: the two inside corners at (±5, 10) come back
      `convex: true`; the other ten 20 mm edges, all convex, are

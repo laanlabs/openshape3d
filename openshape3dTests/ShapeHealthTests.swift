@@ -77,6 +77,20 @@ final class ShapeHealthTests: XCTestCase {
         XCTAssertEqual(health.openFreeWires, 0)
     }
 
+    /// The report judges a meshed shape on a copy without its render mesh
+    /// (see `TangentPocketValidityTests`). The copy must name findings the
+    /// same way ("Shell1", "Edge7" index the same sub-shapes).
+    func testAMeshedShapeReportsTheSameNamedFindings() throws {
+        let plain = OCCTKernel.healthReport(for: try invalidOpenBox())
+        let meshed = try invalidOpenBox()
+        XCTAssertFalse(OCCTKernel.renderMesh(from: meshed).indices.isEmpty,
+                       "the open box must actually carry a mesh for this to test anything")
+        let report = OCCTKernel.healthReport(for: meshed)
+        XCTAssertFalse(report.isValid)
+        XCTAssertEqual(report.findings, plain.findings)
+        XCTAssertEqual(report.counts, plain.counts)
+    }
+
     // MARK: - BOP check gating
 
     func testBOPCheckRunsOnAValidShapeAndFindsNothingWrongWithABox() throws {

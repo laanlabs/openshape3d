@@ -46,7 +46,7 @@ sick", prefer it over eyeballing — `findingsSummary` is the message.
 
 | Piece | Where | Notes |
 |---|---|---|
-| Health report | `OCCTBridge.healthReportForShape:runBOPCheck:` → `ShapeHealth` | FreeCAD's Check Geometry re-derived over public OCCT APIs (playbook D1). BOP check only runs on a BRepCheck-clean shape (advisory + slow), on a copy, under the 5 s kernel deadline. Findings capped at 200. |
+| Health report | `OCCTBridge.healthReportForShape:runBOPCheck:` → `ShapeHealth` | FreeCAD's Check Geometry re-derived over public OCCT APIs (playbook D1). BOP check only runs on a BRepCheck-clean shape (advisory + slow), on a copy, under the 5 s kernel deadline. Findings capped at 200. Judges the geometry, not the render mesh `adoptBRep` stores in the shape: it checks a mesh-free copy, the same as every validity gate in the bridge (`OS3DIsValid`, 2026-09-16), because BRepMesh can store a triangulation BRepCheck rejects (`invalidPolygonOnTriangulation`) on a sound solid. |
 | Invalid-shape factory | `OCCTBridge.debugInvalidOpenBox(withSize:)` | DEBUG-only; a box missing one face wrapped as a solid — the only way tests can exercise the findings path, since every public op validates. |
 | Failure capture | `KernelCapture` (`Kernel/OCCT/KernelCapture.swift`) | Hooked in `OCCTKernel.booleanResult/filletResult/chamferResult/shellResult/removingFacesResult`. Off under XCTest by default (the suite exercises failures on purpose); `forceEnabledForTesting` for capture tests. Keeps newest 20. |
 | Replay | `KernelCaptureReplay` | Loads inputs via `rawShapeFromSerialized:` — deadline + NaN gates but NO heal, so the op sees exactly the failing bytes (`shapeFromSerialized:` would repair or refuse them). |

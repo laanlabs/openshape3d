@@ -140,6 +140,25 @@ final class KernelCaptureTests: XCTestCase {
         XCTAssertTrue(outcome.detail.contains("all valid"), outcome.detail)
     }
 
+    /// Two bodies with one name ("Extrude") each keep their own file.
+    func testASnapshotOfTwoSameNamedBodiesKeepsBoth() throws {
+        let small = try XCTUnwrap(OCCTKernel.primitiveShape(
+            .box(width: 2, depth: 2, height: 2), placement: .identity))
+        let large = try XCTUnwrap(OCCTKernel.primitiveShape(
+            .box(width: 3, depth: 3, height: 3), placement: .identity))
+        let bundle = try XCTUnwrap(KernelCapture.recordSnapshot(
+            inputs: [("Extrude", small), ("Extrude", large)], note: "same names"))
+        let rows = try XCTUnwrap(KernelCaptureReplay.manifest(bundleAt: bundle)["inputs"] as? [[String: Any]])
+        let files = rows.compactMap { $0["file"] as? String }
+        XCTAssertEqual(files, ["Extrude.brep", "Extrude-2.brep"])
+        let volumes = try files.map { file -> Double in
+            let blob = try Data(contentsOf: bundle.appendingPathComponent(file))
+            return OCCTKernel.volume(BRepHandle(try XCTUnwrap(OCCTBridge.rawShape(fromSerialized: blob))))
+        }
+        XCTAssertEqual(volumes[0], 8, accuracy: 1e-6)
+        XCTAssertEqual(volumes[1], 27, accuracy: 1e-6)
+    }
+
     // MARK: - Bundle hygiene
 
     func testReplayThrowsOnAMissingBundle() {

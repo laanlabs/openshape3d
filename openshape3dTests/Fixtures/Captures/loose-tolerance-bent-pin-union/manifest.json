@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "op": "boolean",
+  "date": "2026-09-17T00:07:25Z",
+  "note": "Practice problem 15.6, configuration PIN.3 (A 130, B 40, RC 4, Ø6), 80 mm out along z: a = the two rods unioned (4580.442 mm³), b = the quarter-torus bend (177.653 mm³). OCCT's union returns a VALID result with a 2.44 mm tolerance of its own (2.58 in the app), and cross-holes drilled near and far from the bend afterwards remove exactly the reference volume, so it is fine to build on. It pins that the boolean's loose-tolerance guard refuses only a result the heal had to loosen (coincident-boss-arc-window-cut), not this one: a first version of the guard refused it and 15.6 failed in the practice-problem rerun (2026-09-16).",
+  "params": {
+    "op": 0
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 2,
+        "other": 0,
+        "planar": 4
+      },
+      "file": "a.brep",
+      "label": "a",
+      "maxTolerance": 1.0000000000000002e-07,
+      "valid": true,
+      "volumeMM3": 4580.442088933907
+    },
+    {
+      "faceCounts": {
+        "cylindrical": 0,
+        "other": 1,
+        "planar": 2
+      },
+      "file": "b.brep",
+      "label": "b",
+      "maxTolerance": 1.0000000000000002e-07,
+      "valid": true,
+      "volumeMM3": 177.65287921960822
+    }
+  ],
+  "expect": {
+    "outcome": "success",
+    "volumeMM3": 4758.095,
+    "volumeToleranceMM3": 0.01
+  }
+}

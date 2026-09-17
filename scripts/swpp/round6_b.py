@@ -102,9 +102,10 @@ def p18_19():
     rim = edges_where(arm, lambda e: abs(e["midpoint"][2]) < 0.05 or abs(e["midpoint"][2] - 7) < 0.05)
     fillet(arm, 0.5, rim)
     body = arm
-    # window pocket (cut before the boss goes on: a pocket whose floor arc
-    # lies on the finished boss cylinder and whose R1 corners are tangent
-    # to it leaves the kernel an edge with a 12.9 mm tolerance)
+    # window pocket (cut before the boss goes on: cut after, OCCT gives the
+    # pocket's floor edge, which lies on the boss cylinder, a pcurve 11.5 mm
+    # off on the boss face, and the boolean refuses the heal that loosens it
+    # to a 12.9 mm tolerance; STATUS 2026-09-16)
     xl = (-4.5 - n[1] * 10) / n[0]; xr = (2.5 - n[1] * 10) / n[0]
     TL, TR = (xl, 10), (xr, 10)
     far = lambda P: (P[0] + d[0] * 3, P[1] + d[1] * 3)                # a point further down the side
