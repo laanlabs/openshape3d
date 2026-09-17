@@ -83,6 +83,10 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// (u, v) millimetres — the numeric truth behind a drawn profile, so a
     /// sketch built by touch can be checked without reading pixels.
     case sketches
+    /// The open design as a `.os3d` archive (the same bytes Export Project
+    /// writes), after a save and a fresh thumbnail — how the bundled sample
+    /// designs in `openshape3d/Demos/` are baked (`scripts/demo_models.py`).
+    case archive
     /// World points → viewport points (pt, the coordinate space a touch
     /// lands in), so a driver can aim a tap at a known edge midpoint or face
     /// centre instead of measuring screenshots.
@@ -98,7 +102,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     var needsEditor: Bool {
         switch self {
         case .state, .runCommand, .exec, .screenshot, .check, .capture,
-             .edges, .faces, .sketches, .project, .section:
+             .edges, .faces, .sketches, .project, .section, .archive:
             return true
         case .health, .commands, .reply: return false
         }
@@ -148,6 +152,9 @@ nonisolated enum AgentRouter {
             }
             return request.path == "/v1/edges"
                 ? .edges(bodyID: body) : .faces(bodyID: body)
+
+        case "/v1/archive":
+            return get(request) ?? .archive
 
         case "/v1/sketches":
             if let bad = get(request) { return bad }
