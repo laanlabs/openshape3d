@@ -52,7 +52,18 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   18.4 min): every problem matches its latest `results.jsonl` row, in
   status and in volume to within 0.01 mm³. 181 pass, 0 errors. Those rows
   predate #51, so this also shows #51's `EdgeTopology` changes moved no
-  practice-problem result.
+  practice-problem result. That campaign ran before #53 merged. On the
+  merge with #53 the full unit suite passes (1658 executed, 1 skipped,
+  0 failures), and 7.29 was run as below.
+- **7.29 is no longer flaky.** #53's log (next entry) found 7.29 varying
+  run to run: its R1 predicate picks R25 arc edges by midpoint. On the
+  pre-fix app (8787b0f), five fresh launches gave three volumes:
+  103 536.058 three times, 103 384.272 and 103 460.165. On the fix (merged
+  with #53), fifteen fresh launches all gave 103 536.058 (+0.147 %, a
+  pass). It is deterministic now, but on the +0.147 % selection rather than
+  the 0.0 % one some launches used to hit (103 384.272, sheet 103 384).
+  Getting that one every time means revisiting the recipe's R1 predicate,
+  which was not done here.
 
 ## Mission log — 2026-09-16, crossing outlines split into real regions
 
@@ -159,7 +170,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   `/v1/health` to answer from that pid, naming the other pid when it
   doesn't. `lsof -nP -iTCP:<port> -sTCP:LISTEN` shows who holds a port;
   the process path names the simulator. These reruns used port 8911.
-- **7.29 is flaky, not changed.** Its R1 predicate picks R25 arc edges by
+- **7.29 is flaky, not changed.** **Explained and fixed later on
+  2026-09-16:** unstable `/v1/edges` midpoints for curved edges ("stable
+  `/v1/edges` midpoints for curved edges" above); 7.29 now gives
+  103 536.058 on every launch. Its R1 predicate picks R25 arc edges by
   midpoint, and which halves match varies run to run: 103 460.165
   (2026-09-03), 103 536.058 (later rows), 103 384.272 in a probe today. It
   passes at all three.
