@@ -243,15 +243,36 @@ nonisolated enum SweepLoftKit {
             var out: [Euclid.Polygon] = []
             for s in 0..<(rings.count - 1) {
                 let a = rings[s], b = rings[s + 1], n = min(a.count, b.count)
-                for j in 0..<n {
-                    let k = (j + 1) % n
-                    let quad = [a[j], a[k], b[k], b[j]]
-                    if let polygon = Euclid.Polygon(quad.map { Vector($0.x, $0.y, $0.z) }) {
-                        out.append(polygon)
-                    } else {
-                        for tri in [[quad[0], quad[1], quad[2]], [quad[0], quad[2], quad[3]]] {
-                            if let polygon = Euclid.Polygon(tri.map { Vector($0.x, $0.y, $0.z) }) {
-                                out.append(polygon)
+                // Slice the band so no quad twists past ~8°. A ruled band
+                // between a straight side and an arc (square → circle)
+                // twists by up to 45° from ring to ring near a corner; one
+                // quad carrying all of it splits into two triangles more
+                // than 20° apart, which `FeatureEdges` draws as a crease
+                // across a surface that is smooth (the tutorial's loft,
+                // 2026-09-17). Sharing the twist over `slices` quads keeps
+                // every dihedral under the threshold; a band with no twist
+                // (frustum, draft extrude) stays a single row of quads.
+                let slices = bandSlices(a, b, count: n)
+                var sub: [[SIMD3<Double>]] = [a]
+                if slices > 1 {
+                    for i in 1..<slices {
+                        let t = Double(i) / Double(slices)
+                        sub.append((0..<n).map { a[$0] + (b[$0] - a[$0]) * t })
+                    }
+                }
+                sub.append(b)
+                for r in 0..<(sub.count - 1) {
+                    let lo = sub[r], hi = sub[r + 1]
+                    for j in 0..<n {
+                        let k = (j + 1) % n
+                        let quad = [lo[j], lo[k], hi[k], hi[j]]
+                        if let polygon = Euclid.Polygon(quad.map { Vector($0.x, $0.y, $0.z) }) {
+                            out.append(polygon)
+                        } else {
+                            for tri in [[quad[0], quad[1], quad[2]], [quad[0], quad[2], quad[3]]] {
+                                if let polygon = Euclid.Polygon(tri.map { Vector($0.x, $0.y, $0.z) }) {
+                                    out.append(polygon)
+                                }
                             }
                         }
                     }
@@ -279,6 +300,23 @@ nonisolated enum SweepLoftKit {
         }
         let mesh = Euclid.Mesh(polygons).makeWatertight()
         return signedVolume(of: mesh) < 0 ? mesh.inverted() : mesh
+    }
+
+    /// How many rows a ring-to-ring band needs so that no quad's two
+    /// triangles differ by more than ~8°: the band's worst quad twist
+    /// (angle between its two triangle normals) divided by 8°, 1…12.
+    static func bandSlices(_ a: [SIMD3<Double>], _ b: [SIMD3<Double>], count n: Int) -> Int {
+        var worst = 0.0
+        for j in 0..<n {
+            let k = (j + 1) % n
+            let n1 = simd_cross(a[k] - a[j], b[k] - a[j])
+            let n2 = simd_cross(b[k] - a[j], b[j] - a[j])
+            let l1 = simd_length(n1), l2 = simd_length(n2)
+            guard l1 > 1e-12, l2 > 1e-12 else { continue }
+            let c = max(-1.0, min(1.0, simd_dot(n1, n2) / (l1 * l2)))
+            worst = max(worst, acos(c) * 180 / .pi)
+        }
+        return max(1, min(12, Int((worst / 8).rounded(.up))))
     }
 
     /// Signed tetrahedron sum — positive when the normals face outward.
