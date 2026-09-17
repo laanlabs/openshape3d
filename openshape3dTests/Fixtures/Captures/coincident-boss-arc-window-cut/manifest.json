@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "op": "boolean",
+  "date": "2026-09-16T23:28:17Z",
+  "note": "Practice problem 18.19 (round 6, 2026-09-16): the lever's window pocket cut AFTER its Ø13 boss. a = the arm with the boss unioned (3680.571 mm³), b = the window tool, 5 deep from the front face, whose floor arc lies on the boss cylinder and whose R1 corners are tangent to it (135.047 mm³). The subtract gives the coincident R6.5 edge a pcurve 11.5 mm off on the boss face (and leaves that face UnorientableShape); ShapeFix then 'heals' it with a 12.87 mm tolerance, which passes BRepCheck with the right volume (3545.524) but makes every later boolean on the body a silent no-op. The boolean now refuses a result the heal could only pass by loosening its tolerance past 1% of its size. Captured with /v1/capture as a snapshot and rewritten as a boolean. When the pcurve itself is fixed, flip expect to success with volumeMM3 3545.524.",
+  "params": {
+    "op": 1
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 29,
+        "other": 14,
+        "planar": 13
+      },
+      "file": "a.brep",
+      "label": "a",
+      "maxTolerance": 5.331915294551891e-07,
+      "valid": true,
+      "volumeMM3": 3680.570940581419
+    },
+    {
+      "faceCounts": {
+        "cylindrical": 5,
+        "other": 0,
+        "planar": 5
+      },
+      "file": "b.brep",
+      "label": "b",
+      "maxTolerance": 1.000000002220446e-07,
+      "valid": true,
+      "volumeMM3": 135.04691974050039
+    }
+  ],
+  "expect": {
+    "outcome": "failure",
+    "errorContains": "loosening its tolerance"
+  }
+}
