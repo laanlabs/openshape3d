@@ -3415,8 +3415,18 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                 return nil;
             }
             // Inward: the original minus its shrunken copy. Outward: the
-            // grown copy minus the original.
-            BRepAlgoAPI_Cut cut(outward ? inner : input, outward ? input : inner);
+            // grown copy minus the original. Non-destructive, like
+            // booleanOfShape: a default cut writes pcurves onto the input's
+            // edges in place (24 on 18.23's filleted body, 2026-09-17), and
+            // the input is the stored body undo snapshots share.
+            TopTools_ListOfShape cutArgs, cutTools;
+            cutArgs.Append(outward ? inner : input);
+            cutTools.Append(outward ? input : inner);
+            BRepAlgoAPI_Cut cut;
+            cut.SetArguments(cutArgs);
+            cut.SetTools(cutTools);
+            cut.SetNonDestructive(Standard_True);
+            cut.Build();
             if (!cut.IsDone() || cut.HasErrors()) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
                               @"hollowing failed on this shape");

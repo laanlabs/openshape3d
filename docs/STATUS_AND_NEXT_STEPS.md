@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); see the newest mission log, the register above, and
+Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,46 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-17, do kernel ops change the bodies they are given?
+
+- **Why ask.** #68 found the boolean's same-domain face merge rewriting
+  edges shared with its operands, so a stored body went invalid. The heal
+  (`ShapeFix_Shape` in `OS3DHealAndValidate`) also runs on results that
+  share untouched faces with a stored input, after booleans, fillets,
+  shells, drafts and face removal.
+- **How.** Serialize each input before and after the op and compare. The
+  cases were real ones where the heal runs:
+  - 18.9A's refused arm-wall fillet;
+  - four of 18.23's refused shells and 13.9A's refused shell;
+  - a boolean with an invalid operand, healed up front;
+  - 18.19's window cut with the unmerged fallback off (the heal passes
+    it at 12.9 mm and the guard refuses it);
+  - a heal that SUCCEEDS on a result sharing 12 faces with its input:
+    the C0-split shell from #60 without its in-place SameRange step.
+  Also enclosed-hollow shells (inward and outward) and face removal.
+- **The heal is safe.** No input changed in any heal case, the
+  successful repair included; ShapeFix builds its fixes through a reshape
+  context. Face removal (`BRepAlgoAPI_Defeaturing`, documented as not
+  modifying its input) and the C0 split were clean too.
+- **The enclosed-hollow shell was not.** It cut its offset copy out of the
+  body with a default, destructive `BRepAlgoAPI_Cut`, which wrote 24
+  pcurves onto the stored body's edges (Curve2ds 65 → 89 in the
+  serialized body). Geometrically harmless, but it silently changes a
+  shape that undo snapshots share and grows the saved document. The cut
+  is now non-destructive, like `booleanOfShape:`; the enclosed hollow's
+  volume test is unchanged. The one change left is OCCT clearing the
+  body's Free flag when an outward hollow uses it as the cut tool, which
+  touches no geometry.
+- **Guard.** `OpsLeaveInputsUntouchedTests`: an enclosed hollow (on the
+  filleted fixture, and outward on a holed plate), an open shell over a
+  fillet, both boolean fixtures, a fillet chain and face removal. Each
+  input must serialize the same afterwards, TShape flag lines aside. The
+  enclosed-hollow test fails on main's bridge. Full unit suite 1688 / 0
+  failures. No practice recipe uses an enclosed hollow.
+- Not covered: the sweep's internal hole cut (its operands are built
+  inside the op) and the render mesh `TessellateShape` writes into every
+  adopted body by design (`OS3DIsValid` judges a mesh-free copy).
 
 ## Mission log — 2026-09-17, the boolean's face merge corrupted its operands
 
@@ -4001,7 +4041,10 @@ first differing frame is the one you want.
     result, as `booleanOfShape:` does. The public `unifiedShape:` still
     merges in place; its only caller is the `OS3D_DEBUG_SEED_STEP` seed, on
     a fresh fuse that nothing else holds. Any new caller on a stored body
-    needs a copy first.
+    needs a copy first. A plain `BRepAlgoAPI_Cut(a, b)` is destructive by
+    default and writes pcurves onto its operands; use the builder with
+    `SetNonDestructive(Standard_True)`. `OpsLeaveInputsUntouchedTests` is
+    the pattern for checking a new op.
 
 ## 4. Next missions (prioritized)
 
