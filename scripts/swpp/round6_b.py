@@ -102,10 +102,10 @@ def p18_19():
     rim = edges_where(arm, lambda e: abs(e["midpoint"][2]) < 0.05 or abs(e["midpoint"][2] - 7) < 0.05)
     fillet(arm, 0.5, rim)
     body = arm
-    # window pocket (cut before the boss goes on: cut after, OCCT gives the
-    # pocket's floor edge, which lies on the boss cylinder, a pcurve 11.5 mm
-    # off on the boss face, and the boolean refuses the heal that loosens it
-    # to a 12.9 mm tolerance; STATUS 2026-09-16)
+    extrude(Sketch(front(0)).circle((0, 0), 6.5), (0, 0), 9, union=[arm])
+    # window pocket, cut after the boss as drawn (its floor arc lies on the
+    # boss cylinder; until 2026-09-17 the boolean's face merge broke that
+    # cut, so the recipe cut the window first)
     xl = (-4.5 - n[1] * 10) / n[0]; xr = (2.5 - n[1] * 10) / n[0]
     TL, TR = (xl, 10), (xr, 10)
     far = lambda P: (P[0] + d[0] * 3, P[1] + d[1] * 3)                # a point further down the side
@@ -125,7 +125,6 @@ def p18_19():
     win.line(bl_line, tl_a)
     _arc_short(win, tl_c, 1, tl_a, tl_b)
     extrude(win, (1.5, 8.5), -5, cut=[body])
-    extrude(Sketch(front(0)).circle((0, 0), 6.5), (0, 0), 9, union=[arm])
     extrude(Sketch(front(10)).circle((0, 0), 3), (0, 0), -11, cut=[body])
     extrude(Sketch(front(10)).circle((14, 8), 2), (14, 8), -11, cut=[body])
     extrude(Sketch(front(10)).circle((9, 8), 1), (9, 8), -11, cut=[body])

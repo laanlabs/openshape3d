@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "op": "boolean",
+  "date": "2026-09-17T11:53:25Z",
+  "note": "Practice problem 18.19 cut in drawing order: a = the lever with its \u00d813 boss and the window pocket cut after it (3545.524 mm\u00b3), b = the \u00d86 bore tool through the boss (311.018 mm\u00b3). The cut builds valid (3291.055 mm\u00b3). Merging same-domain faces afterwards (ShapeUpgrade_UnifySameDomain, which merged no face) left the result invalid and rewrote edges it shares with a, so a itself became invalid; the heal passed the result with a 12.9 mm tolerance and every later cut on the part removed nothing (2026-09-17). The boolean now merges a copy and keeps the unmerged result when the merge breaks it.",
+  "params": {
+    "op": 1
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 34,
+        "other": 14,
+        "planar": 17
+      },
+      "file": "a.brep",
+      "label": "a",
+      "maxTolerance": 1.3297336566096248e-05,
+      "valid": true,
+      "volumeMM3": 3545.524020988816
+    },
+    {
+      "faceCounts": {
+        "cylindrical": 1,
+        "other": 0,
+        "planar": 2
+      },
+      "file": "b.brep",
+      "label": "b",
+      "maxTolerance": 1.0000000000000002e-07,
+      "valid": true,
+      "volumeMM3": 311.01767270538875
+    }
+  ],
+  "expect": {
+    "outcome": "success",
+    "volumeMM3": 3291.055,
+    "volumeToleranceMM3": 0.01
+  }
+}
