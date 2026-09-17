@@ -765,6 +765,74 @@ nonisolated enum OCCTKernel {
         return index > 0 ? Int(index) : nil
     }
 
+    /// Each kernel edge's point halfway along its curve by arc length, keyed
+    /// by the shared 1-based edge index. Degenerate edges, and any whose
+    /// length the kernel cannot compute, are absent.
+    static func edgeMidpoints(_ handle: BRepHandle) -> [Int: SIMD3<Double>] {
+        guard let data = OCCTBridge.edgeMidpoints(of: handle.shape) else { return [:] }
+        let values: [Double] = data.withUnsafeBytes { Array($0.bindMemory(to: Double.self)) }
+        var out: [Int: SIMD3<Double>] = [:]
+        for i in 0..<(values.count / 3) {
+            let p = SIMD3(values[3 * i], values[3 * i + 1], values[3 * i + 2])
+            guard p.x.isFinite, p.y.isFinite, p.z.isFinite else { continue }
+            out[i + 1] = p
+        }
+        return out
+    }
+
+    /// What `/v1/edges` reports for one kernel edge, besides its index and
+    /// faces. Body-local, like the brep and the render mesh.
+    nonisolated struct EdgeGeometry: Equatable, Sendable {
+        /// Halfway along the kernel curve by arc length.
+        var midpoint: SIMD3<Double>
+        /// Sum of the mesh segments that map to the edge (chords, for a
+        /// curve).
+        var length: Double
+        var isConvex: Bool
+    }
+
+    /// Per kernel edge, the geometry `/v1/edges` reports. The MESH side still
+    /// decides which edges get any: each selectable mesh edge maps to its
+    /// nearest kernel edge, so an edge with no crease (a tangent join) has
+    /// no entry. Nothing depends on the order of `meshEdges`, which comes
+    /// out of `EdgeTopology` in per-process dictionary order: the midpoint
+    /// is the kernel's, the lengths are summed in sorted order, and the
+    /// convexity comes from the segment nearest that midpoint. Keeping the
+    /// FIRST segment's midpoint made a curved edge's midpoint change from one
+    /// launch to the next (2026-09-16).
+    static func edgeGeometry(_ handle: BRepHandle, meshEdges: [SelectableEdge],
+                             tolerance: Double) -> [Int: EdgeGeometry] {
+        func d3(_ v: SIMD3<Float>) -> SIMD3<Double> {
+            SIMD3(Double(v.x), Double(v.y), Double(v.z))
+        }
+        var segments: [Int: [SelectableEdge]] = [:]
+        for edge in meshEdges {
+            guard let index = nearestEdgeIndex(handle, to: d3(edge.midpoint),
+                                               tolerance: tolerance) else { continue }
+            segments[index, default: []].append(edge)
+        }
+        let kernelMidpoints = edgeMidpoints(handle)
+        var out: [Int: EdgeGeometry] = [:]
+        for (index, group) in segments {
+            let reference = kernelMidpoints[index]
+            // Nearest the kernel midpoint, ties (and a missing midpoint)
+            // broken by coordinates, so the choice is a function of the set.
+            let representative = group.min { a, b in
+                let ma = d3(a.midpoint), mb = d3(b.midpoint)
+                if let r = reference {
+                    let da = simd_distance(ma, r), db = simd_distance(mb, r)
+                    if da != db { return da < db }
+                }
+                return (ma.x, ma.y, ma.z) < (mb.x, mb.y, mb.z)
+            }!
+            out[index] = EdgeGeometry(
+                midpoint: reference ?? d3(representative.midpoint),
+                length: group.map { Double($0.length) }.sorted().reduce(0, +),
+                isConvex: representative.isConvex)
+        }
+        return out
+    }
+
     /// Blend BY IDENTITY: edges chosen by index, not by proximity to a
     /// point — same qualification and validation as the point path (they
     /// share one implementation).
