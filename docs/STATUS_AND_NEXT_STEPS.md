@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,50 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, fillets OCCT built were refused per edge; 13.3 passes, 18.5A/B get their full R5 sets
+
+- **The bridge refused fillets OCCT had built.** After a fillet builds,
+  `OS3DFinishBlend` requires each requested edge to report generated faces
+  (`Generated()`), in case an edge was quietly dropped. ChFi3d credits a
+  tangent chain's blend faces to some of its edges only. On 18.5A's port
+  junctions, 6 of 22 edges generate nothing. Offline, the build had no
+  faulty contour, the result was valid (425 574.150 mm³), and every one
+  of the 22 edges was gone from the result. The app refused it as "6 of
+  22 edges can't take this size", and the port/body chain alone as "2 of
+  5". The drag-clamp probe (`OS3DFilletBuilds`) ran the same check, so it
+  found no radius at all for such a chain.
+- **Fix.** `OS3DEdgeBlended`: an edge is blended if it generated faces,
+  or if it is gone from the result with no modified image. A dropped edge
+  is still in the result, and an edge a neighbouring blend only trimmed
+  has a modified image, so both are still refused. The finish path (fillet
+  and chamfer) and the probe share it.
+- **The other half was the drawing's tangency.** 18.5A/B's diamond ports
+  have their top ridge (R10 about 58 + 19) touching the dome crown at 87.
+  Drawn exactly, ChFi3d itself fails every junction chain that reaches the
+  crown (contour status Error). With the port bosses 0.001 mm lower, as 18.3's tube is, every
+  junction builds as one fillet. The blend converges as the gap closes
+  (18.5A +2 289.322 / +2 289.059 / +2 289.018 mm³ at 0.1 / 0.01 / 0.001 mm;
+  18.5B +703.308 / +702.771 / +702.671). One fillet over all junctions
+  (22 edges for A, 25 for B) is also what SOLIDWORKS' single feature does.
+- **Results.** 18.5A 225 702.170 (+0.31 %, was +0.11 % with most blends
+  missing, and the round-6 note estimated +0.35 to +0.6 % with them).
+  18.5B 218 743.990 (−0.001 %, was −0.23 %), so the reading was right
+  and only the blends were missing. **13.3 now passes** (+0.40 %, was a
+  +0.71 % fail): its recipe skips a refused fillet, and the cup's bottom
+  R2 was one of these. Built, it removes 133.673 mm³ against a hand
+  133.78. Practice problems 183 / 215 pass, 118 within 0.01 %. The other
+  recipes that catch a fillet refusal (6.7, 11.4, 13.1) and 18.9A rerun
+  identical. 18.9A's sphere/diamond fillet is a different case: first it
+  builds an invalid solid, last OCCT fails the contours, unchanged by this.
+- **Checked.** Fixture `port-junction-fillet-chain-credit` (all 22 edges,
+  R5, expect 425 574.150) and `FilletChainCreditTests` (the port/body
+  chain, all junctions, the radius probe on the port/port chain, and R20
+  still refused as a partial result). All but the R20 test fail on main's
+  bridge. Full unit suite 1671 / 0 failures.
+- **Found, not fixed:** the radius probe starts from a 0.05 mm build and
+  returns 0 when that fails. On 18.5A's port/body chain R0.05 fails validity
+  while R0.1 to R5 build, so the drag clamp still offers nothing there.
 
 ## Mission log — 2026-09-16, shells over fillets: split at C0 knots; 18.23's refusals traced
 
@@ -615,7 +659,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   down, the same fillet builds and would bring it within about ±0.2 %. That
   tangent-contact fillet refusal is the most useful kernel case to reduce
   next. (Done: 18.3 passes with the tube 0.001 mm below tangent; see
-  "practice problems on merged main; 18.3 passes" above.)
+  "practice problems on merged main; 18.3 passes" above. 18.5A and 18.5B
+  have their full R5 sets too, +0.31 % and −0.001 %; see "fillets OCCT
+  built were refused per edge".)
 - **Four bugs found by the agents, each reproduced again here in a fresh
   document on the iPad simulator:**
   1. **Region extrude with crossing circles is wrong and invalid, but reported
@@ -3721,6 +3767,14 @@ first differing frame is the one you want.
     filleted body (a thicken, an offset face) needs the same split. Do not repair
     the split body's SameRange flags with `ShapeFix`: it rebuilds every
     face and the ancestry goes with them.
+
+60. **`Generated()` is not a per-edge success signal for a fillet**
+    (2026-09-16). ChFi3d credits a tangent chain's blend faces to some of
+    its edges only; a blended edge can generate nothing. Ask
+    `OS3DEdgeBlended` instead (generated faces, or gone from the result with
+    no modified image). Anything new that judges a blend per edge (history,
+    element naming, a partial-result report) must not count on each edge
+    naming its own faces.
 
 ## 4. Next missions (prioritized)
 

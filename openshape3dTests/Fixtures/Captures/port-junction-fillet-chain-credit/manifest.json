@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "op": "fillet",
+  "date": "2026-09-17T03:04:46Z",
+  "note": "Practice problem 18.5A before its fillets, with the port axis 0.001 mm below the drawing's 58 so the ports' top ridges clear the dome crown (on the crown ChFi3d itself fails). R5 on every port, pipe and body junction edge: the ports' junctions with each other (p1/p2, 4 edges), with the pipe (4), the pipe's with the body (2) and the ports' with the body and dome (5 and 7). OCCT builds it valid with no faulty contour, but credits each tangent chain's blend faces to some of its edges only: 6 of the 22 generate nothing, yet all 22 are gone from the result. The bridge counted those as failures and refused the fillet as \"6 of 22 edges can't take this size\" (2026-09-16).",
+  "params": {
+    "edgeIndices": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      27,
+      28,
+      29,
+      30,
+      38,
+      52,
+      63,
+      68
+    ],
+    "radius": 5
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 12,
+        "other": 1,
+        "planar": 14
+      },
+      "file": "shape.brep",
+      "label": "shape",
+      "maxTolerance": 0.00010537655925198476,
+      "valid": true,
+      "volumeMM3": 423285.13160451065
+    }
+  ],
+  "expect": {
+    "outcome": "success",
+    "volumeMM3": 425574.15,
+    "volumeToleranceMM3": 0.01
+  }
+}
