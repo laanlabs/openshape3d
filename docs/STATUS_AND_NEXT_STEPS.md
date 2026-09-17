@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,36 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, a bridge feature is one undo step
+
+- **Round 6's bug 4 is fixed.** The bridge recorded a feature with
+  `session.record` and then `rebuildFrom`: two undo steps when the feature
+  built, but ONE when it failed, because a rebuild that changes no body
+  commits nothing. Every reply said `undoSteps: 2`, so a caller undoing twice
+  after a failure also reverted the feature before it. `AgentBridge.record`
+  now commits through `DocumentSession.recordAndRebuild`, the path the
+  interactive tools use: append and rebuild in one composite, one undo step
+  whether the feature builds or not, `undoSteps: 1`, and `undoTitle` is the
+  feature's name ("Fillet", not "Add Feature").
+- **Scripts that assumed two steps.** `level13.undo()` now undoes once; 13.1
+  and 13.3 call it after a refused fillet, with `undo(2)` until now. 13.3's
+  cup fillet is refused on every run ("2 of 8 edges"), and its volume is
+  unchanged with one undo (see the rerun below), so that partial failure had
+  recorded two steps; a clean refusal there would have taken the shell cut
+  with it. `rebuild_cover.py` undoes its refused tangent union once.
+  AGENT_CONTROL.md says one step and why it used to be two.
+- **Verification.** `FeatureCommitUndoTests`: a feature that builds and one
+  that fails are each one step; one undo removes exactly the failed node and
+  the next removes the first feature with its body. In the app (iPad
+  simulator), round 6's repro: union two cubes, R15 fillet fails,
+  `undoSteps: 1`, one undo is back to the union (3 features, 2000 mm³); an R1
+  fillet (−2.146 mm³, the exact (1 − π/4)·10) and one undo is back to 2000.
+  Full unit suite: 1659 tests, 1 skipped, 0 failures. All 215
+  practice-problem recipes rerun: the same 181 pass as `main`'s ledger,
+  every health flag the same, 214 volumes identical to the thousandth, and
+  4.41 off by 0.001 mm³ again (it alternates between 110 002.137 and .138
+  from run to run).
 
 ## Mission log — 2026-09-16, render mesh no longer fails validity; heal-loosened booleans refused
 
@@ -471,6 +501,7 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
      undo already removes the feature (undo title "Add Feature") and a second
      undo reverts the union. `AgentBridge.record` hard-codes 2. The note merged
      in #48 ("undo `undoSteps` times") is corrected in AGENT_CONTROL.md.
+     **Fixed 2026-09-16** ("a bridge feature is one undo step" above).
 - **Getting the sheets.** The 2026-09-05 PDFs had lived in a deleted
   scratchpad. The SOLIDWORKS CDN (Akamai) now refuses scripted downloads:
   curl connects and sends the request, then the server stalls and later
@@ -506,7 +537,8 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   collinear-merge bug fixed in #51 ("edge convexity and collinear edge
   merging" above); after #51 only the two tangent joins lack data. 4.7's lug-junction R2s, noted as
   impossible over the bridge, were not re-tested.
-- **Gotcha: undo a bridge feature twice.** A feature exec lands as two undo
+- **Gotcha: undo a bridge feature twice** (superseded 2026-09-16: a bridge
+  feature is now one undo step; see that log above). A feature exec lands as two undo
   steps (`undoSteps: 2`, docs/AGENT_CONTROL.md). ONE undo reverts the
   rebuild but leaves the feature in History, so the body shows the old
   volume while the graph still holds the feature. The next feature then

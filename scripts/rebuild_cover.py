@@ -214,8 +214,7 @@ res = nub(60.0, "Extrusion 03 (nub, recipe-exact tangent)", strict=False)
 if res.get("failed") or not res.get("ok"):
     print("     tangent union refused (typed, bounded — capture bundle "
           "written); undoing the recorded node and retrying with overlap")
-    call("/v1/command", {"id": "edit.undo"})
-    call("/v1/command", {"id": "edit.undo"})
+    call("/v1/command", {"id": "edit.undo"})   # a bridge feature is one undo step
     nub(59.5, "Extrusion 03 (nub, 0.5 overlap)", strict=True)
 health()
 
