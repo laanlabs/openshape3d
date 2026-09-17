@@ -17,7 +17,7 @@ def problem(pid, volume, unit="mm", features=("Extrude Boss", "Mirror Pattern"))
 def p7_29():
     # Two 10-thick stadium plates (R25 ends 75 apart, Ø30 holes at the
     # centres) 55 apart outside-to-outside, joined by a 10 × 50 web; R2 in
-    # the web corners, R1 round the plates' outline edges.
+    # the web corners, R1 on every other edge except the hole rims.
     from kit import subtract
     top_plate = extrude(Sketch(top(17.5)).slot((-37.5, 0), (37.5, 0), 25)
                         .circle((-37.5, 0), 15).circle((37.5, 0), 15), (0, 20), 10)
@@ -29,10 +29,20 @@ def p7_29():
     # the mirrored copy carries the web too; overlapping union is fine
     fillet(top_plate, 2.0, edges_where(top_plate, lambda e: abs(abs(e["midpoint"][0]) - 5) < 0.5
                                        and abs(abs(e["midpoint"][1]) - 17.5) < 0.5 and e["lengthMM"] > 40))
-    fillet(top_plate, 1.0, edges_where(top_plate, lambda e: abs(abs(e["midpoint"][1]) - 27.5) < 0.5
-                                       and math.hypot(abs(e["midpoint"][0]) - 37.5 if abs(e["midpoint"][0]) > 37.5 else 0,
-                                                      e["midpoint"][2]) > 24.5 - 1e-6 or
-                                       (abs(abs(e["midpoint"][1]) - 17.5) < 0.5 and abs(abs(e["midpoint"][2]) - 25) < 0.5 and e["lengthMM"] > 70)))
+    # R1 on every edge but the hole rims: both faces' outlines of each plate
+    # and the web's four vertical corners (24 edges). After the R2s the inner
+    # ones join smoothly into one loop per side, and OCCT rounds a picked
+    # edge's whole loop (its short R2 arcs come along unpicked). The old pick
+    # took the outer outlines plus any inner arc whose reported midpoint
+    # landed near z = ±25, which dragged in 0, 1 or 2 loops (103 536 /
+    # 103 460 / 103 384) until #54 made /v1/edges midpoints stable.
+    def r1(e):
+        x, y, z = e["midpoint"]
+        plate_face = abs(abs(y) - 17.5) < 0.5 or abs(abs(y) - 27.5) < 0.5
+        from_slot_axis = math.hypot(abs(x) - 37.5 if abs(x) > 37.5 else 0, z)   # 15 at a hole rim
+        web_corner = abs(abs(x) - 5) < 0.5 and abs(abs(z) - 25) < 0.5 and abs(y) < 17.5
+        return e["convex"] and ((plate_face and from_slot_axis > 24.5) or web_corner)
+    fillet(top_plate, 1.0, edges_where(top_plate, r1))
     return top_plate
 
 

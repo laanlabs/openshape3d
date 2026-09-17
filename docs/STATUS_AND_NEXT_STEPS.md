@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -36,7 +36,48 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   is refused ("1 of 6 edges can't take this size"). 18.3 went from 27 334.406
   to 27 787.186, +452.78, twice the per-side figure. Round 6's other
   refusals are unchanged (13.9A and 18.3 shells, 18.5A port blends, 18.23).
-- **Tally: 182 / 215 pass**, 116 of them within 0.01 %.
+- **Tally: 182 / 215 pass**, 117 of them within 0.01 % with #57's 7.29.
+
+## Mission log — 2026-09-16, 7.29 hits the sheet: R1 on every edge but the hole rims
+
+- **7.29 now builds 103 384.272 mm³ against the sheet's 103 384 (0.00 %)**,
+  on three runs of `run.py` (ledger rows appended) and three launches of a
+  probe script, all on `main` (916e2a7) on `os3d-test`. Since #54 it had
+  built 103 536.058 (+0.147 %) every time.
+- **Why the old launches differed.** On the pre-#54 app (8787b0f), seven
+  launches of a script that printed the R1 fillet's picks found them.
+  Every launch took the eight outer-face outline edges. Some launches also
+  took inner end arcs (post-R2 edges 19, 34, 36, 52). The predicate's
+  second clause was meant for inner straight edges longer than 70 mm, and
+  there are none: the web splits each into two 32.5 mm pieces. An inner
+  arc (78.5 mm) passed that clause whenever its reported midpoint happened
+  to land near z = ±25. After the R2 fillets, each inner arc belongs to a
+  loop of smoothly joined edges: top inner arc, inner straights, R2 arc,
+  the web's vertical corner, then the bottom plate's side, and back. OCCT
+  rounds a picked edge's whole smooth chain, so each extra arc took its
+  loop (75.893 mm³ each):
+
+  | Picks | Loops rounded | Volume (mm³) |
+  |---|---|---|
+  | 8 (outer outlines) | none | 103 536.058 |
+  | 9 or 10 (arcs on one side) | one | 103 460.165 |
+  | 10 (arcs on both sides) | both | 103 384.272 |
+
+  So the sheet's value is R1 on every edge except the hole rims: both faces'
+  outlines of both plates and the web's four vertical corners. A hand
+  estimate agrees: base 103 495.6, R2s +171.7, R1 on about 1328 mm of edge
+  −285.1, total about 103 382.
+- **Fix (`level7.p7_29`):** R1 picks every convex edge on a plate face
+  (|y| = 17.5 or 27.5) at least 24.5 from the slot's axis (a hole rim is
+  15), plus the web's vertical corners. That is 24 edges, the same set on
+  every launch, and the body checks healthy. It relies on #54's stable
+  midpoints. It names each loop's arcs, straights and web corners; the short
+  R2 arcs between them are not picked, and they come in through OCCT
+  rounding the whole chain.
+- **Ledger and report:** three 7.29 rows appended to `results.jsonl`;
+  `notes.json` and 7.29's row in `docs/SWPP_PRACTICE_PROBLEMS.md` updated;
+  passes within 0.01 % go from 115 to 116. The overall count is unchanged at
+  181 / 215.
 
 ## Mission log — 2026-09-16, a bridge feature is one undo step
 
@@ -188,7 +229,8 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   pass). It is deterministic now, but on the +0.147 % selection rather than
   the 0.0 % one some launches used to hit (103 384.272, sheet 103 384).
   Getting that one every time means revisiting the recipe's R1 predicate,
-  which was not done here.
+  which was not done here. **Done later on 2026-09-16** ("7.29 hits the
+  sheet" above): 103 384.272 on every run.
 
 ## Mission log — 2026-09-16, crossing outlines split into real regions
 

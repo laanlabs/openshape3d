@@ -12,7 +12,7 @@ page carries the same table.*
 ## Reading
 
 - 215 of the 365 sheets have a scored build; 182 pass within 0.5 % of
-  the printed volume with a clean kernel check, 116 of them within
+  the printed volume with a clean kernel check, 117 of them within
   0.01 %. Every level with single-part sheets has passes, Level 1 is
   complete (20/20 attempted, 18 pass), Level 4 stands at 46 of 53
   attempted, Level 15's configuration sheets score every configuration
@@ -323,7 +323,7 @@ page carries the same table.*
 | 7.26 | Revolve, Extrude Cut, Mirror Pattern | 882 mm³ | 882.175 mm³ | +0.02 % | pass |  |
 | 7.27 | Extrude Boss, Mirror Pattern | 13,642 mm³ | 13,886.027 mm³ | +1.79 % | fail | status: fail reading: 4-thick bracket: upright 65 wide, 53° sides from the base corners at y=4 to an R11 lobe (Ø10, centre 28.84 up), floor plate 65 x 21 (to z=-25), two 22-wide feet to z=-29 carrying 4-thick lips 13 tall hand: 13886 got: 13886.027 FAIL +1.8%. Hole centre measures 28.3 up in pixels, consistent with sides starting at the plate top (y=4); sides from y=0 give 12 846 (-5.8%). Top view: middle front edge at 25 from the back, feet 4 further (lip 4 thick) — confirmed by the right view's 25.5 mm foot run. No reading hits the number. |
 | 7.28 | Extrude Boss, Extrude Cut, Fillets and Chamfers, Mirror Pattern | 148,769 mm³ | 148,769.204 mm³ | +0.00 % | pass |  |
-| 7.29 | Extrude Boss, Sketch: Slot, Extrude Cut, Mirror Pattern | 103,384 mm³ | 103,536.058 mm³ | +0.15 % | pass | Mirror + union of the plate-and-web half; R2 concave web fillets and R1 outline rounds picked by edge position; +0.07 %. |
+| 7.29 | Extrude Boss, Sketch: Slot, Extrude Cut, Mirror Pattern | 103,384 mm³ | 103,384.272 mm³ | +0.00 % | pass | Mirror + union of the plate-and-web half; R2 concave web fillets, then R1 on every other edge but the hole rims (both faces of each plate and the web corners, 24 edges); 0.00 %. The old R1 pick took the outer outlines only plus a random share of the inner loops (103 536 / 103 460 / 103 384) until /v1/edges midpoints were made stable (#54). |
 | 7.30 | Extrude Boss, Sketch: Offset, Extrude Cut, Fillets and Chamfers, Circular Pattern, Mirror Pattern | 1,908 mm³ | 1,887.197 mm³ | -1.09 % | fail |  |
 | 7.31 | Extrude Boss, Sketch: Slot, Sketch: Offset, Extrude Cut, Mirror Pattern | 179,795 mm³ | 179,794.69 mm³ | -0.00 % | pass | One profile extrude (walls, base, T-caps) and an R8 slot cut through the base. |
 | 7.32 | Extrude Boss, Sketch: Slot, Cut with Surface, Reference Geometry: Planes, Mirror Pattern | 101,245 mm³ | 100,105.245 mm³ | -1.13 % | fail |  |
