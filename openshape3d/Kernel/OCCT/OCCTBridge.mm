@@ -286,6 +286,44 @@ static bool OS3DFiniteBounds(const TopoDS_Shape &shape) {
     return true;
 }
 
+static bool OS3DHasTriangulation(const TopoDS_Shape &shape) {
+    for (TopExp_Explorer ex(shape, TopAbs_FACE); ex.More(); ex.Next()) {
+        TopLoc_Location location;
+        if (!BRep_Tool::Triangulation(TopoDS::Face(ex.Current()), location).IsNull()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// The same shape without its triangulation: new TShapes sharing the original
+// curves and surfaces (so it is cheap), with no face triangulations and no
+// edge polygons on them. Null when the copy fails.
+static TopoDS_Shape OS3DWithoutMesh(const TopoDS_Shape &shape) {
+    BRepBuilderAPI_Copy copy(shape, /*copyGeom*/ Standard_False, /*copyMesh*/ Standard_False);
+    return copy.IsDone() ? copy.Shape() : TopoDS_Shape();
+}
+
+// Whether a shape's GEOMETRY is valid. BRepCheck_Analyzer also checks the
+// triangulation a shape carries (each edge's polygon on a face triangulation
+// must lie on the edge's 3D curve within its tolerance), and here that
+// triangulation is not model data: it is the render cache TessellateShape's
+// BRepMesh_IncrementalMesh writes into every adopted body. The mesher can
+// write one the analyzer rejects. A pocket whose R1 fillets meet a boss
+// tangentially came out exact (188.986 mm³ removed, the hand figure) and
+// valid, until its render mesh made Edge21 `invalidPolygonOnTriangulation`;
+// then /v1/check called the body invalid and every later boolean refused it
+// as "the target solid is invalid" (practice problems round 6, bug 2,
+// 2026-09-16). So when the shape as stored fails and carries a mesh, judge a
+// copy without it. Documents are written without triangulation, so a
+// reloaded body never had this problem.
+static bool OS3DIsValid(const TopoDS_Shape &shape) {
+    if (BRepCheck_Analyzer(shape).IsValid()) return true;
+    if (!OS3DHasTriangulation(shape)) return false;
+    const TopoDS_Shape bare = OS3DWithoutMesh(shape);
+    return !bare.IsNull() && BRepCheck_Analyzer(bare).IsValid();
+}
+
 // Post-op contract (docs/FREECAD_PLAYBOOK.md I2): a builder's IsDone() is not
 // a statement about the RESULT, so check it with BRepCheck_Analyzer; on
 // failure make exactly one healing attempt (ShapeFix_Shape) and re-check.
@@ -294,12 +332,17 @@ static bool OS3DFiniteBounds(const TopoDS_Shape &shape) {
 // body's source of truth and is persisted.
 static TopoDS_Shape OS3DHealAndValidate(const TopoDS_Shape &result) {
     if (result.IsNull()) return result;
-    if (BRepCheck_Analyzer(result).IsValid()) return result;
+    if (OS3DIsValid(result)) return result;
     Handle(ShapeFix_Shape) fixer = new ShapeFix_Shape(result);
     fixer->Perform();
     const TopoDS_Shape healed = fixer->Shape();
-    if (!healed.IsNull() && BRepCheck_Analyzer(healed).IsValid()) return healed;
+    if (!healed.IsNull() && OS3DIsValid(healed)) return healed;
     return TopoDS_Shape();
+}
+
+static double OS3DMaxTolerance(const TopoDS_Shape &shape) {
+    ShapeAnalysis_ShapeTolerance analysis;
+    return analysis.Tolerance(shape, 1);   // mode > 0: the largest any sub-shape carries
 }
 
 // Unwrap the single solid from an op result. OCCT booleans hand back a
@@ -1813,7 +1856,7 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
                           @"an operand has empty or non-finite geometry");
             return nil;
         }
-        if (!BRepCheck_Analyzer(sa).IsValid()) {
+        if (!OS3DIsValid(sa)) {
             sa = OS3DHealAndValidate(sa);
             if (sa.IsNull()) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
@@ -1821,7 +1864,7 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
                 return nil;
             }
         }
-        if (!BRepCheck_Analyzer(sb).IsValid()) {
+        if (!OS3DIsValid(sb)) {
             sb = OS3DHealAndValidate(sb);
             if (sb.IsNull()) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
@@ -1905,11 +1948,40 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
             ? OS3DUnifiedWithHistory(solidCount == 1 ? single : result,
                                      unifyHistory)
             : OS3DUnified(solidCount == 1 ? single : result);
+        // Before the heal, which can change sub-shape tolerances in place.
+        const double preHealTolerance = OS3DMaxTolerance(unified);
         TopoDS_Shape normalized = OS3DHealAndValidate(unified);
         if (normalized.IsNull()) {
             OS3DSetStatus(status, OCCTOpCodeInvalidResult,
                           @"boolean result failed validity checking");
             return nil;
+        }
+        // A heal that can only pass BRepCheck by loosening the tolerance to
+        // part size is not a repair: every later boolean reads the loosened
+        // zone as touching and silently does nothing. Practice problem 18.19
+        // (2026-09-16): a window pocket whose floor arc lies on a Ø13 boss,
+        // cut after the boss. OCCT gave the coincident R6.5 edge a pcurve
+        // 11.5 mm off on the boss face (an invalid result), ShapeFix passed it
+        // with a 12.87 mm tolerance and the right volume, and the next four
+        // cuts removed nothing, reported ok. Refuse here, at the op that made
+        // it. Only a HEALED result: OCCT's boolean can return a valid result
+        // with a large tolerance of its own, and later booleans on that are
+        // fine (practice problem 15.6's bent pin, 2.44 mm, where cross-holes
+        // near and far from the bend remove exactly the reference volume).
+        if (!normalized.IsSame(unified)) {
+            Bnd_Box resultBounds;
+            BRepBndLib::Add(normalized, resultBounds);
+            const double before = std::max({preHealTolerance, OS3DMaxTolerance(sa), OS3DMaxTolerance(sb)});
+            const double limit = std::max(1e-2 * sqrt(resultBounds.SquareExtent()), 10.0 * before);
+            const double healedTolerance = OS3DMaxTolerance(normalized);
+            if (healedTolerance > limit) {
+                OS3DSetStatus(status, OCCTOpCodeInvalidResult,
+                              [NSString stringWithFormat:
+                               @"the result could only be repaired by loosening its tolerance to "
+                               @"%.3g mm, too loose to build on (faces meeting tangentially or "
+                               @"coinciding)", healedTolerance]);
+                return nil;
+            }
         }
         if (history != nil) {
             // Rows are validated against the shape actually returned, so a
@@ -2782,7 +2854,7 @@ static bool OS3DFilletBuilds(const TopoDS_Shape &shape,
         int solidCount = 0;
         const TopoDS_Shape single = OS3DExtractSingleSolid(mk.Shape(), solidCount);
         if (solidCount != 1) return false;
-        return BRepCheck_Analyzer(single).IsValid();
+        return OS3DIsValid(single);
     } catch (...) {
         return false;
     }
@@ -3381,7 +3453,16 @@ static const NSUInteger kOS3DMaxFindings = 200;
         report[@"error"] = @"null shape";
         return report;
     }
-    const TopoDS_Shape &root = shape->_shape;
+    // The render mesh stored on the shape is not model data; report on the
+    // geometry (see OS3DIsValid). The copy has the same sub-shape order, so
+    // "Edge21" names the same edge either way.
+    TopoDS_Shape bare;
+    try {
+        if (OS3DHasTriangulation(shape->_shape)) bare = OS3DWithoutMesh(shape->_shape);
+    } catch (...) {
+        bare.Nullify();
+    }
+    const TopoDS_Shape &root = bare.IsNull() ? shape->_shape : bare;
     try {
         // Cheap context first — these frame every finding (a 0-volume "solid"
         // or a 1e-2 max tolerance is often the whole diagnosis by itself).

@@ -104,12 +104,21 @@ nonisolated enum KernelCapture {
             try fileManager.createDirectory(at: bundle,
                                             withIntermediateDirectories: true)
             var inputRows: [[String: Any]] = []
+            var usedFiles = Set<String>()
             for (label, handle) in inputs {
                 guard let blob = OCCTKernel.serialize(handle) else {
                     inputRows.append(["label": label, "unserializable": true])
                     continue
                 }
-                let file = "\(label).brep"
+                // Labels are body names in a snapshot, and two bodies can
+                // share one ("Extrude"): the second file used to overwrite
+                // the first while the manifest listed both.
+                var file = "\(label).brep"
+                var copy = 2
+                while !usedFiles.insert(file).inserted {
+                    file = "\(label)-\(copy).brep"
+                    copy += 1
+                }
                 try blob.write(to: bundle.appendingPathComponent(file))
                 let faceCounts = OCCTKernel.faceTypeCounts(handle)
                 // Enough per-input context to read the manifest without
