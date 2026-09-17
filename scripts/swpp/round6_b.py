@@ -215,17 +215,22 @@ def p18_23():
                 if pipe_face[0] in (e.get("faces") or []) and end_face[0] not in (e.get("faces") or [])]
     assert junction, "no pipe junction edges"
     fillet(body, 3, junction)
-    # the cup and the S-curve step go on after the pipe fillet (OCCT cannot
-    # roll an R3 ball through the 19.5 deg wedge between the pipe top and
-    # the S curve's inflection)
+    # the cup and the S-curve step go on after the pipe fillet: OCCT cannot
+    # roll the R3 ball over the S step, whose contact has to jump from the
+    # neck to the convex R3 across the concave R3 (refused at R2.9 and R3.1,
+    # and with the pipe 1 mm lower; R1 builds)
     cup = Sketch(front(0))
     cup.line((0, h2), (12.5, h2))
     _arc_short(cup, (15.5, h2), 3, (12.5, h2), (14.5, 35))
     _arc_short(cup, (13.5, h1), 3, (14.5, 35), (16.5, h1))
     cup.line((16.5, h1), (16.5, 58)).line((16.5, 58), (0, 58)).line((0, 58), (0, h2))
     revolve(cup, (8, 45), (0, 0), (0, 1), union=[body])
-    # Shell 3 as an explicit cavity (feature.shell refuses this body: "failed
-    # validity checking", and "C0Geometry" once the pipe fillet is on). The
+    # Shell 3 as an explicit cavity. feature.shell refuses this body ("OCCT
+    # offset: UnknownError"): the arc join round the pipe junction fails
+    # where it meets the S step, whose convex R3 offsets to zero radius at
+    # t = 3 (t = 2.9 builds, and so does the body without the pipe). Before
+    # 2026-09-16 the pipe fillet's C0 B-spline face stopped it sooner
+    # ("C0Geometry"). The
     # inward offset of a convex R3 fillet is a sharp corner, of a concave R3
     # fillet an R6 arc about the same centre.
     before = {b["id"] for b in bodies()}

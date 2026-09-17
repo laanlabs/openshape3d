@@ -43,6 +43,9 @@
 #include <STEPControl_Reader.hxx>
 #include <IFSelect_ReturnStatus.hxx>
 #include <BRepOffsetAPI_MakeThickSolid.hxx>
+#include <ShapeUpgrade_ShapeDivideContinuity.hxx>
+#include <ShapeBuild_ReShape.hxx>
+#include <BRepTools_History.hxx>
 #include <BRepOffsetAPI_DraftAngle.hxx>
 #include <BRepOffsetAPI_MakeOffsetShape.hxx>
 #include <TopTools_IndexedDataMapOfShapeListOfShape.hxx>
@@ -3118,6 +3121,105 @@ static double OS3DVolume(const TopoDS_Shape &shape) {
     }
 }
 
+// A fillet's approximated B-spline faces carry C0 knots, and C0 edge curves,
+// where the rolling ball crosses from one support face to the next: tangent
+// in fact, C0 by knot multiplicity. BRepOffset refuses any C0 geometry before
+// it tries a join (BRepOffset_C0Geometry), so a body could not be shelled once
+// a fillet ran over a curved junction (18.23's pipe on its dome, 2026-09-16).
+// Splitting at those knots leaves every piece C1 without moving a point.
+// Null when nothing needed splitting or the split failed.
+static TopoDS_Shape OS3DSplitAtC0(const TopoDS_Shape &shape,
+                                  Handle(BRepTools_History) &history) {
+    try {
+        ShapeUpgrade_ShapeDivideContinuity divide(shape);
+        divide.SetBoundaryCriterion(GeomAbs_C1);
+        divide.SetPCurveCriterion(GeomAbs_C1);
+        divide.SetSurfaceCriterion(GeomAbs_C1);
+        divide.Perform();
+        if (!divide.Status(ShapeExtend_DONE)) return TopoDS_Shape();
+        history = divide.GetContext()->History();
+        return divide.Result();
+    } catch (...) {
+        return TopoDS_Shape();
+    }
+}
+
+// The offset of a split body comes back with edges whose SameRange flag is
+// wrong (invalidSameRangeFlag, 18.23's pipe shell). ShapeFix repairs that
+// too, but it rebuilds every face and the ancestry with them; setting the
+// flags in place keeps both. Only on edges the offset made: the rest are
+// shared with the stored body.
+static void OS3DSetSameRangeOnNewEdges(const TopoDS_Shape &built, const TopoDS_Shape &input) {
+    TopTools_IndexedMapOfShape inputEdges;
+    TopExp::MapShapes(input, TopAbs_EDGE, inputEdges);
+    TopTools_IndexedMapOfShape builtEdges;
+    TopExp::MapShapes(built, TopAbs_EDGE, builtEdges);
+    for (Standard_Integer i = 1; i <= builtEdges.Extent(); ++i) {
+        if (inputEdges.Contains(builtEdges(i))) continue;
+        try { BRepLib::SameRange(TopoDS::Edge(builtEdges(i))); } catch (...) {}
+    }
+}
+
+// The pieces a face or edge became through `history`: itself when untouched,
+// nothing when removed.
+static std::vector<TopoDS_Shape> OS3DImagesThrough(const Handle(BRepTools_History) &history,
+                                                   const TopoDS_Shape &shape) {
+    std::vector<TopoDS_Shape> out;
+    if (history.IsNull()) return {shape};
+    try {
+        if (history->IsRemoved(shape)) return out;
+        const TopTools_ListOfShape &images = history->Modified(shape);
+        for (TopTools_ListIteratorOfListOfShape it(images); it.More(); it.Next()) {
+            if (it.Value().ShapeType() < shape.ShapeType()) {
+                for (TopExp_Explorer ex(it.Value(), shape.ShapeType()); ex.More(); ex.Next()) {
+                    out.push_back(ex.Current());
+                }
+            } else {
+                out.push_back(it.Value());
+            }
+        }
+    } catch (...) {
+        out.clear();
+    }
+    if (out.empty()) out.push_back(shape);
+    return out;
+}
+
+// OS3DCollectMakerHistory for a maker that ran on a split copy of `input`
+// (OS3DSplitAtC0). Rows still name the input's own faces and edges: a piece
+// is modified from its source, and whatever the maker made of a piece is
+// credited to the source.
+static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
+                                           const TopoDS_Shape &input,
+                                           const Handle(BRepTools_History) &split,
+                                           std::vector<OS3DHistEdge> &edges) {
+    const struct { TopAbs_ShapeEnum type; int32_t kind; } kinds[] = {
+        {TopAbs_FACE, 0}, {TopAbs_EDGE, 1}};
+    for (const auto &k : kinds) {
+        TopTools_IndexedMapOfShape map;
+        TopExp::MapShapes(input, k.type, map);
+        for (Standard_Integer i = 1; i <= map.Extent(); ++i) {
+            for (const TopoDS_Shape &piece : OS3DImagesThrough(split, map(i))) {
+                if (!piece.IsSame(map(i))) {
+                    edges.push_back({piece, 0, k.kind, (int32_t)i, 1});
+                }
+                for (int32_t relation : {1, 2}) {
+                    try {
+                        const TopTools_ListOfShape &list = relation == 1
+                            ? builder.Modified(piece) : builder.Generated(piece);
+                        for (TopTools_ListIteratorOfListOfShape it(list);
+                             it.More(); it.Next()) {
+                            edges.push_back({it.Value(), 0, k.kind, (int32_t)i, relation});
+                        }
+                    } catch (...) {
+                        // No history for this piece.
+                    }
+                }
+            }
+        }
+    }
+}
+
 + (nullable OCCTShape *)shelledShape:(OCCTShape *)shape
                        atWorldPoints:(NSData *)worldPoints
                            thickness:(double)thickness
@@ -3192,13 +3294,36 @@ static double OS3DVolume(const TopoDS_Shape &shape) {
             // silently covering for it until eval stopped degrading.)
             BRepOffsetAPI_MakeOffsetShape off;
             off.PerformByJoin(input, offset, 1.0e-3);
-            if (!off.IsDone() || off.Shape().IsNull()) {
+            BRepOffsetAPI_MakeOffsetShape offSplit;
+            BRepOffsetAPI_MakeOffsetShape *offMade =
+                (off.IsDone() && !off.Shape().IsNull()) ? &off : nullptr;
+            int offCode = -1;
+            if (offMade == nullptr) {
+                try { offCode = (int)off.MakeOffset().Error(); } catch (...) {}
+            }
+            // The same C0 split as the open shell below.
+            if (offMade == nullptr && offCode == (int)BRepOffset_C0Geometry) {
+                Handle(BRepTools_History) splitHistory;
+                const TopoDS_Shape split = OS3DSplitAtC0(input, splitHistory);
+                if (!split.IsNull()) {
+                    try {
+                        offSplit.PerformByJoin(split, offset, 1.0e-3);
+                        if (offSplit.IsDone() && !offSplit.Shape().IsNull()) {
+                            offMade = &offSplit;
+                            OS3DSetSameRangeOnNewEdges(offSplit.Shape(), input);
+                        }
+                    } catch (...) {
+                        offMade = nullptr;
+                    }
+                }
+            }
+            if (offMade == nullptr) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
                               @"the wall thickness is out of range for this shape");
                 return nil;
             }
             int innerSolids = 0;
-            TopoDS_Shape inner = OS3DExtractSingleSolid(off.Shape(), innerSolids);
+            TopoDS_Shape inner = OS3DExtractSingleSolid(offMade->Shape(), innerSolids);
             if (inner.IsNull()) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
                               @"the wall thickness is out of range for this shape");
@@ -3222,7 +3347,38 @@ static double OS3DVolume(const TopoDS_Shape &shape) {
             // before refusing.
             BRepOffsetAPI_MakeThickSolid mkIntersection;
             BRepOffsetAPI_MakeThickSolid *made = mk.IsDone() ? &mk : nullptr;
+            int code = -1;
             if (made == nullptr) {
+                try { code = (int)mk.MakeOffset().Error(); } catch (...) {}
+            }
+            // A fillet's B-spline faces refuse every join (C0Geometry): split
+            // the body where they are C0 and retry with arc joins. Intersection
+            // joins on the split body did not heal (18.23, 2026-09-16).
+            BRepOffsetAPI_MakeThickSolid mkSplit;
+            TopoDS_Shape split;
+            Handle(BRepTools_History) splitHistory;
+            if (made == nullptr && code == (int)BRepOffset_C0Geometry) {
+                split = OS3DSplitAtC0(input, splitHistory);
+                if (!split.IsNull()) {
+                    TopTools_ListOfShape splitOpenFaces;
+                    for (TopTools_ListIteratorOfListOfShape it(openFaces); it.More(); it.Next()) {
+                        for (const TopoDS_Shape &piece : OS3DImagesThrough(splitHistory, it.Value())) {
+                            splitOpenFaces.Append(piece);
+                        }
+                    }
+                    try {
+                        mkSplit.MakeThickSolidByJoin(split, splitOpenFaces, offset, 1.0e-3);
+                        if (mkSplit.IsDone()) {
+                            made = &mkSplit;
+                        } else {
+                            code = (int)mkSplit.MakeOffset().Error();
+                        }
+                    } catch (...) {
+                        made = nullptr;
+                    }
+                }
+            }
+            if (made == nullptr && split.IsNull()) {
                 try {
                     mkIntersection.MakeThickSolidByJoin(
                         input, openFaces, offset, 1.0e-3, BRepOffset_Skin,
@@ -3240,17 +3396,20 @@ static double OS3DVolume(const TopoDS_Shape &shape) {
                     "C0Geometry", "NullOffset", "NotConnectedShell",
                     "CannotTrimEdges", "CannotFuseVertices", "CannotExtentEdge",
                     "UserBreak", "MixedConnectivity"};
-                int code = -1;
-                try { code = (int)mk.MakeOffset().Error(); } catch (...) {}
                 const char *name = (code >= 0 && code < 11) ? kOffsetErrors[code] : "?";
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
                               [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset: %s)", name]);
                 return nil;
             }
             built = made->Shape();
+            if (made == &mkSplit) OS3DSetSameRangeOnNewEdges(built, input);
             // Harvest before the maker dies with this scope.
             if (history != nil) {
-                OS3DCollectMakerHistory(*made, {input}, histEdges);
+                if (made == &mkSplit) {
+                    OS3DCollectMakerHistoryThrough(*made, input, splitHistory, histEdges);
+                } else {
+                    OS3DCollectMakerHistory(*made, {input}, histEdges);
+                }
             }
         }
 

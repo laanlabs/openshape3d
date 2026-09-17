@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "op": "shell",
+  "date": "2026-09-17T02:26:20Z",
+  "note": "Practice problem 18.23 with a straight neck: flange, R19 dome with its R3 dome/neck blend revolved to y 45, a \u00d822 pipe on y 24 out to z 50, R3 on the pipe junction. That fillet runs over the dome sphere, the torus and the neck, and OCCT approximates it as a B-spline face with a C0 knot (and C0 edge curves). BRepOffset refuses C0 before it tries any join, so every shell of a body filleted like this was refused with C0Geometry (2026-09-16). Split at the C0 knots first, the 3 mm shell open at the flange bottom, neck top and pipe end builds valid. Checked offline: every sampled inner-wall point is exactly 3 mm from the outer surface, except near the three openings, where the open face itself is nearer; none is farther.",
+  "params": {
+    "points": [
+      [
+        -5.773270547389984,
+        45,
+        0.6240378220876058
+      ],
+      [
+        -1.5938741366068523,
+        18.172027587890625,
+        50
+      ],
+      [
+        -21.745614369710285,
+        -13,
+        3.9814414978027344
+      ]
+    ],
+    "thickness": 3,
+    "tolerance": 0.4
+  },
+  "inputs": [
+    {
+      "faceCounts": {
+        "cylindrical": 6,
+        "other": 7,
+        "planar": 8
+      },
+      "file": "shape.brep",
+      "label": "shape",
+      "maxTolerance": 0.00013095390430306912,
+      "valid": true,
+      "volumeMM3": 93759.08708362909
+    }
+  ],
+  "expect": {
+    "outcome": "success",
+    "volumeMM3": 33324.749,
+    "volumeToleranceMM3": 0.01
+  }
+}

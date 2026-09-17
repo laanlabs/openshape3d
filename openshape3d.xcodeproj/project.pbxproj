@@ -45,6 +45,8 @@
 				"Fixtures/Captures/coincident-boss-arc-window-cut/a.brep",
 				"Fixtures/Captures/coincident-boss-arc-window-cut/b.brep",
 				"Fixtures/Captures/coincident-boss-arc-window-cut/manifest.json",
+				"Fixtures/Captures/filleted-pipe-junction-shell-c0/manifest.json",
+				"Fixtures/Captures/filleted-pipe-junction-shell-c0/shape.brep",
 				"Fixtures/Captures/loose-tolerance-bent-pin-union/a.brep",
 				"Fixtures/Captures/loose-tolerance-bent-pin-union/b.brep",
 				"Fixtures/Captures/loose-tolerance-bent-pin-union/manifest.json",
