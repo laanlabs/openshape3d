@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,32 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, practice problems on merged main; 18.3 passes
+
+- **All 215 recipes rerun on `main` after #53–#56.** 181 pass, the same set as
+  the ledger, every health flag the same and all 215 volumes identical to the
+  thousandth (4.41 included). The four round-6 fixes had each been rerun on
+  their own branch; this is the combined build.
+- **18.3 passes: 27 787.186 mm³ against 27 786.2 (+0.004 %), was −1.63 %.**
+  Its missing volume was the R3 fillet where the Ø26 cross tube meets the
+  link's waist walls, refused in every order with "TopoDS_Vertex hasn't
+  gp_Pnt". Traced on a capture: the input body is sound (no edge lacks a
+  vertex; the two tangency vertices at (0, 30, ±5.96), where the tube's top
+  line meets the R6 round and the top face, carry 0.002 and 0.0001 mm
+  tolerances). The blend runs round the tube/wall junction and its width
+  goes to zero where the tube touches the top face; `ChFi3d` cannot end a
+  blend that vanishes. Rational and polynomial fillet shapes, `ShapeFix`,
+  unify and a fresh copy all throw the same; quasi-angular just fails.
+- **The recipe builds the tube 0.001 mm below tangent.** The blend then has
+  a tiny end and builds, and it has converged by then (per side:
+  +238.247 mm³ with the tube 2 mm down, +227.67 at 0.2, +226.474 at 0.01,
+  +226.418 at 0.001, refused at 0). One edge per side is enough: the blend
+  follows each side's tangent chain, and passing every junction edge at once
+  is refused ("1 of 6 edges can't take this size"). 18.3 went from 27 334.406
+  to 27 787.186, +452.78, twice the per-side figure. Round 6's other
+  refusals are unchanged (13.9A and 18.3 shells, 18.5A port blends, 18.23).
+- **Tally: 182 / 215 pass**, 116 of them within 0.01 %.
 
 ## Mission log — 2026-09-16, a bridge feature is one undo step
 

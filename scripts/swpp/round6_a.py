@@ -3,7 +3,7 @@ level18.py's conventions (kit operations only)."""
 import math
 from kit import (Sketch, front, back, top, bottom, right, left, extrude, revolve, fillet, chamfer,
                  shell, edges_where, edges_near, union, subtract, bodies, pattern, mirror, plane_at,
-                 draft_face, faces, move, sweep, vol)
+                 draft_face, faces, edges, move, sweep, vol)
 
 PROBLEMS = {}
 
@@ -301,6 +301,16 @@ def _dogbone(sk, r, R, yc):
             .arc((-30, 0), r, t, 360 - t).arc((0, -yc), R, t, 180 - t))
 
 
+def _tube_junction_edge(bid, axis_y, positive_z):
+    """The longest edge where 18.3's O26 tube (axis along z at height axis_y)
+    meets a waist wall, on the z > 0 or the z < 0 side."""
+    side = [e for e in edges(bid)
+            if abs(math.hypot(e["midpoint"][0], e["midpoint"][1] - axis_y) - 13) < 0.05
+            and abs(abs(e["midpoint"][2]) - 20) > 0.05
+            and (e["midpoint"][2] > 0) == positive_z]
+    return max(side, key=lambda e: e["lengthMM"])["index"]
+
+
 def build_18_3(stage="full"):
     """Link: two O40 bosses 60 apart joined by R40 arcs tangent to both,
     30 tall, origin at the bottom centre (y up, the link along x), R6 round
@@ -309,17 +319,28 @@ def build_18_3(stage="full"):
     explicit cuts (feature.shell refuses this body): the 3-offset outline
     (R17 bosses, R43 arcs, same centres) 27 up with the R6's offset R3 at its
     top edge, and the O20 bore through the tube. O18 holes through the top
-    at the boss centres (Section B-B: no bosses round them)."""
+    at the boss centres (Section B-B: no bosses round them). R3 where the
+    tube meets the waist walls.
+
+    OCCT cannot end a blend where it vanishes, and the R3 vanishes where the
+    tube touches the top face: drawn tangent, every order is refused
+    ("TopoDS_Vertex hasn't gp_Pnt"). So the tube sits 0.001 mm lower than
+    drawn. The blend converges as the gap closes (per side: +238.247 mm3 at
+    2 mm, +227.67 at 0.2, +226.474 at 0.01, +226.418 at 0.001; 2026-09-16)."""
     yc = math.sqrt(60 ** 2 - 30 ** 2)
+    axis = 17 - 0.001
     body = extrude(_dogbone(Sketch(top(0)), 20, 40, yc), (0, 0), 30)
     fillet(body, 6.0, edges_where(body, lambda e: abs(e["midpoint"][1] - 30) < 1e-3))
-    extrude(Sketch(front(-20)).circle((0, 17), 13), (0, 17), 40, union=[body])
+    extrude(Sketch(front(-20)).circle((0, axis), 13), (0, axis), 40, union=[body])
     if stage == "outer":
         return body
+    # one edge per side: the blend runs round that side's tangent chain
+    for positive_z in (True, False):
+        fillet(body, 3.0, [_tube_junction_edge(body, axis, positive_z)])
     cav = extrude(_dogbone(Sketch(top(-1)), 17, 43, yc), (0, 0), 28, new_body=True)
     fillet(cav, 3.0, edges_where(cav, lambda e: abs(e["midpoint"][1] - 27) < 1e-3))
     subtract(body, [cav])
-    extrude(Sketch(front(-21)).circle((0, 17), 10), (0, 17), 42, cut=[body])
+    extrude(Sketch(front(-21)).circle((0, axis), 10), (0, axis), 42, cut=[body])
     for x in (-30, 30):
         extrude(Sketch(top(20)).circle((x, 0), 9), (x, 0), 15, cut=[body])
     return body
