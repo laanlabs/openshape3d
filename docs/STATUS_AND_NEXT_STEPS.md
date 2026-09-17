@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); see the newest mission log, the register above, and
+Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,36 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-17, 18.23's shell refusal: a tube that folds on itself
+
+- **The rule.** The failure depends on where the pipe junction runs and
+  on the thickness, not on the S step's convex R3 collapsing (the earlier
+  explanation). On the S-step body without fillets, shell 3 and 4:
+  - pipe top at y 31, below the step: builds (43 187.699 and 49 335.665);
+  - pipe top at 33, into the step's concave R3: refused at 3 and 4, builds
+    at 1, 2, 2.5 and 2.9 (and so do pipe heights 21.5 and 24);
+  - no pipe: builds at 3 and 4.
+  At an inside corner, a shell's inner wall is a tube of radius t round
+  the edge. Where the pipe junction follows the concave R3 torus it bends
+  at about 3 mm, so from t = 3 that tube folds on itself, and OCCT's
+  offset (arc joins; intersection joins build invalid) cannot trim it.
+- **The recipe's body fails at every thickness tried** (1, 2, 2.5, 2.9,
+  2.99, 3, 3.01, 3.1, 4). #60's split leaves no C0 face, curve or pcurve on
+  it; the split body's offset throws below 3 and returns UnknownError from
+  3. The explicit cavity stays.
+- **The refusal said the wrong thing.** Below 3 it read "OCCT offset:
+  C0Geometry", because #60's retry kept the first error when the offset of
+  the split body threw. It now names the retry's own failure: "OCCT offset:
+  UnknownError, after splitting its C0 faces", or "OCCT offset threw after
+  splitting its C0 faces: BRepAlgo_Image::FirstImageFrom".
+- **Checked.** Fixture `pipe-junction-over-s-step-shell` (18.23's body,
+  shell 3, expect failure "after splitting its C0 faces"; flip it if OCCT
+  ever builds this) and `ShellOverFilletTests.testARefusalAfterTheSplitNamesTheRetry`
+  (2.9 names the throw, not C0Geometry); both fail on main's bridge. Full
+  unit suite 1689 / 0 failures. The recipe comment, the 18.23 note and #60's
+  log carry the corrected cause. 18.19's report row, which #68 did not
+  regenerate, is too.
 
 ## Mission log — 2026-09-17, do kernel ops change the bodies they are given?
 
@@ -352,7 +382,8 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   - *The shell.* The recipe's body now gets past C0 and is refused with
     UnknownError: the arc join round the pipe junction fails where it meets
     the S step, whose convex R3 offsets to zero radius at t = 3. The body
-    builds at t = 2.9 and without the pipe. A sharp step with the pipe top
+    builds at t = 2.9 and without the pipe. (Corrected 2026-09-17: the
+    zero-radius offset is not the cause; see "18.23's shell refusal".) A sharp step with the pipe top
     in the step plane fails too, and builds with the pipe 0.1 lower.
   - *The fillet.* R3 on the pipe junction over the S step is refused
     whatever the pipe height (y 23 to 24): the ball's contact has to jump
