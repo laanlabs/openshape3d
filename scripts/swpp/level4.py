@@ -1011,8 +1011,8 @@ def _edges_between(bid, pred_a, pred_b):
     """Edge indices shared by a face matching pred_a and one matching pred_b.
     Written when /v1/edges gave no midpoint/length for some edges, so
     kit.edges_where could not see them (R1B finding). Since #51 (2026-09-16)
-    only tangent joins lack them, but this still addresses an edge by its
-    faces, which stays stable where a curved edge's midpoint does not."""
+    only tangent joins lack them; addressing an edge by its faces still
+    works where no crease gives it a midpoint."""
     from kit import faces, G
     fa = {f["index"] for f in faces(bid) if pred_a(f)}
     fb = {f["index"] for f in faces(bid) if pred_b(f)}

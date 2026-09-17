@@ -658,44 +658,32 @@ final class AgentBridge {
         let names = freshNames(for: context.body, session)
         let edgeNames = ElementNaming.edgeNames(adjacency: adjacency, names: names)
 
-        // Geometry per kernel edge, recovered from the mesh side: every
-        // selectable mesh edge maps to its nearest kernel edge, and arc
-        // chains that tessellate into several segments accumulate length.
-        let tolerance = OCCTKernel.matchTolerance(for: context.brep)
-        var midpointByEdge: [Int: SIMD3<Float>] = [:]
-        var lengthByEdge: [Int: Double] = [:]
-        var convexByEdge: [Int: Bool] = [:]
-        for edge in EdgeTopology.selectableEdges(from: context.body.render) {
-            let mid = edge.midpoint
-            guard let index = OCCTKernel.nearestEdgeIndex(
-                context.brep,
-                to: SIMD3(Double(mid.x), Double(mid.y), Double(mid.z)),
-                tolerance: tolerance) else { continue }
-            if midpointByEdge[index] == nil {
-                midpointByEdge[index] = mid
-                convexByEdge[index] = edge.isConvex
-            }
-            lengthByEdge[index, default: 0] += Double(edge.length)
-        }
+        // Geometry per kernel edge: which edges get any is decided mesh-side
+        // (a crease), the midpoint is the kernel curve's, and nothing
+        // depends on the order the mesh edges arrive in
+        // (`OCCTKernel.edgeGeometry`).
+        let geometry = OCCTKernel.edgeGeometry(
+            context.brep,
+            meshEdges: EdgeTopology.selectableEdges(from: context.body.render),
+            tolerance: OCCTKernel.matchTolerance(for: context.brep))
 
         let rows = adjacency.sorted { $0.edge < $1.edge }.map { triple -> [String: Any] in
             var row: [String: Any] = [
                 "index": triple.edge,
                 "faces": [triple.faceA, triple.faceB],
             ]
-            if let mid = midpointByEdge[triple.edge] {
+            if let edge = geometry[triple.edge] {
                 // WORLD space, like /v1/state's bounds: the render mesh and
                 // the brep are both in the body's local frame, and a body
                 // that has been moved (Transform › Move/Rotate, or a
                 // feature.transform) carries that move in `transform`. A
                 // caller picking "the vertical edges between y=40 and 270"
                 // must see the same numbers the bounds report.
-                let world = context.body.transform.applying(
-                    to: SIMD3(Double(mid.x), Double(mid.y), Double(mid.z)))
+                let world = context.body.transform.applying(to: edge.midpoint)
                 row["midpoint"] = [world.x, world.y, world.z]
+                row["lengthMM"] = edge.length
+                row["convex"] = edge.isConvex
             }
-            if let length = lengthByEdge[triple.edge] { row["lengthMM"] = length }
-            if let convex = convexByEdge[triple.edge] { row["convex"] = convex }
             if let name = edgeNames[triple.edge], let encoded = jsonObject(name) {
                 row["name"] = encoded
             }

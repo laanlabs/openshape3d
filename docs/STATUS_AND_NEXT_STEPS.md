@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); see the newest mission log, the register above, and
+Last updated: 2026-09-16 — camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,59 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Mission log — 2026-09-16, stable `/v1/edges` midpoints for curved edges
+
+- **A curved edge's midpoint is now the kernel's, and the same on every
+  launch.** `/v1/edges` used to keep the midpoint of the FIRST mesh segment
+  that mapped to a kernel edge. `EdgeTopology.selectableEdges` returns
+  segments in Swift dictionary order, which is seeded per process, so an
+  arc's midpoint moved between launches of the same build (gotcha in the
+  entry below). It was also a chord midpoint, slightly inside the curve.
+  Now a new kernel query, `OCCTBridge.edgeMidpoints(of:)`, returns the
+  point halfway along each edge's curve by arc length
+  (`GCPnts_AbscissaPoint`). `OCCTKernel.edgeGeometry` builds each
+  `/v1/edges` row from that midpoint, the mesh lengths summed in sorted
+  order, and the convexity of the segment nearest the midpoint, so nothing
+  depends on the order the segments come in. The bridge now just calls it.
+  Which edges get a midpoint at all is still decided mesh-side, so tangent
+  joins still have none. `lengthMM` is unchanged: summed chords, a hair
+  short of a true arc (a Ø15 rim reads 47.121 against 47.124).
+- **Live, sharp 4.5 profile:** two launches of the fixed app (different
+  PIDs) gave identical script output (midpoints printed to three
+  decimals). Against the pre-fix run only the curved edges moved, and
+  mirrored pairs now agree: the lug-arc caps #18/#19 read
+  (30.421, 54.567, ±21.5), on the R15 arc about the lug centre (34, 40),
+  and the hole rims #32/#33 read (26.5, 40.0, ±21.5), on the Ø15 circle.
+  That these are the arcs' middles is what the unit tests check; it was not
+  worked out for 4.5. Straight edges are unchanged to three decimals, and so are
+  the volumes and the bridge R5.
+- **Tests:** `EdgeMidpointTests` (4), on an OCCT stadium plate with a round
+  hole. They check that every midpoint lies on its own kernel edge (within
+  1e-6), that arc midpoints sit at the angular middle and straight ones at
+  the segment middle, that the rim midpoint is on the circle, and that
+  reordering the mesh edges (reversed, rotated, sorted) gives an identical
+  result. A fourth test checks the fixture has curved edges built from
+  several segments. With `edgeGeometry` temporarily set back to the old
+  first-segment rule, three of the four failed. Full unit suite: 1646
+  executed, 1 skipped, 0 failures.
+- **Practice problems, all 215 recipes against the fixed app** (a scratch
+  copy of `scripts/swpp`, so the repo ledger is untouched; `os3d-test`,
+  18.4 min): every problem matches its latest `results.jsonl` row, in
+  status and in volume to within 0.01 mm³. 181 pass, 0 errors. Those rows
+  predate #51, so this also shows #51's `EdgeTopology` changes moved no
+  practice-problem result. That campaign ran before #53 merged. On the
+  merge with #53 the full unit suite passes (1658 executed, 1 skipped,
+  0 failures), and 7.29 was run as below.
+- **7.29 is no longer flaky.** #53's log (next entry) found 7.29 varying
+  run to run: its R1 predicate picks R25 arc edges by midpoint. On the
+  pre-fix app (8787b0f), five fresh launches gave three volumes:
+  103 536.058 three times, 103 384.272 and 103 460.165. On the fix (merged
+  with #53), fifteen fresh launches all gave 103 536.058 (+0.147 %, a
+  pass). It is deterministic now, but on the +0.147 % selection rather than
+  the 0.0 % one some launches used to hit (103 384.272, sheet 103 384).
+  Getting that one every time means revisiting the recipe's R1 predicate,
+  which was not done here.
 
 ## Mission log — 2026-09-16, crossing outlines split into real regions
 
@@ -117,7 +170,10 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   `/v1/health` to answer from that pid, naming the other pid when it
   doesn't. `lsof -nP -iTCP:<port> -sTCP:LISTEN` shows who holds a port;
   the process path names the simulator. These reruns used port 8911.
-- **7.29 is flaky, not changed.** Its R1 predicate picks R25 arc edges by
+- **7.29 is flaky, not changed.** **Explained and fixed later on
+  2026-09-16:** unstable `/v1/edges` midpoints for curved edges ("stable
+  `/v1/edges` midpoints for curved edges" above); 7.29 now gives
+  103 536.058 on every launch. Its R1 predicate picks R25 arc edges by
   midpoint, and which halves match varies run to run: 103 460.165
   (2026-09-03), 103 536.058 (later rows), 103 384.272 in a probe today. It
   passes at all three.
@@ -186,7 +242,9 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
   the log said. #5 and #26 are the inside corners at (119, 18) and (6, 18),
   which the old test called convex.
 - **Gotcha, not caused by #51: a curved edge's `/v1/edges` midpoint
-  changes between launches.** Relaunching the SAME after-#51 app and
+  changes between launches.** **Fixed later on 2026-09-16** ("stable
+  `/v1/edges` midpoints for curved edges" above); the rest of this bullet
+  describes the old behaviour. Relaunching the SAME after-#51 app and
   rerunning the script moved the midpoints of the lug-arc and hole-rim cap
   edges (#18: (30.706, 54.631) then (29.579, 54.331); #32: (29.079, 45.658)
   then (26.926, 37.513)), while every length stayed the same. The bridge
