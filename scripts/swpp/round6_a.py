@@ -221,8 +221,16 @@ def build_18_5(variant="A", fillets=True):
     """Elbow housing, origin at the bottom centre, y up. 18.5A: diamond
     ports toward +z and 45 deg round to +x, O31/O21 pipe toward -x+z rising
     12 deg through the dome centre, 75 long. 18.5B: second port at -x, pipe
-    O30/O20 x 60 horizontal toward +x on the ports' axis height."""
+    O30/O20 x 60 horizontal toward +x on the ports' axis height.
+
+    The ports' top ridge (R10 about 58 + 19) touches the dome crown at 87,
+    and OCCT's fillet fails on every junction chain that reaches it. So the
+    port bosses sit 0.001 mm lower than drawn; the holes and the pipe stay
+    on the drawn axis. The blend converges as the gap closes (all junctions
+    R5 at 0.1 / 0.01 / 0.001 mm: A +2289.322 / +2289.059 / +2289.018 mm3,
+    B +703.308 / +702.771 / +702.671; 2026-09-16)."""
     Hd, Hp = 54.5, 58.0                    # dome centre (87 - 32.5); port axis (87 - 10 - 19)
+    Hb = Hp - 0.001                        # port bosses, off the crown
     body = revolve(Sketch(front(0)).poly([(0, 0), (32.5, 0), (32.5, 5), (47.5, 5), (47.5, 12), (32.5, 12), (32.5, Hd)],
                                          close=False).arc((0, Hd), 32.5, 0, 90).line((0, 87), (0, 0)),
                    (20, 30), (0, 0), (0, 1))
@@ -235,8 +243,8 @@ def build_18_5(variant="A", fillets=True):
 
     for th in port_angles:
         pl, u = port_plane(th, 0.0)
-        sk = hull_circles(Sketch(pl), [((0, Hp + 19), 10), ((0, Hp), 16), ((0, Hp - 19), 10), ((0, Hp), 16)])
-        extrude(sk, (0, Hp), 70, union=[body])
+        sk = hull_circles(Sketch(pl), [((0, Hb + 19), 10), ((0, Hb), 16), ((0, Hb - 19), 10), ((0, Hb), 16)])
+        extrude(sk, (0, Hb), 70, union=[body])
     if variant == "A":
         e = math.radians(12); a = math.radians(45)
         d = (-math.cos(e) * math.sin(a), math.sin(e), math.cos(e) * math.cos(a))
@@ -254,22 +262,18 @@ def build_18_5(variant="A", fillets=True):
     if fillets:
         # 5 mm ALL FILLETS AND ROUNDS = the junctions of the ports and the pipe
         # with the dome/body and with each other (port faces, pipe end, flange
-        # and bores are sharp in the views and sections). Applied largest
-        # first: port/port, port/pipe, pipe/body, port/body. One edge per
-        # group (the longest) is enough - the blend propagates round the tangent chain. The
-        # kernel refuses every port/body and port/dome blend once the first
-        # groups are in (their chains run into the ports' top ridges, which
-        # touch the dome crown at 87), so those are left sharp; each
-        # group listed below is the set it accepted (probed 2026-09-16).
+        # and bores are sharp in the views and sections), as one fillet like
+        # SOLIDWORKS' single feature. A: 22 edges, B: 25 (its ports and pipe
+        # do not meet outside the body).
         e, a = math.radians(12), math.radians(45)
         dirs = ({"p1": (0, 0, 1), "p2": (math.sin(a), 0, math.cos(a)),
                  "pipe": (-math.cos(e) * math.sin(a), math.sin(e), math.cos(e) * math.cos(a))}
                 if variant == "A" else {"p1": (0, 0, 1), "p2": (-1, 0, 0), "pipe": (1, 0, 0)})
-        groups = [("p1", "p2"), ("p1", "pipe")] if variant == "A" else [("body", "pipe")]
-        for pair in groups:
-            ids = _junction_edges_18_5(body, dirs, pair)
-            assert ids, pair
-            fillet(body, 5.0, ids[:1])
+        ids = []
+        for pair in [("p1", "p2"), ("p1", "pipe"), ("p2", "pipe"), ("body", "pipe"), ("body", "p1"), ("body", "p2")]:
+            ids += _junction_edges_18_5(body, dirs, pair)
+        assert len(ids) == (22 if variant == "A" else 25), len(ids)
+        fillet(body, 5.0, sorted(set(ids)))
     # cavity: O53 bore up to the dome centre, R26.5 dome
     revolve(Sketch(front(0)).poly([(0, -1), (26.5, -1), (26.5, Hd)], close=False).arc((0, Hd), 26.5, 0, 90)
             .line((0, Hd + 26.5), (0, -1)), (10, 20), (0, 0), (0, 1), cut=[body])

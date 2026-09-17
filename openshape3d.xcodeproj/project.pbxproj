@@ -52,6 +52,8 @@
 				"Fixtures/Captures/loose-tolerance-bent-pin-union/manifest.json",
 				"Fixtures/Captures/overradius-fillet-d10-rim/manifest.json",
 				"Fixtures/Captures/overradius-fillet-d10-rim/shape.brep",
+				"Fixtures/Captures/port-junction-fillet-chain-credit/manifest.json",
+				"Fixtures/Captures/port-junction-fillet-chain-credit/shape.brep",
 			);
 			target = 7F704321300C0ED7003471DC /* openshape3dTests */;
 		};
