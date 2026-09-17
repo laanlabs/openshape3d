@@ -291,6 +291,66 @@ final class SweepLoftTests: XCTestCase {
         XCTAssertLessThan(v, 4.0) // < square prism
     }
 
+    /// A square-to-circle loft is a smooth surface with four ridge columns
+    /// (one per square corner). Its preview mesh used to be one row of ruled
+    /// quads, and near a corner a quad twists ~45° from ring to ring, so its
+    /// two triangles sat more than 20° apart and `FeatureEdges` drew creases
+    /// down a smooth wall (the shapes tutorial, 2026-09-17). Every crease
+    /// above the 20° threshold must now lie on a cap or a corner ridge.
+    func testLoftSquareToCircleHasNoCreasesOffTheRidges() {
+        let bottom = squareProfile(halfSize: 9)
+        let top = circleProfile(center: .zero, radius: 5)
+        let topPlane = SketchPlane(origin: SIMD3(0, 0, 22), xAxis: SIMD3(1, 0, 0), yAxis: SIMD3(0, 1, 0))
+        let mesh = KernelOps.loft(profiles: [
+            (profile: bottom, holes: [], plane: xyPlane),
+            (profile: top, holes: [], plane: topPlane),
+        ])
+        XCTAssertTrue(mesh.isWatertight)
+
+        // Dihedral angle per shared edge, from the triangulated mesh.
+        struct Key: Hashable { let a: SIMD3<Int64>; let b: SIMD3<Int64> }
+        func q(_ v: Vector) -> SIMD3<Int64> { SIMD3(Int64((v.x * 1e6).rounded()), Int64((v.y * 1e6).rounded()), Int64((v.z * 1e6).rounded())) }
+        func key(_ p: Vector, _ r: Vector) -> Key {
+            let (x, y) = (q(p), q(r))
+            return x.x < y.x || (x.x == y.x && (x.y < y.y || (x.y == y.y && x.z <= y.z))) ? Key(a: x, b: y) : Key(a: y, b: x)
+        }
+        var faces = [Key: [(SIMD3<Double>, Vector, Vector)]]()
+        for tri in mesh.triangulate().polygons {
+            let v = tri.vertices.map(\.position)
+            let p = v.map { SIMD3($0.x, $0.y, $0.z) }
+            let n = simd_cross(p[1] - p[0], p[2] - p[0])
+            guard simd_length(n) > 1e-12 else { continue }
+            for i in 0..<3 {
+                faces[key(v[i], v[(i + 1) % 3]), default: []].append((simd_normalize(n), v[i], v[(i + 1) % 3]))
+            }
+        }
+        var offRidge = 0, ridges = 0
+        for (_, adj) in faces where adj.count == 2 {
+            let angle = acos(max(-1, min(1, simd_dot(adj[0].0, adj[1].0)))) * 180 / .pi
+            guard angle > 20 else { continue }
+            let (p, r) = (adj[0].1, adj[0].2)
+            let onCap = (abs(p.z) < 1e-6 && abs(r.z) < 1e-6) || (abs(p.z - 22) < 1e-6 && abs(r.z - 22) < 1e-6)
+            let onRidge = abs(abs(p.x) - abs(p.y)) < 1e-6 && abs(abs(r.x) - abs(r.y)) < 1e-6
+            if onCap { continue }
+            if onRidge { ridges += 1 } else { offRidge += 1 }
+        }
+        XCTAssertEqual(offRidge, 0, "creases drawn across the smooth walls")
+        XCTAssertGreaterThan(ridges, 0, "the four corner ridges are real creases")
+    }
+
+    /// A band with no twist (a frustum between two squares) stays one row.
+    func testBandSlicesAreOneForAFrustumAndMoreForATwistedBand() {
+        let a = (0..<4).map { i -> SIMD3<Double> in [SIMD3(-1, -1, 0), SIMD3(1, -1, 0), SIMD3(1, 1, 0), SIMD3(-1, 1, 0)][i] }
+        let b = a.map { SIMD3($0.x * 0.5, $0.y * 0.5, 1) }
+        XCTAssertEqual(SweepLoftKit.bandSlices(a, b, count: 4), 1)
+        // The same square lofted to a square rotated 45° twists every quad.
+        let c = (0..<4).map { i -> SIMD3<Double> in
+            let t = Double(i) * .pi / 2 + .pi / 4
+            return SIMD3(cos(t) * 0.7, sin(t) * 0.7, 1)
+        }
+        XCTAssertGreaterThan(SweepLoftKit.bandSlices(a, c, count: 4), 1)
+    }
+
     // MARK: - Helix
 
     func testHelixPointCountPitchAndRadius() {
