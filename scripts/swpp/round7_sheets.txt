@@ -1,0 +1,38 @@
+# Practice-problem round 7 — the 21 sheets to fetch, seven per agent.
+#
+# The sheets are not in the repo (they are SOLIDWORKS' PDFs). Save each into
+# ~/Downloads/swpp-round7, then point the agents at that folder. Downloads
+# started from a browser Claude is driving are discarded by Chrome without a
+# dialog, so they have to be saved by hand or fetched some other way
+# (STATUS, 2026-09-17).
+#
+# Chosen from scripts/swpp/deferred.json: sheets never opened, sheets a
+# previous reader called readable or buildable, and the Level 18 exam parts
+# never reached.
+
+# A (never opened)
+2.1     https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_2_1_ENG.pdf
+2.9     https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_2_9_ENG.pdf
+4.30    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_30_ENG.pdf
+4.46    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_46_ENG.pdf
+4.61    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_61_ENG.pdf
+4.62    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_62_ENG.pdf
+4.70    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_70_ENG.pdf
+
+# B (read before, called buildable)
+4.14    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_14_ENG.pdf
+4.23    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_4_23_ENG.pdf
+5.4     https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_5_4_ENG.pdf
+8.2     https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_8_2_ENG.pdf
+8.3     https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_8_3_ENG.pdf
+7.14    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_7_14_ENG.pdf
+7.24    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_7_24_ENG.pdf
+
+# C (Level 18, never reached)
+18.1    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_1_ENG.pdf
+18.4    https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_4_ENG.pdf
+18.6A   https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_6A_ENG.pdf
+18.7A   https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_7A_ENG.pdf
+18.11   https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_11_ENG.pdf
+18.13   https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_13_ENG.pdf
+18.14   https://www.solidworks.com/sites/default/filesapi/practice-problems/resources/PracticeProblems_18_14_ENG.pdf

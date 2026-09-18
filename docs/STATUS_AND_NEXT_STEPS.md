@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; see the newest mission log, the register above, and
+Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; **outstanding work is listed under "Open work" below**; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -11,6 +11,72 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
+
+## Open work — 2026-09-17
+
+Everything left open by the kernel and practice-problem work of 2026-09-16
+and 17, newest first within each group. The mission logs below carry the
+detail; this is the register to read first.
+
+### Practice problems — round 7 is picked but blocked
+
+- **The 21 sheets are chosen** (seven per agent, as in round 6) and listed
+  with their links in `scripts/swpp/round7_sheets.txt`: never-opened sheets
+  (2.1, 2.9, 4.30, 4.46, 4.61, 4.62, 4.70), sheets an earlier reader called
+  readable or buildable (4.14, 4.23, 5.4, 8.2, 8.3, 7.14, 7.24), and the
+  Level 18 exam parts never reached (18.1, 18.4, 18.6A, 18.7A, 18.11,
+  18.13, 18.14).
+- **Blocked on getting the PDFs.** They are not in the repo. Chrome loads
+  them and a page can fetch one in full (627 726 bytes for 2.1), but every
+  way of asking Chrome to SAVE one while Claude drives the tab is discarded
+  without a dialog: a script-triggered download link, a real click on that
+  link, and the PDF viewer's own Download button. Chrome's own settings are
+  clean (no prompt, `~/Downloads`), and round 6's 19 sheets are still there.
+  Saving them by hand works and is how round 6 was done.
+- **After the sheets:** one agent per simulator (`os3d-runner-A/B/C`), each
+  writing its own `scripts/swpp/round7_{a,b,c}.py`, then a rerun of the
+  whole set on one app and the shared files updated from the reports.
+- **142 sheets still have no build** (`scripts/swpp/deferred.json`, a reason
+  each): 30 are structural (assemblies, motion studies, screenshot-only
+  parts, edits of parts whose A sheet was never read), 10 have dimensions
+  that do not fix the geometry, and the rest are budget deferrals, which is
+  where round 7's batch came from.
+
+### Refusals worth tracing (the app or OCCT, not a drawing reading)
+
+- **7.2 errors: `feature.revolve` refuses a valid closed profile**
+  (`brokenRef("revolve profile unresolved")`) at any position, scale or arc
+  direction — a line/line/R15 arc/line dome outline. It is the only sheet
+  scored `error`, and the only untraced refusal that is plainly an app bug.
+- **4.57 and 18.22: blends refused as "the blended solid failed validity
+  checking".** 18.22 builds its lug-root R3s as geometry and passes; 4.57
+  left its R6 flank/tube blends off and reads −0.67 % (about −0.3 % with
+  them). Neither has been replayed from a capture.
+- **18.9A's sphere/diamond R3** is traced (the Ø24 lobes touch the R35
+  sphere at the rim): the blend builds with the sphere 0.002, 0.01 or
+  0.05 mm larger and fails at 0.001, 0.005 and 0.02, leaving a 0.19 mm²
+  self-intersecting sliver. No offset was adopted; the recipe keeps the
+  drawn tangency.
+- **13.9A's and 18.23's shells are OCCT offset limits**, both traced and
+  pinned: walls thinner than twice the wall (13.9A), and a tube of radius t
+  round an inside-corner edge that bends at about 3 mm (18.23, fixture
+  `pipe-junction-over-s-step-shell`, expected to fail). 18.23's R3 pipe
+  fillet needs a rolling ball to jump the S step, which ChFi3d does not do.
+  Flip those fixtures to success if OCCT ever builds them.
+- **18.5A reads +0.31 %** now that its blends are complete: what is left is
+  a reading question, not a kernel one.
+
+### Kernel cautions
+
+- **`unifiedShape:` still merges same-domain faces in place** (gotcha 61).
+  Its only caller is the `OS3D_DEBUG_SEED_STEP` seed, on a fresh fuse; any
+  new caller on a stored body needs a copy first, as `booleanOfShape:` does.
+- **`OpsLeaveInputsUntouchedTests` does not cover the sweep's internal hole
+  cut** (its operands are built inside the op) or the render mesh, which
+  `TessellateShape` writes into every adopted body by design.
+- **An outward enclosed hollow still clears the body's Free flag** — OCCT
+  marking a shape it placed inside another. No geometry changes, and the
+  input-untouched test ignores the flag lines.
 
 ## Mission log — 2026-09-17, 18.23's shell refusal: a tube that folds on itself
 
