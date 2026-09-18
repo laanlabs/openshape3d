@@ -56,6 +56,11 @@ page carries the same table.*
   kind: 18.23 fails because the kernel refuses a fillet and a shell the
   drawing needs, not because of the reading (18.3 did too, until its tube
   fillet was built 0.001 mm off tangent).
+- **Round 7's batch is picked and waiting for its sheets**: 21 of the
+  deferred sheets, seven per agent, listed with links in
+  `scripts/swpp/round7_sheets.txt`. The PDFs are not in the repo and a
+  browser Claude drives cannot save them (STATUS, "Open work"), so they
+  have to be saved by hand first.
 - The 142 sheets without a build are listed with a reason each in
   `scripts/swpp/deferred.json`: 64 are readable and simply not reached
   within the workers' budgets (the best next picks are named in the
