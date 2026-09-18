@@ -13,6 +13,23 @@ Outputs land in `marketing/youtube/`: `openshape3d-tutorial-<name>.mp4` and
 timestamps, tags, thumbnail text). Takes and build products stay in
 `take-<name>/` here (gitignored).
 
+A fourth video, **"Design a 3D-printable flowerpot with Claude or ChatGPT"**,
+has its own script:
+
+    python3 ai_flowerpot.py [--take-only | --compose-only]
+
+Its setup chapters are slides over the idle recording; the modelling is
+`ai_flowerpot_session.json` — the tool calls a real Claude session made
+through `scripts/mcp_openshape3d.py` (captured with `OS3D_MCP_LOG`) —
+replayed over the bridge at narration pace, one panel per call. To re-record
+the session, see `docs/AI_MODELING_SETUP.md` and rebuild the JSON from the log.
+
+A fifth, **"Ask Claude for a 3D-printable part — no CAD needed"**, is for people
+who installed the Mac app from the store. It is cut after the fact from real
+material rather than paced live: `python3 ask_claude.py <material-dir>` (the
+docstring lists the stills, the `screencapture -V -l` window recording and the
+timed `claude -p … --output-format stream-json` transcripts it expects).
+
 ## How a take works
 
 - **Touches** are performed by `openshape3dUITests/TutorialTakeUITests`
@@ -40,4 +57,6 @@ never collide with the UI suite's builds on the shared simulators.
 - `common.py` — bridge, control server, timeline, TTS, compose, metadata
 - `scripts_text.py` — narration, chapter panels, titles/descriptions/tags
 - `tutorial.py` — the three takes
+- `ask_claude.py` — the store-user video, cut from real screenshots and a Mac window recording
+- `ai_flowerpot.py`, `ai_flowerpot_session.json` — the AI-modelling video and the session it replays
 - `probe*.py` — the touch-flow probes used while writing the takes

@@ -9,12 +9,10 @@ import SwiftData
 @main
 struct openshape3dApp: App {
     init() {
-        #if DEBUG
-        // Opt-in control channel for the MCP bridge; no-op unless OS3D_AGENT is
-        // set, so an ordinary debug run is unaffected. Release has neither this
-        // code nor the sandbox entitlement it needs.
-        AgentServer.shared.startIfRequested()
-        #endif
+        // The AI-assistant control channel: listens only if the person switched
+        // it on in Settings ▸ AI Assistant (or, in DEBUG, a developer launched
+        // with OS3D_AGENT=1). Off by default — see `AgentServer`.
+        AIControl.shared.launch()
     }
 
     var sharedModelContainer: ModelContainer = {

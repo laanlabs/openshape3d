@@ -246,6 +246,10 @@ class Timeline:
         if self.cur:
             self.cur["end"] = self.now(); self.segs.append(self.cur); self.cur = None
 
+    def mark(self):
+        """A sub-step inside the current segment: the panel's k-th `steps` entry shows from here."""
+        self.cur.setdefault("marks", []).append(self.now())
+
     def hold(self, extra=0.6):
         """Wait until the current segment's narration has finished (+extra)."""
         need = self.cur["start"] + self.dur[self.cur["id"]] + 0.35 + extra
@@ -321,6 +325,27 @@ def font(size, bold=False):
     return ImageFont.truetype("/System/Library/Fonts/HelveticaNeue.ttc", size, index=1 if bold else 0)
 
 
+def mono(size, bold=False):
+    from PIL import ImageFont
+    return ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", size, index=1 if bold else 0)
+
+
+CODE_BG, CODE_FG, CODE_DIM, CODE_OK = (11, 13, 17), (214, 222, 235), (120, 130, 146), (126, 211, 140)
+
+
+def code_block(d, x, y, w, lines, size=17):
+    """A terminal-style box. A line starting with "# " is dimmed, "✓ " is green, "> " is accent."""
+    lh = int(size * 1.45)
+    h = lh * len(lines) + 28
+    d.rounded_rectangle([x, y, x + w, y + h], radius=10, fill=CODE_BG + (255,), outline=(40, 46, 56, 255))
+    ty = y + 14
+    for line in lines:
+        colour = CODE_DIM if line.startswith("# ") else CODE_OK if line.startswith("✓ ") else ACCENT if line.startswith("> ") else CODE_FG
+        d.text((x + 16, ty), line, font=mono(size, line.startswith("> ")), fill=colour)
+        ty += lh
+    return y + h
+
+
 def icon(size):
     from PIL import Image, ImageDraw
     im = Image.open(ICON).convert("RGBA").resize((size, size), Image.LANCZOS)
@@ -367,6 +392,8 @@ def panel_png(i, n, seg, series, path):
         for line in wrap(d, item, font(25), W - x0 - 2 * pad - 26):
             d.text((x0 + pad + 26, y), line, font=font(25), fill=FG); y += 32
         y += 12
+    if seg.get("code"):
+        code_block(d, x0 + pad - 16, y + 10, W - x0 - 2 * pad + 32, seg["code"], size=17)
     d.text((x0 + pad, H - 90), f"{i + 1} / {n}", font=font(20), fill=MUTED)
     bw = W - x0 - 2 * pad
     d.rectangle([x0 + pad, H - 56, x0 + pad + bw, H - 52], fill=(45, 51, 62, 255))
@@ -428,26 +455,53 @@ def compose(name, script, take_dir, video, out_path, series):
         p = os.path.join(build, f"panel-{i:02d}.png")
         panel_png(i, n, seg, series, p)
         t = starts[seg["id"]]
-        overlays.append((p, t["start"], t["end"]))
+        marks = t.get("marks", []) if seg.get("steps") else []
+        overlays.append((p, t["start"], marks[0] if marks else t["end"]))
+        # one panel per marked sub-step (a tool call), each until the next mark
+        for k, at in enumerate(marks):
+            if k >= len(seg["steps"]):
+                break
+            p = os.path.join(build, f"panel-{i:02d}-{k:02d}.png")
+            panel_png(i, n, dict(seg, code=seg["steps"][k]), series, p)
+            overlays.append((p, at, marks[k + 1] if k + 1 < min(len(marks), len(seg["steps"])) else t["end"]))
+        # a full-frame slide (VW×H PNG) hides the recording for this segment
+        if seg.get("slide"):
+            overlays.append((seg["slide"], t["start"], t["end"]))
     card(video["title_card"], video["title_sub"], [video.get("title_foot", "Free, open-source solid modeling for iPad")],
          os.path.join(build, "title.png"))
     card("Thanks for watching", "github.com/laanlabs/openshape3d",
          ["Free · open source · no account", video.get("outro_foot", "Subscribe for the next tutorial")],
          os.path.join(build, "outro.png"), big=False)
     raw = os.path.join(take_dir, "raw.mp4")
+    # Exactly one panel (plus at most one slide) shows at any moment, so the
+    # overlays are flattened into ONE image track (concat demuxer, a still per
+    # interval) — a filter per panel made ffmpeg crawl once a video had ~50.
+    from PIL import Image
+    cuts = sorted({0.0, total} | {min(max(t, 0.0), total) for _, a, b in overlays for t in (a, b)})
+    with open(os.path.join(build, "overlay.txt"), "w") as f:
+        last = None
+        for k, (a, b) in enumerate(zip(cuts, cuts[1:])):
+            if b - a < 1e-3:
+                continue
+            frame = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            for p, start, end in overlays:
+                if start <= a + 1e-6 and end >= b - 1e-6:
+                    layer = Image.open(p).convert("RGBA")
+                    frame.alpha_composite(layer, (0, 0))
+            last = os.path.join(build, f"overlay-{k:03d}.png")
+            frame.save(last)
+            f.write(f"file '{last}'\nduration {b - a:.3f}\n")
+        f.write(f"file '{last}'\n")              # the demuxer needs the last file repeated
     fc = [f"[0:v]transpose=2,tpad=stop_mode=clone:stop_duration=30,fps=30,"
           f"scale={VW}:{H}:force_original_aspect_ratio=decrease:flags=lanczos,"
-          f"pad={W}:{H}:0:(oh-ih)/2:color=0x{BG[0]:02x}{BG[1]:02x}{BG[2]:02x},format=rgba[base]"]
-    prev = "base"
-    for k, (p, a, b) in enumerate(overlays):
-        fc.append(f"[{prev}][{k + 1}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[o{k}]")
-        prev = f"o{k}"
-    fc.append(f"[{prev}]format=yuv420p,fade=t=in:st=0:d=0.6,fade=t=out:st={total - 0.8:.2f}:d=0.8[v]")
-    args = ["ffmpeg", "-y", "-loglevel", "error", "-i", raw]
-    for p, _, _ in overlays:
-        args += ["-loop", "1", "-i", p]
-    args += ["-filter_complex", ";".join(fc), "-map", "[v]", "-t", f"{total:.2f}",
-             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", "30", "-an", os.path.join(build, "main.mp4")]
+          f"pad={W}:{H}:0:(oh-ih)/2:color=0x{BG[0]:02x}{BG[1]:02x}{BG[2]:02x}[base]",
+          "[1:v]fps=30,format=rgba[panels]",
+          "[base][panels]overlay=0:0:eof_action=repeat[o]",
+          f"[o]format=yuv420p,fade=t=in:st=0:d=0.6,fade=t=out:st={total - 0.8:.2f}:d=0.8[v]"]
+    args = ["ffmpeg", "-y", "-loglevel", "error", "-i", raw,
+            "-f", "concat", "-safe", "0", "-i", os.path.join(build, "overlay.txt"),
+            "-filter_complex", ";".join(fc), "-map", "[v]", "-t", f"{total:.2f}",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", "30", "-an", os.path.join(build, "main.mp4")]
     run(args)
     for card_name, dur in (("title", TITLE_S), ("outro", OUTRO_S)):
         run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", os.path.join(build, card_name + ".png"),

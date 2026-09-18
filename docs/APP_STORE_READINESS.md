@@ -6,6 +6,45 @@ in a real signed archive**; what remains is listed under "Still open" and
 "Untested". Re-verify with the commands in "How this was checked" before any
 future submission — a build setting that was right once is not right forever.
 
+## 1.3 — AI Assistant (prepared 2026-09-17, not yet archived)
+
+`MARKETING_VERSION` bumped to 1.3. What changed for the store build, and what
+to say about it:
+
+- **New capability:** Settings ▸ AI Assistant ▸ *Let AI Assistants Build Here*
+  (`docs/AI_MODELING_SETUP.md`). Off by default. Mac Catalyst shows the
+  section; iOS builds do not (no desktop assistant to pair with).
+- **New entitlements on Release:** `com.apple.security.network.server` and
+  `com.apple.security.files.downloads.read-write`. Both were previously
+  Debug-only or absent. Review-notes text, ready to paste:
+
+  > OpenShape 3D can optionally let an AI assistant on the same Mac (Claude
+  > Desktop, ChatGPT) build in the open design. When the user switches this on
+  > in Settings, the app listens on 127.0.0.1 only, requires a per-install
+  > pairing code on every request, refuses browser-originated requests, and
+  > stops when switched off (default). Exports the assistant asks for are
+  > written to the user's Downloads folder, hence the downloads entitlement.
+  > No network connection is made by the app itself; the assistant apps make
+  > their own. Documentation: docs/AI_MODELING_SETUP.md and
+  > docs/AGENT_CONTROL.md "Safety posture" in the open-source repository.
+
+- **Privacy label:** unchanged. The app still collects nothing and makes no
+  outbound connection for this feature; what the user types goes to the
+  assistant app under its own terms (the setup doc says so in "Is this safe?").
+- **What's New (1.3):** "Ask Claude for a part. Turn on Settings ▸ AI
+  Assistant, add the OpenShape 3D extension to Claude Desktop with one click,
+  and describe what you want — it is modelled here and saved to Downloads,
+  ready for your slicer. Mac only."
+- **Bundled:** `OpenShape3D.mcpb` (the Claude Desktop extension, 48 KB),
+  `MCPTools.json`, `ModelingGuide.md` — resources, no code. The extension is
+  unsigned; Claude shows its standard "not verified by Anthropic" notice.
+- **Before archiving:** `python3 scripts/sync_ai_resources.py --check`, the
+  agent unit tests (`AgentMCPTests`, `AgentRouterTests`, `AgentHTTPTests`), and
+  on the archived Mac build: switch on → *Ready* → `curl` without the code is
+  refused (401), with it answers; Add to Claude Desktop hands off; an export
+  lands in ~/Downloads. All four were exercised on a Debug Catalyst build and
+  the first three on a Release Catalyst build on 2026-09-17.
+
 ## 1.2 update — verified 2026-09-14
 
 - **iOS:** Release build of main (1.2 build 1) installed on the paired iPad

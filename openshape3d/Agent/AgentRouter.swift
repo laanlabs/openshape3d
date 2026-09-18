@@ -20,7 +20,6 @@
 //  separate all three before the request ever reaches the main actor.
 //
 
-#if DEBUG
 
 import Foundation
 
@@ -31,6 +30,10 @@ nonisolated struct AgentResponse: Sendable {
     var reason: String
     var contentType: String = "application/json"
     var body: Data
+    /// Facts about a binary body that the bytes cannot say for themselves
+    /// (an export's overall size). Sent as `X-OS3D-<Key>` headers over REST and
+    /// folded into the tool result over MCP.
+    var info: [String: String] = [:]
 
     static func json(_ status: Int, _ reason: String, _ object: [String: Any]) -> AgentResponse {
         // `.sortedKeys` so responses are byte-stable — worth it for diffing a
@@ -57,6 +60,21 @@ nonisolated struct AgentResponse: Sendable {
 }
 
 // MARK: - Where a request is headed
+
+/// The fabrication formats `/v1/export` writes — the Export menu's mesh
+/// formats plus STEP. Millimetres, like everything else on the wire.
+nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
+    case stl, obj, threeMF = "3mf", step
+
+    var contentType: String {
+        switch self {
+        case .stl: return "model/stl"
+        case .obj: return "model/obj"
+        case .threeMF: return "model/3mf"
+        case .step: return "model/step"
+        }
+    }
+}
 
 nonisolated enum AgentRoute: Sendable, Equatable {
     /// Answerable without the editor.
@@ -87,6 +105,11 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// writes), after a save and a fresh thumbnail — how the bundled sample
     /// designs in `openshape3d/Demos/` are baked (`scripts/demo_models.py`).
     case archive
+    /// The design (or the named bodies) in a fabrication format — what the
+    /// Export menu writes, as bytes. The route an agent finishes a
+    /// "make me a printable X" request with.
+    /// `zUp` stands the Y-up model on its base for a slicer (Z-up world).
+    case export(format: AgentExportFormat, bodyIDs: [String], zUp: Bool)
     /// World points → viewport points (pt, the coordinate space a touch
     /// lands in), so a driver can aim a tap at a known edge midpoint or face
     /// centre instead of measuring screenshots.
@@ -102,7 +125,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     var needsEditor: Bool {
         switch self {
         case .state, .runCommand, .exec, .screenshot, .check, .capture,
-             .edges, .faces, .sketches, .project, .section, .archive:
+             .edges, .faces, .sketches, .project, .section, .archive, .export:
             return true
         case .health, .commands, .reply: return false
         }
@@ -156,6 +179,25 @@ nonisolated enum AgentRouter {
         case "/v1/archive":
             return get(request) ?? .archive
 
+        case "/v1/export":
+            if let bad = get(request) { return bad }
+            let raw = (request.query["format"] ?? "stl").lowercased()
+            guard let format = AgentExportFormat(rawValue: raw) else {
+                return .reply(status: 400, error: "unknown_format",
+                              message: "/v1/export?format= takes one of "
+                                     + AgentExportFormat.allCases.map(\.rawValue).joined(separator: ", ")
+                                     + " (default stl); optional body=<uuid>[,<uuid>…] from /v1/state, "
+                                     + "up=z to stand the Y-up model upright for a slicer.")
+            }
+            let up = (request.query["up"] ?? "y").lowercased()
+            guard up == "y" || up == "z" else {
+                return .reply(status: 400, error: "bad_up_axis",
+                              message: "up= is y (the app's world, default) or z (slicers, most CAD).")
+            }
+            let ids = (request.query["body"] ?? "").split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            return .export(format: format, bodyIDs: ids, zUp: up == "z")
+
         case "/v1/sketches":
             if let bad = get(request) { return bad }
             return .sketches
@@ -187,6 +229,7 @@ nonisolated enum AgentRouter {
                             xAxisHint: hint, deflection: deflection)
 
         case "/v1/capture":
+            guard developerRoutes else { return developerOnly(request.path) }
             guard request.method == "POST" else {
                 return .reply(status: 405, error: "method_not_allowed",
                               message: "POST to /v1/capture (optional JSON body {\"note\":\"…\"}).")
@@ -210,6 +253,8 @@ nonisolated enum AgentRouter {
                               message: "POST a JSON body to /v1/exec.")
             }
             switch AgentExec.parse(request.jsonBody) {
+            case .success(.importFile) where !developerRoutes:
+                return developerOnly("document.import")
             case .success(let op):
                 return .exec(op)
             case .failure(let error):
@@ -220,6 +265,92 @@ nonisolated enum AgentRouter {
             return .reply(status: 404, error: "unknown_path",
                           message: "No such endpoint: \(request.path). GET /v1/commands lists what this build can do.")
         }
+    }
+
+    /// Capture bundles and importing a file by PATH are development tools:
+    /// they touch the file system on the caller's say-so, so they do not
+    /// exist outside DEBUG builds.
+    static var developerRoutes: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
+    private static func developerOnly(_ what: String) -> AgentRoute {
+        .reply(status: 404, error: "developer_only",
+               message: "\(what) is only available in development builds.")
+    }
+
+    // MARK: Who may ask at all
+
+    /// Decided before any route is read. Three refusals, in this order:
+    ///
+    /// - **A browser.** Every cross-site request a web page can make that
+    ///   changes anything (a POST, a fetch with a JSON body) carries `Origin`.
+    ///   No real client of this channel sends one, so its presence is the
+    ///   whole test — and it needs no CORS machinery to get right.
+    /// - **A rebound hostname.** A page served from `evil.example` whose DNS
+    ///   later points at 127.0.0.1 is same-origin to itself, but it still says
+    ///   `Host: evil.example`. Only loopback names pass.
+    /// - **A stranger on this computer.** When the person switched the channel
+    ///   on in Settings (every Release start), `requiredToken` is the pairing
+    ///   code and each request must carry it as `Authorization: Bearer …`.
+    ///   `/v1/health` alone answers without it — reduced to the app's name, so
+    ///   a client can find the port and say "pair me" instead of "not running".
+    ///   A DEBUG launch with `OS3D_AGENT=1` passes nil: a developer's own flag.
+    static func refusal(for request: AgentRequest, requiredToken: String?) -> AgentRoute? {
+        if request.headers["origin"] != nil {
+            return .reply(status: 403, error: "browser_refused",
+                          message: "This channel does not serve web pages.")
+        }
+        if let host = request.headers["host"], !isLoopbackHost(host) {
+            return .reply(status: 403, error: "bad_host",
+                          message: "Address this channel as 127.0.0.1 or localhost.")
+        }
+        guard let requiredToken, request.path != "/v1/health" else { return nil }
+        let presented = request.headers["authorization"].flatMap { value -> String? in
+            let parts = value.split(separator: " ", maxSplits: 1)
+            guard parts.count == 2, parts[0].lowercased() == "bearer" else { return nil }
+            return parts[1].trimmingCharacters(in: .whitespaces)
+        }
+        guard let presented, constantTimeEqual(normalizedCode(presented), normalizedCode(requiredToken)) else {
+            return .reply(status: 401, error: "pairing_required",
+                          message: "Send the pairing code from OpenShape 3D ▸ Settings ▸ AI Assistant "
+                                 + "as 'Authorization: Bearer <code>'.")
+        }
+        return nil
+    }
+
+    /// `127.0.0.1`, `localhost` or `[::1]`, with or without a port.
+    static func isLoopbackHost(_ header: String) -> Bool {
+        var host = header.lowercased()
+        if host.hasPrefix("[") {                       // [::1]:8787
+            host = String(host.dropFirst().prefix { $0 != "]" })
+        } else if let colon = host.lastIndex(of: ":") {
+            host = String(host[host.startIndex..<colon])
+        }
+        return host == "127.0.0.1" || host == "localhost" || host == "::1"
+    }
+
+    /// People paste codes with the dashes, without them, in lower case.
+    static func normalizedCode(_ code: String) -> String {
+        code.uppercased().filter { $0.isLetter || $0.isNumber }
+    }
+
+    /// Length leaks; content does not.
+    static func constantTimeEqual(_ a: String, _ b: String) -> Bool {
+        let x = Array(a.utf8), y = Array(b.utf8)
+        guard x.count == y.count, !x.isEmpty else { return false }
+        var difference: UInt8 = 0
+        for i in 0..<x.count { difference |= x[i] ^ y[i] }
+        return difference == 0
+    }
+
+    /// What `/v1/health` says to a caller that has not presented the code.
+    static func unpairedHealthResponse() -> AgentResponse {
+        .ok(["app": "openshape3d", "protocol": AgentServer.protocolVersion, "pairing": "required"])
     }
 
     /// The three-way split described in this file's header.
@@ -314,4 +445,3 @@ nonisolated enum AgentRouter {
     }
 }
 
-#endif
