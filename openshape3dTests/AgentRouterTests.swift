@@ -60,6 +60,44 @@ final class AgentRouterTests: XCTestCase {
                        .screenshot(width: AgentRouter.maxShotSize, height: AgentRouter.minShotSize))
     }
 
+    // MARK: /v1/export
+
+    func testExportDefaultsToSTLOfTheWholeDesign() {
+        XCTAssertEqual(route("GET", "/v1/export"), .export(format: .stl, bodyIDs: [], zUp: false))
+        XCTAssertTrue(AgentRoute.export(format: .stl, bodyIDs: [], zUp: false).needsEditor)
+    }
+
+    func testExportTakesFormatAndBodies() {
+        XCTAssertEqual(route("GET", "/v1/export?format=3MF&body=A,%20B"),
+                       .export(format: .threeMF, bodyIDs: ["A", "B"], zUp: false))
+        XCTAssertEqual(route("GET", "/v1/export?format=step&up=Z"),
+                       .export(format: .step, bodyIDs: [], zUp: true))
+    }
+
+    func testExportRefusesAnUpAxisThatIsNotYOrZ() {
+        guard case let .reply(status, error, _) = route("GET", "/v1/export?up=x") else {
+            return XCTFail("expected a reply")
+        }
+        XCTAssertEqual(status, 400)
+        XCTAssertEqual(error, "bad_up_axis")
+    }
+
+    func testExportRefusesAnUnknownFormatByName() {
+        guard case let .reply(status, error, message) = route("GET", "/v1/export?format=gcode") else {
+            return XCTFail("expected a reply")
+        }
+        XCTAssertEqual(status, 400)
+        XCTAssertEqual(error, "unknown_format")
+        XCTAssertTrue(message.contains("stl"), "the refusal must name the formats that work")
+    }
+
+    func testExportIsGETOnly() {
+        guard case let .reply(status, _, _) = route("POST", "/v1/export", body: "{}") else {
+            return XCTFail("expected a reply")
+        }
+        XCTAssertEqual(status, 405)
+    }
+
     // MARK: /v1/check and /v1/capture (docs/FREECAD_PLAYBOOK.md D1/D2)
 
     func testCheckRoutesWithBodyAndBOPQuery() {

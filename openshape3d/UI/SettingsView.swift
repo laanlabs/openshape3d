@@ -16,6 +16,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // First, because the people it is for came for exactly this
+                // and know no other setting. Desktop assistants live on the
+                // Mac; an iPad has none to pair with (DEBUG keeps the section
+                // everywhere so it can be tested).
+                #if targetEnvironment(macCatalyst) || DEBUG
+                AIAssistantSettingsSection(control: AIControl.shared)
+                #endif
+
                 Section("Units") {
                     Picker("Length Unit", selection: $settings.unit) {
                         ForEach(DisplayUnit.allCases, id: \.self) { unit in

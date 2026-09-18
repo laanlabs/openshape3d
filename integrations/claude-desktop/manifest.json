@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "openshape3d",
+  "display_name": "OpenShape 3D",
+  "version": "1.0.0",
+  "description": "Ask Claude to design 3D-printable parts in OpenShape 3D on this Mac, then save them as STL files for your printer.",
+  "long_description": "Describe what you want — a flowerpot, a box for your electronics, a bracket — and Claude models it in OpenShape 3D while you watch, checks it is a solid that will print, and saves an STL to your Downloads folder.\n\nIn OpenShape 3D, open Settings ▸ AI Assistant, switch it on, and copy the pairing code into this extension. Everything stays on your Mac: the extension only talks to the OpenShape 3D app running on this computer.",
+  "author": {"name": "Laan Labs", "url": "https://github.com/laanlabs/openshape3d"},
+  "homepage": "https://github.com/laanlabs/openshape3d",
+  "documentation": "https://github.com/laanlabs/openshape3d/blob/main/docs/AI_MODELING_SETUP.md",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {"OS3D_PAIRING_CODE": "${user_config.pairing_code}"}
+    }
+  },
+  "user_config": {
+    "pairing_code": {
+      "type": "string",
+      "title": "Pairing code",
+      "description": "In OpenShape 3D: Settings ▸ AI Assistant ▸ Copy Pairing Code. Paste it here.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {"platforms": ["darwin"], "runtimes": {"node": ">=18.0.0"}},
+  "tools": [
+    {"name": "os3d_health", "description": "Check that OpenShape 3D is reachable and a design is open"},
+    {"name": "os3d_guide", "description": "The modelling guide: units, axes, operations, recipes"},
+    {"name": "os3d_state", "description": "Bodies with exact volumes and bounds, selection, undo state"},
+    {"name": "os3d_exec", "description": "One modelling operation: sketch, extrude, revolve, shell, fillet, boolean, material…"},
+    {"name": "os3d_faces", "description": "A body's faces, for shell and push-pull"},
+    {"name": "os3d_edges", "description": "A body's edges, for fillet and chamfer"},
+    {"name": "os3d_sketches", "description": "Every sketch's plane and entities"},
+    {"name": "os3d_check", "description": "Is it a valid, printable solid"},
+    {"name": "os3d_screenshot", "description": "A picture of the 3D view"},
+    {"name": "os3d_list_commands", "description": "View and undo commands"},
+    {"name": "os3d_run_command", "description": "Run a view or undo command"},
+    {"name": "os3d_export", "description": "Save an STL, 3MF, OBJ or STEP file to Downloads"}
+  ]
+}

@@ -1,32 +1,54 @@
 # Driving openshape3d from Claude
 
-A DEBUG-only loopback HTTP channel that lets an external agent inspect and drive
-the running app. Two clients ship with it, both speaking the same HTTP:
+A loopback HTTP channel that lets an AI assistant on the same computer inspect
+and build in the running app. Until 2026-09-17 it was DEBUG-only; it now ships,
+**off by default**, so that someone who installed the app from the store can
+ask Claude or ChatGPT for a part (`docs/AI_MODELING_SETUP.md`).
 
 | Client | Integration | Why |
 |---|---|---|
-| **Claude Code** | `.claude/skills/drive-openshape3d/SKILL.md` | It has a shell, so `curl` is a complete client. No server process |
-| **Claude Desktop** | `scripts/mcp_openshape3d.py` | It has no shell, so it needs a real MCP server |
+| **Claude Desktop** (store users) | `integrations/claude-desktop/` → `OpenShape3D.mcpb`, handed out by Settings ▸ AI Assistant | One click to install; a stdio↔HTTP relay to the app's own `/mcp`, no dependencies |
+| **ChatGPT/Codex, any HTTP MCP client** | the app's `POST /mcp` (`AgentMCP.swift`) | An address and a bearer token; nothing to install |
+| **Claude Code** | `.claude/skills/drive-openshape3d/` (run it) + `.claude/skills/model-openshape3d/` (model with it) | It has a shell, so `curl` is a complete client |
+| **Developers without a store build** | `scripts/mcp_openshape3d.py` | stdlib Python MCP server over the REST endpoints |
 
-The MCP server holds no logic of its own — every tool is a thin call to the
-endpoints below — so the two clients cannot drift apart.
+Every dialect ends in the same place — `AgentRouter.route` — so they cannot
+drift apart. The tool list (`Agent/MCPTools.json`) and the modelling guide
+(`.claude/skills/model-openshape3d/SKILL.md`) have one source each;
+`scripts/sync_ai_resources.py --check` fails when a copy is stale.
 
 ## Safety posture
 
-- Entirely `#if DEBUG`. A Release build has neither the code nor the sandbox
-  entitlement (`ENABLE_INCOMING_NETWORK_CONNECTIONS` is set on the Debug
-  configuration only).
-- Off unless `OS3D_AGENT` is set, like every other `OS3D_*` hook.
-- Loopback only, enforced twice: the `NWListener` interface constraint, plus a
-  peer check in `accept(_:)` that refuses any non-loopback address.
-- No authentication, because there is no remote to authenticate. Do not add a
-  LAN binding without also adding a token.
+- **Off until a person turns it on**: Settings ▸ AI Assistant
+  (`AIControl`). That switch is the only way a Release build ever listens.
+  DEBUG builds also honour a developer's `OS3D_AGENT=1`.
+- **Loopback only**, enforced twice: `requiredInterfaceType = .loopback` on
+  the listener, plus a peer check in `accept(_:)` that drops any non-loopback
+  address.
+- **Paired**: a channel a person opened answers only callers presenting that
+  installation's pairing code (`Authorization: Bearer …`; 100 random bits,
+  Keychain). `/v1/health` alone answers without it, and then says only
+  `{"app":"openshape3d","pairing":"required"}` so a client can find the port.
+  A developer's `OS3D_AGENT=1` launch has no code — it is their own flag, on a
+  build that never ships.
+- **No browsers**: any request with an `Origin` header is refused (every
+  cross-site request that can change something carries one), and a `Host`
+  that is not a loopback name is refused (DNS rebinding).
+- **Small surface in Release**: `/v1/capture` and the `document.import` exec
+  op — the two that touch the file system on the caller's say-so — are
+  `developer_only` outside DEBUG. MCP exports are written by the app into
+  Downloads under a sanitized name and never overwrite.
+- Sandbox: `ENABLE_INCOMING_NETWORK_CONNECTIONS` and
+  `ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER` on both configurations. The app has no
+  network-client entitlement and makes no outbound connection for any of this.
 
 ## Files
 
 | File | Role |
 |---|---|
-| `openshape3d/Agent/AgentServer.swift` | The socket. `NWListener`, loopback enforcement, response writing |
+| `openshape3d/Agent/AIControl.swift` | The person's switch, the pairing code (Keychain), the Downloads writer |
+| `openshape3d/Agent/AgentMCP.swift` | MCP at `POST /mcp`: handshake, tool list, tool → REST request → tool result |
+| `openshape3d/Agent/AgentServer.swift` | The socket. `NWListener`, port fallback, loopback enforcement, response writing |
 | `openshape3d/Agent/AgentHTTP.swift` | Framing: incremental request parser, `Content-Length` bodies |
 | `openshape3d/Agent/AgentRouter.swift` | Routing and every reply that needs no editor |
 | `openshape3d/Agent/AgentBridge.swift` | The `@MainActor` hop; holds the live `EditorViewModel` weakly |
@@ -258,6 +280,16 @@ design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
 512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
 gallery is on screen.
 
+### `GET /v1/export?format=stl|obj|3mf|step[&body=<uuid>,…][&up=y|z]`
+
+The Export menu's bytes (`model/stl`, …) — how an agent finishes "make me a
+printable X". No `body` = every body, hidden ones included, as in the menu;
+with `body`, one file per part. `up=z` turns the app's Y-up world a quarter
+turn about X, (x, y, z) → (x, −z, y), so a part standing on the ground plane
+stands on a slicer's bed. Millimetres. Typed refusals: 400 `unknown_format` /
+`bad_up_axis` / `bad_uuid`, 404 `unknown_body`, 409 `nothing_to_export`, and
+409 `mesh_only_body` when STEP is asked of bodies with no B-rep.
+
 ### `POST /v1/command`
 
 Body `{"id":"view.isometric"}`. Returns the full state plus `ran`.
@@ -436,8 +468,8 @@ removed faces, spec §4.16) and **replaceFace** (`{"bodyID":…,"face":[i],
 onto a world plane, spec §4.12, same plane-not-ref v1 limitation as the
 interactive tool). What is still missing:
 
-- **`offsetFace`** over exec, and **loft** (multi-profile sections) — no
-  tutorial recipe needs either yet.
+- **`offsetFace`** over exec — no tutorial recipe needs it yet. (Loft
+  landed: `feature.loft`, in the table above.)
 - **Align**, which has no `FeatureKind` at all.
 - **Importing a body.** Several of the reference tutorial models lean on
   `MaterializeImportedBodies`, and those bodies are Parasolid, which OCCT cannot

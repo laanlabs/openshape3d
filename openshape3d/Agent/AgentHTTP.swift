@@ -23,7 +23,6 @@
 //  implicitly main-actor and could not be touched from the listener queue.
 //
 
-#if DEBUG
 
 import Foundation
 
@@ -152,4 +151,3 @@ nonisolated enum AgentHTTP {
     }
 }
 
-#endif
