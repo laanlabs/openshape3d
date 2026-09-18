@@ -129,6 +129,29 @@ final class TutorialTakeUITests: XCTestCase {
                 let field = app.textFields[kv[0]].firstMatch
                 if field.waitForExistence(timeout: 5) { typeOnPad(app, field: field, kv[1]) }
                 else { result = "done:missing" }
+            case "text_field":                        // text_field:TextContentField=JULES (a keyboard field)
+                let kv = arg.split(separator: "=", maxSplits: 1).map(String.init)
+                let field = byIdOrLabel(kv[0])
+                if field.waitForExistence(timeout: 5) { replaceText(field, with: kv[1], submit: false) }
+                else { result = "done:missing" }
+            case "save_sheet":                        // save_sheet:2.5 — the export's save panel
+                // The document picker loads out of process for a few seconds;
+                // tapping before its Save button exists hits nothing (or the
+                // wrong "Cancel"). Wait for it, let it show, then save.
+                let save = app.buttons["Save"].firstMatch
+                if save.waitForExistence(timeout: 15) {
+                    Thread.sleep(forTimeInterval: Double(arg) ?? 2.0)
+                    save.tap()
+                    // A file of the same name from an earlier take raises
+                    // "Replace Existing Items?" — answer it, or it blocks.
+                    let replace = app.buttons["Replace"].firstMatch
+                    if replace.waitForExistence(timeout: 2.5) { replace.tap() }
+                    let gone = NSPredicate(format: "exists == false")
+                    let wait = XCTNSPredicateExpectation(predicate: gone, object: save)
+                    result = XCTWaiter().wait(for: [wait], timeout: 8) == .completed ? "done:saved" : "done:stuck"
+                } else {
+                    result = "done:no-sheet"
+                }
             case "key_return":
                 app.typeKey(.return, modifierFlags: [])
             case "exists":                            // exists:MaterialApply → done:yes / done:no

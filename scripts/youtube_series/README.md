@@ -30,6 +30,49 @@ material rather than paced live: `python3 ask_claude.py <material-dir>` (the
 docstring lists the stills, the `screencapture -V -l` window recording and the
 timed `claude -p … --output-format stream-json` transcripts it expects).
 
+## Ten project tutorials
+
+Ten follow-along projects, the classics of CAD tutorials on YouTube: coffee
+mug, chess pawn & rook, LEGO-style brick, name keychain, twisted vase, bolt &
+nut with threads, spur gears, fidget spinner, ice cube tray and a
+print-in-place hinged box.
+
+    python3 project_tutorial.py mug --dry     # build it on the running app, no video
+    python3 project_tutorial.py mug           # take + compose + metadata + thumbnail
+    ./batch.sh chess vase bolt                # several in a row, one log each
+    python3 contact.py mug <video.mp4> sheet.png   # one frame per chapter, for review
+
+`projects.py` holds one builder per video: a generator that yields a chapter
+id, then performs that chapter's steps. The dry run and the recorded take run
+the same builder, so the geometry in the video is the geometry that was
+checked (`--dry` ends with `/v1/check` on every body). Modelling goes over the
+bridge; the touches are real — Start a Blank Design, tap a sketch region and
+type the height on the keypad, the Text tool (keychain), a Material preset,
+Export ▸ STL/3MF through the save panel, History. Each touch has a bridge
+fallback, so a missed gesture shows the same result instead of derailing the
+take. `projects_text.py` has the narration, chapter panels and YouTube text.
+Outputs: `openshape3d-<slug>.mp4`, `-metadata.md` and a 1280×720
+`-thumbnail.png`; the title card shows the finished model (a `/v1/screenshot`
+taken at the end of the take). Set `OS3D_VIDEO_OUT` to write them somewhere
+other than this checkout's `marketing/youtube/`.
+
+Gotchas met on the way:
+
+- `view.<orientation>` animates; a `view.fit` sent straight after cancels the
+  turn. `M.view` waits 0.8 s between them.
+- A body built by touch stays selected (gizmo, blue tint over its material)
+  until a tap on empty grid.
+- The save panel loads out of process for a few seconds, and a second export
+  of `Untitled.stl` raises "Replace Existing Items?" — `save_sheet` waits for
+  Save, then answers Replace.
+- A take that dies mid-way must stop `recordVideo` and the test, or the next
+  take cannot record on that device (`run_take` now does it in `finally`).
+- The mug handle's sweep fails ("tool solid is invalid") with a 48-segment
+  path; 30 segments builds.
+- The bridge has no text op: the keychain's letters come from the Text tool by
+  touch, and their extrude seeds from rasterising the glyph loops
+  (`glyph_seeds`).
+
 ## How a take works
 
 - **Touches** are performed by `openshape3dUITests/TutorialTakeUITests`
@@ -60,3 +103,4 @@ never collide with the UI suite's builds on the shared simulators.
 - `ask_claude.py` — the store-user video, cut from real screenshots and a Mac window recording
 - `ai_flowerpot.py`, `ai_flowerpot_session.json` — the AI-modelling video and the session it replays
 - `probe*.py` — the touch-flow probes used while writing the takes
+- `project_tutorial.py`, `projects.py`, `projects_text.py`, `batch.sh`, `contact.py` — the ten project tutorials

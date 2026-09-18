@@ -299,15 +299,19 @@ def run_take(name, script, take_fn, out=None):
     rec = Recorder(udid)
     rec.start(os.path.join(out, "raw.mp4"))
     tl = Timeline(durations)
-    take_fn(Take(control, tl))
-    tl.dump(os.path.join(out, "timeline.json"))
-    rec.stop()
-    control.finish()
     try:
-        test.wait(timeout=120)
-    except subprocess.TimeoutExpired:
-        test.kill()
-    control.server.shutdown()
+        take_fn(Take(control, tl))
+        tl.dump(os.path.join(out, "timeline.json"))
+    finally:
+        # a failed take must not leave recordVideo or the test running: the
+        # next take's recorder and test would fail to start on this device
+        rec.stop()
+        control.finish()
+        try:
+            test.wait(timeout=120)
+        except subprocess.TimeoutExpired:
+            test.kill()
+        control.server.shutdown()
     log(f"take length {tl.now():.1f}s -> {out}")
     return out
 
@@ -401,8 +405,42 @@ def panel_png(i, n, seg, series, path):
     im.save(path)
 
 
-def card(title, sub, foot, path, big=True):
+def hero_card(title, sub, foot, hero, path):
+    """Title card with the finished model: text on the left, the render on the right."""
     from PIL import Image, ImageDraw
+    im = Image.new("RGB", (W, H), BG)
+    shot = Image.open(hero).convert("RGB")
+    s = H / shot.height
+    shot = shot.resize((int(shot.width * s), H), Image.LANCZOS)
+    x0 = W - shot.width + int(shot.width * 0.1)
+    im.paste(shot, (x0, 0))
+    # fade the render into the background towards the text column
+    fade = Image.new("L", (W, H), 0)
+    fd = ImageDraw.Draw(fade)
+    for x in range(W):
+        fd.line([(x, 0), (x, H)], fill=max(0, min(255, int(255 * (1.0 - (x - x0) / 420)))))
+    im = Image.composite(Image.new("RGB", (W, H), BG), im, fade)
+    d = ImageDraw.Draw(im)
+    ic = icon(120)
+    im.paste(ic, (110, 250), ic)
+    y = 410
+    f = font(84, True)
+    for line in wrap(d, title, f, 800):
+        d.text((110, y), line, font=f, fill=FG); y += 96
+    y += 10
+    f = font(40)
+    for line in wrap(d, sub, f, 800):
+        d.text((110, y), line, font=f, fill=MUTED); y += 52
+    y += 30
+    for line in foot:
+        d.text((110, y), line, font=font(30), fill=ACCENT); y += 42
+    im.save(path)
+
+
+def card(title, sub, foot, path, big=True, hero=None):
+    from PIL import Image, ImageDraw
+    if hero:
+        return hero_card(title, sub, foot, hero, path)
     glow = Image.new("RGB", (W, H), BG)
     gd = ImageDraw.Draw(glow)
     for r in range(600, 0, -20):
@@ -468,7 +506,7 @@ def compose(name, script, take_dir, video, out_path, series):
         if seg.get("slide"):
             overlays.append((seg["slide"], t["start"], t["end"]))
     card(video["title_card"], video["title_sub"], [video.get("title_foot", "Free, open-source solid modeling for iPad")],
-         os.path.join(build, "title.png"))
+         os.path.join(build, "title.png"), hero=video.get("hero"))
     card("Thanks for watching", "github.com/laanlabs/openshape3d",
          ["Free · open source · no account", video.get("outro_foot", "Subscribe for the next tutorial")],
          os.path.join(build, "outro.png"), big=False)

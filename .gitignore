@@ -43,3 +43,4 @@ scripts/youtube_series/take-*/
 scripts/youtube_series/tts/
 scripts/youtube_series/music-bed.wav
 scripts/youtube_series/dd/
+scripts/youtube_series/*.log
