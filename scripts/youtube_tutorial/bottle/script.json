@@ -1,0 +1,124 @@
+[
+ {
+  "id": "intro",
+  "title": "Glass Bottle",
+  "sub": "Four tools: Line, Revolve, Shell, Fillet",
+  "lines": [
+   "Everything is done by touch",
+   "Follow along on your iPad"
+  ],
+  "say": "In this tutorial we'll model a glass bottle in OpenShape 3D, using just four tools: Line, Revolve, Shell and Fillet. Everything you'll see is done through the touch interface, so you can follow along on your own iPad."
+ },
+ {
+  "id": "new_design",
+  "title": "A blank design",
+  "sub": "Palette, viewport, toolbar",
+  "lines": [
+   "Tools on the left",
+   "Undo, views, Items and History on top"
+  ],
+  "say": "Start a blank design. The tool palette sits on the left. The toolbar on top has undo and redo, the standard views, and the Items and History panels."
+ },
+ {
+  "id": "plane",
+  "title": "Step 1 · Pick a plane",
+  "sub": "Sketch › Line, then the front plane",
+  "lines": [
+   "A bottle is a revolved shape",
+   "Draw half the profile, standing up",
+   "Tap the blue front-plane tile"
+  ],
+  "say": "Tap Sketch, then Line. The app asks which plane to sketch on. A bottle is a revolved shape, so we'll draw half of its profile standing up, on the front plane. Tap the blue tile."
+ },
+ {
+  "id": "axis",
+  "title": "Step 2 · Centerline",
+  "sub": "Two taps, then an exact height",
+  "lines": [
+   "Tap the base, tap the top",
+   "Tap Line again to finish",
+   "Tap the badge, type 230 mm",
+   "Fit View"
+  ],
+  "say": "Start with the centerline. Tap once at the base and once at the top, then tap Line again to finish. The line stays selected, so tap its dimension badge and type the height: two hundred and thirty millimeters. Fit View brings it back on screen."
+ },
+ {
+  "id": "profile",
+  "title": "Step 3 · Draw the outline",
+  "sub": "Each tap adds a corner",
+  "lines": [
+   "Start at the top of the centerline",
+   "Out to the lip, down the neck",
+   "Over the shoulder, down the body",
+   "Finish at the base: the profile closes"
+  ],
+  "say": "Now the outline. Pick Line again and start at the top of the centerline. Each tap adds a corner and the line carries on from the last one: out to the lip, down the neck, over the shoulder, down the body, and in at the base. Finish on the bottom of the centerline, and the profile closes and fills in."
+ },
+ {
+  "id": "revolve",
+  "title": "Step 4 · Revolve",
+  "sub": "Tap the fill, choose Revolve, tap the axis",
+  "lines": [
+   "Exit Sketching",
+   "Tap inside the profile",
+   "Revolve instead of Extrude",
+   "The centerline is the axis"
+  ],
+  "say": "Exit the sketch and tap inside the filled profile. The bar offers Extrude by default. Choose Revolve instead, then tap the centerline to use it as the axis. A full three hundred and sixty degrees, and the flat profile becomes a solid bottle."
+ },
+ {
+  "id": "material",
+  "title": "Step 5 · Material",
+  "sub": "Select the body, Material, pick a preset",
+  "lines": [
+   "Double-tap selects the body",
+   "Presets or a custom color",
+   "Looks only: the geometry stays exact"
+  ],
+  "say": "Let's color it now so the next steps are easier to see. Double-tap the bottle to select it, open Material, and pick a preset or a custom color. Apply. This only changes the look. The geometry underneath stays exact."
+ },
+ {
+  "id": "shell",
+  "title": "Step 6 · Shell",
+  "sub": "Modify › Shell, open the mouth, 2 mm",
+  "lines": [
+   "Tap the top face to leave it open",
+   "Type the wall thickness",
+   "Apply"
+  ],
+  "say": "Now make it hollow. Tap Modify, then Shell. Tap the top face so the mouth stays open, type a wall thickness of two millimeters, and Apply. The solid becomes a thin glass wall."
+ },
+ {
+  "id": "fillet",
+  "title": "Step 7 · Fillet",
+  "sub": "Modify › Fillet, tap the rim, 1 mm",
+  "lines": [
+   "One tap picks the whole rim",
+   "Type the radius",
+   "Apply"
+  ],
+  "say": "Finally, round the lip. Tap Modify, then Fillet, and tap the rim. One tap picks the whole circular edge. Type a one millimeter radius and Apply."
+ },
+ {
+  "id": "history",
+  "title": "Every step stays editable",
+  "sub": "History panel",
+  "lines": [
+   "Change the thickness or the profile",
+   "The bottle rebuilds",
+   "Export STEP, STL, 3MF, OBJ or DXF"
+  ],
+  "say": "Open History and every step is still there: change the wall thickness or move a corner of the profile, and the bottle rebuilds. When you're happy, export STEP or STL from the share menu."
+ },
+ {
+  "id": "outro",
+  "title": "That's a bottle",
+  "sub": "Line, Revolve, Shell, Fillet",
+  "lines": [
+   "Free and open source",
+   "No account, no cloud",
+   "On GitHub: laanlabs/openshape3d"
+  ],
+  "say": "That's a glass bottle in four tools. OpenShape 3D is free and open source, with no account and no cloud. Thanks for watching, and happy modeling."
+ }
+]
