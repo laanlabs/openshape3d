@@ -1721,17 +1721,24 @@ static void OS3DFillHistory(OCCTShapeHistory *history,
                             const std::vector<TopoDS_Shape> &inputs,
                             const Handle(BRepTools_History) &unifyHistory,
                             const TopoDS_Shape &finalShape,
-                            BOOL truncatedByHeal) {
+                            BOOL truncatedByHeal,
+                            const TopTools_DataMapOfShapeShape *copied = nullptr) {
     TopTools_IndexedMapOfShape finalFaces;
     TopExp::MapShapes(finalShape, TopAbs_FACE, finalFaces);
+    // A builder-result face as the unify hop saw it: its copy, when the
+    // unify ran on a copy (the boolean), else the face itself.
+    auto through = [&](const TopoDS_Shape &face) -> TopoDS_Shape {
+        return (copied != nullptr && copied->IsBound(face)) ? copied->Find(face) : face;
+    };
 
     std::set<std::array<int32_t, 5>> rowSet;
 
     // Final face indices an intermediate face maps to: its unify images
     // when the seam merge rewrote it, else the face itself. Empty when the
     // face never reached the final shape — the phantom gate.
-    auto finalIndices = [&](const TopoDS_Shape &face) {
+    auto finalIndices = [&](const TopoDS_Shape &builderFace) {
         std::vector<int32_t> out;
+        const TopoDS_Shape face = through(builderFace);
         if (!unifyHistory.IsNull()) {
             try {
                 const TopTools_ListOfShape &images = unifyHistory->Modified(face);
@@ -1777,7 +1784,7 @@ static void OS3DFillHistory(OCCTShapeHistory *history,
         TopTools_IndexedMapOfShape faces;
         TopExp::MapShapes(inputs[(size_t)ordinal], TopAbs_FACE, faces);
         for (Standard_Integer i = 1; i <= faces.Extent(); ++i) {
-            const TopoDS_Shape &face = faces(i);
+            const TopoDS_Shape face = through(faces(i));
             const int32_t direct = finalFaces.FindIndex(face);
             if (direct > 0 && rowSet.size() < kOS3DMaxHistoryRows) {
                 rowSet.insert({direct, ordinal, 0, (int32_t)i, 0});
@@ -1832,6 +1839,10 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
         return shape;
     }
 }
+
+#if DEBUG
+static bool gOS3DBooleanUnmergedFallback = true;
+#endif
 
 + (nullable OCCTShape *)booleanOfShape:(OCCTShape *)a
                              withShape:(OCCTShape *)b
@@ -1947,14 +1958,51 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
                           @"the operation leaves no solid");
             return nil;
         }
+        // Merge same-domain faces and edges on a COPY of the result.
+        // ShapeUpgrade_UnifySameDomain rewrites edges of the shape it is given
+        // in place (safe-input mode does not stop it), and a boolean result
+        // shares its untouched sub-shapes with the operands: the stored
+        // bodies. Practice problem 18.19 (2026-09-17): the Ø6 bore through
+        // a boss whose face a window cut had split built valid; the face
+        // merge, which merged nothing, left it invalid and the TARGET BODY
+        // invalid too, so the heal passed it with a 12.9 mm tolerance and
+        // every later cut on the part removed nothing. The copy keeps the
+        // render mesh, so untouched faces need no new tessellation.
+        const TopoDS_Shape built = solidCount == 1 ? single : result;
         Handle(BRepTools_History) unifyHistory;
-        TopoDS_Shape unified = history != nil
-            ? OS3DUnifiedWithHistory(solidCount == 1 ? single : result,
-                                     unifyHistory)
-            : OS3DUnified(solidCount == 1 ? single : result);
+        TopTools_DataMapOfShapeShape copied;
+        TopoDS_Shape unified;
+        BRepBuilderAPI_Copy copier(built, Standard_False, Standard_True);
+        if (copier.IsDone() && !copier.Shape().IsNull()) {
+            unified = history != nil ? OS3DUnifiedWithHistory(copier.Shape(), unifyHistory)
+                                     : OS3DUnified(copier.Shape());
+            if (history != nil) {
+                for (TopExp_Explorer ex(built, TopAbs_FACE); ex.More(); ex.Next()) {
+                    if (!copied.IsBound(ex.Current())) {
+                        copied.Bind(ex.Current(), copier.ModifiedShape(ex.Current()));
+                    }
+                }
+            }
+        } else {
+            unified = built;
+        }
+        bool unifiedValid = OS3DIsValid(unified);
+        // When the merge itself broke a valid result (18.19's window cut
+        // after its boss: the merged boss face comes out unorientable), keep
+        // the result unmerged.
+        bool keepUnmerged = !unifiedValid;
+#if DEBUG
+        keepUnmerged = keepUnmerged && gOS3DBooleanUnmergedFallback;
+#endif
+        if (keepUnmerged && !unified.IsSame(built) && OS3DIsValid(built)) {
+            unified = built;
+            unifiedValid = true;
+            unifyHistory.Nullify();
+            copied.Clear();
+        }
         // Before the heal, which can change sub-shape tolerances in place.
         const double preHealTolerance = OS3DMaxTolerance(unified);
-        TopoDS_Shape normalized = OS3DHealAndValidate(unified);
+        TopoDS_Shape normalized = unifiedValid ? unified : OS3DHealAndValidate(unified);
         if (normalized.IsNull()) {
             OS3DSetStatus(status, OCCTOpCodeInvalidResult,
                           @"boolean result failed validity checking");
@@ -1992,7 +2040,8 @@ static TopoDS_Shape OS3DUnifiedWithHistory(const TopoDS_Shape &shape,
             // heal that rebuilt faces just drops their rows; the flag says
             // coverage may have holes.
             OS3DFillHistory(history, histEdges, historyInputs, unifyHistory,
-                            normalized, !normalized.IsSame(unified));
+                            normalized, !normalized.IsSame(unified),
+                            copied.IsEmpty() ? nullptr : &copied);
         }
 
         if (solidCount > 1) {
@@ -3366,8 +3415,18 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                 return nil;
             }
             // Inward: the original minus its shrunken copy. Outward: the
-            // grown copy minus the original.
-            BRepAlgoAPI_Cut cut(outward ? inner : input, outward ? input : inner);
+            // grown copy minus the original. Non-destructive, like
+            // booleanOfShape: a default cut writes pcurves onto the input's
+            // edges in place (24 on 18.23's filleted body, 2026-09-17), and
+            // the input is the stored body undo snapshots share.
+            TopTools_ListOfShape cutArgs, cutTools;
+            cutArgs.Append(outward ? inner : input);
+            cutTools.Append(outward ? input : inner);
+            BRepAlgoAPI_Cut cut;
+            cut.SetArguments(cutArgs);
+            cut.SetTools(cutTools);
+            cut.SetNonDestructive(Standard_True);
+            cut.Build();
             if (!cut.IsDone() || cut.HasErrors()) {
                 OS3DSetStatus(status, OCCTOpCodeKernelRefused,
                               @"hollowing failed on this shape");
@@ -3393,6 +3452,7 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
             BRepOffsetAPI_MakeThickSolid mkSplit;
             TopoDS_Shape split;
             Handle(BRepTools_History) splitHistory;
+            NSString *retryNote = @"";
             if (made == nullptr && code == (int)BRepOffset_C0Geometry) {
                 split = OS3DSplitAtC0(input, splitHistory);
                 if (!split.IsNull()) {
@@ -3402,15 +3462,26 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                             splitOpenFaces.Append(piece);
                         }
                     }
+                    // The refusal names the retry's own failure: reporting
+                    // the first C0Geometry sent readers after C0 faces the
+                    // split had already removed (18.23, 2026-09-17).
                     try {
                         mkSplit.MakeThickSolidByJoin(split, splitOpenFaces, offset, 1.0e-3);
                         if (mkSplit.IsDone()) {
                             made = &mkSplit;
                         } else {
                             code = (int)mkSplit.MakeOffset().Error();
+                            retryNote = @", after splitting its C0 faces";
                         }
+                    } catch (Standard_Failure &e) {
+                        made = nullptr;
+                        code = -2;
+                        NSString *what = [@(e.GetMessageString()) stringByTrimmingCharactersInSet:
+                                          [NSCharacterSet whitespaceCharacterSet]];
+                        if (what.length > 0) retryNote = [@": " stringByAppendingString:what];
                     } catch (...) {
                         made = nullptr;
+                        code = -2;
                     }
                 }
             }
@@ -3433,8 +3504,9 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
                     "CannotTrimEdges", "CannotFuseVertices", "CannotExtentEdge",
                     "UserBreak", "MixedConnectivity"};
                 const char *name = (code >= 0 && code < 11) ? kOffsetErrors[code] : "?";
-                OS3DSetStatus(status, OCCTOpCodeKernelRefused,
-                              [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset: %s)", name]);
+                OS3DSetStatus(status, OCCTOpCodeKernelRefused, code == -2
+                    ? [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset threw after splitting its C0 faces%@)", retryNote]
+                    : [NSString stringWithFormat:@"the wall thickness is out of range for this shape (OCCT offset: %s%@)", name, retryNote]);
                 return nil;
             }
             built = made->Shape();
@@ -4070,6 +4142,10 @@ static bool OS3DPlausibleSectionCounts(NSData *data) {
 }
 
 #if DEBUG
++ (void)debugSetBooleanUnmergedFallbackEnabled:(BOOL)enabled {
+    gOS3DBooleanUnmergedFallback = enabled;
+}
+
 + (nullable OCCTShape *)debugInvalidOpenBoxWithSize:(double)size {
     if (size <= 0) return nil;
     try {

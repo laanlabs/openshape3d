@@ -2,7 +2,7 @@
   "version": 1,
   "op": "boolean",
   "date": "2026-09-16T23:28:17Z",
-  "note": "Practice problem 18.19 (round 6, 2026-09-16): the lever's window pocket cut AFTER its Ø13 boss. a = the arm with the boss unioned (3680.571 mm³), b = the window tool, 5 deep from the front face, whose floor arc lies on the boss cylinder and whose R1 corners are tangent to it (135.047 mm³). The subtract gives the coincident R6.5 edge a pcurve 11.5 mm off on the boss face (and leaves that face UnorientableShape); ShapeFix then 'heals' it with a 12.87 mm tolerance, which passes BRepCheck with the right volume (3545.524) but makes every later boolean on the body a silent no-op. The boolean now refuses a result the heal could only pass by loosening its tolerance past 1% of its size. Captured with /v1/capture as a snapshot and rewritten as a boolean. When the pcurve itself is fixed, flip expect to success with volumeMM3 3545.524.",
+  "note": "Practice problem 18.19 (round 6, 2026-09-16): the lever's window pocket cut AFTER its \u00d813 boss. a = the arm with the boss unioned (3680.571 mm\u00b3), b = the window tool, 5 deep from the front face, whose floor arc lies on the boss cylinder and whose R1 corners are tangent to it (135.047 mm\u00b3). The subtract, as the bridge normalized it, gave the coincident R6.5 edge a pcurve 11.5 mm off on the boss face (and left that face UnorientableShape); ShapeFix then 'heals' it with a 12.87 mm tolerance, which passes BRepCheck with the right volume (3545.524) but makes every later boolean on the body a silent no-op. Traced 2026-09-17: the cut itself builds valid; the bad pcurve comes from merging same-domain faces afterwards (ShapeUpgrade_UnifySameDomain, which merged no face here and rewrote the result's edges in place). The boolean now merges a copy of the result and keeps the unmerged result when the merge breaks it: valid, exact volume. The loosened-heal refusal behind it is pinned by BooleanFaceMergeTests with that fallback switched off. Captured with /v1/capture as a snapshot and rewritten as a boolean.",
   "params": {
     "op": 1
   },
@@ -33,7 +33,8 @@
     }
   ],
   "expect": {
-    "outcome": "failure",
-    "errorContains": "loosening its tolerance"
+    "outcome": "success",
+    "volumeMM3": 3545.524,
+    "volumeToleranceMM3": 0.01
   }
 }

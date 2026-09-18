@@ -594,6 +594,10 @@ typedef NS_ENUM(NSInteger, OCCTOpCode) {
 /// path. No public op can build an invalid shape (they all validate), which
 /// is exactly why this factory exists. DEBUG only.
 + (nullable OCCTShape *)debugInvalidOpenBoxWithSize:(double)size;
+/// Turns off the boolean's fallback to its unmerged result (on by default),
+/// so a test can reach the path behind it: the loosened-heal refusal. DEBUG
+/// only.
++ (void)debugSetBooleanUnmergedFallbackEnabled:(BOOL)enabled;
 #endif
 
 /// Serialize a solid to OCCT's BRep text format, so the analytic geometry can be

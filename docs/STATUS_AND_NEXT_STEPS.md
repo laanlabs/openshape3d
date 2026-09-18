@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — AI modelling made usable end to end (MCP server gained exec / faces / edges / check / export, new `/v1/export`, `model-openshape3d` skill, `docs/AI_MODELING_SETUP.md`, tested with real Claude sessions) and the "flowerpot with Claude or ChatGPT" tutorial; three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); see the newest mission log, the register above, and
+Last updated: 2026-09-17 — AI modelling made usable end to end (MCP server gained exec / faces / edges / check / export, new `/v1/export`, `model-openshape3d` skill, `docs/AI_MODELING_SETUP.md`, tested with real Claude sessions) and the "flowerpot with Claude or ChatGPT" tutorial; three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -169,6 +169,117 @@ tool list only; no GPT-built model is shown or claimed.
 per circle (the Ø110 rim exports as 109.6 across flats, chord error 0.19 mm)
 — fine for a pot, coarse for a bearing seat; an export deflection parameter
 would fix it. There is no op to rename a body (both parts are "Revolve").
+## Mission log — 2026-09-17, 18.23's shell refusal: a tube that folds on itself
+
+- **The rule.** The failure depends on where the pipe junction runs and
+  on the thickness, not on the S step's convex R3 collapsing (the earlier
+  explanation). On the S-step body without fillets, shell 3 and 4:
+  - pipe top at y 31, below the step: builds (43 187.699 and 49 335.665);
+  - pipe top at 33, into the step's concave R3: refused at 3 and 4, builds
+    at 1, 2, 2.5 and 2.9 (and so do pipe heights 21.5 and 24);
+  - no pipe: builds at 3 and 4.
+  At an inside corner, a shell's inner wall is a tube of radius t round
+  the edge. Where the pipe junction follows the concave R3 torus it bends
+  at about 3 mm, so from t = 3 that tube folds on itself, and OCCT's
+  offset (arc joins; intersection joins build invalid) cannot trim it.
+- **The recipe's body fails at every thickness tried** (1, 2, 2.5, 2.9,
+  2.99, 3, 3.01, 3.1, 4). #60's split leaves no C0 face, curve or pcurve on
+  it; the split body's offset throws below 3 and returns UnknownError from
+  3. The explicit cavity stays.
+- **The refusal said the wrong thing.** Below 3 it read "OCCT offset:
+  C0Geometry", because #60's retry kept the first error when the offset of
+  the split body threw. It now names the retry's own failure: "OCCT offset:
+  UnknownError, after splitting its C0 faces", or "OCCT offset threw after
+  splitting its C0 faces: BRepAlgo_Image::FirstImageFrom".
+- **Checked.** Fixture `pipe-junction-over-s-step-shell` (18.23's body,
+  shell 3, expect failure "after splitting its C0 faces"; flip it if OCCT
+  ever builds this) and `ShellOverFilletTests.testARefusalAfterTheSplitNamesTheRetry`
+  (2.9 names the throw, not C0Geometry); both fail on main's bridge. Full
+  unit suite 1689 / 0 failures. The recipe comment, the 18.23 note and #60's
+  log carry the corrected cause. 18.19's report row, which #68 did not
+  regenerate, is too.
+
+## Mission log — 2026-09-17, do kernel ops change the bodies they are given?
+
+- **Why ask.** #68 found the boolean's same-domain face merge rewriting
+  edges shared with its operands, so a stored body went invalid. The heal
+  (`ShapeFix_Shape` in `OS3DHealAndValidate`) also runs on results that
+  share untouched faces with a stored input, after booleans, fillets,
+  shells, drafts and face removal.
+- **How.** Serialize each input before and after the op and compare. The
+  cases were real ones where the heal runs:
+  - 18.9A's refused arm-wall fillet;
+  - four of 18.23's refused shells and 13.9A's refused shell;
+  - a boolean with an invalid operand, healed up front;
+  - 18.19's window cut with the unmerged fallback off (the heal passes
+    it at 12.9 mm and the guard refuses it);
+  - a heal that SUCCEEDS on a result sharing 12 faces with its input:
+    the C0-split shell from #60 without its in-place SameRange step.
+  Also enclosed-hollow shells (inward and outward) and face removal.
+- **The heal is safe.** No input changed in any heal case, the
+  successful repair included; ShapeFix builds its fixes through a reshape
+  context. Face removal (`BRepAlgoAPI_Defeaturing`, documented as not
+  modifying its input) and the C0 split were clean too.
+- **The enclosed-hollow shell was not.** It cut its offset copy out of the
+  body with a default, destructive `BRepAlgoAPI_Cut`, which wrote 24
+  pcurves onto the stored body's edges (Curve2ds 65 → 89 in the
+  serialized body). Geometrically harmless, but it silently changes a
+  shape that undo snapshots share and grows the saved document. The cut
+  is now non-destructive, like `booleanOfShape:`; the enclosed hollow's
+  volume test is unchanged. The one change left is OCCT clearing the
+  body's Free flag when an outward hollow uses it as the cut tool, which
+  touches no geometry.
+- **Guard.** `OpsLeaveInputsUntouchedTests`: an enclosed hollow (on the
+  filleted fixture, and outward on a holed plate), an open shell over a
+  fillet, both boolean fixtures, a fillet chain and face removal. Each
+  input must serialize the same afterwards, TShape flag lines aside. The
+  enclosed-hollow test fails on main's bridge. Full unit suite 1688 / 0
+  failures. No practice recipe uses an enclosed hollow.
+- Not covered: the sweep's internal hole cut (its operands are built
+  inside the op) and the render mesh `TessellateShape` writes into every
+  adopted body by design (`OS3DIsValid` judges a mesh-free copy).
+
+## Mission log — 2026-09-17, the boolean's face merge corrupted its operands
+
+- **What 18.19's "coincident-cylinder pcurve" really was.** Replayed from
+  its fixture, the window cut after the Ø13 boss builds VALID. The bad
+  pcurve comes from the step after it: `ShapeUpgrade_UnifySameDomain`
+  merging same-domain faces. It merged no face, left the boss face
+  unorientable (`invalidCurveOnClosedSurface`), and rewrote the edges of
+  the shape it was given in place (safe-input mode does not stop that).
+  Merging edges only is harmless. The earlier diagnosis blamed the cut
+  because the raw result had been checked after the merge had already
+  changed it.
+- **It corrupted stored bodies.** A boolean result shares its untouched
+  sub-shapes with the operands. With the window cut first (the recipe's
+  workaround) and the Ø6 bore through the boss next, the merge rewrote
+  edges shared with the TARGET body: the stored part turned invalid, the
+  heal passed the cut with a 12.9 mm tolerance (the loosened-heal guard
+  compares with the part's own loosened tolerance, so it let it through),
+  and every later cut removed nothing, reported ok. Any boolean where the
+  merge touched shared edges could have changed its operand this way.
+- **Fix (`booleanOfShape:`).** The merge runs on a topology copy of the
+  result (keeping its render mesh, so untouched faces need no new
+  tessellation), so neither the result nor the operands can change under
+  it. When the merged copy is invalid and the unmerged result is valid,
+  the boolean returns the unmerged result. Ancestry maps through the copy,
+  so an untouched face is still reported as `same`.
+- **Checked.** Fixtures `coincident-boss-arc-window-cut` (now expect
+  success, 3 545.524 mm³) and `boss-bore-face-merge` (the bore cut,
+  3 291.055). `BooleanFaceMergeTests`:
+  - the window cut is valid, exact and tight (tolerance under 1e-3);
+  - a later cut removes exactly what it overlaps;
+  - the bore cut leaves its target body valid, and repeats identically;
+  - the unmerged boss faces keep R6.5 ancestors;
+  - with the fallback off, the loosened heal is still refused.
+  All but the last fail on main's bridge. The full unit suite passes
+  (1681 tests, 0 failures, including `ShapeAncestryTests` and
+  `ElementNamingTests`).
+- **Practice problems.** 18.19 is now built in drawing order (window cut
+  after the boss) and gives 3 109.645 mm³, the same as the workaround.
+  Every cut removes material and the tolerance stays at 1.33e-5. All 215
+  recipes rerun on the fix: every recorded field identical to the ledger
+  (183 pass). Only 18.19's row is committed.
 
 ## Mission log — 2026-09-17, YouTube tutorial series: sketching, shapes, materials
 
@@ -428,7 +539,8 @@ would fix it. There is no op to rename a body (both parts are "Revolve").
   - *The shell.* The recipe's body now gets past C0 and is refused with
     UnknownError: the arc join round the pipe junction fails where it meets
     the S step, whose convex R3 offsets to zero radius at t = 3. The body
-    builds at t = 2.9 and without the pipe. A sharp step with the pipe top
+    builds at t = 2.9 and without the pipe. (Corrected 2026-09-17: the
+    zero-radius offset is not the cause; see "18.23's shell refusal".) A sharp step with the pipe top
     in the step plane fails too, and builds with the pipe 0.1 lower.
   - *The fillet.* R3 on the pipe junction over the S step is refused
     whatever the pipe height (y 23 to 24): the ball's contact has to jump
@@ -612,6 +724,8 @@ would fix it. There is no op to rename a body (both parts are "Revolve").
   (3 109.645 mm³, unchanged).
 - **Still open:** the coincident-cylinder pcurve itself; a fix that makes
   that cut succeed should flip its fixture to `success`, volume 3 545.524.
+  (Fixed 2026-09-17: the pcurve came from the face merge after the cut,
+  not the cut; see "the boolean's face merge corrupted its operands".)
   Round 6's other kernel refusals were retried on this build in case they
   were the same mesh artifact; they are not, and fail as before: 13.9A's
   and 18.3's shells ("the shelled solid failed validity checking") and
@@ -4105,6 +4219,20 @@ first differing frame is the one you want.
     no modified image). Anything new that judges a blend per edge (history,
     element naming, a partial-result report) must not count on each edge
     naming its own faces.
+
+61. **`ShapeUpgrade_UnifySameDomain` changes the shape you give it** (2026-09-17).
+    Merging same-domain faces rewrites edges of its input in place, even in
+    safe-input mode, and it can leave an invalid result without merging
+    anything. A boolean result shares its untouched sub-shapes with the
+    operands, so merging it in place can corrupt a stored body. Merge a
+    copy (`BRepBuilderAPI_Copy`, topology only) and check the merged
+    result, as `booleanOfShape:` does. The public `unifiedShape:` still
+    merges in place; its only caller is the `OS3D_DEBUG_SEED_STEP` seed, on
+    a fresh fuse that nothing else holds. Any new caller on a stored body
+    needs a copy first. A plain `BRepAlgoAPI_Cut(a, b)` is destructive by
+    default and writes pcurves onto its operands; use the builder with
+    `SetNonDestructive(Standard_True)`. `OpsLeaveInputsUntouchedTests` is
+    the pattern for checking a new op.
 
 ## 4. Next missions (prioritized)
 
