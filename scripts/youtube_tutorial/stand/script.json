@@ -1,0 +1,132 @@
+[
+ {
+  "id": "intro",
+  "title": "Phone Stand",
+  "sub": "Sketch, extrude, fillet, cut, export",
+  "lines": [
+   "A printable stand in eight steps",
+   "Everything by touch",
+   "Ends with an STL for your slicer"
+  ],
+  "say": "In this tutorial we'll design a phone stand in OpenShape 3D and get it ready for 3D printing. We'll sketch a side profile, extrude it, round the edges, cut a slot for the charging cable, and export an STL. Everything is done through the touch interface, so you can follow along."
+ },
+ {
+  "id": "new_design",
+  "title": "A blank design",
+  "sub": "Palette, viewport, toolbar",
+  "lines": [
+   "Tools on the left",
+   "Undo, views, Items and History on top"
+  ],
+  "say": "Start a blank design. The tool palette is on the left, and the toolbar on top has undo, the views, and the Items and History panels."
+ },
+ {
+  "id": "plane",
+  "title": "Step 1 · Front plane",
+  "sub": "Sketch › Line, tap the blue tile",
+  "lines": [
+   "The stand is a side profile, extruded",
+   "So we draw it standing up",
+   "Tap the front-plane tile"
+  ],
+  "say": "The stand is just a side profile pulled out sideways, so we draw that profile standing up. Tap Sketch, then Line, and pick the blue front-plane tile."
+ },
+ {
+  "id": "base",
+  "title": "Step 2 · The base",
+  "sub": "One line, typed to 90 mm",
+  "lines": [
+   "Tap, tap: a horizontal line",
+   "Tap Line again to finish",
+   "Tap the badge, type 90",
+   "Fit View"
+  ],
+  "say": "First the base. Tap once on the left and once on the right for a horizontal line, then tap Line again to finish. The line stays selected: tap its badge and type ninety millimeters. Fit View zooms to match."
+ },
+ {
+  "id": "back",
+  "title": "Step 3 · The back",
+  "sub": "A vertical line, typed to 60 mm",
+  "lines": [
+   "Start on the left end of the base",
+   "Tap up, then Vertical in the constraints panel",
+   "Type 60, then Fit View"
+  ],
+  "say": "Now the back. Pick Line, start on the left end of the base, and tap upwards. Finish, then tap Vertical in the constraints panel so it stays upright, type sixty millimeters for the height, and Fit View again so the whole stand fits on screen."
+ },
+ {
+  "id": "profile",
+  "title": "Step 4 · The profile",
+  "sub": "Tap the corners",
+  "lines": [
+   "Top of the back, then the slope the phone rests on",
+   "The floor, the lip, and down to the base",
+   "Finish on the base's right end"
+  ],
+  "say": "Now trace the rest. Start at the top of the back, tap the top of the back rest, then down the slope the phone will lean against, along the floor, up and over the front lip, and finish on the right end of the base. The loop closes and fills in."
+ },
+ {
+  "id": "extrude",
+  "title": "Step 5 · Extrude",
+  "sub": "70 mm, wider than a phone",
+  "lines": [
+   "Exit Sketching, tap the fill",
+   "Type the distance",
+   "The profile becomes a solid"
+  ],
+  "say": "Exit the sketch and tap inside the filled profile. The Extrude bar appears. Type seventy millimeters, wide enough for any phone, and the profile becomes a solid stand."
+ },
+ {
+  "id": "material",
+  "title": "Step 6 · Material",
+  "sub": "Just for looks",
+  "lines": [
+   "Double-tap the body",
+   "Material, pick a preset, Apply"
+  ],
+  "say": "Double-tap the stand to select it, open Material, and pick a preset. Apply. This is only the look; the geometry stays exact."
+ },
+ {
+  "id": "fillet",
+  "title": "Step 7 · Round the edges",
+  "sub": "Fillet, 3 mm",
+  "lines": [
+   "Top view: tap the long edges",
+   "One tap per edge",
+   "Type the radius, Apply"
+  ],
+  "say": "Let's soften the edges you'll touch. From the top view, tap Modify, then Fillet, and tap the long edges: the front of the lip, and both edges along the top of the back. Type a three millimeter radius and Apply."
+ },
+ {
+  "id": "slot",
+  "title": "Step 8 · Cable slot",
+  "sub": "Sketch on a face, cut through",
+  "lines": [
+   "Sketch › Rectangle, tap the floor face",
+   "Drag a rectangle where the cable goes",
+   "Tap the fill, Subtract, type −15"
+  ],
+  "say": "Now a slot for the charging cable. Tap Sketch, then Rectangle, and this time tap the floor of the stand: any flat face works as a sketch plane. Drag a rectangle where the connector sits. Exit the sketch, tap the fill, choose Subtract, and type minus fifteen. The cut goes straight through the floor."
+ },
+ {
+  "id": "export",
+  "title": "Step 9 · Export for printing",
+  "sub": "Share › STL or 3MF",
+  "lines": [
+   "Prints flat on its base, no supports",
+   "8 mm walls, 3 mm radii: strong and quick",
+   "Open the STL in your slicer"
+  ],
+  "say": "That's the stand. Open the export menu and choose STL or 3MF for your slicer. It prints flat on its base with no supports, and the eight millimeter walls make it sturdy. Every step is still in History if you want a different angle or a wider slot."
+ },
+ {
+  "id": "outro",
+  "title": "Print it",
+  "sub": "Free, open-source CAD for iPad",
+  "lines": [
+   "No account, no cloud",
+   "On GitHub: laanlabs/openshape3d"
+  ],
+  "say": "OpenShape 3D is free and open source, with no account and no cloud. Thanks for watching, and happy printing."
+ }
+]
