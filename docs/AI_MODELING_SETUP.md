@@ -1,5 +1,9 @@
 # Ask Claude or ChatGPT for a part
 
+> New here? The illustrated, step-by-step version is
+> [CLAUDE_DESKTOP_TUTORIAL.md](CLAUDE_DESKTOP_TUTORIAL.md). This page is the
+> reference: every client, the safety details, and the developer setup.
+
 Describe what you want in plain English — "a flowerpot I can 3D print, about
 11 cm wide, with a saucer" — and an AI assistant on your Mac models it in
 OpenShape 3D while you watch, checks that it will print, and saves an STL to
