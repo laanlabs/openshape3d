@@ -20,7 +20,6 @@
 //  see and recover from by opening a project, not a hang or an empty success.
 //
 
-#if DEBUG
 
 import Foundation
 
@@ -131,6 +130,9 @@ final class AgentBridge {
             }
             return AgentResponse(status: 200, reason: "OK",
                                  contentType: "application/octet-stream", body: data)
+
+        case let .export(format, bodyIDs, zUp):
+            return export(format, bodyIDs: bodyIDs, zUp: zUp, from: viewModel)
 
         case let .project(points):
             // Screen points in the viewport's coordinate space (pt, full-bleed
@@ -571,7 +573,20 @@ final class AgentBridge {
 
     /// Every exec reply carries the post-op state, so an agent never needs a
     /// second round trip to see what its own call did.
+    /// Set while a PERSON has the channel on (Settings ▸ AI Assistant): they
+    /// are watching an assistant build, so whenever an operation adds or
+    /// changes a body the view re-frames the model. A new design's camera
+    /// spans about 14 mm — without this, the first real Claude Desktop run
+    /// showed its owner the INSIDE of a 110 mm pot until the assistant
+    /// happened to fit the view a minute later. A developer's `OS3D_AGENT`
+    /// session keeps the camera where its script put it.
+    var framesAssistantWork = false
+
     private func execOK(_ viewModel: EditorViewModel, _ extra: [String: Any]) -> AgentResponse {
+        if framesAssistantWork {
+            let touched = ["producedBodyIDs", "changedBodyIDs"].contains { !((extra[$0] as? [Any]) ?? []).isEmpty }
+            if touched { _ = viewModel.runCommand("view.fit") }
+        }
         var payload = snapshot(of: viewModel)
         for (k, v) in extra { payload[k] = v }
         return .ok(payload)
@@ -715,6 +730,73 @@ final class AgentBridge {
         ])
     }
 
+
+    /// GET /v1/export — the Export menu's bytes. Read-only, so it needs no
+    /// `DocumentCommand`; it calls the same exporters `EditorViewModel` does,
+    /// but reports failures as typed replies instead of a user-facing alert
+    /// an agent cannot see. `bodyIDs` empty = the whole design (hidden bodies
+    /// included, as in the menu). `zUp` turns the app's Y-up world a quarter
+    /// turn about X, (x, y, z) → (x, −z, y), so a part modelled standing on
+    /// the ground plane also stands on a slicer's bed.
+    private func export(_ format: AgentExportFormat, bodyIDs: [String], zUp: Bool,
+                        from viewModel: EditorViewModel) -> AgentResponse {
+        var bodies = viewModel.session.document.bodies
+        if !bodyIDs.isEmpty {
+            var picked: [Body] = []
+            for raw in bodyIDs {
+                guard let id = UUID(uuidString: raw) else {
+                    return .failure(400, "Bad Request", error: "bad_uuid",
+                                    message: "'\(raw)' is not a body id — ids come from /v1/state.")
+                }
+                guard let body = bodies.first(where: { $0.id.raw == id }) else {
+                    return .failure(404, "Not Found", error: "unknown_body",
+                                    message: "No body \(raw) in this design — ids come from /v1/state.")
+                }
+                picked.append(body)
+            }
+            bodies = picked
+        }
+        guard !bodies.isEmpty else {
+            return .failure(409, "Conflict", error: "nothing_to_export",
+                            message: "The design has no solid bodies to export.")
+        }
+        if zUp {
+            var upright = Transform3D()
+            upright.rotation = simd_quatd(angle: .pi / 2, axis: SIMD3(1, 0, 0))
+            bodies = bodies.map { body in
+                var turned = body
+                turned.transform = upright.composed(onto: body.transform)
+                return turned
+            }
+        }
+        let data: Data
+        switch format {
+        case .stl: data = STLExporter.binarySTL(bodies: bodies)
+        case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
+        case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies)
+        case .step:
+            switch STEPKit.export(bodies: bodies) {
+            case let .success(step, _): data = step
+            case .nothingAnalytic:
+                return .failure(409, "Conflict", error: "mesh_only_body",
+                                message: "None of these bodies has an analytic B-rep, so there is nothing "
+                                       + "to write to STEP. Export stl, obj or 3mf instead.")
+            case .failed:
+                return .failure(500, "Internal Server Error", error: "export_failed",
+                                message: "The STEP writer failed on this design.")
+            }
+        }
+        var response = AgentResponse(status: 200, reason: "OK", contentType: format.contentType, body: data)
+        // The file's overall size, in the orientation it was written: what an
+        // assistant needs to confirm "the 15 cm pot" really is 150 mm tall
+        // (the first real follow-up request could not, and said so).
+        if let box = MeasureKit.boundingBox(bodies: bodies) {
+            let size = box.max - box.min
+            response.info["Size-MM"] = [size.x, size.y, size.z].map { String(format: "%.2f", $0) }.joined(separator: " x ")
+        }
+        response.info["Bodies"] = String(bodies.count)
+        return response
+    }
 
     /// GET /v1/sketches — every sketch with its plane and entities, in
     /// sketch (u, v) millimetres. Added while building the SOLIDWORKS
@@ -1187,4 +1269,3 @@ final class AgentBridge {
     }
 }
 
-#endif

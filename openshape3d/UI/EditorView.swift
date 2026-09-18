@@ -279,13 +279,11 @@ struct EditorView: View {
                 OpenTiming.mark("view model built")
                 #endif
             }
-            #if DEBUG
             // Hand the live editor to the agent bridge. Costs nothing unless
-            // OS3D_AGENT is set — until something asks, this is one weak
-            // reference. Deliberately outside the `viewModel == nil` guard so
-            // returning to an already-built document re-attaches too.
+            // the control channel is on — until something asks, this is one
+            // weak reference. Deliberately outside the `viewModel == nil` guard
+            // so returning to an already-built document re-attaches too.
             if let viewModel { AgentBridge.shared.register(viewModel, documentName: project.name) }
-            #endif
         }
         .navigationTitle(project.name)
         .onAppear { MacWindowTitle.want(project.name) }
@@ -294,9 +292,7 @@ struct EditorView: View {
         .onDisappear {
             viewModel?.saveThumbnail()
             viewModel?.session.save()
-            #if DEBUG
             if let viewModel { AgentBridge.shared.unregister(viewModel) }
-            #endif
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background || phase == .inactive {

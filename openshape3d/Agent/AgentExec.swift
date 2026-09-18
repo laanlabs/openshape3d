@@ -33,7 +33,6 @@
 //  unit bug to behave.
 //
 
-#if DEBUG
 
 import Foundation
 import simd
@@ -1010,4 +1009,3 @@ nonisolated enum AgentExec {
     }
 }
 
-#endif

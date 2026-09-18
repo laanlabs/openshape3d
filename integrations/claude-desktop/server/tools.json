@@ -1,0 +1,183 @@
+{
+ "tools": [
+  {
+   "name": "os3d_health",
+   "description": "Check that OpenShape 3D is reachable and whether a design is open. Call this first. hasDocument=false means the person needs to open or create a design in the app.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "os3d_list_commands",
+   "description": "List every command that can actually be run. Call before os3d_run_command rather than guessing an id — the app's full catalog is wider than this, and the extra entries have no entry point yet.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "os3d_state",
+   "description": "Read the editor: current mode, selection, every body with its volume in mm3 and whether it is still analytic (brep), undo/redo availability, and the measurement rows shown in the app's info bar. Verify geometry with this, not with a screenshot — an image cannot show that a boolean produced a 0 mm3 body.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "os3d_run_command",
+   "description": "Run a named command, e.g. 'view.isometric', 'edit.undo', 'model.extrude'. Note that tool commands ARM a tool (they put the editor in that mode); they do not parameterize or commit it. A result of ran=false means the command is real but does not apply in the current mode — read the message rather than retrying.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Command id from os3d_list_commands."
+     }
+    },
+    "required": [
+     "id"
+    ]
+   }
+  },
+  {
+   "name": "os3d_screenshot",
+   "description": "Capture the 3D viewport as a PNG, rendered by the app itself. After any view.* command, wait about a second before calling this: standard views animate, and an immediate capture catches the camera mid-flight.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "width": {
+      "type": "integer",
+      "description": "Pixels, 64-4096. Default 1024."
+     },
+     "height": {
+      "type": "integer",
+      "description": "Pixels, 64-4096. Default 1024."
+     }
+    }
+   }
+  },
+  {
+   "name": "os3d_guide",
+   "description": "The modelling guide: coordinate conventions (millimetres, Y is up), every os3d_exec op with its arguments, worked recipes, and the verify-then-export loop. Read it once before the first os3d_exec of a session.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "os3d_exec",
+   "description": "Build or change geometry: one parameterized operation per call, recorded as an undoable feature exactly as if it had been modelled by hand. op is e.g. 'sketch.create', 'sketch.addEntities', 'feature.extrude', 'feature.revolve', 'feature.shell', 'feature.fillet', 'feature.boolean', 'body.setMaterial'; args is that op's argument object (os3d_guide lists them all). Units are millimetres and degrees. The reply carries the new state plus producedBodyIDs / changedBodyIDs / removedBodyIDs; 'failed': true means the feature was recorded but did not build — read 'message', run edit.undo, and correct the arguments.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "op": {
+      "type": "string",
+      "description": "Operation name, e.g. feature.extrude."
+     },
+     "args": {
+      "type": "object",
+      "description": "The operation's arguments."
+     }
+    },
+    "required": [
+     "op"
+    ]
+   }
+  },
+  {
+   "name": "os3d_faces",
+   "description": "List a body's faces straight from the kernel: 1-based index, kind (planar / cylindrical + radius / other), area, centroid, normal. These indices are what feature.shell 'openFaces', feature.pushPull 'face' and the other face ops take. Re-list after every feature: indices are per-shape, not stable across edits.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "body": {
+      "type": "string",
+      "description": "Body id from os3d_state."
+     }
+    },
+    "required": [
+     "body"
+    ]
+   }
+  },
+  {
+   "name": "os3d_edges",
+   "description": "List a body's edges: 1-based index, the two adjacent faces, midpoint, length, convexity. These indices are what feature.fillet / feature.chamfer 'edges' take. Re-list after every feature.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "body": {
+      "type": "string",
+      "description": "Body id from os3d_state."
+     }
+    },
+    "required": [
+     "body"
+    ]
+   }
+  },
+  {
+   "name": "os3d_sketches",
+   "description": "List every sketch with its plane and its entities in sketch (u, v) millimetres.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "os3d_check",
+   "description": "Geometry health report (valid solid? open shells? self-intersections with bop=true). Run it before exporting anything that will be manufactured.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "body": {
+      "type": "string",
+      "description": "Body id; omit to check every body."
+     },
+     "bop": {
+      "type": "boolean",
+      "description": "Add the slow self-intersection pass."
+     }
+    }
+   }
+  },
+  {
+   "name": "os3d_export",
+   "description": "Save the design as a file for 3D printing or another CAD tool, and return where it was saved (the person's Downloads folder). format: stl (default), 3mf, obj (meshes) or step (exact B-rep). The app's world is Y-up; pass up='z' for a 3D-printing slicer so the part stands on the bed. body limits the file to the listed body ids (one printable part per file). The reply gives the file name and 'sizeMM' (the saved model's overall size, width x depth x height as written) — check it against what was asked, and tell the person the file name.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "format": {
+      "type": "string",
+      "enum": [
+       "stl",
+       "3mf",
+       "obj",
+       "step"
+      ]
+     },
+     "up": {
+      "type": "string",
+      "enum": [
+       "y",
+       "z"
+      ],
+      "description": "Up axis of the file. Default y; z for slicers."
+     },
+     "body": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Body ids; omit for the whole design."
+     },
+     "name": {
+      "type": "string",
+      "description": "File name without folders, e.g. 'flowerpot'. Default openshape3d-<time>."
+     }
+    }
+   }
+  }
+ ]
+}

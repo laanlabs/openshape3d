@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; see the newest mission log, the register above, and
+Last updated: 2026-09-17 — the AI control channel ships in 1.3 (Settings ▸ AI Assistant switch, pairing code, in-app MCP, one-click Claude Desktop extension; proven with the real Claude Desktop and a store-user video); AI modelling made usable end to end (MCP server gained exec / faces / edges / check / export, new `/v1/export`, `model-openshape3d` skill, `docs/AI_MODELING_SETUP.md`, tested with real Claude sessions) and the "flowerpot with Claude or ChatGPT" tutorial; three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -12,6 +12,163 @@ design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
 
+## Mission log — 2026-09-17, "ask for a part, print it" for store users: the control channel ships, switched on in Settings
+
+**Why.** The flowerpot video's setup (clone, Xcode, `OS3D_AGENT=1`, a Python
+script in a config file) is a developer's. The goal is someone with no CAD
+experience who installed the Mac app from the store, has Claude Desktop or
+ChatGPT, and never opens a terminal. The bridge was `#if DEBUG`, so a store
+build could not be driven at all.
+
+**What landed (all uncommitted on `feat/ai-skills-flowerpot-video`).**
+- The agent code is no longer DEBUG-only. **Settings ▸ AI Assistant ▸ Let AI
+  Assistants Build Here** (`AIControl`, off by default; Mac Catalyst, plus
+  DEBUG everywhere) starts the listener. `OS3D_AGENT=1` still works in DEBUG.
+- Because it ships, it is locked down (`AgentRouter.refusal`, docs/
+  AGENT_CONTROL.md "Safety posture"): a user-started channel requires the
+  installation's **pairing code** (100 bits, Keychain, `Authorization:
+  Bearer`), refuses any request with an `Origin` (browsers) or a non-loopback
+  `Host` (DNS rebinding), keeps `/v1/capture` + `document.import`
+  DEBUG-only, and the listener is now actually interface-bound to loopback —
+  the old comment claimed that, the code only had the accept-time peer check.
+  An unauthenticated first draft of this was (rightly) stopped by a safety
+  check; pairing is the answer to it.
+- **MCP in the app**: `POST /mcp` (`AgentMCP.swift`, streamable-HTTP reduced
+  to request/reply). Each tool is rewritten as its REST request and sent
+  through `AgentRouter.route`, so the dialects cannot drift. `os3d_export`
+  writes into **Downloads** (sandbox entitlement added) under a sanitized
+  name, never overwriting.
+- **Claude Desktop extension**: `integrations/claude-desktop/` →
+  `OpenShape3D.mcpb` (validated with `@anthropic-ai/mcpb`), a zero-dependency
+  Node relay stdio↔`/mcp` that scans ports 8787–8796 for the app, sends the
+  pairing code (a sensitive `user_config` field), and answers in plain English
+  when the app is closed or the code is wrong. Settings' **Add to Claude
+  Desktop…** drops it in Downloads, copies the code and opens it.
+- Port fallback: 8787…8796, and after `.ready` the server asks 127.0.0.1 who
+  answers — on this Mac strangers own 8787 AND 8788, and NWListener happily
+  "binds" beside them.
+- `scripts/sync_ai_resources.py [--check]` keeps the guide, tool catalog and
+  `.mcpb` copies identical; `AgentMCPTests` (27) covers the guard and the MCP
+  layer as pure values. 73 agent tests pass.
+
+**Verified.** Simulator, user-started channel: unpaired/wrong code → 401,
+Origin → 403, foreign Host → 403, LAN address → reset. Real Claude sessions
+with novice prompts: through the extension relay (flowerpot + saucer, 18/18
+tool calls OK, 63 s, watertight STLs in the app's Downloads) and straight
+over HTTP `/mcp` (a coat hook with screw holes and a gusset: one watertight
+solid). Sandboxed **Release Mac Catalyst** build: entitlements correct
+(sandbox, downloads rw, network.server, no client), launches, falls back to a
+free port, answers unpaired callers with `pairing: required` only.
+
+**Proven with the real apps (same day, later).** Claude Desktop 2.110 on this
+Mac + the sandboxed Catalyst build: the in-app **Add to Claude Desktop…**
+button wrote the `.mcpb` to Downloads, copied the code and brought Claude
+forward on its extension page → Install → confirm → the pairing-code field
+(masked, `sensitive`) → Save → **Enabled** (it installs *Disabled*; the button's
+notice and the setup doc now say so) → a chat prompt → per-tool permission
+cards → pot and saucer built in the Mac app in ~100 s → files in the real
+`~/Downloads`. The switch itself was exercised by clicking it (not the env
+override): off → on → "Ready for Claude and ChatGPT" → listening, paired.
+What those runs changed:
+- the AI Assistant section moved to the TOP of Settings;
+- exports are reported as `~/Downloads/<name>` — a sandboxed app's own path is
+  `~/Library/Containers/…/Data/Downloads`, which Claude faithfully repeated to
+  the person;
+- **the view re-frames when an assistant adds or changes a body**
+  (`AgentBridge.framesAssistantWork`, user-started channel only): a new
+  design's camera spans ~14 mm, so the owner watched the INSIDE of a 110 mm pot
+  until the assistant happened to call `view.fit`;
+- every export reply carries `sizeMM` (and `X-OS3D-Size-MM` over REST): after
+  "make it 15 cm tall" the new 3MF had the same byte count as the old one,
+  Claude could not confirm the height, and told the person so. With the size
+  in the reply it states "110 × 110 × 150 mm";
+- the guide asks the assistant to hide construction sketches when done.
+
+**Still not verified.** ChatGPT/Codex end to end (account out of usage until
+2026-09-19; its HTTP-MCP settings screen is unseen, so "Copy Address for
+ChatGPT" is a best guess). App Review's view of `network.server` — have the
+loopback/pairing/off-by-default justification ready. The extension is
+unsigned, so Claude shows its standard "not verified by Anthropic" warning;
+signing it or submitting it to Anthropic's directory would remove that.
+
+**Driving the Mac build (for next time).** `launchctl setenv OS3D_AI_CONTROL 1`
++ `OS3D_AI_PAIRING_CODE` + `OS3D_FRESH` then `open` the Debug Catalyst app.
+`peekaboo click --coords` takes ABSOLUTE screen coordinates only when no
+`--app` is given (with `--app` they are window-relative, which is why earlier
+clicks "did nothing"); raise the app and check it is frontmost first — other
+sessions' Simulator windows come forward on this desktop.
+`screencapture -V <s> -l <windowid>` records one window even when covered.
+`qlmanage -t` hangs on this Mac.
+
+**Video.** `scripts/youtube_series/ask_claude.py <material>` →
+`marketing/youtube/openshape3d-ask-claude.mp4`: cut after the fact from real
+screenshots of every setup step and a window recording of the Mac app while a
+real Claude session (through the extension's relay) built the pot and then
+made it 15 cm tall; the panel shows Claude's own messages when it sent them.
+It replaces `ai_flowerpot.py`'s developer story for this audience.
+
+**Follow-ups.** Print-quality export: un-filleted revolves export at 48
+facets around (chord error 0.12 mm on a Ø110 pot). `OCCTKernel.renderMesh`
+could tessellate finer, but OCCT caches triangulation on the live shape, so
+it must mesh a COPY or it disturbs face naming (Claude itself warned the
+person about the facets). Welcome screen has no hint that AI control exists.
+No op to rename a body; no op to edit a feature's parameter, so "make it
+taller" is undo-and-rebuild.
+
+## Mission log — 2026-09-17, modelling with Claude or ChatGPT: tools, skill, tests, tutorial video
+
+**Why.** A tutorial on "make a 3D-printed flowerpot by asking Claude or
+ChatGPT" needed the AI path to actually work for a stranger. It did not: the
+MCP server exposed five read/command tools and **no `/v1/exec`**, so Claude
+Desktop or ChatGPT could look at a design but not build one; the
+`drive-openshape3d` skill still said parameterized ops "have no endpoint";
+nothing could hand back an STL; and the server assumed port 8787, which
+another program owns on this Mac (it then answers nonsense).
+
+**What landed.**
+- `GET /v1/export?format=stl|obj|3mf|step[&body=…][&up=y|z]` (router +
+  bridge, `AgentRouterTests`): the Export menu's bytes, per body, typed
+  refusals. `up=z` turns the Y-up world a quarter turn about X so a part
+  standing on the ground plane stands on a slicer's bed.
+- `scripts/mcp_openshape3d.py` 1.1: `os3d_exec`, `os3d_faces`, `os3d_edges`,
+  `os3d_sketches`, `os3d_check`, `os3d_export` (writes the file, reports
+  triangles), `os3d_guide`; a feature that came back `failed: true` is an
+  MCP `isError`; port discovery (`OS3D_AGENT_PORT="8787,8899"`, first port
+  where `app == "openshape3d"` answers); `OS3D_MCP_LOG` call log. Still
+  stdlib-only, still Python 3.9.
+- `.claude/skills/model-openshape3d/SKILL.md` — the modelling guide (Y-up,
+  seed points, revolve axes in sketch space, per-shape indices, the verify
+  loop, print export). ONE source: the server sends it as MCP `instructions`
+  and as `os3d_guide`, so ChatGPT/Codex and Claude Desktop get the same text
+  Claude Code gets as a skill.
+- `docs/AI_MODELING_SETUP.md` — end-user setup for Claude Desktop, Claude
+  Code and ChatGPT/Codex (`~/.codex/config.toml`).
+- `scripts/test_mcp_openshape3d.py` — 15 offline tests (real subprocess over
+  stdio against a stub bridge) + `--live`, which models the pot through the
+  tools and holds it to Pappus (1e-3 mm³) and a watertight, Z-up STL.
+
+**Tested with real assistants (2026-09-17, os3d-video sim, port 8931).**
+| Path | Prompt | Result |
+|---|---|---|
+| Claude, MCP tools only (`claude -p --strict-mcp-config`, cwd outside the repo) | flowerpot + saucer | 21 calls, 0 errors, 73 s; both solids valid (bop), both STLs watertight, Z-up |
+| Claude Code, skill + `curl` only (no MCP) | same | 30 tool uses, same geometry, STLs watertight. Found one gap: the skill did not say how to run a *command* over curl (it guessed `{"op":"command"}`) — fixed |
+| Claude, MCP only | 80×50×30 enclosure: R3 corners, 2 mm shell, 4 floor holes, wall slot | 24 calls, 0 errors, 61 s; 21,695.93 mm³ = the closed-form value to 0.01 |
+| ChatGPT/Codex (`codex exec` from ChatGPT.app, server passed with `-c mcp_servers…`) | — | **Handshake only**: `codex-mcp-client` initialized, took the 7.7 k instructions and listed all 12 tools. The model run itself was refused — the account is out of Codex usage until 2026-09-19 and there is no `OPENAI_API_KEY` here. Re-run the flowerpot prompt then |
+
+**Video.** `scripts/youtube_series/ai_flowerpot.py` →
+`marketing/youtube/openshape3d-ai-flowerpot.mp4` + metadata. Setup chapters
+are slides over the idle recording; the build is
+`ai_flowerpot_session.json` — the first Claude session's real calls —
+replayed at narration pace with ids re-mapped, and the take aborts if the
+replayed volumes leave the recorded ones. `common.py` grew `Timeline.mark()`
+(one panel per tool call), a monospace `code` block on the panel, and
+full-frame `slide` overlays. The ChatGPT chapter shows setup and the verified
+tool list only; no GPT-built model is shown or claimed.
+
+**Noticed, not fixed.** Revolved/filleted bodies tessellate at ~37 segments
+per circle (the Ø110 rim exports as 109.6 across flats, chord error 0.19 mm)
+— fine for a pot, coarse for a bearing seat; an export deflection parameter
+would fix it. There is no op to rename a body (both parts are "Revolve").
 ## Mission log — 2026-09-17, 18.23's shell refusal: a tube that folds on itself
 
 - **The rule.** The failure depends on where the pipe junction runs and

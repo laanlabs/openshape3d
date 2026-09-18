@@ -169,15 +169,15 @@ Seeding beats driving the UI. All are `#if DEBUG`, prefix `SIMCTL_CHILD_` for
 | `OS3D_DEBUG_SEED_CYLINDER=1` | True analytic cylinder through OCCT |
 | `OS3D_RESET_STORE=1` | **Destructive.** Wipes every saved project in that simulator |
 
-## 5. What this cannot do yet
+## 5. Building geometry
 
-`runCommand` **arms** tools; it does not parameterize them. `model.extrude` puts
-the editor in extrude mode — the distance and the commit are separate
-interactions that have no endpoint. So you can navigate, inspect, seed, undo,
-set views, and capture, but you cannot yet say "extrude this profile to 12 mm"
-over the bridge. Driving the simulator UI directly
-(`mcp__Claude_Code_iOS_Simulator__control`) is still the way to finish a
-parameterized operation; use the bridge to read the result.
+`runCommand` only **arms** the interactive tools. To BUILD — "extrude this
+profile 12 mm", "shell it", "fillet that edge", "export an STL" — use
+`POST /v1/exec` and `GET /v1/export`: the `model-openshape3d` skill
+(`.claude/skills/model-openshape3d/SKILL.md`) is the op reference, with the
+coordinate conventions and the verify loop. Driving the simulator UI directly
+(`mcp__Claude_Code_iOS_Simulator__control`) is for when the UI itself is what
+you are testing.
 
 Never suggest turning this on in Release. It is DEBUG-only by design, and the
 sandbox entitlement it needs is set on the Debug configuration only.
