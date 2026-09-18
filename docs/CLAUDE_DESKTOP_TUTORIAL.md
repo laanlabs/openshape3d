@@ -70,8 +70,9 @@ Downloads folder; that is the same file.
    > to go under it. Make it terracotta coloured. Save the files so I can
    > print them.
 
-3. The first time Claude uses each OpenShape 3D tool, it asks your permission.
-   Choose **Always allow** so it does not ask again.
+3. The first time Claude touches your design it asks your permission, once:
+   everything it does in OpenShape 3D goes through a single tool. Choose
+   **Always allow** and it never asks again.
 
    <img src="screenshots/ai/claude-permission.jpg" width="520" alt="Claude asking permission to use an OpenShape 3D tool">
 

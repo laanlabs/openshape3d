@@ -31,6 +31,8 @@ import Foundation
 nonisolated enum AgentMCP {
 
     static let path = "/mcp"
+    /// Image bytes per screenshot result; ×4/3 as base64 stays under 1 MB.
+    static let screenshotBudgetBytes = 700_000
     static let supportedProtocols = ["2025-06-18", "2025-03-26", "2024-11-05"]
 
     // MARK: Bundled text
@@ -113,7 +115,7 @@ nonisolated enum AgentMCP {
         case "tools/call":
             let name = params["name"] as? String ?? ""
             let arguments = params["arguments"] as? [String: Any] ?? [:]
-            if name == "os3d_guide" {
+            if name == "os3d_guide" || (name == "os3d" && arguments["op"] as? String == "guide") {
                 return .reply(rpcResult(id: id, toolText(guide, isError: false)))
             }
             switch restRequest(tool: name, arguments: arguments) {
@@ -121,9 +123,11 @@ nonisolated enum AgentMCP {
                 return .reply(rpcResult(id: id, toolText(problem.message, isError: true)))
             case .success(let rest):
                 var call = ToolCall(name: name, route: AgentRouter.route(rest))
-                if name == "os3d_export" {
-                    call.exportName = arguments["name"] as? String
-                    call.exportFormat = AgentExportFormat(rawValue: (arguments["format"] as? String ?? "stl").lowercased())
+                if case .export = call.route {
+                    // `os3d_exec {op: document.export, args: {…}}` or the unlisted `os3d_export {…}`.
+                    let exportArgs = (arguments["args"] as? [String: Any]) ?? arguments
+                    call.exportName = exportArgs["name"] as? String
+                    call.exportFormat = AgentExportFormat(rawValue: (exportArgs["format"] as? String ?? "stl").lowercased())
                 }
                 return .call(id: id, tool: call)
             }
@@ -138,6 +142,13 @@ nonisolated enum AgentMCP {
 
     /// The REST request a tool call stands for. Everything past this point is
     /// `AgentRouter`'s, including the refusals.
+    /// `os3d` read ops → the (unlisted) per-endpoint tools that serve them.
+    static let readOps: [String: String] = [
+        "health": "os3d_health", "state": "os3d_state", "faces": "os3d_faces", "edges": "os3d_edges",
+        "sketches": "os3d_sketches", "check": "os3d_check", "screenshot": "os3d_screenshot",
+        "commands": "os3d_list_commands",
+    ]
+
     static func restRequest(tool: String, arguments: [String: Any]) -> Result<AgentRequest, Problem> {
         func get(_ path: String, _ query: [String: String] = [:]) -> Result<AgentRequest, Problem> {
             .success(AgentRequest(method: "GET", path: path, query: query))
@@ -149,20 +160,39 @@ nonisolated enum AgentMCP {
         func bodyID() -> String? { (arguments["body"] as? String).flatMap { $0.isEmpty ? nil : $0 } }
 
         switch tool {
+        case "os3d":
+            // The ONE listed tool. Claude Desktop asks the person to approve
+            // each tool by name on first use (a read-only annotation only
+            // groups a tool in Settings, it does not skip the prompt — checked
+            // on 2.110), so reads and changes share a name and one approval.
+            guard let op = arguments["op"] as? String, !op.isEmpty else {
+                return .failure(Problem(message: "os3d needs an 'op' — health, state, faces, edges, check, screenshot, or a change such as feature.extrude. The guide (op guide) lists them all."))
+            }
+            let args = arguments["args"] as? [String: Any] ?? [:]
+            if let read = readOps[op] { return restRequest(tool: read, arguments: args) }
+            return restRequest(tool: "os3d_exec", arguments: arguments)
         case "os3d_health":        return get("/v1/health")
         case "os3d_list_commands": return get("/v1/commands")
         case "os3d_state":         return get("/v1/state")
         case "os3d_sketches":      return get("/v1/sketches")
         case "os3d_run_command":
             guard let id = arguments["id"] as? String, !id.isEmpty else {
-                return .failure(Problem(message: "os3d_run_command needs an 'id'. os3d_list_commands lists them."))
+                return .failure(Problem(message: "command.run needs an 'id' such as view.fit or edit.undo. os3d_list_commands lists them."))
             }
             return post("/v1/command", ["id": id])
         case "os3d_exec":
             guard let op = arguments["op"] as? String, !op.isEmpty else {
                 return .failure(Problem(message: "os3d_exec needs an 'op'. os3d_guide lists the operations."))
             }
-            return post("/v1/exec", ["op": op, "args": arguments["args"] as? [String: Any] ?? [:]])
+            let args = arguments["args"] as? [String: Any] ?? [:]
+            // Views, undo and export ride on the ONE mutating tool: Claude
+            // Desktop approves tools by name, so this way the person is asked
+            // once, and the read-only tools (annotated) are never asked about.
+            switch op {
+            case "command.run":    return restRequest(tool: "os3d_run_command", arguments: args)
+            case "document.export": return restRequest(tool: "os3d_export", arguments: args)
+            default:               return post("/v1/exec", ["op": op, "args": args])
+            }
         case "os3d_faces", "os3d_edges":
             guard let body = bodyID() else {
                 return .failure(Problem(message: "\(tool) needs 'body' — a body id from os3d_state."))
@@ -174,9 +204,11 @@ nonisolated enum AgentMCP {
             if arguments["bop"] as? Bool == true { query["bop"] = "1" }
             return get("/v1/check", query)
         case "os3d_screenshot":
-            var query: [String: String] = [:]
-            if let w = arguments["width"] as? Int { query["w"] = String(w) }
-            if let h = arguments["height"] as? Int { query["h"] = String(h) }
+            // JPEG under a byte budget: the result is shown in a chat, and
+            // Claude Desktop drops tool results over 1 MB (base64 is ×4/3).
+            var query = ["format": "jpeg", "maxBytes": String(screenshotBudgetBytes)]
+            if let w = arguments["width"] as? Int { query["w"] = String(min(w, 2048)) }
+            if let h = arguments["height"] as? Int { query["h"] = String(min(h, 2048)) }
             return get("/v1/screenshot", query)
         case "os3d_export":
             var query = ["format": arguments["format"] as? String ?? "stl",
@@ -196,13 +228,13 @@ nonisolated enum AgentMCP {
     static func result(id: JSONRPCID, tool: ToolCall, response: AgentResponse,
                        saved: URL? = nil, saveProblem: String? = nil) -> AgentResponse {
         let failedHTTP = response.status >= 400
-        if tool.name == "os3d_screenshot", !failedHTTP, response.contentType == "image/png" {
+        if case .screenshot = tool.route, !failedHTTP, response.contentType.hasPrefix("image/") {
             return rpcResult(id: id, ["content": [[
-                "type": "image", "mimeType": "image/png",
+                "type": "image", "mimeType": response.contentType,
                 "data": response.body.base64EncodedString(),
             ]]])
         }
-        if tool.name == "os3d_export", !failedHTTP, !response.contentType.contains("json") {
+        if case .export = tool.route, !failedHTTP, !response.contentType.contains("json") {
             guard let saved else {
                 return rpcResult(id: id, toolText(saveProblem ?? "The file could not be saved.", isError: true))
             }

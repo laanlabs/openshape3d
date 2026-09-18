@@ -50,6 +50,7 @@ HOST = os.environ.get("OS3D_AGENT_HOST", "127.0.0.1")
 PORTS = [p.strip() for p in os.environ.get("OS3D_AGENT_PORT", "8787,8899").split(",") if p.strip()]
 TIMEOUT = 30
 EXEC_TIMEOUT = 300          # a boolean or a shell on a dense body can take minutes
+SCREENSHOT_BUDGET = 700_000  # bytes of image; ×4/3 as base64 stays under the 1 MB tool-result cap
 HERE = os.path.dirname(os.path.abspath(__file__))
 GUIDE_PATH = os.path.join(os.path.dirname(HERE), ".claude", "skills", "model-openshape3d", "SKILL.md")
 # One JSON line per tool call (name, arguments, status, seconds) — how a
@@ -81,7 +82,7 @@ def base_url():
         "See docs/AI_MODELING_SETUP.md.".format(", ".join(seen)))
 
 PROTOCOL_VERSION = "2025-06-18"
-SERVER_INFO = {"name": "openshape3d", "version": "1.1.0"}
+SERVER_INFO = {"name": "openshape3d", "version": "1.2.0"}
 
 
 # --------------------------------------------------------------------------
@@ -92,6 +93,13 @@ def call_app(method, path, payload=None, timeout=TIMEOUT):
     """Return (status, body_bytes, content_type). Never raises for HTTP errors —
     the bridge's 4xx bodies carry the actionable message, so they must reach the
     model intact rather than being flattened into a transport failure."""
+    status, body, headers = call_app_headers(method, path, payload, timeout)
+    return status, body, headers.get("Content-Type", "")
+
+
+def call_app_headers(method, path, payload=None, timeout=TIMEOUT):
+    """As call_app, with every response header: an export's overall size
+    travels as `X-OS3D-Size-MM`, the one fact the bytes cannot state."""
     global _base
     url = base_url() + path
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
@@ -100,9 +108,9 @@ def call_app(method, path, payload=None, timeout=TIMEOUT):
         request.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            return response.status, response.read(), response.headers.get("Content-Type", "")
+            return response.status, response.read(), response.headers
     except urllib.error.HTTPError as error:
-        return error.code, error.read(), error.headers.get("Content-Type", "")
+        return error.code, error.read(), error.headers
     except urllib.error.URLError as error:
         _base = None            # the app may come back on another port
         raise RuntimeError(
@@ -136,162 +144,38 @@ def error_result(message):
 # Tools
 # --------------------------------------------------------------------------
 
-TOOLS = [
-    {
-        "name": "os3d_health",
-        "description": (
-            "Check whether openshape3d is running and reachable. Returns the platform "
-            "(simulator/maccatalyst/device), the bound port, and whether a document is "
-            "open. Call this first — everything else fails without it."
-        ),
-        "inputSchema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "os3d_list_commands",
-        "description": (
-            "List every command that can actually be run. Call before os3d_run_command "
-            "rather than guessing an id — the app's full catalog is wider than this, and "
-            "the extra entries have no entry point yet."
-        ),
-        "inputSchema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "os3d_state",
-        "description": (
-            "Read the editor: current mode, selection, every body with its volume in mm3 "
-            "and whether it is still analytic (brep), undo/redo availability, and the "
-            "measurement rows shown in the app's info bar. Verify geometry with this, not "
-            "with a screenshot — an image cannot show that a boolean produced a 0 mm3 body."
-        ),
-        "inputSchema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "os3d_run_command",
-        "description": (
-            "Run a named command, e.g. 'view.isometric', 'edit.undo', 'model.extrude'. "
-            "Note that tool commands ARM a tool (they put the editor in that mode); they do "
-            "not parameterize or commit it. A result of ran=false means the command is real "
-            "but does not apply in the current mode — read the message rather than retrying."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {"id": {"type": "string", "description": "Command id from os3d_list_commands."}},
-            "required": ["id"],
-        },
-    },
-    {
-        "name": "os3d_screenshot",
-        "description": (
-            "Capture the 3D viewport as a PNG, rendered by the app itself. After any view.* "
-            "command, wait about a second before calling this: standard views animate, and an "
-            "immediate capture catches the camera mid-flight."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "width": {"type": "integer", "description": "Pixels, 64-4096. Default 1024."},
-                "height": {"type": "integer", "description": "Pixels, 64-4096. Default 1024."},
-            },
-        },
-    },
-    {
-        "name": "os3d_guide",
-        "description": (
-            "The modelling guide: coordinate conventions (millimetres, Y is up), every "
-            "os3d_exec op with its arguments, worked recipes, and the verify-then-export "
-            "loop. Read it once before the first os3d_exec of a session."
-        ),
-        "inputSchema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "os3d_exec",
-        "description": (
-            "Build or change geometry: one parameterized operation per call, recorded as an "
-            "undoable feature exactly as if it had been modelled by hand. op is e.g. "
-            "'sketch.create', 'sketch.addEntities', 'feature.extrude', 'feature.revolve', "
-            "'feature.shell', 'feature.fillet', 'feature.boolean', 'body.setMaterial'; args "
-            "is that op's argument object (os3d_guide lists them all). Units are millimetres "
-            "and degrees. The reply carries the new state plus producedBodyIDs / "
-            "changedBodyIDs / removedBodyIDs; 'failed': true means the feature was recorded "
-            "but did not build — read 'message', run edit.undo, and correct the arguments."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "op": {"type": "string", "description": "Operation name, e.g. feature.extrude."},
-                "args": {"type": "object", "description": "The operation's arguments."},
-            },
-            "required": ["op"],
-        },
-    },
-    {
-        "name": "os3d_faces",
-        "description": (
-            "List a body's faces straight from the kernel: 1-based index, kind (planar / "
-            "cylindrical + radius / other), area, centroid, normal. These indices are what "
-            "feature.shell 'openFaces', feature.pushPull 'face' and the other face ops take. "
-            "Re-list after every feature: indices are per-shape, not stable across edits."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {"body": {"type": "string", "description": "Body id from os3d_state."}},
-            "required": ["body"],
-        },
-    },
-    {
-        "name": "os3d_edges",
-        "description": (
-            "List a body's edges: 1-based index, the two adjacent faces, midpoint, length, "
-            "convexity. These indices are what feature.fillet / feature.chamfer 'edges' take. "
-            "Re-list after every feature."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {"body": {"type": "string", "description": "Body id from os3d_state."}},
-            "required": ["body"],
-        },
-    },
-    {
-        "name": "os3d_sketches",
-        "description": "List every sketch with its plane and its entities in sketch (u, v) millimetres.",
-        "inputSchema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "os3d_check",
-        "description": (
-            "Geometry health report (valid solid? open shells? self-intersections with "
-            "bop=true). Run it before exporting anything that will be manufactured."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "body": {"type": "string", "description": "Body id; omit to check every body."},
-                "bop": {"type": "boolean", "description": "Add the slow self-intersection pass."},
-            },
-        },
-    },
-    {
-        "name": "os3d_export",
-        "description": (
-            "Write the design to a file for printing or another CAD tool and return its path. "
-            "format: stl (default), 3mf, obj (meshes) or step (exact B-rep). The app's world is "
-            "Y-up; pass up='z' for a 3D-printing slicer so the part stands on the bed. body "
-            "limits the file to the listed body ids (one printable part per file)."
-        ),
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "format": {"type": "string", "enum": ["stl", "3mf", "obj", "step"]},
-                "up": {"type": "string", "enum": ["y", "z"], "description": "Up axis of the file. Default y; z for slicers."},
-                "body": {"type": "array", "items": {"type": "string"}, "description": "Body ids; omit for the whole design."},
-                "path": {"type": "string", "description": "Where to write. Default ~/Downloads/openshape3d-<time>.<format>."},
-            },
-        },
-    },
-]
+TOOLS_PATH = os.path.join(os.path.dirname(HERE), "openshape3d", "Agent", "MCPTools.json")
+
+
+def load_tools():
+    """The app's own catalog (`MCPTools.json`): ONE tool, `os3d`, whose `op`
+    covers reads and changes alike, so Claude Desktop asks for permission once."""
+    with open(TOOLS_PATH, encoding="utf-8") as handle:
+        return json.load(handle)["tools"]
+
+
+TOOLS = load_tools()
+
+
+# `os3d` read ops → the (unlisted) per-endpoint handlers below. ONE listed tool,
+# because Claude Desktop asks the person to approve each tool by name on first
+# use (a read-only annotation only groups a tool in its Settings, it does not
+# skip the prompt — checked on 2.110), so reads and changes share one approval.
+READ_OPS = {"health": "os3d_health", "guide": "os3d_guide", "state": "os3d_state", "faces": "os3d_faces",
+            "edges": "os3d_edges", "sketches": "os3d_sketches", "check": "os3d_check",
+            "screenshot": "os3d_screenshot", "commands": "os3d_list_commands"}
 
 
 def run_tool(name, arguments):
+    if name == "os3d":
+        op = (arguments or {}).get("op")
+        if not op:
+            return error_result("os3d needs an 'op' — health, state, faces, edges, check, screenshot, "
+                                "or a change such as feature.extrude. The guide (op guide) lists them all.")
+        if op in READ_OPS:
+            return run_tool(READ_OPS[op], (arguments or {}).get("args") or {})
+        return run_tool("os3d_exec", arguments)
+
     if name == "os3d_health":
         status, body, _ = call_app("GET", "/v1/health")
         return text_result(body.decode("utf-8"))
@@ -318,14 +202,17 @@ def run_tool(name, arguments):
         arguments = arguments or {}
         width = int(arguments.get("width", 1024))
         height = int(arguments.get("height", 1024))
+        # JPEG under a byte budget: a 1024² PNG of a model is ~1.4 MB as
+        # base64, and Claude Desktop drops tool results over 1 MB.
         status, body, content_type = call_app(
-            "GET", "/v1/screenshot?w={}&h={}".format(width, height))
-        if status >= 400 or "image/png" not in content_type:
+            "GET", "/v1/screenshot?w={}&h={}&format={}&maxBytes={}".format(
+                width, height, arguments.get("format", "jpeg"), SCREENSHOT_BUDGET))
+        if status >= 400 or not content_type.startswith("image/"):
             return error_result(body.decode("utf-8", "replace"))
         return {"content": [{
             "type": "image",
             "data": base64.b64encode(body).decode("ascii"),
-            "mimeType": "image/png",
+            "mimeType": content_type.split(";")[0].strip(),
         }]}
 
     if name == "os3d_guide":
@@ -335,6 +222,12 @@ def run_tool(name, arguments):
         arguments = arguments or {}
         if not arguments.get("op"):
             return error_result("os3d_exec needs an 'op'. os3d_guide lists the operations.")
+        # Views, undo and export ride on the one mutating tool: Claude Desktop
+        # approves tools by name, and this way the person is asked once.
+        if arguments["op"] == "command.run":
+            return run_tool("os3d_run_command", arguments.get("args") or {})
+        if arguments["op"] == "document.export":
+            return run_tool("os3d_export", arguments.get("args") or {})
         status, body, _ = call_app(
             "POST", "/v1/exec", {"op": arguments["op"], "args": arguments.get("args") or {}},
             timeout=EXEC_TIMEOUT)
@@ -386,19 +279,30 @@ def export(arguments):
         bodies = [bodies]
     if bodies:
         query.append("body=" + urllib.parse.quote(",".join(bodies)))
-    status, data, content_type = call_app("GET", "/v1/export?" + "&".join(query), timeout=EXEC_TIMEOUT)
+    status, data, headers = call_app_headers("GET", "/v1/export?" + "&".join(query), timeout=EXEC_TIMEOUT)
+    content_type = headers.get("Content-Type", "")
     if status >= 400 or "json" in content_type:
         return error_result(data.decode("utf-8", "replace"))
-    path = arguments.get("path") or os.path.join(
-        "~", "Downloads", "openshape3d-{}.{}".format(time.strftime("%Y%m%d-%H%M%S"), fmt))
+    # `name` is what the in-app server takes (a file in Downloads); `path` is
+    # the developer's override. Same catalog, so both must work here.
+    name = os.path.basename(str(arguments.get("name") or "").strip())
+    if name.lower().endswith("." + fmt):
+        name = name[:-(len(fmt) + 1)]
+    name = "".join(ch for ch in name if ch.isalnum() or ch in " -_().").strip() or \
+        "openshape3d-{}".format(time.strftime("%Y%m%d-%H%M%S"))
+    path = arguments.get("path") or os.path.join("~", "Downloads", "{}.{}".format(name, fmt))
     path = os.path.abspath(os.path.expanduser(path))
     if os.path.isdir(path):
         return error_result("'{}' is a folder — give a file path.".format(path))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "wb") as handle:
         handle.write(data)
-    report = {"ok": True, "path": path, "bytes": len(data), "format": fmt,
-              "up": arguments.get("up") or "y", "units": "mm"}
+    report = {"ok": True, "path": path, "fileName": os.path.basename(path), "bytes": len(data),
+              "format": fmt, "up": arguments.get("up") or "y", "units": "mm"}
+    if headers.get("X-OS3D-Size-MM"):
+        report["sizeMM"] = headers["X-OS3D-Size-MM"]     # width x depth x height as written
+    if headers.get("X-OS3D-Bodies"):
+        report["bodies"] = int(headers["X-OS3D-Bodies"])
     if fmt == "stl" and len(data) >= 84:
         # Binary STL: 80-byte header, then a uint32 triangle count.
         report["triangles"] = struct.unpack("<I", data[80:84])[0]

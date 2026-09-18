@@ -22,6 +22,7 @@
 
 
 import Foundation
+import UIKit
 
 // MARK: - Attachment flag, readable off the main actor
 
@@ -171,7 +172,7 @@ final class AgentBridge {
                          + "or promote it to openshape3dTests/Fixtures/Captures as a regression fixture.",
             ])
 
-        case .screenshot(let width, let height):
+        case let .screenshot(width, height, format, maxBytes):
             guard let png = viewModel.captureScreenshot(
                 width: width, height: height, transparentBackground: false, showGrid: true
             ) else {
@@ -179,7 +180,12 @@ final class AgentBridge {
                                 message: "The viewport did not return an image. It has to be on screen "
                                        + "and rendered at least once before it can be captured.")
             }
-            return .png(png)
+            guard format == .jpeg else { return .png(png) }
+            guard let jpeg = Self.jpeg(fromPNG: png, maxBytes: maxBytes) else {
+                return .failure(500, "Internal Server Error", error: "screenshot_failed",
+                                message: "The viewport image could not be re-encoded as JPEG.")
+            }
+            return .image(jpeg, contentType: AgentShotFormat.jpeg.contentType)
 
         default:
             // Routes that never need the editor are answered before this call.
@@ -188,6 +194,29 @@ final class AgentBridge {
         }
     }
 
+
+    // MARK: - Screenshot encoding
+
+    /// A JPEG of the rendered PNG that fits `maxBytes`: quality first, then
+    /// the image is shrunk. An MCP client shows the picture in a chat, where
+    /// a fixed cap on the tool result (1 MB in Claude Desktop) beats pixels.
+    nonisolated static func jpeg(fromPNG png: Data, maxBytes: Int?) -> Data? {
+        guard var image = UIImage(data: png) else { return nil }
+        var quality: CGFloat = 0.85
+        for _ in 0..<6 {
+            guard let data = image.jpegData(compressionQuality: quality) else { return nil }
+            guard let budget = maxBytes, data.count > budget else { return data }
+            if quality > 0.6 {
+                quality = 0.6
+            } else {
+                let factor = max(0.35, sqrt(Double(budget) / Double(data.count)) * 0.95)
+                let size = CGSize(width: image.size.width * factor, height: image.size.height * factor)
+                let renderer = UIGraphicsImageRenderer(size: size, format: .init())
+                image = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
+            }
+        }
+        return image.jpegData(compressionQuality: 0.5)
+    }
 
     // MARK: - Exec
 

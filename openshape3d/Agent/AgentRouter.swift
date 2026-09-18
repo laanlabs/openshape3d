@@ -57,6 +57,18 @@ nonisolated struct AgentResponse: Sendable {
     static func png(_ data: Data) -> AgentResponse {
         AgentResponse(status: 200, reason: "OK", contentType: "image/png", body: data)
     }
+
+    static func image(_ data: Data, contentType: String) -> AgentResponse {
+        AgentResponse(status: 200, reason: "OK", contentType: contentType, body: data)
+    }
+}
+
+/// How `/v1/screenshot` encodes. PNG is lossless and what `curl` users expect;
+/// JPEG under a byte budget is what an MCP tool result needs — Claude Desktop
+/// drops results over 1 MB, and a 1024² PNG of a model is 1.4 MB as base64.
+nonisolated enum AgentShotFormat: String, Sendable, Equatable {
+    case png, jpeg
+    var contentType: String { self == .png ? "image/png" : "image/jpeg" }
 }
 
 // MARK: - Where a request is headed
@@ -84,7 +96,8 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     case state
     case runCommand(id: String)
     case exec(AgentExecOp)
-    case screenshot(width: Int, height: Int)
+    /// `maxBytes` (JPEG only) shrinks the image until it fits the budget.
+    case screenshot(width: Int, height: Int, format: AgentShotFormat = .png, maxBytes: Int? = nil)
     /// Geometry health report for one body (or all with a `brep`) —
     /// docs/FREECAD_PLAYBOOK.md D1. `bop` adds the slow self-intersection check.
     case check(bodyID: String?, runBOPCheck: Bool)
@@ -156,11 +169,15 @@ nonisolated enum AgentRouter {
 
         case "/v1/screenshot":
             if let bad = get(request) { return bad }
+            let raw = (request.query["format"] ?? "png").lowercased()
+            let format: AgentShotFormat = (raw == "jpeg" || raw == "jpg") ? .jpeg : .png
+            let budget = request.intQuery("maxBytes", default: 0, min: 0, max: Int.max)
             return .screenshot(
                 width: request.intQuery("w", default: defaultShotSize,
                                         min: minShotSize, max: maxShotSize),
                 height: request.intQuery("h", default: defaultShotSize,
-                                         min: minShotSize, max: maxShotSize))
+                                         min: minShotSize, max: maxShotSize),
+                format: format, maxBytes: budget > 0 ? budget : nil)
 
         case "/v1/check":
             if let bad = get(request) { return bad }

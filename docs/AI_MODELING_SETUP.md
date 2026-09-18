@@ -23,7 +23,9 @@ you turn it on, and you can turn it off again at any time.
 with the extension: click **Install**, confirm, paste the pairing code (the
 button already copied it), **Save**, and switch the extension to **Enabled**.
 If nothing opens, double-click *OpenShape 3D.mcpb* in Downloads. The first
-time Claude uses each OpenShape tool it asks; choose *Always allow*.
+time Claude touches your design it asks, once — choose *Always allow*. (Every
+read, modelling, view and save action goes through the one `os3d` tool, because
+Claude Desktop asks per tool name; one tool, one question.)
 
 **ChatGPT (Codex)** — click **Copy Address for ChatGPT**. In ChatGPT's
 settings add an MCP server with that address (it looks like

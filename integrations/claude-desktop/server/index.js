@@ -88,7 +88,7 @@ function answerOffline(message, why) {
       return { jsonrpc: "2.0", id: message.id, result: {
         protocolVersion: (message.params && message.params.protocolVersion) || "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "openshape3d", title: "OpenShape 3D", version: "1.0.0" },
+        serverInfo: { name: "openshape3d", title: "OpenShape 3D", version: "1.1.0" },
         instructions: "Call os3d_health first, then os3d_guide before modelling." } };
     case "ping":
       return { jsonrpc: "2.0", id: message.id, result: {} };
