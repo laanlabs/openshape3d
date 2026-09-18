@@ -145,9 +145,37 @@ class OfflineTests(unittest.TestCase):
         self.assertNotIn("name: model-openshape3d", result["instructions"], "frontmatter must be stripped")
 
     def test_lists_the_modelling_tools(self):
-        names = {t["name"] for t in self.c.rpc("tools/list")["result"]["tools"]}
-        self.assertLessEqual({"os3d_health", "os3d_state", "os3d_exec", "os3d_faces", "os3d_edges",
-                              "os3d_check", "os3d_export", "os3d_guide", "os3d_screenshot"}, names)
+        tools = self.c.rpc("tools/list")["result"]["tools"]
+        names = {t["name"] for t in tools}
+        # Claude Desktop approves tools BY NAME on first use (2.110 only groups
+        # annotated read-only tools in Settings): one listed tool, one prompt.
+        self.assertEqual(names, {"os3d"})
+
+    def test_the_one_tool_routes_reads_and_changes(self):
+        result, body = self.c.tool("os3d", {"op": "health"})
+        self.assertEqual(body["app"], "openshape3d")
+        result, body = self.c.tool("os3d", {"op": "faces", "args": {"body": "ABC"}})
+        self.assertEqual(body["faces"][0]["index"], 1)
+        result, text = self.c.tool("os3d", {"op": "guide"})
+        self.assertIn("Y is up", text)
+        result, body = self.c.tool("os3d", {"op": "feature.extrude", "args": {"distance": 5}})
+        self.assertEqual(body["echo"], {"op": "feature.extrude", "args": {"distance": 5}})
+        result, text = self.c.tool("os3d", {})
+        self.assertTrue(result["isError"])
+
+    def test_views_undo_and_export_ride_on_exec(self):
+        result, body = self.c.tool("os3d", {"op": "command.run", "args": {"id": "view.fit"}})
+        self.assertFalse(result.get("isError"), body)
+        self.assertIn(("POST", "/v1/command", {"id": "view.fit"}), Stub.seen)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "pot.stl")
+            result, body = self.c.tool("os3d_exec", {"op": "document.export",
+                                                     "args": {"format": "stl", "up": "z", "body": ["B1"], "path": path}})
+            self.assertFalse(result.get("isError"), body)
+            self.assertEqual(body["triangles"], 2)
+        result, text = self.c.tool("os3d_exec", {"op": "command.run", "args": {}})
+        self.assertTrue(result["isError"])
+        self.assertIn("id", text)
 
     def test_every_tool_has_an_object_schema_and_a_description(self):
         for tool in self.c.rpc("tools/list")["result"]["tools"]:
@@ -274,12 +302,13 @@ class LiveFlowerpot(unittest.TestCase):
 
             result, failed = c.tool("os3d_exec", {"op": "feature.fillet", "args": {"bodyID": body, "radius": 500, "edges": [1]}})
             self.assertTrue(result["isError"], "an impossible fillet must surface as an error")
-            c.tool("os3d_run_command", {"id": "edit.undo"})
+            c.tool("os3d_exec", {"op": "command.run", "args": {"id": "edit.undo"}})
 
             _, check = c.tool("os3d_check", {"body": body})
             self.assertEqual(check["invalid"], 0, check)
             with tempfile.TemporaryDirectory() as d:
-                _, export = c.tool("os3d_export", {"format": "stl", "up": "z", "body": [body], "path": os.path.join(d, "pot.stl")})
+                _, export = c.tool("os3d_exec", {"op": "document.export", "args": {
+                    "format": "stl", "up": "z", "body": [body], "path": os.path.join(d, "pot.stl")}})
                 report = stl_report(export["path"])
             self.assertTrue(report["watertight"], report)
             self.assertAlmostEqual(report["min"][2], 0, places=3)       # stands on the bed

@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-09-17 — the AI control channel ships in 1.3 (Settings ▸ AI Assistant switch, pairing code, in-app MCP, one-click Claude Desktop extension; proven with the real Claude Desktop and a store-user video); AI modelling made usable end to end (MCP server gained exec / faces / edges / check / export, new `/v1/export`, `model-openshape3d` skill, `docs/AI_MODELING_SETUP.md`, tested with real Claude sessions) and the "flowerpot with Claude or ChatGPT" tutorial; three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; **outstanding work is listed under "Open work" below**; see the newest mission log, the register above, and
+Last updated: 2026-09-17 — Claude Desktop asks for permission ONCE, proven in the real Desktop 2.110 (the MCP catalog is one tool, `os3d`, whose `op` covers reads, features, views/undo and export; one card, Always allow, 14 more calls unprompted), MCP screenshots are budgeted JPEGs (the 1024² PNG blew Desktop's 1 MB tool-result cap), `model-openshape3d` skill rewritten (full op table, face/edge reading, boolean-overlap rule) and proven on three headless Claude runs plus the Desktop run; the AI control channel ships in 1.3 (Settings ▸ AI Assistant switch, pairing code, in-app MCP, one-click Claude Desktop extension; proven with the real Claude Desktop and a store-user video); AI modelling made usable end to end (MCP server gained exec / faces / edges / check / export, new `/v1/export`, `model-openshape3d` skill, `docs/AI_MODELING_SETUP.md`, tested with real Claude sessions) and the "flowerpot with Claude or ChatGPT" tutorial; three narrated YouTube tutorials (sketching, shapes, materials) from `scripts/youtube_series/`; loft preview creases fixed (banded ruled mesh); welcome screen, bundled sample designs (Demos folder) and App Store preview videos at 886 × 1920 / 1200 × 1600; camera / material / phone safe-area / constraint-sheet fixes (#37–#40); full UI suite on main has no known failures; all twelve App Store screenshots reshot for the new framing; medium-detent sheet tap probe (no other sheet drops taps); Settings reachable on iPhone; switch-tap probe on iPhone (no taps lost, not even in the control); SOLIDWORKS practice problems rerun on main (170 / 202, unchanged); Shell tool opens holed faces, 13.9 over-hollow finding stale; lateral-edge fillet finding stale; practice-problem round 6 (181 / 215 pass, four bugs confirmed); Settings reachable at any width (the iPad mini in portrait lost it too); edge convexity and collinear edge merging fixed (round 6 bug 3); crossing outlines split into real regions (round 6's bug 1); curved-edge midpoints in /v1/edges stable (practice problems 181 / 215, unchanged); render mesh no longer fails validity (round 6's bug 2), heal-loosened booleans refused; a bridge feature is one undo step (round 6's bug 4); 7.29 at 0.00 % (R1 on every edge but the hole rims); practice problems 182 / 215 on merged main (18.3's tube fillet built 0.001 mm off tangent); shell refusals traced (18.3 fixed by the tube offset, 13.9A an OCCT offset limit); a shell over a fillet no longer refused as C0Geometry (18.23's refusals traced); fillets OCCT built no longer refused per edge (practice problems 183 / 215: 13.3 passes, 18.5A / 18.5B with their full R5 sets, 18.5B at −0.001 %); the fillet drag's size probe looks past a failed tiny size; 18.9A's refused sphere/diamond blend traced to a drawn tangency (recipe unchanged); practice problems rerun on main after the shell and fillet fixes (183 / 215, identical); the boolean's face merge no longer corrupts its operands (18.19 cut in drawing order); kernel ops audited for changing their inputs (the heal does not; the enclosed-hollow cut did, now non-destructive); 18.23's shell refusal pinned to the pipe junction over the S step's concave R3; **outstanding work is listed under "Open work" below**; see the newest mission log, the register above, and
 [full 42-issue implementation ledger](SKETCH_PARITY_IMPLEMENTATION.md).
 This is the living handoff document: what is DONE, how the newest subsystems
 work, the dev workflow, and the prioritized next missions.
@@ -77,6 +77,67 @@ detail; this is the register to read first.
 - **An outward enclosed hollow still clears the body's Free flag** — OCCT
   marking a shape it placed inside another. No geometry changes, and the
   input-untouched test ignores the flag lines.
+
+## Mission log — 2026-09-17, one permission prompt: the AI tool surface, budgeted screenshots, the skill rewritten
+
+Jason's live Claude Desktop session showed two things the flowerpot run had
+not: a permission card for every one of the twelve tools ("we should only be
+asked once"), and a "Tool result is too large. Maximum size is 1MB" banner.
+
+- **How Desktop 2.110 approves MCP tools, tested in the app itself:** by tool
+  NAME, on first use. `annotations.readOnlyHint` does NOT skip the prompt —
+  it only files the tool under "Read-only tools" in Settings ▸ Extensions ▸
+  OpenShape 3D (an annotated `os3d_edges` still prompted after three
+  annotated reads ran). The first attempt here (nine annotated reads + one
+  write tool) was built on a misreading of Desktop's bundle and is gone.
+- **The fix: ONE listed tool, `os3d`** (`MCPTools.json`, both dialects; the
+  Python server now loads that file instead of its own list). `op` covers
+  the reads (`health`, `guide`, `state`, `faces`, `edges`, `sketches`,
+  `check`, `screenshot`, `commands`; arguments in `args`), every feature,
+  `command.run {id}` (→ `/v1/command`) and `document.export
+  {format, up, body, name}` (→ `/v1/export`, saved to Downloads). The old
+  per-endpoint names (`os3d_state`, `os3d_exec`, `os3d_export`, …) still
+  route, so recorded sessions replay and a Desktop holding a stale list keeps
+  working. Tests: `AgentMCPTests` (catalog is `["os3d"]`, every read op
+  routes, views/undo/export ride on it, JPEG screenshot),
+  `test_mcp_openshape3d.py` (same, offline + `--live`).
+- **Proof in Claude Desktop 2.110** (Debug Catalyst app, extension toggled
+  off/on so Desktop re-listed): "40 mm cube, 3 mm rounds, save an STL, show
+  me" → ONE card ("Claude wants to use OpenShape 3D"), Always allow, then 14
+  calls with no prompt; Settings now shows the one tool as Always allow.
+  STL watertight, 40 × 40 × 40, 63 108 mm³ against the app's 63 109.
+  A FRESH chat afterwards ("90 mm coaster, 1 mm round-over, show me") got
+  ZERO cards: 12 calls straight through, screenshot included.
+- **Review fix:** the JPEG shrink drew at the screen's scale (2× on a Retina
+  Mac, so a "shrink" could double the pixels); pinned to scale 1, with
+  `testScreenshotJPEGFitsItsBudget` (noisy 1024² image under 150 kB).
+- **Desktop keeps an extension's tool list until it restarts or the
+  extension is toggled** — it lists once when it starts the relay. A store
+  user who updates the app gets the new list on their next Desktop restart;
+  until then the old names still work (one card per old name).
+- **The 1 MB banner** was `os3d_screenshot`: a 1024² PNG of a model is
+  1.05 MB, 1.4 MB as base64 (an empty scene is 0.55 MB, which is why the
+  flowerpot test never hit it). `/v1/screenshot` takes
+  `format=jpeg&maxBytes=`; `AgentBridge.jpeg(fromPNG:maxBytes:)` drops
+  quality then shrinks until it fits; MCP asks for JPEG under 700 kB
+  (~290 kB for a model at 1024²). REST default stays PNG for `curl`.
+- **Skill (`model-openshape3d`, = MCP `instructions` = op `guide`):** the
+  complete op table (the face ops, pattern kinds, transform's +Z default
+  rotation axis, mirror's `keepOriginal`, the read ops), a "reading faces
+  and edges" section with the real field names (`areaMM2`, `centroid`,
+  `normal`, `kind`/`referenceable`; `faces`, `midpoint`, `lengthMM`,
+  `convex`), the one-seed-one-region and boolean-overlap rules, boss / lid
+  recipes, and "report in the person's terms, not ids".
+- **Headless proof before the tool merge** (`claude -p` from outside the
+  repo, MCP only): SD-card box + lid, holed wood coaster, shelled hex pencil
+  holder — zero failed calls, volumes matched the model's arithmetic, STLs
+  watertight and Z-up. They showed the Python server ignoring export `name`
+  and omitting `sizeMM`; both fixed. Harness: `<scratchpad>/skilltest/
+  run_case.sh` + `judge.py` (fresh app on `os3d-video`, port 8931).
+- **Driving Desktop:** Settings is ⌘, ▸ Extensions ▸ Configure; the Enabled
+  switch needs `peekaboo click --foreground --input-strategy synthOnly`
+  (plain clicks opened a context menu); ⌘N opens a Code session when the
+  Code tab is frontmost — switch to Home first.
 
 ## Mission log — 2026-09-17, "ask for a part, print it" for store users: the control channel ships, switched on in Settings
 

@@ -368,7 +368,7 @@ nonisolated final class AgentServer: @unchecked Sendable {
                 let answer = AgentBridge.shared.handle(tool.route)
                 var saved: URL?
                 var problem: String?
-                if tool.name == "os3d_export", answer.status < 400, !answer.contentType.contains("json") {
+                if case .export = tool.route, answer.status < 400, !answer.contentType.contains("json") {
                     (saved, problem) = AgentExportFolder.save(answer.body, requestedName: tool.exportName,
                                                              format: tool.exportFormat ?? .stl)
                 }

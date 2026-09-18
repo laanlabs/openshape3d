@@ -412,11 +412,14 @@ Two behaviours worth knowing:
   can still appear to have changed something. The silent no-op is exactly what
   this endpoint exists to make visible.
 
-### `GET /v1/screenshot?w=&h=`
+### `GET /v1/screenshot?w=&h=[&format=png|jpeg][&maxBytes=]`
 
-PNG bytes, rendered by the app itself — so it works identically on Catalyst and
-on a device, where `simctl io screenshot` does not exist. Sizes clamp to
-64–4096, default 1024. It is an offscreen render, centred on the camera
+PNG bytes by default, rendered by the app itself — so it works identically on
+Catalyst and on a device, where `simctl io screenshot` does not exist. Sizes
+clamp to 64–4096, default 1024. `format=jpeg` re-encodes (quality 0.85), and
+`maxBytes=` then shrinks quality and finally the image until it fits: that is
+what the MCP tool asks for (700 kB), because a chat client caps a tool result
+(Claude Desktop: 1 MB, and a 1024² PNG of a model is 1.4 MB as base64). It is an offscreen render, centred on the camera
 target. On a phone the on-screen view is shifted right of the tool palette
 (`ViewportSafeArea`), so for tap coordinates use `/v1/project`, which
 follows the screen, not positions read off this image.
@@ -441,6 +444,27 @@ skill and plain `curl` are the lighter path there.
 Stdlib-only and Python 3.9-compatible on purpose: it runs inside Claude
 Desktop's launch environment, not yours, where a missing dependency surfaces as
 an unexplained failure.
+
+**Tool surface (both MCP dialects, since 2026-09-17).** Claude Desktop asks the
+person to approve each tool BY NAME the first time it is used. It reads
+`annotations.readOnlyHint` — but only to group those tools under "Read-only
+tools" in the extension's Settings page, where they can be pre-approved; the
+first-use prompt still appears (checked on 2.110: an annotated `os3d_edges`
+prompted after three annotated reads had run). So the catalog lists ONE tool,
+`os3d`, whose `op` covers everything: the reads (`health`, `guide`, `state`,
+`faces`, `edges`, `sketches`, `check`, `screenshot`, `commands`, with their
+arguments in `args`), the features, `command.run` (`{"id":"view.fit"}` →
+`POST /v1/command`) and `document.export` (`{"format","up","body","name"}` →
+`GET /v1/export`, saved to Downloads). The old per-endpoint tools
+(`os3d_state`, `os3d_exec`, `os3d_export`, …) still route — recorded sessions
+replay — but are no longer listed. Desktop lists an extension's tools ONCE,
+when it starts the relay, and keeps that list until Desktop restarts or the
+extension is toggled in Settings ▸ Extensions. A Desktop still holding an older
+list keeps working, because the old tool names still route; it just asks once
+per old name.
+Screenshots over MCP are JPEG under a byte budget (`format=jpeg&maxBytes=`
+on `/v1/screenshot`): a 1024² PNG of a model is ~1.4 MB base64, over Claude
+Desktop's 1 MB tool-result cap.
 
 ## What this cannot do yet
 

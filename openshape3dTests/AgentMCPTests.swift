@@ -11,6 +11,7 @@
 //
 
 import XCTest
+import UIKit
 @testable import openshape3d
 
 final class AgentMCPTests: XCTestCase {
@@ -168,14 +169,54 @@ final class AgentMCPTests: XCTestCase {
     func testToolListIsTheBundledCatalog() {
         let result = object(reply(AgentMCP.plan(for: rpc("tools/list"))))["result"] as? [String: Any]
         let names = Set((result?["tools"] as? [[String: Any]] ?? []).compactMap { $0["name"] as? String })
-        XCTAssertEqual(names, ["os3d_health", "os3d_list_commands", "os3d_state", "os3d_run_command", "os3d_screenshot",
-                               "os3d_guide", "os3d_exec", "os3d_faces", "os3d_edges", "os3d_sketches", "os3d_check",
-                               "os3d_export"])
+        // Claude Desktop asks the person to approve each tool BY NAME on first
+        // use (2.110 does not skip annotated read-only tools, it only groups
+        // them in Settings), so the catalog lists exactly one tool.
+        XCTAssertEqual(names, ["os3d"])
+    }
+
+    func testEveryReadOpOfTheOneToolRoutes() {
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "state"]])))?.route, .state)
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "health"]])))?.route, .health)
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "commands"]])))?.route, .commands)
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "edges", "args": ["body": "B"]]])))?.route, .edges(bodyID: "B"))
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "check", "args": ["body": "B", "bop": true]]])))?.route, .check(bodyID: "B", runBOPCheck: true))
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "screenshot"]])))?.route,
+                       .screenshot(width: AgentRouter.defaultShotSize, height: AgentRouter.defaultShotSize, format: .jpeg, maxBytes: AgentMCP.screenshotBudgetBytes))
+        let guide = object(reply(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "guide"]]))))["result"] as? [String: Any]
+        XCTAssertEqual(((guide?["content"] as? [[String: Any]])?.first?["text"] as? String)?.isEmpty, false)
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "sketch.create", "args": ["name": "P"]]])))?.route,
+                       AgentRouter.route(AgentRequest(method: "POST", path: "/v1/exec",
+                                                      body: try! JSONSerialization.data(withJSONObject: ["op": "sketch.create", "args": ["name": "P"]]))))
+    }
+
+    func testViewsUndoAndExportRideOnTheOneTool() {
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "command.run", "args": ["id": "edit.undo"]]])))?.route,
+                       .runCommand(id: "edit.undo"))
+        let export = call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "document.export",
+                                               "args": ["format": "3mf", "up": "z", "body": ["A"], "name": "pot"]]])))
+        XCTAssertEqual(export?.route, .export(format: .threeMF, bodyIDs: ["A"], zUp: true))
+        XCTAssertEqual(export?.exportName, "pot")
+        XCTAssertEqual(export?.exportFormat, .threeMF)
+        // A missing id is a tool error naming the op, not a protocol error.
+        let result = object(reply(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "command.run"]]))))["result"] as? [String: Any]
+        XCTAssertEqual(result?["isError"] as? Bool, true)
+    }
+
+    func testScreenshotsOverMCPAreBudgetedJPEGs() {
+        let tool = call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d_screenshot", "arguments": ["width": 4096]])))
+        XCTAssertEqual(tool?.route, .screenshot(width: 2048, height: 1024, format: .jpeg, maxBytes: AgentMCP.screenshotBudgetBytes))
     }
 
     func testEveryListedToolResolvesToARoute() {
         let samples: [String: [String: Any]] = [
-            "os3d_run_command": ["id": "view.fit"], "os3d_exec": ["op": "sketch.create"],
+            "os3d": ["op": "state"], "os3d_run_command": ["id": "view.fit"], "os3d_exec": ["op": "sketch.create"],
             "os3d_faces": ["body": "B"], "os3d_edges": ["body": "B"]]
         for tool in AgentMCP.tools.compactMap({ $0["name"] as? String }) where tool != "os3d_guide" {
             guard case .success = AgentMCP.restRequest(tool: tool, arguments: samples[tool] ?? [:]) else {
@@ -222,11 +263,39 @@ final class AgentMCPTests: XCTestCase {
     }
 
     func testScreenshotComesBackAsAnImage() {
-        let tool = AgentMCP.ToolCall(name: "os3d_screenshot", route: .screenshot(width: 64, height: 64))
-        let result = object(AgentMCP.result(id: .number(1), tool: tool, response: .png(Data([1, 2, 3]))))["result"] as? [String: Any]
+        let tool = AgentMCP.ToolCall(name: "os3d_screenshot", route: .screenshot(width: 64, height: 64, format: .jpeg))
+        let result = object(AgentMCP.result(id: .number(1), tool: tool,
+                                            response: .image(Data([1, 2, 3]), contentType: "image/jpeg")))["result"] as? [String: Any]
         let item = (result?["content"] as? [[String: Any]])?.first
         XCTAssertEqual(item?["type"] as? String, "image")
+        XCTAssertEqual(item?["mimeType"] as? String, "image/jpeg")
         XCTAssertEqual(item?["data"] as? String, Data([1, 2, 3]).base64EncodedString())
+    }
+
+    /// A noisy 1024² image is the worst case for JPEG. Whatever the screen
+    /// scale, the re-encode must fit the budget and stay a real picture.
+    func testScreenshotJPEGFitsItsBudget() throws {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        var generator = SystemRandomNumberGenerator()
+        let noisy = UIGraphicsImageRenderer(size: CGSize(width: 1024, height: 1024), format: format).image { context in
+            for y in stride(from: 0, to: 1024, by: 4) {
+                for x in stride(from: 0, to: 1024, by: 4) {
+                    UIColor(red: .random(in: 0...1, using: &generator), green: .random(in: 0...1, using: &generator),
+                            blue: .random(in: 0...1, using: &generator), alpha: 1).setFill()
+                    context.fill(CGRect(x: x, y: y, width: 4, height: 4))
+                }
+            }
+        }
+        let png = try XCTUnwrap(noisy.pngData())
+        let budget = 150_000
+        let jpeg = try XCTUnwrap(AgentBridge.jpeg(fromPNG: png, maxBytes: budget))
+        XCTAssertLessThanOrEqual(jpeg.count, budget)
+        let decoded = try XCTUnwrap(UIImage(data: jpeg))
+        XCTAssertGreaterThanOrEqual(decoded.size.width, 256, "shrunk, not destroyed")
+        XCTAssertLessThanOrEqual(decoded.size.width, 1024)
+        // No budget: re-encoded at full size.
+        XCTAssertEqual(UIImage(data: try XCTUnwrap(AgentBridge.jpeg(fromPNG: png, maxBytes: nil)))?.size.width, 1024)
     }
 
     func testExportReportsWhereItWasSavedAndTheTriangleCount() {
