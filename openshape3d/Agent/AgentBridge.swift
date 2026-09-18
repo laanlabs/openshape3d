@@ -210,8 +210,15 @@ final class AgentBridge {
                 quality = 0.6
             } else {
                 let factor = max(0.35, sqrt(Double(budget) / Double(data.count)) * 0.95)
-                let size = CGSize(width: image.size.width * factor, height: image.size.height * factor)
-                let renderer = UIGraphicsImageRenderer(size: size, format: .init())
+                let size = CGSize(width: (image.size.width * factor).rounded(),
+                                  height: (image.size.height * factor).rounded())
+                // Scale 1: one point per pixel. The default format takes the
+                // screen's scale, which would double the pixels on a Retina
+                // Mac and undo the shrink.
+                let format = UIGraphicsImageRendererFormat()
+                format.scale = 1
+                format.opaque = true
+                let renderer = UIGraphicsImageRenderer(size: size, format: format)
                 image = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
             }
         }

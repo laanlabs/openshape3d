@@ -11,6 +11,7 @@
 //
 
 import XCTest
+import UIKit
 @testable import openshape3d
 
 final class AgentMCPTests: XCTestCase {
@@ -269,6 +270,32 @@ final class AgentMCPTests: XCTestCase {
         XCTAssertEqual(item?["type"] as? String, "image")
         XCTAssertEqual(item?["mimeType"] as? String, "image/jpeg")
         XCTAssertEqual(item?["data"] as? String, Data([1, 2, 3]).base64EncodedString())
+    }
+
+    /// A noisy 1024² image is the worst case for JPEG. Whatever the screen
+    /// scale, the re-encode must fit the budget and stay a real picture.
+    func testScreenshotJPEGFitsItsBudget() throws {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        var generator = SystemRandomNumberGenerator()
+        let noisy = UIGraphicsImageRenderer(size: CGSize(width: 1024, height: 1024), format: format).image { context in
+            for y in stride(from: 0, to: 1024, by: 4) {
+                for x in stride(from: 0, to: 1024, by: 4) {
+                    UIColor(red: .random(in: 0...1, using: &generator), green: .random(in: 0...1, using: &generator),
+                            blue: .random(in: 0...1, using: &generator), alpha: 1).setFill()
+                    context.fill(CGRect(x: x, y: y, width: 4, height: 4))
+                }
+            }
+        }
+        let png = try XCTUnwrap(noisy.pngData())
+        let budget = 150_000
+        let jpeg = try XCTUnwrap(AgentBridge.jpeg(fromPNG: png, maxBytes: budget))
+        XCTAssertLessThanOrEqual(jpeg.count, budget)
+        let decoded = try XCTUnwrap(UIImage(data: jpeg))
+        XCTAssertGreaterThanOrEqual(decoded.size.width, 256, "shrunk, not destroyed")
+        XCTAssertLessThanOrEqual(decoded.size.width, 1024)
+        // No budget: re-encoded at full size.
+        XCTAssertEqual(UIImage(data: try XCTUnwrap(AgentBridge.jpeg(fromPNG: png, maxBytes: nil)))?.size.width, 1024)
     }
 
     func testExportReportsWhereItWasSavedAndTheTriangleCount() {

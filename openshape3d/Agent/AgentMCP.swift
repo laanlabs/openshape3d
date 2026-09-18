@@ -140,8 +140,6 @@ nonisolated enum AgentMCP {
 
     nonisolated struct Problem: Error, Sendable { var message: String }
 
-    /// The REST request a tool call stands for. Everything past this point is
-    /// `AgentRouter`'s, including the refusals.
     /// `os3d` read ops → the (unlisted) per-endpoint tools that serve them.
     static let readOps: [String: String] = [
         "health": "os3d_health", "state": "os3d_state", "faces": "os3d_faces", "edges": "os3d_edges",
@@ -149,6 +147,8 @@ nonisolated enum AgentMCP {
         "commands": "os3d_list_commands",
     ]
 
+    /// The REST request a tool call stands for. Everything past this point is
+    /// `AgentRouter`'s, including the refusals.
     static func restRequest(tool: String, arguments: [String: Any]) -> Result<AgentRequest, Problem> {
         func get(_ path: String, _ query: [String: String] = [:]) -> Result<AgentRequest, Problem> {
             .success(AgentRequest(method: "GET", path: path, query: query))
@@ -185,9 +185,8 @@ nonisolated enum AgentMCP {
                 return .failure(Problem(message: "os3d_exec needs an 'op'. os3d_guide lists the operations."))
             }
             let args = arguments["args"] as? [String: Any] ?? [:]
-            // Views, undo and export ride on the ONE mutating tool: Claude
-            // Desktop approves tools by name, so this way the person is asked
-            // once, and the read-only tools (annotated) are never asked about.
+            // Views, undo and export are exec ops too, so the one listed tool
+            // (`os3d`, which forwards here) covers them with a single approval.
             switch op {
             case "command.run":    return restRequest(tool: "os3d_run_command", arguments: args)
             case "document.export": return restRequest(tool: "os3d_export", arguments: args)

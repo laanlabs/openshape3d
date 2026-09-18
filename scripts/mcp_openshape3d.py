@@ -222,8 +222,8 @@ def run_tool(name, arguments):
         arguments = arguments or {}
         if not arguments.get("op"):
             return error_result("os3d_exec needs an 'op'. os3d_guide lists the operations.")
-        # Views, undo and export ride on the one mutating tool: Claude Desktop
-        # approves tools by name, and this way the person is asked once.
+        # Views, undo and export are exec ops too, so the one listed tool
+        # (`os3d`, which forwards here) covers them with a single approval.
         if arguments["op"] == "command.run":
             return run_tool("os3d_run_command", arguments.get("args") or {})
         if arguments["op"] == "document.export":

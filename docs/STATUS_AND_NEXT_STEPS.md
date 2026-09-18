@@ -106,6 +106,11 @@ asked once"), and a "Tool result is too large. Maximum size is 1MB" banner.
   me" → ONE card ("Claude wants to use OpenShape 3D"), Always allow, then 14
   calls with no prompt; Settings now shows the one tool as Always allow.
   STL watertight, 40 × 40 × 40, 63 108 mm³ against the app's 63 109.
+  A FRESH chat afterwards ("90 mm coaster, 1 mm round-over, show me") got
+  ZERO cards: 12 calls straight through, screenshot included.
+- **Review fix:** the JPEG shrink drew at the screen's scale (2× on a Retina
+  Mac, so a "shrink" could double the pixels); pinned to scale 1, with
+  `testScreenshotJPEGFitsItsBudget` (noisy 1024² image under 150 kB).
 - **Desktop keeps an extension's tool list until it restarts or the
   extension is toggled** — it lists once when it starts the relay. A store
   user who updates the app gets the new list on their next Desktop restart;
