@@ -28,6 +28,15 @@ The same tools on iPhone — the contextual bars adapt to compact width.
 | :---: | :---: | :---: |
 | <img src="docs/screenshots/iphone-hero.jpg" width="200" alt="Solid in the viewport on iPhone"> | <img src="docs/screenshots/iphone-push-pull.jpg" width="200" alt="Extrude bar on iPhone"> | <img src="docs/screenshots/iphone-gallery.jpg" width="200" alt="Project gallery on iPhone"> |
 
+## Ask Claude for a part
+
+On the Mac, you can describe a part in plain English and have Claude model it
+in OpenShape 3D, check that it will print, and save the STL to Downloads — no
+CAD experience, no terminal. Switch it on in Settings ▸ AI Assistant and click
+**Add to Claude Desktop…**. Step-by-step with screenshots:
+**[docs/CLAUDE_DESKTOP_TUTORIAL.md](docs/CLAUDE_DESKTOP_TUTORIAL.md)**
+(developers and other assistants: [docs/AI_MODELING_SETUP.md](docs/AI_MODELING_SETUP.md)).
+
 ## Getting started
 
 First launch opens a welcome screen; **Add Sample Designs** puts four
