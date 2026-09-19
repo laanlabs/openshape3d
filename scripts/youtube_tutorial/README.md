@@ -61,3 +61,11 @@ slot sketched on the floor face (plane picker + face tap, rectangle drag,
 Subtract, Distance −15 — the keypad's minus is the ± key), the Export menu,
 History. The body detector for the top view masks out the top bars, palette
 and constraints panel: the blue "Exit Sketching" pill otherwise skews the box.
+
+## Pronunciation
+
+The narration rules and pronunciation guide live in
+`scripts/youtube_series/pronunciation.py` (table in that folder's README).
+These takes play pre-generated clips from `tts/`, so the guide is not applied
+automatically: run each line through `pronunciation.speakable()` before
+regenerating its clip.
