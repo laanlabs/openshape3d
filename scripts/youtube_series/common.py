@@ -216,12 +216,14 @@ def synthesize(name, script):
     import edge_tts
     d = tts_dir(name)
     durations = {}
+    from pronunciation import speakable
     for seg in script:
-        key = hashlib.sha1((VOICE + RATE + seg["say"]).encode()).hexdigest()[:10]
+        spoken = speakable(seg["say"])            # respellings: see pronunciation.py
+        key = hashlib.sha1((VOICE + RATE + spoken).encode()).hexdigest()[:10]
         path = os.path.join(d, f"{seg['id']}-{key}.mp3")
         if not os.path.exists(path):
             log(f"tts {seg['id']}")
-            asyncio.run(edge_tts.Communicate(seg["say"], VOICE, rate=RATE).save(path))
+            asyncio.run(edge_tts.Communicate(spoken, VOICE, rate=RATE).save(path))
         seg["_clip"] = path
         durations[seg["id"]] = float(subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],

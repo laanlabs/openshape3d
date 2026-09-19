@@ -329,7 +329,7 @@ TRAY = [
      "Combine, Subtract, and the six cubes cut their pockets out of the tray."),
  seg("floor", "Fillet", "Round the pockets", "Modify › Fillet",
      ["Each pocket's floor edges", "Radius 3 mm", "Easy release, no cracks"],
-     "Fillet the bottom of each pocket by three millimeters. No sharp corners means easy release, and no cracks."),
+     "Fillet each pocket's floor by three millimeters. No sharp corners: easy release, no cracks."),
  seg("material", "Material", "Icy blue", "Select the body › Material",
      [],
      "An icy blue, and a look from every side to check the pockets."),

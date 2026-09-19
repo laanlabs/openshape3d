@@ -30,6 +30,70 @@ material rather than paced live: `python3 ask_claude.py <material-dir>` (the
 docstring lists the stills, the `screencapture -V -l` window recording and the
 timed `claude -p … --output-format stream-json` transcripts it expects).
 
+## Narration rules and pronunciation guide
+
+The voice (edge-tts, `common.VOICE`) reads exactly what it is given and
+guesses at jargon — "fillet" can come out as the cooking fil-AY, "CAD" as
+C-A-D. edge-tts takes plain text only (no SSML phonemes), so
+`pronunciation.py` RESPELLS risky words in the text sent to the voice; the
+panels, titles and YouTube text keep the real spelling. `common.synthesize`
+applies it to every `say` line, and the clip cache keys on the respelled
+text, so a guide change re-voices exactly the lines it touches.
+
+Rules for every `say` line:
+
+- Say CAD as one syllable that rhymes with "dad" (/kæd/), never the letters.
+- A fillet is FILL-it (/ˈfɪlɪt/), never fil-AY.
+- Write numbers and units as words ("forty-one millimeters", "six degrees",
+  "point four"); part numbers as spoken ("six-oh-eight").
+- New jargon goes into `GUIDE` before it goes into a script; `terms_in(line)`
+  lists the entries a line uses.
+- After changing a line, check it still fits its chapter: its clip must end
+  before the next chapter starts (the timeline is fixed once a take is
+  recorded).
+
+| Term | Say it | IPA | Sent to the voice as |
+|---|---|---|---|
+| CAD | kad — one syllable, rhymes with dad | /kæd/ | cad |
+| FreeCAD | free-kad |  | Free cad |
+| AutoCAD | AW-toh-kad |  | Auto cad |
+| Tinkercad | TINK-er-kad |  | Tinker cad |
+| fillet, fillets | FILL-it (engineering), not fil-AY (cooking) | /ˈfɪlɪt/ | fillit |
+| filleted | FILL-it-id |  | fillitid |
+| filleting | FILL-it-ing |  | filliting |
+| chamfer | CHAM-fer | /ˈtʃæmfər/ | (as written) |
+| involute | IN-vuh-loot | /ˈɪnvəluːt/ | in-vuh-loot |
+| LEGO | LEG-oh | /ˈlɛɡoʊ/ | Lego |
+| IGES | EYE-jess |  | eye-jess |
+| NURBS | nurbs, one word | /nɜːrbz/ | nurbs |
+| B-rep | BEE-rep |  | bee-rep |
+| Bézier | BEZ-ee-ay | /ˈbɛz.i.eɪ/ | Bez-ee-ay |
+| STEP | step, the word (the file format) |  | step |
+| 3MF | three-em-eff |  | three M F |
+| OBJ | oh-bee-jay |  | O B J |
+| GLB | gee-el-bee |  | G L B |
+| DXF | dee-ex-eff |  | D X F |
+| STL | ess-tee-el |  | (as written) |
+| TPU | tee-pee-you |  | (as written) |
+| PLA | pee-el-ay |  | (as written) |
+| PETG | pee-ee-tee-gee |  | P E T G |
+| OCCT | oh-see-see-tee |  | O C C T |
+| OpenCASCADE | open cascade |  | Open Cascade |
+| Shapr3D | shaper three-dee |  | Shaper three D |
+| Fusion 360 | fusion three-sixty |  | Fusion three-sixty |
+| Onshape | on-shape |  | On Shape |
+| 3D | three-dee |  | three-D |
+| helix | HEE-liks | /ˈhiːlɪks/ | (as written) |
+| extrude | ik-STROOD | /ɪkˈstruːd/ | (as written) |
+| mm | millimeters (never 'em em') |  | millimeters |
+| ° | degrees |  | degrees |
+| × | by |  | × |
+
+Sources: Cambridge Dictionary (CAD), Wikipedia "Fillet (mechanics)",
+Oxford English Dictionary (involute, Lego), Wikipedia "IGES" and "Bézier
+curve". Re-voicing a recorded video is `project_tutorial.py <name>
+--compose-only`: the recording is reused and only the narration changes.
+
 ## Ten project tutorials
 
 Ten follow-along projects, the classics of CAD tutorials on YouTube: coffee
@@ -104,3 +168,4 @@ never collide with the UI suite's builds on the shared simulators.
 - `ai_flowerpot.py`, `ai_flowerpot_session.json` — the AI-modelling video and the session it replays
 - `probe*.py` — the touch-flow probes used while writing the takes
 - `project_tutorial.py`, `projects.py`, `projects_text.py`, `batch.sh`, `contact.py` — the ten project tutorials
+- `pronunciation.py` — the pronunciation guide the narration voice is given
