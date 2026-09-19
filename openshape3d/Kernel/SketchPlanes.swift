@@ -25,6 +25,34 @@ nonisolated extension SketchPlane {
         yAxis: SIMD3(0, 1, 0)
     )
 
+    /// A face within this angle of horizontal (cos 1°) sketches in the
+    /// ground's layout; steeper faces are laid out upright.
+    static let horizontalFaceCosine = 0.99985
+
+    /// The sketch plane for a picked planar face with world `normal`, laid out
+    /// the way the world planes read, so text and dimensions come out upright
+    /// in the standard views. A face pointing up or down takes the ground's
+    /// in-plane axes: x = +X, y = -Z facing up (exactly `ground`), +Z facing
+    /// down. Any other face is upright, like the front and side planes: y is
+    /// world up projected into the face, x completes the right-handed frame
+    /// (a +Z face gives `worldXY`'s axes, a +X face `worldYZ`'s).
+    ///
+    /// The face's own mesh basis (`FaceTopology.PlanarFace.basisX`) follows
+    /// its first boundary edge — on a box's top face that is +Z, so a sketch
+    /// on it read sideways and Text ran across the view. That basis still
+    /// defines face-local feature deltas; only the sketch plane changes.
+    static func readable(origin: SIMD3<Double>, normal: SIMD3<Double>) -> SketchPlane {
+        let n = simd_normalize(normal)
+        let up = SIMD3<Double>(0, 1, 0)
+        if abs(simd_dot(n, up)) >= horizontalFaceCosine {
+            let right = SIMD3<Double>(1, 0, 0)
+            let x = simd_normalize(right - n * simd_dot(right, n))
+            return SketchPlane(origin: origin, xAxis: x, yAxis: simd_cross(n, x))
+        }
+        let y = simd_normalize(up - n * simd_dot(up, n))
+        return SketchPlane(origin: origin, xAxis: simd_cross(y, n), yAxis: y)
+    }
+
     /// Same geometric plane (parallel normals, coplanar origins) within
     /// tolerance — basis vectors may differ. Shapr3D's rule: continuing on
     /// the same plane edits the same sketch item.
