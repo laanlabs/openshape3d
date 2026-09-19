@@ -7701,10 +7701,12 @@ final class EditorViewModel {
         for p in context.profile.loop {
             radius = max(radius, simd_length(p - centroid))
         }
-        return (
-            SketchPlane(origin: origin, xAxis: context.plane.xAxis, yAxis: context.plane.yAxis),
-            radius * 2.5
-        )
+        // Offset from a body face: lay the new plane out like a face sketch
+        // (see `SketchPlane.readable`); offset from a sketch keeps its axes.
+        let plane = context.sourceBody != nil
+            ? SketchPlane.readable(origin: origin, normal: context.plane.normal)
+            : SketchPlane(origin: origin, xAxis: context.plane.xAxis, yAxis: context.plane.yAxis)
+        return (plane, radius * 2.5)
     }
 
     private func commitOffsetPlane(_ context: ToolContext, distance: Double) {
@@ -11124,7 +11126,9 @@ final class EditorViewModel {
         if case .faceSelected = mode, let plane = toolContext?.plane {
             cancelTool()
             selection.removeAll()
-            beginSketch(on: plane, tool: tool)
+            // The selection's plane keeps the face's own basis (face moves are
+            // stored in it); the sketch gets the upright layout.
+            beginSketch(on: .readable(origin: plane.origin, normal: plane.normal), tool: tool)
             return
         }
         cancelTool()
@@ -11199,10 +11203,9 @@ final class EditorViewModel {
             return nil
         }
         let transform = body.transform
-        return SketchPlane(
+        return SketchPlane.readable(
             origin: transform.applying(to: face.origin),
-            xAxis: transform.rotation.act(face.basisX),
-            yAxis: transform.rotation.act(face.basisY)
+            normal: transform.rotation.act(simd_cross(face.basisX, face.basisY))
         )
     }
 
