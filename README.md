@@ -3,14 +3,39 @@
 > Sketch usability work (September 2026): [current implementation status and 42-issue queue](docs/SKETCH_PARITY_IMPLEMENTATION.md). Earlier parity notes contain historical defaults; both annotation visibility switches currently default off (selection-based).
 
 
-An open-source direct-modeling CAD app for iPad and iPhone,
-built with SwiftUI, a **custom Metal renderer**, and a dual geometry kernel:
+A free, open-source direct-modeling CAD app for iPad, iPhone and Apple silicon
+Macs, with a browser version at [app.openshape3d.com](https://app.openshape3d.com).
+Built with SwiftUI, a **custom Metal renderer**, and a dual geometry kernel:
 [OpenCASCADE](https://github.com/Open-Cascade-SAS/OCCT) (OCCT) for exact B-rep
 solids, with the MIT-licensed
 [Euclid](https://github.com/nicklockwood/Euclid) mesh-CSG library alongside it.
 See [Geometry kernels](#geometry-kernels-occt--euclid).
 
-![Platform](https://img.shields.io/badge/platform-iPadOS%20%7C%20iOS-blue)
+[App Store](https://apps.apple.com/us/app/openshape3d/id6792536439) ·
+[Website](https://openshape3d.com) · [Web app](https://app.openshape3d.com) ·
+[Video tutorials](https://openshape3d.com/videos)
+
+![Platform](https://img.shields.io/badge/platform-iPadOS%20%7C%20iOS%20%7C%20macOS%20%7C%20Web-blue)
+
+## What it does
+
+- **Direct modeling:** sketch on any plane or face, pull profiles into solids,
+  push/pull faces with automatic booleans, drag edges to fillet.
+- **Parametric history:** every edit is recorded in an editable History; change
+  an earlier step and the model rebuilds.
+- **Sketching:** a 2D constraint solver with driving dimensions and live
+  degree-of-freedom feedback.
+- **Solid tools:** extrude, revolve, sweep, loft, helix, shell, fillet, chamfer,
+  booleans, linear and circular patterns, mirror, split, section views, measure.
+- **2D drawings:** standard, section and detail views with dimensions,
+  tolerances and title blocks, exported to PDF, SVG or DXF.
+- **File exchange:** STEP (AP214), IGES and FreeCAD `.FCStd` import and export
+  as exact solids; STL, 3MF, OBJ, GLB, DXF, and USDZ with AR preview.
+- **AI assistant (Mac):** an opt-in MCP server lets Claude Desktop or another
+  MCP client on the same Mac build parts in the open design (see below).
+- **Free:** no subscription, no account, no in-app purchases.
+
+Not yet: cloud sync, collaboration, assemblies, and ray-traced rendering.
 ![Swift](https://img.shields.io/badge/Swift-5-orange)
 
 ## Screenshots
@@ -226,6 +251,11 @@ early versions on.
 
 ## Geometry kernels: OCCT + Euclid
 
+> These kernel notes date from the OCCT port (mid-2026) and are kept as design
+> history. OCCT has since become the kernel for fillet, chamfer, shell, revolve,
+> sweep and loft, and for STEP/IGES/FCStd exchange; the table and limitations
+> below describe the port's early state. Current status: `docs/PARITY_SPEC.md`.
+
 ### Why two kernels
 
 Euclid is a **polygon-mesh** CSG library: it has no analytic surfaces. A sketched
@@ -325,19 +355,16 @@ round-trip, transform baking); XCUITests drive the real flows
 
 ## Roadmap
 
-- Offset edge UI (kernel done), section caps + interference highlighting
-- Auto-constraining guides, pattern constraint, spline tangency (Phase C
-  tranche 2+); the 2D constraint solver, constraints, dimensions, and sketch
-  states already ship (Phase C tranche 1)
-- Parametric history sidebar with editable steps (Phase D)
-- **B-rep kernel (Phase E) — in progress.** OCCT is live for extrude,
-  primitives and booleans (see [Geometry kernels](#geometry-kernels-occt--euclid));
-  next up are fillet/chamfer on `BRepFilletAPI`, then shell, revolve/sweep/loft,
-  and STEP/IGES
-- Keyboard shortcuts + Command Search, face/edge selection filters
-- PBR visualization space (environments, per-face materials, capture)
-- Fat-line edge rendering, dark mode viewport theme
-- Assembly-style grouping (Items folders), SVG/DXF drawing export
+Shipped since the first roadmap: the parametric history, the OCCT B-rep port
+(fillet, chamfer, shell, revolve, sweep, loft), STEP/IGES/FCStd exchange, 2D
+drawings, the Visualize workspace, keyboard shortcuts and Command Search, and
+the Mac app. Next:
+
+- Cloud sync and backup; shared links and collaboration
+- Assemblies (joints and mates)
+- Ray-traced / image-based rendering and HDR environments
+- Variable-radius and G2 fillets; spline trim, offset and tangent handles
+- The AI assistant on iPad, iPhone and the web
 
 See `docs/MODELING_PARITY_GOALS.md` for the ordered sketch + solid modeling
 roadmap (fillet, shell, splines, STEP — with acceptance criteria),
