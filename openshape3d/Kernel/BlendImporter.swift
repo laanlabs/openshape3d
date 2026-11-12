@@ -7,7 +7,8 @@
 //  block (struct names, field names, sizes) written alongside them — so
 //  the reader parses that catalogue first and then reads every field by
 //  name at the offset the catalogue gives, which is what makes one reader
-//  work across versions. Supported: uncompressed and gzip files, 32/64-bit,
+//  work across versions. Supported: uncompressed, gzip and zstd (Blender
+//  3.0+ "Compress", seekable format) files, 32/64-bit,
 //  both endiannesses; mesh objects with MVert/MPoly/MLoop (2.63 … 3.4)
 //  or the attribute layers that replaced them (3.5+); UVs from `mloopuv`,
 //  a CD_MLOOPUV or a CD_PROP_FLOAT2 layer; materials by slot (viewport
@@ -30,11 +31,55 @@ nonisolated enum BlendImporter {
             data = try gunzip(data)
         } else if data.count >= 4, data[data.startIndex] == 0x28, data[data.startIndex + 1] == 0xb5,
                   data[data.startIndex + 2] == 0x2f, data[data.startIndex + 3] == 0xfd {
-            throw MeshImportError.malformed("blend: this file is zstd-compressed (Blender 3.0+ \"Compress\" save); "
-                                            + "save it without compression or export glTF")
+            data = try unzstd(data)
         }
         let file = try BlendFile(data)
         return try extract(file, siblings: siblings, unitScale: unitScale)
+    }
+
+    // MARK: - zstd
+
+    /// Largest decompressed .blend accepted, so a hostile file can't ask
+    /// for unbounded memory.
+    static let maxDecompressedBytes = 4 << 30
+
+    /// Blender 3.0+ writes "Compress" saves as zstd in the seekable format:
+    /// independent frames of ~256 KB each, then a skippable frame holding the
+    /// seek table. The streaming decoder of the vendored reference library
+    /// (Kernel/ThirdParty/zstd) walks concatenated frames and skips
+    /// skippable ones, so the whole file decodes in one pass; the seek table
+    /// is only needed for random access, which the reader doesn't do.
+    static func unzstd(_ data: Data) throws -> Data {
+        guard let stream = ZSTD_createDStream() else { throw MeshImportError.malformed("blend: zstd: out of memory") }
+        defer { ZSTD_freeDStream(stream) }
+        let chunkSize = ZSTD_DStreamOutSize()
+        var chunk = [UInt8](repeating: 0, count: chunkSize)
+        var out = Data()
+        out.reserveCapacity(min(data.count * 4, maxDecompressedBytes))
+        var pending = 0          // last return value: 0 once every frame is complete
+        try data.withUnsafeBytes { (src: UnsafeRawBufferPointer) in
+            var input = ZSTD_inBuffer(src: src.baseAddress, size: src.count, pos: 0)
+            var outputWasFull = false
+            while input.pos < input.size || outputWasFull {
+                let (result, produced) = chunk.withUnsafeMutableBytes { dst -> (Int, Int) in
+                    var output = ZSTD_outBuffer(dst: dst.baseAddress, size: dst.count, pos: 0)
+                    let result = ZSTD_decompressStream(stream, &output, &input)
+                    return (result, output.pos)
+                }
+                if ZSTD_isError(result) != 0 {
+                    throw MeshImportError.malformed("blend: zstd data is corrupt (zstd error \(ZSTD_getErrorCode(result).rawValue))")
+                }
+                out.append(contentsOf: chunk[0..<produced])
+                guard out.count <= maxDecompressedBytes else {
+                    throw MeshImportError.malformed("blend: zstd data expands past \(maxDecompressedBytes >> 30) GB")
+                }
+                pending = result
+                outputWasFull = produced == chunkSize
+                if input.pos == input.size, produced == 0 { break }
+            }
+        }
+        guard pending == 0 else { throw MeshImportError.malformed("blend: truncated zstd data") }
+        return out
     }
 
     // MARK: - gzip
