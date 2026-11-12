@@ -101,6 +101,11 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Geometry health report for one body (or all with a `brep`) —
     /// docs/FREECAD_PLAYBOOK.md D1. `bop` adds the slow self-intersection check.
     case check(bodyID: String?, runBOPCheck: Bool)
+    /// Input-to-screen latency diagnostics (`InteractionLatency`): the report,
+    /// with the last `events` inputs listed one by one.
+    case latencyReport(events: Int)
+    /// Turn the recorder on/off and/or clear what it has.
+    case latencyControl(enabled: Bool?, reset: Bool)
     /// Snapshot every analytic body into a replayable capture bundle —
     /// the "op succeeded but the geometry looks wrong" repro path (D2).
     case capture(note: String)
@@ -151,7 +156,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
         switch self {
         case .state, .runCommand, .exec, .screenshot, .check, .capture,
              .edges, .faces, .sketches, .project, .section, .archive, .export, .spaceMouse,
-             .accuracy, .accuracyImage:
+             .accuracy, .accuracyImage, .latencyReport, .latencyControl:
             return true
         case .health, .commands, .reply: return false
         }
@@ -266,6 +271,20 @@ nonisolated enum AgentRouter {
                 height: request.intQuery("h", default: defaultShotSize,
                                          min: minShotSize, max: maxShotSize),
                 format: format, maxBytes: budget > 0 ? budget : nil)
+
+        case "/v1/diagnostics/latency":
+            if request.method == "POST" {
+                let body = request.jsonBody ?? [:]
+                let enabled = body["enabled"] as? Bool
+                let reset = body["reset"] as? Bool ?? false
+                guard enabled != nil || reset else {
+                    return .reply(status: 400, error: "bad_latency_control",
+                                  message: #"POST {"enabled": true|false} and/or {"reset": true}."#)
+                }
+                return .latencyControl(enabled: enabled, reset: reset)
+            }
+            if let bad = get(request) { return bad }
+            return .latencyReport(events: request.intQuery("events", default: 50, min: 0, max: 5000))
 
         case "/v1/check":
             if let bad = get(request) { return bad }

@@ -95,6 +95,7 @@ final class Renderer: NSObject, MTKViewDelegate {
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = context.commandQueue.makeCommandBuffer()
         else { return }
+        if InteractionLatency.isEnabled { InteractionLatency.shared.frameStarted(drawable: view.currentDrawable) }
 
         // Every frame ends in a second overlay pass (cleared depth): the
         // orientation cube always, plus gizmo/pull arrow/plane pickers when
