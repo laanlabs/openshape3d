@@ -363,6 +363,49 @@ final class IOTests: XCTestCase {
         XCTAssertLessThan(parsed.faces.count, body.render.triangleCount)
     }
 
+    private func filletedSlab() throws -> BRepHandle {
+        let box = try XCTUnwrap(OCCTKernel.primitiveShape(
+            .box(width: 140, depth: 190, height: 22), placement: .identity))
+        let plain = OCCTKernel.renderMesh(from: box).positions
+        let lo = plain.reduce(plain[0]) { simd_min($0, $1) }
+        let hi = plain.reduce(plain[0]) { simd_max($0, $1) }
+        let mid = (lo + hi) / 2
+        var edges: [SIMD3<Double>] = []
+        for y in [lo.y, hi.y] {
+            edges += [SIMD3(Double(mid.x), Double(y), Double(lo.z)),
+                      SIMD3(Double(mid.x), Double(y), Double(hi.z)),
+                      SIMD3(Double(lo.x), Double(y), Double(mid.z)),
+                      SIMD3(Double(hi.x), Double(y), Double(mid.z))]
+        }
+        for x in [lo.x, hi.x] {
+            for z in [lo.z, hi.z] { edges.append(SIMD3(Double(x), Double(mid.y), Double(z))) }
+        }
+        return try XCTUnwrap(OCCTKernel.fillet(box, at: edges, radius: 6, tolerance: 0.5))
+    }
+
+    func testOBJExportRemeshesBRepBodiesAtExportQuality() throws {
+        let handle = try filletedSlab()
+        var body = Body(name: "Slab", euclidMesh: .primitive(.box(width: 1, depth: 1, height: 1)),
+                        revision: 1)
+        XCTAssertTrue(body.adoptBRep(handle))
+        let renderTriangles = body.render.triangleCount
+
+        let asRendered = parseOBJ(OBJExporter.obj(bodies: [body], tessellation: nil))
+        let exported = parseOBJ(OBJExporter.obj(bodies: [body]))
+        assertCleanClosedSurface(exported)
+        XCTAssertLessThan(exported.vertices.count * 2, asRendered.vertices.count,
+                          "export quality is much lighter than the viewport mesh")
+
+        // Same solid: volume and bounds hold.
+        let mesh = try OBJImporter.importSingleMesh(Data(OBJExporter.obj(bodies: [body]).utf8))
+        let exact = MeasureKit.bodyVolume(body.render, scale: 1)
+        XCTAssertEqual(MeasureKit.bodyVolume(mesh, scale: 1), exact, accuracy: exact * 5e-4)
+        XCTAssertEqual(simd_length(mesh.localAABB.max - body.render.localAABB.max), 0, accuracy: 1e-3)
+
+        // The viewport's own triangulation is untouched by the export mesh.
+        XCTAssertEqual(OCCTKernel.renderMesh(from: handle).indices.count / 3, renderTriangles)
+    }
+
     func testOBJCylinderSideIsQuadsWithSmoothNormals() throws {
         let cylinder = try XCTUnwrap(OCCTKernel.primitiveShape(
             .cylinder(radius: 5, height: 20), placement: .identity))

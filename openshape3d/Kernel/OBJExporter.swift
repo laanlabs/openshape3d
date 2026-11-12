@@ -26,13 +26,27 @@ import simd
 
 nonisolated enum OBJExporter {
 
+    /// Curved-surface density for bodies that carry an OCCT B-rep. The
+    /// viewport meshes at ~4.6° per segment (40 per 90° on a fillet blend);
+    /// an export does not need that, so it re-meshes the exact solid at its
+    /// own deflections. `nil` writes the render mesh as it is.
+    struct Tessellation: Equatable, Sendable {
+        var angularDeflection: Double   // radians per segment, at most
+        var linearDeflection: Double    // mm of chord sag, at most
+
+        /// ~11.5° per segment (8 per quarter turn, like a modest bevel), at
+        /// most 0.5 mm off the true surface. A 1400×1900×220 mattress with
+        /// R60 fillets on all 12 edges: 7344 → 1400 vertices, volume −0.01 %.
+        static let standard = Tessellation(angularDeflection: 0.2, linearDeflection: 0.5)
+    }
+
     /// One merged OBJ containing every body as its own object.
-    static func obj(bodies: [Body]) -> String {
+    static func obj(bodies: [Body], tessellation: Tessellation? = .standard) -> String {
         var out = header
         var vertexOffset = 0
         var normalOffset = 0
         for body in bodies {
-            let written = append(body: body, to: &out,
+            let written = append(body: body, to: &out, tessellation: tessellation,
                                  vertexOffset: vertexOffset, normalOffset: normalOffset)
             vertexOffset += written.vertices
             normalOffset += written.normals
@@ -41,10 +55,12 @@ nonisolated enum OBJExporter {
     }
 
     /// One OBJ string per body ("save each body separately").
-    static func objPerBody(bodies: [Body]) -> [(name: String, obj: String)] {
+    static func objPerBody(bodies: [Body],
+                           tessellation: Tessellation? = .standard) -> [(name: String, obj: String)] {
         bodies.map { body in
             var out = header
-            append(body: body, to: &out, vertexOffset: 0, normalOffset: 0)
+            append(body: body, to: &out, tessellation: tessellation,
+                   vertexOffset: 0, normalOffset: 0)
             return (sanitized(body.name), out)
         }
     }
@@ -361,11 +377,11 @@ nonisolated enum OBJExporter {
     // MARK: - Writing
 
     @discardableResult
-    private static func append(body: Body, to out: inout String,
+    private static func append(body: Body, to out: inout String, tessellation: Tessellation?,
                                vertexOffset: Int, normalOffset: Int) -> (vertices: Int, normals: Int) {
         out += "o \(sanitized(body.name))\n"
         let transform = body.transform
-        let mesh = polygonMesh(from: body.render)
+        let mesh = polygonMesh(from: exportSource(for: body, tessellation: tessellation))
         for p in mesh.positions {
             let world = transform.applying(to: SIMD3<Double>(p))
             out += String(format: "v %.6f %.6f %.6f\n", world.x, world.y, world.z)
@@ -383,6 +399,24 @@ nonisolated enum OBJExporter {
             out += "\n"
         }
         return (mesh.positions.count, mesh.normals.count)
+    }
+
+    /// The mesh to write: the B-rep re-meshed at `tessellation` when the body
+    /// has one, else (or if that fails, or does not line up with what the
+    /// viewport shows — a stale handle) the body's render mesh.
+    static func exportSource(for body: Body, tessellation: Tessellation?) -> RenderMesh {
+        guard let tessellation, let brep = body.brep, !body.render.positions.isEmpty,
+              let mesh = OCCTKernel.exportMesh(from: brep,
+                                               angularDeflection: tessellation.angularDeflection,
+                                               linearDeflection: tessellation.linearDeflection)
+        else { return body.render }
+        let a = body.render.localAABB, b = mesh.localAABB
+        let size = simd_length(a.max - a.min)
+        let slack = Float(tessellation.linearDeflection) * 2 + size * 1e-3
+        guard simd_length(a.min - b.min) <= slack, simd_length(a.max - b.max) <= slack else {
+            return body.render
+        }
+        return mesh
     }
 
     private static func sanitized(_ name: String) -> String {
