@@ -4651,4 +4651,15 @@ static bool OS3DPlausibleSectionCounts(NSData *data) {
     return TessellateShape(shape->_shape, linearDeflection, angularDeflection);
 }
 
++ (OCCTRenderMesh *)exportMeshFromShape:(OCCTShape *)shape
+                       angularDeflection:(double)angularDeflection
+                        linearDeflection:(double)linearDeflection {
+    // Mesh a mesh-free COPY: BRepMesh keeps an existing (finer) triangulation
+    // that already satisfies a coarser request, and the original's
+    // triangulation is the viewport's render cache, which must not change.
+    const TopoDS_Shape bare = OS3DWithoutMesh(shape->_shape);
+    if (bare.IsNull()) return EmptyRenderMesh();
+    return TessellateShape(bare, linearDeflection, angularDeflection);
+}
+
 @end

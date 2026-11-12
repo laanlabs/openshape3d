@@ -37,7 +37,7 @@ final class InterchangeFormatTests: XCTestCase {
 
         XCTAssertFalse(vertices.isEmpty, "OBJ must emit vertex records")
         XCTAssertFalse(faces.isEmpty, "OBJ must emit face records")
-        XCTAssertEqual(faces.count, 12, "a cube triangulates to 12 faces")
+        XCTAssertEqual(faces.count, 6, "a cube exports as 6 quads")
         XCTAssertFalse(normals.isEmpty, "OBJ should carry normals")
 
         // OBJ indices are 1-based; a 0 index is the classic off-by-one bug.
