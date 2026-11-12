@@ -145,28 +145,27 @@ final class IOTests: XCTestCase {
         let oLines = lines.filter { $0.hasPrefix("o ") }
 
         XCTAssertEqual(oLines.count, 1)
-        XCTAssertEqual(vLines.count, body.render.positions.count)
-        XCTAssertEqual(vnLines.count, body.render.normals.count)
-        XCTAssertEqual(fLines.count, body.render.triangleCount)
 
-        // Faces are v//vn with 1-based indices within [1, vertexCount].
-        var seenIndices = Set<Int>()
+        // Faces are v//vn with 1-based indices into their own tables.
+        var seenVertices = Set<Int>()
+        var seenNormals = Set<Int>()
         for line in fLines {
             let refs = line.dropFirst(2).split(separator: " ")
-            XCTAssertEqual(refs.count, 3)
+            XCTAssertGreaterThanOrEqual(refs.count, 3)
             for ref in refs {
                 let parts = ref.components(separatedBy: "//")
                 XCTAssertEqual(parts.count, 2)
                 guard let v = Int(parts[0]), let n = Int(parts[1]) else {
                     return XCTFail("Non-integer face reference: \(ref)")
                 }
-                XCTAssertEqual(v, n, "Welded arrays share indices")
-                XCTAssertGreaterThanOrEqual(v, 1)
-                XCTAssertLessThanOrEqual(v, body.render.positions.count)
-                seenIndices.insert(v)
+                XCTAssertTrue((1...vLines.count).contains(v))
+                XCTAssertTrue((1...vnLines.count).contains(n))
+                seenVertices.insert(v)
+                seenNormals.insert(n)
             }
         }
-        XCTAssertEqual(seenIndices.count, body.render.positions.count)
+        XCTAssertEqual(seenVertices.count, vLines.count, "every v is referenced")
+        XCTAssertEqual(seenNormals.count, vnLines.count, "every vn is referenced")
 
         // Transform is baked: translated box vertices sit near x=10.
         let firstV = vLines[0].split(separator: " ")
@@ -177,20 +176,152 @@ final class IOTests: XCTestCase {
         let a = makeBox(name: "A")
         let b = makeBox(at: 5, name: "B")
         let merged = OBJExporter.obj(bodies: [a, b])
-        let fLines = merged.split(separator: "\n").filter { $0.hasPrefix("f ") }
-        XCTAssertEqual(fLines.count, a.render.triangleCount + b.render.triangleCount)
+        let lines = merged.split(separator: "\n")
+        let fLines = lines.filter { $0.hasPrefix("f ") }
+        XCTAssertEqual(fLines.count, 12, "two boxes, six quads each")
 
-        // Second body's face indices start past the first body's vertices.
-        let maxIndex = fLines
-            .flatMap { $0.dropFirst(2).split(separator: " ") }
-            .compactMap { Int($0.components(separatedBy: "//")[0]) }
-            .max()
-        XCTAssertEqual(maxIndex, a.render.positions.count + b.render.positions.count)
+        // Second body's indices continue past the first body's tables.
+        let refs = fLines.flatMap { $0.dropFirst(2).split(separator: " ") }
+            .map { $0.components(separatedBy: "//").compactMap { Int($0) } }
+        XCTAssertEqual(refs.map { $0[0] }.max(), lines.filter { $0.hasPrefix("v ") }.count)
+        XCTAssertEqual(refs.map { $0[0] }.max(), 16)
+        XCTAssertEqual(refs.map { $0[1] }.max(), lines.filter { $0.hasPrefix("vn ") }.count)
+        XCTAssertEqual(Set(fLines.suffix(6).flatMap { $0.dropFirst(2).split(separator: " ") }
+            .compactMap { Int($0.components(separatedBy: "//")[0]) }).min(), 9)
 
         let perBody = OBJExporter.objPerBody(bodies: [a, b])
         XCTAssertEqual(perBody.count, 2)
         XCTAssertEqual(perBody[0].name, "A")
         XCTAssertTrue(perBody[1].obj.contains("o B"))
+    }
+
+    // MARK: - OBJ clean topology
+
+    private struct ParsedOBJ {
+        var vertices: [SIMD3<Double>] = []
+        var faces: [[Int]] = []   // 0-based position indices
+    }
+
+    private func parseOBJ(_ text: String) -> ParsedOBJ {
+        var parsed = ParsedOBJ()
+        for line in text.split(separator: "\n") {
+            let fields = line.split(separator: " ")
+            if fields.first == "v" {
+                let c = fields.dropFirst().compactMap { Double($0) }
+                parsed.vertices.append(SIMD3(c[0], c[1], c[2]))
+            } else if fields.first == "f" {
+                parsed.faces.append(fields.dropFirst().compactMap {
+                    Int($0.components(separatedBy: "/")[0]).map { $0 - 1 }
+                })
+            }
+        }
+        return parsed
+    }
+
+    /// Closed, consistently wound, no duplicated positions, no face that
+    /// revisits a vertex.
+    private func assertCleanClosedSurface(_ parsed: ParsedOBJ,
+                                          file: StaticString = #filePath, line: UInt = #line) {
+        let keys = parsed.vertices.map { v in
+            "\((v.x * 1e4).rounded()) \((v.y * 1e4).rounded()) \((v.z * 1e4).rounded())"
+        }
+        XCTAssertEqual(Set(keys).count, keys.count, "no duplicated vertex positions",
+                       file: file, line: line)
+        var directed: [String: Int] = [:]
+        for face in parsed.faces {
+            XCTAssertGreaterThanOrEqual(face.count, 3, file: file, line: line)
+            XCTAssertEqual(Set(face).count, face.count, "face repeats a vertex: \(face)",
+                           file: file, line: line)
+            for k in face.indices {
+                directed["\(face[k])>\(face[(k + 1) % face.count])", default: 0] += 1
+            }
+        }
+        for (edge, count) in directed {
+            XCTAssertEqual(count, 1, "directed edge \(edge) used \(count)×", file: file, line: line)
+            let parts = edge.split(separator: ">")
+            XCTAssertEqual(directed["\(parts[1])>\(parts[0])"], 1,
+                           "edge \(edge) must be shared by exactly two faces",
+                           file: file, line: line)
+        }
+    }
+
+    func testOBJBoxExportsEightVerticesAndSixQuads() {
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [makeBox()]))
+        XCTAssertEqual(parsed.vertices.count, 8)
+        XCTAssertEqual(parsed.faces.count, 6)
+        XCTAssertTrue(parsed.faces.allSatisfy { $0.count == 4 }, "every face is a quad")
+        assertCleanClosedSurface(parsed)
+    }
+
+    @MainActor
+    func testOBJBoxWithSquareThroughHoleStaysClosed() {
+        let slab = makeBox(size: 10)
+        let punch = Body(
+            name: "Punch", transform: .identity,
+            primitive: .box(width: 4, depth: 4, height: 20),
+            euclidMesh: .primitive(.box(width: 4, depth: 4, height: 20)),
+            revision: 1
+        )
+        let result = KernelOps.boolean(.subtract, target: slab, tool: punch)
+        let body = Body(name: "Holed", euclidMesh: result, revision: 2)
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [body]))
+
+        // Welded: exactly the distinct positions of the render mesh (the
+        // boolean may add points along edges; none are added or lost here).
+        let distinct = Set(body.render.positions.map {
+            "\(($0.x * 1e4).rounded()) \(($0.y * 1e4).rounded()) \(($0.z * 1e4).rounded())"
+        })
+        XCTAssertEqual(parsed.vertices.count, distinct.count)
+        assertCleanClosedSurface(parsed)
+        // 10 planar faces: 4 outer sides + 4 hole walls (one polygon each)
+        // and 2 holed faces (≥ 2 polygons each).
+        XCTAssertGreaterThanOrEqual(parsed.faces.count, 12)
+        XCTAssertLessThanOrEqual(parsed.faces.count, 16)
+        XCTAssertLessThan(parsed.faces.count, body.render.triangleCount,
+                          "coplanar triangles are merged")
+    }
+
+    @MainActor
+    func testOBJBoxWithRoundThroughHoleStaysClosed() {
+        let slab = makeBox(size: 10)
+        let punch = Body(
+            name: "Punch", transform: .identity,
+            primitive: .cylinder(radius: 2, height: 20),
+            euclidMesh: .primitive(.cylinder(radius: 2, height: 20)),
+            revision: 1
+        )
+        let result = KernelOps.boolean(.subtract, target: slab, tool: punch)
+        let body = Body(name: "Holed", euclidMesh: result, revision: 2)
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [body]))
+        assertCleanClosedSurface(parsed)
+
+        // Re-import keeps the volume (concave polygons triangulate correctly).
+        let mesh = try? OBJImporter.importSingleMesh(Data(OBJExporter.obj(bodies: [body]).utf8))
+        XCTAssertNotNil(mesh)
+        if let mesh {
+            XCTAssertEqual(MeasureKit.bodyVolume(mesh, scale: 1),
+                           MeasureKit.bodyVolume(body.render, scale: 1), accuracy: 1e-2)
+        }
+    }
+
+    func testOBJConcaveFaceIsOneNGonAndReimports() throws {
+        // An L-shaped prism: its two caps are concave hexagons.
+        let profile = Euclid.Path([
+            .point(0, 0), .point(4, 0), .point(4, 1), .point(1, 1), .point(1, 3), .point(0, 3), .point(0, 0),
+        ])
+        let mesh = Euclid.Mesh.extrude(profile, depth: 2)
+        let body = Body(name: "L", euclidMesh: mesh, revision: 1)
+        let text = OBJExporter.obj(bodies: [body])
+        let parsed = parseOBJ(text)
+        XCTAssertEqual(parsed.vertices.count, 12)
+        XCTAssertEqual(parsed.faces.count, 8, "2 hexagon caps + 6 side quads")
+        XCTAssertEqual(parsed.faces.filter { $0.count == 6 }.count, 2)
+        assertCleanClosedSurface(parsed)
+
+        let reimported = try OBJImporter.importSingleMesh(Data(text.utf8))
+        XCTAssertEqual(MeasureKit.bodyVolume(reimported, scale: 1), 12, accuracy: 1e-4)  // area 6 × depth 2
+        XCTAssertEqual(reimported.triangleCount, 2 * 4 + 6 * 2,
+                       "ear clipping, no overlapping fan triangles")
     }
 
     // MARK: - 3MF
