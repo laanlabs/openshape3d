@@ -121,12 +121,30 @@ nonisolated enum OBJExporter {
             return normals.count - 1
         }
 
-        // 3. Planar faces → polygons.
+        // 3. Shading normal of every triangle corner: the render normals when
+        //    the mesh carries them (OCCT and Euclid both do), else a smooth
+        //    normal averaged over the corner's incident triangles that are
+        //    neither across a sharp edge (> ~30°) nor in another kernel face.
+        let cornerNormals = shadingNormals(mesh: mesh, corners: corners)
+        func flatNormal(_ c: [Int]) -> SIMD3<Float> {
+            simd_cross(welded[c[1]] - welded[c[0]], welded[c[2]] - welded[c[0]])
+        }
+
+        // 4. Planar faces → polygons. A triangle belongs to a flat face only
+        //    when it is SHADED flat (its corner normals are the face normal):
+        //    a fillet or fine curved patch is locally planar, and a coplanar
+        //    flood-fill alone would turn every one of its facets into a tiny
+        //    "planar face" with a flat normal.
         var polygons: [[(v: Int, n: Int)]] = []
         var claimed = [Bool](repeating: false, count: triangleCount)
         for face in FaceTopology.enumerateFaces(in: mesh).planar {
+            let faceNormal = simd_normalize(face.normal)
             var triangles: [[Int]] = []
             for t in face.triangles where t >= 0 && t < triangleCount && !claimed[t] {
+                let shadedFlat = (0..<3).allSatisfy {
+                    simd_dot(simd_normalize(cornerNormals[t * 3 + $0]), faceNormal) > flatShadingCos
+                }
+                guard shadedFlat else { continue }   // left for the curved path
                 claimed[t] = true
                 let c = corners(t)
                 if !isDegenerate(c) { triangles.append(c) }
@@ -138,20 +156,20 @@ nonisolated enum OBJExporter {
             }
         }
 
-        // 4. Everything else (curved facets) stays a triangle, keeping its
-        //    per-corner render normals so smooth shading survives.
-        let hasNormals = mesh.normals.count == mesh.positions.count
+        // 5. Curved facets keep their per-corner smooth normals. Two
+        //    triangles of one flat facet (a cylinder's side strip between two
+        //    generatrices, a fillet's strip) are written as one quad.
+        var curved: [[(v: Int, n: Int)]] = []
+        var curvedNormals: [SIMD3<Float>] = []
         for t in 0..<triangleCount where !claimed[t] {
             let c = corners(t)
             guard !isDegenerate(c) else { continue }
-            let flat = simd_cross(welded[c[1]] - welded[c[0]], welded[c[2]] - welded[c[0]])
-            polygons.append((0..<3).map { k in
-                let raw = Int(mesh.indices[t * 3 + k])
-                return (v: c[k], n: normalIndex(hasNormals ? mesh.normals[raw] : flat))
-            })
+            curved.append((0..<3).map { (v: c[$0], n: normalIndex(cornerNormals[t * 3 + $0])) })
+            curvedNormals.append(simd_normalize(flatNormal(c)))
         }
+        polygons += pairedCoplanarTriangles(curved, facetNormals: curvedNormals, positions: welded)
 
-        // 5. Keep only referenced positions, in welded order.
+        // 6. Keep only referenced positions, in welded order.
         var used = [Bool](repeating: false, count: welded.count)
         for polygon in polygons { for corner in polygon { used[corner.v] = true } }
         var remap = [Int](repeating: -1, count: welded.count)
@@ -162,6 +180,92 @@ nonisolated enum OBJExporter {
         }
         result.normals = normals
         result.faces = polygons.map { $0.map { (v: remap[$0.v], n: $0.n) } }
+        return result
+    }
+
+    /// cos of the largest corner-normal deviation still shaded "flat"
+    /// (~0.08°). Flat faces carry their plane normal to float precision;
+    /// OCCT tessellates fillets finely enough (~1.5° between strips) that a
+    /// looser bound mistakes a fillet strip for a flat face.
+    private static let flatShadingCos: Float = 0.999999
+    /// Dihedral beyond which the fallback normal smoothing stops (~30°).
+    private static let smoothingCos: Float = 0.866
+
+    private static func shadingNormals(mesh: RenderMesh,
+                                       corners: (Int) -> [Int]) -> [SIMD3<Float>] {
+        let count = mesh.triangleCount
+        if mesh.normals.count == mesh.positions.count {
+            return (0..<(count * 3)).map { mesh.normals[Int(mesh.indices[$0])] }
+        }
+        let regions = mesh.validFaceRegions
+        var faceNormals = [SIMD3<Float>](repeating: .zero, count: count)
+        var incident: [Int: [Int]] = [:]
+        for t in 0..<count {
+            let c = corners(t)
+            let p = (0..<3).map { mesh.positions[Int(mesh.indices[t * 3 + $0])] }
+            faceNormals[t] = simd_cross(p[1] - p[0], p[2] - p[0])   // area-weighted
+            for v in Set(c) { incident[v, default: []].append(t) }
+        }
+        var result = [SIMD3<Float>](repeating: .zero, count: count * 3)
+        for t in 0..<count {
+            let own = faceNormals[t]
+            let ownUnit = simd_length(own) > 0 ? simd_normalize(own) : SIMD3<Float>(0, 0, 1)
+            for (k, v) in corners(t).enumerated() {
+                var sum = SIMD3<Float>.zero
+                for u in incident[v] ?? [] {
+                    let n = faceNormals[u]
+                    guard simd_length(n) > 0,
+                          regions.map({ $0[u] == $0[t] }) ?? true,
+                          simd_dot(simd_normalize(n), ownUnit) > smoothingCos else { continue }
+                    sum += n
+                }
+                result[t * 3 + k] = simd_length(sum) > 0 ? simd_normalize(sum) : ownUnit
+            }
+        }
+        return result
+    }
+
+    /// Pair triangles that share an edge and lie in one plane into convex
+    /// quads, keeping each corner's own normal. Unpaired triangles pass
+    /// through. No vertex is added or removed, so shared edges stay shared.
+    private static func pairedCoplanarTriangles(_ triangles: [[(v: Int, n: Int)]],
+                                                facetNormals: [SIMD3<Float>],
+                                                positions: [SIMD3<Float>]) -> [[(v: Int, n: Int)]] {
+        var owner: [DirectedEdge: Int] = [:]
+        for (i, tri) in triangles.enumerated() {
+            for k in 0..<3 { owner[DirectedEdge(from: tri[k].v, to: tri[(k + 1) % 3].v)] = i }
+        }
+        var paired = [Bool](repeating: false, count: triangles.count)
+        var result: [[(v: Int, n: Int)]] = []
+        for i in triangles.indices where !paired[i] {
+            let tri = triangles[i]
+            var quad: [(v: Int, n: Int)]?
+            for k in 0..<3 {
+                let a = tri[k], b = tri[(k + 1) % 3], c = tri[(k + 2) % 3]
+                guard let j = owner[DirectedEdge(from: b.v, to: a.v)], j != i, !paired[j],
+                      simd_dot(facetNormals[i], facetNormals[j]) > 0.99999,
+                      let d = triangles[j].first(where: { $0.v != a.v && $0.v != b.v }) else { continue }
+                // Coplanar: d on tri's plane, relative to the quad's size.
+                let pa = positions[a.v], pd = positions[d.v]
+                let size = max(simd_length(positions[b.v] - pa), simd_length(positions[c.v] - pa))
+                guard abs(simd_dot(pd - pa, facetNormals[i])) <= 1e-4 * size + 1e-6 else { continue }
+                // Quad b, c, a, d — accept only if convex.
+                let candidate = [b, c, a, d]
+                let convex = (0..<4).allSatisfy { m in
+                    let p0 = positions[candidate[m].v]
+                    let p1 = positions[candidate[(m + 1) % 4].v]
+                    let p2 = positions[candidate[(m + 2) % 4].v]
+                    return simd_dot(simd_cross(p1 - p0, p2 - p1), facetNormals[i]) > 0
+                }
+                guard convex else { continue }
+                paired[i] = true
+                paired[j] = true
+                quad = candidate
+                break
+            }
+            if let quad { result.append(quad) }
+        }
+        for i in triangles.indices where !paired[i] { result.append(triangles[i]) }
         return result
     }
 

@@ -199,7 +199,9 @@ final class IOTests: XCTestCase {
 
     private struct ParsedOBJ {
         var vertices: [SIMD3<Double>] = []
+        var normals: [SIMD3<Double>] = []
         var faces: [[Int]] = []   // 0-based position indices
+        var faceNormals: [[Int]] = []   // 0-based normal indices, per corner
     }
 
     private func parseOBJ(_ text: String) -> ParsedOBJ {
@@ -209,9 +211,15 @@ final class IOTests: XCTestCase {
             if fields.first == "v" {
                 let c = fields.dropFirst().compactMap { Double($0) }
                 parsed.vertices.append(SIMD3(c[0], c[1], c[2]))
+            } else if fields.first == "vn" {
+                let c = fields.dropFirst().compactMap { Double($0) }
+                parsed.normals.append(SIMD3(c[0], c[1], c[2]))
             } else if fields.first == "f" {
                 parsed.faces.append(fields.dropFirst().compactMap {
                     Int($0.components(separatedBy: "/")[0]).map { $0 - 1 }
+                })
+                parsed.faceNormals.append(fields.dropFirst().compactMap {
+                    Int($0.components(separatedBy: "/").last ?? "").map { $0 - 1 }
                 })
             }
         }
@@ -301,6 +309,77 @@ final class IOTests: XCTestCase {
         if let mesh {
             XCTAssertEqual(MeasureKit.bodyVolume(mesh, scale: 1),
                            MeasureKit.bodyVolume(body.render, scale: 1), accuracy: 1e-2)
+        }
+    }
+
+    /// A body exactly as the app builds it through OCCT: smooth render
+    /// normals plus the per-triangle kernel face channel.
+    private func occtBody(_ handle: BRepHandle, name: String) -> Body {
+        let buffers = OCCTKernel.renderMesh(from: handle)
+        var render = RenderMesh(positions: buffers.positions, normals: buffers.normals,
+                                indices: buffers.indices)
+        render.faceRegions = OCCTKernel.renderMeshFaceChannel(from: handle)
+        return Body(id: BodyID(), name: name, transform: .identity, primitive: nil,
+                    render: render, revision: 1)
+    }
+
+    func testOBJFilletedBoxKeepsSmoothNormalsOnTheFillet() throws {
+        let box = try XCTUnwrap(OCCTKernel.primitiveShape(
+            .box(width: 140, depth: 190, height: 22), placement: .identity))
+        let plain = OCCTKernel.renderMesh(from: box).positions
+        let lo = plain.reduce(plain[0]) { simd_min($0, $1) }
+        let hi = plain.reduce(plain[0]) { simd_max($0, $1) }
+        let mid = (lo + hi) / 2
+        let topEdges: [SIMD3<Double>] = [
+            SIMD3(Double(mid.x), Double(hi.y), Double(lo.z)),
+            SIMD3(Double(mid.x), Double(hi.y), Double(hi.z)),
+            SIMD3(Double(lo.x), Double(hi.y), Double(mid.z)),
+            SIMD3(Double(hi.x), Double(hi.y), Double(mid.z)),
+        ]
+        let filleted = try XCTUnwrap(OCCTKernel.fillet(box, at: topEdges, radius: 6,
+                                                       tolerance: 0.5))
+        let body = occtBody(filleted, name: "Mattress")
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [body]))
+        assertCleanClosedSurface(parsed)
+
+        // Flat faces: top, bottom and 4 sides, one polygon each, flat normal.
+        func isAxisAligned(_ n: SIMD3<Double>) -> Bool {
+            max(abs(n.x), abs(n.y), abs(n.z)) > 0.99999
+        }
+        var flatFaces = 0
+        var filletFaces = 0
+        for corners in parsed.faceNormals {
+            let distinct = Set(corners)
+            if distinct.count == 1, isAxisAligned(parsed.normals[corners[0]]) {
+                flatFaces += 1
+            } else {
+                filletFaces += 1
+                XCTAssertGreaterThan(distinct.count, 1,
+                                     "a fillet facet must not be shaded with one flat normal")
+            }
+        }
+        XCTAssertEqual(flatFaces, 6)
+        XCTAssertGreaterThan(filletFaces, 0)
+        XCTAssertLessThan(parsed.faces.count, body.render.triangleCount)
+    }
+
+    func testOBJCylinderSideIsQuadsWithSmoothNormals() throws {
+        let cylinder = try XCTUnwrap(OCCTKernel.primitiveShape(
+            .cylinder(radius: 5, height: 20), placement: .identity))
+        let body = occtBody(cylinder, name: "Leg")
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [body]))
+        assertCleanClosedSurface(parsed)
+
+        let segments = parsed.vertices.count / 2
+        XCTAssertGreaterThan(segments, 8)
+        XCTAssertEqual(parsed.vertices.count, 2 * segments, "two rims, nothing else")
+        let quads = parsed.faces.indices.filter { parsed.faces[$0].count == 4 }
+        XCTAssertEqual(quads.count, segments, "one quad per side strip")
+        XCTAssertEqual(parsed.faces.filter { $0.count == segments }.count, 2, "two caps")
+        XCTAssertEqual(parsed.faces.count, segments + 2)
+        for q in quads {
+            XCTAssertEqual(Set(parsed.faceNormals[q]).count, 2,
+                           "side quads carry the two generatrix normals (smooth)")
         }
     }
 
