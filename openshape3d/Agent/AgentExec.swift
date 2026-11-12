@@ -151,6 +151,11 @@ nonisolated enum AgentExecOp: Sendable, Equatable {
     /// `/v1/state` lists no sketch ids, and a finished model usually wants
     /// all its profiles out of the way.
     case setHidden(ids: [UUID], allSketches: Bool, hidden: Bool)
+    /// The Items panel's rename: a body or a sketch by id gets a new name,
+    /// one `RenameItemCommand`, one undo step. Exporters write body names
+    /// (OBJ `o`, glTF node, 3MF object), so this is how an assistant names
+    /// the parts a file will show.
+    case rename(id: UUID, name: String)
     /// The selection, set outright: these bodies and no others, or nothing
     /// (an empty list). An import or a feature leaves its result selected —
     /// drawn with the accent tint — and an assistant taking a picture, or
@@ -219,7 +224,7 @@ nonisolated enum AgentExec {
         "feature.sweep", "feature.loft", "feature.pushPull",
         "feature.moveFace", "feature.scaleFace", "feature.rotateFace",
         "feature.deleteFace", "feature.replaceFace", "feature.draftFace", "feature.imprint",
-        "body.setMaterial", "item.setHidden", "item.select", "view.section", "view.visualize",
+        "body.setMaterial", "item.setHidden", "item.rename", "item.select", "view.section", "view.visualize",
         "view.accuracyReport", "view.deviationPreview",
     ]
 
@@ -262,6 +267,7 @@ nonisolated enum AgentExec {
         case "feature.imprint":    return parseImprint(args)
         case "body.setMaterial":   return parseSetMaterial(args)
         case "item.setHidden":     return parseSetHidden(args)
+        case "item.rename":        return parseRename(args)
         case "item.select":        return parseSelect(args)
         case "view.section":       return parseSection(args)
         case "view.visualize":     return parseVisualize(args)
@@ -1129,6 +1135,22 @@ nonisolated enum AgentExec {
             ids.append(u)
         }
         return .success(.setHidden(ids: ids, allSketches: allSketches, hidden: a["hidden"] as? Bool ?? true))
+    }
+
+    private static func parseRename(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {
+        guard let raw = a["id"] as? String else {
+            return .failure(.init(code: "missing_id",
+                                  message: "args.id must be a body or sketch id from /v1/state."))
+        }
+        guard let id = UUID(uuidString: raw) else {
+            return .failure(.init(code: "bad_uuid",
+                                  message: "args.id '\(raw)' is not a UUID. Ids come from /v1/state or a previous exec reply."))
+        }
+        let name = (a["name"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            return .failure(.init(code: "missing_name", message: "args.name must be a non-empty string."))
+        }
+        return .success(.rename(id: id, name: name))
     }
 
     private static func parseSelect(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {

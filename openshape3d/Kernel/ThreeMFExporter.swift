@@ -37,16 +37,41 @@ nonisolated enum ThreeMFExporter {
     </Relationships>
     """
 
+    /// Core-spec 3MF: one `<basematerials>` group with each distinct
+    /// body or face material as a named `<base>` with its `displaycolor`;
+    /// each body an `<object>` with its name, its own material as the
+    /// object default (`pid`/`pindex`) and painted faces as per-triangle `p1`.
     static func modelXML(bodies: [Body]) -> String {
+        let table = ExportMaterials.table(for: bodies)
+        // Objects keep ids 1…n; the material group takes the next id and is
+        // written first, since a resource must be defined before it's used.
+        let materialsID = bodies.count + 1
         var out = """
         <?xml version="1.0" encoding="UTF-8"?>
         <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
         <resources>
         """
         out += "\n"
+        if !table.materials.isEmpty {
+            out += "<basematerials id=\"\(materialsID)\">\n"
+            for (i, spec) in table.materials.enumerated() {
+                out += "<base name=\"\(escaped(table.names[i]))\" displaycolor=\"\(ExportMaterials.hex(spec))\"/>\n"
+            }
+            out += "</basematerials>\n"
+        }
         for (index, body) in bodies.enumerated() {
             let objectID = index + 1
-            out += "<object id=\"\(objectID)\" type=\"model\">\n<mesh>\n<vertices>\n"
+            let groups = table.groups[index]
+            var attributes = "id=\"\(objectID)\" name=\"\(escaped(body.name))\" type=\"model\""
+            var owner: [Int] = []
+            if let first = groups.first {
+                attributes += " pid=\"\(materialsID)\" pindex=\"\(first.material)\""
+                if groups.count > 1 {
+                    owner = [Int](repeating: first.material, count: body.render.triangleCount)
+                    for group in groups.dropFirst() { for t in group.triangles { owner[t] = group.material } }
+                }
+            }
+            out += "<object \(attributes)>\n<mesh>\n<vertices>\n"
             let transform = body.transform
             for p in body.render.positions {
                 let w = transform.applying(to: SIMD3<Double>(p))
@@ -56,7 +81,12 @@ nonisolated enum ThreeMFExporter {
             let indices = body.render.indices
             var i = 0
             while i + 2 < indices.count {
-                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\"/>\n"
+                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\""
+                let t = i / 3
+                if t < owner.count, owner[t] != groups.first?.material {
+                    out += " pid=\"\(materialsID)\" p1=\"\(owner[t])\""
+                }
+                out += "/>\n"
                 i += 3
             }
             out += "</triangles>\n</mesh>\n</object>\n"
@@ -66,6 +96,25 @@ nonisolated enum ThreeMFExporter {
             out += "<item objectid=\"\(index + 1)\"/>\n"
         }
         out += "</build>\n</model>\n"
+        return out
+    }
+
+    /// Text for an XML attribute value.
+    static func escaped(_ text: String) -> String {
+        var out = ""
+        for ch in text {
+            switch ch {
+            case "&": out += "&amp;"
+            case "<": out += "&lt;"
+            case ">": out += "&gt;"
+            case "\"": out += "&quot;"
+            case "'": out += "&apos;"
+            default:
+                // XML 1.0 has no control characters but tab/newline.
+                if let a = ch.asciiValue, a < 0x20, ch != "\t", ch != "\n" { continue }
+                out.append(ch)
+            }
+        }
         return out
     }
 }

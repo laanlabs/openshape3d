@@ -609,6 +609,23 @@ final class AgentBridge {
             for item in items { session.perform(SetItemVisibilityCommand(item: item, isHidden: hidden)) }
             return execOK(viewModel, ["count": items.count, "undoSteps": items.count])
 
+        case let .rename(raw, name):
+            let document = session.document
+            let item: DocumentItemRef
+            let current: String
+            if let body = document.bodies.first(where: { $0.id.raw == raw }) {
+                item = .body(body.id); current = body.name
+            } else if let sketch = document.sketches.first(where: { $0.id.raw == raw }) {
+                item = .sketch(sketch.id); current = sketch.name
+            } else {
+                return execMissing("item", raw.uuidString)
+            }
+            guard name != current else {
+                return execOK(viewModel, ["id": raw.uuidString, "name": name, "undoSteps": 0])
+            }
+            session.perform(RenameItemCommand(item: item, before: current, after: name))
+            return execOK(viewModel, ["id": raw.uuidString, "name": name, "undoSteps": 1])
+
         case let .select(ids):
             let document = session.document
             for raw in ids where !document.bodies.contains(where: { $0.id.raw == raw }) {
@@ -1038,6 +1055,7 @@ final class AgentBridge {
         case .stl: data = STLExporter.binarySTL(bodies: bodies)
         case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
         case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies)
+        case .glb: data = GLBExporter.glb(bodies: bodies)
         case .step:
             switch STEPKit.export(bodies: bodies) {
             case let .success(step, _): data = step
