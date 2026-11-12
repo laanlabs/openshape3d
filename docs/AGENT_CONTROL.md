@@ -176,6 +176,31 @@ built.
 Verify geometry here, not in a screenshot: an image cannot show that a boolean
 produced a 0 mm³ body.
 
+### `GET /v1/diagnostics/latency[?events=50]` and `POST /v1/diagnostics/latency`
+
+How long the app takes to answer a person, measured from inside
+(`Diagnostics/InteractionLatency.swift`). Off by default: nothing is hooked
+until it is switched on with `POST {"enabled": true}` (and `{"reset": true}`
+to clear), or for a whole run by launching with `OS3D_DIAGNOSTICS=1`.
+`{"enabled": false}` removes every hook again.
+
+While on, a passive gesture recognizer on each window timestamps presses,
+drag steps, releases and keys (`UIEvent.timestamp`; it never recognizes,
+cancels or delays anything), and each input is matched to:
+
+- `handledMS`: when the main run loop next went idle after it, i.e. its work
+  and the Core Animation commit were done (panels, sheets, buttons);
+- `presentedMS`: when the first viewport frame started after it reached the
+  screen (`MTLDrawable.presentedTime`). The viewport draws on demand, so a
+  frame more than 1 s later is not attributed to the input (`null`).
+
+The reply has p50/p95/max of both per input kind (`press`, `drag`,
+`release`, `key`), `gapBetweenActionsMS` (a person's pace), main-thread
+`hitches` (display-link callbacks at least 2.5 refreshes late, i.e. the UI
+stuttered or froze, with their length), frame counts and the last `events`
+inputs one by one. `scripts/latency_report.py` turns it on, waits while you
+use the app and prints the table.
+
 ### `GET /v1/check?body=<uuid>&bop=1`
 
 Deep geometry-health report (docs/FREECAD_PLAYBOOK.md D1) — the first thing to

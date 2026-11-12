@@ -77,6 +77,21 @@ final class AgentBridge {
         NSLog("[agent] editor detached")
     }
 
+    /// Diagnostics measure the whole app, gallery included: `AgentServer`
+    /// sends these here directly, with or without an editor.
+    func diagnostics(_ route: AgentRoute) -> AgentResponse {
+        switch route {
+        case let .latencyReport(events):
+            return .ok(InteractionLatency.shared.report(events: events))
+        case let .latencyControl(enabled, reset):
+            if let enabled { InteractionLatency.shared.setEnabled(enabled) }
+            if reset { InteractionLatency.shared.reset() }
+            return .ok(["enabled": InteractionLatency.isEnabled, "reset": reset])
+        default:
+            return .failure(500, "Internal Server Error", error: "not_diagnostics", message: "")
+        }
+    }
+
     // MARK: Serving the editor routes
 
     func handle(_ route: AgentRoute) -> AgentResponse {
@@ -107,6 +122,9 @@ final class AgentBridge {
 
         case .exec(let op):
             return execute(op, on: viewModel)
+
+        case .latencyReport, .latencyControl:
+            return diagnostics(route)
 
         case let .check(bodyID, runBOPCheck):
             return check(bodyID: bodyID, runBOPCheck: runBOPCheck, on: viewModel)
