@@ -339,7 +339,7 @@ design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
 512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
 gallery is on screen.
 
-### `GET /v1/export?format=stl|obj|3mf|step[&body=<uuid>,…][&up=y|z]`
+### `GET /v1/export?format=stl|obj|3mf|step|glb[&body=<uuid>,…][&up=y|z]`
 
 The Export menu's bytes (`model/stl`, …) — how an agent finishes "make me a
 printable X". No `body` = every body, hidden ones included, as in the menu;
@@ -399,6 +399,7 @@ graph, and shows up in History like any other feature.
 | `feature.boolean` | `kind` (union/subtract/intersect), `targetBodyID`, `toolBodyIDs[]` |
 | `body.setMaterial` | `bodyIDs[]`, and `preset` (a Material sheet name, case-insensitive: Steel, Aluminum, Brass, Plastic Matte, Plastic Gloss, Rubber, Wood) or `color` `[r,g,b(,a)]` in 0…1; optional `metallic`, `roughness` (0…1, override the preset's). The sheet's Apply — one `SetMaterialCommand`, one undo step, not a feature |
 | `item.setHidden` | `ids[]` (any mix of body, sketch and plane ids) and/or `allSketches: true`; optional `hidden` (default true; false shows). The Items panel's eye — one `SetItemVisibilityCommand` per item, reported as `undoSteps` |
+| `item.rename` | `id` (a body or sketch id) and `name` (non-empty; trimmed). The Items panel's rename — one `RenameItemCommand`, one undo step (`undoSteps` 0 when the name is unchanged). Exported files carry body names: the glTF node and mesh, the 3MF object |
 | `item.select` | `ids[]` (body ids; `[]` clears). Sets `EditorViewModel.selection` outright — the selection is a display state, so no undo step. An import or a feature leaves its result selected, drawn with the accent tint; an assistant taking a screenshot or filming clears it first. The reply's `selection` echoes the ids |
 | `view.section` | `normal` `[x,y,z]` (the side that stays visible) and optional `origin` (default `[0,0,0]`), `sectionOnly`, `twoD`; or `off: true`. Section View as a display state — no undo step; the reply's `interferingBodyIDs` lists bodies whose cuts overlap |
 | `view.accuracyReport` | `reference`, `model` (body ids), optional `tolerance` mm; or `off: true`. Opens Views ▸ Accuracy Report… on those bodies and runs the comparison on screen (the sheet, not the numbers — those are `GET /v1/accuracy`). A display state, no undo step; how a recording of an assistant at work shows the app's own report |
