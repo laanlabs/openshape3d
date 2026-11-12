@@ -14,7 +14,9 @@ struct TextToolSheet: View {
     @State private var heightMM = 10.0
     @State private var fontName = "Helvetica"
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
     let onCommit: (String, Double, String) -> Void
 
     /// Families every iOS device ships with; the full installed-font list is
