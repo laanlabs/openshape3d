@@ -134,6 +134,21 @@ ids that cannot run.
 {"ok":true,"count":37,"commands":[{"id":"sketch.arc","title":"Arc","category":"sketch","chord":"A"}]}
 ```
 
+`GET /v1/commands?available=1` is the same list judged against the open
+design: each entry adds `available` and, when false, `unavailableReason` —
+the rule `runCommand` applies before running (`CommandAvailability.swift`),
+so the answer is the one the hotkey and the palette get. It needs the main
+actor; with the gallery on screen every entry is unavailable with
+"No design is open." Plain `/v1/commands` is still answered on the listener
+queue. The MCP `commands` op asks for this form.
+
+```json
+{"ok":true,"count":81,"availableCount":40,"commands":[
+ {"id":"model.extrude","title":"Extrude","category":"modeling","chord":"E","available":false,
+  "unavailableReason":"Every sketch is hidden. Show the one with the profile (item.setHidden with hidden: false)."},
+ {"id":"view.fit","title":"Fit","category":"view","chord":"F","available":true}]}
+```
+
 ### `GET /v1/state`
 
 ```json
@@ -360,7 +375,7 @@ key presses another one; an agent told only "false" retries forever. So:
 | Status | `error` / field | Meaning |
 |---|---|---|
 | 200 | `"ran": true` | Ran |
-| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `message` names the mode and selection count |
+| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `unavailableReason` and `message` say what is missing ("Nothing to undo.", "Needs a sketch open for editing.") |
 | 400 | `unknown_command` | No such id |
 | 400 | `unrouted_command` | In the catalog, no editor entry point in this build |
 | 400 | `missing_id` | Body was absent or carried no `id` |

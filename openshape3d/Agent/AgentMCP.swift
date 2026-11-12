@@ -172,7 +172,7 @@ nonisolated enum AgentMCP {
             if let read = readOps[op] { return restRequest(tool: read, arguments: args) }
             return restRequest(tool: "os3d_exec", arguments: arguments)
         case "os3d_health":        return get("/v1/health")
-        case "os3d_list_commands": return get("/v1/commands")
+        case "os3d_list_commands": return get("/v1/commands", ["available": "1"])
         case "os3d_state":         return get("/v1/state")
         case "os3d_sketches":      return get("/v1/sketches")
         case "os3d_run_command":
