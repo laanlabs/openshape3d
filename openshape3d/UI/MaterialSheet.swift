@@ -32,7 +32,9 @@ struct MaterialSheet: View {
     @State private var showImageFiles = false
     @State private var imageError = false
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
     let onApply: (BodyMaterialSpec) -> Void
 
     init(initial: BodyMaterialSpec, onApply: @escaping (BodyMaterialSpec) -> Void) {

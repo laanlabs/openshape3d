@@ -175,7 +175,9 @@ struct PageSheetSizing: ViewModifier {
 
 struct AccuracyReportSheet: View {
     @Bindable var viewModel: EditorViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
 
     @State private var referenceID: BodyID?
     @State private var modelID: BodyID?
