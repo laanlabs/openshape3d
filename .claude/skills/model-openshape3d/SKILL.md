@@ -21,9 +21,7 @@ Two equivalent clients; use whichever you have:
 Everything goes through the one `os3d` tool on purpose: the person approves
 it once and is never asked again. The commands you need are
 `view.isometric`, `view.front`, `view.top`, `view.right`, `view.fit`,
-`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands?available=1`
-for all, each with `available` and, when it cannot run now, the
-`unavailableReason` to fix first — a refused `command.run` carries the same).
+`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands` for all).
 
 Start with health (op `health` / `GET /v1/health`): `hasDocument:false`
 means the project gallery is showing — ask the person to open or create a
@@ -97,13 +95,12 @@ design. Launching the app is `docs/AI_MODELING_SETUP.md`.
 | `feature.imprint` | `bodyID`, `sketchID` (or `sketchIDs`) — splits the faces the sketch lies on, so a region push/pulls on its own |
 | `body.setMaterial` | `bodyIDs[]`, `preset` (any library name: Steel, Aluminum, Brass, Chrome, Gold, Copper, Clear Glass, Oak, Concrete, Glow Warm, … — an unknown name lists them all) or `color` `[r,g,b]` / `[r,g,b,a]` 0…1; optional `metallic`, `roughness`, `emission` (glow) |
 | `item.setHidden` | `ids[]` and/or `allSketches: true`; optional `hidden` (true) |
-| `item.rename` | `id` (body or sketch) and `name`; exported files show body names |
 | `item.select` | `ids[]` — select exactly these bodies; `[]` clears the selection. An import or a feature leaves its result selected (drawn with the blue accent tint), so clear it before a screenshot or a recording to see the model in its own colours and textures |
 | `view.visualize` | enter Visualize (no grid or edges, lit by the design's environment) and optionally set `preset` (Studio, Daylight, Sunset, Overcast, Warm Interior, Night), `lightRotation` °, `sunElevation` 0…90°, `lightIntensity` 0…2, `background` (`environment` / `color` / `transparent`), `backgroundColor` `[r,g,b]`, `groundShadow`; `panel: false` keeps the Visualization panel closed so the viewport shows the model alone; `off: true` leaves. Take the screenshot while it is on for a render-style picture |
 | `view.accuracyReport` | `reference`, `model` (body ids), optional `tolerance` mm — opens Views ▸ Accuracy Report… in the app on those two bodies and runs the comparison, so the person sees the report on screen; `off: true` closes it. The numbers themselves come from the `accuracy` read op below |
 | `view.deviationPreview` | `reference`, `model` (body ids), optional `tolerance` mm (1), `maxMM` (full colour; five tolerances), `panel: false` (no legend); or `off: true`. Colours the reference in the viewport by its distance to the model — blue where the model is missing material, orange where it has too much, grey within tolerance — with the model ghosted behind it, and replies with the per-vertex numbers (`meanMM`, `p95MM`, `maxMM`, `withinTolerance`, `missing`, `excess`, 0…1). Take a `screenshot` while it is on to SEE where a model is wrong, then turn it off |
 | `command.run` | `id` — a view, `edit.undo`, `edit.redo` (MCP; over curl it is `POST /v1/command`) |
-| `document.export` | `format` (`stl` / `3mf` / `obj` / `step` / `glb`; `mtl` is the OBJ's colours — save it as `materials.mtl` beside the `.obj`), `up` (`"z"` for slicers), `body` `[ids]`, `name` (MCP; over curl it is `GET /v1/export`). Body names and `body.setMaterial` colours travel in 3MF, GLB, OBJ + MTL and STEP |
+| `document.export` | `format` (`stl` / `3mf` / `obj` / `step`), `up` (`"z"` for slicers), `body` `[ids]`, `name` (MCP; over curl it is `GET /v1/export`) |
 | `health`, `guide`, `state`, `sketches`, `commands` | no args — reads (MCP; over curl `GET /v1/…`) |
 | `faces`, `edges` | `body` — the index lists below |
 | `check` | optional `body`, `bop: true` (the slow self-intersection pass) |

@@ -134,21 +134,6 @@ ids that cannot run.
 {"ok":true,"count":37,"commands":[{"id":"sketch.arc","title":"Arc","category":"sketch","chord":"A"}]}
 ```
 
-`GET /v1/commands?available=1` is the same list judged against the open
-design: each entry adds `available` and, when false, `unavailableReason` —
-the rule `runCommand` applies before running (`CommandAvailability.swift`),
-so the answer is the one the hotkey and the palette get. It needs the main
-actor; with the gallery on screen every entry is unavailable with
-"No design is open." Plain `/v1/commands` is still answered on the listener
-queue. The MCP `commands` op asks for this form.
-
-```json
-{"ok":true,"count":81,"availableCount":40,"commands":[
- {"id":"model.extrude","title":"Extrude","category":"modeling","chord":"E","available":false,
-  "unavailableReason":"Every sketch is hidden. Show the one with the profile (item.setHidden with hidden: false)."},
- {"id":"view.fit","title":"Fit","category":"view","chord":"F","available":true}]}
-```
-
 ### `GET /v1/state`
 
 ```json
@@ -190,31 +175,6 @@ built.
 
 Verify geometry here, not in a screenshot: an image cannot show that a boolean
 produced a 0 mm³ body.
-
-### `GET /v1/diagnostics/latency[?events=50]` and `POST /v1/diagnostics/latency`
-
-How long the app takes to answer a person, measured from inside
-(`Diagnostics/InteractionLatency.swift`). Off by default: nothing is hooked
-until it is switched on with `POST {"enabled": true}` (and `{"reset": true}`
-to clear), or for a whole run by launching with `OS3D_DIAGNOSTICS=1`.
-`{"enabled": false}` removes every hook again.
-
-While on, a passive gesture recognizer on each window timestamps presses,
-drag steps, releases and keys (`UIEvent.timestamp`; it never recognizes,
-cancels or delays anything), and each input is matched to:
-
-- `handledMS`: when the main run loop next went idle after it, i.e. its work
-  and the Core Animation commit were done (panels, sheets, buttons);
-- `presentedMS`: when the first viewport frame started after it reached the
-  screen (`MTLDrawable.presentedTime`). The viewport draws on demand, so a
-  frame more than 1 s later is not attributed to the input (`null`).
-
-The reply has p50/p95/max of both per input kind (`press`, `drag`,
-`release`, `key`), `gapBetweenActionsMS` (a person's pace), main-thread
-`hitches` (display-link callbacks at least 2.5 refreshes late, i.e. the UI
-stuttered or froze, with their length), frame counts and the last `events`
-inputs one by one. `scripts/latency_report.py` turns it on, waits while you
-use the app and prints the table.
 
 ### `GET /v1/check?body=<uuid>&bop=1`
 
@@ -379,7 +339,7 @@ design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
 512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
 gallery is on screen.
 
-### `GET /v1/export?format=stl|obj|mtl|3mf|step|glb[&body=<uuid>,…][&up=y|z]`
+### `GET /v1/export?format=stl|obj|3mf|step[&body=<uuid>,…][&up=y|z]`
 
 The Export menu's bytes (`model/stl`, …) — how an agent finishes "make me a
 printable X". No `body` = every body, hidden ones included, as in the menu;
@@ -388,13 +348,6 @@ turn about X, (x, y, z) → (x, −z, y), so a part standing on the ground plane
 stands on a slicer's bed. Millimetres. Typed refusals: 400 `unknown_format` /
 `bad_up_axis` / `bad_uuid`, 404 `unknown_body`, 409 `nothing_to_export`, and
 409 `mesh_only_body` when STEP is asked of bodies with no B-rep.
-
-Names and colours: every format writes the body's name (`item.rename`), and
-3MF, GLB, STEP and OBJ carry `body.setMaterial` colours (3MF, GLB and OBJ
-painted faces too). An OBJ has no room for materials, so when a body wears
-one the file says `mtllib materials.mtl` and `format=mtl` (same `body`
-selection) returns that library — save it under that name beside the `.obj`.
-409 `no_materials` when every body wears the default look.
 
 ### `POST /v1/command`
 
@@ -407,7 +360,7 @@ key presses another one; an agent told only "false" retries forever. So:
 | Status | `error` / field | Meaning |
 |---|---|---|
 | 200 | `"ran": true` | Ran |
-| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `unavailableReason` and `message` say what is missing ("Nothing to undo.", "Needs a sketch open for editing.") |
+| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `message` names the mode and selection count |
 | 400 | `unknown_command` | No such id |
 | 400 | `unrouted_command` | In the catalog, no editor entry point in this build |
 | 400 | `missing_id` | Body was absent or carried no `id` |
@@ -446,12 +399,11 @@ graph, and shows up in History like any other feature.
 | `feature.boolean` | `kind` (union/subtract/intersect), `targetBodyID`, `toolBodyIDs[]` |
 | `body.setMaterial` | `bodyIDs[]`, and `preset` (a Material sheet name, case-insensitive: Steel, Aluminum, Brass, Plastic Matte, Plastic Gloss, Rubber, Wood) or `color` `[r,g,b(,a)]` in 0…1; optional `metallic`, `roughness` (0…1, override the preset's). The sheet's Apply — one `SetMaterialCommand`, one undo step, not a feature |
 | `item.setHidden` | `ids[]` (any mix of body, sketch and plane ids) and/or `allSketches: true`; optional `hidden` (default true; false shows). The Items panel's eye — one `SetItemVisibilityCommand` per item, reported as `undoSteps` |
-| `item.rename` | `id` (a body or sketch id) and `name` (non-empty; trimmed). The Items panel's rename — one `RenameItemCommand`, one undo step (`undoSteps` 0 when the name is unchanged). Exported files carry body names: the glTF node and mesh, the 3MF object |
 | `item.select` | `ids[]` (body ids; `[]` clears). Sets `EditorViewModel.selection` outright — the selection is a display state, so no undo step. An import or a feature leaves its result selected, drawn with the accent tint; an assistant taking a screenshot or filming clears it first. The reply's `selection` echoes the ids |
 | `view.section` | `normal` `[x,y,z]` (the side that stays visible) and optional `origin` (default `[0,0,0]`), `sectionOnly`, `twoD`; or `off: true`. Section View as a display state — no undo step; the reply's `interferingBodyIDs` lists bodies whose cuts overlap |
 | `view.accuracyReport` | `reference`, `model` (body ids), optional `tolerance` mm; or `off: true`. Opens Views ▸ Accuracy Report… on those bodies and runs the comparison on screen (the sheet, not the numbers — those are `GET /v1/accuracy`). A display state, no undo step; how a recording of an assistant at work shows the app's own report |
 | `view.deviationPreview` | `reference`, `model` (body ids), optional `tolerance` mm (1), `maxMM` (full colour, default five tolerances), `panel` (false keeps the legend off screen); or `off: true`. `DeviationPreview`: every vertex of the reference measured to the model's surface (`SurfaceGrid`, spread over the cores) and drawn through the textured pipeline on a 256 × 1 colour ramp — blue beyond +tolerance (the model lacks material), orange beyond −tolerance (it has too much), grey within — with the model ghosted at 28 %. The reply carries `vertices`, `meanMM`, `p95MM`, `maxMM`, `meanSignedMM`, `withinTolerance`, `missing`, `excess`; while it is on or measuring, `GET /v1/state` carries the same under `deviationPreview` (`active`, `computing`, …). Also Views ▸ Deviation Preview and the Accuracy Report sheet's "Show Deviation in Viewport" row. A display state, no undo step |
-| `document.import` | `path` (a file the app can read; `developer_only` outside DEBUG); optional `fileName`, `unitScale` (meshes only). Routed by the FILE's extension exactly as the Import menu: `.step`/`.stp` and `.iges`/`.igs` keep the B-rep, `.fcstd` imports the FreeCAD document's bodies, `.dxf` lands in the ground sketch, everything else (`stl`, `obj`, `gltf`/`glb`, `3mf`, `usdz`, `blend`…) is a mesh (a `3mf` keeps its object names and `<basematerials>` / colour-group colours, one body per object and colour). One undo step. Reply: `format`, `bodyIDs`, `names`, `analytic` (bodies with a B-rep), `textured`, `triangles`, `sketches[]` (`{sketchID, name, entitiesAdded}` for DXF), `notice` (what the UI would show — a partial import, an open mesh, stitched or dropped shapes), and for STEP or IGES a `step` ledger `{solids, sewnSolids, openShells, freeFaces, dropped}`. Since 2026-10-21 a STEP or IGES file's faces outside any solid are sewn (1e-3 mm): each closed shell becomes a solid (`sewnSolids`), each open one a sheet body (`openShells`, volume 0), and a shape that will not heal is counted in `dropped` rather than lost silently; a DXF is scaled by `$INSUNITS` and ELLIPSE entities import. Until then everything went to the mesh importer, which refused STEP and DXF. |
+| `document.import` | `path` (a file the app can read; `developer_only` outside DEBUG); optional `fileName`, `unitScale` (meshes only). Routed by the FILE's extension exactly as the Import menu: `.step`/`.stp` and `.iges`/`.igs` keep the B-rep, `.fcstd` imports the FreeCAD document's bodies, `.dxf` lands in the ground sketch, everything else (`stl`, `obj`, `gltf`/`glb`, `3mf`, `usdz`, `blend`…) is a mesh. One undo step. Reply: `format`, `bodyIDs`, `names`, `analytic` (bodies with a B-rep), `textured`, `triangles`, `sketches[]` (`{sketchID, name, entitiesAdded}` for DXF), `notice` (what the UI would show — a partial import, an open mesh, stitched or dropped shapes), and for STEP or IGES a `step` ledger `{solids, sewnSolids, openShells, freeFaces, dropped}`. Since 2026-10-21 a STEP or IGES file's faces outside any solid are sewn (1e-3 mm): each closed shell becomes a solid (`sewnSolids`), each open one a sheet body (`openShells`, volume 0), and a shape that will not heal is counted in `dropped` rather than lost silently; a DXF is scaled by `$INSUNITS` and ELLIPSE entities import. Until then everything went to the mesh importer, which refused STEP and DXF. |
 
 Entity kinds: `line` (`a`,`b`), `circle` (`center`,`radius`), `arc`
 (`center`,`radius`,`startAngle`,`endAngle`), `spline` (`points[]`,`closed`),

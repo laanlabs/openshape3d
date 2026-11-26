@@ -138,29 +138,15 @@ final class ViewportGestureController: NSObject {
     /// "sluggish" drag. While any gesture is live we un-pause the view so it
     /// renders every display refresh; a depth counter keeps it un-paused until
     /// the LAST overlapping gesture ends (pinch + two-finger pan overlap).
-    ///
-    /// While un-paused the view must NOT also redraw on `setNeedsDisplay`
-    /// (#139). Every input step calls it, and with both switches on each of
-    /// those drew a second frame inside the same refresh: the display link's
-    /// draw and Core Animation's. The extra one waits in
-    /// `MTKView.currentDrawable` for a free drawable — sampled on an
-    /// extrude-arrow drag, 42 % of the main thread's time, which is what made
-    /// the drag sticky (inputs handled 100–700 ms late). The display link
-    /// already shows the newest state every refresh, so those requests are
-    /// simply dropped until the gesture ends.
     private var interactiveDepth = 0
     private func beginInteractive() {
         interactiveDepth += 1
-        if interactiveDepth == 1 {
-            view?.enableSetNeedsDisplay = false
-            view?.isPaused = false
-        }
+        if interactiveDepth == 1 { view?.isPaused = false }
     }
     private func endInteractive() {
         interactiveDepth = max(0, interactiveDepth - 1)
         if interactiveDepth == 0 {
             view?.isPaused = true
-            view?.enableSetNeedsDisplay = true
             view?.setNeedsDisplay()   // one settled frame after the gesture
         }
     }

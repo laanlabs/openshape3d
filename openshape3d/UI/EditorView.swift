@@ -85,9 +85,7 @@ struct MeshExportOptionsSheet: View {
     let onExport: (Bool) -> Void
 
     @State private var perBodyFiles = false
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -123,9 +121,7 @@ struct ScreenshotOptionsSheet: View {
     @State private var transparentBackground: Bool
     @State private var showGrid: Bool
 
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
     let onExport: (Int, Int, Bool, Bool) -> Void
 
     /// `visualizing`: Capture from the Visualization workspace — no grid,
@@ -969,27 +965,6 @@ struct EditorView: View {
         }
     }
 
-    /// Writes files under their own names ("Design.obj", "Design.mtl") into
-    /// a fresh temp folder and returns exporter items for them; nil (with a
-    /// user-facing error) on failure.
-    private func namedExportItems(
-        _ files: [(fileName: String, data: Data)], viewModel: EditorViewModel
-    ) -> [ExportFileItem]? {
-        let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("os3d-export-\(UUID().uuidString)", isDirectory: true)
-        do {
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            return try files.map { file in
-                let url = directory.appendingPathComponent(file.fileName.replacingOccurrences(of: "/", with: "-"))
-                try file.data.write(to: url)
-                return ExportFileItem(url: url)
-            }
-        } catch {
-            viewModel.errorMessage = "Export failed — please try again."
-            return nil
-        }
-    }
-
     /// Mesh options sheet confirm (plan §B14): stages the chosen OBJ/GLB
     /// payload for the exporter that presents once the sheet dismisses.
     private func stageMeshExport(
@@ -997,14 +972,10 @@ struct EditorView: View {
     ) {
         switch (format, perBody) {
         case (.obj, false):
-            // A design with materials is two files, the .obj and its .mtl.
-            guard let files = viewModel.exportOBJFiles() else { break }
-            if files.count == 1 {
+            if let data = viewModel.exportOBJ() {
                 pendingExport = ExportDocument(
-                    data: files[0].data, contentType: ExportDocument.objType, fileExtension: "obj"
+                    data: data, contentType: ExportDocument.objType, fileExtension: "obj"
                 )
-            } else {
-                pendingExportItems = namedExportItems(files, viewModel: viewModel)
             }
         case (.obj, true):
             pendingExportItems = perBodyExportItems(
@@ -1072,8 +1043,8 @@ struct EditorView: View {
             }
             .accessibilityIdentifier("ImportFreeCAD")
             // Textured meshes: glTF/GLB, USDZ, OBJ with its MTL and images, .blend,
-            // 3MF, or a zip holding any of them. Parts become mesh bodies.
-            Button("OBJ / glTF / USDZ / 3MF / Blender…") {
+            // or a zip holding any of them. Parts become mesh bodies.
+            Button("OBJ / glTF / USDZ / Blender…") {
                 importRequest = .mesh
                 showImporter = true
             }
@@ -2028,8 +1999,7 @@ struct EditorView: View {
                         .contentShape(Rectangle())
                         .accessibilityLabel("Undo")
                     }
-                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle
-                              && !viewModel.hasPendingShapeTap)
+                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle)
                     // Distinct from the software keyboard's own "Undo": with
                     // only a label to match on, `app.buttons["Undo"]` found two
                     // elements and every single-element query threw.

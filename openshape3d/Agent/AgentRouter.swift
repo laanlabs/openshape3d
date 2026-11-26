@@ -76,9 +76,7 @@ nonisolated enum AgentShotFormat: String, Sendable, Equatable {
 /// The fabrication formats `/v1/export` writes — the Export menu's mesh
 /// formats plus STEP. Millimetres, like everything else on the wire.
 nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
-    case stl, obj, threeMF = "3mf", step, glb
-    /// The material library an OBJ export references (`mtllib materials.mtl`).
-    case mtl
+    case stl, obj, threeMF = "3mf", step
 
     var contentType: String {
         switch self {
@@ -86,8 +84,6 @@ nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
         case .obj: return "model/obj"
         case .threeMF: return "model/3mf"
         case .step: return "model/step"
-        case .glb: return "model/gltf-binary"
-        case .mtl: return "model/mtl"
         }
     }
 }
@@ -96,9 +92,6 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Answerable without the editor.
     case health
     case commands
-    /// `GET /v1/commands?available=1`: the same list, each entry saying
-    /// whether it can run in the editor right now and, if not, why.
-    case commandAvailability
     /// Needs the live `EditorViewModel` — see `AgentBridge`.
     case state
     case runCommand(id: String)
@@ -108,11 +101,6 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Geometry health report for one body (or all with a `brep`) —
     /// docs/FREECAD_PLAYBOOK.md D1. `bop` adds the slow self-intersection check.
     case check(bodyID: String?, runBOPCheck: Bool)
-    /// Input-to-screen latency diagnostics (`InteractionLatency`): the report,
-    /// with the last `events` inputs listed one by one.
-    case latencyReport(events: Int)
-    /// Turn the recorder on/off and/or clear what it has.
-    case latencyControl(enabled: Bool?, reset: Bool)
     /// Snapshot every analytic body into a replayable capture bundle —
     /// the "op succeeded but the geometry looks wrong" repro path (D2).
     case capture(note: String)
@@ -161,9 +149,9 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Whether serving this needs a hop to the main actor.
     var needsEditor: Bool {
         switch self {
-        case .state, .commandAvailability, .runCommand, .exec, .screenshot, .check, .capture,
+        case .state, .runCommand, .exec, .screenshot, .check, .capture,
              .edges, .faces, .sketches, .project, .section, .archive, .export, .spaceMouse,
-             .accuracy, .accuracyImage, .latencyReport, .latencyControl:
+             .accuracy, .accuracyImage:
             return true
         case .health, .commands, .reply: return false
         }
@@ -262,9 +250,7 @@ nonisolated enum AgentRouter {
             return get(request) ?? .health
 
         case "/v1/commands":
-            if let bad = get(request) { return bad }
-            let available = (request.query["available"] ?? "").lowercased()
-            return ["1", "true", "yes"].contains(available) ? .commandAvailability : .commands
+            return get(request) ?? .commands
 
         case "/v1/state":
             return get(request) ?? .state
@@ -280,20 +266,6 @@ nonisolated enum AgentRouter {
                 height: request.intQuery("h", default: defaultShotSize,
                                          min: minShotSize, max: maxShotSize),
                 format: format, maxBytes: budget > 0 ? budget : nil)
-
-        case "/v1/diagnostics/latency":
-            if request.method == "POST" {
-                let body = request.jsonBody ?? [:]
-                let enabled = body["enabled"] as? Bool
-                let reset = body["reset"] as? Bool ?? false
-                guard enabled != nil || reset else {
-                    return .reply(status: 400, error: "bad_latency_control",
-                                  message: #"POST {"enabled": true|false} and/or {"reset": true}."#)
-                }
-                return .latencyControl(enabled: enabled, reset: reset)
-            }
-            if let bad = get(request) { return bad }
-            return .latencyReport(events: request.intQuery("events", default: 50, min: 0, max: 5000))
 
         case "/v1/check":
             if let bad = get(request) { return bad }
@@ -572,11 +544,7 @@ nonisolated enum AgentRouter {
     /// Exactly what Command Search is allowed to offer — commands that actually
     /// reach the editor. An agent handed the full catalog would waste turns on
     /// ids that cannot run.
-    /// The launchable commands. With `unavailableReason` (the editor's rule,
-    /// `CommandRegistry.unavailableReason(for:in:)`), each entry also carries
-    /// `available` and, when false, `unavailableReason`.
-    static func commandsResponse(unavailableReason: ((String) -> String?)? = nil) -> AgentResponse {
-        var availableCount = 0
+    static func commandsResponse() -> AgentResponse {
         let commands = CommandRegistry.launchableCommands.map { command -> [String: Any] in
             var entry: [String: Any] = [
                 "id": command.id,
@@ -584,16 +552,9 @@ nonisolated enum AgentRouter {
                 "category": command.category.rawValue,
             ]
             if let chord = command.chord { entry["chord"] = chord.label }
-            if let unavailableReason {
-                let reason = unavailableReason(command.id)
-                entry["available"] = reason == nil
-                if let reason { entry["unavailableReason"] = reason } else { availableCount += 1 }
-            }
             return entry
         }
-        var payload: [String: Any] = ["count": commands.count, "commands": commands]
-        if unavailableReason != nil { payload["availableCount"] = availableCount }
-        return .ok(payload)
+        return .ok(["count": commands.count, "commands": commands])
     }
 
     static func response(for reply: AgentRoute) -> AgentResponse? {

@@ -8,30 +8,19 @@
 //  central directory). Transforms are baked; unit is millimeter per the
 //  1 unit = 1 mm convention.
 //
-//  3MF is Z-up. The plain export writes the design as it is modelled (Y-up)
-//  and says so in an `os3d:UpAxis` metadata entry, which `ThreeMFImporter`
-//  reads so the file comes back as it left; a file already turned Z-up (the
-//  slicer export, `up=z`) carries no entry and is standard 3MF.
-//
 
 import Foundation
 import simd
 
 nonisolated enum ThreeMFExporter {
 
-    /// `yUp`: the bodies are in the design's own Y-up frame (the default);
-    /// false when they were already turned to 3MF's Z-up.
-    static func threeMF(bodies: [Body], yUp: Bool = true) -> Data {
+    static func threeMF(bodies: [Body]) -> Data {
         var zip = MinimalZipWriter()
         zip.addFile(path: "[Content_Types].xml", data: Data(contentTypesXML.utf8))
         zip.addFile(path: "_rels/.rels", data: Data(relsXML.utf8))
-        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies, yUp: yUp).utf8))
+        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies).utf8))
         return zip.finish()
     }
-
-    /// The namespace of the app's own metadata (3MF wants custom names
-    /// qualified).
-    static let metadataNamespace = "https://openshape3d.com/3mf/2026/11"
 
     private static let contentTypesXML = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -48,43 +37,16 @@ nonisolated enum ThreeMFExporter {
     </Relationships>
     """
 
-    /// Core-spec 3MF: one `<basematerials>` group with each distinct
-    /// body or face material as a named `<base>` with its `displaycolor`;
-    /// each body an `<object>` with its name, its own material as the
-    /// object default (`pid`/`pindex`) and painted faces as per-triangle `p1`.
-    static func modelXML(bodies: [Body], yUp: Bool = true) -> String {
-        let table = ExportMaterials.table(for: bodies)
-        // Objects keep ids 1…n; the material group takes the next id and is
-        // written first, since a resource must be defined before it's used.
-        let materialsID = bodies.count + 1
+    static func modelXML(bodies: [Body]) -> String {
         var out = """
         <?xml version="1.0" encoding="UTF-8"?>
-        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:os3d="\(metadataNamespace)">
-        <metadata name="Application">OpenShape3D</metadata>
+        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+        <resources>
         """
         out += "\n"
-        if yUp { out += "<metadata name=\"\(ThreeMFImporter.upAxisMetadataName)\">Y</metadata>\n" }
-        out += "<resources>\n"
-        if !table.materials.isEmpty {
-            out += "<basematerials id=\"\(materialsID)\">\n"
-            for (i, spec) in table.materials.enumerated() {
-                out += "<base name=\"\(escaped(table.names[i]))\" displaycolor=\"\(ExportMaterials.hex(spec))\"/>\n"
-            }
-            out += "</basematerials>\n"
-        }
         for (index, body) in bodies.enumerated() {
             let objectID = index + 1
-            let groups = table.groups[index]
-            var attributes = "id=\"\(objectID)\" name=\"\(escaped(body.name))\" type=\"model\""
-            var owner: [Int] = []
-            if let first = groups.first {
-                attributes += " pid=\"\(materialsID)\" pindex=\"\(first.material)\""
-                if groups.count > 1 {
-                    owner = [Int](repeating: first.material, count: body.render.triangleCount)
-                    for group in groups.dropFirst() { for t in group.triangles { owner[t] = group.material } }
-                }
-            }
-            out += "<object \(attributes)>\n<mesh>\n<vertices>\n"
+            out += "<object id=\"\(objectID)\" type=\"model\">\n<mesh>\n<vertices>\n"
             let transform = body.transform
             for p in body.render.positions {
                 let w = transform.applying(to: SIMD3<Double>(p))
@@ -94,12 +56,7 @@ nonisolated enum ThreeMFExporter {
             let indices = body.render.indices
             var i = 0
             while i + 2 < indices.count {
-                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\""
-                let t = i / 3
-                if t < owner.count, owner[t] != groups.first?.material {
-                    out += " pid=\"\(materialsID)\" p1=\"\(owner[t])\""
-                }
-                out += "/>\n"
+                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\"/>\n"
                 i += 3
             }
             out += "</triangles>\n</mesh>\n</object>\n"
@@ -109,25 +66,6 @@ nonisolated enum ThreeMFExporter {
             out += "<item objectid=\"\(index + 1)\"/>\n"
         }
         out += "</build>\n</model>\n"
-        return out
-    }
-
-    /// Text for an XML attribute value.
-    static func escaped(_ text: String) -> String {
-        var out = ""
-        for ch in text {
-            switch ch {
-            case "&": out += "&amp;"
-            case "<": out += "&lt;"
-            case ">": out += "&gt;"
-            case "\"": out += "&quot;"
-            case "'": out += "&apos;"
-            default:
-                // XML 1.0 has no control characters but tab/newline.
-                if let a = ch.asciiValue, a < 0x20, ch != "\t", ch != "\n" { continue }
-                out.append(ch)
-            }
-        }
         return out
     }
 }
@@ -146,28 +84,12 @@ nonisolated struct MinimalZipWriter {
     private var data = Data()
     private var entries = [Entry]()
 
-    /// `alignment`: start the file's bytes on a multiple of this many bytes
-    /// from the archive's start (USDZ wants 64), by padding the local
-    /// header's extra field.
-    mutating func addFile(path: String, data fileData: Data, alignment: Int = 1) {
+    mutating func addFile(path: String, data fileData: Data) {
         let name = Array(path.utf8)
         let crc = Self.crc32(fileData)
         let size = UInt32(fileData.count)
         let entry = Entry(name: name, crc: crc, size: size, offset: UInt32(data.count))
         entries.append(entry)
-
-        // An extra field is a 4-byte header (id, length) plus its data, so
-        // 1–3 bytes of padding cannot be expressed: go to the next boundary.
-        var extra: [UInt8] = []
-        if alignment > 1 {
-            var padding = (alignment - (data.count + 30 + name.count) % alignment) % alignment
-            if padding > 0, padding < 4 { padding += alignment }
-            if padding > 0 {
-                let length = UInt16(padding - 4)
-                extra = [0x86, 0x19, UInt8(length & 0xFF), UInt8(length >> 8)]   // id 0x1986, as USD's own writer pads
-                    + [UInt8](repeating: 0, count: padding - 4)
-            }
-        }
 
         appendU32(0x0403_4B50)        // local file header signature
         appendU16(20)                 // version needed
@@ -179,9 +101,8 @@ nonisolated struct MinimalZipWriter {
         appendU32(size)               // compressed size == size (stored)
         appendU32(size)
         appendU16(UInt16(name.count))
-        appendU16(UInt16(extra.count)) // extra length
+        appendU16(0)                  // extra length
         data.append(contentsOf: name)
-        data.append(contentsOf: extra)
         data.append(fileData)
     }
 

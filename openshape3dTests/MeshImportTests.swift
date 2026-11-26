@@ -230,7 +230,7 @@ final class MeshImportTests: XCTestCase {
     func testZipWithoutModelIsRefused() {
         let archive = zip([("readme.txt", Data("hi".utf8), deflate: false)])
         XCTAssertThrowsError(try MeshImportKit.parts(from: archive, fileName: "x.zip")) { error in
-            XCTAssertEqual(error as? MeshImportError, .unsupportedFormat("zip without a .glb, .gltf, .usdz, .obj, .blend, .3mf or .stl inside"))
+            XCTAssertEqual(error as? MeshImportError, .unsupportedFormat("zip without a .glb, .gltf, .usdz, .obj, .blend or .stl inside"))
         }
     }
 

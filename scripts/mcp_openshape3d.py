@@ -182,7 +182,7 @@ def run_tool(name, arguments):
         return text_result(body.decode("utf-8"))
 
     if name == "os3d_list_commands":
-        status, body, _ = call_app("GET", "/v1/commands?available=1")
+        status, body, _ = call_app("GET", "/v1/commands")
         return text_result(body.decode("utf-8"))
 
     if name == "os3d_state":

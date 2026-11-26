@@ -42,16 +42,6 @@
 #include <BRepFilletAPI_MakeChamfer.hxx>
 #include <BRepFilletAPI_LocalOperation.hxx>
 #include <STEPControl_Writer.hxx>
-#include <STEPCAFControl_Writer.hxx>
-#include <TDocStd_Document.hxx>
-#include <TDataStd_Name.hxx>
-#include <TDF_Label.hxx>
-#include <XCAFDoc_DocumentTool.hxx>
-#include <XCAFDoc_ShapeTool.hxx>
-#include <XCAFDoc_ColorTool.hxx>
-#include <Quantity_ColorRGBA.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <BRepBuilderAPI_Copy.hxx>
 #include <STEPControl_Reader.hxx>
 #include <IGESControl_Writer.hxx>
 #include <IGESControl_Reader.hxx>
@@ -3876,66 +3866,6 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
     }
 }
 
-+ (BOOL)writeSTEPShapes:(NSArray<OCCTShape *> *)shapes
-                  names:(NSArray<NSString *> *)names
-                 colors:(NSArray<NSNumber *> *)colors
-                 toPath:(NSString *)path {
-    if (shapes.count == 0 || path.length == 0) return NO;
-    try {
-        // An XDE document needs no application: the shape and colour tools
-        // hang off its main label.
-        Handle(TDocStd_Document) document = new TDocStd_Document("XmlXCAF");
-        Handle(XCAFDoc_ShapeTool) shapeTool = XCAFDoc_DocumentTool::ShapeTool(document->Main());
-        Handle(XCAFDoc_ColorTool) colorTool = XCAFDoc_DocumentTool::ColorTool(document->Main());
-        int added = 0;
-        for (NSUInteger i = 0; i < shapes.count; ++i) {
-            OCCTShape *s = shapes[i];
-            if (s == nil || s->_shape.IsNull()) continue;
-            TopoDS_Shape shape = s->_shape;
-            // XDE keys shapes by identity and files a placed shape as an
-            // instance of its unplaced original, whose label (not ours)
-            // would then carry the product name. Give every body its own
-            // geometry in place: a copy when it is placed, or when another
-            // body (a pasted clone) already brought in the same shape.
-            TDF_Label existing;
-            if (!shape.Location().IsIdentity() || shapeTool->FindShape(shape, existing, Standard_False)) {
-                BRepBuilderAPI_Copy copy(shape);
-                if (!copy.IsDone() || copy.Shape().IsNull()) return NO;
-                shape = copy.Shape();
-            }
-            TDF_Label label = shapeTool->AddShape(shape, Standard_False);
-            if (label.IsNull()) return NO;
-            if (i < names.count && names[i].length > 0) {
-                TDataStd_Name::Set(label, TCollection_ExtendedString(names[i].UTF8String, Standard_True));
-            }
-            if (4 * i + 3 < colors.count) {
-                const double alpha = colors[4 * i + 3].doubleValue;
-                if (alpha >= 0.0) {
-                    auto unit = [](double v) { return std::isfinite(v) ? std::min(std::max(v, 0.0), 1.0) : 0.0; };
-                    // OCCT keeps colours linear and writes STEP's COLOUR_RGB in
-                    // sRGB; entering ours as sRGB puts the stored numbers in
-                    // the file unchanged, like the other exporters' colours.
-                    Quantity_ColorRGBA color(Quantity_Color(unit(colors[4 * i].doubleValue),
-                                                            unit(colors[4 * i + 1].doubleValue),
-                                                            unit(colors[4 * i + 2].doubleValue), Quantity_TOC_sRGB),
-                                             (float)unit(alpha));
-                    colorTool->SetColor(label, color, XCAFDoc_ColorSurf);
-                    colorTool->SetColor(label, color, XCAFDoc_ColorGen);
-                }
-            }
-            ++added;
-        }
-        if (added == 0) return NO;
-        STEPCAFControl_Writer writer;
-        writer.SetColorMode(Standard_True);
-        writer.SetNameMode(Standard_True);
-        if (!writer.Transfer(document, STEPControl_AsIs)) return NO;
-        return writer.Write(path.fileSystemRepresentation) == IFSelect_RetDone;
-    } catch (...) {
-        return NO;
-    }
-}
-
 + (NSArray<OCCTShape *> *)readSTEPFromPath:(NSString *)path {
     return [self readSTEPFromPath:path stats:nil];
 }
@@ -4719,17 +4649,6 @@ static bool OS3DPlausibleSectionCounts(NSData *data) {
                        angularDeflection:(double)angularDeflection
                         linearDeflection:(double)linearDeflection {
     return TessellateShape(shape->_shape, linearDeflection, angularDeflection);
-}
-
-+ (OCCTRenderMesh *)exportMeshFromShape:(OCCTShape *)shape
-                       angularDeflection:(double)angularDeflection
-                        linearDeflection:(double)linearDeflection {
-    // Mesh a mesh-free COPY: BRepMesh keeps an existing (finer) triangulation
-    // that already satisfies a coarser request, and the original's
-    // triangulation is the viewport's render cache, which must not change.
-    const TopoDS_Shape bare = OS3DWithoutMesh(shape->_shape);
-    if (bare.IsNull()) return EmptyRenderMesh();
-    return TessellateShape(bare, linearDeflection, angularDeflection);
 }
 
 @end

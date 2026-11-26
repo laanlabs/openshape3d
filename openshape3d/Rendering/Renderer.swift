@@ -24,22 +24,6 @@ final class Renderer: NSObject, MTKViewDelegate {
     var scene = ViewportScene()
 
     private let cache = GPUResourceCache()
-
-    // Coplanar tie-break (#141, `CoplanarDepthRanks`): each opaque body's
-    // rank, recomputed only when the bodies, their placement or the selection
-    // change, and the mesh-local boxes it is computed from.
-    private struct DepthRankInput: Equatable {
-        var id: BodyID
-        var revision: UInt64
-        var matrix: simd_float4x4
-        var selected: Bool
-    }
-    private var depthRankInputs: [DepthRankInput] = []
-    private var depthRanks: [BodyID: Int] = [:]
-    private var localBoxes: [BodyID: (revision: UInt64, min: SIMD3<Float>, max: SIMD3<Float>)] = [:]
-    /// Depth-bias units (constant and slope) per rank — the step the decal
-    /// and edge passes already use to win a surface.
-    private static let coplanarBiasStep: Float = 2
     /// Face-material patches' vertex buffers, by patch key.
     private var patchBuffers: [String: (positions: MTLBuffer, normals: MTLBuffer, count: Int)] = [:]
     private let quadTextures = ImageQuadTextureCache()
@@ -111,7 +95,6 @@ final class Renderer: NSObject, MTKViewDelegate {
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = context.commandQueue.makeCommandBuffer()
         else { return }
-        if InteractionLatency.isEnabled { InteractionLatency.shared.frameStarted(drawable: view.currentDrawable) }
 
         // Every frame ends in a second overlay pass (cleared depth): the
         // orientation cube always, plus gizmo/pull arrow/plane pickers when
@@ -258,8 +241,6 @@ final class Renderer: NSObject, MTKViewDelegate {
             let live = Set(scene.facePatches.map(\.key))
             patchBuffers = patchBuffers.filter { live.contains($0.key) }
         }
-
-        refreshDepthRanks()
 
         // 2. Opaque bodies. Wireframe swaps the fill for a depth-only prepass
         // so hidden lines stay hidden; x-ray defers every body to the
@@ -729,8 +710,6 @@ final class Renderer: NSObject, MTKViewDelegate {
             encoder.setFragmentTexture(picture ?? whiteTexture, index: 0)
         }
         encoder.setRenderPipelineState(chosen)
-        setCoplanarBias(for: drawable.id, encoder: encoder)
-        defer { encoder.setDepthBias(0, slopeScale: 0, clamp: 0) }
         var body = makeBodyUniforms(drawable)
         if let alphaOverride {
             body.baseColor.w = alphaOverride
@@ -753,44 +732,6 @@ final class Renderer: NSObject, MTKViewDelegate {
             indexBuffer: resources.indexBuffer,
             indexBufferOffset: 0
         )
-    }
-
-    // MARK: - Coplanar tie-break (#141)
-
-    /// Rank the opaque bodies so faces two of them share on one plane always
-    /// resolve to the same body instead of z-fighting.
-    private func refreshDepthRanks() {
-        let opaque = scene.bodies.filter { !$0.isSeeThrough }
-        let inputs = opaque.map {
-            DepthRankInput(id: $0.id, revision: $0.meshRevision, matrix: $0.modelMatrix,
-                           selected: $0.selectionState != 0)
-        }
-        guard inputs != depthRankInputs else { return }
-        depthRankInputs = inputs
-        let live = Set(opaque.map(\.id))
-        localBoxes = localBoxes.filter { live.contains($0.key) }
-        var boxes: [CoplanarDepthRanks.Box] = []
-        boxes.reserveCapacity(opaque.count)
-        for drawable in opaque {
-            var local = localBoxes[drawable.id]
-            if local?.revision != drawable.meshRevision {
-                let aabb = drawable.renderMesh.localAABB
-                local = (drawable.meshRevision, aabb.min, aabb.max)
-                localBoxes[drawable.id] = local
-            }
-            boxes.append(.init(local: (local!.min, local!.max), transformedBy: drawable.modelMatrix))
-        }
-        let ranks = CoplanarDepthRanks.ranks(boxes: boxes, preferred: inputs.map(\.selected))
-        depthRanks = [:]
-        for (drawable, rank) in zip(opaque, ranks) where rank > 0 { depthRanks[drawable.id] = rank }
-    }
-
-    /// Push a ranked body's faces back by its rank; rank 0 (and anything
-    /// unranked: previews, see-through bodies) draws as it is.
-    private func setCoplanarBias(for id: BodyID, encoder: MTLRenderCommandEncoder) {
-        guard let rank = depthRanks[id] else { return }
-        let bias = Float(rank) * Self.coplanarBiasStep
-        encoder.setDepthBias(bias, slopeScale: bias, clamp: 0)
     }
 
     private func drawEdges(
@@ -949,9 +890,6 @@ final class Renderer: NSObject, MTKViewDelegate {
             }
             guard let buffers = patchBuffers[patch.key] else { continue }
             encoder.setRenderPipelineState(pipeline)
-            // A painted face sits with its body on a shared plane.
-            setCoplanarBias(for: patch.bodyID, encoder: encoder)
-            defer { encoder.setDepthBias(0, slopeScale: 0, clamp: 0) }
             var body = makeBodyUniforms(BodyDrawable(
                 id: patch.bodyID, renderMesh: RenderMesh(positions: [], normals: [], indices: []), edges: nil,
                 meshRevision: 0, modelMatrix: patch.modelMatrix, baseColor: patch.material.baseColor,
