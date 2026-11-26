@@ -76,6 +76,10 @@ final class ViewportCoordinator: NSObject, ViewportGestureDelegate, ViewportCame
         self.view = view
         cameraAnimator = CameraAnimator(renderer: renderer, view: view)
         gestures.attach(to: view, renderer: renderer)
+        // Diagnostics (off unless OS3D_DIAGNOSTICS=1 or the agent turns it
+        // on): the window exists only after this view is placed in it.
+        InteractionLatency.shared.enableFromEnvironmentIfAsked()
+        DispatchQueue.main.async { InteractionLatency.shared.installEverywhere() }
         #if DEBUG
         OpenTiming.mark("viewport attached")
         #endif
