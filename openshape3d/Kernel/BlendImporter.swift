@@ -45,8 +45,9 @@ nonisolated enum BlendImporter {
     // MARK: - zstd
 
     /// Largest decompressed .blend accepted, so a hostile file can't ask
-    /// for unbounded memory.
-    static let maxDecompressedBytes = 4 << 30
+    /// for unbounded memory. 1 GB: more than an iPad can hold alongside the
+    /// parsed meshes anyway, and it fits the web build's 32-bit `Int`.
+    static let maxDecompressedBytes = 1 << 30
 
     /// Blender 3.0+ writes "Compress" saves as zstd in the seekable format:
     /// independent frames of ~256 KB each, then a skippable frame holding the
@@ -55,6 +56,11 @@ nonisolated enum BlendImporter {
     /// skippable ones, so the whole file decodes in one pass; the seek table
     /// is only needed for random access, which the reader doesn't do.
     static func unzstd(_ data: Data) throws -> Data {
+        #if os(WASI)
+        // The web build has no C zstd; say what to do instead.
+        throw MeshImportError.malformed("blend: this file is zstd-compressed (Blender 3.0+ \"Compress\" save); "
+                                        + "save it without compression or export glTF")
+        #else
         guard let stream = ZSTD_createDStream() else { throw MeshImportError.malformed("blend: zstd: out of memory") }
         defer { ZSTD_freeDStream(stream) }
         let chunkSize = ZSTD_DStreamOutSize()
@@ -85,6 +91,7 @@ nonisolated enum BlendImporter {
         }
         guard pending == 0 else { throw MeshImportError.malformed("blend: truncated zstd data") }
         return out
+        #endif
     }
 
     // MARK: - gzip

@@ -426,14 +426,16 @@ final class IOTests: XCTestCase {
         }
     }
 
-    func testOBJConcaveFaceIsOneNGonAndReimports() throws {
-        // An L-shaped prism: its two caps are concave hexagons.
+    /// An L-shaped prism: its two caps are concave hexagons.
+    private func lPrism() -> Body {
         let profile = Euclid.Path([
             .point(0, 0), .point(4, 0), .point(4, 1), .point(1, 1), .point(1, 3), .point(0, 3), .point(0, 0),
         ])
-        let mesh = Euclid.Mesh.extrude(profile, depth: 2)
-        let body = Body(name: "L", euclidMesh: mesh, revision: 1)
-        let text = OBJExporter.obj(bodies: [body])
+        return Body(name: "L", euclidMesh: Euclid.Mesh.extrude(profile, depth: 2), revision: 1)
+    }
+
+    func testOBJConcaveFaceIsOneNGonAndReimports() throws {
+        let text = OBJExporter.obj(bodies: [lPrism()], polygons: .any)
         let parsed = parseOBJ(text)
         XCTAssertEqual(parsed.vertices.count, 12)
         XCTAssertEqual(parsed.faces.count, 8, "2 hexagon caps + 6 side quads")
@@ -444,6 +446,43 @@ final class IOTests: XCTestCase {
         XCTAssertEqual(MeasureKit.bodyVolume(reimported, scale: 1), 12, accuracy: 1e-4)  // area 6 × depth 2
         XCTAssertEqual(reimported.triangleCount, 2 * 4 + 6 * 2,
                        "ear clipping, no overlapping fan triangles")
+    }
+
+    /// The default writes convex polygons only: a reader that fans every
+    /// polygon from its first corner (slicers, three.js, trimesh) must get
+    /// the same solid, which a concave hexagon would not give it.
+    func testOBJDefaultWritesOnlyConvexPolygonsSoAFanReaderGetsTheSolid() {
+        let parsed = parseOBJ(OBJExporter.obj(bodies: [lPrism()]))
+        XCTAssertEqual(parsed.vertices.count, 12, "no vertex added or dropped")
+        assertCleanClosedSurface(parsed)
+        XCTAssertTrue(parsed.faces.allSatisfy { $0.count <= 5 }, "each L cap splits into convex pieces")
+        XCTAssertLessThan(parsed.faces.count, 2 * 4 + 6 * 2, "still merged, not left as triangles")
+
+        // Volume by the divergence theorem over a naive fan of every face.
+        var six = 0.0
+        for face in parsed.faces {
+            let p0 = parsed.vertices[face[0]]
+            for i in 1..<(face.count - 1) {
+                six += simd_dot(p0, simd_cross(parsed.vertices[face[i]], parsed.vertices[face[i + 1]]))
+            }
+        }
+        XCTAssertEqual(abs(six) / 6, 12, accuracy: 1e-6, "area 6 × depth 2")
+
+        // Every polygon is convex about its own normal (Newell).
+        for face in parsed.faces where face.count > 3 {
+            let pts = face.map { parsed.vertices[$0] }
+            var normal = SIMD3<Double>.zero
+            for i in pts.indices {
+                let p = pts[i], q = pts[(i + 1) % pts.count]
+                normal += SIMD3((p.y - q.y) * (p.z + q.z), (p.z - q.z) * (p.x + q.x), (p.x - q.x) * (p.y + q.y))
+            }
+            normal = simd_normalize(normal)
+            for i in pts.indices {
+                let turn = simd_cross(pts[(i + 1) % pts.count] - pts[i],
+                                      pts[(i + 2) % pts.count] - pts[(i + 1) % pts.count])
+                XCTAssertGreaterThanOrEqual(simd_dot(turn, normal), -1e-9, "a concave corner in \(face)")
+            }
+        }
     }
 
     // MARK: - 3MF

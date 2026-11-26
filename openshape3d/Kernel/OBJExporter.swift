@@ -13,10 +13,13 @@
 //      their smooth per-corner normals;
 //    • every planar face (coplanar connected triangles, as `FaceTopology`
 //      recovers them — kernel face regions respected) becomes ONE polygon
-//      when it has a single boundary loop. A face with holes can't be one
-//      OBJ polygon, so its triangles are merged into as few simple polygons
-//      as possible. No vertex is ever added, and no boundary vertex dropped,
-//      so neighbouring faces still share every edge.
+//      when it has a single CONVEX boundary loop. Anything else (an L-shaped
+//      cap, a face with holes) is merged into as few convex polygons as a
+//      greedy pass finds: many OBJ readers (slicers, three.js, trimesh)
+//      fan-triangulate a polygon from its first corner, which is only right
+//      for a convex one. `Polygons.any` writes concave n-gons too, for tools
+//      known to ear-clip (Blender). No vertex is ever added, and no boundary
+//      vertex dropped, so neighbouring faces still share every edge.
 //  Curved surfaces stay triangulated. STL and 3MF are triangle-only formats
 //  and keep their own exporters.
 //
@@ -40,13 +43,24 @@ nonisolated enum OBJExporter {
         static let standard = Tessellation(angularDeflection: 0.2, linearDeflection: 0.5)
     }
 
+    /// Which polygons a planar face may be written as.
+    enum Polygons: Equatable, Sendable {
+        /// Convex polygons only: right in every reader, including the ones
+        /// that fan-triangulate. The default.
+        case convex
+        /// One n-gon per single-loop face even when it is concave. Fewer
+        /// faces; needs a reader that triangulates properly (Blender does).
+        case any
+    }
+
     /// One merged OBJ containing every body as its own object.
-    static func obj(bodies: [Body], tessellation: Tessellation? = .standard) -> String {
+    static func obj(bodies: [Body], tessellation: Tessellation? = .standard,
+                    polygons: Polygons = .convex) -> String {
         var out = header
         var vertexOffset = 0
         var normalOffset = 0
         for body in bodies {
-            let written = append(body: body, to: &out, tessellation: tessellation,
+            let written = append(body: body, to: &out, tessellation: tessellation, polygons: polygons,
                                  vertexOffset: vertexOffset, normalOffset: normalOffset)
             vertexOffset += written.vertices
             normalOffset += written.normals
@@ -55,11 +69,11 @@ nonisolated enum OBJExporter {
     }
 
     /// One OBJ string per body ("save each body separately").
-    static func objPerBody(bodies: [Body],
-                           tessellation: Tessellation? = .standard) -> [(name: String, obj: String)] {
+    static func objPerBody(bodies: [Body], tessellation: Tessellation? = .standard,
+                           polygons: Polygons = .convex) -> [(name: String, obj: String)] {
         bodies.map { body in
             var out = header
-            append(body: body, to: &out, tessellation: tessellation,
+            append(body: body, to: &out, tessellation: tessellation, polygons: polygons,
                    vertexOffset: 0, normalOffset: 0)
             return (sanitized(body.name), out)
         }
@@ -98,7 +112,7 @@ nonisolated enum OBJExporter {
         init(_ p: Int, _ q: Int) { a = min(p, q); b = max(p, q) }
     }
 
-    static func polygonMesh(from mesh: RenderMesh) -> PolygonMesh {
+    static func polygonMesh(from mesh: RenderMesh, polygons style: Polygons = .convex) -> PolygonMesh {
         let triangleCount = mesh.triangleCount
         guard triangleCount > 0 else { return PolygonMesh() }
 
@@ -167,7 +181,7 @@ nonisolated enum OBJExporter {
             }
             guard !triangles.isEmpty else { continue }
             let n = normalIndex(face.normal)
-            for loop in coplanarPolygons(triangles) {
+            for loop in coplanarPolygons(triangles, positions: welded, style: style) {
                 polygons.append(loop.map { (v: $0, n: n) })
             }
         }
@@ -287,9 +301,22 @@ nonisolated enum OBJExporter {
 
     /// Polygons covering a connected set of coplanar triangles (welded
     /// indices), with no new vertices. One boundary loop → that loop as a
-    /// single n-gon; otherwise (holes, pinched boundaries) the triangles are
-    /// merged greedily into simple polygons.
-    private static func coplanarPolygons(_ triangles: [[Int]]) -> [[Int]] {
+    /// single n-gon (with `.convex`, only when it is convex); otherwise
+    /// (concave loops, holes, pinched boundaries) the triangles are merged
+    /// greedily into simple — with `.convex`, convex — polygons.
+    private static func coplanarPolygons(_ triangles: [[Int]], positions: [SIMD3<Float>],
+                                         style: Polygons) -> [[Int]] {
+        // The face's normal as its triangles wind it (area-weighted).
+        var normal = SIMD3<Double>.zero
+        for c in triangles {
+            let a = SIMD3<Double>(positions[c[0]])
+            normal += simd_cross(SIMD3<Double>(positions[c[1]]) - a, SIMD3<Double>(positions[c[2]]) - a)
+        }
+        let length = simd_length(normal)
+        // No usable plane (slivers only): nothing to judge convexity by.
+        let convexAbout: SIMD3<Double>? = style == .convex && length > 0 ? normal / length : nil
+        if style == .convex, convexAbout == nil { return triangles }
+
         var edgeUse: [UndirectedEdge: Int] = [:]
         for c in triangles {
             for k in 0..<3 { edgeUse[UndirectedEdge(c[k], c[(k + 1) % 3]), default: 0] += 1 }
@@ -316,19 +343,40 @@ nonisolated enum OBJExporter {
                 guard let following = next[current] else { break }
                 current = following
             }
-            if current == start, loop.count == boundaryCount, loop.count >= 3 {
+            if current == start, loop.count == boundaryCount, loop.count >= 3,
+               convexAbout.map({ isConvex(loop, positions: positions, about: $0) }) ?? true {
                 return [loop]
             }
         }
-        return mergedSimplePolygons(triangles)
+        return mergedSimplePolygons(triangles, positions: positions, convexAbout: convexAbout)
+    }
+
+    /// Whether the simple polygon `loop` never turns clockwise about
+    /// `normal`. Straight corners (a boundary vertex kept so the neighbour
+    /// still shares the edge) count as convex.
+    private static func isConvex(_ loop: [Int], positions: [SIMD3<Float>], about normal: SIMD3<Double>) -> Bool {
+        let count = loop.count
+        guard count > 3 else { return true }
+        for i in 0..<count {
+            let p0 = SIMD3<Double>(positions[loop[i]])
+            let p1 = SIMD3<Double>(positions[loop[(i + 1) % count]])
+            let p2 = SIMD3<Double>(positions[loop[(i + 2) % count]])
+            let e1 = p1 - p0, e2 = p2 - p1
+            // sin of the turn, so the tolerance does not depend on size.
+            let scale = simd_length(e1) * simd_length(e2)
+            if simd_dot(simd_cross(e1, e2), normal) < -1e-6 * scale { return false }
+        }
+        return true
     }
 
     /// Greedy merge of adjacent triangles across shared edges, accepting a
     /// merge only while the result stays a simple polygon (no repeated
     /// vertex). Within a conforming planar triangulation that is enough: two
     /// interior-disjoint simple polygons meeting only along one edge union to
-    /// a simple polygon.
-    private static func mergedSimplePolygons(_ triangles: [[Int]]) -> [[Int]] {
+    /// a simple polygon. With `convexAbout` (the face normal) a merge must
+    /// also leave the polygon convex.
+    private static func mergedSimplePolygons(_ triangles: [[Int]], positions: [SIMD3<Float>],
+                                             convexAbout: SIMD3<Double>?) -> [[Int]] {
         var polygons: [[Int]?] = triangles.map { $0 }
         var owner: [DirectedEdge: Int] = [:]
         for (i, c) in triangles.enumerated() {
@@ -356,6 +404,7 @@ nonisolated enum OBJExporter {
                         let qr = Array(other[start...] + other[..<start])
                         let merged = pr + qr.dropFirst().dropLast()
                         guard Set(merged).count == merged.count else { continue }
+                        if let convexAbout, !isConvex(merged, positions: positions, about: convexAbout) { continue }
 
                         polygons[p] = merged
                         polygons[q] = nil
@@ -378,10 +427,11 @@ nonisolated enum OBJExporter {
 
     @discardableResult
     private static func append(body: Body, to out: inout String, tessellation: Tessellation?,
+                               polygons: Polygons,
                                vertexOffset: Int, normalOffset: Int) -> (vertices: Int, normals: Int) {
         out += "o \(sanitized(body.name))\n"
         let transform = body.transform
-        let mesh = polygonMesh(from: exportSource(for: body, tessellation: tessellation))
+        let mesh = polygonMesh(from: exportSource(for: body, tessellation: tessellation), polygons: polygons)
         for p in mesh.positions {
             let world = transform.applying(to: SIMD3<Double>(p))
             out += String(format: "v %.6f %.6f %.6f\n", world.x, world.y, world.z)
