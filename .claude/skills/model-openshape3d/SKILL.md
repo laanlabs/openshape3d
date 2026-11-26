@@ -21,7 +21,9 @@ Two equivalent clients; use whichever you have:
 Everything goes through the one `os3d` tool on purpose: the person approves
 it once and is never asked again. The commands you need are
 `view.isometric`, `view.front`, `view.top`, `view.right`, `view.fit`,
-`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands` for all).
+`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands?available=1`
+for all, each with `available` and, when it cannot run now, the
+`unavailableReason` to fix first — a refused `command.run` carries the same).
 
 Start with health (op `health` / `GET /v1/health`): `hasDocument:false`
 means the project gallery is showing — ask the person to open or create a

@@ -16,7 +16,9 @@ Two equivalent clients; use whichever you have:
 Everything goes through the one `os3d` tool on purpose: the person approves
 it once and is never asked again. The commands you need are
 `view.isometric`, `view.front`, `view.top`, `view.right`, `view.fit`,
-`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands` for all).
+`edit.undo`, `edit.redo` (op `commands` / `GET /v1/commands?available=1`
+for all, each with `available` and, when it cannot run now, the
+`unavailableReason` to fix first — a refused `command.run` carries the same).
 
 Start with health (op `health` / `GET /v1/health`): `hasDocument:false`
 means the project gallery is showing — ask the person to open or create a
@@ -189,16 +191,45 @@ traced from them grows rings the part does not have. Draw design intent,
 not the trace: a cylinder is ONE vertical line (a run of heights whose
 radii agree within the scan's noise, 2–3 mm, with no drift from one end to
 the other, is one segment at their median), a flange is a level step, a
-cone or a dome a few straight segments that follow the drift (collapsing
-those runs cuts a dome into terraces); nothing smaller than the noise. A boss is roughly a cylinder —
+cone a straight segment, and a dome, a barrel's belly or a can's shoulder
+an ARC (`arc` entity) — a circle through the simplified polyline's run of
+same-way turns that every traced band between its ends sits within the
+noise of (collapsing such a run into a cylinder and two cones cuts the
+belly into terraces, which is exactly what the deviation preview painted on
+the beer mug); nothing smaller than the noise. A boss is roughly a cylinder —
 its root about as wide as its neck; a thin spike on a wide base is a chain
-link or a flange's edge, not a boss. One revolve for the body, one
-union-revolve per boss, nothing else. Then `accuracy` and `accuracy.image`
-on every view: when the model's outline shows steps, rings or a lump the
-scan's silhouette does not, the profile is wrong — undo, re-sketch it
-cleaner (fewer points at the agreed radii), and compare again. More points
-never fix a ridged profile; the right radius does. `view.deviationPreview`
-then shows the person where the model still misses the scan, on the scan.
+link or a flange's edge, not a boss. A container is a shell, not a drum:
+cast rays down the axis from outside each end — on a closed end they hit
+the skin at once, into a bucket they fall to the floor's inside (a FRONT
+face, deep in) or out through a floor the scanner never saw; rays that
+cross a scan's trimmed-off ground and hit the inside of the part's own top
+(a BACK face) mean a solid with a hole, not an open end. Then revolve a
+HOLLOW half-section — the outer profile up, the rim across at the open
+end, the inner profile a wall thickness in (lines moved in, a dome or a
+belly a concentric arc), and a floor one wall thick at the closed end —
+at the wall the inner surface shows, 3 mm when it shows none. (The
+kernel's `feature.shell` is the offset way and works on a plain bucket,
+but it refused a ribbed barrel at every thickness; the hollow sketch
+never fails.) One revolve for the body, one union-revolve per boss,
+nothing else. A part that is NOT turned (a
+clamp frame, a bracket) is an extrude: cut a section (`trimesh.section`)
+where it is thickest, trace the loop into lines and arcs (a tessellated
+arc is a run of equal chords turning one way with the tangent points as
+vertices; a rounded corner is one `arc`), extrude the thickness, and add
+what the section missed as its own feature — a round boss on an arm is an
+r-cylinder about the bore's axis unioned in, then the bore cut; the
+C-clamp practice part came out at 0.05 mm mean this way. Then `accuracy`
+and `accuracy.image` on every view: when the model's outline shows steps,
+rings or a lump the scan's silhouette does not, the profile is wrong —
+undo, re-sketch it cleaner (fewer points at the agreed radii), and compare
+again. More points never fix a ridged profile; the right radius does.
+`view.deviationPreview` then shows the person where the model still
+misses the scan, on the scan. The app's overlap number alone is not a
+verdict: a bucket modelled as a solid drum overlapped 93 % from the front.
+Export both meshes and run `scripts/scan_to_cad/inspect_fit.py` — distance
+both ways (the model-to-scan direction finds the lid), depth maps per view
+with the worst strip, and `review.png` to LOOK at — before calling a model
+done; a FAIL is not filmed.
 
 ## Checking a model against a scan or a reference part
 

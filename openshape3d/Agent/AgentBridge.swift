@@ -80,6 +80,17 @@ final class AgentBridge {
     // MARK: Serving the editor routes
 
     func handle(_ route: AgentRoute) -> AgentResponse {
+        if case .commandAvailability = route {
+            // Answered with or without a design: from the gallery every
+            // command is unavailable for the same reason.
+            guard let viewModel else {
+                return AgentRouter.commandsResponse { _ in
+                    "No design is open. Open or create a project first."
+                }
+            }
+            let context = viewModel.commandContext(evaluatingProfiles: true)
+            return AgentRouter.commandsResponse { CommandRegistry.unavailableReason(for: $0, in: context) }
+        }
         guard let viewModel else {
             return .failure(409, "Conflict", error: "no_document",
                             message: "No document is open — the project gallery is on screen. "
@@ -94,14 +105,17 @@ final class AgentBridge {
             // The router already separated "unknown id" and "no entry point",
             // so a false here means exactly one thing: the editor is in a state
             // where this command does not apply. Say which state.
+            // Asked before running: once it has run, the state it judged is gone.
+            let why = viewModel.unavailableReason(id)
             let ran = viewModel.runCommand(id)
             var payload = snapshot(of: viewModel)
             payload["id"] = id
             payload["ran"] = ran
             if !ran {
                 payload["reason"] = "not_applicable"
-                payload["message"] = "'\(id)' does not apply in mode '\(Self.modeName(viewModel.mode))' "
-                    + "with \(viewModel.selection.count) selected. The same guard would have disabled its palette button."
+                if let why { payload["unavailableReason"] = why }
+                payload["message"] = "'\(id)' does not apply now: "
+                    + (why ?? "mode '\(Self.modeName(viewModel.mode))' with \(viewModel.selection.count) selected.")
             }
             return .ok(payload)
 

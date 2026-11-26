@@ -92,6 +92,9 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Answerable without the editor.
     case health
     case commands
+    /// `GET /v1/commands?available=1`: the same list, each entry saying
+    /// whether it can run in the editor right now and, if not, why.
+    case commandAvailability
     /// Needs the live `EditorViewModel` — see `AgentBridge`.
     case state
     case runCommand(id: String)
@@ -149,7 +152,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Whether serving this needs a hop to the main actor.
     var needsEditor: Bool {
         switch self {
-        case .state, .runCommand, .exec, .screenshot, .check, .capture,
+        case .state, .commandAvailability, .runCommand, .exec, .screenshot, .check, .capture,
              .edges, .faces, .sketches, .project, .section, .archive, .export, .spaceMouse,
              .accuracy, .accuracyImage:
             return true
@@ -250,7 +253,9 @@ nonisolated enum AgentRouter {
             return get(request) ?? .health
 
         case "/v1/commands":
-            return get(request) ?? .commands
+            if let bad = get(request) { return bad }
+            let available = (request.query["available"] ?? "").lowercased()
+            return ["1", "true", "yes"].contains(available) ? .commandAvailability : .commands
 
         case "/v1/state":
             return get(request) ?? .state
@@ -544,7 +549,11 @@ nonisolated enum AgentRouter {
     /// Exactly what Command Search is allowed to offer — commands that actually
     /// reach the editor. An agent handed the full catalog would waste turns on
     /// ids that cannot run.
-    static func commandsResponse() -> AgentResponse {
+    /// The launchable commands. With `unavailableReason` (the editor's rule,
+    /// `CommandRegistry.unavailableReason(for:in:)`), each entry also carries
+    /// `available` and, when false, `unavailableReason`.
+    static func commandsResponse(unavailableReason: ((String) -> String?)? = nil) -> AgentResponse {
+        var availableCount = 0
         let commands = CommandRegistry.launchableCommands.map { command -> [String: Any] in
             var entry: [String: Any] = [
                 "id": command.id,
@@ -552,9 +561,16 @@ nonisolated enum AgentRouter {
                 "category": command.category.rawValue,
             ]
             if let chord = command.chord { entry["chord"] = chord.label }
+            if let unavailableReason {
+                let reason = unavailableReason(command.id)
+                entry["available"] = reason == nil
+                if let reason { entry["unavailableReason"] = reason } else { availableCount += 1 }
+            }
             return entry
         }
-        return .ok(["count": commands.count, "commands": commands])
+        var payload: [String: Any] = ["count": commands.count, "commands": commands]
+        if unavailableReason != nil { payload["availableCount"] = availableCount }
+        return .ok(payload)
     }
 
     static func response(for reply: AgentRoute) -> AgentResponse? {
