@@ -209,9 +209,10 @@ rebuild the framework from OCCT source instead, see `scripts/build_occt_ios.sh`.
   deltas over sketch and body snap points.
 - **Import/Export** — import STL (binary + ASCII, welded into a solid mesh
   body that booleans like any other), DXF (entities land in a ground-plane
-  sketch), and images; export STL, OBJ, 3MF, **GLB**, **USDZ** (where the
-  platform supports it, with an **AR Preview** via Quick Look), and sketch
-  **DXF** — OBJ/GLB offer a separate-file-per-body option; **PNG
+  sketch), 3MF (object names and colours kept), and images; export STL, OBJ,
+  3MF, **GLB**, **USDZ** (on every platform, with an **AR Preview** via Quick
+  Look), and sketch **DXF** — GLB, 3MF and USDZ carry body names and
+  materials; OBJ/GLB offer a separate-file-per-body option; **PNG
   screenshot** with resolution, transparent-background, and grid options.
 - **Undo/redo** — command-based history for every operation.
 - **Projects** — a gallery of designs persisted with SwiftData, including
