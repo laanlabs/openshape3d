@@ -369,19 +369,24 @@ round-trip, transform baking); XCUITests drive the real flows
 
 Shipped since the first roadmap: the parametric history, the OCCT B-rep port
 (fillet, chamfer, shell, revolve, sweep, loft), STEP/IGES/FCStd exchange, 2D
-drawings, the Visualize workspace, keyboard shortcuts and Command Search, and
-the Mac app. Next:
+drawings, the Visualize workspace, keyboard shortcuts and Command Search, the
+Mac app, and the built-in assistant (app and web). Next:
 
 - Cloud sync and backup; shared links and collaboration
 - Assemblies (joints and mates)
 - Ray-traced / image-based rendering and HDR environments
 - Variable-radius and G2 fillets; spline trim, offset and tangent handles
-- The built-in assistant on the web
 
 See `docs/MODELING_PARITY_GOALS.md` for the ordered sketch + solid modeling
 roadmap (fillet, shell, splines, STEP — with acceptance criteria),
 `docs/PARITY_SPEC.md` for the feature-by-feature status audit, and
 `docs/IMPLEMENTATION_PLAN.md` for phase sequencing.
+
+## Contributing
+
+Bug reports and feature requests are welcome as issues. Pull requests are not
+merged: everything that ships is written inside the project. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
