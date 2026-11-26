@@ -3,12 +3,17 @@
 //  openshape3d
 //
 //  The built-in assistant (#119): a panel beside the viewport where the
-//  person types what they want and Claude builds it in the open design.
+//  person types what they want and an AI model builds it in the open design.
 //
-//  It runs on the person's own Claude API key. Before a key is saved the
-//  panel is the notice: what leaves this device, where it goes, who is
-//  billed. Saving a key is how they agree to it, and a line under the
-//  message box repeats it for as long as the panel is in use.
+//  It runs on the person's own API key, for whichever provider they choose:
+//  Claude (Anthropic), ChatGPT's models (OpenAI) or Gemini (Google). Before a
+//  key is saved the panel is the notice: what leaves this device, where it
+//  goes, who is billed. Saving a key is how they agree to it, and a line
+//  under the message box repeats it for as long as the panel is in use.
+//
+//  The other way to have an assistant build here needs no key at all: an
+//  assistant app the person already has (Claude Desktop, ChatGPT) connects
+//  over MCP. That is Settings ▸ AI Assistant, and the panel offers it too.
 //
 
 import SwiftUI
@@ -21,9 +26,18 @@ struct AssistantPanelView: View {
     @State private var keyDraft = ""
     @State private var keyProblem: String?
     @State private var confirmRemoveKey = false
+    @State private var showAssistantApps = false
     @FocusState private var messageFocused: Bool
 
-    static let keysPage = URL(string: "https://platform.claude.com/settings/keys")!
+    /// Whether assistant apps can connect over MCP on this device: on a Mac,
+    /// where they run (and in DEBUG builds anywhere, so it can be tested).
+    static var offersAssistantApps: Bool {
+        #if targetEnvironment(macCatalyst) || DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }
 
     static let suggestions = [
         "Make a 40 × 30 × 10 mm block with 3 mm rounded edges",
@@ -46,12 +60,27 @@ struct AssistantPanelView: View {
         .frame(width: 320)
         .frame(maxHeight: 640)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
-        .confirmationDialog("Remove the API key from this device?", isPresented: $confirmRemoveKey,
-                            titleVisibility: .visible) {
+        .confirmationDialog("Remove the \(session.provider.company) API key from this device?",
+                            isPresented: $confirmRemoveKey, titleVisibility: .visible) {
             Button("Remove Key", role: .destructive) { session.removeKey() }
         } message: {
-            Text("The assistant stops working here until a key is added again. The key itself is not "
-                 + "deleted from your Anthropic account.")
+            Text("\(session.provider.name) stops working here until a key is added again. The key itself is not "
+                 + "deleted from your \(session.provider.company) account.")
+        }
+        .sheet(isPresented: $showAssistantApps) {
+            NavigationStack {
+                Form {
+                    AIAssistantSettingsSection(control: AIControl.shared)
+                }
+                .navigationTitle("Assistant Apps")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { showAssistantApps = false }
+                            .accessibilityIdentifier("AssistantAppsDone")
+                    }
+                }
+            }
         }
     }
 
@@ -67,8 +96,16 @@ struct AssistantPanelView: View {
             Spacer()
             if session.hasKey {
                 Menu {
+                    // Changing provider starts a new chat; one without a key
+                    // yet shows its key form.
+                    Picker("Assistant", selection: $session.provider) {
+                        ForEach(AssistantProvider.allCases) { provider in
+                            Text(provider.name).tag(provider)
+                        }
+                    }
+                    .disabled(session.isRunning)
                     Picker("Model", selection: $session.modelID) {
-                        ForEach(AnthropicWire.models) { model in
+                        ForEach(session.provider.models) { model in
                             Text("\(model.name) (\(model.note))").tag(model.id)
                         }
                     }
@@ -80,7 +117,12 @@ struct AssistantPanelView: View {
                              + "\(session.tokensOut.formatted()) out")
                     }
                     Divider()
-                    Button("Remove API Key…", systemImage: "key.slash", role: .destructive) {
+                    if Self.offersAssistantApps {
+                        Button("Connect Claude Desktop or ChatGPT…", systemImage: "app.connected.to.app.below.fill") {
+                            showAssistantApps = true
+                        }
+                    }
+                    Button("Remove \(session.provider.company) API Key…", systemImage: "key.slash", role: .destructive) {
                         confirmRemoveKey = true
                     }
                 } label: {
@@ -110,22 +152,31 @@ struct AssistantPanelView: View {
     // MARK: Before there is a key
 
     private var setup: some View {
-        ScrollView {
+        let provider = session.provider
+        return ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Describe a part or a change, and the assistant models it in this design. "
                      + "Every step it takes can be undone.")
                     .font(.subheadline)
 
+                Picker("Assistant", selection: $session.provider) {
+                    ForEach(AssistantProvider.allCases) { provider in
+                        Text(provider.name).tag(provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("AssistantProviderPicker")
+
                 VStack(alignment: .leading, spacing: 6) {
                     Label("Before you add a key", systemImage: "exclamationmark.triangle.fill")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.orange)
-                    Text("The assistant runs on Claude with an API key from your own Anthropic account. "
+                    Text("\(provider.name) runs here with an API key from your own \(provider.company) account. "
                          + "When you use it, your messages and what it reads from this design to do the "
                          + "work (sizes, sketches, and pictures of the viewport) are sent from this device "
-                         + "straight to Anthropic, and Anthropic bills your key for the usage.")
+                         + "straight to \(provider.company), and \(provider.company) bills your key for the usage.")
                     Text("Nothing passes through OpenShape 3D's servers. The key is kept in this device's "
-                         + "keychain and is sent only to Anthropic.")
+                         + "keychain and is sent only to \(provider.company).")
                 }
                 .font(.footnote)
                 .padding(10)
@@ -134,7 +185,7 @@ struct AssistantPanelView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("AssistantNotice")
 
-                SecureField("Claude API key (sk-ant-…)", text: $keyDraft)
+                SecureField(provider.keyPlaceholder, text: $keyDraft)
                     .textFieldStyle(.roundedBorder)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -158,12 +209,39 @@ struct AssistantPanelView: View {
                 .disabled(keyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .accessibilityIdentifier("AssistantSaveKey")
 
-                Link("Get an API key from Anthropic", destination: Self.keysPage)
+                Link("Get an API key from \(provider.company)", destination: provider.keysPage)
                     .font(.footnote)
+
+                Divider()
+
+                // The other way in: an assistant app the person already has.
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("No API key?")
+                        .font(.subheadline.weight(.semibold))
+                    if Self.offersAssistantApps {
+                        Text("Claude Desktop or ChatGPT on this Mac can build in this design over MCP, using the "
+                             + "account you already have with them.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Button("Connect Claude Desktop or ChatGPT…") { showAssistantApps = true }
+                            .font(.footnote)
+                            .accessibilityIdentifier("AssistantConnectApps")
+                    } else {
+                        Text("On a Mac, Claude Desktop or ChatGPT can build in OpenShape 3D over MCP, using the "
+                             + "account you already have with them. It is in the Mac app's Settings, under AI Assistant.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .accessibilityIdentifier("AssistantAppsOffer")
             }
             .padding(14)
         }
         .scrollDismissesKeyboard(.interactively)
+        .onChange(of: session.provider) { _, _ in
+            keyDraft = ""
+            keyProblem = nil
+        }
     }
 
     private func saveKey() {
@@ -328,7 +406,7 @@ struct AssistantPanelView: View {
                     .accessibilityIdentifier("AssistantSend")
                 }
             }
-            Text("Your messages and details of this design go to Anthropic under your API key.")
+            Text("Your messages and details of this design go to \(session.provider.company) under your API key.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("AssistantFootnote")
