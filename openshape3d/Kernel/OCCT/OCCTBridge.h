@@ -589,16 +589,6 @@ typedef NS_ENUM(NSInteger, OCCTOpCode) {
 /// (analytic surfaces survive), unlike the mesh formats. NO on failure.
 + (BOOL)writeSTEPShapes:(NSArray<OCCTShape *> *)shapes toPath:(NSString *)path;
 
-/// STEP AP214 with each shape's name and colour (#133), through OCCT's XDE
-/// document so the other CAD tool shows named, coloured parts instead of
-/// "Open CASCADE STEP translator" in grey. `names[i]` labels `shapes[i]`
-/// (empty: none). `colors` holds four numbers per shape, r g b a in 0…1; a
-/// negative alpha means "no colour". Shorter arrays leave the rest unset.
-+ (BOOL)writeSTEPShapes:(NSArray<OCCTShape *> *)shapes
-                  names:(NSArray<NSString *> *)names
-                 colors:(NSArray<NSNumber *> *)colors
-                 toPath:(NSString *)path;
-
 /// Read every solid from the STEP file at `path`. Empty array on failure — the
 /// caller reports an unreadable/unsupported file rather than crashing.
 + (NSArray<OCCTShape *> *)readSTEPFromPath:(NSString *)path;

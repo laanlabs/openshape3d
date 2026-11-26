@@ -73,17 +73,7 @@ final class BlendImportTests: XCTestCase {
     /// A single-object scene: a 1 m × 2 m rectangle (two triangles, one quad)
     /// standing in Blender's XY plane at z = 0.5 m, with UVs, one material
     /// (red) carrying a packed 1×1 PNG, and the object moved +3 m in x.
-    /// Principled BSDF inputs to give the plate's material a node tree.
-    private struct Principled {
-        var baseColor: (Float, Float, Float, Float) = (0.8, 0.2, 0.1, 1)
-        var metallic: Float = 0.75
-        var roughness: Float = 0.25
-        var alpha: Float = 1
-        /// Base Color driven by another node: it has no value of its own.
-        var baseColorLinked = false
-    }
-
-    private func makeBlend(gzip: Bool = false, principled: Principled? = nil) -> Data {
+    private func makeBlend(gzip: Bool = false) -> Data {
         var dna = DNA()
         dna.add(.init(name: "ID", size: 66 + 2, fields: [("char", "name[66]"), ("char", "pad[2]")]))
         dna.add(.init(name: "MVert", size: 12, fields: [("float", "co[3]")]))
@@ -94,20 +84,7 @@ final class BlendImportTests: XCTestCase {
         dna.add(.init(name: "Image", size: 68 + 8 + 1024, fields: [("ID", "id"), ("PackedFile", "*packedfile"), ("char", "name[1024]")]))
         dna.add(.init(name: "Tex", size: 68 + 2 + 2 + 4 + 8, fields: [("ID", "id"), ("short", "type"), ("short", "pad2"), ("int", "pad3"), ("Image", "*ima")]))
         dna.add(.init(name: "MTex", size: 2 + 2 + 4 + 8, fields: [("short", "texco"), ("short", "mapto"), ("int", "pad4"), ("Tex", "*tex")]))
-        // The node structs and `Material.nodetree` only exist in the file that
-        // has a node tree: the plain file stays byte-for-byte what the
-        // compressed fixtures below were made from.
-        if principled != nil {
-            dna.add(.init(name: "ListBase", size: 16, fields: [("void", "*first"), ("void", "*last")]))
-            dna.add(.init(name: "bNodeSocketValueRGBA", size: 16, fields: [("float", "value[4]")]))
-            dna.add(.init(name: "bNodeSocketValueFloat", size: 16, fields: [("int", "subtype"), ("float", "value"), ("float", "min"), ("float", "max")]))
-            dna.add(.init(name: "bNodeSocket", size: 8 + 8 + 64 + 64 + 8 + 8, fields: [("bNodeSocket", "*next"), ("bNodeSocket", "*prev"), ("char", "identifier[64]"), ("char", "name[64]"), ("void", "*default_value"), ("void", "*link")]))
-            dna.add(.init(name: "bNode", size: 8 + 8 + 64 + 16 + 8, fields: [("bNode", "*next"), ("bNode", "*prev"), ("char", "idname[64]"), ("ListBase", "inputs"), ("ID", "*id")]))
-            dna.add(.init(name: "bNodeTree", size: 68 + 16, fields: [("ID", "id"), ("ListBase", "nodes")]))
-            dna.add(.init(name: "Material", size: 68 + 16 + 8 * 18 + 8, fields: [("ID", "id"), ("float", "r"), ("float", "g"), ("float", "b"), ("float", "alpha"), ("MTex", "*mtex[18]"), ("bNodeTree", "*nodetree")]))
-        } else {
-            dna.add(.init(name: "Material", size: 68 + 16 + 8 * 18, fields: [("ID", "id"), ("float", "r"), ("float", "g"), ("float", "b"), ("float", "alpha"), ("MTex", "*mtex[18]")]))
-        }
+        dna.add(.init(name: "Material", size: 68 + 16 + 8 * 18, fields: [("ID", "id"), ("float", "r"), ("float", "g"), ("float", "b"), ("float", "alpha"), ("MTex", "*mtex[18]")]))
         dna.add(.init(name: "Mesh", size: 68 + 8 * 5 + 16 + 4, fields: [("ID", "id"), ("Material", "**mat"), ("MVert", "*mvert"), ("MPoly", "*mpoly"), ("MLoop", "*mloop"), ("MLoopUV", "*mloopuv"), ("int", "totvert"), ("int", "totpoly"), ("int", "totloop"), ("short", "totcol"), ("short", "pad5"), ("int", "pad6")]))
         dna.add(.init(name: "Object", size: 68 + 2 + 2 + 4 + 64 + 8, fields: [("ID", "id"), ("short", "type"), ("short", "pad7"), ("int", "pad8"), ("float", "obmat[4][4]"), ("void", "*data")]))
 
@@ -139,36 +116,7 @@ final class BlendImportTests: XCTestCase {
         // Material → MTex → Tex → Image → PackedFile → bytes
         var ma = padded("MARed", 66) + [0, 0] + f32(1) + f32(0) + f32(0) + f32(1)
         ma += le64(A["mtex"]!) + [UInt8](repeating: 0, count: 8 * 17)
-        if principled != nil { ma += le64(0x10000) }
         file += block("MA", ma, address: A["ma"]!, sdna: dna.structIndex("Material"), count: 1)
-        if let principled {
-            // Material.nodetree → a Glossy node, then the Principled BSDF with
-            // four inputs, each pointing at its default-value block.
-            let tree: UInt64 = 0x10000, glossy: UInt64 = 0x11000, node: UInt64 = 0x12000
-            let sockets: [UInt64] = [0x13000, 0x14000, 0x15000, 0x16000]
-            let values: [UInt64] = [0x17000, 0x18000, 0x19000, 0x1A000]
-            file += block("DATA", padded("NTShader Nodetree", 66) + [0, 0] + le64(glossy) + le64(node),
-                          address: tree, sdna: dna.structIndex("bNodeTree"), count: 1)
-            file += block("DATA", le64(node) + le64(0) + padded("ShaderNodeBsdfGlossy", 64) + le64(0) + le64(0) + le64(0),
-                          address: glossy, sdna: dna.structIndex("bNode"), count: 1)
-            file += block("DATA", le64(0) + le64(glossy) + padded("ShaderNodeBsdfPrincipled", 64)
-                          + le64(sockets[0]) + le64(sockets[3]) + le64(0),
-                          address: node, sdna: dna.structIndex("bNode"), count: 1)
-            let identifiers = ["Base Color", "Metallic", "Roughness", "Alpha"]
-            for (i, identifier) in identifiers.enumerated() {
-                let link: UInt64 = i == 0 && principled.baseColorLinked ? 0x1F000 : 0
-                file += block("DATA", le64(i + 1 < sockets.count ? sockets[i + 1] : 0) + le64(i > 0 ? sockets[i - 1] : 0)
-                              + padded(identifier, 64) + padded(identifier, 64) + le64(values[i]) + le64(link),
-                              address: sockets[i], sdna: dna.structIndex("bNodeSocket"), count: 1)
-            }
-            let c = principled.baseColor
-            file += block("DATA", f32(c.0) + f32(c.1) + f32(c.2) + f32(c.3),
-                          address: values[0], sdna: dna.structIndex("bNodeSocketValueRGBA"), count: 1)
-            for (i, v) in [principled.metallic, principled.roughness, principled.alpha].enumerated() {
-                file += block("DATA", le32(0) + f32(v) + f32(0) + f32(1),
-                              address: values[i + 1], sdna: dna.structIndex("bNodeSocketValueFloat"), count: 1)
-            }
-        }
         file += block("DATA", le16(0) + le16(1) + le32(0) + le64(A["tex"]!), address: A["mtex"]!, sdna: dna.structIndex("MTex"), count: 1)
         file += block("TE", padded("TEpaint", 66) + [0, 0] + le16(8) + le16(0) + le32(0) + le64(A["ima"]!), address: A["tex"]!, sdna: dna.structIndex("Tex"), count: 1)
         file += block("IM", padded("IMpaint.png", 66) + [0, 0] + le64(A["pf"]!) + padded("//textures/paint.png", 1024), address: A["ima"]!, sdna: dna.structIndex("Image"), count: 1)
@@ -360,46 +308,6 @@ final class BlendImportTests: XCTestCase {
         XCTAssertEqual(part.material?.baseColor.y ?? 1, 0, accuracy: 1e-9)
         XCTAssertNotNil(part.material?.baseColorTexture, "the packed PNG rides on the material")
         XCTAssertEqual(part.material?.baseColorTexture?.prefix(4), Data([0x89, 0x50, 0x4E, 0x47]))
-    }
-
-    // MARK: Principled BSDF (#133)
-
-    func testPrincipledBaseColorMetallicAndRoughnessWinOverTheViewportColour() throws {
-        // The viewport colour in the file is pure red; the node says otherwise.
-        let parts = try MeshImportKit.parts(from: makeBlend(principled: Principled()), fileName: "plate.blend")
-        let material = try XCTUnwrap(parts.first?.material)
-        XCTAssertEqual(material.baseColor.x, 0.8, accuracy: 1e-6)
-        XCTAssertEqual(material.baseColor.y, 0.2, accuracy: 1e-6)
-        XCTAssertEqual(material.baseColor.z, 0.1, accuracy: 1e-6)
-        XCTAssertEqual(material.baseColor.w, 1, accuracy: 1e-6)
-        XCTAssertEqual(material.metallic, 0.75, accuracy: 1e-6)
-        XCTAssertEqual(material.roughness, 0.25, accuracy: 1e-6)
-    }
-
-    func testPrincipledAlphaAndMirrorRoughnessAreKeptUsable() throws {
-        var principled = Principled()
-        principled.alpha = 0.5
-        principled.roughness = 0
-        let material = try XCTUnwrap(MeshImportKit.parts(from: makeBlend(principled: principled),
-                                                         fileName: "plate.blend").first?.material)
-        XCTAssertEqual(material.baseColor.w, 0.5, accuracy: 1e-6)
-        XCTAssertEqual(material.roughness, 0.02, accuracy: 1e-9, "0 means something else in the app")
-    }
-
-    func testALinkedBaseColorKeepsTheViewportColourButStillReadsTheOtherInputs() throws {
-        var principled = Principled()
-        principled.baseColorLinked = true
-        let material = try XCTUnwrap(MeshImportKit.parts(from: makeBlend(principled: principled),
-                                                         fileName: "plate.blend").first?.material)
-        XCTAssertEqual(material.baseColor, SIMD4(1, 0, 0, 1), "driven by a node: no value to take")
-        XCTAssertEqual(material.metallic, 0.75, accuracy: 1e-6)
-    }
-
-    func testAMaterialWithoutNodesReadsAsBefore() throws {
-        let material = try XCTUnwrap(MeshImportKit.parts(from: makeBlend(), fileName: "plate.blend").first?.material)
-        XCTAssertEqual(material.baseColor, SIMD4(1, 0, 0, 1))
-        XCTAssertEqual(material.metallic, 0)
-        XCTAssertEqual(material.roughness, 0.5)
     }
 
     func testGzippedBlendReadsTheSame() throws {

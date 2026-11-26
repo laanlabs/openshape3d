@@ -1092,20 +1092,6 @@ nonisolated enum OCCTKernel {
         return OCCTBridge.writeSTEP(handles.map(\.shape), toPath: url.path)
     }
 
-    /// STEP with a name and a colour per solid (#133): `names[i]` and
-    /// `colors[i]` (RGBA 0…1, nil for none) belong to `handles[i]`.
-    static func writeSTEP(_ handles: [BRepHandle], names: [String], colors: [SIMD4<Double>?],
-                          to url: URL) -> Bool {
-        guard !handles.isEmpty else { return false }
-        var flat: [NSNumber] = []
-        flat.reserveCapacity(handles.count * 4)
-        for i in handles.indices {
-            let c = i < colors.count ? colors[i] : nil
-            for v in [c?.x ?? 0, c?.y ?? 0, c?.z ?? 0, c?.w ?? -1] { flat.append(NSNumber(value: v)) }
-        }
-        return OCCTBridge.writeSTEP(handles.map(\.shape), names: names, colors: flat, toPath: url.path)
-    }
-
     /// Read every solid from a STEP file; empty when the file is unreadable or
     /// holds no solids, so the caller surfaces a recoverable import error.
     static func readSTEP(from url: URL) -> [BRepHandle] {

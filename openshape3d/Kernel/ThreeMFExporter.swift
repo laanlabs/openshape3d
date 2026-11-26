@@ -8,30 +8,19 @@
 //  central directory). Transforms are baked; unit is millimeter per the
 //  1 unit = 1 mm convention.
 //
-//  3MF is Z-up. The plain export writes the design as it is modelled (Y-up)
-//  and says so in an `os3d:UpAxis` metadata entry, which `ThreeMFImporter`
-//  reads so the file comes back as it left; a file already turned Z-up (the
-//  slicer export, `up=z`) carries no entry and is standard 3MF.
-//
 
 import Foundation
 import simd
 
 nonisolated enum ThreeMFExporter {
 
-    /// `yUp`: the bodies are in the design's own Y-up frame (the default);
-    /// false when they were already turned to 3MF's Z-up.
-    static func threeMF(bodies: [Body], yUp: Bool = true) -> Data {
+    static func threeMF(bodies: [Body]) -> Data {
         var zip = MinimalZipWriter()
         zip.addFile(path: "[Content_Types].xml", data: Data(contentTypesXML.utf8))
         zip.addFile(path: "_rels/.rels", data: Data(relsXML.utf8))
-        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies, yUp: yUp).utf8))
+        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies).utf8))
         return zip.finish()
     }
-
-    /// The namespace of the app's own metadata (3MF wants custom names
-    /// qualified).
-    static let metadataNamespace = "https://openshape3d.com/3mf/2026/11"
 
     private static let contentTypesXML = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -52,19 +41,17 @@ nonisolated enum ThreeMFExporter {
     /// body or face material as a named `<base>` with its `displaycolor`;
     /// each body an `<object>` with its name, its own material as the
     /// object default (`pid`/`pindex`) and painted faces as per-triangle `p1`.
-    static func modelXML(bodies: [Body], yUp: Bool = true) -> String {
+    static func modelXML(bodies: [Body]) -> String {
         let table = ExportMaterials.table(for: bodies)
         // Objects keep ids 1…n; the material group takes the next id and is
         // written first, since a resource must be defined before it's used.
         let materialsID = bodies.count + 1
         var out = """
         <?xml version="1.0" encoding="UTF-8"?>
-        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:os3d="\(metadataNamespace)">
-        <metadata name="Application">OpenShape3D</metadata>
+        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+        <resources>
         """
         out += "\n"
-        if yUp { out += "<metadata name=\"\(ThreeMFImporter.upAxisMetadataName)\">Y</metadata>\n" }
-        out += "<resources>\n"
         if !table.materials.isEmpty {
             out += "<basematerials id=\"\(materialsID)\">\n"
             for (i, spec) in table.materials.enumerated() {
@@ -146,28 +133,12 @@ nonisolated struct MinimalZipWriter {
     private var data = Data()
     private var entries = [Entry]()
 
-    /// `alignment`: start the file's bytes on a multiple of this many bytes
-    /// from the archive's start (USDZ wants 64), by padding the local
-    /// header's extra field.
-    mutating func addFile(path: String, data fileData: Data, alignment: Int = 1) {
+    mutating func addFile(path: String, data fileData: Data) {
         let name = Array(path.utf8)
         let crc = Self.crc32(fileData)
         let size = UInt32(fileData.count)
         let entry = Entry(name: name, crc: crc, size: size, offset: UInt32(data.count))
         entries.append(entry)
-
-        // An extra field is a 4-byte header (id, length) plus its data, so
-        // 1–3 bytes of padding cannot be expressed: go to the next boundary.
-        var extra: [UInt8] = []
-        if alignment > 1 {
-            var padding = (alignment - (data.count + 30 + name.count) % alignment) % alignment
-            if padding > 0, padding < 4 { padding += alignment }
-            if padding > 0 {
-                let length = UInt16(padding - 4)
-                extra = [0x86, 0x19, UInt8(length & 0xFF), UInt8(length >> 8)]   // id 0x1986, as USD's own writer pads
-                    + [UInt8](repeating: 0, count: padding - 4)
-            }
-        }
 
         appendU32(0x0403_4B50)        // local file header signature
         appendU16(20)                 // version needed
@@ -179,9 +150,8 @@ nonisolated struct MinimalZipWriter {
         appendU32(size)               // compressed size == size (stored)
         appendU32(size)
         appendU16(UInt16(name.count))
-        appendU16(UInt16(extra.count)) // extra length
+        appendU16(0)                  // extra length
         data.append(contentsOf: name)
-        data.append(contentsOf: extra)
         data.append(fileData)
     }
 

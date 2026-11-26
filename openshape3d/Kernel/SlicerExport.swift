@@ -33,7 +33,7 @@ nonisolated enum SlicerExport {
 
     /// The 3MF a slicer opens.
     static func threeMF(bodies: [Body]) -> Data {
-        ThreeMFExporter.threeMF(bodies: placedOnBed(bodies), yUp: false)
+        ThreeMFExporter.threeMF(bodies: placedOnBed(bodies))
     }
 
     /// File name for the export: the design's name, made safe for a path.

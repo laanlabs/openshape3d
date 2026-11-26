@@ -379,7 +379,7 @@ design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
 512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
 gallery is on screen.
 
-### `GET /v1/export?format=stl|obj|mtl|3mf|step|glb[&body=<uuid>,…][&up=y|z]`
+### `GET /v1/export?format=stl|obj|3mf|step|glb[&body=<uuid>,…][&up=y|z]`
 
 The Export menu's bytes (`model/stl`, …) — how an agent finishes "make me a
 printable X". No `body` = every body, hidden ones included, as in the menu;
@@ -388,13 +388,6 @@ turn about X, (x, y, z) → (x, −z, y), so a part standing on the ground plane
 stands on a slicer's bed. Millimetres. Typed refusals: 400 `unknown_format` /
 `bad_up_axis` / `bad_uuid`, 404 `unknown_body`, 409 `nothing_to_export`, and
 409 `mesh_only_body` when STEP is asked of bodies with no B-rep.
-
-Names and colours: every format writes the body's name (`item.rename`), and
-3MF, GLB, STEP and OBJ carry `body.setMaterial` colours (3MF, GLB and OBJ
-painted faces too). An OBJ has no room for materials, so when a body wears
-one the file says `mtllib materials.mtl` and `format=mtl` (same `body`
-selection) returns that library — save it under that name beside the `.obj`.
-409 `no_materials` when every body wears the default look.
 
 ### `POST /v1/command`
 
@@ -451,7 +444,7 @@ graph, and shows up in History like any other feature.
 | `view.section` | `normal` `[x,y,z]` (the side that stays visible) and optional `origin` (default `[0,0,0]`), `sectionOnly`, `twoD`; or `off: true`. Section View as a display state — no undo step; the reply's `interferingBodyIDs` lists bodies whose cuts overlap |
 | `view.accuracyReport` | `reference`, `model` (body ids), optional `tolerance` mm; or `off: true`. Opens Views ▸ Accuracy Report… on those bodies and runs the comparison on screen (the sheet, not the numbers — those are `GET /v1/accuracy`). A display state, no undo step; how a recording of an assistant at work shows the app's own report |
 | `view.deviationPreview` | `reference`, `model` (body ids), optional `tolerance` mm (1), `maxMM` (full colour, default five tolerances), `panel` (false keeps the legend off screen); or `off: true`. `DeviationPreview`: every vertex of the reference measured to the model's surface (`SurfaceGrid`, spread over the cores) and drawn through the textured pipeline on a 256 × 1 colour ramp — blue beyond +tolerance (the model lacks material), orange beyond −tolerance (it has too much), grey within — with the model ghosted at 28 %. The reply carries `vertices`, `meanMM`, `p95MM`, `maxMM`, `meanSignedMM`, `withinTolerance`, `missing`, `excess`; while it is on or measuring, `GET /v1/state` carries the same under `deviationPreview` (`active`, `computing`, …). Also Views ▸ Deviation Preview and the Accuracy Report sheet's "Show Deviation in Viewport" row. A display state, no undo step |
-| `document.import` | `path` (a file the app can read; `developer_only` outside DEBUG); optional `fileName`, `unitScale` (meshes only). Routed by the FILE's extension exactly as the Import menu: `.step`/`.stp` and `.iges`/`.igs` keep the B-rep, `.fcstd` imports the FreeCAD document's bodies, `.dxf` lands in the ground sketch, everything else (`stl`, `obj`, `gltf`/`glb`, `3mf`, `usdz`, `blend`…) is a mesh (a `3mf` keeps its object names and `<basematerials>` / colour-group colours, one body per object and colour). One undo step. Reply: `format`, `bodyIDs`, `names`, `analytic` (bodies with a B-rep), `textured`, `triangles`, `sketches[]` (`{sketchID, name, entitiesAdded}` for DXF), `notice` (what the UI would show — a partial import, an open mesh, stitched or dropped shapes), and for STEP or IGES a `step` ledger `{solids, sewnSolids, openShells, freeFaces, dropped}`. Since 2026-10-21 a STEP or IGES file's faces outside any solid are sewn (1e-3 mm): each closed shell becomes a solid (`sewnSolids`), each open one a sheet body (`openShells`, volume 0), and a shape that will not heal is counted in `dropped` rather than lost silently; a DXF is scaled by `$INSUNITS` and ELLIPSE entities import. Until then everything went to the mesh importer, which refused STEP and DXF. |
+| `document.import` | `path` (a file the app can read; `developer_only` outside DEBUG); optional `fileName`, `unitScale` (meshes only). Routed by the FILE's extension exactly as the Import menu: `.step`/`.stp` and `.iges`/`.igs` keep the B-rep, `.fcstd` imports the FreeCAD document's bodies, `.dxf` lands in the ground sketch, everything else (`stl`, `obj`, `gltf`/`glb`, `3mf`, `usdz`, `blend`…) is a mesh. One undo step. Reply: `format`, `bodyIDs`, `names`, `analytic` (bodies with a B-rep), `textured`, `triangles`, `sketches[]` (`{sketchID, name, entitiesAdded}` for DXF), `notice` (what the UI would show — a partial import, an open mesh, stitched or dropped shapes), and for STEP or IGES a `step` ledger `{solids, sewnSolids, openShells, freeFaces, dropped}`. Since 2026-10-21 a STEP or IGES file's faces outside any solid are sewn (1e-3 mm): each closed shell becomes a solid (`sewnSolids`), each open one a sheet body (`openShells`, volume 0), and a shape that will not heal is counted in `dropped` rather than lost silently; a DXF is scaled by `$INSUNITS` and ELLIPSE entities import. Until then everything went to the mesh importer, which refused STEP and DXF. |
 
 Entity kinds: `line` (`a`,`b`), `circle` (`center`,`radius`), `arc`
 (`center`,`radius`,`startAngle`,`endAngle`), `spline` (`points[]`,`closed`),

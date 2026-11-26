@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-11-26 (the open GitHub issues and nine community pull requests: see the mission log below; before that, 2026-10-27, scan-to-CAD: SECTIONS — every band's 36 sector medians fitted as an off-axis ellipse (`profile["sections"]`, `profile["roundness"]`), and a body one revolved profile cannot carry built as two-section `feature.loft`s through those ellipses, its cavity lofted into its own body and subtracted once; in the app the barrel 96.5 → 98.0 % (scan→model 7.14 → 2.98 mm) and the pail 95.9 → 97.1 %, the eight round parts unchanged to the digit; build/take limits an hour; 95 tests — newest mission log. Before that, 2026-10-26, later: PASSAGES — a branch's bore that the union filled where the parent is solid is read over the whole scan (`passage_depth` / `passage_record`, to its floor, capped a wall before the parent's far skin; record `bores[j].passage` {depthMM, rMM, floor, capped, seenMM, intoParentMM}) and cut AFTER every union by the build, the film, the reel and the preview (`passage_sections` / `cut_passage`); the valve's largest missing patch 1 015 → 550 mm², scan→model 1.13 → 1.00 mm, the nine other parts unchanged; films and reels re-taken; 78 tests — newest mission log. Earlier the same day: open pipe ends are BORED (`detect_bores` on the main body and every secondary body, folded into the revolve loop by `body_section`; a container's cavity and a collar with a nut in it are not bores), hex/octagon/square NUTS on any axis are built as prisms (`find_nuts` / `nut_sections`), a flat bar that bends is one SWEEP of a designed section along two or three legs (`corner_spine` / `bar_along`, a lever), the CO₂ horn is refitted on its own points and cut hollow; valve scan→model 1.99 → 1.13 mm with its four bores, CO₂ extinguisher 95 → 96 %, the other eight unchanged; films and reels re-taken; 70 tests — newest mission log bullet. Before that, 2026-10-25: the model is painted the scan's own colour (`scanColor` from the texture; spec `"color": "scan"`), the inspection gates on the LARGEST unexplained patch and rings it on the review sheet (`largest_missing_patch` / `largest_excess_patch`), and `fit_features.py` fits designed parts instead of blobs — stadium / rectangle / hexagon / circle outlines, one tube per piece with its horn as a cone, hoops, and part names (hose, horn, lever, nut, lug…) in the captions; a wheel's rim dish no longer reads as an open container (the dish test runs before the open end); CO₂ extinguisher 92 → 95 %, bucket 77 → 96 %, films and reels re-taken. Before that, 2026-10-24: every axis of revolution: `fit_axes.py` finds a scan's axes from its normals and the tracer builds each body on its own axis — the valve goes from 65 % to 95 %, the hydrant's nozzles to 1 mm, the wheel's stand as bars, no more spikes to the apex, a hand-wheel's openings cut; `preview_model.py` rebuilds the model offline; all ten films and both reels re-taken — newest mission log bullet under 2026-10-20. Before that, 2026-10-22, the fidelity pass: the scan trace reads the surface finely, containers get a subtracted cavity, dished parts a traced half-section, and `fit_features.py` / `build_features.py` add the handles, hoses, levers and chains a revolve cannot make — can and bollard PASS, the rest 88–97 % except the out-of-round pail and drum and the two-axis valve; the film and the reel revolve the build's own half-section — all ten corpus films and both reels re-taken on the rebuilt models; scan-to-CAD builds are now inspected both ways with depth maps and a review sheet — `inspect_fit.py`, gating the films and the reel; arcs and hollow revolves in the scan pipeline; a C-clamp rebuilt from recipes to 0.05 mm — the newest mission log bullet under 2026-10-20; a corpus of ten Sketchfab scans built over MCP, graded and filmed; CAD import over MCP: STEP and IGES sew loose faces into solids and sheet bodies, exact bounds, DXF units and ellipses, an open-mesh notice, and agents import STEP / IGES / DXF / FCStd; an OCCT oracle, a live MCP runner and offline XCTests behind it; test pack 36 / 36, FreeCAD IDF + NIST corpus 32 / 32, IGES twins 4 / 4 — newest mission log. Also today: Deviation Preview — the Accuracy Report's colours on the part; the scan's profile straightened; `item.select`) — **Accuracy Report** (one body measured against
+Last updated: 2026-10-27 (scan-to-CAD: SECTIONS — every band's 36 sector medians fitted as an off-axis ellipse (`profile["sections"]`, `profile["roundness"]`), and a body one revolved profile cannot carry built as two-section `feature.loft`s through those ellipses, its cavity lofted into its own body and subtracted once; in the app the barrel 96.5 → 98.0 % (scan→model 7.14 → 2.98 mm) and the pail 95.9 → 97.1 %, the eight round parts unchanged to the digit; build/take limits an hour; 95 tests — newest mission log. Before that, 2026-10-26, later: PASSAGES — a branch's bore that the union filled where the parent is solid is read over the whole scan (`passage_depth` / `passage_record`, to its floor, capped a wall before the parent's far skin; record `bores[j].passage` {depthMM, rMM, floor, capped, seenMM, intoParentMM}) and cut AFTER every union by the build, the film, the reel and the preview (`passage_sections` / `cut_passage`); the valve's largest missing patch 1 015 → 550 mm², scan→model 1.13 → 1.00 mm, the nine other parts unchanged; films and reels re-taken; 78 tests — newest mission log. Earlier the same day: open pipe ends are BORED (`detect_bores` on the main body and every secondary body, folded into the revolve loop by `body_section`; a container's cavity and a collar with a nut in it are not bores), hex/octagon/square NUTS on any axis are built as prisms (`find_nuts` / `nut_sections`), a flat bar that bends is one SWEEP of a designed section along two or three legs (`corner_spine` / `bar_along`, a lever), the CO₂ horn is refitted on its own points and cut hollow; valve scan→model 1.99 → 1.13 mm with its four bores, CO₂ extinguisher 95 → 96 %, the other eight unchanged; films and reels re-taken; 70 tests — newest mission log bullet. Before that, 2026-10-25: the model is painted the scan's own colour (`scanColor` from the texture; spec `"color": "scan"`), the inspection gates on the LARGEST unexplained patch and rings it on the review sheet (`largest_missing_patch` / `largest_excess_patch`), and `fit_features.py` fits designed parts instead of blobs — stadium / rectangle / hexagon / circle outlines, one tube per piece with its horn as a cone, hoops, and part names (hose, horn, lever, nut, lug…) in the captions; a wheel's rim dish no longer reads as an open container (the dish test runs before the open end); CO₂ extinguisher 92 → 95 %, bucket 77 → 96 %, films and reels re-taken. Before that, 2026-10-24: every axis of revolution: `fit_axes.py` finds a scan's axes from its normals and the tracer builds each body on its own axis — the valve goes from 65 % to 95 %, the hydrant's nozzles to 1 mm, the wheel's stand as bars, no more spikes to the apex, a hand-wheel's openings cut; `preview_model.py` rebuilds the model offline; all ten films and both reels re-taken — newest mission log bullet under 2026-10-20. Before that, 2026-10-22, the fidelity pass: the scan trace reads the surface finely, containers get a subtracted cavity, dished parts a traced half-section, and `fit_features.py` / `build_features.py` add the handles, hoses, levers and chains a revolve cannot make — can and bollard PASS, the rest 88–97 % except the out-of-round pail and drum and the two-axis valve; the film and the reel revolve the build's own half-section — all ten corpus films and both reels re-taken on the rebuilt models; scan-to-CAD builds are now inspected both ways with depth maps and a review sheet — `inspect_fit.py`, gating the films and the reel; arcs and hollow revolves in the scan pipeline; a C-clamp rebuilt from recipes to 0.05 mm — the newest mission log bullet under 2026-10-20; a corpus of ten Sketchfab scans built over MCP, graded and filmed; CAD import over MCP: STEP and IGES sew loose faces into solids and sheet bodies, exact bounds, DXF units and ellipses, an open-mesh notice, and agents import STEP / IGES / DXF / FCStd; an OCCT oracle, a live MCP runner and offline XCTests behind it; test pack 36 / 36, FreeCAD IDF + NIST corpus 32 / 32, IGES twins 4 / 4 — newest mission log. Also today: Deviation Preview — the Accuracy Report's colours on the part; the scan's profile straightened; `item.select`) — **Accuracy Report** (one body measured against
 another: orthographic silhouette overlays per view, outline and surface
 deviation both ways; `Kernel/AccuracyKit.swift`, Views ▸ Accuracy Report…,
 `/v1/accuracy` + `/v1/accuracy/image`, MCP ops `accuracy` /
@@ -18,63 +18,6 @@ Companions: `IMPLEMENTATION_PLAN.md` (original phase plan),
 design), `FREECAD_PLAYBOOK.md` (the FreeCAD-derived hardening ledger),
 `TOPO_NAMING_HISTORY_DESIGN.md` (element-naming design, now complete), and
 `AGENT_CONTROL.md` (the `/v1/exec` scripting surface).
-
-## Mission log — 2026-11-26, the open issues and the community pull requests
-
-Nine pull requests from an outside contributor were reviewed, merged
-together (#144, each with its commits intact) and fixed up; the issues no
-pull request covered were then fixed on `fix/open-issues`.
-
-**Merged (#129–#143).** macOS sandbox outgoing connections (Report a Bug);
-`SheetDismiss` (sheets close from their own buttons on the Mac);
-`CommandAvailability` (`/v1/commands?available=1`, `unavailableReason`);
-the OBJ exporter rewrite (welded, polygons, export re-mesh); Blender 5 and
-zstd `.blend` files (zstd 1.5.7 decoder vendored under
-`Kernel/ThirdParty/zstd`, verified line by line against upstream); the
-O(n²) extrude cap search; materials and names in GLB / 3MF, `item.rename`;
-the latency recorder (`Diagnostics/`, `GET /v1/diagnostics/latency`,
-`scripts/latency_report.py`). Fix-ups on top: OBJ writes **convex polygons
-only** by default (`polygons: .any` for the n-gon output — slicers,
-three.js and trimesh fan-triangulate, which is wrong for a concave cap);
-the zstd cap is 1 GB and WASI keeps the refusal; the recorder's viewport
-hook is `canImport(UIKit)`.
-
-**Fixed after that.**
-- **#142** Circle, Ellipse and Polygon by two taps
-  (`EditorViewModel.handleCenterShapeTap`): the first tap is a pending
-  centre, hover drives the drag's own rubber band, the second tap commits
-  through `endSketchStroke`. Undo / Escape discard the pending centre.
-  `ShapeTwoTapUITests`.
-- **#141** coplanar faces of overlapping bodies no longer z-fight
-  (`Rendering/CoplanarDepthRanks.swift`, applied in `Renderer.drawBody` and
-  the face patches): a per-body depth bias by rank; touching boxes never
-  share a rank, selected then newest win.
-- **#137** 3MF import (`Kernel/ThreeMFImporter.swift`, hand-written
-  `XMLScanner`), and USDZ written directly (`Kernel/USDZExporter.swift`: a
-  text layer in a 64-byte-aligned zip, materials as UsdPreviewSurface,
-  `metersPerUnit = 0.001`) — so USDZ export and AR Preview exist on the Mac
-  and in the simulator, and tests read the package back through Model I/O.
-  The plain 3MF export marks itself Y-up (`os3d:UpAxis`) so it round-trips;
-  standard files are turned from Z-up.
-- **#133** materials and names in OBJ (+ a `.mtl` beside it,
-  `OBJExporter.objWithMaterials`, `EditorViewModel.exportOBJFiles`,
-  `/v1/export?format=mtl`), STEP (`OCCTBridge writeSTEPShapes:names:colors:`
-  through XDE) and `.blend` import (Principled BSDF inputs).
-- **#139** the sticky extrude-arrow drag: see gotcha 62.
-
-**Left open.** #139's remaining cost is SwiftUI re-evaluating views on
-every `toolContext` change (23 % of the main thread in the second profile);
-narrowing what observes it is the next step there. The web core needs a
-rebuild to pick all this up (openshape-cloud `docs/IOS_PARITY.md`, "Waiting
-for the next core rebuild"). STEP colours are per body, not per painted
-face; per-body OBJ files ("Separate File per Body") carry no materials.
-
-**Profiling a real drag.** `ActionTakeUITests` (the video takes' real-touch
-harness) plus the latency recorder plus `sample <pid>` is the recipe: arm
-the tool, `frame:PullArrowHandle` for where to press, a slow
-`orbit:x,y;x,y;40` drag while `sample` runs, then
-`GET /v1/diagnostics/latency?events=…`. It found a cause the issue's own
-reading of the code had not.
 
 ## Open work — 2026-10-21, five UI tests fail before today's changes too
 
@@ -5359,19 +5302,6 @@ first differing frame is the one you want.
     default and writes pcurves onto its operands; use the builder with
     `SetNonDestructive(Standard_True)`. `OpsLeaveInputsUntouchedTests` is
     the pattern for checking a new op.
-
-62. **An un-paused `MTKView` must not also have `enableSetNeedsDisplay`
-    on** (2026-11-26, #139). The viewport is on-demand when idle
-    (`isPaused` + `enableSetNeedsDisplay`) and un-paused during a gesture.
-    With both on, every `setNeedsDisplay()` — one per input step — drew a
-    second frame inside the same refresh, and that draw blocks in
-    `MTKView.currentDrawable` until a drawable frees up: 42 % of the main
-    thread on an extrude-arrow drag, inputs handled 100–700 ms late. It
-    does not look like a rendering problem from the code (the preview
-    rebuild is the obvious suspect and was 3 %); it shows as
-    `-[MTKView currentDrawable]` under `Renderer.draw(in:)` in a `sample`.
-    `ViewportGestureController.beginInteractive` / `endInteractive` flip
-    both switches together; anything else that un-pauses the view must too.
 
 ## 4. Next missions (prioritized)
 

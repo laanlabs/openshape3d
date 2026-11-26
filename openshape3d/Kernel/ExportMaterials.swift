@@ -31,9 +31,7 @@ nonisolated enum ExportMaterials {
         var groups: [[Group]]
     }
 
-    /// `meshes`: the mesh each body is being written from when that is not
-    /// its render mesh (an export re-mesh); triangle indices are into it.
-    static func table(for bodies: [Body], meshes: [RenderMesh]? = nil) -> Table {
+    static func table(for bodies: [Body]) -> Table {
         var materials: [BodyMaterialSpec] = []
         func index(of spec: BodyMaterialSpec) -> Int {
             if let i = materials.firstIndex(of: spec) { return i }
@@ -41,16 +39,15 @@ nonisolated enum ExportMaterials {
             return materials.count - 1
         }
         var groups: [[Group]] = []
-        for (bodyIndex, body) in bodies.enumerated() {
-            let mesh = meshes.flatMap { bodyIndex < $0.count ? $0[bodyIndex] : nil } ?? body.render
-            let count = mesh.triangleCount
+        for body in bodies {
+            let count = body.render.triangleCount
             let base = index(of: body.material ?? .default)
             guard !body.faceMaterials.isEmpty, count > 0 else {
                 groups.append(count > 0 ? [Group(material: base, triangles: Array(0..<count))] : [])
                 continue
             }
             var owner = [Int](repeating: base, count: count)
-            let painted = FaceMaterialKit.resolve(body.faceMaterials, in: mesh)
+            let painted = FaceMaterialKit.resolve(body.faceMaterials, in: body.render)
             var order = [base]
             for (face, triangles) in zip(body.faceMaterials, painted) where !triangles.isEmpty {
                 let m = index(of: face.material)
