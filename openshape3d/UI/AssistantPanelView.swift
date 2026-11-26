@@ -138,6 +138,8 @@ struct AssistantPanelView: View {
                     .textFieldStyle(.roundedBorder)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
+                    // Return saves: on a phone the button below is under the keyboard.
+                    .submitLabel(.done)
                     .onSubmit(saveKey)
                     .accessibilityIdentifier("AssistantKeyField")
 
@@ -161,6 +163,7 @@ struct AssistantPanelView: View {
             }
             .padding(14)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private func saveKey() {
@@ -195,6 +198,8 @@ struct AssistantPanelView: View {
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            // Drag the conversation down to put the keyboard away and read it.
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: session.entries) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
             .onChange(of: session.status) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
         }
