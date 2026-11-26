@@ -13,6 +13,8 @@ Spec/design companions: `docs/PARITY_SPEC.md`,
 `docs/IMPLEMENTATION_PLAN.md`, `docs/PHASE_D_DESIGN.md`.
 AI assistants (Claude Desktop / MCP) driving the app: `docs/AI_MODELING_SETUP.md`
 (user tutorial `docs/CLAUDE_DESKTOP_TUTORIAL.md`, protocol `docs/AGENT_CONTROL.md`).
+The assistant panel inside the app, on the person's own API key:
+`docs/BUILT_IN_ASSISTANT.md`.
 Modeling-core roadmap (sketch + solid parity, ordered with acceptance
 criteria): `docs/MODELING_PARITY_GOALS.md`. Kernel strategy:
 `docs/OCCT_BREP_PORT_DESIGN.md`.

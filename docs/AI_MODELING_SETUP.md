@@ -4,6 +4,10 @@
 > [CLAUDE_DESKTOP_TUTORIAL.md](CLAUDE_DESKTOP_TUTORIAL.md). This page is the
 > reference: every client, the safety details, and the developer setup.
 
+> Want to type in OpenShape 3D itself, on an iPad as well as a Mac? That is
+> the built-in assistant: [BUILT_IN_ASSISTANT.md](BUILT_IN_ASSISTANT.md). This
+> page is about connecting a separate assistant app.
+
 Describe what you want in plain English — "a flowerpot I can 3D print, about
 11 cm wide, with a saucer" — and an AI assistant on your Mac models it in
 OpenShape 3D while you watch, checks that it will print, and saves an STL to
