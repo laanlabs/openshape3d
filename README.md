@@ -30,7 +30,9 @@ See [Geometry kernels](#geometry-kernels-occt--euclid).
 - **2D drawings:** standard, section and detail views with dimensions,
   tolerances and title blocks, exported to PDF, SVG or DXF.
 - **File exchange:** STEP (AP214), IGES and FreeCAD `.FCStd` import and export
-  as exact solids; STL, 3MF, OBJ, GLB, DXF, and USDZ with AR preview.
+  as exact solids; STL, 3MF, OBJ, GLB, DXF, and USDZ with AR preview; mesh
+  import from OBJ, glTF, 3MF, USDZ and Blender files. Body names and
+  material colours travel in 3MF, GLB, USDZ, STEP and OBJ (with its `.mtl`).
 - **AI assistant (Mac):** an opt-in MCP server lets Claude Desktop or another
   MCP client on the same Mac build parts in the open design (see below).
 - **Free:** no subscription, no account, no in-app purchases.
@@ -200,8 +202,9 @@ rebuild the framework from OCCT source instead, see `scripts/build_occt_ios.sh`.
   deltas over sketch and body snap points.
 - **Import/Export** — import STL (binary + ASCII, welded into a solid mesh
   body that booleans like any other), DXF (entities land in a ground-plane
-  sketch), and images; export STL, OBJ, 3MF, **GLB**, **USDZ** (where the
-  platform supports it, with an **AR Preview** via Quick Look), and sketch
+  sketch), meshes (OBJ with its MTL, glTF/GLB, 3MF, USDZ, `.blend`), and
+  images; export STL, OBJ, 3MF, **GLB**, **USDZ** (with an **AR Preview** via
+  Quick Look), and sketch
   **DXF** — OBJ/GLB offer a separate-file-per-body option; **PNG
   screenshot** with resolution, transparent-background, and grid options.
 - **Undo/redo** — command-based history for every operation.

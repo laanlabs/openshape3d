@@ -11,7 +11,9 @@
 //  3.0+ "Compress", seekable format) files, 32/64-bit,
 //  both endiannesses; mesh objects with MVert/MPoly/MLoop (2.63 … 3.4)
 //  or the attribute layers that replaced them (3.5+); UVs from `mloopuv`,
-//  a CD_MLOOPUV or a CD_PROP_FLOAT2 layer; materials by slot (viewport
+//  a CD_MLOOPUV or a CD_PROP_FLOAT2 layer; materials by slot (the
+//  Principled BSDF's Base Color, Metallic, Roughness and Alpha when the
+//  material has that node and they are plain values, else the viewport
 //  colour) with a base-colour image from a 2.7x texture slot or a 2.8+
 //  Image Texture node, packed in the file or beside it. Blender is Z-up
 //  and metres; parts come out Y-up in millimetres.
@@ -476,6 +478,9 @@ nonisolated enum BlendImporter {
         var name: String
         var color: SIMD4<Double>
         var texture: Data?
+        /// From the Principled BSDF's inputs, when the material has one.
+        var metallic: Double?
+        var roughness: Double?
     }
 
     private static func extract(_ file: BlendFile, siblings: [String: Data], unitScale: Double) throws -> [ImportedPart] {
@@ -563,7 +568,10 @@ nonisolated enum BlendImporter {
                 if uvs != nil, outUVs.count == outPositions.count { mesh.texcoords = outUVs }
                 var spec: BodyMaterialSpec?
                 if slot < slotMaterials.count, let raw = slotMaterials[slot] {
-                    spec = BodyMaterialSpec(baseColor: raw.color, metallic: 0, roughness: 0.5)
+                    // The app's roughness 0 means "the legacy fixed highlight",
+                    // not Blender's mirror: keep a mirror just above it.
+                    spec = BodyMaterialSpec(baseColor: raw.color, metallic: raw.metallic ?? 0,
+                                            roughness: raw.roughness.map { max($0, 0.02) } ?? 0.5)
                     if mesh.texcoords != nil { spec?.baseColorTexture = raw.texture }
                 }
                 let partName = usedSlots.count > 1
@@ -793,7 +801,83 @@ nonisolated enum BlendImporter {
         if let image {
             raw.texture = imageData(image, in: file, siblings: siblings)
         }
+        // 2.8+: the colour set in Blender's material panel is the Principled
+        // BSDF's Base Color. `Material.r/g/b` above is only the Viewport
+        // Display colour, which usually stays at its default grey (#133).
+        if let principled = principledInputs(of: ma, in: file) {
+            if let c = principled.baseColor { raw.color = SIMD4(c.x, c.y, c.z, principled.alpha ?? raw.color.w) }
+            else if let alpha = principled.alpha { raw.color.w = alpha }
+            raw.metallic = principled.metallic
+            raw.roughness = principled.roughness
+        }
         return raw
+    }
+
+    private struct PrincipledInputs {
+        var baseColor: SIMD3<Double>?
+        var alpha: Double?
+        var metallic: Double?
+        var roughness: Double?
+    }
+
+    /// The unlinked inputs of the material's first Principled BSDF node:
+    /// `bNode.inputs` is a list of `bNodeSocket`, each with a `default_value`
+    /// block (`bNodeSocketValueRGBA` / `bNodeSocketValueFloat`). An input
+    /// driven by another node (`link` set — an image texture, a mix) has no
+    /// single value and is left out, so the caller keeps what it had.
+    private static func principledInputs(of ma: Block, in file: BlendFile) -> PrincipledInputs? {
+        guard let tree = file.deref(file.ptr(ma, "Material", "nodetree"), from: ma),
+              let nodesField = file.structDef("bNodeTree")?.byName["nodes"],
+              let firstField = file.structDef("ListBase")?.byName["first"],
+              let nodeDef = file.structDef("bNode"), nodeDef.byName["next"] != nil,
+              let inputsField = nodeDef.byName["inputs"],
+              let socketDef = file.structDef("bNodeSocket"),
+              socketDef.byName["default_value"] != nil, socketDef.byName["next"] != nil
+        else { return nil }
+        func unit(_ v: Float) -> Double? { v.isFinite ? Double(min(max(v, 0), 1)) : nil }
+
+        var node = file.deref(file.pointer(tree.dataOffset + nodesField.offset + firstField.offset), from: tree)
+        var visited = 0
+        while let current = node, visited < 512 {
+            visited += 1
+            guard file.string(current, "bNode", "idname") == "ShaderNodeBsdfPrincipled" else {
+                node = file.deref(file.ptr(current, "bNode", "next"), from: current)
+                continue
+            }
+            var found = PrincipledInputs()
+            var socket = file.deref(file.pointer(current.dataOffset + inputsField.offset + firstField.offset), from: current)
+            var seen = 0
+            while let input = socket, seen < 128 {
+                seen += 1
+                socket = file.deref(file.ptr(input, "bNodeSocket", "next"), from: input)
+                let linked = socketDef.byName["link"] != nil && (file.ptr(input, "bNodeSocket", "link") ?? 0) != 0
+                guard !linked, let value = file.deref(file.ptr(input, "bNodeSocket", "default_value"), from: input)
+                else { continue }
+                let identifier = file.string(input, "bNodeSocket", "identifier")
+                    ?? file.string(input, "bNodeSocket", "name") ?? ""
+                switch (identifier, file.structName(of: value)) {
+                case ("Base Color", "bNodeSocketValueRGBA"):
+                    if let v = file.floats(value, "bNodeSocketValueRGBA", "value"), v.count >= 3,
+                       let r = unit(v[0]), let g = unit(v[1]), let b = unit(v[2]) {
+                        found.baseColor = SIMD3(r, g, b)
+                    }
+                case ("Alpha", "bNodeSocketValueFloat"):
+                    // 0 would make the part invisible; Blender files that mean
+                    // it are rare next to ones with a stray value.
+                    if let v = file.floats(value, "bNodeSocketValueFloat", "value")?.first, let a = unit(v), a > 0 {
+                        found.alpha = a
+                    }
+                case ("Metallic", "bNodeSocketValueFloat"):
+                    found.metallic = file.floats(value, "bNodeSocketValueFloat", "value")?.first.flatMap(unit)
+                case ("Roughness", "bNodeSocketValueFloat"):
+                    found.roughness = file.floats(value, "bNodeSocketValueFloat", "value")?.first.flatMap(unit)
+                default:
+                    break
+                }
+            }
+            return found
+        }
+        return nil
     }
 
     /// The image's bytes: packed inside the .blend, or a file that came along.

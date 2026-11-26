@@ -23,6 +23,12 @@
 //  Curved surfaces stay triangulated. STL and 3MF are triangle-only formats
 //  and keep their own exporters.
 //
+//  Materials (#133) travel in a companion MTL library: `mtl(bodies:)` is
+//  its text, and `obj(…, materialLibrary: "name.mtl")` references it with
+//  `mtllib` and tags each run of faces with `usemtl` — the body's material
+//  and each painted face's (`ExportMaterials`). Faces never merge across
+//  two materials. With no library name the OBJ is geometry only, as before.
+//
 
 import Foundation
 import simd
@@ -54,13 +60,38 @@ nonisolated enum OBJExporter {
     }
 
     /// One merged OBJ containing every body as its own object.
+    /// `materialLibrary`: the file name of the MTL written beside it
+    /// (`mtl(bodies:)`); nil, or bodies that all wear the default look,
+    /// writes no material statements.
     static func obj(bodies: [Body], tessellation: Tessellation? = .standard,
-                    polygons: Polygons = .convex) -> String {
+                    polygons: Polygons = .convex, materialLibrary: String? = nil) -> String {
+        let sources = bodies.map { exportSource(for: $0, tessellation: tessellation) }
+        let table = materialLibrary == nil ? nil : materialTable(bodies: bodies, sources: sources)
+        return obj(bodies: bodies, sources: sources, table: table, polygons: polygons,
+                   materialLibrary: materialLibrary)
+    }
+
+    /// The OBJ and, when a body wears a material, the MTL it references as
+    /// `materialLibrary` — both from one pass over the export meshes.
+    static func objWithMaterials(bodies: [Body], materialLibrary: String,
+                                 tessellation: Tessellation? = .standard,
+                                 polygons: Polygons = .convex) -> (obj: String, mtl: String?) {
+        let sources = bodies.map { exportSource(for: $0, tessellation: tessellation) }
+        let table = materialTable(bodies: bodies, sources: sources)
+        return (obj(bodies: bodies, sources: sources, table: table, polygons: polygons,
+                    materialLibrary: materialLibrary),
+                table.map(mtl))
+    }
+
+    private static func obj(bodies: [Body], sources: [RenderMesh], table: ExportMaterials.Table?,
+                            polygons: Polygons, materialLibrary: String?) -> String {
         var out = header
+        if let materialLibrary, table != nil { out += "mtllib \(materialLibrary)\n" }
         var vertexOffset = 0
         var normalOffset = 0
-        for body in bodies {
-            let written = append(body: body, to: &out, tessellation: tessellation, polygons: polygons,
+        for (index, body) in bodies.enumerated() {
+            let written = append(body: body, source: sources[index], to: &out, polygons: polygons,
+                                 materials: table.map { ($0.groups[index], materialNames($0)) },
                                  vertexOffset: vertexOffset, normalOffset: normalOffset)
             vertexOffset += written.vertices
             normalOffset += written.normals
@@ -68,13 +99,51 @@ nonisolated enum OBJExporter {
         return out
     }
 
+    /// The MTL library for `bodies`: one `newmtl` per distinct body or face
+    /// material, with `Kd` (colour), `d` (opacity), the PBR extension's `Pm`
+    /// / `Pr` (metallic, roughness) and `Ke` for a glow. Nil when every body
+    /// wears the default look, so a plain design stays a single file.
+    /// Image textures and patterns are not written.
+    static func mtl(bodies: [Body], tessellation: Tessellation? = .standard) -> String? {
+        let sources = bodies.map { exportSource(for: $0, tessellation: tessellation) }
+        return materialTable(bodies: bodies, sources: sources).map(mtl)
+    }
+
+    private static func mtl(_ table: ExportMaterials.Table) -> String {
+        var out = "# openshape3d MTL export\n"
+        for (spec, name) in zip(table.materials, materialNames(table)) {
+            let c = ExportMaterials.rgba(spec)
+            let glow = min(max(spec.emission, 0), 1)
+            out += "\nnewmtl \(name)\n"
+            out += String(format: "Kd %.6f %.6f %.6f\n", c.x, c.y, c.z)
+            out += String(format: "d %.6f\n", c.w)
+            out += String(format: "Pm %.6f\n", min(max(spec.metallic, 0), 1))
+            out += String(format: "Pr %.6f\n", ExportMaterials.roughness(spec))
+            if glow > 0 { out += String(format: "Ke %.6f %.6f %.6f\n", c.x * glow, c.y * glow, c.z * glow) }
+            out += "illum 2\n"
+        }
+        return out
+    }
+
+    /// The materials of `bodies` on their export meshes, or nil when there
+    /// is nothing but the default look to write.
+    private static func materialTable(bodies: [Body], sources: [RenderMesh]) -> ExportMaterials.Table? {
+        let table = ExportMaterials.table(for: bodies, meshes: sources)
+        return table.materials.contains(where: { $0 != .default }) ? table : nil
+    }
+
+    /// MTL names: the table's, without the spaces a `usemtl` cannot hold.
+    private static func materialNames(_ table: ExportMaterials.Table) -> [String] {
+        table.names.map { sanitized($0) }
+    }
+
     /// One OBJ string per body ("save each body separately").
     static func objPerBody(bodies: [Body], tessellation: Tessellation? = .standard,
                            polygons: Polygons = .convex) -> [(name: String, obj: String)] {
         bodies.map { body in
             var out = header
-            append(body: body, to: &out, tessellation: tessellation, polygons: polygons,
-                   vertexOffset: 0, normalOffset: 0)
+            append(body: body, source: exportSource(for: body, tessellation: tessellation), to: &out,
+                   polygons: polygons, materials: nil, vertexOffset: 0, normalOffset: 0)
             return (sanitized(body.name), out)
         }
     }
@@ -90,6 +159,9 @@ nonisolated enum OBJExporter {
         var positions: [SIMD3<Float>] = []
         var normals: [SIMD3<Float>] = []
         var faces: [[(v: Int, n: Int)]] = []
+        /// Per face, the group of the triangles it was built from (all 0
+        /// without `triangleGroups`). Faces never span two groups.
+        var faceGroups: [Int] = []
     }
 
     private static let weldQuantum: Float = 1e-5   // same as FaceTopology
@@ -112,7 +184,11 @@ nonisolated enum OBJExporter {
         init(_ p: Int, _ q: Int) { a = min(p, q); b = max(p, q) }
     }
 
-    static func polygonMesh(from mesh: RenderMesh, polygons style: Polygons = .convex) -> PolygonMesh {
+    /// `triangleGroups`: a group per triangle of `mesh` (its material);
+    /// triangles of different groups are never merged into one face.
+    static func polygonMesh(from mesh: RenderMesh, polygons style: Polygons = .convex,
+                            triangleGroups: [Int]? = nil) -> PolygonMesh {
+        func group(_ t: Int) -> Int { triangleGroups.flatMap { t < $0.count ? $0[t] : nil } ?? 0 }
         let triangleCount = mesh.triangleCount
         guard triangleCount > 0 else { return PolygonMesh() }
 
@@ -166,10 +242,12 @@ nonisolated enum OBJExporter {
         //    flood-fill alone would turn every one of its facets into a tiny
         //    "planar face" with a flat normal.
         var polygons: [[(v: Int, n: Int)]] = []
+        var polygonGroups: [Int] = []
         var claimed = [Bool](repeating: false, count: triangleCount)
         for face in FaceTopology.enumerateFaces(in: mesh).planar {
             let faceNormal = simd_normalize(face.normal)
-            var triangles: [[Int]] = []
+            var byGroup: [Int: [[Int]]] = [:]
+            var groupOrder: [Int] = []
             for t in face.triangles where t >= 0 && t < triangleCount && !claimed[t] {
                 let shadedFlat = (0..<3).allSatisfy {
                     simd_dot(simd_normalize(cornerNormals[t * 3 + $0]), faceNormal) > flatShadingCos
@@ -177,12 +255,20 @@ nonisolated enum OBJExporter {
                 guard shadedFlat else { continue }   // left for the curved path
                 claimed[t] = true
                 let c = corners(t)
-                if !isDegenerate(c) { triangles.append(c) }
+                guard !isDegenerate(c) else { continue }
+                let g = group(t)
+                if byGroup[g] == nil { groupOrder.append(g) }
+                byGroup[g, default: []].append(c)
             }
-            guard !triangles.isEmpty else { continue }
+            guard !groupOrder.isEmpty else { continue }
             let n = normalIndex(face.normal)
-            for loop in coplanarPolygons(triangles, positions: welded, style: style) {
-                polygons.append(loop.map { (v: $0, n: n) })
+            // One material per run of polygons: a face painted in part
+            // splits along the paint.
+            for g in groupOrder {
+                for loop in coplanarPolygons(byGroup[g] ?? [], positions: welded, style: style) {
+                    polygons.append(loop.map { (v: $0, n: n) })
+                    polygonGroups.append(g)
+                }
             }
         }
 
@@ -191,13 +277,18 @@ nonisolated enum OBJExporter {
         //    generatrices, a fillet's strip) are written as one quad.
         var curved: [[(v: Int, n: Int)]] = []
         var curvedNormals: [SIMD3<Float>] = []
+        var curvedGroups: [Int] = []
         for t in 0..<triangleCount where !claimed[t] {
             let c = corners(t)
             guard !isDegenerate(c) else { continue }
             curved.append((0..<3).map { (v: c[$0], n: normalIndex(cornerNormals[t * 3 + $0])) })
             curvedNormals.append(simd_normalize(flatNormal(c)))
+            curvedGroups.append(group(t))
         }
-        polygons += pairedCoplanarTriangles(curved, facetNormals: curvedNormals, positions: welded)
+        let paired = pairedCoplanarTriangles(curved, facetNormals: curvedNormals, groups: curvedGroups,
+                                             positions: welded)
+        polygons += paired.faces
+        polygonGroups += paired.groups
 
         // 6. Keep only referenced positions, in welded order.
         var used = [Bool](repeating: false, count: welded.count)
@@ -210,6 +301,7 @@ nonisolated enum OBJExporter {
         }
         result.normals = normals
         result.faces = polygons.map { $0.map { (v: remap[$0.v], n: $0.n) } }
+        result.faceGroups = polygonGroups
         return result
     }
 
@@ -259,20 +351,23 @@ nonisolated enum OBJExporter {
     /// quads, keeping each corner's own normal. Unpaired triangles pass
     /// through. No vertex is added or removed, so shared edges stay shared.
     private static func pairedCoplanarTriangles(_ triangles: [[(v: Int, n: Int)]],
-                                                facetNormals: [SIMD3<Float>],
-                                                positions: [SIMD3<Float>]) -> [[(v: Int, n: Int)]] {
+                                                facetNormals: [SIMD3<Float>], groups: [Int],
+                                                positions: [SIMD3<Float>])
+        -> (faces: [[(v: Int, n: Int)]], groups: [Int]) {
         var owner: [DirectedEdge: Int] = [:]
         for (i, tri) in triangles.enumerated() {
             for k in 0..<3 { owner[DirectedEdge(from: tri[k].v, to: tri[(k + 1) % 3].v)] = i }
         }
         var paired = [Bool](repeating: false, count: triangles.count)
         var result: [[(v: Int, n: Int)]] = []
+        var resultGroups: [Int] = []
         for i in triangles.indices where !paired[i] {
             let tri = triangles[i]
             var quad: [(v: Int, n: Int)]?
             for k in 0..<3 {
                 let a = tri[k], b = tri[(k + 1) % 3], c = tri[(k + 2) % 3]
                 guard let j = owner[DirectedEdge(from: b.v, to: a.v)], j != i, !paired[j],
+                      groups[i] == groups[j],
                       simd_dot(facetNormals[i], facetNormals[j]) > 0.99999,
                       let d = triangles[j].first(where: { $0.v != a.v && $0.v != b.v }) else { continue }
                 // Coplanar: d on tri's plane, relative to the quad's size.
@@ -293,10 +388,10 @@ nonisolated enum OBJExporter {
                 quad = candidate
                 break
             }
-            if let quad { result.append(quad) }
+            if let quad { result.append(quad); resultGroups.append(groups[i]) }
         }
-        for i in triangles.indices where !paired[i] { result.append(triangles[i]) }
-        return result
+        for i in triangles.indices where !paired[i] { result.append(triangles[i]); resultGroups.append(groups[i]) }
+        return (result, resultGroups)
     }
 
     /// Polygons covering a connected set of coplanar triangles (welded
@@ -426,12 +521,20 @@ nonisolated enum OBJExporter {
     // MARK: - Writing
 
     @discardableResult
-    private static func append(body: Body, to out: inout String, tessellation: Tessellation?,
-                               polygons: Polygons,
+    /// `materials`: this body's triangle groups on `source` and the MTL
+    /// name of every material in the table; nil writes no `usemtl`.
+    private static func append(body: Body, source: RenderMesh, to out: inout String, polygons: Polygons,
+                               materials: (groups: [ExportMaterials.Group], names: [String])?,
                                vertexOffset: Int, normalOffset: Int) -> (vertices: Int, normals: Int) {
         out += "o \(sanitized(body.name))\n"
         let transform = body.transform
-        let mesh = polygonMesh(from: exportSource(for: body, tessellation: tessellation), polygons: polygons)
+        var triangleGroups: [Int]?
+        if let materials {
+            var owner = [Int](repeating: materials.groups.first?.material ?? 0, count: source.triangleCount)
+            for group in materials.groups { for t in group.triangles where t < owner.count { owner[t] = group.material } }
+            triangleGroups = owner
+        }
+        let mesh = polygonMesh(from: source, polygons: polygons, triangleGroups: triangleGroups)
         for p in mesh.positions {
             let world = transform.applying(to: SIMD3<Double>(p))
             out += String(format: "v %.6f %.6f %.6f\n", world.x, world.y, world.z)
@@ -441,12 +544,27 @@ nonisolated enum OBJExporter {
             let world = simd_normalize(transform.rotation.act(SIMD3<Double>(n)))
             out += String(format: "vn %.6f %.6f %.6f\n", world.x, world.y, world.z)
         }
-        for face in mesh.faces {
+        func write(_ face: [(v: Int, n: Int)]) {
             out += "f"
             for corner in face {
                 out += " \(corner.v + vertexOffset + 1)//\(corner.n + normalOffset + 1)"
             }
             out += "\n"
+        }
+        if let materials {
+            // One `usemtl` per material the body wears, its faces after it.
+            var order: [Int] = []
+            var byMaterial: [Int: [Int]] = [:]
+            for (index, material) in mesh.faceGroups.enumerated() {
+                if byMaterial[material] == nil { order.append(material) }
+                byMaterial[material, default: []].append(index)
+            }
+            for material in order {
+                if material < materials.names.count { out += "usemtl \(materials.names[material])\n" }
+                for index in byMaterial[material] ?? [] { write(mesh.faces[index]) }
+            }
+        } else {
+            for face in mesh.faces { write(face) }
         }
         return (mesh.positions.count, mesh.normals.count)
     }
@@ -467,6 +585,13 @@ nonisolated enum OBJExporter {
             return body.render
         }
         return mesh
+    }
+
+    /// "<design>.obj" / "<design>.mtl": the design's name made safe for a
+    /// path and for an `mtllib` line (which cannot hold a space).
+    static func fileStem(for designName: String) -> String {
+        let cleaned = designName.map { "/\\:".contains($0) || $0.isWhitespace ? "_" : String($0) }.joined()
+        return cleaned.isEmpty ? "Design" : cleaned
     }
 
     private static func sanitized(_ name: String) -> String {
