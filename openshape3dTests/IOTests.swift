@@ -144,29 +144,36 @@ final class IOTests: XCTestCase {
         let fLines = lines.filter { $0.hasPrefix("f ") }
         let oLines = lines.filter { $0.hasPrefix("o ") }
 
+        // A box is written as the solid it is: eight corners, six face
+        // normals, six quads. (The render mesh behind it has 24 vertices and
+        // 12 triangles; the exporter welds corners and merges coplanar
+        // triangles, so the file opens as a box and not as a triangle soup.)
         XCTAssertEqual(oLines.count, 1)
-        XCTAssertEqual(vLines.count, body.render.positions.count)
-        XCTAssertEqual(vnLines.count, body.render.normals.count)
-        XCTAssertEqual(fLines.count, body.render.triangleCount)
+        XCTAssertEqual(vLines.count, 8)
+        XCTAssertEqual(vnLines.count, 6)
+        XCTAssertEqual(fLines.count, 6)
 
-        // Faces are v//vn with 1-based indices within [1, vertexCount].
-        var seenIndices = Set<Int>()
+        // Faces are v//vn with 1-based indices in range.
+        var cornerUses: [Int: Int] = [:]
         for line in fLines {
             let refs = line.dropFirst(2).split(separator: " ")
-            XCTAssertEqual(refs.count, 3)
+            XCTAssertEqual(refs.count, 4, "each side of a box is one quad")
+            var faceNormals = Set<Int>()
             for ref in refs {
                 let parts = ref.components(separatedBy: "//")
                 XCTAssertEqual(parts.count, 2)
                 guard let v = Int(parts[0]), let n = Int(parts[1]) else {
                     return XCTFail("Non-integer face reference: \(ref)")
                 }
-                XCTAssertEqual(v, n, "Welded arrays share indices")
-                XCTAssertGreaterThanOrEqual(v, 1)
-                XCTAssertLessThanOrEqual(v, body.render.positions.count)
-                seenIndices.insert(v)
+                XCTAssertTrue((1...vLines.count).contains(v))
+                XCTAssertTrue((1...vnLines.count).contains(n))
+                cornerUses[v, default: 0] += 1
+                faceNormals.insert(n)
             }
+            XCTAssertEqual(faceNormals.count, 1, "a flat face has one normal")
         }
-        XCTAssertEqual(seenIndices.count, body.render.positions.count)
+        XCTAssertEqual(cornerUses.count, 8, "every corner is used")
+        XCTAssertTrue(cornerUses.values.allSatisfy { $0 == 3 }, "three faces meet at each corner of a box")
 
         // Transform is baked: translated box vertices sit near x=10.
         let firstV = vLines[0].split(separator: " ")
@@ -177,15 +184,23 @@ final class IOTests: XCTestCase {
         let a = makeBox(name: "A")
         let b = makeBox(at: 5, name: "B")
         let merged = OBJExporter.obj(bodies: [a, b])
-        let fLines = merged.split(separator: "\n").filter { $0.hasPrefix("f ") }
-        XCTAssertEqual(fLines.count, a.render.triangleCount + b.render.triangleCount)
+        let lines = merged.split(separator: "\n")
+        let fLines = lines.filter { $0.hasPrefix("f ") }
+        XCTAssertEqual(fLines.count, 12, "six quads per box")
+        XCTAssertEqual(lines.filter { $0.hasPrefix("v ") }.count, 16)
 
         // Second body's face indices start past the first body's vertices.
         let maxIndex = fLines
             .flatMap { $0.dropFirst(2).split(separator: " ") }
             .compactMap { Int($0.components(separatedBy: "//")[0]) }
             .max()
-        XCTAssertEqual(maxIndex, a.render.positions.count + b.render.positions.count)
+        XCTAssertEqual(maxIndex, 16)
+        // And its normals past the first body's normals.
+        let maxNormal = fLines
+            .flatMap { $0.dropFirst(2).split(separator: " ") }
+            .compactMap { Int($0.components(separatedBy: "//")[1]) }
+            .max()
+        XCTAssertEqual(maxNormal, 12)
 
         let perBody = OBJExporter.objPerBody(bodies: [a, b])
         XCTAssertEqual(perBody.count, 2)
