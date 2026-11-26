@@ -10,3 +10,4 @@
 #import "Shaders/ShaderTypes.h"     // simd uniform structs shared with Metal
 #import "Kernel/OCCT/OCCTBridge.h"   // OCCT B-rep kernel facade (Obj-C++)
 #import "Kernel/ConstraintSolver/OS3DLinearAlgebra.h" // LAPACK kernels for the sketch solver (C)
+#import "Kernel/ThirdParty/zstd/zstd.h"            // vendored zstd decoder: compressed .blend files (C, BSD)
