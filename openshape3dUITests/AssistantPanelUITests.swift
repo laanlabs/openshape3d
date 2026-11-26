@@ -66,13 +66,15 @@ final class AssistantPanelUITests: XCTestCase {
         field.tap()
         field.typeText("not-a-key")
         XCTAssertTrue(save.isEnabled)
-        save.tap()
+        // Return saves too, which is the only way on a phone in landscape,
+        // where the keyboard covers the button.
+        field.typeText("\n")
         XCTAssertTrue(app.staticTexts["AssistantKeyProblem"].waitForExistence(timeout: 3),
                       "an obviously wrong paste is refused and not stored")
         XCTAssertFalse(app.textFields["AssistantInput"].exists)
 
         app.buttons["AssistantClose"].tap()
-        XCTAssertFalse(app.staticTexts["AssistantTitle"].waitForExistence(timeout: 2), "the panel closes")
+        XCTAssertTrue(app.staticTexts["AssistantTitle"].waitForNonExistence(timeout: 3), "the panel closes")
     }
 
     // MARK: A whole build
