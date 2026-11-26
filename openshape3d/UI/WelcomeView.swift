@@ -11,7 +11,9 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     let samples: [SampleDesigns.Sample]
