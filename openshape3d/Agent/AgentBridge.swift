@@ -490,6 +490,23 @@ final class AgentBridge {
             for item in items { session.perform(SetItemVisibilityCommand(item: item, isHidden: hidden)) }
             return execOK(viewModel, ["count": items.count, "undoSteps": items.count])
 
+        case let .rename(id, name):
+            let document = session.document
+            let target: (item: DocumentItemRef, was: String)
+            if let body = document.bodies.first(where: { $0.id.raw == id }) {
+                target = (.body(body.id), body.name)
+            } else if let sketch = document.sketches.first(where: { $0.id.raw == id }) {
+                target = (.sketch(sketch.id), sketch.name)
+            } else {
+                return execMissing("item", id.uuidString)
+            }
+            // Renaming to the name it has is not an edit: no undo step.
+            if target.was != name {
+                session.perform(RenameItemCommand(item: target.item, before: target.was, after: name))
+            }
+            return execOK(viewModel, ["id": id.uuidString, "name": name, "previousName": target.was,
+                                      "undoSteps": target.was == name ? 0 : 1])
+
         case let .select(ids):
             let document = session.document
             for raw in ids where !document.bodies.contains(where: { $0.id.raw == raw }) {
@@ -919,6 +936,7 @@ final class AgentBridge {
         case .stl: data = STLExporter.binarySTL(bodies: bodies)
         case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
         case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies, yUp: !zUp)
+        case .glb: data = GLBExporter.glb(bodies: bodies)
         case .step:
             switch STEPKit.export(bodies: bodies) {
             case let .success(step, _): data = step

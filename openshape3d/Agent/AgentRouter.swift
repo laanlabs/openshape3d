@@ -77,6 +77,8 @@ nonisolated enum AgentShotFormat: String, Sendable, Equatable {
 /// formats plus STEP. Millimetres, like everything else on the wire.
 nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
     case stl, obj, threeMF = "3mf", step
+    /// glTF binary: the format that carries names and full PBR materials.
+    case glb
 
     var contentType: String {
         switch self {
@@ -84,6 +86,7 @@ nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
         case .obj: return "model/obj"
         case .threeMF: return "model/3mf"
         case .step: return "model/step"
+        case .glb: return "model/gltf-binary"
         }
     }
 }
