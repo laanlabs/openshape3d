@@ -2012,7 +2012,8 @@ struct EditorView: View {
                         .contentShape(Rectangle())
                         .accessibilityLabel("Undo")
                     }
-                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle)
+                    .disabled(!viewModel.session.undoStack.canUndo && !viewModel.hasPendingRectangle
+                              && !viewModel.hasPendingShapeTap)
                     // Distinct from the software keyboard's own "Undo": with
                     // only a label to match on, `app.buttons["Undo"]` found two
                     // elements and every single-element query threw.

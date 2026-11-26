@@ -117,6 +117,12 @@ struct CommandShortcutsView: View {
                 Button { viewModel.cancelRectangleInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityHidden(true)
+            } else if viewModel.hasPendingShapeTap {
+                // Circle / Ellipse / Polygon after the first tap (#142):
+                // Escape drops the centre and keeps the tool, like Rectangle.
+                Button { viewModel.clearShapeTapPlacement() } label: { EmptyView() }
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityHidden(true)
             } else if viewModel.mode.sketchTool == .circle {
                 Button { viewModel.cancelCircleInput() } label: { EmptyView() }
                     .keyboardShortcut(.cancelAction)
