@@ -5,8 +5,10 @@
 > reference: every client, the safety details, and the developer setup.
 
 > Want to type in OpenShape 3D itself, on an iPad as well as a Mac? That is
-> the built-in assistant: [BUILT_IN_ASSISTANT.md](BUILT_IN_ASSISTANT.md). This
-> page is about connecting a separate assistant app.
+> the built-in assistant, which runs on your own API key for Claude, OpenAI
+> or Gemini: [BUILT_IN_ASSISTANT.md](BUILT_IN_ASSISTANT.md). This page is
+> about connecting a separate assistant app, which needs no key. The
+> assistant panel has a button that opens these same controls.
 
 Describe what you want in plain English — "a flowerpot I can 3D print, about
 11 cm wide, with a saucer" — and an AI assistant on your Mac models it in

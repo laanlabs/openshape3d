@@ -16,7 +16,7 @@ enum AssistantTools {
 
     /// Run `call` against the open design and return what the model should
     /// see. Synchronous on the main actor, like every editor operation.
-    static func run(_ call: AnthropicWire.ToolCall) -> (content: [AnthropicWire.ToolContent], isError: Bool) {
+    static func run(_ call: AssistantToolCall) -> (content: [AssistantToolContent], isError: Bool) {
         if let problem = call.problem { return ([.text(problem)], true) }
         if let refusal = platformRefusal(op: call.op) { return ([.text(refusal)], true) }
 

@@ -32,9 +32,10 @@ See [Geometry kernels](#geometry-kernels-occt--euclid).
 - **File exchange:** STEP (AP214), IGES and FreeCAD `.FCStd` import and export
   as exact solids; STL, 3MF, OBJ, GLB, DXF, and USDZ with AR preview.
 - **AI assistant:** a built-in panel on iPad, iPhone and Mac where you type
-  what you want and Claude models it, on your own API key. On the Mac, an
-  opt-in MCP server also lets Claude Desktop or another MCP client build parts
-  in the open design (see below).
+  what you want and an AI model builds it, on your own API key for Claude,
+  ChatGPT (OpenAI) or Gemini. On the Mac, an opt-in MCP server also lets
+  Claude Desktop, ChatGPT or another MCP client build parts in the open
+  design with no key at all (see below).
 - **Free:** no subscription, no account, no in-app purchases.
 
 Not yet: cloud sync, collaboration, assemblies, and ray-traced rendering.
@@ -57,11 +58,12 @@ The same tools on iPhone — the contextual bars adapt to compact width.
 
 ## Ask Claude for a part
 
-**In the app.** Tap **Assistant** in the top bar, paste an API key from your
-own Anthropic account, and type what you want. Claude builds it in the open
-design, one undoable step at a time. Your messages and what the assistant
-reads from the design go from your device straight to Anthropic under your
-key; the app shows this before you save a key. Details:
+**In the app.** Tap **Assistant** in the top bar, choose Claude, ChatGPT or
+Gemini, paste an API key from your own account with that provider, and type
+what you want. It builds in the open design, one undoable step at a time.
+Your messages and what the assistant reads from the design go from your
+device straight to the provider you chose, under your key; the app shows this
+before you save a key. Details:
 [docs/BUILT_IN_ASSISTANT.md](docs/BUILT_IN_ASSISTANT.md).
 
 **From Claude Desktop.** On the Mac, you can also describe a part in plain English and have Claude model it
