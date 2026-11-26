@@ -54,7 +54,7 @@ nonisolated final class AgentServer: @unchecked Sendable {
 
     /// Bumped when a response shape changes incompatibly. Clients check it in
     /// `/v1/health` and refuse rather than misread a newer app.
-    static let protocolVersion = 1
+    static let protocolVersion = AgentRouter.protocolVersion
 
     /// Default port; `OS3D_AGENT_PORT` overrides. Fixed-by-default means the
     /// clients have something to talk to with no discovery file.

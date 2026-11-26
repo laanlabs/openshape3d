@@ -237,6 +237,11 @@ nonisolated struct AccuracyQuery: Sendable, Equatable {
 
 nonisolated enum AgentRouter {
 
+    /// The control channel's protocol version, reported by `/v1/health`. It
+    /// lives here, not on `AgentServer`, because the router is also compiled
+    /// into the web app's engine, which has no server.
+    static let protocolVersion = 1
+
     /// Bounds on `?w=`/`?h=`. The upper end is a guard against an accidental
     /// 40000px request wedging the renderer, not a considered maximum.
     static let defaultShotSize = 1024
@@ -491,7 +496,7 @@ nonisolated enum AgentRouter {
 
     /// What `/v1/health` says to a caller that has not presented the code.
     static func unpairedHealthResponse() -> AgentResponse {
-        .ok(["app": "openshape3d", "protocol": AgentServer.protocolVersion, "pairing": "required"])
+        .ok(["app": "openshape3d", "protocol": protocolVersion, "pairing": "required"])
     }
 
     /// The three-way split described in this file's header.
@@ -530,7 +535,7 @@ nonisolated enum AgentRouter {
 
     static func healthResponse(port: UInt16) -> AgentResponse {
         .ok([
-            "protocol": AgentServer.protocolVersion,
+            "protocol": protocolVersion,
             "app": "openshape3d",
             "port": Int(port),
             "pid": Int(ProcessInfo.processInfo.processIdentifier),

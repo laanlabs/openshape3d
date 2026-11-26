@@ -31,8 +31,10 @@ See [Geometry kernels](#geometry-kernels-occt--euclid).
   tolerances and title blocks, exported to PDF, SVG or DXF.
 - **File exchange:** STEP (AP214), IGES and FreeCAD `.FCStd` import and export
   as exact solids; STL, 3MF, OBJ, GLB, DXF, and USDZ with AR preview.
-- **AI assistant (Mac):** an opt-in MCP server lets Claude Desktop or another
-  MCP client on the same Mac build parts in the open design (see below).
+- **AI assistant:** a built-in panel on iPad, iPhone and Mac where you type
+  what you want and Claude models it, on your own API key. On the Mac, an
+  opt-in MCP server also lets Claude Desktop or another MCP client build parts
+  in the open design (see below).
 - **Free:** no subscription, no account, no in-app purchases.
 
 Not yet: cloud sync, collaboration, assemblies, and ray-traced rendering.
@@ -55,7 +57,14 @@ The same tools on iPhone — the contextual bars adapt to compact width.
 
 ## Ask Claude for a part
 
-On the Mac, you can describe a part in plain English and have Claude model it
+**In the app.** Tap **Assistant** in the top bar, paste an API key from your
+own Anthropic account, and type what you want. Claude builds it in the open
+design, one undoable step at a time. Your messages and what the assistant
+reads from the design go from your device straight to Anthropic under your
+key; the app shows this before you save a key. Details:
+[docs/BUILT_IN_ASSISTANT.md](docs/BUILT_IN_ASSISTANT.md).
+
+**From Claude Desktop.** On the Mac, you can also describe a part in plain English and have Claude model it
 in OpenShape 3D, check that it will print, and save the STL to Downloads — no
 CAD experience, no terminal. Switch it on in Settings ▸ AI Assistant and click
 **Add to Claude Desktop…**. Step-by-step with screenshots:
@@ -364,7 +373,7 @@ the Mac app. Next:
 - Assemblies (joints and mates)
 - Ray-traced / image-based rendering and HDR environments
 - Variable-radius and G2 fillets; spline trim, offset and tangent handles
-- The AI assistant on iPad, iPhone and the web
+- The built-in assistant on the web
 
 See `docs/MODELING_PARITY_GOALS.md` for the ordered sketch + solid modeling
 roadmap (fillet, shell, splines, STEP — with acceptance criteria),

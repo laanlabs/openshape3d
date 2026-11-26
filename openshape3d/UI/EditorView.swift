@@ -198,6 +198,10 @@ struct EditorView: View {
     @State private var viewModel: EditorViewModel?
     @State private var exportDocument: ExportDocument?
     @State private var showItemsPanel = false
+    /// The built-in assistant (#119): its conversation, and whether its
+    /// panel is open. The panel takes the Items panel's place while shown.
+    @State private var assistant = AssistantSession()
+    @State private var showAssistantPanel = false
     @State private var showBugReport = false
     /// Export ▸ Open on the Web… (WebHandoffSheet).
     @State private var showWebHandoff = false
@@ -1422,6 +1426,11 @@ struct EditorView: View {
                         .padding(.trailing, 14)
                         .padding(.top, 8)
                     }
+                } else if showAssistantPanel {
+                    AssistantPanelView(session: assistant) { showAssistantPanel = false }
+                        .padding(.trailing, 14)
+                        .padding(.top, 8)
+                        .padding(.bottom, bottomBarInset)
                 } else if showItemsPanel {
                     ItemsPanelView(viewModel: viewModel)
                         .padding(.trailing, 14)
@@ -1449,8 +1458,9 @@ struct EditorView: View {
                     // Interface side (spec §17): palette flips to the right
                     // for left-handed sketching.
                     .padding(settings.paletteOnRight ? .trailing : .leading,
-                             (settings.paletteOnRight ? showItemsPanel : viewModel.showHistoryPanel)
-                             ? 318 : 14)
+                             settings.paletteOnRight
+                             ? (showAssistantPanel ? 348 : showItemsPanel ? 318 : 14)
+                             : (viewModel.showHistoryPanel ? 318 : 14))
                     // Keep the (scrollable) palette clear of the top bar and
                     // the bottom info/input bars, which span the full width:
                     // without the inset the last tools (Delete) can sit under
@@ -2198,6 +2208,14 @@ struct EditorView: View {
                         ToolbarLabel("Items", systemImage: "sidebar.trailing")
                     }
                     .accessibilityIdentifier("ItemsButton")
+
+                    // The built-in assistant (#119), on the person's own API key.
+                    Button {
+                        showAssistantPanel.toggle()
+                    } label: {
+                        ToolbarLabel("Assistant", systemImage: "sparkles")
+                    }
+                    .accessibilityIdentifier("AssistantButton")
 
                     // Tools ▸ Visualize (spec §14).
                     Button {

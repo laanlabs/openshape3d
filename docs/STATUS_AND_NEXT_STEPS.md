@@ -2,7 +2,7 @@
 
 > **Current unfinished-work register:** [Sketch parity open status](SKETCH_PARITY_OPEN_STATUS.md). Maintained at every meaningful checkpoint; older mission logs below are historical.
 
-Last updated: 2026-10-27 (scan-to-CAD: SECTIONS — every band's 36 sector medians fitted as an off-axis ellipse (`profile["sections"]`, `profile["roundness"]`), and a body one revolved profile cannot carry built as two-section `feature.loft`s through those ellipses, its cavity lofted into its own body and subtracted once; in the app the barrel 96.5 → 98.0 % (scan→model 7.14 → 2.98 mm) and the pail 95.9 → 97.1 %, the eight round parts unchanged to the digit; build/take limits an hour; 95 tests — newest mission log. Before that, 2026-10-26, later: PASSAGES — a branch's bore that the union filled where the parent is solid is read over the whole scan (`passage_depth` / `passage_record`, to its floor, capped a wall before the parent's far skin; record `bores[j].passage` {depthMM, rMM, floor, capped, seenMM, intoParentMM}) and cut AFTER every union by the build, the film, the reel and the preview (`passage_sections` / `cut_passage`); the valve's largest missing patch 1 015 → 550 mm², scan→model 1.13 → 1.00 mm, the nine other parts unchanged; films and reels re-taken; 78 tests — newest mission log. Earlier the same day: open pipe ends are BORED (`detect_bores` on the main body and every secondary body, folded into the revolve loop by `body_section`; a container's cavity and a collar with a nut in it are not bores), hex/octagon/square NUTS on any axis are built as prisms (`find_nuts` / `nut_sections`), a flat bar that bends is one SWEEP of a designed section along two or three legs (`corner_spine` / `bar_along`, a lever), the CO₂ horn is refitted on its own points and cut hollow; valve scan→model 1.99 → 1.13 mm with its four bores, CO₂ extinguisher 95 → 96 %, the other eight unchanged; films and reels re-taken; 70 tests — newest mission log bullet. Before that, 2026-10-25: the model is painted the scan's own colour (`scanColor` from the texture; spec `"color": "scan"`), the inspection gates on the LARGEST unexplained patch and rings it on the review sheet (`largest_missing_patch` / `largest_excess_patch`), and `fit_features.py` fits designed parts instead of blobs — stadium / rectangle / hexagon / circle outlines, one tube per piece with its horn as a cone, hoops, and part names (hose, horn, lever, nut, lug…) in the captions; a wheel's rim dish no longer reads as an open container (the dish test runs before the open end); CO₂ extinguisher 92 → 95 %, bucket 77 → 96 %, films and reels re-taken. Before that, 2026-10-24: every axis of revolution: `fit_axes.py` finds a scan's axes from its normals and the tracer builds each body on its own axis — the valve goes from 65 % to 95 %, the hydrant's nozzles to 1 mm, the wheel's stand as bars, no more spikes to the apex, a hand-wheel's openings cut; `preview_model.py` rebuilds the model offline; all ten films and both reels re-taken — newest mission log bullet under 2026-10-20. Before that, 2026-10-22, the fidelity pass: the scan trace reads the surface finely, containers get a subtracted cavity, dished parts a traced half-section, and `fit_features.py` / `build_features.py` add the handles, hoses, levers and chains a revolve cannot make — can and bollard PASS, the rest 88–97 % except the out-of-round pail and drum and the two-axis valve; the film and the reel revolve the build's own half-section — all ten corpus films and both reels re-taken on the rebuilt models; scan-to-CAD builds are now inspected both ways with depth maps and a review sheet — `inspect_fit.py`, gating the films and the reel; arcs and hollow revolves in the scan pipeline; a C-clamp rebuilt from recipes to 0.05 mm — the newest mission log bullet under 2026-10-20; a corpus of ten Sketchfab scans built over MCP, graded and filmed; CAD import over MCP: STEP and IGES sew loose faces into solids and sheet bodies, exact bounds, DXF units and ellipses, an open-mesh notice, and agents import STEP / IGES / DXF / FCStd; an OCCT oracle, a live MCP runner and offline XCTests behind it; test pack 36 / 36, FreeCAD IDF + NIST corpus 32 / 32, IGES twins 4 / 4 — newest mission log. Also today: Deviation Preview — the Accuracy Report's colours on the part; the scan's profile straightened; `item.select`) — **Accuracy Report** (one body measured against
+Last updated: 2026-11-26 (the BUILT-IN ASSISTANT, #119: a panel beside the viewport where a person types and Claude builds in the open design on their own API key, on iPad, iPhone, Mac and the web; a notice before a key is saved; `Assistant/`, `UI/AssistantPanelView.swift`, `docs/BUILT_IN_ASSISTANT.md`; tool calls share one path with outside assistants through `AgentLocalCall`, and the bridge's device-only routes moved to `AgentBridgeDevice.swift` so the web engine compiles the rest unchanged; Mac sandbox may now make outgoing connections (#118); bundled modelling guide regenerated (#140) — newest mission log. Before that, 2026-10-27: scan-to-CAD: SECTIONS — every band's 36 sector medians fitted as an off-axis ellipse (`profile["sections"]`, `profile["roundness"]`), and a body one revolved profile cannot carry built as two-section `feature.loft`s through those ellipses, its cavity lofted into its own body and subtracted once; in the app the barrel 96.5 → 98.0 % (scan→model 7.14 → 2.98 mm) and the pail 95.9 → 97.1 %, the eight round parts unchanged to the digit; build/take limits an hour; 95 tests — newest mission log. Before that, 2026-10-26, later: PASSAGES — a branch's bore that the union filled where the parent is solid is read over the whole scan (`passage_depth` / `passage_record`, to its floor, capped a wall before the parent's far skin; record `bores[j].passage` {depthMM, rMM, floor, capped, seenMM, intoParentMM}) and cut AFTER every union by the build, the film, the reel and the preview (`passage_sections` / `cut_passage`); the valve's largest missing patch 1 015 → 550 mm², scan→model 1.13 → 1.00 mm, the nine other parts unchanged; films and reels re-taken; 78 tests — newest mission log. Earlier the same day: open pipe ends are BORED (`detect_bores` on the main body and every secondary body, folded into the revolve loop by `body_section`; a container's cavity and a collar with a nut in it are not bores), hex/octagon/square NUTS on any axis are built as prisms (`find_nuts` / `nut_sections`), a flat bar that bends is one SWEEP of a designed section along two or three legs (`corner_spine` / `bar_along`, a lever), the CO₂ horn is refitted on its own points and cut hollow; valve scan→model 1.99 → 1.13 mm with its four bores, CO₂ extinguisher 95 → 96 %, the other eight unchanged; films and reels re-taken; 70 tests — newest mission log bullet. Before that, 2026-10-25: the model is painted the scan's own colour (`scanColor` from the texture; spec `"color": "scan"`), the inspection gates on the LARGEST unexplained patch and rings it on the review sheet (`largest_missing_patch` / `largest_excess_patch`), and `fit_features.py` fits designed parts instead of blobs — stadium / rectangle / hexagon / circle outlines, one tube per piece with its horn as a cone, hoops, and part names (hose, horn, lever, nut, lug…) in the captions; a wheel's rim dish no longer reads as an open container (the dish test runs before the open end); CO₂ extinguisher 92 → 95 %, bucket 77 → 96 %, films and reels re-taken. Before that, 2026-10-24: every axis of revolution: `fit_axes.py` finds a scan's axes from its normals and the tracer builds each body on its own axis — the valve goes from 65 % to 95 %, the hydrant's nozzles to 1 mm, the wheel's stand as bars, no more spikes to the apex, a hand-wheel's openings cut; `preview_model.py` rebuilds the model offline; all ten films and both reels re-taken — newest mission log bullet under 2026-10-20. Before that, 2026-10-22, the fidelity pass: the scan trace reads the surface finely, containers get a subtracted cavity, dished parts a traced half-section, and `fit_features.py` / `build_features.py` add the handles, hoses, levers and chains a revolve cannot make — can and bollard PASS, the rest 88–97 % except the out-of-round pail and drum and the two-axis valve; the film and the reel revolve the build's own half-section — all ten corpus films and both reels re-taken on the rebuilt models; scan-to-CAD builds are now inspected both ways with depth maps and a review sheet — `inspect_fit.py`, gating the films and the reel; arcs and hollow revolves in the scan pipeline; a C-clamp rebuilt from recipes to 0.05 mm — the newest mission log bullet under 2026-10-20; a corpus of ten Sketchfab scans built over MCP, graded and filmed; CAD import over MCP: STEP and IGES sew loose faces into solids and sheet bodies, exact bounds, DXF units and ellipses, an open-mesh notice, and agents import STEP / IGES / DXF / FCStd; an OCCT oracle, a live MCP runner and offline XCTests behind it; test pack 36 / 36, FreeCAD IDF + NIST corpus 32 / 32, IGES twins 4 / 4 — newest mission log. Also today: Deviation Preview — the Accuracy Report's colours on the part; the scan's profile straightened; `item.select`) — **Accuracy Report** (one body measured against
 another: orthographic silhouette overlays per view, outline and surface
 deviation both ways; `Kernel/AccuracyKit.swift`, Views ▸ Accuracy Report…,
 `/v1/accuracy` + `/v1/accuracy/image`, MCP ops `accuracy` /
@@ -74,6 +74,70 @@ passes alone.
   every B-rep body's bounds with `BRepBndLib::AddOptimal` on exact geometry
   on every call, which a dense STEP import could make slow — cache on the
   body's mesh revision if an agent loop ever feels it.
+
+## Mission log — 2026-11-26, the built-in assistant (#119)
+
+The user: "lets build the AI side panel where people can enter their own
+keys — since the user is initiating that we are fine with our privacy — it
+should just warn them then", and later "ship the ai panel on all apps".
+
+**What shipped.** An **Assistant** button (sparkles) in the top bar opens a
+panel in the Items panel's place. Before a key is saved the panel is the
+notice: what is sent (messages, and what the assistant reads from the
+design: sizes, sketches, viewport pictures), where (straight to Anthropic),
+who pays (the person's own key), and that nothing passes through our
+servers. With a key it is a chat: each tool call is a row ("New sketch",
+"Extrude", a tick or a cross with the reason), the reply streams in, Stop
+ends the turn, and every step is an ordinary undoable feature. User-facing
+and developer detail: `docs/BUILT_IN_ASSISTANT.md`.
+
+**How it is put together.**
+
+- `Assistant/AssistantWire.swift`: the Messages API as pure values (request,
+  streamed reply reassembled, echo rules, tool answers, error wording).
+  Swift has no official Anthropic SDK, so this is raw HTTP + server-sent
+  events. Models: Opus 5.5 (default), Sonnet 5.5, Haiku 5.5, Fable 5.2;
+  adaptive thinking, effort `high`, prompt caching on the guide and on the
+  growing conversation.
+- `Assistant/AssistantSession.swift`: the request → tool calls → request
+  loop; `AssistantKeyStore.swift`: the key in the Keychain, this device only.
+- `Agent/AgentLocalCall.swift`: a tool call made from inside the app, phrased
+  as the MCP `tools/call` it is and sent through `AgentMCP.plan` →
+  `AgentRouter` → `AgentBridge`. The panel and Claude Desktop therefore run
+  the same code; there is no second implementation of any op.
+- `Agent/AgentBridgeDevice.swift`: the bridge's routes that need UIKit or the
+  device (screenshot, accuracy image, archive, SpaceMouse, capture), moved
+  out of `AgentBridge.swift` so the web engine can compile the bridge
+  unchanged. The web has its own `handleDeviceRoute`.
+- `Assistant/AssistantPrompt.md`: who the assistant is here. A bundled
+  resource so the web app sends the same words.
+
+**Also in this change.** `ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES` for the
+Mac sandbox: without it the Mac app could not reach any server at all (#118;
+bug reports and Open on the Web were failing there too). The bundled
+`ModelingGuide.md` was regenerated from the skill
+(`scripts/sync_ai_resources.py`); it had been stale on `main` and
+`AgentMCPTests.testBundledGuideIsTheSkillBody` was failing (#140).
+
+**Tested.** `AssistantWireTests` (27, pure). `AssistantPanelUITests` (3) run
+the panel in the live app against a stand-in for the API inside the test: a
+typed request builds a 40 × 30 × 10 mm block through the real tool path
+(`state` reports 12 000 mm³), the stand-in fails the test on any malformed
+request (roles out of order, a tool call unanswered, an empty text block), a
+refused key is explained, and the notice is checked word for word before a
+key exists. Full unit suite and a Mac Catalyst build pass.
+
+**Not tested: a conversation with the real API.** No API key was available
+when this was built. The request shape follows Anthropic's
+current reference (API version 2026-10-21) and the stand-in enforces the
+rules that reference states, but the first real-key run is still owed. If
+the key's account cannot use the decline-retry beta the app drops it and
+sends again; any other 400 would show its message in the panel.
+
+**Limits.** A conversation is not saved with the design. On iPad and iPhone
+the assistant cannot export a file (it points at the Export menu). No
+OpenAI / ChatGPT provider yet: the wire layer is Claude's; #119 asked for
+either.
 
 ## Mission log — 2026-10-26, scan-to-CAD: sections — sampling round every height, lofting what isn't round
 
@@ -5302,6 +5366,21 @@ first differing frame is the one you want.
     default and writes pcurves onto its operands; use the builder with
     `SetNonDestructive(Standard_True)`. `OpsLeaveInputsUntouchedTests` is
     the pattern for checking a new op.
+
+62. **`URLSession.AsyncBytes.lines` drops blank lines** (2026-11-26). A
+    server-sent-event stream separates events with a blank line, and `lines`
+    never yields one, so an event cannot be delimited that way. The Messages
+    API puts each event's whole JSON, `type` included, on one `data:` line,
+    which is why `ServerSentEvents.dataPayload(ofLine:)` reads lines one at a
+    time and ignores `event:`. A different SSE source would need a byte-level
+    reader.
+
+63. **A plain-HTTP loopback server works from the simulator without an ATS
+    exception** (2026-11-26). `AssistantPanelUITests` runs its stand-in API on
+    `http://127.0.0.1:<port>` inside the test runner; the app under test
+    reaches it with no `NSAllowsLocalNetworking`. The DEBUG-only
+    `OS3D_ASSISTANT_URL` / `OS3D_ASSISTANT_KEY` environment variables are how
+    the test points the app at it; Release builds ignore both.
 
 ## 4. Next missions (prioritized)
 
