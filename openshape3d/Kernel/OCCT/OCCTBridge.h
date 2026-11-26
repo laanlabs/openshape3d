@@ -675,6 +675,12 @@ typedef NS_ENUM(NSInteger, OCCTOpCode) {
                        angularDeflection:(double)angularDeflection
                         linearDeflection:(double)linearDeflection;
 
+/// Tessellate a mesh-free copy of `shape` (the shape's own render
+/// triangulation is left untouched) — for export at its own quality.
++ (OCCTRenderMesh *)exportMeshFromShape:(OCCTShape *)shape
+                       angularDeflection:(double)angularDeflection
+                        linearDeflection:(double)linearDeflection;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -106,9 +106,10 @@ nonisolated enum OBJImporter {
                     }
                     return vertices[index]
                 }
-                // Fan-triangulate; OBJ polygons are planar and convex by convention.
-                for i in 1..<(corner.count - 1) {
-                    current.corners.append(contentsOf: [corner[0], corner[i], corner[i + 1]])
+                // Planar polygons; concave ones (an exported L-shaped or
+                // notched face) are ear-clipped, convex ones fanned.
+                for (a, b, c) in triangulatePolygon(corner) {
+                    current.corners.append(contentsOf: [corner[a], corner[b], corner[c]])
                 }
 
             default:
@@ -142,6 +143,66 @@ nonisolated enum OBJImporter {
     }
 
     // MARK: - Helpers
+
+    /// Triangles (corner-index triples) covering a planar polygon, keeping its
+    /// winding. Convex polygons fan from corner 0; anything else is
+    /// ear-clipped in the polygon's own plane (Newell normal). Falls back to
+    /// the fan if clipping gets stuck (self-intersecting input).
+    static func triangulatePolygon(_ corners: [SIMD3<Double>]) -> [(Int, Int, Int)] {
+        let count = corners.count
+        let fan = (1..<(count - 1)).map { (0, $0, $0 + 1) }
+        guard count > 3 else { return fan }
+
+        var normal = SIMD3<Double>.zero
+        for i in 0..<count {
+            let p = corners[i], q = corners[(i + 1) % count]
+            normal += SIMD3((p.y - q.y) * (p.z + q.z),
+                            (p.z - q.z) * (p.x + q.x),
+                            (p.x - q.x) * (p.y + q.y))
+        }
+        guard simd_length(normal) > 1e-30 else { return fan }
+        normal = simd_normalize(normal)
+
+        func turn(_ a: Int, _ b: Int, _ c: Int) -> Double {
+            simd_dot(simd_cross(corners[b] - corners[a], corners[c] - corners[b]), normal)
+        }
+        let isConvex = (0..<count).allSatisfy {
+            turn($0, ($0 + 1) % count, ($0 + 2) % count) >= -1e-12
+        }
+        if isConvex { return fan }
+
+        func inside(_ p: Int, _ a: Int, _ b: Int, _ c: Int) -> Bool {
+            let x = corners[p]
+            func side(_ u: Int, _ v: Int) -> Double {
+                simd_dot(simd_cross(corners[v] - corners[u], x - corners[u]), normal)
+            }
+            return side(a, b) >= 0 && side(b, c) >= 0 && side(c, a) >= 0
+        }
+
+        var remaining = Array(0..<count)
+        var triangles: [(Int, Int, Int)] = []
+        while remaining.count > 3 {
+            let n = remaining.count
+            var clipped = false
+            for i in 0..<n {
+                let a = remaining[(i + n - 1) % n], b = remaining[i], c = remaining[(i + 1) % n]
+                guard turn(a, b, c) > 1e-12 else { continue }
+                let blocked = remaining.contains { p in
+                    p != a && p != b && p != c && corners[p] != corners[a]
+                        && corners[p] != corners[b] && corners[p] != corners[c]
+                        && inside(p, a, b, c)
+                }
+                if blocked { continue }
+                triangles.append((a, b, c))
+                remaining.remove(at: i)
+                clipped = true
+                break
+            }
+            if !clipped { return fan }
+        }
+        triangles.append((remaining[0], remaining[1], remaining[2]))
+        return triangles
+    }
 
     /// Nil (rather than throwing) when a group holds no non-degenerate triangle
     /// — an empty `g` line is common and must not fail the whole import.
