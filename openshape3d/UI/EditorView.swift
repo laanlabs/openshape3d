@@ -1047,8 +1047,8 @@ struct EditorView: View {
             }
             .accessibilityIdentifier("ImportFreeCAD")
             // Textured meshes: glTF/GLB, USDZ, OBJ with its MTL and images, .blend,
-            // or a zip holding any of them. Parts become mesh bodies.
-            Button("OBJ / glTF / USDZ / Blender…") {
+            // 3MF, or a zip holding any of them. Parts become mesh bodies.
+            Button("OBJ / glTF / USDZ / 3MF / Blender…") {
                 importRequest = .mesh
                 showImporter = true
             }
