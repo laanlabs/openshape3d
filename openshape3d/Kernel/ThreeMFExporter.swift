@@ -8,19 +8,30 @@
 //  central directory). Transforms are baked; unit is millimeter per the
 //  1 unit = 1 mm convention.
 //
+//  3MF is Z-up. The plain export writes the design as it is modelled (Y-up)
+//  and says so in an `os3d:UpAxis` metadata entry, which `ThreeMFImporter`
+//  reads so the file comes back as it left; a file already turned Z-up (the
+//  slicer export, `up=z`) carries no entry and is standard 3MF.
+//
 
 import Foundation
 import simd
 
 nonisolated enum ThreeMFExporter {
 
-    static func threeMF(bodies: [Body]) -> Data {
+    /// `yUp`: the bodies are in the design's own Y-up frame (the default);
+    /// false when they were already turned to 3MF's Z-up.
+    static func threeMF(bodies: [Body], yUp: Bool = true) -> Data {
         var zip = MinimalZipWriter()
         zip.addFile(path: "[Content_Types].xml", data: Data(contentTypesXML.utf8))
         zip.addFile(path: "_rels/.rels", data: Data(relsXML.utf8))
-        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies).utf8))
+        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies, yUp: yUp).utf8))
         return zip.finish()
     }
+
+    /// The namespace of the app's own metadata (3MF wants custom names
+    /// qualified).
+    static let metadataNamespace = "https://openshape3d.com/3mf/2026/11"
 
     private static let contentTypesXML = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -37,13 +48,15 @@ nonisolated enum ThreeMFExporter {
     </Relationships>
     """
 
-    static func modelXML(bodies: [Body]) -> String {
+    static func modelXML(bodies: [Body], yUp: Bool = true) -> String {
         var out = """
         <?xml version="1.0" encoding="UTF-8"?>
-        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-        <resources>
+        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:os3d="\(metadataNamespace)">
+        <metadata name="Application">OpenShape3D</metadata>
         """
         out += "\n"
+        if yUp { out += "<metadata name=\"\(ThreeMFImporter.upAxisMetadataName)\">Y</metadata>\n" }
+        out += "<resources>\n"
         for (index, body) in bodies.enumerated() {
             let objectID = index + 1
             out += "<object id=\"\(objectID)\" type=\"model\">\n<mesh>\n<vertices>\n"

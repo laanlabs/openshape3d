@@ -918,7 +918,7 @@ final class AgentBridge {
         switch format {
         case .stl: data = STLExporter.binarySTL(bodies: bodies)
         case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
-        case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies)
+        case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies, yUp: !zUp)
         case .step:
             switch STEPKit.export(bodies: bodies) {
             case let .success(step, _): data = step
