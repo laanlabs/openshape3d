@@ -146,12 +146,28 @@ nonisolated struct MinimalZipWriter {
     private var data = Data()
     private var entries = [Entry]()
 
-    mutating func addFile(path: String, data fileData: Data) {
+    /// `alignment`: start the file's bytes on a multiple of this many bytes
+    /// from the archive's start (USDZ wants 64), by padding the local
+    /// header's extra field.
+    mutating func addFile(path: String, data fileData: Data, alignment: Int = 1) {
         let name = Array(path.utf8)
         let crc = Self.crc32(fileData)
         let size = UInt32(fileData.count)
         let entry = Entry(name: name, crc: crc, size: size, offset: UInt32(data.count))
         entries.append(entry)
+
+        // An extra field is a 4-byte header (id, length) plus its data, so
+        // 1–3 bytes of padding cannot be expressed: go to the next boundary.
+        var extra: [UInt8] = []
+        if alignment > 1 {
+            var padding = (alignment - (data.count + 30 + name.count) % alignment) % alignment
+            if padding > 0, padding < 4 { padding += alignment }
+            if padding > 0 {
+                let length = UInt16(padding - 4)
+                extra = [0x86, 0x19, UInt8(length & 0xFF), UInt8(length >> 8)]   // id 0x1986, as USD's own writer pads
+                    + [UInt8](repeating: 0, count: padding - 4)
+            }
+        }
 
         appendU32(0x0403_4B50)        // local file header signature
         appendU16(20)                 // version needed
@@ -163,8 +179,9 @@ nonisolated struct MinimalZipWriter {
         appendU32(size)               // compressed size == size (stored)
         appendU32(size)
         appendU16(UInt16(name.count))
-        appendU16(0)                  // extra length
+        appendU16(UInt16(extra.count)) // extra length
         data.append(contentsOf: name)
+        data.append(contentsOf: extra)
         data.append(fileData)
     }
 
