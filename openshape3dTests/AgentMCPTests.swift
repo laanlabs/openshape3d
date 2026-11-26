@@ -178,7 +178,7 @@ final class AgentMCPTests: XCTestCase {
     func testEveryReadOpOfTheOneToolRoutes() {
         XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "state"]])))?.route, .state)
         XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "health"]])))?.route, .health)
-        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "commands"]])))?.route, .commands)
+        XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: ["name": "os3d", "arguments": ["op": "commands"]])))?.route, .commandAvailability)
         XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
             "name": "os3d", "arguments": ["op": "edges", "args": ["body": "B"]]])))?.route, .edges(bodyID: "B"))
         XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [

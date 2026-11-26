@@ -399,20 +399,10 @@ nonisolated struct SignatureNaming: TopoNaming {
         let planar = faces.indices.filter { faces[$0].planar != nil }
 
         // Caps: the anti-parallel planar pair whose areas best match the profile.
-        var bestPair: (Int, Int)?
-        var bestScore = -Double.infinity
-        for a in 0..<planar.count {
-            for b in (a + 1)..<planar.count {
-                let sa = faces[planar[a]].signature
-                let sb = faces[planar[b]].signature
-                let anti = -simd_dot(Self.unit(sa.normal), Self.unit(sb.normal))
-                guard anti > 0.9 else { continue }
-                let areaMatch = 1 - min(1,
-                    (abs(sa.area - profileArea) + abs(sb.area - profileArea)) / max(profileArea, 1e-9))
-                let s = anti + areaMatch
-                if s > bestScore { bestScore = s; bestPair = (planar[a], planar[b]) }
-            }
-        }
+        let bestPair = Self.capPair(normals: planar.map { faces[$0].signature.normal },
+                                    areas: planar.map { faces[$0].signature.area },
+                                    profileArea: profileArea)
+            .map { (planar[$0.0], planar[$0.1]) }
 
         var axis = SIMD3<Double>(0, 1, 0)
         var capCenter = SIMD3<Double>.zero
@@ -455,6 +445,53 @@ nonisolated struct SignatureNaming: TopoNaming {
         // Anything still unlabelled → area-rank derived.
         let fallback = derivedRoles(faces)
         return roles.indices.map { roles[$0] ?? fallback[$0] }
+    }
+
+    /// The extrude's caps among its planar faces: the anti-parallel pair
+    /// (normals within ~25°) whose areas best match the profile, as indices
+    /// into `normals` / `areas`.
+    ///
+    /// Faces come from the render mesh, where a curved wall (a closed spline,
+    /// an ellipse) splits into hundreds or thousands of thin planar strips.
+    /// Pairing every face with every other was O(n²) on the main thread: a
+    /// closed spline 1.6 m across froze the editor for three minutes. A cap's
+    /// area matches the profile, so only pairs where at least one face is among
+    /// the `candidateLimit` faces closest to the profile area are scored:
+    /// O(candidateLimit · n). Pairs are visited in the same (a, b) order as
+    /// before and the first best score wins, so ties resolve as they always
+    /// did; with `candidateLimit` planar faces or fewer this is the exhaustive
+    /// search unchanged.
+    static func capPair(normals: [SIMD3<Double>], areas: [Double], profileArea: Double,
+                        candidateLimit: Int = 64) -> (Int, Int)? {
+        let n = normals.count
+        guard n >= 2, areas.count == n else { return nil }
+        let units = normals.map(unit)
+        var isCandidate = [Bool](repeating: n <= candidateLimit, count: n)
+        var candidates = Array(0..<n)
+        if n > candidateLimit {
+            candidates = Array((0..<n).sorted {
+                let da = abs(areas[$0] - profileArea), db = abs(areas[$1] - profileArea)
+                return da != db ? da < db : $0 < $1
+            }.prefix(candidateLimit)).sorted()
+            for c in candidates { isCandidate[c] = true }
+        }
+        var best: (Int, Int)?
+        var bestScore = -Double.infinity
+        func consider(_ a: Int, _ b: Int) {
+            let anti = -simd_dot(units[a], units[b])
+            guard anti > 0.9 else { return }
+            let areaMatch = 1 - min(1, (abs(areas[a] - profileArea) + abs(areas[b] - profileArea)) / max(profileArea, 1e-9))
+            let s = anti + areaMatch
+            if s > bestScore { bestScore = s; best = (a, b) }
+        }
+        for a in 0..<n {
+            if isCandidate[a] {
+                for b in (a + 1)..<n { consider(a, b) }
+            } else {
+                for b in candidates where b > a { consider(a, b) }
+            }
+        }
+        return best
     }
 
     private func derivedRoles(_ faces: [EnumeratedFace]) -> [FaceRole] {

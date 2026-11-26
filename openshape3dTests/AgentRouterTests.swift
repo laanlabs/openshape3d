@@ -49,6 +49,16 @@ final class AgentRouterTests: XCTestCase {
         XCTAssertEqual(route("GET", "/v1/state"), .state)
     }
 
+    /// `?available=1` asks the editor; without it the list is answered on
+    /// the listener queue as before, so it still works when the editor is busy.
+    func testCommandsWithAvailabilityNeedTheEditor() {
+        XCTAssertEqual(route("GET", "/v1/commands?available=1"), .commandAvailability)
+        XCTAssertEqual(route("GET", "/v1/commands?available=true"), .commandAvailability)
+        XCTAssertEqual(route("GET", "/v1/commands?available=0"), .commands)
+        XCTAssertTrue(AgentRoute.commandAvailability.needsEditor)
+        XCTAssertFalse(AgentRoute.commands.needsEditor)
+    }
+
     func testScreenshotTakesItsSizeFromTheQuery() {
         XCTAssertEqual(route("GET", "/v1/screenshot?w=800&h=600"), .screenshot(width: 800, height: 600))
     }
@@ -313,6 +323,24 @@ final class AgentRouterTests: XCTestCase {
             XCTAssertTrue(CommandRegistry.routableIDs.contains(id), "\(id) is offered but cannot run")
         }
         XCTAssertFalse(ids.contains("app.commandSearch"), "the launcher itself is not a target")
+    }
+
+    /// With the editor's rule, every entry says whether it can run and, when
+    /// it cannot, why; without it the entries are unchanged.
+    func testCommandsResponseCarriesAvailabilityWhenGivenTheRule() {
+        let plain = json(AgentRouter.commandsResponse())
+        XCTAssertNil(plain["availableCount"])
+        XCTAssertNil((plain["commands"] as? [[String: Any]])?.first?["available"])
+
+        let payload = json(AgentRouter.commandsResponse { $0 == "edit.undo" ? "Nothing to undo." : nil })
+        let commands = payload["commands"] as? [[String: Any]] ?? []
+        let undo = commands.first { $0["id"] as? String == "edit.undo" }
+        XCTAssertEqual(undo?["available"] as? Bool, false)
+        XCTAssertEqual(undo?["unavailableReason"] as? String, "Nothing to undo.")
+        let fit = commands.first { $0["id"] as? String == "view.fit" }
+        XCTAssertEqual(fit?["available"] as? Bool, true)
+        XCTAssertNil(fit?["unavailableReason"])
+        XCTAssertEqual(payload["availableCount"] as? Int, commands.count - 1)
     }
 
     func testEveryOfferedCommandCarriesTitleAndCategory() {

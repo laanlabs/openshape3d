@@ -896,7 +896,9 @@ struct HelixOptionsSheet: View {
     @State private var pitch = 2.0
     @State private var turns = 3.0
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
     let onCreate: (Double, Double, Double) -> Void
 
     var body: some View {

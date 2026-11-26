@@ -1180,6 +1180,31 @@ nonisolated enum OCCTKernel {
         return (positions, normals, indices)
     }
 
+    /// A mesh of `handle` at its own deflections, for export: built on a
+    /// mesh-free copy, so the body's render triangulation is untouched.
+    /// Carries the kernel face channel. Nil when tessellation fails.
+    static func exportMesh(from handle: BRepHandle, angularDeflection: Double,
+                           linearDeflection: Double) -> RenderMesh? {
+        let mesh = OCCTBridge.exportMesh(
+            from: handle.shape, angularDeflection: angularDeflection,
+            linearDeflection: linearDeflection)
+        let p = mesh.positions.floatArray()
+        let nn = mesh.normals.floatArray()
+        let n = mesh.vertexCount
+        guard n > 0, mesh.triangleCount > 0 else { return nil }
+        var positions = [SIMD3<Float>](); positions.reserveCapacity(n)
+        var normals = [SIMD3<Float>](); normals.reserveCapacity(n)
+        for v in 0..<n {
+            positions.append(SIMD3<Float>(p[3*v], p[3*v+1], p[3*v+2]))
+            normals.append(SIMD3<Float>(nn[3*v], nn[3*v+1], nn[3*v+2]))
+        }
+        var render = RenderMesh(positions: positions, normals: normals,
+                                indices: mesh.indices.uint32Array())
+        let regions = mesh.faceIndices.uint32Array()
+        if regions.count == render.triangleCount { render.faceRegions = regions }
+        return render
+    }
+
     /// Per-triangle OCCT face channel for a B-rep render mesh: entry i is the
     /// 1-based indexed-map face number triangle i tessellates (0 = unknown) —
     /// the same numbering the health report's "Face3" findings use. Step 1 of

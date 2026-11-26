@@ -16,7 +16,9 @@ struct ProjectVersionsView: View {
     var onRestore: (Int) -> Void
     var onCopy: (Int) -> Void
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
+    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
     /// Name…: the version being named and the name typed.
     @State private var naming: ProjectVersionStore.Version?
     @State private var nameDraft = ""

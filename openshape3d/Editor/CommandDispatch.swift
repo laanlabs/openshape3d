@@ -136,9 +136,59 @@ extension EditorViewModel {
             return true
         }
 
+        // The rule that says why not (`CommandAvailability`). `perform` keeps
+        // its own checks as a backstop, but this is the one that decides.
+        guard unavailableReason(id) == nil else { return false }
         guard perform(command) else { return false }
         commandRegistry.markUsed(id)
         return true
+    }
+
+    /// Why `id` cannot run right now, or `nil` when it can — the same rule
+    /// `runCommand` applies, for Command Search and `/v1/commands?available=1`.
+    func unavailableReason(_ id: String) -> String? {
+        CommandRegistry.unavailableReason(
+            for: id,
+            in: commandContext(evaluatingProfiles: CommandRegistry.profileCommandIDs.contains(id)))
+    }
+
+    /// The editor facts `CommandRegistry.unavailableReason(for:in:)` reads.
+    /// Profile detection is the one costly fact; it runs only when asked.
+    func commandContext(evaluatingProfiles: Bool) -> CommandContext {
+        let bodies = session.document.bodies
+        let sketches = session.document.sketches
+        var context = CommandContext()
+        context.isSketching = mode.isSketching
+        if case .pickingSketchPlane = mode { context.isPickingSketchPlane = true }
+        if case .pickingBooleanTool(let kind, _) = mode {
+            switch kind {
+            case .union: context.pickingBooleanCommandID = "bool.union"
+            case .subtract: context.pickingBooleanCommandID = "bool.subtract"
+            case .intersect: context.pickingBooleanCommandID = "bool.intersect"
+            }
+        }
+        context.hasHoverRay = hoverRay != nil
+        context.hasActiveSketch = activeSketch != nil
+        context.selectedSketchEntityCount = selectedSketchEntityIDs.count
+        context.bodyCount = bodies.count
+        context.selectionCount = selection.count
+        context.selectedBodyCount = bodies.filter { selection.contains($0.id) }.count
+        context.hasModelSketchSelection = hasModelSketchSelection
+        context.canBeginPattern = canBeginPattern
+        context.canUndo = session.undoStack.canUndo
+        context.canRedo = session.undoStack.canRedo
+        switch EditorClipboard.content {
+        case .bodies(let items)?: context.clipboard = items.isEmpty ? .empty : .bodies
+        case .sketchEntities(let items)?: context.clipboard = items.isEmpty ? .empty : .sketchEntities
+        case nil: context.clipboard = .empty
+        }
+        context.sectionActive = sectionState != nil
+        context.deviationPreviewActive = deviationPreview != nil || deviationPreviewComputing
+        context.hasDeviationPair = deviationPreviewDefaults() != nil
+        context.sketchCount = sketches.count
+        context.visibleSketchCount = sketches.filter { !$0.isHidden }.count
+        if evaluatingProfiles { context.hasExtrudableProfile = hasExtrudableProfile }
+        return context
     }
 
     private func perform(_ command: AppCommand) -> Bool {

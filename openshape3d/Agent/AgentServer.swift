@@ -342,6 +342,16 @@ nonisolated final class AgentServer: @unchecked Sendable {
             return
         }
 
+        switch route {
+        case .latencyReport, .latencyControl:
+            // Diagnostics need the main actor but not an open design.
+            Task { @MainActor [weak self] in
+                self?.send(AgentBridge.shared.diagnostics(route), on: connection)
+            }
+            return
+        default: break
+        }
+
         Task { @MainActor [weak self] in
             let response = AgentBridge.shared.handle(route)
             self?.send(response, on: connection)
