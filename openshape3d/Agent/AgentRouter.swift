@@ -76,7 +76,7 @@ nonisolated enum AgentShotFormat: String, Sendable, Equatable {
 /// The fabrication formats `/v1/export` writes — the Export menu's mesh
 /// formats plus STEP. Millimetres, like everything else on the wire.
 nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
-    case stl, obj, threeMF = "3mf", step
+    case stl, obj, threeMF = "3mf", step, glb
 
     var contentType: String {
         switch self {
@@ -84,6 +84,7 @@ nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
         case .obj: return "model/obj"
         case .threeMF: return "model/3mf"
         case .step: return "model/step"
+        case .glb: return "model/gltf-binary"
         }
     }
 }
