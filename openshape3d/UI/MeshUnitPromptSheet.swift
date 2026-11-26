@@ -14,9 +14,7 @@ struct MeshUnitPromptSheet: View {
     let probe: MeshImportProbe
     let onImport: (MeshImportUnit) -> Void
 
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
     @State private var unit: MeshImportUnit
 
     init(probe: MeshImportProbe, onImport: @escaping (MeshImportUnit) -> Void) {

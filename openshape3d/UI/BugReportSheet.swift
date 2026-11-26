@@ -17,9 +17,7 @@ struct BugReportSheet: View {
     /// archive). nil when there is no open design (the gallery).
     let attachmentProvider: (() -> BugAttachment?)?
 
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
 
     @State private var title: String
     @State private var details: String

@@ -85,9 +85,7 @@ struct MeshExportOptionsSheet: View {
     let onExport: (Bool) -> Void
 
     @State private var perBodyFiles = false
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -123,9 +121,7 @@ struct ScreenshotOptionsSheet: View {
     @State private var transparentBackground: Bool
     @State private var showGrid: Bool
 
-    @Environment(\.dismiss) private var swiftUIDismiss
-    /// SwiftUI's dismiss plus the Mac fallback (#117), see `SheetDismiss`.
-    private var dismiss: SheetDismiss { SheetDismiss(swiftUIDismiss) }
+    @Environment(\.dismiss) private var dismiss
     let onExport: (Int, Int, Bool, Bool) -> Void
 
     /// `visualizing`: Capture from the Visualization workspace — no grid,
