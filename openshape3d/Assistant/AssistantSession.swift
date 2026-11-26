@@ -3,16 +3,20 @@
 //  openshape3d
 //
 //  One conversation with the built-in assistant (#119): what the panel
-//  shows, and the loop behind it. The person types; the request goes to
-//  Claude with their own key; when the reply asks for a tool, the call runs
-//  against the open design (`AssistantTools`) and the answer goes back, until
-//  the model has nothing more to do or the person presses Stop.
+//  shows, and the loop behind it. The person types; the request goes to the
+//  provider they chose (Claude, OpenAI or Gemini) with their own key; when
+//  the reply asks for a tool, the call runs against the open design
+//  (`AssistantTools`) and the answer goes back, until the model has nothing
+//  more to do or the person presses Stop.
 //
-//  The loop is written out here rather than taken from an SDK because Swift
-//  has none for this API. The wire shapes are in `AssistantWire`.
+//  The loop is the same for every provider. What differs between them, the
+//  request, the stream, the shape of a conversation, is behind
+//  `AssistantProvider`; the wire shapes are in `AssistantWire` (Claude),
+//  `OpenAIWire` and `GeminiWire`.
 //
 //  A conversation lives as long as its editor: it is not saved with the
-//  design, and closing the design ends it.
+//  design, and closing the design ends it. It is in its provider's own
+//  shape, so changing provider starts a new one.
 //
 
 import Foundation
@@ -40,80 +44,116 @@ final class AssistantSession {
     private(set) var isRunning = false
     /// "Thinking…" and the like, while a reply is on its way.
     private(set) var status: String?
+    /// Whether there is a key for `provider`.
     private(set) var hasKey: Bool
     /// Tokens this conversation has used so far, as the API reported them.
     private(set) var tokensIn = 0
     private(set) var tokensOut = 0
 
-    var modelID: String {
-        didSet { UserDefaults.standard.set(modelID, forKey: Self.modelKey) }
+    /// Whose model answers. Changing it starts a new chat: a conversation is
+    /// in its provider's own shape and cannot be carried across.
+    var provider: AssistantProvider {
+        didSet {
+            guard provider != oldValue else { return }
+            UserDefaults.standard.set(provider.rawValue, forKey: Self.providerKey)
+            newChat()
+            options = AssistantRequestOptions()
+            modelID = Self.storedModel(for: provider)
+            hasKey = apiKey != nil
+        }
     }
-    var model: AssistantModel { AnthropicWire.model(modelID) }
+
+    var modelID: String {
+        didSet { UserDefaults.standard.set(modelID, forKey: Self.modelKey(provider)) }
+    }
+    var model: AssistantModel { provider.model(modelID) }
+
+    /// The providers that have a key on this device.
+    var providersWithKeys: [AssistantProvider] {
+        AssistantProvider.allCases.filter { key(for: $0) != nil }
+    }
 
     // MARK: Behind it
 
-    private static let modelKey = "assistant.model"
+    private static let providerKey = "assistant.provider"
+    /// Claude's choice keeps the name it had before there were other providers.
+    private static func modelKey(_ provider: AssistantProvider) -> String {
+        provider == .anthropic ? "assistant.model" : "assistant.model." + provider.rawValue
+    }
+    private static func storedModel(for provider: AssistantProvider) -> String {
+        provider.model(UserDefaults.standard.string(forKey: modelKey(provider))).id
+    }
+
     /// Requests in one turn before the assistant stops and says so. A long
     /// build is a few dozen; this is the guard against a loop that never ends.
     static let maxRequestsPerTurn = 80
 
-    @ObservationIgnored private var messages: [[String: Any]] = []
+    @ObservationIgnored private var conversation: [[String: Any]] = []
     @ObservationIgnored private var task: Task<Void, Never>?
-    /// Cleared when the API says this key cannot use the decline-retry feature.
-    @ObservationIgnored private var retryDeclines = true
-    @ObservationIgnored private let endpoint: URL
+    /// The form of request this key's account accepts, learned as it goes.
+    @ObservationIgnored private var options = AssistantRequestOptions()
+    @ObservationIgnored private let endpointOverride: URL?
     @ObservationIgnored private let fixedKey: String?
     @ObservationIgnored private let urlSession: URLSession
 
     init() {
-        var endpoint = AnthropicWire.endpoint
+        var endpointOverride: URL?
         var fixedKey: String?
+        var provider = AssistantProvider(rawValue: UserDefaults.standard.string(forKey: Self.providerKey) ?? "") ?? .anthropic
         #if DEBUG
-        // UI tests: a stand-in server on this machine and a key that is not one.
+        // UI tests: a stand-in server on this machine, a key that is not one,
+        // and the provider whose wire the stand-in speaks.
         let environment = ProcessInfo.processInfo.environment
-        if let raw = environment["OS3D_ASSISTANT_URL"], let url = URL(string: raw) { endpoint = url }
+        if let raw = environment["OS3D_ASSISTANT_URL"], let url = URL(string: raw) { endpointOverride = url }
         if let key = environment["OS3D_ASSISTANT_KEY"], !key.isEmpty { fixedKey = key }
+        if let named = environment["OS3D_ASSISTANT_PROVIDER"].flatMap(AssistantProvider.init(rawValue:)) { provider = named }
         #endif
-        self.endpoint = endpoint
+        self.endpointOverride = endpointOverride
         self.fixedKey = fixedKey
         let configuration = URLSessionConfiguration.ephemeral   // no cookies, no cache on disk
         configuration.timeoutIntervalForRequest = 180           // silence between pieces of a reply
         configuration.timeoutIntervalForResource = 60 * 60
         configuration.waitsForConnectivity = false
         urlSession = URLSession(configuration: configuration)
-        hasKey = fixedKey != nil || AssistantKeyStore.load() != nil
-        let stored = UserDefaults.standard.string(forKey: Self.modelKey) ?? AnthropicWire.defaultModelID
-        modelID = AnthropicWire.model(stored).id
+        self.provider = provider
+        modelID = Self.storedModel(for: provider)
+        hasKey = fixedKey != nil || AssistantKeyStore.load(provider) != nil
     }
 
-    // MARK: Key
+    // MARK: Keys
 
-    /// Store the key the person pasted. Nil on success, else what to tell them.
+    private func key(for provider: AssistantProvider) -> String? {
+        fixedKey ?? AssistantKeyStore.load(provider)
+    }
+
+    private var apiKey: String? { key(for: provider) }
+
+    /// Store the key the person pasted for the chosen provider. Nil on
+    /// success, else what to tell them.
     func saveKey(_ pasted: String) -> String? {
         let key = AssistantKeyStore.tidy(pasted)
         guard AssistantKeyStore.isPlausible(key) else {
-            return "That does not look like an API key. Paste the whole key, which starts with sk-ant-."
+            return "That does not look like an API key. Paste the whole key from \(provider.company)."
         }
-        guard AssistantKeyStore.save(key) else {
+        guard AssistantKeyStore.save(key, for: provider) else {
             return "The key could not be saved to this device's keychain."
         }
         hasKey = true
         return nil
     }
 
+    /// Remove the chosen provider's key from this device.
     func removeKey() {
         stop()
-        AssistantKeyStore.remove()
+        AssistantKeyStore.remove(provider)
         hasKey = fixedKey != nil
     }
-
-    private var apiKey: String? { fixedKey ?? AssistantKeyStore.load() }
 
     // MARK: Conversation
 
     func newChat() {
         stop()
-        messages = []
+        conversation = []
         entries = []
         tokensIn = 0
         tokensOut = 0
@@ -128,10 +168,11 @@ final class AssistantSession {
             return
         }
         entries.append(Entry(kind: .user(text)))
-        AnthropicWire.appendUserText(text, to: &messages)
+        provider.appendUserText(text, to: &conversation)
         isRunning = true
+        let provider = self.provider
         task = Task { [weak self] in
-            await self?.runTurn(key: key)
+            await self?.runTurn(provider: provider, key: key)
             self?.finishTurn()
         }
     }
@@ -154,7 +195,7 @@ final class AssistantSession {
 
     // MARK: The loop
 
-    private func runTurn(key: String) async {
+    private func runTurn(provider: AssistantProvider, key: String) async {
         // While the assistant builds, the view follows what it makes, as it
         // does for an assistant connected from outside (`framesAssistantWork`).
         let framedBefore = AgentBridge.shared.framesAssistantWork
@@ -162,14 +203,13 @@ final class AssistantSession {
         defer { AgentBridge.shared.framesAssistantWork = framedBefore }
 
         let system = AnthropicWire.systemPrompt(guide: AgentMCP.guide)
-        let tools = AnthropicWire.tools(fromMCP: AgentMCP.tools)
 
         for _ in 0..<Self.maxRequestsPerTurn {
             if Task.isCancelled { return noteStopped() }
 
-            let reply: AnthropicStream
+            let reply: AssistantReply
             do {
-                reply = try await request(key: key, system: system, tools: tools)
+                reply = try await request(provider: provider, key: key, system: system)
             } catch is CancellationError {
                 return noteStopped()
             } catch let failure as Failure {
@@ -177,41 +217,34 @@ final class AssistantSession {
                 return
             } catch {
                 if Task.isCancelled || (error as? URLError)?.code == .cancelled { return noteStopped() }
-                entries.append(Entry(kind: .problem(Self.describe(error))))
+                entries.append(Entry(kind: .problem(Self.describe(error, provider: provider))))
                 return
             }
-            tokensIn += reply.inputTokens + reply.cacheReadTokens + reply.cacheWriteTokens
-            tokensOut += reply.outputTokens
+            tokensIn += reply.tokensIn
+            tokensOut += reply.tokensOut
 
-            let content = reply.content
-            let calls = AnthropicWire.toolCalls(in: content)
-
-            if reply.stopReason == "refusal" {
+            if reply.outcome == .declined {
                 // Nothing of a declined reply is kept, and the request that
                 // drew it is taken back so the next message starts clean.
-                if let last = messages.last, last["role"] as? String == "user",
-                   !((last["content"] as? [[String: Any]]) ?? []).contains(where: { $0["type"] as? String == "tool_result" }) {
-                    messages.removeLast()
-                }
-                entries.append(Entry(kind: .problem("Claude declined this request, so nothing was changed. "
+                provider.removePendingUserText(from: &conversation)
+                entries.append(Entry(kind: .problem("\(provider.name) declined this request, so nothing was changed. "
                                                     + "Try asking in a different way.")))
                 return
             }
 
-            let echoed = AnthropicStream.sendable(AnthropicWire.echo(content))
-            if !echoed.isEmpty { messages.append(["role": "assistant", "content": echoed]) }
+            conversation.append(contentsOf: reply.history)
 
-            switch reply.stopReason {
-            case "tool_use" where !calls.isEmpty, "max_tokens" where !calls.isEmpty:
+            switch reply.outcome {
+            case .toolCalls, .cutOff where !reply.calls.isEmpty:
                 // A reply cut off at its length limit may hold half a call:
                 // none of that reply's calls run, and the model is told why.
-                let cutOff = reply.stopReason == "max_tokens"
-                var results: [[String: Any]] = []
-                for call in calls {
+                let cutOff = reply.outcome == .cutOff
+                var results: [(call: AssistantToolCall, content: [AssistantToolContent], isError: Bool)] = []
+                for call in reply.calls {
                     let row = entries.count
                     let label = AssistantTools.label(op: call.op, args: call.input["args"] as? [String: Any] ?? [:])
                     entries.append(Entry(kind: .activity(label, .running)))
-                    let outcome: (content: [AnthropicWire.ToolContent], isError: Bool)
+                    let outcome: (content: [AssistantToolContent], isError: Bool)
                     if Task.isCancelled {
                         outcome = ([.text("The person pressed Stop before this ran. It was not done.")], true)
                     } else if cutOff {
@@ -222,23 +255,23 @@ final class AssistantSession {
                         outcome = AssistantTools.run(call)
                     }
                     entries[row].kind = .activity(label, outcome.isError ? .failed(Self.firstText(outcome.content)) : .done)
-                    results.append(AnthropicWire.toolResult(id: call.id, content: outcome.content, isError: outcome.isError))
+                    results.append((call, outcome.content, outcome.isError))
                 }
-                // Every call is answered, in one message, before anything else is said.
-                messages.append(["role": "user", "content": results])
+                // Every call is answered before anything else is said.
+                provider.appendToolResults(results, to: &conversation)
                 if Task.isCancelled { return noteStopped() }
                 continue
 
-            case "pause_turn":
+            case .paused:
                 continue   // the API paused its own work; the same conversation resumes it
 
-            case "max_tokens":
+            case .cutOff:
                 entries.append(Entry(kind: .notice("The reply reached its length limit and was cut short.")))
                 return
 
-            default:
-                if echoed.isEmpty {
-                    entries.append(Entry(kind: .notice("Claude sent an empty reply. Try sending the message again.")))
+            case .toolCalls, .done, .declined:
+                if reply.history.isEmpty {
+                    entries.append(Entry(kind: .notice("\(provider.name) sent an empty reply. Try sending the message again.")))
                 }
                 return
             }
@@ -254,26 +287,26 @@ final class AssistantSession {
 
     private struct Failure: Error { var message: String }
     private struct HTTPFailure: Error { var status: Int; var body: Data; var retryAfter: Double? }
+    private struct Dropped: Error { var message: String }
 
     /// Send the conversation and read the reply as it streams, showing its
     /// text as it arrives. A request that fails before anything of the reply
     /// was shown is tried again a couple of times when that can help.
-    private func request(key: String, system: String, tools: [[String: Any]]) async throws -> AnthropicStream {
+    private func request(provider: AssistantProvider, key: String, system: String) async throws -> AssistantReply {
         var attempt = 0
         while true {
             attempt += 1
             let mark = entries.count
             status = "Thinking…"
             do {
-                return try await requestOnce(key: key, system: system, tools: tools)
+                return try await requestOnce(provider: provider, key: key, system: system)
             } catch let failure as HTTPFailure {
                 entries.removeSubrange(mark...)
-                if retryDeclines, AnthropicWire.isAboutDeclineRetry(status: failure.status, body: failure.body) {
-                    retryDeclines = false   // this key cannot use it; carry on without
-                    continue
-                }
+                // The API refused this form of the request and another form
+                // avoids the reason: carry on with that one.
+                if provider.adjust(&options, afterStatus: failure.status, body: failure.body) { continue }
                 let wait: Double?
-                if AnthropicWire.isWorthRetrying(status: failure.status) {
+                if provider.isWorthRetrying(status: failure.status) {
                     wait = Double(attempt) * 2
                 } else if failure.status == 429, let after = failure.retryAfter, after <= 20 {
                     wait = max(after, 1)
@@ -281,7 +314,7 @@ final class AssistantSession {
                     wait = nil
                 }
                 guard attempt < 3, let wait else {
-                    throw Failure(message: AnthropicWire.errorMessage(status: failure.status, body: failure.body))
+                    throw Failure(message: provider.errorMessage(status: failure.status, body: failure.body))
                 }
                 status = "Waiting to try again…"
                 try await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000))
@@ -296,24 +329,20 @@ final class AssistantSession {
         }
     }
 
-    private struct Dropped: Error { var message: String }
-
-    private func requestOnce(key: String, system: String, tools: [[String: Any]]) async throws -> AnthropicStream {
-        let model = self.model
-        var request = URLRequest(url: endpoint)
+    private func requestOnce(provider: AssistantProvider, key: String, system: String) async throws -> AssistantReply {
+        let parts = provider.request(apiKey: key, model: model, system: system, mcpTools: AgentMCP.tools,
+                                     conversation: conversation, options: options)
+        var request = URLRequest(url: endpointOverride ?? parts.url)
         request.httpMethod = "POST"
-        for (name, value) in AnthropicWire.headers(apiKey: key, model: model, retryDeclines: retryDeclines) {
-            request.setValue(value, forHTTPHeaderField: name)
-        }
-        request.httpBody = AnthropicWire.encode(AnthropicWire.requestBody(
-            model: model, system: system, tools: tools, messages: messages, retryDeclines: retryDeclines))
+        for (name, value) in parts.headers { request.setValue(value, forHTTPHeaderField: name) }
+        request.httpBody = parts.body
 
         let bytes: URLSession.AsyncBytes
         let response: URLResponse
         do {
             (bytes, response) = try await urlSession.bytes(for: request)
         } catch let error as URLError where error.code != .cancelled {
-            throw Dropped(message: Self.describe(error))
+            throw Dropped(message: Self.describe(error, provider: provider))
         }
         let http = response as? HTTPURLResponse
         let statusCode = http?.statusCode ?? 0
@@ -327,7 +356,7 @@ final class AssistantSession {
             throw HTTPFailure(status: statusCode, body: body, retryAfter: retryAfter)
         }
 
-        var stream = AnthropicStream()
+        var stream = AssistantStream(provider)
         var replyRow: Int?
         do {
             for try await line in bytes.lines {
@@ -349,7 +378,7 @@ final class AssistantSession {
                     replyRow = nil   // text after a call starts a new paragraph of its own
                 case .switchedModel(let name):
                     entries.append(Entry(kind: .notice(name.isEmpty
-                        ? "The model declined; another Claude model is answering."
+                        ? "The model declined; another model is answering."
                         : "The model declined; \(name) is answering instead.")))
                     replyRow = nil
                 case .failed, .nothing:
@@ -357,37 +386,37 @@ final class AssistantSession {
                 }
             }
         } catch let error as URLError where error.code != .cancelled {
-            throw Dropped(message: Self.describe(error))
+            throw Dropped(message: Self.describe(error, provider: provider))
         }
         if let failure = stream.failure {
-            throw Dropped(message: "Anthropic's service stopped the reply: \(failure)")
+            throw Dropped(message: "\(provider.company)'s service stopped the reply: \(failure)")
         }
         if stream.endedMidReply {
             throw Dropped(message: "The connection closed before the reply was complete.")
         }
-        return stream
+        return stream.reply
     }
 
     // MARK: Words
 
-    private static func describe(_ error: Error) -> String {
+    private static func describe(_ error: Error, provider: AssistantProvider) -> String {
         if let url = error as? URLError {
             switch url.code {
             case .notConnectedToInternet, .dataNotAllowed:
                 return "This device is offline. The assistant needs an internet connection."
             case .timedOut:
-                return "Anthropic did not answer in time. Try again."
+                return "\(provider.company) did not answer in time. Try again."
             case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed, .networkConnectionLost:
-                return "Could not reach Anthropic. Check the connection and try again."
+                return "Could not reach \(provider.company). Check the connection and try again."
             default:
-                return "Could not reach Anthropic (\(url.localizedDescription))."
+                return "Could not reach \(provider.company) (\(url.localizedDescription))."
             }
         }
         return "Something went wrong: \(error.localizedDescription)"
     }
 
     /// The start of a failed call's answer, for the row's detail line.
-    private static func firstText(_ content: [AnthropicWire.ToolContent]) -> String {
+    private static func firstText(_ content: [AssistantToolContent]) -> String {
         for piece in content {
             if case .text(let text) = piece {
                 // A refused or failed call answers with JSON carrying a message.
