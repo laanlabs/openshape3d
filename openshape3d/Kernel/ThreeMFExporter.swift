@@ -8,19 +8,30 @@
 //  central directory). Transforms are baked; unit is millimeter per the
 //  1 unit = 1 mm convention.
 //
+//  3MF is Z-up. The plain export writes the design as it is modelled (Y-up)
+//  and says so in an `os3d:UpAxis` metadata entry, which `ThreeMFImporter`
+//  reads so the file comes back as it left; a file already turned Z-up (the
+//  slicer export, `up=z`) carries no entry and is standard 3MF.
+//
 
 import Foundation
 import simd
 
 nonisolated enum ThreeMFExporter {
 
-    static func threeMF(bodies: [Body]) -> Data {
+    /// `yUp`: the bodies are in the design's own Y-up frame (the default);
+    /// false when they were already turned to 3MF's Z-up.
+    static func threeMF(bodies: [Body], yUp: Bool = true) -> Data {
         var zip = MinimalZipWriter()
         zip.addFile(path: "[Content_Types].xml", data: Data(contentTypesXML.utf8))
         zip.addFile(path: "_rels/.rels", data: Data(relsXML.utf8))
-        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies).utf8))
+        zip.addFile(path: "3D/3dmodel.model", data: Data(modelXML(bodies: bodies, yUp: yUp).utf8))
         return zip.finish()
     }
+
+    /// The namespace of the app's own metadata (3MF wants custom names
+    /// qualified).
+    static let metadataNamespace = "https://openshape3d.com/3mf/2026/11"
 
     private static let contentTypesXML = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -37,16 +48,48 @@ nonisolated enum ThreeMFExporter {
     </Relationships>
     """
 
-    static func modelXML(bodies: [Body]) -> String {
+    /// Names and colours (#133): every `<object>` is named after its body.
+    /// When the design has materials they form one `<basematerials>` group,
+    /// each a named `<base>` with its `displaycolor`; an object's `pid` /
+    /// `pindex` give the body's material and a triangle's `pid` / `p1` a
+    /// painted face's. A design without materials has no group and no
+    /// property attributes, as before.
+    static func modelXML(bodies: [Body], yUp: Bool = true) -> String {
+        let palette = ExportAppearance.palette(for: bodies)
+        // Objects are 1…n, so the group takes n + 1. It is written first:
+        // a resource has to appear before whatever refers to it.
+        let groupID = bodies.count + 1
         var out = """
         <?xml version="1.0" encoding="UTF-8"?>
-        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-        <resources>
+        <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:os3d="\(metadataNamespace)">
+        <metadata name="Application">OpenShape3D</metadata>
         """
         out += "\n"
+        if yUp { out += "<metadata name=\"\(ThreeMFImporter.upAxisMetadataName)\">Y</metadata>\n" }
+        out += "<resources>\n"
+        if !palette.isPlain {
+            out += "<basematerials id=\"\(groupID)\">\n"
+            for (spec, name) in zip(palette.materials, palette.names) {
+                out += "<base name=\"\(ExportAppearance.xmlAttribute(name))\" "
+                    + "displaycolor=\"\(ExportAppearance.hex(spec))\"/>\n"
+            }
+            out += "</basematerials>\n"
+        }
         for (index, body) in bodies.enumerated() {
             let objectID = index + 1
-            out += "<object id=\"\(objectID)\" type=\"model\">\n<mesh>\n<vertices>\n"
+            // The first run is the body's own material (nil when it has
+            // none) and becomes the object's default; every other run is a
+            // painted face, written triangle by triangle.
+            let runs = palette.runs[index]
+            let objectMaterial = runs.first?.material
+            var trianglePaint: [Int: Int] = [:]
+            for run in runs.dropFirst() {
+                guard let material = run.material else { continue }
+                for t in run.triangles { trianglePaint[t] = material }
+            }
+            var attributes = "id=\"\(objectID)\" name=\"\(ExportAppearance.xmlAttribute(body.name))\" type=\"model\""
+            if let objectMaterial { attributes += " pid=\"\(groupID)\" pindex=\"\(objectMaterial)\"" }
+            out += "<object \(attributes)>\n<mesh>\n<vertices>\n"
             let transform = body.transform
             for p in body.render.positions {
                 let w = transform.applying(to: SIMD3<Double>(p))
@@ -56,7 +99,9 @@ nonisolated enum ThreeMFExporter {
             let indices = body.render.indices
             var i = 0
             while i + 2 < indices.count {
-                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\"/>\n"
+                out += "<triangle v1=\"\(indices[i])\" v2=\"\(indices[i + 1])\" v3=\"\(indices[i + 2])\""
+                if let paint = trianglePaint[i / 3] { out += " pid=\"\(groupID)\" p1=\"\(paint)\"" }
+                out += "/>\n"
                 i += 3
             }
             out += "</triangles>\n</mesh>\n</object>\n"
@@ -84,12 +129,28 @@ nonisolated struct MinimalZipWriter {
     private var data = Data()
     private var entries = [Entry]()
 
-    mutating func addFile(path: String, data fileData: Data) {
+    /// `alignment`: start the file's bytes on a multiple of this many bytes
+    /// from the archive's start (USDZ wants 64), by padding the local
+    /// header's extra field.
+    mutating func addFile(path: String, data fileData: Data, alignment: Int = 1) {
         let name = Array(path.utf8)
         let crc = Self.crc32(fileData)
         let size = UInt32(fileData.count)
         let entry = Entry(name: name, crc: crc, size: size, offset: UInt32(data.count))
         entries.append(entry)
+
+        // An extra field is a 4-byte header (id, length) plus its data, so
+        // 1–3 bytes of padding cannot be expressed: go to the next boundary.
+        var extra: [UInt8] = []
+        if alignment > 1 {
+            var padding = (alignment - (data.count + 30 + name.count) % alignment) % alignment
+            if padding > 0, padding < 4 { padding += alignment }
+            if padding > 0 {
+                let length = UInt16(padding - 4)
+                extra = [0x86, 0x19, UInt8(length & 0xFF), UInt8(length >> 8)]   // id 0x1986, as USD's own writer pads
+                    + [UInt8](repeating: 0, count: padding - 4)
+            }
+        }
 
         appendU32(0x0403_4B50)        // local file header signature
         appendU16(20)                 // version needed
@@ -101,8 +162,9 @@ nonisolated struct MinimalZipWriter {
         appendU32(size)               // compressed size == size (stored)
         appendU32(size)
         appendU16(UInt16(name.count))
-        appendU16(0)                  // extra length
+        appendU16(UInt16(extra.count)) // extra length
         data.append(contentsOf: name)
+        data.append(contentsOf: extra)
         data.append(fileData)
     }
 

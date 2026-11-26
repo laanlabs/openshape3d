@@ -3,10 +3,16 @@
 //  openshape3d
 //
 //  glTF 2.0 binary (.glb) export from RenderMesh buffers. One node + mesh per
-//  body (transform baked into world space, matching the other exporters), a
-//  single shared pbrMetallicRoughness material, and a single BIN buffer with
-//  per-body position/normal/index bufferViews. All views are 4-byte aligned
-//  (float triples and uint32 indices are naturally multiples of 4).
+//  body (transform baked into world space, matching the other exporters),
+//  both named after the body, and a single BIN buffer with per-body
+//  position/normal bufferViews and one index bufferView per primitive. All
+//  views are 4-byte aligned (float triples and uint32 indices are naturally
+//  multiples of 4).
+//  Materials (#133): material 0 is the stock grey every body used to get,
+//  and still does when it has no material of its own; after it comes one
+//  pbrMetallicRoughness material per distinct body or painted-face material
+//  (`ExportAppearance`). A body is one primitive per material it wears, all
+//  sharing its vertices.
 //  Convention: 1 model unit = 1 mm; glTF is meters-agnostic so no scaling.
 //
 
@@ -33,10 +39,12 @@ nonisolated enum GLBExporter {
         var accessors = [[String: Any]]()
         var meshes = [[String: Any]]()
         var nodes = [[String: Any]]()
+        let palette = ExportAppearance.palette(for: bodies)
 
         // Empty meshes are skipped: glTF accessors require count >= 1, and an
         // infinite min/max would break JSON serialization.
-        for body in bodies where !body.render.positions.isEmpty && !body.render.indices.isEmpty {
+        for (bodyIndex, body) in bodies.enumerated()
+        where !body.render.positions.isEmpty && !body.render.indices.isEmpty {
             let transform = body.transform
             var positions = [SIMD3<Float>]()
             positions.reserveCapacity(body.render.positions.count)
@@ -62,11 +70,6 @@ nonisolated enum GLBExporter {
             let normalView = appendView(
                 packed(normals), to: &bin, views: &bufferViews, target: targetArrayBuffer
             )
-            let indexView = appendView(
-                packed(body.render.indices), to: &bin, views: &bufferViews,
-                target: targetElementArrayBuffer
-            )
-
             let positionAccessor = accessors.count
             accessors.append([
                 "bufferView": positionView,
@@ -83,25 +86,60 @@ nonisolated enum GLBExporter {
                 "count": normals.count,
                 "type": "VEC3",
             ])
-            let indexAccessor = accessors.count
-            accessors.append([
-                "bufferView": indexView,
-                "componentType": componentUInt32,
-                "count": body.render.indices.count,
-                "type": "SCALAR",
-            ])
 
-            let meshIndex = meshes.count
-            meshes.append([
-                "name": body.name,
-                "primitives": [[
+            // One primitive per material the body wears. A body in a single
+            // material keeps its index buffer as it is.
+            let allIndices = body.render.indices
+            let triangleCount = allIndices.count / 3
+            var primitives = [[String: Any]]()
+            for run in palette.runs[bodyIndex] {
+                var indices = [UInt32]()
+                if run.triangles.count == triangleCount {
+                    indices = Array(allIndices.prefix(triangleCount * 3))
+                } else {
+                    indices.reserveCapacity(run.triangles.count * 3)
+                    for t in run.triangles where t >= 0 && t < triangleCount {
+                        indices.append(allIndices[3 * t])
+                        indices.append(allIndices[3 * t + 1])
+                        indices.append(allIndices[3 * t + 2])
+                    }
+                }
+                guard !indices.isEmpty else { continue }
+                let indexView = appendView(
+                    packed(indices), to: &bin, views: &bufferViews, target: targetElementArrayBuffer
+                )
+                let indexAccessor = accessors.count
+                accessors.append([
+                    "bufferView": indexView,
+                    "componentType": componentUInt32,
+                    "count": indices.count,
+                    "type": "SCALAR",
+                ])
+                primitives.append([
                     "attributes": ["POSITION": positionAccessor, "NORMAL": normalAccessor],
                     "indices": indexAccessor,
-                    "material": 0,
+                    // 0 is the stock material; the palette follows it.
+                    "material": run.material.map { $0 + 1 } ?? 0,
                     "mode": 4,  // TRIANGLES
-                ]],
-            ])
+                ])
+            }
+            guard !primitives.isEmpty else { continue }
+
+            let meshIndex = meshes.count
+            meshes.append(["name": body.name, "primitives": primitives])
             nodes.append(["name": body.name, "mesh": meshIndex])
+        }
+
+        var materials: [[String: Any]] = [[
+            "name": "Default",
+            "pbrMetallicRoughness": [
+                "baseColorFactor": [0.72, 0.75, 0.78, 1.0],
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.6,
+            ],
+        ]]
+        for (spec, name) in zip(palette.materials, palette.names) {
+            materials.append(material(spec, name: name))
         }
 
         let json: [String: Any] = [
@@ -113,14 +151,7 @@ nonisolated enum GLBExporter {
             "accessors": accessors,
             "bufferViews": bufferViews,
             "buffers": [["byteLength": bin.count]],
-            "materials": [[
-                "name": "Default",
-                "pbrMetallicRoughness": [
-                    "baseColorFactor": [0.72, 0.75, 0.78, 1.0],
-                    "metallicFactor": 0.1,
-                    "roughnessFactor": 0.6,
-                ],
-            ]],
+            "materials": materials,
         ]
 
         // JSONSerialization never fails for this plist-safe dictionary.
@@ -143,6 +174,25 @@ nonisolated enum GLBExporter {
     }
 
     // MARK: - Helpers
+
+    /// One glTF material: colour, metallic, roughness; a glow as an emissive
+    /// colour; alpha blending when the colour is see-through. Textures and
+    /// patterns are not exported.
+    static func material(_ spec: BodyMaterialSpec, name: String) -> [String: Any] {
+        let color = ExportAppearance.color(spec)
+        var out: [String: Any] = [
+            "name": name,
+            "pbrMetallicRoughness": [
+                "baseColorFactor": [color.x, color.y, color.z, color.w],
+                "metallicFactor": ExportAppearance.metallic(spec),
+                "roughnessFactor": ExportAppearance.roughness(spec),
+            ],
+        ]
+        let glow = ExportAppearance.glow(spec)
+        if glow > 0 { out["emissiveFactor"] = [color.x * glow, color.y * glow, color.z * glow] }
+        if color.w < 1 { out["alphaMode"] = "BLEND" }
+        return out
+    }
 
     /// Appends `payload` to the BIN blob at a 4-byte boundary and records the
     /// bufferView; returns the view's index.

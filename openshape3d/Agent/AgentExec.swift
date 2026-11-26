@@ -151,6 +151,11 @@ nonisolated enum AgentExecOp: Sendable, Equatable {
     /// `/v1/state` lists no sketch ids, and a finished model usually wants
     /// all its profiles out of the way.
     case setHidden(ids: [UUID], allSketches: Bool, hidden: Bool)
+    /// Give a body or a sketch a name (#133). Exported files are labelled
+    /// with body names, and a design built by features alone has bodies
+    /// called "Extrude", "Extrude", "Revolve": this is how an assistant
+    /// makes them "Walls" and "Roof". One undo step, the Items panel's own.
+    case rename(id: UUID, name: String)
     /// The selection, set outright: these bodies and no others, or nothing
     /// (an empty list). An import or a feature leaves its result selected —
     /// drawn with the accent tint — and an assistant taking a picture, or
@@ -219,7 +224,7 @@ nonisolated enum AgentExec {
         "feature.sweep", "feature.loft", "feature.pushPull",
         "feature.moveFace", "feature.scaleFace", "feature.rotateFace",
         "feature.deleteFace", "feature.replaceFace", "feature.draftFace", "feature.imprint",
-        "body.setMaterial", "item.setHidden", "item.select", "view.section", "view.visualize",
+        "body.setMaterial", "item.setHidden", "item.rename", "item.select", "view.section", "view.visualize",
         "view.accuracyReport", "view.deviationPreview",
     ]
 
@@ -262,6 +267,7 @@ nonisolated enum AgentExec {
         case "feature.imprint":    return parseImprint(args)
         case "body.setMaterial":   return parseSetMaterial(args)
         case "item.setHidden":     return parseSetHidden(args)
+        case "item.rename":        return parseRename(args)
         case "item.select":        return parseSelect(args)
         case "view.section":       return parseSection(args)
         case "view.visualize":     return parseVisualize(args)
@@ -1129,6 +1135,23 @@ nonisolated enum AgentExec {
             ids.append(u)
         }
         return .success(.setHidden(ids: ids, allSketches: allSketches, hidden: a["hidden"] as? Bool ?? true))
+    }
+
+    /// Names longer than this are cut: they end up in file names and labels.
+    static let maxItemNameLength = 120
+
+    private static func parseRename(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {
+        guard let text = a["id"] as? String, let id = UUID(uuidString: text) else {
+            return .failure(.init(code: "bad_uuid",
+                                  message: "args.id must be the UUID of a body or a sketch, from /v1/state or /v1/sketches."))
+        }
+        // One line, no control characters, not blank.
+        let raw = (a["name"] as? String ?? "").unicodeScalars.filter { $0.value >= 0x20 && $0.value != 0x7F }
+        let name = String(String.UnicodeScalarView(raw)).trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else {
+            return .failure(.init(code: "missing_name", message: "args.name must be the new name: some visible text."))
+        }
+        return .success(.rename(id: id, name: String(name.prefix(maxItemNameLength))))
     }
 
     private static func parseSelect(_ a: [String: Any]) -> Result<AgentExecOp, AgentExecError> {

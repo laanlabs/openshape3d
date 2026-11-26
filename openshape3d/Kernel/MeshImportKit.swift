@@ -185,11 +185,16 @@ nonisolated enum MeshImportKit {
             parts = try BlendImporter.parts(from: data, siblings: siblings, unitScale: 1)
             declaredScale = 1000   // Blender scenes are metres at unit scale 1
             format = "Blender"
+        case "3mf":
+            let model = try ThreeMFImporter.parts(from: data, fileName: fileName)
+            parts = model.parts
+            declaredScale = model.millimetresPerUnit   // <model unit="…">
+            format = "3MF"
         case "zip":
             let entries = try ZipReader.entries(in: data)
             // The archive's payload file, by preference: a self-contained
             // scene first, then the OBJ (its MTL/textures ride as siblings).
-            let order = ["glb", "gltf", "usdz", "obj", "blend", "stl"]
+            let order = ["glb", "gltf", "usdz", "obj", "blend", "3mf", "stl"]
             for wanted in order {
                 if let (path, bytes) = entries.first(where: {
                     ($0.key as NSString).pathExtension.lowercased() == wanted
@@ -205,7 +210,7 @@ nonisolated enum MeshImportKit {
                         unitIsDeclared: inner.unitIsDeclared)
                 }
             }
-            throw MeshImportError.unsupportedFormat("zip without a .glb, .gltf, .usdz, .obj, .blend or .stl inside")
+            throw MeshImportError.unsupportedFormat("zip without a .glb, .gltf, .usdz, .obj, .blend, .3mf or .stl inside")
         default:
             throw MeshImportError.unsupportedFormat(ext)
         }
