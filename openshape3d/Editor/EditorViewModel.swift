@@ -229,6 +229,19 @@ final class EditorViewModel {
         exportableBodies().map { Data(OBJExporter.obj(bodies: $0).utf8) }
     }
 
+    /// The OBJ export as the files to save: the .obj alone for a design in
+    /// the default look, else the .obj and the .mtl material library it
+    /// names (#133) — body and painted-face colours for Blender and the
+    /// other tools that read OBJ. Nil (with a user-facing error) when empty.
+    func exportOBJFiles() -> [(fileName: String, data: Data)]? {
+        guard let bodies = exportableBodies() else { return nil }
+        let stem = OBJExporter.fileStem(for: session.project.name)
+        let files = OBJExporter.objWithMaterials(bodies: bodies, materialLibrary: "\(stem).mtl")
+        var out = [("\(stem).obj", Data(files.obj.utf8))]
+        if let mtl = files.mtl { out.append(("\(stem).mtl", Data(mtl.utf8))) }
+        return out
+    }
+
     /// File ▸ Export to Slicer: the VISIBLE bodies as a Z-up 3MF standing
     /// on the bed (`SlicerExport`), or nil with an error when none show.
     func exportForSlicer() -> Data? {
@@ -792,8 +805,8 @@ final class EditorViewModel {
     }
 
     /// USDZ of the whole document (plan §B14); nil when the design is empty
-    /// or ModelIO on this platform cannot write USDZ (the UI hides the
-    /// entries via `USDZExporter.isSupported`, so this error is a fallback).
+    /// or the design has no triangles to write (`USDZExporter` builds the
+    /// package itself, so the format exists on every platform).
     func exportUSDZ() -> Data? {
         guard let bodies = exportableBodies() else { return nil }
         guard let data = USDZExporter.usdz(bodies: bodies) else {

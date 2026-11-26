@@ -719,6 +719,9 @@ nonisolated enum OBJTexturedImporter {
     private struct MTL {
         var color: SIMD4<Double> = SIMD4(0.8, 0.8, 0.8, 1)
         var texture: String?
+        /// The PBR extension's `Pm` / `Pr`, which the app's exporter writes.
+        var metallic: Double?
+        var roughness: Double?
     }
 
     static func parts(from data: Data, siblings: [String: Data], unitScale: Double) throws -> [ImportedPart] {
@@ -796,10 +799,13 @@ nonisolated enum OBJTexturedImporter {
                         cornerIDs.append(id)
                     }
                 }
-                // Fan-triangulate polygons.
+                // Convex polygons fan; concave ones (Blender writes n-gons
+                // as they are) are ear-clipped, or the fan would cover the
+                // notch with overlapping triangles.
                 if cornerIDs.count >= 3 {
-                    for k in 1..<(cornerIDs.count - 1) {
-                        current.indices.append(contentsOf: [cornerIDs[0], cornerIDs[k], cornerIDs[k + 1]])
+                    let ring = cornerIDs.map { SIMD3<Double>(current.positions[Int($0)]) }
+                    for (a, b, c) in OBJImporter.triangulatePolygon(ring) {
+                        current.indices.append(contentsOf: [cornerIDs[a], cornerIDs[b], cornerIDs[c]])
                     }
                 }
             default:
@@ -817,7 +823,8 @@ nonisolated enum OBJTexturedImporter {
                                   indices: b.indices)
             var spec: BodyMaterialSpec?
             if let mname = b.materialName, let mtl = materials[mname] {
-                spec = BodyMaterialSpec(baseColor: mtl.color, metallic: 0, roughness: 0.5)
+                spec = BodyMaterialSpec(baseColor: mtl.color, metallic: mtl.metallic ?? 0,
+                                        roughness: mtl.roughness ?? 0.5)
                 if b.hasTexcoords, let texName = mtl.texture, let bytes = MeshImportKit.sibling(texName, in: siblings) {
                     mesh.texcoords = b.texcoords
                     spec?.baseColorTexture = bytes
@@ -849,6 +856,10 @@ nonisolated enum OBJTexturedImporter {
                 if let name { out[name]?.color = SIMD4(Double(fields[1]) ?? 0.8, Double(fields[2]) ?? 0.8, Double(fields[3]) ?? 0.8, 1) }
             case "d" where fields.count >= 2:
                 if let name, let d = Double(fields[1]) { out[name]?.color.w = d }
+            case "Pm" where fields.count >= 2:
+                if let name, let v = Double(fields[1]), v.isFinite { out[name]?.metallic = min(max(v, 0), 1) }
+            case "Pr" where fields.count >= 2:
+                if let name, let v = Double(fields[1]), v.isFinite { out[name]?.roughness = min(max(v, 0), 1) }
             case "map_Kd":
                 // The file name is the last field; options (-s, -o …) precede it.
                 if let name, let file = fields.last, fields.count >= 2 { out[name]?.texture = file }

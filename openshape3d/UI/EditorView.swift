@@ -969,6 +969,27 @@ struct EditorView: View {
         }
     }
 
+    /// Writes files under their own names ("Design.obj", "Design.mtl") into
+    /// a fresh temp folder and returns exporter items for them; nil (with a
+    /// user-facing error) on failure.
+    private func namedExportItems(
+        _ files: [(fileName: String, data: Data)], viewModel: EditorViewModel
+    ) -> [ExportFileItem]? {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("os3d-export-\(UUID().uuidString)", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            return try files.map { file in
+                let url = directory.appendingPathComponent(file.fileName.replacingOccurrences(of: "/", with: "-"))
+                try file.data.write(to: url)
+                return ExportFileItem(url: url)
+            }
+        } catch {
+            viewModel.errorMessage = "Export failed — please try again."
+            return nil
+        }
+    }
+
     /// Mesh options sheet confirm (plan §B14): stages the chosen OBJ/GLB
     /// payload for the exporter that presents once the sheet dismisses.
     private func stageMeshExport(
@@ -976,10 +997,14 @@ struct EditorView: View {
     ) {
         switch (format, perBody) {
         case (.obj, false):
-            if let data = viewModel.exportOBJ() {
+            // A design with materials is two files, the .obj and its .mtl.
+            guard let files = viewModel.exportOBJFiles() else { break }
+            if files.count == 1 {
                 pendingExport = ExportDocument(
-                    data: data, contentType: ExportDocument.objType, fileExtension: "obj"
+                    data: files[0].data, contentType: ExportDocument.objType, fileExtension: "obj"
                 )
+            } else {
+                pendingExportItems = namedExportItems(files, viewModel: viewModel)
             }
         case (.obj, true):
             pendingExportItems = perBodyExportItems(

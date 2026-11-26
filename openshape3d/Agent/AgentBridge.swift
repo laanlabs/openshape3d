@@ -1051,6 +1051,10 @@ final class AgentBridge {
     /// included, as in the menu). `zUp` turns the app's Y-up world a quarter
     /// turn about X, (x, y, z) → (x, −z, y), so a part modelled standing on
     /// the ground plane also stands on a slicer's bed.
+    /// The file name `format=obj` writes after `mtllib`: save `format=mtl`
+    /// under it, beside the OBJ.
+    static let materialLibraryName = "materials.mtl"
+
     private func export(_ format: AgentExportFormat, bodyIDs: [String], zUp: Bool,
                         from viewModel: EditorViewModel) -> AgentResponse {
         var bodies = viewModel.session.document.bodies
@@ -1085,7 +1089,17 @@ final class AgentBridge {
         let data: Data
         switch format {
         case .stl: data = STLExporter.binarySTL(bodies: bodies)
-        case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
+        case .obj:
+            // With materials on the bodies, the OBJ names its library; the
+            // same request with format=mtl returns it.
+            data = Data(OBJExporter.obj(bodies: bodies, materialLibrary: Self.materialLibraryName).utf8)
+        case .mtl:
+            guard let mtl = OBJExporter.mtl(bodies: bodies) else {
+                return .failure(409, "Conflict", error: "no_materials",
+                                message: "These bodies all wear the default look, so the OBJ references no "
+                                       + "material library. Set one with body.setMaterial first.")
+            }
+            data = Data(mtl.utf8)
         case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies, yUp: !zUp)
         case .glb: data = GLBExporter.glb(bodies: bodies)
         case .step:
