@@ -74,6 +74,24 @@ final class AgentRouterTests: XCTestCase {
                        .export(format: .step, bodyIDs: [], zUp: true))
     }
 
+    func testAnOBJCanNameItsMaterialLibraryAndTheLibraryIsAFormat() {
+        XCTAssertEqual(route("GET", "/v1/export?format=obj&mtllib=part.mtl"),
+                       .export(format: .obj, bodyIDs: [], zUp: false, materialLibrary: "part.mtl"))
+        XCTAssertEqual(route("GET", "/v1/export?format=mtl&body=A"),
+                       .export(format: .mtl, bodyIDs: ["A"], zUp: false))
+        // Only an OBJ names a library; elsewhere the option means nothing.
+        XCTAssertEqual(route("GET", "/v1/export?format=stl&mtllib=part.mtl"),
+                       .export(format: .stl, bodyIDs: [], zUp: false))
+        XCTAssertEqual(AgentExportFormat.mtl.contentType, "model/mtl")
+        for bad in ["my%20part.mtl", "sub/part.mtl", ".hidden.mtl"] {
+            guard case let .reply(status, error, _) = route("GET", "/v1/export?format=obj&mtllib=\(bad)") else {
+                XCTFail("\(bad) should be refused"); continue
+            }
+            XCTAssertEqual(status, 400)
+            XCTAssertEqual(error, "bad_mtllib")
+        }
+    }
+
     func testExportRefusesAnUpAxisThatIsNotYOrZ() {
         guard case let .reply(status, error, _) = route("GET", "/v1/export?up=x") else {
             return XCTFail("expected a reply")

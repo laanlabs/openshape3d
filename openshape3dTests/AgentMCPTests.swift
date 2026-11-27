@@ -254,6 +254,16 @@ final class AgentMCPTests: XCTestCase {
         XCTAssertEqual(call(AgentMCP.plan(for: rpc("tools/call", params: [
             "name": "os3d_export", "arguments": ["format": "3mf", "up": "z", "body": ["A", "B"], "name": "pot"]])))?.route,
                        .export(format: .threeMF, bodyIDs: ["A", "B"], zUp: true))
+        // An OBJ and the library it names are two calls with one name.
+        let obj = call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "document.export",
+                                          "args": ["format": "obj", "name": "lamp", "mtllib": "lamp.mtl"]]])))
+        XCTAssertEqual(obj?.route, .export(format: .obj, bodyIDs: [], zUp: false, materialLibrary: "lamp.mtl"))
+        let library = call(AgentMCP.plan(for: rpc("tools/call", params: [
+            "name": "os3d", "arguments": ["op": "document.export", "args": ["format": "mtl", "name": "lamp"]]])))
+        XCTAssertEqual(library?.route, .export(format: .mtl, bodyIDs: [], zUp: false))
+        XCTAssertEqual(library?.exportFormat, .mtl)
+        XCTAssertEqual(AgentMCP.exportFileName(requested: "lamp", format: .mtl), "lamp.mtl")
     }
 
     func testARouterRefusalBecomesAToolErrorWithItsCode() throws {

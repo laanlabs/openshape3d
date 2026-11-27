@@ -43,6 +43,15 @@
 #include <BRepFilletAPI_LocalOperation.hxx>
 #include <STEPControl_Writer.hxx>
 #include <STEPControl_Reader.hxx>
+#include <STEPCAFControl_Writer.hxx>
+#include <TDocStd_Document.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
+#include <XCAFDoc_ShapeTool.hxx>
+#include <XCAFDoc_ColorTool.hxx>
+#include <TDataStd_Name.hxx>
+#include <TDF_Label.hxx>
+#include <TCollection_ExtendedString.hxx>
+#include <Quantity_ColorRGBA.hxx>
 #include <IGESControl_Writer.hxx>
 #include <IGESControl_Reader.hxx>
 #include <IGESControl_Controller.hxx>
@@ -3860,6 +3869,50 @@ static void OS3DCollectMakerHistoryThrough(BRepBuilderAPI_MakeShape &builder,
             if (s == nil || s->_shape.IsNull()) continue;
             if (writer.Transfer(s->_shape, STEPControl_AsIs) != IFSelect_RetDone) return NO;
         }
+        return writer.Write(path.fileSystemRepresentation) == IFSelect_RetDone;
+    } catch (...) {
+        return NO;
+    }
+}
+
++ (BOOL)writeSTEPShapes:(NSArray<OCCTShape *> *)shapes
+                  names:(NSArray<NSString *> *)names
+                 colors:(NSArray<NSArray<NSNumber *> *> *)colors
+                 toPath:(NSString *)path {
+    if (shapes.count == 0 || path.length == 0) return NO;
+    try {
+        // An XDE document: each shape gets a label, and the label carries
+        // the name and the colour the STEP writer puts on its product.
+        Handle(TDocStd_Document) document = new TDocStd_Document("BinXCAF");
+        Handle(XCAFDoc_ShapeTool) shapeTool = XCAFDoc_DocumentTool::ShapeTool(document->Main());
+        Handle(XCAFDoc_ColorTool) colorTool = XCAFDoc_DocumentTool::ColorTool(document->Main());
+        NSUInteger index = 0;
+        NSUInteger written = 0;
+        for (OCCTShape *s in shapes) {
+            NSUInteger i = index++;
+            if (s == nil || s->_shape.IsNull()) continue;
+            TDF_Label label = shapeTool->AddShape(s->_shape, Standard_False);
+            if (label.IsNull()) return NO;
+            written += 1;
+            if (i < names.count && names[i].length > 0) {
+                TDataStd_Name::Set(label, TCollection_ExtendedString(names[i].UTF8String, Standard_True));
+            }
+            if (i < colors.count && colors[i].count >= 3) {
+                auto unit = [](NSNumber *n) { double v = n.doubleValue; return v != v ? 0.0 : std::min(std::max(v, 0.0), 1.0); };
+                double alpha = colors[i].count >= 4 ? unit(colors[i][3]) : 1.0;
+                // Given as sRGB: OCCT keeps colours linear and the STEP writer
+                // encodes them again, so the file holds the numbers passed in
+                // (as linear, 0.8 was written 0.906).
+                Quantity_ColorRGBA color(Quantity_Color(unit(colors[i][0]), unit(colors[i][1]), unit(colors[i][2]),
+                                                        Quantity_TOC_sRGB), (float)alpha);
+                colorTool->SetColor(label, color, XCAFDoc_ColorGen);
+            }
+        }
+        if (written == 0) return NO;
+        STEPCAFControl_Writer writer;
+        writer.SetNameMode(Standard_True);
+        writer.SetColorMode(Standard_True);
+        if (!writer.Transfer(document, STEPControl_AsIs)) return NO;
         return writer.Write(path.fileSystemRepresentation) == IFSelect_RetDone;
     } catch (...) {
         return NO;

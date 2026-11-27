@@ -224,9 +224,23 @@ final class EditorViewModel {
         exportableBodies().map { STLExporter.binarySTL(bodies: $0) }
     }
 
-    /// OBJ of the whole document, or nil when empty.
+    /// OBJ of the whole document, or nil when empty. Geometry only: the
+    /// Export menu goes through `exportOBJFiles`, which adds the materials.
     func exportOBJ() -> Data? {
         exportableBodies().map { Data(OBJExporter.obj(bodies: $0).utf8) }
+    }
+
+    /// Does any body, or any painted face, have a material? An OBJ export
+    /// then comes with an MTL.
+    var designHasMaterials: Bool {
+        session.document.bodies.contains { $0.material != nil || !$0.faceMaterials.isEmpty }
+    }
+
+    /// The files an OBJ export writes (#133): the OBJ, or one per body, and
+    /// an MTL beside them when a body or a face has a material. Nil (with a
+    /// user-facing error) when the design is empty.
+    func exportOBJFiles(designName: String, perBody: Bool) -> [(fileName: String, data: Data)]? {
+        exportableBodies().map { OBJExporter.files(bodies: $0, designName: designName, perBody: perBody) }
     }
 
     /// File ▸ Export to Slicer: the VISIBLE bodies as a Z-up 3MF standing

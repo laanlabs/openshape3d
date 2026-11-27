@@ -61,14 +61,43 @@ nonisolated enum OBJExporter {
         return palette.isPlain ? nil : library(palette)
     }
 
-    /// One OBJ string per body ("save each body separately"); geometry only.
-    static func objPerBody(bodies: [Body]) -> [(name: String, obj: String)] {
-        bodies.map { body in
+    /// One OBJ string per body ("save each body separately"). With a
+    /// `materialLibrary` every file names that one shared MTL, and uses the
+    /// same material names a merged export would.
+    static func objPerBody(bodies: [Body], materialLibrary: String? = nil) -> [(name: String, obj: String)] {
+        let palette = ExportAppearance.palette(for: bodies)
+        let styled = materialLibrary != nil && !palette.isPlain
+        let names = palette.names.map(label)
+        return bodies.enumerated().map { index, body in
             var out = header
+            if styled, let materialLibrary { out += "mtllib \(materialLibrary)\n" }
             var offsets = (vertices: 0, normals: 0)
-            append(body, runs: nil, names: [], to: &out, offsets: &offsets)
+            append(body, runs: styled ? palette.runs[index] : nil, names: names, to: &out, offsets: &offsets)
             return (label(body.name), out)
         }
+    }
+
+    /// What an OBJ export puts on disk, named: "<design>.obj" — or one
+    /// "<body>.obj" per body — and "<design>.mtl" beside them when anything
+    /// has a material. Two bodies of one name get "<body>.obj" and
+    /// "<body> 2.obj", so neither overwrites the other.
+    static func files(bodies: [Body], designName: String, perBody: Bool) -> [(fileName: String, data: Data)] {
+        let stem = fileStem(for: designName)
+        let library = stem + ".mtl"
+        var out: [(fileName: String, data: Data)] = []
+        if perBody {
+            var used: [String: Int] = [:]
+            for (name, obj) in objPerBody(bodies: bodies, materialLibrary: library) {
+                let safe = fileStem(for: name)
+                let count = (used[safe.lowercased()] ?? 0) + 1
+                used[safe.lowercased()] = count
+                out.append(((count > 1 ? "\(safe)_\(count)" : safe) + ".obj", Data(obj.utf8)))
+            }
+        } else {
+            out.append((stem + ".obj", Data(obj(bodies: bodies, materialLibrary: library).utf8)))
+        }
+        if let mtl = mtl(bodies: bodies) { out.append((library, Data(mtl.utf8))) }
+        return out
     }
 
     /// "<design>" for "<design>.obj" and "<design>.mtl": safe in a path and

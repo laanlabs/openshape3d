@@ -87,6 +87,8 @@ nonisolated enum STEPKit {
     /// written where the user actually sees it.
     static func export(bodies: [Body], format: ExchangeFormat = .step) -> ExportOutcome {
         var solids: [BRepHandle] = []
+        var names: [String] = []
+        var colors: [SIMD4<Double>?] = []
         var skipped: [String] = []
         for body in bodies {
             guard let brep = body.brep,
@@ -95,6 +97,8 @@ nonisolated enum STEPKit {
                 continue
             }
             solids.append(placed)
+            names.append(body.name)
+            colors.append(body.material.map(ExportAppearance.color))
         }
         guard !solids.isEmpty else { return .nothingAnalytic(skipped: skipped) }
 
@@ -103,7 +107,11 @@ nonisolated enum STEPKit {
             .appendingPathComponent("os3d-\(format.rawValue)-\(UUID().uuidString)")
             .appendingPathExtension(format.fileExtension)
         defer { try? FileManager.default.removeItem(at: url) }
-        let written = format == .step ? OCCTKernel.writeSTEP(solids, to: url) : OCCTKernel.writeIGES(solids, to: url)
+        // STEP carries each body's name and colour (#133); a face painted
+        // on its own keeps the body's colour, and IGES has neither.
+        let written = format == .step
+            ? OCCTKernel.writeSTEP(solids, names: names, colors: colors, to: url)
+            : OCCTKernel.writeIGES(solids, to: url)
         guard written,
               let data = try? Data(contentsOf: url) else { return .failed }
         return .success(data, skipped: skipped)

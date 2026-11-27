@@ -123,6 +123,31 @@ there as not rebuilt.
   writes it; its expected bounds are the ones Blender printed). Not
   checked: a real file from Blender 3.x or 4.x (none on this Mac; their
   layout is the one the older synthetic tests write).
+- **#133, the rest of export.**
+  - *OBJ in the app.* Export ▸ OBJ writes `<design>.obj` and, when a body or
+    a face has a material, `<design>.mtl` beside it (`OBJExporter.files`);
+    the options sheet says so. With "Separate File per Body" every OBJ
+    names the one shared library, and two bodies of one name no longer
+    overwrite each other (`Leg.obj`, `Leg_2.obj`).
+  - *OBJ for assistants.* `/v1/export?format=obj&mtllib=part.mtl` names the
+    library and states materials; `format=mtl` is the library (409
+    `no_materials` on a plain design). Over MCP the same two as
+    `document.export` calls with one `name`. The pair is not written by one
+    call: the OBJ has to name a file whose final name is only known once it
+    is saved.
+  - *OBJ import.* Both OBJ importers ear-clip a concave face
+    (`PolygonTriangulation`) instead of fanning it across its notch, and
+    the MTL reader takes `Pm`, `Pr` and `Ke`, so this app's own export comes
+    back with its metallic, roughness and glow.
+  - *STEP.* Each body is a named product with its colour
+    (`OCCTBridge.writeSTEPShapes:names:colors:toPath:`, through OCCT's XDE
+    document; the geometry is unchanged). Colours go in as sRGB so the file
+    holds the app's own numbers. Not done: a face painted on its own keeps
+    the body's colour, and STEP import does not read names or colours back.
+  - Tests: `OBJMaterialExportTests` (7: which files, the MTL's contents, a
+    cylinder closed and in convex polygons, the pair read back, a concave
+    face), `STEPKitTests.testSTEPCarriesBodyNamesAndColours`, router and
+    MCP cases.
 
 ## Mission log — 2026-11-26, the assistant panel: three providers, and the MCP route offered in it
 

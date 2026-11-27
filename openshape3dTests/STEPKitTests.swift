@@ -65,6 +65,41 @@ final class STEPKitTests: XCTestCase {
         XCTAssertEqual(counts.planar, 2, "both caps survive")
     }
 
+    /// #133: a body leaves with its name and its colour. Colours are read
+    /// back as numbers and compared loosely: OCCT keeps them as linear
+    /// floats and encodes them again on the way out.
+    func testSTEPCarriesBodyNamesAndColours() throws {
+        var brass = cylinderBody(name: "Brass Pin")
+        brass.material = BodyMaterialSpec(baseColor: SIMD4(0.8, 0.6, 0.2, 1), metallic: 1, roughness: 0.3)
+        var moved = Transform3D.identity
+        moved.translation = SIMD3(30, 0, 0)
+        var steel = cylinderBody(name: "Steel Pin", transform: moved)
+        steel.material = BodyMaterialSpec(baseColor: SIMD4(0.55, 0.57, 0.6, 1), metallic: 0.9, roughness: 0.25)
+        let plain = cylinderBody(name: "Spare", transform: { var t = Transform3D.identity; t.translation = SIMD3(60, 0, 0); return t }())
+
+        guard case let .success(data, _) = STEPKit.export(bodies: [brass, steel, plain]) else {
+            return XCTFail("three analytic bodies must export")
+        }
+        let text = String(decoding: data, as: UTF8.self)
+        for name in ["Brass Pin", "Steel Pin", "Spare"] {
+            XCTAssertTrue(text.contains("PRODUCT('\(name)'"), "no product named \(name)")
+        }
+        let pattern = try NSRegularExpression(pattern: #"COLOUR_RGB\('[^']*',([-0-9.Ee+]+),([-0-9.Ee+]+),([-0-9.Ee+]+)\)"#)
+        let colours: [SIMD3<Double>] = pattern.matches(in: text, range: NSRange(text.startIndex..., in: text)).map { match in
+            let n = (1...3).map { Double(text[Range(match.range(at: $0), in: text)!])! }
+            return SIMD3(n[0], n[1], n[2])
+        }
+        XCTAssertEqual(colours.count, 2, "two bodies have a colour; the third has none to state")
+        for want in [SIMD3(0.8, 0.6, 0.2), SIMD3(0.55, 0.57, 0.6)] {
+            XCTAssertTrue(colours.contains { simd_length($0 - want) < 1e-4 }, "\(want) is not among \(colours)")
+        }
+
+        // The geometry is what it was without names: three analytic cylinders.
+        let solids = STEPKit.solids(from: data)
+        XCTAssertEqual(solids.count, 3)
+        for solid in solids { XCTAssertEqual(OCCTKernel.faceTypeCounts(solid).cylindrical, 1) }
+    }
+
     /// IGES carries the exact B-rep too: the cylinder comes back as one
     /// cylindrical surface and two planar caps, and two bodies as two solids.
     func testIGESRoundTripStaysAnalytic() throws {
