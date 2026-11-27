@@ -92,6 +92,37 @@ there as not rebuilt.
   real click could not be scripted (gotcha 65). `SheetDismissUITests` (iPad,
   iPhone, and the Mac once Automation Mode is on),
   `DismissibleSheetSourceTests`.
+- **Blender 5 files import.** Every `.blend` saved by Blender 5 failed with
+  "truncated block". Four things had changed, all read off files written by
+  the Blender 5.3 on this Mac (the header comment of
+  `Kernel/BlendImporter.swift` has the details): the file header
+  (`BLENDER17-01v0503`) and with it 32-byte block headers; block addresses,
+  which now repeat from one data-block to the next, so a pointer is looked
+  up among its own data-block's blocks first (`deref(_:from:)`); mesh arrays,
+  which moved to `Mesh.attribute_storage`; and the object's world matrix,
+  which is no longer written and is rebuilt from location, rotation (Euler
+  in six orders, quaternion, axis-angle), scale, deltas, parent and parent
+  inverse. A format version above 1 is refused by name.
+- **Compressed `.blend` files import** (Blender 3.0+ "Compress", zstd).
+  `Kernel/ZstdDecoder.swift` is a Zstandard decoder written here from the
+  format description (RFC 8878), since the system's Compression framework
+  has none: frames one after another, skippable frames, raw / RLE /
+  compressed blocks, Huffman literals, FSE sequence tables, repeat offsets,
+  XXH64 checksums. Dictionaries are refused. Compared with the `zstd` tool
+  on 144 files at levels 1 to 22 (byte for byte) and fed 24 000 damaged
+  inputs (it throws, it never crashes); about 70 MB/s in a release build.
+- **#133, Blender materials.** A material with a Principled BSDF comes in
+  with that node's base colour, metallic, roughness, alpha and emission
+  (emission strength × colour, capped at the app's 0…1 glow) instead of the
+  viewport's default grey. A socket fed by another node is skipped; an image
+  wired into Base Color is multiplied into white. Works for 2.8+ files as
+  well as 5.x.
+- Tests: `ZstdDecoderTests` (12, vectors from the `zstd` tool), and in
+  `BlendImportTests` a compressed file saved by Blender 5.3 with three
+  objects and three materials (`Fixtures/Blend/`, with the script that
+  writes it; its expected bounds are the ones Blender printed). Not
+  checked: a real file from Blender 3.x or 4.x (none on this Mac; their
+  layout is the one the older synthetic tests write).
 
 ## Mission log — 2026-11-26, the assistant panel: three providers, and the MCP route offered in it
 
@@ -3678,6 +3709,7 @@ are **still not published**. Do that before the build reaches anyone else.
   from a 2.7x texture slot or a 2.8+ Image Texture node (packed in the
   file, or beside it). Z-up metres → Y-up mm. zstd-compressed saves
   (Blender 3.0+ "Compress") are refused with a message — no zstd on iOS.
+  (**Since 2026-11-26 they are read**: `ZstdDecoder`, second-batch log.)
   Checked against Sketchfab's own glTF conversions of two Blender 2.78 CAD
   uploads (day16: 27 450 triangles, 6000 × 6000 × 9381 mm; day50: 1 482
   triangles with its packed base colour): identical to 0.01 mm.
