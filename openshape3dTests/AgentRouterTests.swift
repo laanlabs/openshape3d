@@ -92,6 +92,17 @@ final class AgentRouterTests: XCTestCase {
         }
     }
 
+    func testLatencyReadsWithGETAndSwitchesWithPOST() {
+        XCTAssertEqual(route("GET", "/v1/latency"), .latency())
+        XCTAssertEqual(route("POST", "/v1/latency", body: #"{"record":true}"#), .latency(record: true, reset: false))
+        XCTAssertEqual(route("POST", "/v1/latency", body: #"{"record":false,"reset":true}"#),
+                       .latency(record: false, reset: true))
+        XCTAssertEqual(route("POST", "/v1/latency", body: #"{"reset":true}"#), .latency(record: nil, reset: true))
+        XCTAssertTrue(AgentRoute.latency().needsEditor, "it is answered on the main thread, where the recorder lives")
+        guard case let .reply(status, _, _) = route("DELETE", "/v1/latency") else { return XCTFail("expected a reply") }
+        XCTAssertEqual(status, 405)
+    }
+
     func testExportRefusesAnUpAxisThatIsNotYOrZ() {
         guard case let .reply(status, error, _) = route("GET", "/v1/export?up=x") else {
             return XCTFail("expected a reply")

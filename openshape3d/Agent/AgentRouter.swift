@@ -149,6 +149,8 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// silhouette under the model's outline, with the view's numbers.
     case accuracyImage(AccuracyQuery, view: DrawingViewDirection, width: Int,
                        format: AgentShotFormat = .png, maxBytes: Int? = nil)
+    /// The input-latency recorder: switch it (`record`), clear it, read it.
+    case latency(record: Bool? = nil, reset: Bool = false)
     /// Already-decided replies.
     case reply(status: Int, error: String, message: String)
 
@@ -157,7 +159,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
         switch self {
         case .state, .runCommand, .exec, .screenshot, .check, .capture,
              .edges, .faces, .sketches, .project, .section, .archive, .export, .spaceMouse,
-             .accuracy, .accuracyImage:
+             .accuracy, .accuracyImage, .latency:
             return true
         case .health, .commands, .reply: return false
         }
@@ -386,6 +388,19 @@ nonisolated enum AgentRouter {
             }
             return .capture(note: request.jsonBody?["note"] as? String ?? "")
 
+        case "/v1/latency":
+            guard developerRoutes else { return developerOnly(request.path) }
+            switch request.method {
+            case "GET":
+                return .latency()
+            case "POST":
+                let body = request.jsonBody ?? [:]
+                return .latency(record: body["record"] as? Bool, reset: body["reset"] as? Bool ?? false)
+            default:
+                return .reply(status: 405, error: "method_not_allowed",
+                              message: #"GET /v1/latency reads the recorder; POST {"record":true|false,"reset":true} switches or clears it."#)
+            }
+
         case "/v1/spacemouse":
             guard developerRoutes else { return developerOnly(request.path) }
             guard request.method == "POST",
@@ -564,7 +579,10 @@ nonisolated enum AgentRouter {
     /// Exactly what Command Search is allowed to offer — commands that actually
     /// reach the editor. An agent handed the full catalog would waste turns on
     /// ids that cannot run.
-    static func commandsResponse() -> AgentResponse {
+    /// The command catalog. With `blocker` (a design is open) every entry
+    /// also says whether it can run right now, and if not, why.
+    static func commandsResponse(blocker: ((String) -> CommandBlocker?)? = nil) -> AgentResponse {
+        var available = 0
         let commands = CommandRegistry.launchableCommands.map { command -> [String: Any] in
             var entry: [String: Any] = [
                 "id": command.id,
@@ -572,9 +590,21 @@ nonisolated enum AgentRouter {
                 "category": command.category.rawValue,
             ]
             if let chord = command.chord { entry["chord"] = chord.label }
+            if let blocker {
+                if let stopped = blocker(command.id) {
+                    entry["available"] = false
+                    entry["blocker"] = stopped.code
+                    entry["why"] = stopped.message
+                } else {
+                    entry["available"] = true
+                    available += 1
+                }
+            }
             return entry
         }
-        return .ok(["count": commands.count, "commands": commands])
+        var payload: [String: Any] = ["count": commands.count, "commands": commands]
+        if blocker != nil { payload["available"] = available }
+        return .ok(payload)
     }
 
     static func response(for reply: AgentRoute) -> AgentResponse? {

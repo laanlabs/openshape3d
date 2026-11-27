@@ -75,6 +75,12 @@ extension AgentBridge {
             }
             return .ok(["device": driver.deviceName ?? NSNull(), "ticks": Int((seconds * 60).rounded())])
 
+        case let .latency(record, reset):
+            let recorder = InteractionLatencyRecorder.shared
+            if reset { recorder.reset() }
+            if let record { recorder.setRecording(record) }
+            return .ok(recorder.report())
+
         case let .capture(note):
             let analytic = viewModel.session.document.bodies.compactMap { body in
                 body.brep.map { (label: body.name, handle: $0) }

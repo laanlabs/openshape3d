@@ -76,6 +76,16 @@ final class AgentBridge {
         NSLog("[agent] editor detached")
     }
 
+    // MARK: The command list
+
+    /// `GET /v1/commands`: the catalog, and with a design open, which of
+    /// them can run right now and what stops the rest.
+    func commandsResponse() -> AgentResponse {
+        guard let viewModel else { return AgentRouter.commandsResponse() }
+        let context = viewModel.commandContext
+        return AgentRouter.commandsResponse { CommandAvailability.blocker(for: $0, in: context) }
+    }
+
     // MARK: Serving the editor routes
 
     func handle(_ route: AgentRoute) -> AgentResponse {
@@ -97,15 +107,27 @@ final class AgentBridge {
             // The router already separated "unknown id" and "no entry point",
             // so a false here means exactly one thing: the editor is in a state
             // where this command does not apply. Say which state.
+            // What is missing is read BEFORE running: afterwards the state has moved.
+            let blocker = viewModel.commandBlocker(id)
             let ran = viewModel.runCommand(id)
             var payload = snapshot(of: viewModel)
             payload["id"] = id
             payload["ran"] = ran
             if !ran {
                 payload["reason"] = "not_applicable"
-                payload["message"] = "'\(id)' does not apply in mode '\(Self.modeName(viewModel.mode))' "
-                    + "with \(viewModel.selection.count) selected. The same guard would have disabled its palette button."
+                if let blocker {
+                    payload["blocker"] = blocker.code
+                    payload["message"] = "'\(id)' cannot run now. \(blocker.message)"
+                } else {
+                    payload["message"] = "'\(id)' does not apply in mode '\(Self.modeName(viewModel.mode))' "
+                        + "with \(viewModel.selection.count) selected. The same guard would have disabled its palette button."
+                }
             }
+            #if DEBUG
+            // The rules in CommandAvailability restate runCommand's guards; a
+            // disagreement means one of the two has moved on its own.
+            if ran, let blocker { NSLog("[agent] '\(id)' ran although the rules said: \(blocker.code)") }
+            #endif
             return .ok(payload)
 
         case .exec(let op):

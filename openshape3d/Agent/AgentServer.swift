@@ -335,7 +335,12 @@ nonisolated final class AgentServer: @unchecked Sendable {
         guard route.needsEditor else {
             switch route {
             case .health:   send(AgentRouter.healthResponse(port: boundPort ?? 0), on: connection)
-            case .commands: send(AgentRouter.commandsResponse(), on: connection)
+            case .commands:
+                // The list says which commands can run now, so it asks the
+                // editor; with no design open it is the plain catalog.
+                Task { @MainActor [weak self] in
+                    self?.send(AgentBridge.shared.commandsResponse(), on: connection)
+                }
             default:        send(.failure(500, "Internal Server Error", error: "unhandled_route",
                                           message: "No handler for \(request.path)."), on: connection)
             }
@@ -359,9 +364,15 @@ nonisolated final class AgentServer: @unchecked Sendable {
                 return
             }
             guard tool.route.needsEditor else {
-                let answer = tool.route == .commands
-                    ? AgentRouter.commandsResponse() : AgentRouter.healthResponse(port: boundPort ?? 0)
-                send(AgentMCP.result(id: id, tool: tool, response: answer), on: connection)
+                if tool.route == .commands {
+                    Task { @MainActor [weak self] in
+                        self?.send(AgentMCP.result(id: id, tool: tool, response: AgentBridge.shared.commandsResponse()),
+                                   on: connection)
+                    }
+                    return
+                }
+                send(AgentMCP.result(id: id, tool: tool, response: AgentRouter.healthResponse(port: boundPort ?? 0)),
+                     on: connection)
                 return
             }
             Task { @MainActor [weak self] in
