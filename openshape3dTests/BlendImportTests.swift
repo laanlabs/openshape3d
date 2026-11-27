@@ -7,7 +7,8 @@
 //  MVert/MPoly/MLoop/MLoopUV blocks, a Material with a packed image, and a
 //  DNA1 block describing exactly those structs — and checks what comes out:
 //  Z-up metres → Y-up millimetres, one part per material slot, UVs flipped,
-//  the packed image on the material, and the gzip path.
+//  the packed image on the material, and the gzip and zstd paths. Blender 5
+//  is checked on a file Blender 5.3 saved (`Fixtures/Blend`).
 //
 
 import Compression
@@ -163,11 +164,111 @@ final class BlendImportTests: XCTestCase {
         XCTAssertEqual(zipped[0].mesh, plain[0].mesh)
     }
 
-    func testZstdBlendIsRefusedWithAClearMessage() {
+    // MARK: - zstd ("Compress" since Blender 3.0)
+
+    func testZstdBlendReadsTheSame() throws {
+        let plain = try MeshImportKit.parts(from: makeBlend(), fileName: "plate.blend")
+        let packed = try MeshImportKit.parts(from: ZstdDecoderTests.storedFrame(makeBlend(), blockSize: 700),
+                                             fileName: "plate.blend")
+        XCTAssertEqual(packed.count, 1)
+        XCTAssertEqual(packed[0].mesh, plain[0].mesh)
+        XCTAssertEqual(packed[0].material, plain[0].material)
+    }
+
+    func testDamagedZstdBlendIsRefusedWithAClearMessage() {
         let zstd = Data([0x28, 0xb5, 0x2f, 0xfd, 0, 0, 0, 0, 0, 0, 0, 0])
         XCTAssertThrowsError(try MeshImportKit.parts(from: zstd, fileName: "x.blend")) { error in
             guard case MeshImportError.malformed(let why) = error else { return XCTFail("\(error)") }
-            XCTAssertTrue(why.contains("zstd"))
+            XCTAssertTrue(why.contains("compressed file is damaged"), why)
+        }
+    }
+
+    // MARK: - Blender 5
+
+    /// Saved by Blender 5.3 with Compress on (`Fixtures/Blend/make_fixture.py`):
+    /// a 2 m crate, a 12-sided pillar laid on its side and a panel hanging
+    /// off the crate, each with its own Principled BSDF. It has everything
+    /// Blender 5 changed: the long header with 32-byte block headers,
+    /// addresses that repeat from one mesh to the next, mesh arrays in the
+    /// attribute storage, and no stored world matrix (the pillar is turned
+    /// by Euler angles; the panel has a parent, a parent inverse, a
+    /// quaternion and a scale). The bounds below are the ones Blender
+    /// printed when it wrote the file.
+    private func blender5Fixture() throws -> Data {
+        try Data(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/Blend/blender-5.3-materials.blend"))
+    }
+
+    func testBlender5FileIsWhatTheTestThinksItIs() throws {
+        let file = try blender5Fixture()
+        XCTAssertTrue(ZstdDecoder.isZstd(file))
+        let plain = try ZstdDecoder.decompress(file)
+        XCTAssertEqual(String(decoding: plain.prefix(17), as: UTF8.self), "BLENDER17-01v0503")
+    }
+
+    func testBlender5MeshesImportAtTheirSizes() throws {
+        let parts = try MeshImportKit.parts(from: blender5Fixture(), fileName: "scene.blend")
+        XCTAssertEqual(Set(parts.map(\.name)), ["Crate", "Pillar", "Glow Panel"])
+        func part(_ name: String) throws -> ImportedPart { try XCTUnwrap(parts.first { $0.name == name }) }
+        func assertBounds(_ part: ImportedPart, _ low: SIMD3<Float>, _ high: SIMD3<Float>,
+                          file: StaticString = #filePath, line: UInt = #line) {
+            let box = part.mesh.localAABB
+            for axis in 0..<3 {
+                XCTAssertEqual(box.min[axis], low[axis], accuracy: 0.01, "min \(axis)", file: file, line: line)
+                XCTAssertEqual(box.max[axis], high[axis], accuracy: 0.01, "max \(axis)", file: file, line: line)
+            }
+        }
+        // Blender (x, y, z) m → app (x, z, −y) mm.
+        let crate = try part("Crate")
+        XCTAssertEqual(crate.mesh.indices.count, 36, "six quads")
+        assertBounds(crate, SIMD3(-1000, 0, -1000), SIMD3(1000, 2000, 1000))
+        XCTAssertEqual(crate.mesh.texcoords?.count, crate.mesh.positions.count, "its UV map came along")
+
+        let pillar = try part("Pillar")
+        XCTAssertEqual(pillar.mesh.indices.count, (12 * 2 + 10 * 2) * 3, "twelve sides and two 12-gon caps")
+        assertBounds(pillar, SIMD3(2500, 1000, -1500), SIMD3(3500, 2000, 1500))
+
+        let panel = try part("Glow Panel")
+        XCTAssertEqual(panel.mesh.indices.count, 6)
+        assertBounds(panel, SIMD3(-1000, -500, -3000), SIMD3(1000, 1500, -3000))
+    }
+
+    func testPrincipledMaterialsComeAcross() throws {
+        let parts = try MeshImportKit.parts(from: blender5Fixture(), fileName: "scene.blend")
+        func material(_ name: String) throws -> BodyMaterialSpec {
+            try XCTUnwrap(parts.first { $0.name == name }?.material)
+        }
+        func assertColor(_ spec: BodyMaterialSpec, _ r: Double, _ g: Double, _ b: Double, _ a: Double,
+                         file: StaticString = #filePath, line: UInt = #line) {
+            XCTAssertEqual(spec.baseColor.x, r, accuracy: 1e-6, file: file, line: line)
+            XCTAssertEqual(spec.baseColor.y, g, accuracy: 1e-6, file: file, line: line)
+            XCTAssertEqual(spec.baseColor.z, b, accuracy: 1e-6, file: file, line: line)
+            XCTAssertEqual(spec.baseColor.w, a, accuracy: 1e-6, file: file, line: line)
+        }
+        // The viewport colour of all three is Blender's default grey: these
+        // are the node's values.
+        let paint = try material("Crate")
+        assertColor(paint, 0.8, 0.1, 0.05, 1)
+        XCTAssertEqual(paint.metallic, 0, accuracy: 1e-6)
+        XCTAssertEqual(paint.roughness, 0.35, accuracy: 1e-6)
+        XCTAssertEqual(paint.emission, 0)
+
+        let steel = try material("Pillar")
+        assertColor(steel, 0.55, 0.57, 0.6, 1)
+        XCTAssertEqual(steel.metallic, 0.9, accuracy: 1e-6)
+        XCTAssertEqual(steel.roughness, 0.25, accuracy: 1e-6)
+
+        let glow = try material("Glow Panel")
+        assertColor(glow, 0.1, 0.6, 1.0, 0.5)
+        XCTAssertEqual(glow.emission, 1, "strength 4 on a full-blue emission colour is as bright as the app's glow goes")
+    }
+
+    func testANewerFileFormatIsRefusedByName() {
+        var file = Data("BLENDER17-02v0600".utf8)
+        file.append(Data(count: 64))
+        XCTAssertThrowsError(try MeshImportKit.parts(from: file, fileName: "future.blend")) { error in
+            guard case MeshImportError.malformed(let why) = error else { return XCTFail("\(error)") }
+            XCTAssertTrue(why.contains("newer than this app reads"), why)
         }
     }
 

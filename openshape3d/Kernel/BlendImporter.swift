@@ -7,13 +7,33 @@
 //  block (struct names, field names, sizes) written alongside them — so
 //  the reader parses that catalogue first and then reads every field by
 //  name at the offset the catalogue gives, which is what makes one reader
-//  work across versions. Supported: uncompressed and gzip files, 32/64-bit,
-//  both endiannesses; mesh objects with MVert/MPoly/MLoop (2.63 … 3.4)
-//  or the attribute layers that replaced them (3.5+); UVs from `mloopuv`,
-//  a CD_MLOOPUV or a CD_PROP_FLOAT2 layer; materials by slot (viewport
-//  colour) with a base-colour image from a 2.7x texture slot or a 2.8+
-//  Image Texture node, packed in the file or beside it. Blender is Z-up
-//  and metres; parts come out Y-up in millimetres.
+//  work across versions. Supported: uncompressed, gzip (≤ 2.9 "Compress")
+//  and zstd (3.0+ "Compress", `ZstdDecoder`) files, 32/64-bit, both
+//  endiannesses; mesh objects with MVert/MPoly/MLoop (2.63 … 3.4), the
+//  attribute layers that replaced them (3.5+) or the attribute storage that
+//  replaced those (5.0+); UVs from `mloopuv`, a CD_MLOOPUV or a
+//  CD_PROP_FLOAT2 layer, or a float2 corner attribute; materials by slot:
+//  the Principled BSDF's colour, metallic, roughness, alpha and emission
+//  where the material has one (2.8+), else the viewport colour; a
+//  base-colour image from a 2.7x texture slot or a 2.8+ Image Texture
+//  node, packed in the file or beside it. Blender is Z-up and metres; parts
+//  come out Y-up in millimetres.
+//
+//  Blender 5 changed three things, all found by reading files it wrote
+//  (5.3, 2026-11-26):
+//
+//    • The header. `BLENDER-v405` (12 bytes) became `BLENDER17-01v0503`:
+//      the header's own length, the pointer size, a format version, the
+//      endianness, a four-digit Blender version. Format 1 also widens every
+//      block header to 32 bytes: code, struct index, address, then a 64-bit
+//      length and count.
+//    • Addresses. A block's address used to be the memory address it was
+//      saved from, unique in the file. It is now a stable number that is
+//      only unique among one data-block's own blocks, so the same address
+//      turns up under several meshes. A pointer is looked up among the
+//      blocks of the data-block it was read from first (`deref(_:from:)`).
+//    • Mesh arrays. Positions, corners and UVs left the CustomData layers
+//      for `Mesh.attribute_storage`, a list of named attributes.
 //
 
 import Compression
@@ -28,14 +48,24 @@ nonisolated enum BlendImporter {
         var data = raw
         if data.count >= 2, data[data.startIndex] == 0x1f, data[data.startIndex + 1] == 0x8b {
             data = try gunzip(data)
-        } else if data.count >= 4, data[data.startIndex] == 0x28, data[data.startIndex + 1] == 0xb5,
-                  data[data.startIndex + 2] == 0x2f, data[data.startIndex + 3] == 0xfd {
-            throw MeshImportError.malformed("blend: this file is zstd-compressed (Blender 3.0+ \"Compress\" save); "
-                                            + "save it without compression or export glTF")
+        } else if ZstdDecoder.isZstd(data) {
+            // Blender 3.0+ "Compress": zstd, one frame per ~256 KB and a
+            // seek table in a skippable frame at the end.
+            do {
+                data = try ZstdDecoder.decompress(data, maximumSize: maximumInflatedSize)
+            } catch ZstdDecoder.Failure.tooLarge {
+                throw MeshImportError.malformed("blend: this compressed file is too large to open here; "
+                                                + "save it without compression or export glTF")
+            } catch {
+                throw MeshImportError.malformed("blend: the compressed file is damaged (\(error))")
+            }
         }
         let file = try BlendFile(data)
         return try extract(file, siblings: siblings, unitScale: unitScale)
     }
+
+    /// A compressed .blend is refused past this many bytes once inflated.
+    private static let maximumInflatedSize = 1 << 30
 
     // MARK: - gzip
 
@@ -78,6 +108,9 @@ nonisolated enum BlendImporter {
         let sdnaIndex: Int
         let count: Int
         let dataOffset: Int
+        /// Which data-block this belongs to: an ID block and the DATA blocks
+        /// written after it share one. Addresses are looked up here first.
+        let group: Int
     }
 
     struct Field {
@@ -116,8 +149,15 @@ nonisolated enum BlendImporter {
         let pointerSize: Int
         let littleEndian: Bool
         let version: Int
+        /// Where the first block starts: 12, or what a Blender 5 header says.
+        let headerSize: Int
+        /// Blender 5's block header: 64-bit length and count, struct index first.
+        let largeBlocks: Bool
         var blocks: [Block] = []
         var byAddress: [UInt64: Block] = [:]
+        private struct LocalAddress: Hashable { let group: Int; let address: UInt64 }
+        private var byLocalAddress: [LocalAddress: Block] = [:]
+        private var idByAddress: [UInt64: Block] = [:]
         var structs: [StructDef] = []
         var structIndex: [String: Int] = [:]
         var typeSizes: [String: Int] = [:]
@@ -127,9 +167,29 @@ nonisolated enum BlendImporter {
             guard bytes.count > 12, String(decoding: bytes[0..<7], as: UTF8.self) == "BLENDER" else {
                 throw MeshImportError.malformed("blend: not a Blender file")
             }
-            pointerSize = bytes[7] == UInt8(ascii: "-") ? 8 : 4
-            littleEndian = bytes[8] == UInt8(ascii: "v")
-            version = Int(String(decoding: bytes[9..<12], as: UTF8.self)) ?? 0
+            if bytes[7] == UInt8(ascii: "-") || bytes[7] == UInt8(ascii: "_") {
+                pointerSize = bytes[7] == UInt8(ascii: "-") ? 8 : 4
+                littleEndian = bytes[8] == UInt8(ascii: "v")
+                version = Int(String(decoding: bytes[9..<12], as: UTF8.self)) ?? 0
+                headerSize = 12
+                largeBlocks = false
+            } else {
+                // Blender 5: BLENDER17-01v0503.
+                guard bytes.count > 17,
+                      let size = Int(String(decoding: bytes[7..<9], as: UTF8.self)), size >= 17, size < bytes.count,
+                      let format = Int(String(decoding: bytes[10..<12], as: UTF8.self)) else {
+                    throw MeshImportError.malformed("blend: unreadable file header")
+                }
+                guard format == 1, bytes[9] == UInt8(ascii: "-"), bytes[12] == UInt8(ascii: "v") else {
+                    throw MeshImportError.malformed("blend: this file's format (version \(format)) is newer than this app reads; "
+                                                    + "export glTF from Blender instead")
+                }
+                pointerSize = 8
+                littleEndian = true
+                version = Int(String(decoding: bytes[13..<17], as: UTF8.self)) ?? 0
+                headerSize = size
+                largeBlocks = true
+            }
             try readBlocks()
             try readDNA()
         }
@@ -155,6 +215,7 @@ nonisolated enum BlendImporter {
             for k in 0..<8 { v |= UInt64(bytes[at + k]) << (littleEndian ? 8 * k : 8 * (7 - k)) }
             return v
         }
+        func i64(_ at: Int) -> Int64 { Int64(bitPattern: u64(at)) }
         func f32(_ at: Int) -> Float { Float(bitPattern: u32(at)) }
         func pointer(_ at: Int) -> UInt64 { pointerSize == 8 ? u64(at) : UInt64(u32(at)) }
         func cString(_ at: Int, max: Int) -> String {
@@ -164,21 +225,35 @@ nonisolated enum BlendImporter {
         }
 
         private func readBlocks() throws {
-            var offset = 12
-            let header = 16 + pointerSize
+            var offset = headerSize
+            let header = largeBlocks ? 32 : 16 + pointerSize
+            var group = -1
             while offset + header <= bytes.count {
                 let code = String(decoding: bytes[offset..<offset + 4].prefix { $0 != 0 }, as: UTF8.self)
-                let size = Int(i32(offset + 4))
-                let old = pointer(offset + 8)
-                let sdna = Int(i32(offset + 8 + pointerSize))
-                let count = Int(i32(offset + 12 + pointerSize))
+                let size: Int, old: UInt64, sdna: Int, count: Int
+                if largeBlocks {
+                    sdna = Int(i32(offset + 4))
+                    old = u64(offset + 8)
+                    size = Int(clamping: i64(offset + 16))
+                    count = Int(clamping: i64(offset + 24))
+                } else {
+                    size = Int(i32(offset + 4))
+                    old = pointer(offset + 8)
+                    sdna = Int(i32(offset + 8 + pointerSize))
+                    count = Int(i32(offset + 12 + pointerSize))
+                }
+                let isData = code == "DATA"
+                if !isData { group += 1 }
                 let block = Block(code: code, size: size, oldAddress: old, sdnaIndex: sdna, count: count,
-                                  dataOffset: offset + header)
+                                  dataOffset: offset + header, group: max(group, 0))
                 blocks.append(block)
                 if code == "ENDB" { break }
-                guard size >= 0, block.dataOffset + size <= bytes.count else {
+                guard size >= 0, size <= bytes.count - block.dataOffset else {
                     throw MeshImportError.malformed("blend: truncated block \(code)")
                 }
+                let local = LocalAddress(group: block.group, address: old)
+                if byLocalAddress[local] == nil { byLocalAddress[local] = block }
+                if !isData, idByAddress[old] == nil { idByAddress[old] = block }
                 if byAddress[old] == nil { byAddress[old] = block }
                 offset = block.dataOffset + size
             }
@@ -255,8 +330,10 @@ nonisolated enum BlendImporter {
             switch f.typeName {
             case "short": return Int(i16(at))
             case "ushort": return Int(u16(at))
-            case "char": return Int(Int8(bitPattern: u8(at)))
-            case "uchar": return Int(u8(at))
+            case "int16_t": return Int(i16(at))
+            case "uint16_t": return Int(u16(at))
+            case "char", "int8_t": return Int(Int8(bitPattern: u8(at)))
+            case "uchar", "uint8_t", "bool": return Int(u8(at))
             case "int64_t": return Int(Int64(bitPattern: u64(at)))
             case "uint64_t": return Int(u64(at))
             default: return Int(i32(at))
@@ -282,9 +359,17 @@ nonisolated enum BlendImporter {
             let raw = cString(block.dataOffset + idField.offset + nameField.offset, max: nameField.arrayCount)
             return raw.count > 2 ? String(raw.dropFirst(2)) : raw
         }
-        func deref(_ address: UInt64?) -> Block? {
+        /// The block a pointer read from `from`'s data-block refers to: one
+        /// of that data-block's own blocks, else another data-block. (Before
+        /// Blender 5 every address was unique and the order did not matter.)
+        func deref(_ address: UInt64?, from: Block) -> Block? {
             guard let address, address != 0 else { return nil }
-            return byAddress[address]
+            return byLocalAddress[LocalAddress(group: from.group, address: address)]
+                ?? idByAddress[address] ?? byAddress[address]
+        }
+        /// A NUL-terminated string held in a block of its own (`char *name`).
+        func string(at address: UInt64?, from: Block) -> String? {
+            deref(address, from: from).map { cString($0.dataOffset, max: $0.size) }
         }
         /// Pointers stored in a pointer-array block (e.g. Mesh.mat → Material**).
         func pointerArray(_ block: Block, count: Int) -> [UInt64] {
@@ -299,11 +384,11 @@ nonisolated enum BlendImporter {
                   let layersField = cd.byName["layers"], let totField = cd.byName["totlayer"] else { return [] }
             let base = block.dataOffset + f.offset
             let total = Int(i32(base + totField.offset))
-            guard let layerBlock = deref(pointer(base + layersField.offset)) else { return [] }
+            guard let layerBlock = deref(pointer(base + layersField.offset), from: block) else { return [] }
             return (0..<max(total, 0)).map { i in
                 (int(layerBlock, "CustomDataLayer", "type", index: i) ?? -1,
                  string(layerBlock, "CustomDataLayer", "name", index: i) ?? "",
-                 deref(ptr(layerBlock, "CustomDataLayer", "data", index: i)))
+                 deref(ptr(layerBlock, "CustomDataLayer", "data", index: i), from: block))
             }
         }
     }
@@ -316,7 +401,44 @@ nonisolated enum BlendImporter {
     private struct RawMaterial {
         var name: String
         var color: SIMD4<Double>
+        var metallic = 0.0
+        var roughness = 0.5
+        var emission = 0.0
         var texture: Data?
+    }
+
+    /// One entry of a Blender 5 mesh's attribute storage.
+    private struct MeshAttribute {
+        let name: String
+        let domain: Int        // 0 point, 1 edge, 2 face, 3 corner
+        let type: Int          // 3 int32, 6 float2, 7 float3 (as written by 5.3)
+        let isSingle: Bool     // one value standing for every element
+        let count: Int
+        let data: Block?
+    }
+    private static let domainPoint = 0, domainFace = 2, domainCorner = 3
+    private static let attributeFloat2 = 6
+
+    private static func attributes(of me: Block, in file: BlendFile) -> [MeshAttribute] {
+        guard let storage = file.structDef("Mesh")?.byName["attribute_storage"],
+              let storageDef = file.structDef("AttributeStorage"),
+              let listField = storageDef.byName["dna_attributes"], let countField = storageDef.byName["dna_attributes_num"],
+              file.structDef("Attribute") != nil else { return [] }
+        let base = me.dataOffset + storage.offset
+        let count = Int(file.i32(base + countField.offset))
+        guard count > 0, let list = file.deref(file.pointer(base + listField.offset), from: me) else { return [] }
+        return (0..<min(count, 4096)).compactMap { i in
+            guard let name = file.string(at: file.ptr(list, "Attribute", "name", index: i), from: me),
+                  let holder = file.deref(file.ptr(list, "Attribute", "data", index: i), from: me) else { return nil }
+            let isSingle = (file.int(list, "Attribute", "storage_type", index: i) ?? 0) != 0
+            return MeshAttribute(
+                name: name,
+                domain: file.int(list, "Attribute", "domain", index: i) ?? -1,
+                type: file.int(list, "Attribute", "data_type", index: i) ?? -1,
+                isSingle: isSingle,
+                count: isSingle ? 1 : (file.int(holder, "AttributeArray", "size") ?? 0),
+                data: file.deref(file.ptr(holder, isSingle ? "AttributeSingle" : "AttributeArray", "data"), from: me))
+        }
     }
 
     private static func extract(_ file: BlendFile, siblings: [String: Data], unitScale: Double) throws -> [ImportedPart] {
@@ -328,19 +450,10 @@ nonisolated enum BlendImporter {
 
         for ob in file.blocks where ob.code == "OB" && file.structName(of: ob) == "Object" {
             guard file.int(ob, "Object", "type") == objectTypeMesh,
-                  let me = file.deref(file.ptr(ob, "Object", "data")), file.structName(of: me) == "Mesh"
+                  let me = file.deref(file.ptr(ob, "Object", "data"), from: ob), file.structName(of: me) == "Mesh"
             else { continue }
             let name = file.idName(ob, "Object")
-            // obmat[4][4]: obmat[i] is column i (Blender stores column vectors).
-            let m = file.floats(ob, "Object", "obmat") ?? []
-            var world = matrix_identity_double4x4
-            if m.count == 16 {
-                world = simd_double4x4(columns: (
-                    SIMD4(Double(m[0]), Double(m[1]), Double(m[2]), Double(m[3])),
-                    SIMD4(Double(m[4]), Double(m[5]), Double(m[6]), Double(m[7])),
-                    SIMD4(Double(m[8]), Double(m[9]), Double(m[10]), Double(m[11])),
-                    SIMD4(Double(m[12]), Double(m[13]), Double(m[14]), Double(m[15]))))
-            }
+            let world = worldMatrix(of: ob, in: file)
             let mirrored = simd_double3x3(
                 SIMD3(world.columns.0.x, world.columns.0.y, world.columns.0.z),
                 SIMD3(world.columns.1.x, world.columns.1.y, world.columns.1.z),
@@ -359,10 +472,10 @@ nonisolated enum BlendImporter {
             // Materials by slot: the mesh's own list, else the object's.
             let totcol = file.int(me, "Mesh", "totcol") ?? 0
             var slotMaterials: [RawMaterial?] = []
-            if totcol > 0, let matBlock = file.deref(file.ptr(me, "Mesh", "mat")) {
+            if totcol > 0, let matBlock = file.deref(file.ptr(me, "Mesh", "mat"), from: me) {
                 for address in file.pointerArray(matBlock, count: totcol) {
                     if let cached = materialCache[address] { slotMaterials.append(cached); continue }
-                    let raw = file.deref(address).map { material($0, in: file, siblings: siblings) }
+                    let raw = file.deref(address, from: me).map { material($0, in: file, siblings: siblings) }
                     if let raw { materialCache[address] = raw }
                     slotMaterials.append(raw)
                 }
@@ -413,7 +526,8 @@ nonisolated enum BlendImporter {
                 if uvs != nil, outUVs.count == outPositions.count { mesh.texcoords = outUVs }
                 var spec: BodyMaterialSpec?
                 if slot < slotMaterials.count, let raw = slotMaterials[slot] {
-                    spec = BodyMaterialSpec(baseColor: raw.color, metallic: 0, roughness: 0.5)
+                    spec = BodyMaterialSpec(baseColor: raw.color, metallic: raw.metallic, roughness: raw.roughness,
+                                            emission: raw.emission)
                     if mesh.texcoords != nil { spec?.baseColorTexture = raw.texture }
                 }
                 let partName = usedSlots.count > 1
@@ -424,6 +538,65 @@ nonisolated enum BlendImporter {
         }
         guard !parts.isEmpty else { throw MeshImportError.empty }
         return parts
+    }
+
+    /// Sixteen floats as a matrix: `m[i]` is column i (Blender stores column vectors).
+    private static func matrix(_ m: [Float]) -> simd_double4x4? {
+        guard m.count == 16 else { return nil }
+        return simd_double4x4(columns: (
+            SIMD4(Double(m[0]), Double(m[1]), Double(m[2]), Double(m[3])),
+            SIMD4(Double(m[4]), Double(m[5]), Double(m[6]), Double(m[7])),
+            SIMD4(Double(m[8]), Double(m[9]), Double(m[10]), Double(m[11])),
+            SIMD4(Double(m[12]), Double(m[13]), Double(m[14]), Double(m[15]))))
+    }
+
+    /// Where an object stands in the scene. Up to Blender 4 the file holds
+    /// the matrix (`obmat`). Blender 5 stopped writing it, so it is rebuilt
+    /// the way Blender does: scale, then rotation with its delta, then
+    /// location, under the parent and the parent inverse. (An object placed
+    /// by a constraint, a bone or a vertex parent is not followed.)
+    private static func worldMatrix(of ob: Block, in file: BlendFile, depth: Int = 0) -> simd_double4x4 {
+        if let stored = file.floats(ob, "Object", "obmat").flatMap(matrix) { return stored }
+
+        func vector(_ field: String, _ fallback: Double) -> SIMD3<Double> {
+            guard let v = file.floats(ob, "Object", field), v.count >= 3 else { return SIMD3(repeating: fallback) }
+            return SIMD3(Double(v[0]), Double(v[1]), Double(v[2]))
+        }
+        func turn(_ axis: SIMD3<Double>, _ angle: Double) -> simd_double3x3 {
+            let length = simd_length(axis)
+            guard length > 1e-12, angle.isFinite else { return matrix_identity_double3x3 }
+            return simd_double3x3(simd_quatd(angle: angle, axis: axis / length))
+        }
+        let mode = file.int(ob, "Object", "rotmode") ?? 1
+        func rotation(euler: String, quaternion: String, axis: String, angle: String) -> simd_double3x3 {
+            switch mode {
+            case 0:                                    // quaternion, w first
+                guard let q = file.floats(ob, "Object", quaternion), q.count >= 4 else { return matrix_identity_double3x3 }
+                let value = simd_quatd(ix: Double(q[1]), iy: Double(q[2]), iz: Double(q[3]), r: Double(q[0]))
+                return simd_length(value) > 1e-12 ? simd_double3x3(simd_normalize(value)) : matrix_identity_double3x3
+            case -1:                                   // axis and angle
+                return turn(vector(axis, 0), Double(file.floats(ob, "Object", angle)?.first ?? 0))
+            default:                                   // Euler, in one of six orders
+                let e = vector(euler, 0)
+                let about = [turn(SIMD3(1, 0, 0), e.x), turn(SIMD3(0, 1, 0), e.y), turn(SIMD3(0, 0, 1), e.z)]
+                let orders = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]]
+                let order = orders[min(max(mode, 1), 6) - 1]
+                // "XYZ" turns about X first, so X is the rightmost factor.
+                return about[order[2]] * about[order[1]] * about[order[0]]
+            }
+        }
+        let scale = vector("size", 1) * vector("dscale", 1)
+        let turned = rotation(euler: "drot", quaternion: "dquat", axis: "drotAxis", angle: "drotAngle")
+            * rotation(euler: "rot", quaternion: "quat", axis: "rotAxis", angle: "rotAngle")
+        let linear = turned * simd_double3x3(diagonal: scale)
+        let location = vector("loc", 0) + vector("dloc", 0)
+        let local = simd_double4x4(columns: (
+            SIMD4(linear.columns.0, 0), SIMD4(linear.columns.1, 0), SIMD4(linear.columns.2, 0), SIMD4(location, 1)))
+
+        guard depth < 64, let parent = file.deref(file.ptr(ob, "Object", "parent"), from: ob),
+              file.structName(of: parent) == "Object" else { return local }
+        let inverse = file.floats(ob, "Object", "parentinv").flatMap(matrix) ?? matrix_identity_double4x4
+        return worldMatrix(of: parent, in: file, depth: depth + 1) * inverse * local
     }
 
     private struct Polygons {
@@ -441,10 +614,16 @@ nonisolated enum BlendImporter {
         let totpoly = file.int(me, "Mesh", "totpoly") ?? 0
         let totloop = file.int(me, "Mesh", "totloop") ?? 0
         guard totvert > 0, totpoly > 0, totloop > 0 else { return nil }
+        let attributes = attributes(of: me, in: file)
+        /// A whole array of `count` elements, `stride` bytes each.
+        func array(_ name: String, domain: Int, stride: Int, count: Int) -> Block? {
+            attributes.first { $0.name == name && $0.domain == domain && !$0.isSingle && $0.count == count }?
+                .data.flatMap { $0.size >= stride * count ? $0 : nil }
+        }
 
         // Positions: MVert.co (≤ 3.4) or the "position" float3 vertex layer (3.5+).
         var positions: [SIMD3<Float>] = []
-        if let mv = file.deref(file.ptr(me, "Mesh", "mvert")), file.structDef("MVert")?.byName["co"] != nil {
+        if let mv = file.deref(file.ptr(me, "Mesh", "mvert"), from: me), file.structDef("MVert")?.byName["co"] != nil {
             positions.reserveCapacity(totvert)
             for i in 0..<totvert {
                 guard let co = file.floats(mv, "MVert", "co", index: i), co.count >= 3 else { break }
@@ -455,15 +634,21 @@ nonisolated enum BlendImporter {
             positions = (0..<totvert).map { i in
                 SIMD3(file.f32(data.dataOffset + 12 * i), file.f32(data.dataOffset + 12 * i + 4), file.f32(data.dataOffset + 12 * i + 8))
             }
+        } else if let data = array("position", domain: domainPoint, stride: 12, count: totvert) {     // 5.0+
+            positions = (0..<totvert).map { i in
+                SIMD3(file.f32(data.dataOffset + 12 * i), file.f32(data.dataOffset + 12 * i + 4), file.f32(data.dataOffset + 12 * i + 8))
+            }
         }
         guard positions.count == totvert else { return nil }
 
         // Corner → vertex: MLoop.v (≤ 3.5) or the ".corner_vert" int layer (3.6+).
         var loopVertex: [Int] = []
-        if let ml = file.deref(file.ptr(me, "Mesh", "mloop")), file.structDef("MLoop")?.byName["v"] != nil {
+        if let ml = file.deref(file.ptr(me, "Mesh", "mloop"), from: me), file.structDef("MLoop")?.byName["v"] != nil {
             loopVertex = (0..<totloop).map { file.int(ml, "MLoop", "v", index: $0) ?? 0 }
         } else if let layer = file.layers(me, "Mesh", "ldata").first(where: { $0.type == cdPropInt32 && $0.name == ".corner_vert" }),
                   let data = layer.data {
+            loopVertex = (0..<totloop).map { Int(file.i32(data.dataOffset + 4 * $0)) }
+        } else if let data = array(".corner_vert", domain: domainCorner, stride: 4, count: totloop) {  // 5.0+
             loopVertex = (0..<totloop).map { Int(file.i32(data.dataOffset + 4 * $0)) }
         }
         guard loopVertex.count == totloop else { return nil }
@@ -472,7 +657,7 @@ nonisolated enum BlendImporter {
         // (3.6+) with the "material_index" int face layer.
         var polygons = Polygons()
         polygons.loopVertex = loopVertex
-        if let mp = file.deref(file.ptr(me, "Mesh", "mpoly")), file.structDef("MPoly")?.byName["loopstart"] != nil {
+        if let mp = file.deref(file.ptr(me, "Mesh", "mpoly"), from: me), file.structDef("MPoly")?.byName["loopstart"] != nil {
             for i in 0..<totpoly {
                 let start = file.int(mp, "MPoly", "loopstart", index: i) ?? 0
                 let count = file.int(mp, "MPoly", "totloop", index: i) ?? 0
@@ -480,12 +665,18 @@ nonisolated enum BlendImporter {
                 guard start >= 0, count >= 3, start + count <= totloop else { continue }
                 polygons.polys.append(.init(loops: Array(start..<start + count), materialSlot: max(slot, 0)))
             }
-        } else if let offsets = file.deref(file.ptr(me, "Mesh", "poly_offset_indices")) {
+        } else if let offsets = file.deref(file.ptr(me, "Mesh", "poly_offset_indices"), from: me),
+                  offsets.size >= 4 * (totpoly + 1) {
+            // The slot of each face: a face layer (3.6+), a face attribute
+            // (5.0+), or one value for the whole mesh.
             let slots = file.layers(me, "Mesh", "pdata").first(where: { $0.type == cdPropInt32 && $0.name == "material_index" })?.data
+                ?? array("material_index", domain: domainFace, stride: 4, count: totpoly)
+            let oneSlot = attributes.first { $0.name == "material_index" && $0.domain == domainFace && $0.isSingle }?
+                .data.flatMap { $0.size >= 4 ? Int(file.i32($0.dataOffset)) : nil }
             for i in 0..<totpoly {
                 let start = Int(file.i32(offsets.dataOffset + 4 * i))
                 let end = Int(file.i32(offsets.dataOffset + 4 * (i + 1)))
-                let slot = slots.map { Int(file.i32($0.dataOffset + 4 * i)) } ?? 0
+                let slot = slots.map { Int(file.i32($0.dataOffset + 4 * i)) } ?? oneSlot ?? 0
                 guard start >= 0, end - start >= 3, end <= totloop else { continue }
                 polygons.polys.append(.init(loops: Array(start..<end), materialSlot: max(slot, 0)))
             }
@@ -494,7 +685,7 @@ nonisolated enum BlendImporter {
 
         // UVs per corner: Mesh.mloopuv, a CD_MLOOPUV layer, or a float2 layer.
         var uvs: [SIMD2<Float>]?
-        if let muv = file.deref(file.ptr(me, "Mesh", "mloopuv")), file.structDef("MLoopUV")?.byName["uv"] != nil {
+        if let muv = file.deref(file.ptr(me, "Mesh", "mloopuv"), from: me), file.structDef("MLoopUV")?.byName["uv"] != nil {
             uvs = (0..<totloop).map { i in
                 let uv = file.floats(muv, "MLoopUV", "uv", index: i) ?? [0, 0]
                 return SIMD2(uv[0], uv.count > 1 ? uv[1] : 0)
@@ -506,70 +697,142 @@ nonisolated enum BlendImporter {
                 uvs = (0..<totloop).map { SIMD2(file.f32(data.dataOffset + stride * $0), file.f32(data.dataOffset + stride * $0 + 4)) }
             } else if let layer = layers.first(where: { $0.type == cdPropFloat2 && !$0.name.hasPrefix(".") }), let data = layer.data {
                 uvs = (0..<totloop).map { SIMD2(file.f32(data.dataOffset + 8 * $0), file.f32(data.dataOffset + 8 * $0 + 4)) }
+            } else {
+                // 5.0+: a float2 corner attribute; the one the mesh renders with, else the first.
+                let maps = attributes.filter {
+                    $0.domain == domainCorner && $0.type == attributeFloat2 && !$0.isSingle && $0.count == totloop
+                        && !$0.name.hasPrefix(".") && ($0.data?.size ?? 0) >= 8 * totloop
+                }
+                let preferred = file.string(at: file.ptr(me, "Mesh", "default_uv_map_attribute"), from: me)
+                if let data = (maps.first { $0.name == preferred } ?? maps.first)?.data {
+                    uvs = (0..<totloop).map { SIMD2(file.f32(data.dataOffset + 8 * $0), file.f32(data.dataOffset + 8 * $0 + 4)) }
+                }
             }
         }
         return (positions, polygons, uvs)
     }
 
-    /// Slot colour and base-colour image for a Material block.
+    /// What a slot's material looks like: the Principled BSDF's own values
+    /// where it has one, else the viewport colour; and a base-colour image.
     private static func material(_ ma: Block, in file: BlendFile, siblings: [String: Data]) -> RawMaterial {
         let name = file.idName(ma, "Material")
-        let r = Double(file.floats(ma, "Material", "r")?.first ?? 0.8)
-        let g = Double(file.floats(ma, "Material", "g")?.first ?? 0.8)
-        let b = Double(file.floats(ma, "Material", "b")?.first ?? 0.8)
-        let alpha = Double(file.floats(ma, "Material", "alpha")?.first ?? 1)
-        var raw = RawMaterial(name: name, color: SIMD4(r, g, b, alpha > 0 ? alpha : 1), texture: nil)
+        func viewport(_ field: String, _ fallback: Double) -> Double {
+            Double(file.floats(ma, "Material", field)?.first ?? Float(fallback))
+        }
+        let alpha = viewport("alpha", 1)
+        var raw = RawMaterial(name: name,
+                              color: SIMD4(viewport("r", 0.8), viewport("g", 0.8), viewport("b", 0.8), alpha > 0 ? alpha : 1),
+                              texture: nil)
+        // 2.8+ keeps a viewport metallic and roughness beside the colour.
+        if file.structDef("Material")?.byName["metallic"] != nil {
+            raw.metallic = min(max(viewport("metallic", 0), 0), 1)
+            raw.roughness = min(max(viewport("roughness", 0.5), 0), 1)
+        }
 
         var image: Block?
         // 2.7x: texture slots — the first colour-mapped image texture.
         if let mtexField = file.structDef("Material")?.byName["mtex"], mtexField.isPointer {
             let base = ma.dataOffset + mtexField.offset
             for i in 0..<mtexField.arrayCount where image == nil {
-                guard let mtex = file.deref(file.pointer(base + i * file.pointerSize)),
-                      let tex = file.deref(file.ptr(mtex, "MTex", "tex")),
+                guard let mtex = file.deref(file.pointer(base + i * file.pointerSize), from: ma),
+                      let tex = file.deref(file.ptr(mtex, "MTex", "tex"), from: ma),
                       (file.int(mtex, "MTex", "mapto") ?? 1) & 1 != 0,
                       file.int(tex, "Tex", "type") == 8,                // TEX_IMAGE
-                      let ima = file.deref(file.ptr(tex, "Tex", "ima")) else { continue }
+                      let ima = file.deref(file.ptr(tex, "Tex", "ima"), from: tex) else { continue }
                 image = ima
             }
         }
-        // 2.8+: the node tree's first Image Texture node.
-        if image == nil, let tree = file.deref(file.ptr(ma, "Material", "nodetree")),
-           let nodesField = file.structDef("bNodeTree")?.byName["nodes"], let listBase = file.structDef("ListBase"),
-           let firstField = listBase.byName["first"], let nodeDef = file.structDef("bNode"),
-           nodeDef.byName["next"] != nil {
-            var node = file.deref(file.pointer(tree.dataOffset + nodesField.offset + firstField.offset))
-            var guardCount = 0
-            while let current = node, guardCount < 512, image == nil {
-                guardCount += 1
-                let idname = file.string(current, "bNode", "idname") ?? ""
-                if idname == "ShaderNodeTexImage", let ima = file.deref(file.ptr(current, "bNode", "id")),
-                   file.structName(of: ima) == "Image" {
+        // 2.8+: the node tree. The first Image Texture node gives the image;
+        // the Principled BSDF gives the look.
+        var baseColorIsDriven = false
+        if let tree = file.deref(file.ptr(ma, "Material", "nodetree"), from: ma),
+           file.structDef("bNode")?.byName["next"] != nil {
+            let driven = Set(chain(tree, "bNodeTree", "links", element: "bNodeLink", in: file, from: ma)
+                .compactMap { file.ptr($0, "bNodeLink", "tosock") })
+            var principled: Block?
+            for node in chain(tree, "bNodeTree", "nodes", element: "bNode", in: file, from: ma) {
+                let idname = file.string(node, "bNode", "idname") ?? ""
+                if image == nil, idname == "ShaderNodeTexImage",
+                   let ima = file.deref(file.ptr(node, "bNode", "id"), from: ma), file.structName(of: ima) == "Image" {
                     image = ima
                 }
-                node = file.deref(file.ptr(current, "bNode", "next"))
+                if principled == nil, idname == "ShaderNodeBsdfPrincipled" { principled = node }
+            }
+            if let principled {
+                var emissionColor = SIMD3<Double>(1, 1, 1), emissionStrength = 0.0
+                for socket in chain(principled, "bNode", "inputs", element: "bNodeSocket", in: file, from: ma) {
+                    let key = file.string(socket, "bNodeSocket", "identifier") ?? ""
+                    // A socket fed by another node shows that node's output,
+                    // not the value stored on it.
+                    if driven.contains(socket.oldAddress) {
+                        if key == "Base Color" { baseColorIsDriven = true }
+                        continue
+                    }
+                    guard let value = file.deref(file.ptr(socket, "bNodeSocket", "default_value"), from: ma) else { continue }
+                    let type = file.structName(of: value)
+                    let numbers = (file.floats(value, type, "value") ?? []).map { Double($0) }
+                    func unit(_ v: Double) -> Double { v.isFinite ? min(max(v, 0), 1) : 0 }
+                    switch (key, type) {
+                    case ("Base Color", "bNodeSocketValueRGBA") where numbers.count >= 3:
+                        raw.color = SIMD4(unit(numbers[0]), unit(numbers[1]), unit(numbers[2]), raw.color.w)
+                    case ("Metallic", "bNodeSocketValueFloat") where !numbers.isEmpty:
+                        raw.metallic = unit(numbers[0])
+                    case ("Roughness", "bNodeSocketValueFloat") where !numbers.isEmpty:
+                        raw.roughness = unit(numbers[0])
+                    case ("Alpha", "bNodeSocketValueFloat") where !numbers.isEmpty:
+                        raw.color.w = unit(numbers[0])
+                    case ("Emission Color", "bNodeSocketValueRGBA") where numbers.count >= 3,    // 4.0+
+                         ("Emission", "bNodeSocketValueRGBA") where numbers.count >= 3:          // 2.8 … 3.6
+                        emissionColor = SIMD3(numbers[0], numbers[1], numbers[2])
+                    case ("Emission Strength", "bNodeSocketValueFloat") where !numbers.isEmpty:
+                        emissionStrength = numbers[0]
+                    default:
+                        break
+                    }
+                }
+                // The app's glow is 0…1 on the part's own colour.
+                let glow = emissionStrength * emissionColor.max()
+                raw.emission = glow.isFinite ? min(max(glow, 0), 1) : 0
             }
         }
         if let image {
             raw.texture = imageData(image, in: file, siblings: siblings)
+            // An image wired into Base Color is the colour: it is multiplied
+            // into white, not into the grey the viewport shows.
+            if raw.texture != nil, baseColorIsDriven { raw.color = SIMD4(1, 1, 1, raw.color.w) }
         }
         return raw
     }
 
+    /// The elements of a `ListBase` field (`first`, then each one's `next`).
+    private static func chain(_ owner: Block, _ ownerStruct: String, _ field: String, element: String,
+                              in file: BlendFile, from: Block) -> [Block] {
+        guard let listField = file.structDef(ownerStruct)?.byName[field],
+              let firstField = file.structDef("ListBase")?.byName["first"],
+              file.structDef(element)?.byName["next"] != nil else { return [] }
+        var out: [Block] = []
+        var current = file.deref(file.pointer(owner.dataOffset + listField.offset + firstField.offset), from: from)
+        while let block = current, out.count < 4096 {
+            out.append(block)
+            current = file.deref(file.ptr(block, element, "next"), from: from)
+        }
+        return out
+    }
+
     /// The image's bytes: packed inside the .blend, or a file that came along.
     private static func imageData(_ ima: Block, in file: BlendFile, siblings: [String: Data]) -> Data? {
-        if let packed = file.deref(file.ptr(ima, "Image", "packedfile")),
+        if let packed = file.deref(file.ptr(ima, "Image", "packedfile"), from: ima),
            let size = file.int(packed, "PackedFile", "size"), size > 0,
-           let data = file.deref(file.ptr(packed, "PackedFile", "data")), data.size >= size {
+           let data = file.deref(file.ptr(packed, "PackedFile", "data"), from: ima), data.size >= size {
             return Data(file.bytes[data.dataOffset..<data.dataOffset + size])
         }
         // 2.8+ keeps a list of packed files (tiles / views); take the first.
         if let listField = file.structDef("Image")?.byName["packedfiles"], let listBase = file.structDef("ListBase"),
            let firstField = listBase.byName["first"],
-           let entry = file.deref(file.pointer(ima.dataOffset + listField.offset + firstField.offset)),
-           let packed = file.deref(file.ptr(entry, "ImagePackedFile", "packedfile")),
+           let entry = file.deref(file.pointer(ima.dataOffset + listField.offset + firstField.offset), from: ima),
+           let packed = file.deref(file.ptr(entry, "ImagePackedFile", "packedfile"), from: ima),
            let size = file.int(packed, "PackedFile", "size"), size > 0,
-           let data = file.deref(file.ptr(packed, "PackedFile", "data")), data.size >= size {
+           let data = file.deref(file.ptr(packed, "PackedFile", "data"), from: ima), data.size >= size {
             return Data(file.bytes[data.dataOffset..<data.dataOffset + size])
         }
         let path = (file.string(ima, "Image", "filepath") ?? file.string(ima, "Image", "name") ?? "")
