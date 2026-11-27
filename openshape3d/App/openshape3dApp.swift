@@ -16,6 +16,15 @@ struct openshape3dApp: App {
         #if targetEnvironment(macCatalyst)
         SpaceMouseHIDMonitor.shared.start()
         #endif
+        #if DEBUG
+        // Input-latency numbers from the first touch (`GET /v1/latency`).
+        // Started once the window exists: it taps the window's touches.
+        if ProcessInfo.processInfo.environment["OS3D_LATENCY"] != nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                InteractionLatencyRecorder.shared.setRecording(true)
+            }
+        }
+        #endif
     }
 
     var sharedModelContainer: ModelContainer = {

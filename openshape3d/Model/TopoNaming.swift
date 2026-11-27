@@ -399,20 +399,9 @@ nonisolated struct SignatureNaming: TopoNaming {
         let planar = faces.indices.filter { faces[$0].planar != nil }
 
         // Caps: the anti-parallel planar pair whose areas best match the profile.
-        var bestPair: (Int, Int)?
-        var bestScore = -Double.infinity
-        for a in 0..<planar.count {
-            for b in (a + 1)..<planar.count {
-                let sa = faces[planar[a]].signature
-                let sb = faces[planar[b]].signature
-                let anti = -simd_dot(Self.unit(sa.normal), Self.unit(sb.normal))
-                guard anti > 0.9 else { continue }
-                let areaMatch = 1 - min(1,
-                    (abs(sa.area - profileArea) + abs(sb.area - profileArea)) / max(profileArea, 1e-9))
-                let s = anti + areaMatch
-                if s > bestScore { bestScore = s; bestPair = (planar[a], planar[b]) }
-            }
-        }
+        let bestPair = Self.capPair(normals: planar.map { faces[$0].signature.normal },
+                                    areas: planar.map { faces[$0].signature.area },
+                                    profileArea: profileArea).map { (planar[$0.0], planar[$0.1]) }
 
         var axis = SIMD3<Double>(0, 1, 0)
         var capCenter = SIMD3<Double>.zero
@@ -455,6 +444,125 @@ nonisolated struct SignatureNaming: TopoNaming {
         // Anything still unlabelled → area-rank derived.
         let fallback = derivedRoles(faces)
         return roles.indices.map { roles[$0] ?? fallback[$0] }
+    }
+
+    /// How well faces `a` and `b` serve as an extrude's two caps, or nil
+    /// when they do not face away from each other: how opposed their normals
+    /// are (above 0.9, at most 1) plus how close their areas are to the
+    /// profile's (0…1).
+    static func capScore(_ a: Int, _ b: Int, units: [SIMD3<Double>], areas: [Double], profileArea: Double) -> Double? {
+        let anti = -simd_dot(units[a], units[b])
+        guard anti > 0.9 else { return nil }
+        let areaMatch = 1 - min(1, (abs(areas[a] - profileArea) + abs(areas[b] - profileArea)) / max(profileArea, 1e-9))
+        return anti + areaMatch
+    }
+
+    /// The best-scoring pair of caps among planar faces given by normal and
+    /// area, as two indices `a < b`; between equal scores, the pair that
+    /// comes first counting `a` then `b`.
+    ///
+    /// The plain way is to score every pair, and that is what this did until
+    /// 2026-11-26. A closed spline tessellates into thousands of flat wall
+    /// strips, every one a planar face: a 1.6 m spline spent three minutes
+    /// here on the main thread, and a car body never finished (#136's
+    /// report). The answer is the same one, found without most of the pairs:
+    ///
+    ///   • Faces are taken in order of how close their area is to the
+    ///     profile's, so the real caps are scored first and set the bar.
+    ///   • A face whose own area already rules out beating the bar with ANY
+    ///     partner (the best its pair could score is 1 for the normals plus
+    ///     its share of the area term) is skipped. Once the caps are found
+    ///     that is every wall strip.
+    ///   • For a face still in the running, the bar says how opposed a
+    ///     partner's normal must be, and so how close that normal's
+    ///     component along one axis must be to the negative of its own.
+    ///     Normals are sorted along that axis, and only that window of them
+    ///     is scored.
+    ///
+    /// Every pair that could equal or beat the bar is still scored with
+    /// `capScore`, so ties fall the way they always did.
+    static func capPair(normals: [SIMD3<Double>], areas: [Double], profileArea: Double) -> (Int, Int)? {
+        let count = normals.count
+        guard count >= 2, areas.count == count else { return nil }
+        let units = normals.map(unit)
+        let scale = max(profileArea, 1e-9)
+        let errors = areas.map { abs($0 - profileArea) / scale }
+        // Sorting and windows need real numbers. Anything else is scored the
+        // plain way, which is what it always got.
+        guard errors.allSatisfy(\.isFinite), units.allSatisfy({ $0.x.isFinite && $0.y.isFinite && $0.z.isFinite }) else {
+            return capPairByEveryPair(units: units, areas: areas, profileArea: profileArea)
+        }
+
+        // The axis the normals spread along most, and the faces sorted by it.
+        var low = SIMD3<Double>(repeating: .infinity), high = SIMD3<Double>(repeating: -.infinity)
+        for u in units { low = simd_min(low, u); high = simd_max(high, u) }
+        let spread = high - low
+        let axis = spread.x >= spread.y && spread.x >= spread.z ? 0 : (spread.y >= spread.z ? 1 : 2)
+        let sorted = (0..<count).sorted { units[$0][axis] < units[$1][axis] }
+        let along = sorted.map { units[$0][axis] }
+
+        // Closest areas first; `rank` says who has been taken already.
+        let order = (0..<count).sorted { errors[$0] < errors[$1] }
+        var rank = [Int](repeating: 0, count: count)
+        for (position, face) in order.enumerated() { rank[face] = position }
+        let smallest = errors[order[0]], second = errors[order[1]]
+
+        // Arithmetic here only decides what to look at, so it leans the safe
+        // way by this much; the scores compared are `capScore`'s own.
+        let slack = 1e-9
+        var best: (score: Double, a: Int, b: Int)?
+        for face in order {
+            // The most this face's pair can score for area, whoever the partner.
+            let partnerError = rank[face] == 0 ? second : smallest
+            let areaCeiling = 1 - min(1, errors[face] + partnerError)
+            // …so its partner's normal must be at least this opposed.
+            var floor = 0.9
+            if let best {
+                let needed = best.score - areaCeiling
+                if needed > 1 + slack { continue }
+                floor = max(floor, needed)
+            }
+            // -u·v ≥ floor means |u + v|² ≤ 2 − 2·floor, and one component
+            // of u + v is no longer than the whole.
+            let reach = (max(0, 2 - 2 * (floor - slack))).squareRoot() + slack
+            let target = -units[face][axis]
+            var lower = 0, upper = count
+            while lower < upper {                       // first normal ≥ target − reach
+                let middle = (lower + upper) / 2
+                if along[middle] < target - reach { lower = middle + 1 } else { upper = middle }
+            }
+            var position = lower
+            while position < count, along[position] <= target + reach {
+                let other = sorted[position]
+                position += 1
+                // A pair is scored from whichever of its two faces comes first.
+                guard other != face, rank[other] > rank[face] else { continue }
+                let a = min(face, other), b = max(face, other)
+                guard let score = capScore(a, b, units: units, areas: areas, profileArea: profileArea) else { continue }
+                if let current = best {
+                    if score > current.score || (score == current.score && (a, b) < (current.a, current.b)) {
+                        best = (score, a, b)
+                    }
+                } else {
+                    best = (score, a, b)
+                }
+            }
+        }
+        return best.map { ($0.a, $0.b) }
+    }
+
+    /// `capPair` by scoring every pair: quadratic, and the definition the
+    /// fast search is tested against.
+    static func capPairByEveryPair(units: [SIMD3<Double>], areas: [Double], profileArea: Double) -> (Int, Int)? {
+        var best: (Int, Int)?
+        var bestScore = -Double.infinity
+        for a in 0..<units.count {
+            for b in (a + 1)..<units.count {
+                guard let score = capScore(a, b, units: units, areas: areas, profileArea: profileArea) else { continue }
+                if score > bestScore { bestScore = score; best = (a, b) }
+            }
+        }
+        return best
     }
 
     private func derivedRoles(_ faces: [EnumeratedFace]) -> [FaceRole] {
@@ -520,7 +628,7 @@ nonisolated struct SignatureNaming: TopoNaming {
 
     // MARK: Small helpers
 
-    private static func unit(_ v: SIMD3<Double>) -> SIMD3<Double> {
+    static func unit(_ v: SIMD3<Double>) -> SIMD3<Double> {
         let l = simd_length(v)
         return l > 1e-12 ? v / l : v
     }

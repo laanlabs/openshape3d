@@ -134,6 +134,20 @@ ids that cannot run.
 {"ok":true,"count":37,"commands":[{"id":"sketch.arc","title":"Arc","category":"sketch","chord":"A"}]}
 ```
 
+With a design open, each entry also says whether it can run right now, and
+the reply counts those that can (`"available": 40`):
+
+```json
+{"id":"view.fit","title":"Zoom to Fit","category":"view","available":true}
+{"id":"model.extrude","title":"Extrude","category":"model","available":false,
+ "blocker":"profiles_hidden",
+ "why":"The one sketch with a closed profile is hidden. Show a sketch first: a hidden sketch is not offered as a profile."}
+```
+
+`available` restates the guard the palette button uses
+(`Editor/CommandAvailability.swift`); `POST /v1/command` is still what
+decides. With the gallery on screen the list is the plain catalog.
+
 ### `GET /v1/state`
 
 ```json
@@ -319,6 +333,28 @@ path; pull it with `scripts/fetch_captures.sh`, replay it with
 `openshape3dTests/Fixtures/Captures/` as a regression fixture. 409
 `nothing_to_capture` when no body carries a brep.
 
+### `GET` / `POST /v1/latency` (development builds only)
+
+How long the app takes to answer a touch or a click, measured inside it
+(`Diagnostics/`). Off until asked for. `POST {"record":true}` starts it,
+`{"record":false}` stops it, `{"reset":true}` clears it (they combine);
+`GET` reads it. A Debug build launched with `OS3D_LATENCY=1` records from
+the start.
+
+```json
+{"ok":true,"recording":true,"inputs":412,
+ "inputToIdle":{"count":188,"medianMS":13.1,"p95MS":96.4,"maxMS":212.0},
+ "inputToScreen":{"count":180,"medianMS":31.8,"p95MS":118.2,"maxMS":240.5},
+ "hitches":{"count":9,"medianMS":71.0,"p95MS":212.0,"maxMS":212.0,"totalMS":803.5,"thresholdMS":50}}
+```
+
+`inputToIdle` is from an input's event time until the main thread is about
+to wait again; several inputs in one pass are one wait, from the first.
+`inputToScreen` is until the next frame is on the display, and is empty on
+the simulator, which reports no presented time. `hitches` are main-thread
+passes of 50 ms or more, input or not. Touches, clicks and drags are seen;
+the scroll wheel, a hovering pointer and the keyboard are not.
+
 ### `POST /v1/spacemouse` (development builds only)
 
 Body `{"axes":[tx,ty,tz,rx,ry,rz],"seconds":0.5,"buttons":0}` — raw device
@@ -369,7 +405,7 @@ key presses another one; an agent told only "false" retries forever. So:
 | Status | `error` / field | Meaning |
 |---|---|---|
 | 200 | `"ran": true` | Ran |
-| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `message` names the mode and selection count |
+| 200 | `"ran": false`, `"reason":"not_applicable"` | Real id, wrong editor state. `blocker` is a code for what is missing (`no_sketch`, `no_closed_profile`, `profiles_hidden`, `needs_open_sketch`, `needs_sketch_selection`, `needs_selection`, `needs_one_body_selected`, `no_bodies`, `needs_two_bodies`, `no_section`, `nothing_to_undo`, `nothing_to_redo`, `nothing_to_paste`, `needs_pointer`, `already_sketching`) and `message` says it in a sentence. Where no rule covers the refusal there is no `blocker` and `message` names the mode and selection count |
 | 400 | `unknown_command` | No such id |
 | 400 | `unrouted_command` | In the catalog, no editor entry point in this build |
 | 400 | `missing_id` | Body was absent or carried no `id` |

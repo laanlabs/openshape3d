@@ -48,7 +48,7 @@ enum AgentLocalCall {
             if let decided = AgentRouter.response(for: tool.route) {
                 answer = decided
             } else if !tool.route.needsEditor {
-                answer = tool.route == .commands ? AgentRouter.commandsResponse()
+                answer = tool.route == .commands ? AgentBridge.shared.commandsResponse()
                                                  : AgentRouter.healthResponse(port: 0)
             } else {
                 answer = AgentBridge.shared.handle(tool.route)

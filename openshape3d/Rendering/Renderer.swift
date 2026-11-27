@@ -214,6 +214,16 @@ final class Renderer: NSObject, MTKViewDelegate {
         }
 
         if let drawable = view.currentDrawable {
+            // When this frame reaches the screen (diagnostics, off by default).
+            // The simulator's SDK has no presented time to ask for.
+            #if !targetEnvironment(simulator)
+            if InteractionLatencyRecorder.isOn {
+                drawable.addPresentedHandler { shown in
+                    let time = shown.presentedTime
+                    Task { @MainActor in InteractionLatencyRecorder.shared.framePresented(at: time) }
+                }
+            }
+            #endif
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
