@@ -111,6 +111,10 @@ there as not rebuilt.
   XXH64 checksums. Dictionaries are refused. Compared with the `zstd` tool
   on 144 files at levels 1 to 22 (byte for byte) and fed 24 000 damaged
   inputs (it throws, it never crashes); about 70 MB/s in a release build.
+  It is also compiled into the web app's engine, where `Int` is 32 bits:
+  anything that can pass 31 bits (a magic number, a checksum, a content
+  size, an offset's extra bits) is held in a sized type. The web's
+  `blend-smoke.mjs` imports the Blender 5.3 fixture there.
 - **#133, Blender materials.** A material with a Principled BSDF comes in
   with that node's base colour, metallic, roughness, alpha and emission
   (emission strength × colour, capped at the app's 0…1 glow) instead of the

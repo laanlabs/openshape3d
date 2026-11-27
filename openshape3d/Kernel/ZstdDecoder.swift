@@ -17,6 +17,11 @@
 //  Every read is bounds-checked and a malformed input throws; nothing here
 //  trusts a length it was given.
 //
+//  `Int` is 32 bits in the web app's engine (WebAssembly). Anything that can
+//  pass 31 bits — a magic number, a checksum, a content size, an offset's
+//  extra bits — is held in a sized type and only becomes an `Int` once it
+//  is known to fit.
+//
 
 import Foundation
 
@@ -40,7 +45,7 @@ nonisolated enum ZstdDecoder {
     }
 
     /// Every frame in `data`, decompressed and joined.
-    static func decompress(_ data: Data, maximumSize: Int = 1 << 31) throws -> Data {
+    static func decompress(_ data: Data, maximumSize: Int = Int(Int32.max)) throws -> Data {
         let input = [UInt8](data)
         var out: [UInt8] = []
         try input.withUnsafeBufferPointer { src in
@@ -48,7 +53,7 @@ nonisolated enum ZstdDecoder {
             var frames = 0
             while p < src.count {
                 guard p + 4 <= src.count else { throw Failure.truncated }
-                let magic = UInt32(le(src, p, 4))
+                let magic = UInt32(truncatingIfNeeded: le(src, p, 4))
                 if magic == frameMagic {
                     p += 4
                     try frame(src, &p, &out, maximumSize)
@@ -56,8 +61,8 @@ nonisolated enum ZstdDecoder {
                 } else if magic & 0xFFFF_FFF0 == skippableMagic {
                     guard p + 8 <= src.count else { throw Failure.truncated }
                     let size = le(src, p + 4, 4)
-                    guard p + 8 + size <= src.count else { throw Failure.truncated }
-                    p += 8 + size
+                    guard size <= UInt64(src.count - p - 8) else { throw Failure.truncated }
+                    p += 8 + Int(size)
                 } else {
                     throw frames == 0 ? Failure.notZstd : Failure.corrupted("unknown data after a frame")
                 }
@@ -84,9 +89,10 @@ nonisolated enum ZstdDecoder {
         var repeats = (1, 4, 8)
     }
 
-    private static func le(_ src: Bytes, _ at: Int, _ count: Int) -> Int {
-        var value = 0
-        for k in 0..<count { value |= Int(src[at + k]) << (8 * k) }
+    /// `count` bytes at `at`, least significant first.
+    private static func le(_ src: Bytes, _ at: Int, _ count: Int) -> UInt64 {
+        var value: UInt64 = 0
+        for k in 0..<count { value |= UInt64(src[at + k]) << UInt64(8 * k) }
         return value
     }
 
@@ -112,26 +118,19 @@ nonisolated enum ZstdDecoder {
         let sizeBytes = sizeFlag == 0 ? (singleSegment ? 1 : 0) : [0, 2, 4, 8][sizeFlag]
         guard p + sizeBytes <= src.count else { throw Failure.truncated }
         var contentSize: Int?
-        switch sizeBytes {
-        case 1: contentSize = le(src, p, 1)
-        case 2: contentSize = le(src, p, 2) + 256
-        case 4: contentSize = le(src, p, 4)
-        case 8:
-            guard src[p + 7] & 0x80 == 0 else { throw Failure.tooLarge }
-            contentSize = le(src, p, 8)
-        default: break
+        if sizeBytes > 0 {
+            let stated = le(src, p, sizeBytes) + (sizeBytes == 2 ? 256 : 0)
+            guard stated <= UInt64(maximum - out.count) else { throw Failure.tooLarge }
+            contentSize = Int(stated)
+            out.reserveCapacity(out.count + Int(stated))
         }
         p += sizeBytes
-        if let contentSize {
-            guard contentSize <= maximum - out.count else { throw Failure.tooLarge }
-            out.reserveCapacity(out.count + contentSize)
-        }
 
         let frameStart = out.count
         var state = FrameState()
         while true {
             guard p + 3 <= src.count else { throw Failure.truncated }
-            let header = le(src, p, 3); p += 3
+            let header = Int(le(src, p, 3)); p += 3
             let isLast = header & 1 != 0
             let size = header >> 3
             switch (header >> 1) & 3 {
@@ -160,7 +159,7 @@ nonisolated enum ZstdDecoder {
         }
         if hasChecksum {
             guard p + 4 <= src.count else { throw Failure.truncated }
-            let stored = UInt32(le(src, p, 4))
+            let stored = UInt32(truncatingIfNeeded: le(src, p, 4))
             p += 4
             let computed = out.withUnsafeBufferPointer {
                 xxHash64(UnsafeBufferPointer(rebasing: $0[frameStart...]))
@@ -235,7 +234,7 @@ nonisolated enum ZstdDecoder {
         if type < 2 {                                // raw or RLE
             let headerBytes = format == 1 ? 2 : format == 3 ? 3 : 1
             guard p + headerBytes <= end else { throw Failure.corrupted("literals header cut short") }
-            let size = headerBytes == 1 ? first >> 3 : le(src, p, headerBytes) >> 4
+            let size = headerBytes == 1 ? first >> 3 : Int(le(src, p, headerBytes) >> 4)
             p += headerBytes
             guard size <= blockMaximum else { throw Failure.corrupted("literals larger than a block") }
             if type == 0 {
@@ -252,9 +251,10 @@ nonisolated enum ZstdDecoder {
         let headerBytes = format < 2 ? 3 : format == 2 ? 4 : 5
         let sizeBits = format < 2 ? 10 : format == 2 ? 14 : 18
         guard p + headerBytes <= end else { throw Failure.corrupted("literals header cut short") }
-        let header = le(src, p, headerBytes)
-        let regenerated = (header >> 4) & ((1 << sizeBits) - 1)
-        let compressed = (header >> (4 + sizeBits)) & ((1 << sizeBits) - 1)
+        let header = le(src, p, headerBytes)                 // up to 40 bits
+        let sizeMask: UInt64 = (1 << UInt64(sizeBits)) - 1
+        let regenerated = Int((header >> 4) & sizeMask)
+        let compressed = Int((header >> UInt64(4 + sizeBits)) & sizeMask)
         let streams = format == 0 ? 1 : 4
         p += headerBytes
         guard regenerated <= blockMaximum else { throw Failure.corrupted("literals larger than a block") }
@@ -271,7 +271,7 @@ nonisolated enum ZstdDecoder {
             try table.decode(src, q, literalsEnd, count: regenerated, into: &literals)
         } else {
             guard literalsEnd - q >= 6 else { throw Failure.corrupted("literal stream sizes missing") }
-            let s1 = le(src, q, 2), s2 = le(src, q + 2, 2), s3 = le(src, q + 4, 2)
+            let s1 = Int(le(src, q, 2)), s2 = Int(le(src, q + 2, 2)), s3 = Int(le(src, q + 4, 2))
             q += 6
             let s4 = literalsEnd - q - s1 - s2 - s3
             guard s4 > 0 else { throw Failure.corrupted("literal streams overrun their section") }
@@ -337,7 +337,7 @@ nonisolated enum ZstdDecoder {
                 count = ((first - 128) << 8) + Int(src[p]); p += 1
             } else {
                 guard p + 2 <= end else { throw Failure.corrupted("sequence count cut short") }
-                count = le(src, p, 2) + 0x7F00; p += 2
+                count = Int(le(src, p, 2)) + 0x7F00; p += 2
             }
         }
         if count == 0 {
@@ -374,18 +374,23 @@ nonisolated enum ZstdDecoder {
             guard offsetCode <= 31, lengthCode <= 35, matchCode <= 52 else {
                 throw Failure.corrupted("sequence code out of range")
             }
-            let offsetValue = (1 << offsetCode) + bits.read(offsetCode)
+            // Up to 2^32: wider than an `Int` where that is 32 bits.
+            let offsetValue = (UInt64(1) << UInt64(offsetCode)) + bits.readWide(offsetCode)
             let matchLength = matchLengthBase[matchCode] + bits.read(matchLengthBits[matchCode])
             let literalLength = literalLengthBase[lengthCode] + bits.read(literalLengthBits[lengthCode])
 
             let offset: Int
             if offsetValue > 3 {
-                offset = offsetValue - 3
+                // Further back than anything written is damage, whatever the size.
+                guard offsetValue - 3 <= UInt64(out.count - frameStart) + UInt64(literalLength) else {
+                    throw Failure.corrupted("a match reaches before the start of the frame")
+                }
+                offset = Int(offsetValue - 3)
                 repeats = (offset, repeats.0, repeats.1)
             } else {
                 // A repeat of one of the last three offsets; with no
                 // literals before it the three choices shift by one.
-                let choice = offsetValue - 1 + (literalLength == 0 ? 1 : 0)
+                let choice = Int(offsetValue) - 1 + (literalLength == 0 ? 1 : 0)
                 switch choice {
                 case 0:
                     offset = repeats.0
@@ -456,17 +461,24 @@ nonisolated enum ZstdDecoder {
             remaining = (byteCount - 1) * 8 + ZstdDecoder.highBit(Int(src[end - 1]))
         }
 
+        /// At most 16 bits: a table state, or a length's extra bits.
         mutating func read(_ count: Int) -> Int {
+            remaining -= count
+            return Int(bits(at: remaining, count))
+        }
+
+        /// At most 32 bits: an offset's extra bits.
+        mutating func readWide(_ count: Int) -> UInt64 {
             remaining -= count
             return bits(at: remaining, count)
         }
 
-        func peek(_ count: Int) -> Int { bits(at: remaining - count, count) }
+        func peek(_ count: Int) -> Int { Int(bits(at: remaining - count, count)) }
 
         mutating func skip(_ count: Int) { remaining -= count }
 
         /// Bits `[bit, bit + count)` of the stream, `count` at most 32.
-        private func bits(at bit: Int, _ count: Int) -> Int {
+        private func bits(at bit: Int, _ count: Int) -> UInt64 {
             var bit = bit, count = count, missing = 0
             if bit < 0 {
                 missing = min(-bit, count)
@@ -478,7 +490,7 @@ nonisolated enum ZstdDecoder {
             var value: UInt64 = 0
             for k in 0..<min(8, byteCount - byte) { value |= UInt64(src[start + byte + k]) << UInt64(8 * k) }
             value >>= UInt64(bit & 7)
-            return Int(value & ((1 << UInt64(count)) - 1)) << missing
+            return (value & ((1 << UInt64(count)) - 1)) << UInt64(missing)
         }
     }
 
