@@ -79,6 +79,8 @@ nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
     case stl, obj, threeMF = "3mf", step
     /// glTF binary: the format that carries names and full PBR materials.
     case glb
+    /// The material library an OBJ names with `mtllib`: text, no geometry.
+    case mtl
 
     var contentType: String {
         switch self {
@@ -87,6 +89,7 @@ nonisolated enum AgentExportFormat: String, Sendable, CaseIterable {
         case .threeMF: return "model/3mf"
         case .step: return "model/step"
         case .glb: return "model/gltf-binary"
+        case .mtl: return "model/mtl"
         }
     }
 }
@@ -125,7 +128,7 @@ nonisolated enum AgentRoute: Sendable, Equatable {
     /// Export menu writes, as bytes. The route an agent finishes a
     /// "make me a printable X" request with.
     /// `zUp` stands the Y-up model on its base for a slicer (Z-up world).
-    case export(format: AgentExportFormat, bodyIDs: [String], zUp: Bool)
+    case export(format: AgentExportFormat, bodyIDs: [String], zUp: Bool, materialLibrary: String? = nil)
     /// World points → viewport points (pt, the coordinate space a touch
     /// lands in), so a driver can aim a tap at a known edge midpoint or face
     /// centre instead of measuring screenshots.
@@ -300,7 +303,16 @@ nonisolated enum AgentRouter {
                               message: "/v1/export?format= takes one of "
                                      + AgentExportFormat.allCases.map(\.rawValue).joined(separator: ", ")
                                      + " (default stl); optional body=<uuid>[,<uuid>…] from /v1/state, "
-                                     + "up=z to stand the Y-up model upright for a slicer.")
+                                     + "up=z to stand the Y-up model upright for a slicer, "
+                                     + "mtllib=<name>.mtl for an obj that names its materials.")
+            }
+            // An OBJ's materials live in a file beside it, which the OBJ
+            // names. The name ends at the first space, and is a file name.
+            let library = request.query["mtllib"].flatMap { $0.isEmpty ? nil : $0 }
+            if let library, library.contains(where: { $0.isWhitespace || $0 == "/" || $0 == "\\" }) || library.hasPrefix(".") {
+                return .reply(status: 400, error: "bad_mtllib",
+                              message: "mtllib= is the file name of the .mtl saved beside the .obj, "
+                                     + "with no spaces or folders in it: mtllib=part.mtl.")
             }
             let up = (request.query["up"] ?? "y").lowercased()
             guard up == "y" || up == "z" else {
@@ -309,7 +321,7 @@ nonisolated enum AgentRouter {
             }
             let ids = (request.query["body"] ?? "").split(separator: ",")
                 .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-            return .export(format: format, bodyIDs: ids, zUp: up == "z")
+            return .export(format: format, bodyIDs: ids, zUp: up == "z", materialLibrary: format == .obj ? library : nil)
 
         case "/v1/sketches":
             if let bad = get(request) { return bad }

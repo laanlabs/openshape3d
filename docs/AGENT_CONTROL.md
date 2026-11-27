@@ -339,7 +339,7 @@ design and writes the reply to `openshape3d/Demos/<id>.os3d` (plus a
 512 px `/v1/screenshot` for the welcome screen). 409 `no_document` when the
 gallery is on screen.
 
-### `GET /v1/export?format=stl|obj|3mf|step|glb[&body=<uuid>,…][&up=y|z]`
+### `GET /v1/export?format=stl|obj|3mf|step|glb|mtl[&body=<uuid>,…][&up=y|z][&mtllib=<name>.mtl]`
 
 The Export menu's bytes (`model/stl`, …) — how an agent finishes "make me a
 printable X". No `body` = every body, hidden ones included, as in the menu;
@@ -348,6 +348,15 @@ turn about X, (x, y, z) → (x, −z, y), so a part standing on the ground plane
 stands on a slicer's bed. Millimetres. Typed refusals: 400 `unknown_format` /
 `bad_up_axis` / `bad_uuid`, 404 `unknown_body`, 409 `nothing_to_export`, and
 409 `mesh_only_body` when STEP is asked of bodies with no B-rep.
+
+Names and materials: `glb` and `3mf` carry both in the one file, and `step`
+carries body names and colours. An `obj` cannot hold materials; they go in a
+library beside it. `format=obj&mtllib=part.mtl` writes the OBJ with a
+`mtllib part.mtl` line and a `usemtl` before each run of faces, and
+`format=mtl` (same `body=`) is that library: save it under the name the OBJ
+was given. Without `mtllib` the OBJ is geometry only, as before. 400
+`bad_mtllib` for a name with a space or a folder in it, 409 `no_materials`
+when `format=mtl` is asked of a design nobody coloured.
 
 ### `POST /v1/command`
 

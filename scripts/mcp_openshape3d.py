@@ -311,6 +311,8 @@ def export(arguments):
         bodies = [bodies]
     if bodies:
         query.append("body=" + urllib.parse.quote(",".join(bodies)))
+    if arguments.get("mtllib"):
+        query.append("mtllib=" + urllib.parse.quote(str(arguments["mtllib"])))
     status, data, headers = call_app_headers("GET", "/v1/export?" + "&".join(query), timeout=EXEC_TIMEOUT)
     content_type = headers.get("Content-Type", "")
     if status >= 400 or "json" in content_type:

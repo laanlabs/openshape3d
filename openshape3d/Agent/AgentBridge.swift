@@ -123,8 +123,8 @@ final class AgentBridge {
         case .sketches:
             return listSketches(on: viewModel)
 
-        case let .export(format, bodyIDs, zUp):
-            return export(format, bodyIDs: bodyIDs, zUp: zUp, from: viewModel)
+        case let .export(format, bodyIDs, zUp, materialLibrary):
+            return export(format, bodyIDs: bodyIDs, zUp: zUp, materialLibrary: materialLibrary, from: viewModel)
 
         case let .project(points):
             // Screen points in the viewport's coordinate space (pt, full-bleed
@@ -900,7 +900,7 @@ final class AgentBridge {
     /// included, as in the menu). `zUp` turns the app's Y-up world a quarter
     /// turn about X, (x, y, z) → (x, −z, y), so a part modelled standing on
     /// the ground plane also stands on a slicer's bed.
-    private func export(_ format: AgentExportFormat, bodyIDs: [String], zUp: Bool,
+    private func export(_ format: AgentExportFormat, bodyIDs: [String], zUp: Bool, materialLibrary: String?,
                         from viewModel: EditorViewModel) -> AgentResponse {
         var bodies = viewModel.session.document.bodies
         if !bodyIDs.isEmpty {
@@ -934,7 +934,14 @@ final class AgentBridge {
         let data: Data
         switch format {
         case .stl: data = STLExporter.binarySTL(bodies: bodies)
-        case .obj: data = Data(OBJExporter.obj(bodies: bodies).utf8)
+        case .obj: data = Data(OBJExporter.obj(bodies: bodies, materialLibrary: materialLibrary).utf8)
+        case .mtl:
+            guard let library = OBJExporter.mtl(bodies: bodies) else {
+                return .failure(409, "Conflict", error: "no_materials",
+                                message: "Nothing here has a material, so there is no .mtl to write. "
+                                       + "The .obj is complete on its own.")
+            }
+            data = Data(library.utf8)
         case .threeMF: data = ThreeMFExporter.threeMF(bodies: bodies, yUp: !zUp)
         case .glb: data = GLBExporter.glb(bodies: bodies)
         case .step:

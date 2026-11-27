@@ -234,6 +234,7 @@ nonisolated enum AgentMCP {
                          "up": arguments["up"] as? String ?? "y"]
             let bodies = (arguments["body"] as? [String]) ?? (arguments["body"] as? String).map { [$0] } ?? []
             if !bodies.isEmpty { query["body"] = bodies.joined(separator: ",") }
+            if let library = arguments["mtllib"] as? String, !library.isEmpty { query["mtllib"] = library }
             return get("/v1/export", query)
         default:
             return .failure(Problem(message: "Unknown tool: \(tool)"))

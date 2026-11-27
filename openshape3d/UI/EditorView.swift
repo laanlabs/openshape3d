@@ -81,6 +81,9 @@ struct ExportFileItem: Transferable {
 struct MeshExportOptionsSheet: View {
     /// User-facing format name ("OBJ" / "GLB") for the title.
     let formatName: String
+    /// A line under the switch, when there is something to say about what
+    /// will be written.
+    var note: String? = nil
     /// Called with the per-body choice when Export is confirmed.
     let onExport: (Bool) -> Void
 
@@ -90,8 +93,14 @@ struct MeshExportOptionsSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Toggle("Separate File per Body", isOn: $perBodyFiles)
-                    .accessibilityIdentifier("ExportPerBodyToggle")
+                Section {
+                    Toggle("Separate File per Body", isOn: $perBodyFiles)
+                        .accessibilityIdentifier("ExportPerBodyToggle")
+                } footer: {
+                    if let note {
+                        Text(note).accessibilityIdentifier("MeshExportNote")
+                    }
+                }
             }
             .navigationTitle("\(formatName) Export")
             .onDisappear { MacWindowTitle.restore() }
@@ -969,22 +978,44 @@ struct EditorView: View {
         }
     }
 
+    /// Writes `files` into a fresh temp folder under their own names and
+    /// returns exporter items for them; nil (with a user-facing error) on
+    /// failure.
+    private func namedExportItems(
+        _ files: [(fileName: String, data: Data)], viewModel: EditorViewModel
+    ) -> [ExportFileItem]? {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("os3d-export-\(UUID().uuidString)", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            return try files.map { file in
+                let url = directory.appendingPathComponent(file.fileName)
+                try file.data.write(to: url)
+                return ExportFileItem(url: url)
+            }
+        } catch {
+            viewModel.errorMessage = "Export failed — please try again."
+            return nil
+        }
+    }
+
     /// Mesh options sheet confirm (plan §B14): stages the chosen OBJ/GLB
     /// payload for the exporter that presents once the sheet dismisses.
     private func stageMeshExport(
         _ format: MeshExportFormat, perBody: Bool, viewModel: EditorViewModel
     ) {
         switch (format, perBody) {
-        case (.obj, false):
-            if let data = viewModel.exportOBJ() {
+        case (.obj, _):
+            // An OBJ cannot hold materials: they go in an MTL beside it, so
+            // a coloured design is two files (or more), saved into a folder.
+            guard let files = viewModel.exportOBJFiles(designName: project.name, perBody: perBody) else { break }
+            if files.count == 1, !perBody {
                 pendingExport = ExportDocument(
-                    data: data, contentType: ExportDocument.objType, fileExtension: "obj"
+                    data: files[0].data, contentType: ExportDocument.objType, fileExtension: "obj"
                 )
+            } else {
+                pendingExportItems = namedExportItems(files, viewModel: viewModel)
             }
-        case (.obj, true):
-            pendingExportItems = perBodyExportItems(
-                viewModel.exportOBJPerBody(), fileExtension: "obj", viewModel: viewModel
-            )
         case (.glb, false):
             if let data = viewModel.exportGLB() {
                 pendingExport = ExportDocument(
@@ -2452,7 +2483,12 @@ struct EditorView: View {
                     }
                 }
             ) { format in
-                MeshExportOptionsSheet(formatName: format.rawValue) { perBody in
+                MeshExportOptionsSheet(
+                    formatName: format.rawValue,
+                    note: format == .obj && viewModel.designHasMaterials
+                        ? "Colours and materials are saved in a .mtl file beside the .obj. Keep the two together."
+                        : nil
+                ) { perBody in
                     stageMeshExport(format, perBody: perBody, viewModel: viewModel)
                 }
             }

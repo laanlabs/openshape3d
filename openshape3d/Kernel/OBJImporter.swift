@@ -106,9 +106,10 @@ nonisolated enum OBJImporter {
                     }
                     return vertices[index]
                 }
-                // Fan-triangulate; OBJ polygons are planar and convex by convention.
-                for i in 1..<(corner.count - 1) {
-                    current.corners.append(contentsOf: [corner[0], corner[i], corner[i + 1]])
+                // A convex face is a fan; a concave one (Blender writes an
+                // L-shaped face as one polygon) is ear-clipped.
+                for (a, b, c) in PolygonTriangulation.triangles(of: corner) {
+                    current.corners.append(contentsOf: [corner[a], corner[b], corner[c]])
                 }
 
             default:
