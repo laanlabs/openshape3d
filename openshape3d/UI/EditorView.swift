@@ -2283,16 +2283,16 @@ struct EditorView: View {
                     .accessibilityIdentifier("SettingsButton")
                 }
             }
-            .sheet(isPresented: $showSettings) {
+            .dismissibleSheet(isPresented: $showSettings) {
                 SettingsView(settings: AppSettings.shared)
             }
-            .sheet(isPresented: $showWebHandoff) {
+            .dismissibleSheet(isPresented: $showWebHandoff) {
                 WebHandoffSheet(designName: project.name) {
                     viewModel.session.save()   // rows must reflect live edits
                     return ProjectArchive.archive(from: viewModel.session.project).encoded()
                 }
             }
-            .sheet(isPresented: $showBugReport) {
+            .dismissibleSheet(isPresented: $showBugReport) {
                 BugReportSheet(
                     context: .current(
                         documentName: project.name,
@@ -2365,7 +2365,7 @@ struct EditorView: View {
             ) { result in
                 handleImport(result, viewModel: viewModel)
             }
-            .sheet(item: $pendingMeshImport) { probe in
+            .dismissibleSheet(item: $pendingMeshImport) { probe in
                 MeshUnitPromptSheet(probe: probe) { unit in
                     viewModel.importParts(
                         MeshImportKit.scaled(probe.parts, by: unit.millimetresPerUnit),
@@ -2414,7 +2414,7 @@ struct EditorView: View {
                     }
                 }
             }
-            .sheet(
+            .dismissibleSheet(
                 isPresented: $showScreenshotOptions,
                 onDismiss: {
                     if let data = pendingScreenshot {
@@ -2438,7 +2438,7 @@ struct EditorView: View {
                     )
                 }
             }
-            .sheet(
+            .dismissibleSheet(
                 item: $meshExportFormat,
                 onDismiss: {
                     // Promote whichever payload the sheet staged; the
@@ -2468,7 +2468,7 @@ struct EditorView: View {
                     viewModel.errorMessage = "Export failed — please try again."
                 }
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { arPreviewURL != nil },
                 set: { if !$0 { arPreviewURL = nil } }
             )) {
@@ -2477,7 +2477,7 @@ struct EditorView: View {
                         .ignoresSafeArea()
                 }
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { viewModel.textPlacement != nil },
                 set: { if !$0 { viewModel.textPlacement = nil } }
             )) {
@@ -2487,7 +2487,7 @@ struct EditorView: View {
             }
             // Kept out on the editor's own modifier chain: a sheet hung off
             // a toolbar item is dropped whenever the toolbar redraws.
-            .sheet(item: $slicerShare) { share in
+            .dismissibleSheet(item: $slicerShare) { share in
                 ActivityShareSheet(items: [share.url])
                     .accessibilityIdentifier("SlicerShareSheet")
             }
@@ -2496,7 +2496,7 @@ struct EditorView: View {
                                                   set: { if !$0 { viewModel.closeDrawing() } })) {
                 DrawingSheetView(viewModel: viewModel)
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { viewModel.showMaterialSheet },
                 set: { viewModel.showMaterialSheet = $0 }
             )) {
@@ -2506,21 +2506,21 @@ struct EditorView: View {
                     viewModel.applyMaterial(spec)
                 }
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { viewModel.showFieldOfViewSheet },
                 set: { viewModel.showFieldOfViewSheet = $0 }
             )) {
                 FieldOfViewSheet(viewModel: viewModel)
                     .presentationDetents([.height(220)])
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { viewModel.showAccuracyReportSheet },
                 set: { viewModel.showAccuracyReportSheet = $0 }
             )) {
                 AccuracyReportSheet(viewModel: viewModel)
                     .modifier(PageSheetSizing())
             }
-            .sheet(isPresented: Binding(
+            .dismissibleSheet(isPresented: Binding(
                 get: { viewModel.showConstraintSettings },
                 set: { viewModel.showConstraintSettings = $0 }
             )) {

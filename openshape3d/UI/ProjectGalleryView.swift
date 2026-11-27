@@ -233,7 +233,7 @@ struct ProjectGalleryView: View {
                 Text(newFolderParent.flatMap { folder(withID: $0)?.name }
                     .map { "Inside “\($0)”." } ?? "At the top level.")
             }
-            .sheet(isPresented: $showWelcome) {
+            .dismissibleSheet(isPresented: $showWelcome) {
                 WelcomeView(
                     samples: SampleDesigns.available(),
                     onAddSamples: installSampleDesigns,
@@ -241,18 +241,18 @@ struct ProjectGalleryView: View {
                 )
                 .onAppear { AppSettings.shared.hasSeenWelcome = true }
             }
-            .sheet(isPresented: $showBugReport) {
+            .dismissibleSheet(isPresented: $showBugReport) {
                 BugReportSheet(
                     context: .current(documentName: nil, bodyCount: 0, featureCount: 0,
                                       lastAction: nil),
                     attachmentProvider: nil)
             }
-            .sheet(item: $versionsProject) { project in
+            .dismissibleSheet(item: $versionsProject) { project in
                 ProjectVersionsView(project: project,
                                     onRestore: { restoreVersion($0, of: project) },
                                     onCopy: { openVersionCopy($0, of: project) })
             }
-            .sheet(item: $moveRequest) { request in
+            .dismissibleSheet(item: $moveRequest) { request in
                 FolderPickerSheet(
                     tree: tree,
                     disabled: request.disabledFolders,

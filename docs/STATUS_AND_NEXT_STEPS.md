@@ -75,6 +75,24 @@ passes alone.
   on every call, which a dense STEP import could make slow — cache on the
   body's mesh revision if an agent loop ever feels it.
 
+## Mission log — 2026-11-26, in-house rebuild, second batch
+
+Continues the first batch (its own log below): the items that were listed
+there as not rebuilt.
+
+- **#117, sheets on the Mac that would not close from Done or Cancel.**
+  Reproduced in the Mac build and reduced to a ten-line screen: a system
+  fault, not ours (gotcha 64 has the three conditions). Every sheet in the
+  app now goes through `dismissibleSheet` (`UI/DismissibleSheet.swift`),
+  which on the Mac dismisses through UIKit when SwiftUI has not, and is a
+  plain `.sheet` elsewhere. Checked in the Mac build with the real Settings
+  and Report a Bug sheets: stuck before, closing after, `onDismiss` and the
+  content's `onDisappear` still run, the sheet opens again. That check
+  called the sheet's own `dismiss()` and its binding from inside the app; a
+  real click could not be scripted (gotcha 65). `SheetDismissUITests` (iPad,
+  iPhone, and the Mac once Automation Mode is on),
+  `DismissibleSheetSourceTests`.
+
 ## Mission log — 2026-11-26, the assistant panel: three providers, and the MCP route offered in it
 
 The user: "make ai side panel support MCP as well as putting in an api key
@@ -5482,6 +5500,33 @@ first differing frame is the one you want.
     reaches it with no `NSAllowsLocalNetworking`. The DEBUG-only
     `OS3D_ASSISTANT_URL` / `OS3D_ASSISTANT_KEY` environment variables are how
     the test points the app at it; Release builds ignore both.
+64. **On the Mac, a sheet with a toolbar button does not close from SwiftUI**
+    (2026-11-26, macOS 26.2, #117). Three things together: the sheet's
+    content has a `.toolbar` with a `Button` in it, the sheet is attached to
+    the page a `NavigationStack` is showing, and that stack has a
+    `navigationDestination` (for: or item:). `isPresented` turns false and
+    `dismiss()` runs, and the sheet stays; Esc closes it because that is
+    UIKit's dismissal. Take any one of the three away and it closes: a `Text`
+    in the toolbar, a sheet attached outside the stack or to a page under the
+    visible one, a stack with no destination. A `.fullScreenCover` is not
+    affected. **Use `.dismissibleSheet(…)` (`UI/DismissibleSheet.swift`)
+    instead of `.sheet(…)`**; `DismissibleSheetSourceTests` fails on a bare
+    `.sheet(`.
+65. **Driving the Mac build without a mouse** (2026-11-26). Two things stop
+    the obvious routes. UI tests on "My Mac" need Automation Mode, which
+    asks for the Mac's password (`automationmodetool` says so), so they
+    time out "enabling automation mode" unless a person has allowed it. And
+    a Debug build signed for development hangs before `main` waiting on the
+    "would like to access data from other apps" prompt, because it shares
+    the App Store build's container. For a scripted check, build a copy
+    with its own identifier and local signing
+    (`PRODUCT_BUNDLE_IDENTIFIER=com.laan.labs.openshape3d.probe
+    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=`): it gets
+    its own container and never touches real designs. Its container cannot
+    be read from a terminal, and `log show` returns nothing for it, so have
+    the app report over loopback (the agent channel, or a POST to a local
+    listener). The UI test target now builds for Mac Catalyst, for when
+    Automation Mode is on.
 
 ## 4. Next missions (prioritized)
 

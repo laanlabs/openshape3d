@@ -109,7 +109,11 @@ final class ActionTakeUITests: XCTestCase {
             return "done"
         case "pinch":                             // pinch:scale[;velocity] about the window centre — NOT reported
             let s = arg.split(separator: ";").compactMap { Double($0) }
+            #if targetEnvironment(macCatalyst)
+            _ = s                                     // no pinch gesture on the Mac
+            #else
             window.pinch(withScale: CGFloat(s.first ?? 1.3), velocity: CGFloat(s.count > 1 ? s[1] : 0.6))
+            #endif
             return "done"
         case "chain":                             // chain:x,y;x,y;… 0.7 s apart
             for (i, s) in arg.split(separator: ";").enumerated() {

@@ -112,7 +112,11 @@ final class TutorialTakeUITests: XCTestCase {
                                 withVelocity: .slow, thenHoldForDuration: 0.2)
             case "pinch":                             // pinch:0.5 (zoom out) / pinch:2 (zoom in)
                 let scale = Double(arg) ?? 0.5
+                #if targetEnvironment(macCatalyst)
+                _ = scale                             // no pinch gesture on the Mac
+                #else
                 p(0.5, 0.5).referencedElement.pinch(withScale: CGFloat(scale), velocity: scale < 1 ? -1.0 : 1.0)
+                #endif
             case "chain":                             // chain:x,y;x,y;… 0.6 s apart
                 for (i, s) in arg.split(separator: ";").enumerated() {
                     if i > 0 { usleep(600_000) }
