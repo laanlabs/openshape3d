@@ -274,7 +274,7 @@ struct AccuracyReportSheet: View {
                     }
                 }
             }
-            .sheet(item: Binding(get: { shareURL.map { SlicerShare(url: $0) } },
+            .dismissibleSheet(item: Binding(get: { shareURL.map { SlicerShare(url: $0) } },
                                  set: { shareURL = $0?.url })) { share in
                 ActivityShareSheet(items: [share.url])
             }

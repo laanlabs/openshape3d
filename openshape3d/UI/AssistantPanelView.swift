@@ -67,7 +67,7 @@ struct AssistantPanelView: View {
             Text("\(session.provider.name) stops working here until a key is added again. The key itself is not "
                  + "deleted from your \(session.provider.company) account.")
         }
-        .sheet(isPresented: $showAssistantApps) {
+        .dismissibleSheet(isPresented: $showAssistantApps) {
             NavigationStack {
                 Form {
                     AIAssistantSettingsSection(control: AIControl.shared)

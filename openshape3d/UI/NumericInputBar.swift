@@ -703,7 +703,7 @@ struct NumericInputBar: View {
                 .fixedSize()
             }
         }
-        .sheet(isPresented: $viewModel.showHelixOptions) {
+        .dismissibleSheet(isPresented: $viewModel.showHelixOptions) {
             HelixOptionsSheet { radius, pitch, turns in
                 viewModel.commitHelixSweep(radius: radius, pitch: pitch, turns: turns)
             }
