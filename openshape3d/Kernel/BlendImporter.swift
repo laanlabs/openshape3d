@@ -572,8 +572,9 @@ nonisolated enum BlendImporter {
             switch mode {
             case 0:                                    // quaternion, w first
                 guard let q = file.floats(ob, "Object", quaternion), q.count >= 4 else { return matrix_identity_double3x3 }
-                let value = simd_quatd(ix: Double(q[1]), iy: Double(q[2]), iz: Double(q[3]), r: Double(q[0]))
-                return simd_length(value) > 1e-12 ? simd_double3x3(simd_normalize(value)) : matrix_identity_double3x3
+                let value = SIMD4(Double(q[1]), Double(q[2]), Double(q[3]), Double(q[0]))      // x, y, z, w
+                let length = simd_length(value)
+                return length > 1e-12 ? simd_double3x3(simd_quatd(vector: value / length)) : matrix_identity_double3x3
             case -1:                                   // axis and angle
                 return turn(vector(axis, 0), Double(file.floats(ob, "Object", angle)?.first ?? 0))
             default:                                   // Euler, in one of six orders
